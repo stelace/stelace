@@ -1,0 +1,323 @@
+@import "../base/all";
+
+$header-height: 3rem;
+
+#header-container {
+    position: fixed; // To ensure header is always visible when opening offcanvas menu. See root.html
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
+    // @media #{$mq-from-tablet} {
+    //     .home & { // transparent header not fixed
+    //         position: relative;
+    //         left: auto;
+    //         right: auto;
+    //     }
+    // }
+
+    // .authentication & {
+    //     display: none;
+    // }
+
+    height: 0;
+    &.header-container--expand-search {
+        height: 100%;
+    }
+
+    .search__advanced-search {
+        padding: $header-height 0.5rem 0.5rem;
+        // padding-top: $header-height;
+    }
+}
+
+.header-space { // create space for fixed header
+    min-height: $header-height;
+}
+
+
+.main-header {
+    /* Beware, can't use flexbox with absolute positioning */
+    position: absolute;
+    z-index: 2; // above root content if it is positionned
+    width: 100%; // no more flexbox
+    height: $header-height;
+    background-color: #FFF;
+    border-bottom: 1px solid #CCC;
+
+    a:not(.link--blue-underline), .anchor-like {
+        transition: color 0.3s ease;
+        color: rgb(85, 90, 95);
+        &:hover, &:focus {
+            color: $platform-color-blue;
+        }
+    }
+
+    $header-small-menu-width: 3.75rem;
+    $header-small-menu-hpadding: 0.75rem;
+    .small-menu {
+        width: $header-small-menu-width; // border-box
+        padding: 0.125rem $header-small-menu-hpadding 0; // make menu sandwich easily clickable
+        &::after {
+            content: "\AMENU";
+            color: $platform-color-blue;
+            white-space: pre;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .icon.small {
+            width: $header-small-menu-width - 2 * $header-small-menu-hpadding;
+            margin-bottom: -0.375rem;
+            fill: $platform-color-blue;
+        }
+    }
+
+    .logo-company {
+        color: $platform-color-blue;
+    }
+
+    $header-mobile-progress-width: 1.5rem;
+    $header-mobile-progress-top-border: 0.25rem;
+    .mobile-progress-container {
+        width: $header-height;
+        padding: ($header-height - $header-mobile-progress-width - $header-mobile-progress-top-border) / 2;
+    }
+    .progress {
+        display: inline-block;
+        vertical-align: middle;
+        min-width: 120px;
+        margin-bottom: 0;
+        border-width: 1px 6px 1px 1px;
+        border-style: solid;
+        border-top-color: #F5F5F5;
+        border-bottom-color: #F5F5F5;
+        border-left-color: #F5F5F5;
+
+        &:not(.small-progress) {
+            .progress-bar {
+                min-width: 6px;
+            }
+        }
+        &.small-progress {
+            box-sizing: content-box;
+            height: $header-mobile-progress-width * 0.5;
+            min-width: $header-mobile-progress-width;
+            border-right-width: $header-mobile-progress-top-border;
+            border-radius: 5px;
+            transform: rotate(-90deg);
+        }
+        // Factorize common (sip-)progress styles across app
+    }
+
+    // Following does not target mobile popover (appended to body)
+    .popover {
+        color: $body-font-color;
+        &.bottom {
+            margin-top: 0;
+        }
+    }
+
+    .icon {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        vertical-align: middle;
+        fill: currentColor;
+        &.small {
+            height: 1.625rem;
+        }
+        &.offcanvas-show-icon {
+            position: absolute;
+        }
+        &.offcanvas-close-icon {
+            position: absolute;
+            visibility: hidden; // initial state
+            height: 1.25rem; // setting padding-top does not work on mobile
+            margin-top: 0.375rem;
+        }
+    }
+
+    .search__search-bar {
+        text-align: center;
+    }
+
+    &#mobile-main-header {
+        .message-badge {
+            left: 0;
+            top: 1px;
+            transform: translateX(50%);
+        }
+    }
+    &#desktop-main-header {
+        padding: 0 0.5rem;
+
+        .search__search-bar {
+            flex: 1 0;
+            .input__inner-icon-container {
+                @media #{$mq-from-desktop} {
+                    max-width: 25rem;
+                }
+                margin: auto;
+            }
+            margin: 0 1rem;
+        }
+        input::placeholder {
+            font-weight: 600;
+            @media #{$mq-until-tablet} {
+                opacity: 0;
+            }
+        }
+
+        .logo-container {
+            height: 100%;
+            a {
+                display: block;
+            }
+        }
+        .logo-company {
+            height: $header-height;
+            @media #{$mq-from-desktop} {
+                width: 11rem;
+            }
+        }
+
+        .message-badge {
+            right: 0;
+            bottom: 0.5 * $header-height;
+            transform: translateX(50%);
+        }
+    }
+    .logo-overlay {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: $platform-color-blue;
+
+        .icon {
+            width: 1.25rem;
+        }
+        .logo-company {
+            height: 2rem;
+            width: 8rem;
+            vertical-align: middle;
+        }
+    }
+
+    .input__inner-icon-container {
+       margin: 0 0.5rem;
+       input {
+           border-radius: $global-rounded;
+           border: none;
+           background: rgba($platform-color-darkblue, 0.08);
+       }
+    }
+    .search__filter-toggle {
+        color: $platform-color-brightblue;
+    }
+
+    .profile__image {
+        height: 2rem;
+        width: 2rem;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 0.5rem;
+    }
+
+    ul.public-links, ul.member-links {
+        float: right;
+        margin: 0;
+        font-size: 0.875rem;
+        list-style: none;
+        li {
+            float: right;
+            line-height: $header-height;
+            padding: 0 0.625rem;
+            a {
+                display: inline-block;
+            }
+        }
+        li:first-child a {
+            margin-right: 0;
+        }
+
+        .rent-item-button {
+            @extend %button;
+            @include button-style(
+                $background: $platform-color-purple,
+                $background-hover: scale-color($platform-color-purple, $lightness: 10%)
+            );
+        }
+
+        .sell-item-button {
+            @extend %button;
+            @include button-style(
+                $background: $platform-color-red,
+                $background-hover: scale-color($platform-color-red, $lightness: 10%)
+            );
+        }
+
+        .rent-item-button, .sell-item-button {
+            margin: auto;
+            position: relative;
+            padding-right: 2rem;
+
+            .icon {
+                position: absolute;
+                top: -2px;
+                right: 0.375rem;
+                width: 1.25rem;
+            }
+        }
+    }
+
+    ul.member-links .rent-item-button {
+        @media (max-width: 760px) {
+            display: none;
+        }
+    }
+
+    /*.home &, */.authentication & {
+        &.show-for-medium {
+            background: none;
+            border: 0;
+            color: #FFF;
+            .logo-container, .logo-company {
+                @media #{$mq-from-desktop} {
+                    width: 14rem;
+                }
+            }
+            .logo-company {
+                color: #FFF;
+            }
+        }
+
+        .public-links a, .member-links a:not(.link--blue-underline), .anchor-like {
+            color: #FFF;
+            &:hover, &:focus {
+                &:not(.add-item-button):not(.link--blue-underline) {
+                color: #DDD;
+                }
+            }
+        }
+    }
+
+    // .authentication & {
+    //     &.show-for-medium {
+    //         top: 0.5rem;
+    //     }
+    // }
+}
+
+#offcanvas-menu.is-active ~ #header-container {
+    .main-header .small-menu {
+        .icon.offcanvas-show-icon, .badge.message-badge {
+            visibility: hidden;
+        }
+        .icon.offcanvas-close-icon {
+            visibility: visible;
+        }
+    }
+}

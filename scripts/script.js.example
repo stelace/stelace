@@ -1,0 +1,37 @@
+/* global BootstrapService */
+
+const Sails = require('sails');
+
+global._       = require('lodash');
+global.Promise = require('bluebird');
+
+Sails.load({
+    models: {
+        migrate: "safe"
+    },
+    hooks: {
+        grunt: false,
+        sockets: false,
+        pubsub: false
+    }
+}, async function (err, sails) {
+    if (err) {
+        console.log("\n!!! Fail script launch: can't load sails");
+        return;
+    }
+
+    BootstrapService.init(null, { sails: sails });
+
+    try {
+        // put your code here
+    } catch (err) {
+        console.log(err);
+
+        if (err.stack) {
+            console.log(err.stack);
+        }
+    } finally {
+        sails.lowerSafe();
+    }
+
+});

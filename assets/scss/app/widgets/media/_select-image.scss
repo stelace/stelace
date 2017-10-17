@@ -1,0 +1,62 @@
+.select-image {
+
+    position: relative;
+
+    &:hover,
+    &:active,
+    &:focus,
+    .select-image-container:focus {
+        .img-container__img {
+            filter: contrast(115%);
+        }
+    }
+
+    .select-actions {
+        display: flex;
+        justify-content: space-around;
+        padding-top: 0.25rem;
+    }
+
+    .select-action {
+        padding: 0.3rem;
+
+        &.disabled {
+            display: none;
+        }
+    }
+
+    .img-container__img {
+        @include img--cover-vertical();
+    }
+
+    .progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 1rem;
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: rgba(0, 0, 0, 0.1);
+
+        .progress-bar {
+            min-width: 2rem;
+            line-height: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: rgba($platform-color-darkblue, 0.6);
+        }
+    }
+
+    .text-control {
+        color: #333;
+        fill: #333;
+        &:hover,
+        &:focus,
+        &:active {
+            cursor: pointer;
+        fill: $platform-color-blue;
+        color: $platform-color-blue;
+        }
+    }
+}

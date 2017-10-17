@@ -1,0 +1,48 @@
+.textarea-auto-adjust {
+    position: relative;
+
+    .real-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        resize: none;
+    }
+
+    .real-container,
+    .mirror-container {
+        font-family: $body-font-family;
+        min-height: 3rem;
+        font-size: 0.875rem;
+        padding: 0.5rem;
+
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .mirror-container {
+        display: block;
+        visibility: hidden;
+        // border make <pre> 2px narrower than <textarea>
+        // no border on textarea above to avoid CSS overrides
+        border: 1px solid transparent;
+
+        // Fix: iOS mobile <pre> content is shorter than textarea, so make pre narrower with some padding
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    &.max-scroll {
+        .real-container,
+        .mirror-container {
+            overflow-y: scroll;
+        }
+    }
+
+    &.has-maxlength {
+        margin-bottom: 1rem;
+    }
+
+}

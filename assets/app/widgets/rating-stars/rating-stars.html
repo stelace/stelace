@@ -1,0 +1,54 @@
+<span ng-switch="::type">
+    <span class="fluid-width fluid-height"
+        ng-if="::tooltipMsg"
+        uib-tooltip="{{::tooltipMsg}}"
+        data-tooltip-trigger="mouseenter outsideClick"
+        data-tooltip-placement="auto top"
+        data-tooltip-append-to-body="::appendToBody">
+    </span>
+    <span ng-switch-when="item">
+        <span class="fill">
+            <svg class="icon"
+                ng-repeat="star in ::stars track by $index"
+                ng-switch="::star">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"
+                    ng-switch-when="full"></use>
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#half-star"
+                    ng-switch-when="half"></use>
+            </svg>
+        </span>
+        <span class="background">
+            <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"></use>
+            </svg>
+            <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"></use>
+            </svg>
+            <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"></use>
+            </svg>
+            <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"></use>
+            </svg>
+            <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"></use>
+            </svg>
+        </span>
+        <span class="ratings-count text--light text--small" ng-if="::showCount">
+            ({{::nbRatings}})
+        </span>
+        <!-- <span class="ratings-count text--light text--small" ng-if="::(showCount && itemprop)">
+            (<span itemprop="ratingCount">{{::nbRatings}}</span>)
+        </span> -->
+        <!-- <meta itemprop="ratingValue" content="{{::avgRating}}" ng-if="::itemprop">
+        <meta itemprop="ratingCount" content="{{::nbRatings}}" ng-if="::(itemprop && ! showCount)"> -->
+    </span>
+    <span ng-switch-when="user" class="user-ratings-average">
+        <svg class="icon">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#star"></use>
+        </svg>
+        <span class="ratings-count text--light text--small">
+            &nbsp;{{::displayAvg}}/5
+        </span>
+    </span>
+</span>

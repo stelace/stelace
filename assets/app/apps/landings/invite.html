@@ -1,0 +1,180 @@
+<div class="global-landings friend-referral invite-friends">
+    <div class="header-space"></div>
+    <div class="text-center invite-friends__intro slide-intro city-paris background-cover-dark padded-sides">
+        <a class="profile__image profile__image--responsive"
+            ui-sref="user({ id: vm.currentUser.id })"
+            ng-if="vm.currentUser.media">
+            <sip-img ng-src="{{vm.currentUser.media.url + '?size=300x300'}}" alt="{{::vm.currentUser.displayName}}" rounded="true"></sip-img>
+        </a>
+        <h1 class="slide-intro__title">
+            Parrainez vos amis pour faire des économies.
+        </h1>
+        <p class="show-for-medium text--semibold">
+            Obtenez des récompenses pour chaque ami parrainé sur Sharinplace grâce à votre lien de parrainage.
+        </p>
+        <div ng-if="! vm.currentUser">
+            <button class="button brightblue"
+                ng-click="vm.login()">
+                Connectez-vous pour inviter vos amis
+            </button>
+            <p class="margin-bottom invite-register">
+                Pas encore membre&nbsp;?
+                <span
+                    class="link--underline cursor-pointer text--semibold"
+                    ng-click="vm.register()"
+                    tabindex="0"
+                    data-sip-action-key>
+                    Inscription gratuite en deux clics&nbsp;!
+                 </span>
+            </p>
+        </div>
+    </div>
+    <div class="fluid-content">
+        <h2 class="text-center no-margin-top"
+            ng-if="vm.currentUser">
+            Faites des heureux avec votre lien de parrainage
+        </h2>
+        <p class="text--small text--semibold margin-bottom text-center"
+            ng-if="vm.currentUser">
+            <label for="invite-friend-link">
+                Partagez votre lien de parrainage avec vos amis&nbsp;:
+            </label>
+        </p>
+        <div class="padding-bottom"
+            ng-if="vm.currentUser">
+            <div class="flex-container flex--center">
+                <input id="invite-friend-link" class="text-center margin-bottom small-12 medium-8 s-medium-6"
+                    type="text"
+                    ng-model="::vm.inviteUrl"
+                    readonly
+                    data-sip-autoselect="{{::vm.inviteUrl}}">
+            </div>
+            <div id="invite-friends-bar" class="invite-friends__bar flex-container flex--center margin-bottom desktop-10 desktop-offset-1">
+                <button class="button red"
+                    ng-click="vm.toggleEmailInvite()">
+                    <svg class="icon icon--inline">
+                        <use xlink:href="/assets/build/icons/sprite.svg#email-envelope"/>
+                    </svg>
+                    &nbsp;&nbsp;Email
+                </button>
+                <span class="button fb"
+                    tabindex="0"
+                    title="Parrainez vos amis via Facebook"
+                    ng-click="vm.shareEvent('facebook')"
+                    data-sip-action-key>
+                    <svg class="icon icon--inline">
+                        <use xlink:href="/assets/build/icons/sprite.svg#face"/>
+                    </svg>
+                    &nbsp;&nbsp;<span class="show-for-medium inline">Inviter vos amis&nbsp;</span>Facebook
+                </span>
+                <a class="button tw"
+                    target="_blank"
+                    ng-href="{{vm.twInviteUrl}}"
+                    ng-click="vm.shareEvent('twitter')">
+                    <svg class="icon icon--inline">
+                        <use xlink:href="/assets/build/icons/sprite.svg#cui"/>
+                    </svg>
+                </a>
+            </div>
+            <form class="s-medium-8 s-medium-offset-2 padding-top form--control"
+                uib-collapse="vm.hideEmailInvite"
+                novalidate>
+                <label for="email-invite-list" class="text--emphasize text-center">
+                    Envoyer un email d'invitation à vos amis&nbsp;:
+                </label>
+                <!-- ENTER can cause null tag due to tagging-label = false -->
+                <!-- TODO: fix this. See https://github.com/angular-ui/ui-select/issues/520 -->
+                <ui-select
+                    class="default-input-tag-list"
+                    ng-model="vm.emailInviteList"
+                    input-id="email-invite-list"
+                    tagging="vm.emailTag"
+                    tagging-label="false"
+                    tagging-tokens="ENTER|,|SPACE"
+                    search-enabled="true"
+                    focus-on="emailInputFocus"
+                    multiple>
+                    <ui-select-match class="user-generated" placeholder="Adresses email séparées par une virgule, un espace ou Entrée">
+                        {{$item.email}}
+                    </ui-select-match>
+                    <ui-select-choices
+                        refresh="vm.currentEmailTag($select.search)"
+                        repeat="tag in [] | filter: $select.search">
+                        {{tag}}
+                    </ui-select-choices>
+                </ui-select>
+                <div class="form-warning text--semibold text--small"
+                    uib-collapse="! vm.emailAddressError">
+                    Oups, la dernière adresse indiquée est invalide.
+                </div>
+                <button class="button button--highlight red center margin-top-plus"
+                    ng-disabled="! vm.emailInviteList.length && ! vm.activateSendEmailsButton"
+                    ng-click="vm.sendEmailsInvite()">
+                    Envoyer
+                </button>
+            </form>
+        </div>
+        <div ng-if="vm.friends.length">
+            <h3 class="text-center">
+                Parrainages
+            </h3>
+            <div id="invite-friends-friends"
+                class="invite-friends__friends-list grid-block small-up-1 s-medium-up-2">
+                <div ng-repeat="friend in vm.friends | orderBy: friend.linkUpdatedDate">
+                    <div class="flex-container flex--align-center">
+                        <div class="profile__image">
+                            <sip-img class="webkit-render-fix" ng-src="{{friend.media.url + '?size=128x128'}}" alt="Ami(e) parrainé(e)" rounded="true"></sip-img>
+                        </div>
+                        <div class="friend__info">
+                            <div class="text--semibold">
+                                <!-- Email can be unkown with known firstname with social auth -->
+                                {{friend.email || friend.firstname}}
+                                <div class="friend__referrer-rewards text--semibold">
+                                </div>
+                            </div>
+                            <div class="text--small text--light"
+                                ng-switch="friend.referralStatus">
+                                <span ng-switch-when="pending">
+                                    Ne s'est pas encore inscrit(e).
+                                </span>
+                                <span ng-switch-when="registered-by-other">
+                                    S'est inscrit(e) via un autre parrainage :(
+                                </span>
+                                <span ng-switch-default>
+                                    S'est bien inscrit(e)
+                                    <span ng-if="! friend.FRIEND_BEGINNER_LEVEL_AS_REFERER">
+                                        mais n'a pas encore renseigné son profil (+ 8pts en attente)
+                                    </span>
+                                    <span ng-if="friend.FRIEND_BEGINNER_LEVEL_AS_REFERER && ! friend.FRIEND_BOOKING_AS_REFERER">
+                                        avec un profil complet mais n'a pas encore effectué de réservation.
+                                    </span>
+                                    <span ng-if="friend.FRIEND_BEGINNER_LEVEL_AS_REFERER && friend.FRIEND_BOOKING_AS_REFERER && ! friend.FRIEND_RENTING_OUT_AS_REFERER">
+                                        et a déjà réservé un objet mais n'a encore jamais vendu, loué ou partagé un de ses objets.
+                                    </span>
+                                    <span ng-if="friend.FRIEND_BEGINNER_LEVEL_AS_REFERER && friend.FRIEND_BOOKING_AS_REFERER && friend.FRIEND_RENTING_OUT_AS_REFERER">
+                                        et a accompli toutes les actions possibles en tant que filleul. Bravo à vous deux&nbsp;!
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <h2 class="text-center">
+            Comment ça marche&nbsp;?
+        </h2>
+        <div class="padded-sides margin-top-plus"
+            data-sip-step-icons
+            data-steps="vm.referSteps">
+        </div>
+        <div class="text-center">
+            <a id="friend-renting-help" class="link--blue-underline text--semibold"
+                ui-sref="help">
+                En savoir plus (FAQ)
+            </a>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

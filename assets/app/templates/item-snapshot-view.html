@@ -1,0 +1,396 @@
+<section>
+<header class="item__essential">
+    <div class="fluid-content">
+        <div class="flex-container flex--wrap">
+            <div class="small-12 medium-8 item__summary flex-container">
+                <div class="owner__summary hide-for-small-only">
+                    <a class="profile__image profile__thumb"
+                        ui-sref="user({ id: vm.item.owner.id })">
+                        <sip-img ng-src="{{vm.item.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                    </a>
+                    <p class="text-center no-margin-bottom text--light"
+                        ui-sref="user({ id: vm.item.owner.id })">
+                        {{vm.item.owner.fullname}}
+                        <span
+                            ng-if="vm.item.owner.nbRatings && vm.item.owner.ratingScore"
+                            data-user-score="{{::vm.item.owner.ratingScore}}"
+                            data-user-ratings="{{::vm.item.owner.nbRatings}}"
+                            data-name="{{::vm.item.owner.fullname}}"
+                            data-sip-rating-stars>
+                        </span>
+                    </p>
+                </div>
+                <div class="flex-item--grow flex-container flex--column small-only-text-center">
+                    <h1 id="item-name"
+                        class="user-generated"
+                        itemprop="name">
+                        {{::vm.item.name}} <span ng-if="vm.item.name">{{vm.item.soldDate ? "a trouvé un nouveau propriétaire" : "n'est plus disponible"}}&nbsp;</span>
+                    </h1>
+                    <div>
+                        <span class="bigger"
+                            ng-if="vm.item.nbRatings && vm.item.ratingScore"
+                            data-user-score="{{::vm.item.owner.ratingScore}}"
+                            data-user-ratings="{{::vm.item.owner.nbRatings}}"
+                            data-item-score="{{::vm.item.ratingScore}}"
+                            data-item-ratings="{{::vm.item.nbRatings}}"
+                            data-name="{{vm.item.owner.fullname}}"
+                            data-count="{{::vm.item.nbRatings}}"
+                            data-sip-rating-stars>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div id="small-gallery" class="medium-4 item__summary-img-medium flex-container flex--center">
+                <div>
+                    <sip-img class="cursor-pointer" ng-src="{{vm.item.url + '?size=800x600&displayType=cover'}}" type="background" data-index="0" ng-click="vm.openImgSmallGallery($event)"></sip-img>
+                </div>
+                <div ng-if="vm.nbPictures > 2">
+                    <sip-img class="cursor-pointer" ng-src="{{vm.item.medias[1].url + '?size=400x300&displayType=cover'}}" type="background" data-index="1" ng-click="vm.openImgSmallGallery($event)"></sip-img>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="item__description">
+    <!-- Not using ItemPage and itemprop="mainEntity" on Product itemscope (schema v2) since we lose google SERP product price in this case... -->
+    <!-- itemscope
+    itemtype="http://schema.org/ItemPage"> -->
+    <div class="fluid-content space"
+        itemscope
+        itemtype="http://schema.org/Product"
+        itemref="item-name owner-stats similar-items">
+        <meta itemprop="image" content="{{vm.item.url}}">
+        <div class="small-12 desktop-8">
+            <h2>Informations sur l'objet</h2>
+            <div class="margin-bottom-plus text--vsmall">
+                <!-- See http://stackoverflow.com/questions/10120096/how-to-implement-schema-org-markup-for-a-breadcrumb#answer-25706256 -->
+                <span id="item-root-breadcrumb"
+                    itemscope
+                    itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <a class="link--blue-underline" href="/" title="Accueil"
+                        itemprop="url">
+                        <span itemprop="title">Vente et location entre particuliers</span>
+                    </a> ›
+                </span>
+                <span id="item-category-breadcrumb"
+                    ng-if="vm.breadcrumbCategory"
+                    itemscope
+                    itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <a class="link--blue-underline" ng-href="{{vm.breadcrumbCategoryLink}}"
+                        title="{{:: 'Location et vente dans la catégorie ' + vm.breadcrumbCategory}}"
+                        itemprop="url">
+                        <span itemprop="title">{{::vm.breadcrumbCategory}}</span>
+                    </a> ›
+                </span>
+                <span id="item-tag-breadcrumb"
+                    ng-if="vm.breadcrumbQuery"
+                    itemscope
+                    itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <a class="link--blue-underline" ng-href="{{vm.breadcrumbQueryLink}}"
+                        title="{{:: 'Recherche de ' + vm.breadcrumbQuery}}"
+                        itemprop="url">
+                        <span itemprop="title">{{::vm.breadcrumbQuery}}</span>
+                    </a> ›
+                </span>
+                <span id="item-city-breadcrumb"
+                    itemscope
+                    itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <!-- get nearest big city via a service -->
+                    <a class="link--blue-underline" ng-href="{{vm.breadcrumbCityLink}}"
+                        title="{{ 'Annonces près de ' + (vm.breadcrumbQuery || vm.breadcrumbCategory) + ' près de ' + vm.breadcrumbCity}}"
+                        itemprop="url">
+                        <span itemprop="title">{{::vm.breadcrumbCity}}</span>
+                    </a>
+                </span>
+            </div>
+            <div class="text-justify">
+                <p
+                    itemprop="description">
+                    <strong ng-if="vm.item.stateComment || vm.item.bookingPreferences">
+                        Description<br>
+                    </strong>
+                    {{vm.item.description}}
+                </p>
+                <p ng-if="vm.item.accessories.length">
+                    <strong>Accessoires</strong><br>
+                    <!-- TODO : ng-repeat -->
+                    {{vm.item.accessories}}
+                </p>
+                <p ng-if="vm.item.stateComment">
+                    <strong>État de l'objet</strong><br>
+                    {{vm.item.stateComment}}
+                </p>
+                <p ng-if="vm.item.deposit">
+                    <strong>Dépôt de garantie</strong>
+                    <br>
+                    {{vm.item.deposit}}€
+                    <!-- Tooltip auto right placement is buggy here -->
+                    &nbsp;
+                    <span class="badge tooltip-badge"
+                        data-tooltip-placement="right"
+                        data-tooltip-trigger="mouseenter outsideClick"
+                        uib-tooltip="En aucun cas prélevé en l'absence de dégradation, vol ou perte, le dépôt de garantie protège le propriétaire de l'objet.">
+                        ?
+                    </span>
+                </p>
+                <p ng-if="vm.item.instructionsMedias && vm.item.instructionsMedias.length">
+                    <strong>Informations complémentaires</strong>
+                    <br>
+                    <span ng-repeat="media in vm.item.instructionsMedias track by media.id">
+                        <a class="link--blue-underline"
+                            ng-href="{{media.url}}"
+                            target="_blank">
+                            {{media.name}}
+                        </a><br>
+                    </span>
+                </p>
+                <p ng-if="vm.item.bookingPreferences">
+                    <strong>Indications pour la réservation</strong><br>
+                    {{vm.item.bookingPreferences}}
+                </p>
+            </div>
+            <div id="pics-grid" class="item__pics-grid flex-container aspect-ratio">
+                <div class="small-8">
+                    <div class="item__image-container">
+                        <img ng-src="{{vm.item.url + '?size=800x600&displayType=cover'}}"
+                        alt="{{ vm.item.name }}"
+                        title="Cliquez pour agrandir"
+                        class="item__image"
+                        data-index="0"
+                        ng-click="vm.openImgGallery($event)">
+                    </div>
+                </div>
+                <div class="flex-container flex--column small-4" ng-if="vm.nbPictures > 1">
+                    <div class="item__image-container">
+                        <img ng-src="{{vm.item.medias[1].url + '?size=400x300&displayType=cover'}}"
+                            alt="{{ vm.item.name }} - 2"
+                            title="Cliquez pour agrandir"
+                            class="item__image"
+                            data-index="1"
+                            ng-click="vm.openImgGallery($event)">
+                    </div>
+                    <div class="item__image-container">
+                        <img ng-if="vm.nbPictures > 2"
+                            ng-src="{{vm.item.medias[2].url + '?size=400x300&displayType=cover'}}"
+                            alt="{{ vm.item.name }} - 3"
+                            title="Cliquez pour agrandir"
+                            data-index="2"
+                            ng-click="vm.openImgGallery($event)">
+                    </div>
+                </div>
+            </div>
+            <div class="item__questions" ng-if="vm.displayQuestions">
+                <h3>Questions/réponses</h3>
+                <div ng-repeat="question in vm.questions">
+                    <div class="flex-container">
+                        <a class="profile__image"
+                            ui-sref="user({ id: question[0].senderId })">
+                            <sip-img ng-src="{{question[0].senderMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                        </a>
+                        <h6 class="small-11 user-generated margin-bottom">
+                            {{question[0].sender.firstname ? question[0].sender.firstname + " : " : ""}}{{question[0].publicContent}}
+                        </h6>
+                    </div>
+                    <div class="flex-container">
+                        <a class="profile__image"
+                            ui-sref="user({ id: question[1].senderId })">
+                            <sip-img ng-src="{{question[1].senderMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                        </a>
+                        <p class="small-11 user-generated margin-bottom margin-top">
+                            {{question[1].sender.firstname ? question[1].sender.firstname + " : " : ""}}{{question[1].publicContent}}<br>
+                            <span class="text--small text--light">{{vm.displayFullDate(question[1].createdDate)}}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="owner-stats" class="item__contact">
+    <div class="fluid-content space">
+        <div class="small-12 desktop-8">
+            <h2>Informations sur le propriétaire, {{vm.item.owner.fullname}}</h2>
+            <div class="owner__profile flex-container">
+                <div>
+                    <a class="profile__image profile__thumb"
+                        ui-sref="user({ id: vm.item.owner.id })">
+                        <sip-img ng-src="{{vm.item.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                    </a>
+                </div>
+                <div class="flex-item--grow">
+                    <p class="user-generated">{{vm.item.owner.description}}</p>
+                    <div class="flex-container condensed-info text--small">
+                        <div class="medium-6 flex-container flex--column">
+                            <div>{{vm.ownerMainLocation.city}}{{vm.ownerMainLocation.region ? ', ' + vm.ownerMainLocation.region : ''}}</div>
+                            <div ng-switch="vm.item.owner.id">
+                                <span ng-switch-when="1">Compte officiel Sharinplace</span>
+                                <span ng-switch-default>Membre depuis {{vm.item.owner.seniority}}</span>
+                            </div>
+                        </div>
+                        <div class="medium-6 flex-container flex--column" ng-if="vm.ownerMessageStats.answerRateString">
+                            <div>Taux de réponse: <span class="text--semibold">{{vm.ownerMessageStats.answerRateString}}</span></div>
+                            <div>Délai de réponse: <span class="text--semibold">{{vm.ownerMessageStats.answerDelayString}}</span></div>
+                        </div>
+                    </div>
+                    <div class="user__awards"
+                        ng-if="vm.ownerHasMedal">
+                        <span class="user__medal-label text--small margin-bottom">
+                            Membre {{vm.levelMap[vm.ownerLvl || "none"]}}
+                        </span>
+                        <br>
+                        <span class="user__medal"
+                            uib-popover="{{vm.medalsLabels[vm.ownerLvl]}}"
+                            data-popover-placement="auto right"
+                            data-popover-trigger="mouseenter outsideClick">
+                            <svg class="icon medal"
+                                ng-class="vm.ownerLvl">
+                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#medal"></use>
+                            </svg>
+                        </span>
+                    </div>
+                    <div>
+                        <p class="margin-top-plus margin-bottom text--semibold">
+                            Confiance et vérification du profil
+                        </p>
+                        <div
+                            ng-if="::vm.item.owner"
+                            data-user="::vm.item.owner"
+                            data-sip-trust-info>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Item Ratings -->
+        <!-- vm.itemRatings.length should be equal to vm.item.nbRatings -->
+        <div class="small-12 desktop-8 padding-bottom item__comments"
+            ng-if="::vm.itemRatings.length">
+            <div>
+                <h2 class="no-margin-bottom">
+                    <span ng-show="::vm.itemNbReviews">
+                        Évaluation<span ng-show="::vm.itemRatings.length > 1">s</span> de
+                    </span>
+                    <span ng-show="::(! vm.itemNbReviews)">
+                        Avis sur
+                    </span>
+                    l'objet
+                </h2>
+                <span class="bigger"
+                    ng-if="::vm.item.nbRatings"
+                    data-user-score="{{::vm.item.owner.ratingScore}}"
+                    data-user-ratings="{{::vm.item.owner.nbRatings}}"
+                    data-item-score="{{::vm.item.ratingScore}}"
+                    data-item-ratings="{{::vm.item.nbRatings}}"
+                    data-name="{{vm.item.owner.fullname}}"
+                    data-count="{{::vm.item.nbRatings}}"
+                    data-sip-rating-stars></span>
+            </div>
+            <div class="text--light text--small margin-bottom-plus"
+                ng-if="::(vm.item.nbRatings && vm.itemAvgRating)"
+                itemprop="aggregateRating"
+                itemscope
+                itemtype="http://schema.org/AggregateRating">
+                <span itemprop="reviewCount">
+                    {{::vm.item.nbRatings}}
+                </span>
+                évaluation<span ng-show="::vm.item.nbRatings > 1">s</span> de cet objet
+                dont {{::vm.itemNbReviews}} avec commentaire<span ng-show="::vm.itemNbReviews > 1">s</span>
+                <br>
+                Note moyenne pour cet objet&nbsp;:
+                <span itemprop="ratingValue">{{vm.itemAvgRating}}</span>/5
+            </div>
+            <div ng-repeat="rating in ::vm.itemRatings">
+                <!-- Only show itemFirstRatings depending on itemNbReviews, using $index -->
+                <div class="margin-bottom-plus text-center"
+                    ng-if="::(vm.itemNbReviews && ($index === vm.itemNbReviews))"
+                    ng-hide="vm.itemFirstRatings && $index >= vm.itemFirstRatings">
+                    <h3 class="no-margin-bottom">
+                        Autre<span ng-show="::(vm.itemRatings.length - vm.itemNbReviews) > 1">s</span>
+                        évaluation<span ng-show="::(vm.itemRatings.length - vm.itemNbReviews) > 1">s</span> de l'objet
+                    </h3>
+                </div>
+                <div class="text-center text--small single-rating"
+                    ng-hide="vm.itemFirstRatings && $index >= vm.itemFirstRatings"
+                    data-rating="::rating"
+                    data-last="::$last"
+                    data-is-current="true"
+                    data-sip-rating>
+                </div>
+            </div>
+            <div class="margin-top-plus text-center"
+                ng-if="vm.itemFirstRatings < vm.itemRatings.length">
+                <span class="link--blue-underline text--small text--semibold cursor-pointer"
+                    ng-click="vm.itemFirstRatings = vm.itemFirstRatings + 3;">
+                    Voir d'autres avis
+                </span>
+            </div>
+        </div>
+        <!-- Other Items Ratings -->
+        <div class="small-12 desktop-8 item__comments"
+            ng-class="::{'margin-top-plus': vm.itemRatings.length}"
+            ng-if="::vm.otherItemsRatings.length">
+            <h3>
+                <span ng-show="::vm.itemRatings.length">Autres évaluations</span>
+                <span ng-hide="::vm.itemRatings.length">Évaluations</span>
+                reçues par {{::(vm.item.owner.firstname || vm.item.owner.fullname)}}
+            </h3>
+            <!-- Limit potential duplicate content across owner's items with filter -->
+            <div ng-repeat="rating in vm.otherItemsRatings | limitTo: (vm.othersFirstRatings + 10) track by rating.id">
+                <!-- Only show othersFirstRatings depending on otherItemsNbReviews, using $index -->
+                <div class="margin-bottom-plus text-center"
+                    ng-if="::(vm.otherItemsNbReviews && ($index === vm.otherItemsNbReviews))"
+                    ng-hide="vm.othersFirstRatings && $index >= vm.othersFirstRatings">
+                    <h3 class="no-margin-bottom">
+                        Autre<span ng-show="::(vm.otherItemsRatings.length - vm.otherItemsNbReviews) > 1">s</span>
+                        évaluation<span ng-show="::(vm.otherItemsRatings.length - vm.otherItemsNbReviews) > 1">s</span>
+                    </h3>
+                </div>
+                <div class="text-center text--small single-rating"
+                    ng-hide="vm.othersFirstRatings && $index >= vm.othersFirstRatings"
+                    data-rating="::rating"
+                    data-last="::($index === vm.otherItemsRatings.length - 1)"
+                    data-sip-rating>
+                </div>
+            </div>
+            <div class="margin-top-plus text-center"
+                ng-if="vm.othersFirstRatings < vm.otherItemsRatings.length">
+                <span class="link--blue-underline text--small text--semibold cursor-pointer"
+                    ng-click="vm.othersFirstRatings = vm.othersFirstRatings + 3;">
+                    En voir plus
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="similar-items" class="item__others">
+    <div class="fluid-content space">
+        <h3 ng-if="vm.similarItems.length">
+            Autres objets qui pourraient vous intéresser
+        </h3>
+        <div id="similar-items-list" class="item-wall grid-block small-up-1 desktop-up-3"
+            ng-if="vm.similarItems.length">
+        <!-- Referencing several times the same product was not recommended until recently -->
+        <!-- See http://stackoverflow.com/questions/12869478/should-schema-rich-snippet-use-for-product-listing-too -->
+        <!-- But seems ok now, see https://developers.google.com/structured-data/policies#multiple_entities_on_the_same_page -->
+            <div class="grid-block item-wall__item-wrapper"
+                data-display-duration="{{vm.similarItemsShowDuration}}"
+                data-item="item"
+                data-locname="{{vm.searchFromLocations[0].city || vm.searchFromLocations[0].name}}"
+                ng-repeat="item in vm.similarItems"
+                itemprop="isSimilarTo"
+                itemscope
+                itemtype="http://schema.org/Product"
+                data-sip-item-card>
+            </div>
+        </div>
+        <h3 ng-if="vm.item.completeTags.length">
+            Recherche d'objets à louer par mot-clé
+        </h3>
+        <a class="item-tag"
+            ng-repeat="tag in vm.item.completeTags"
+            ui-sref="searchWithQuery({query: tag.nameURLSafe})">
+            {{tag.name}}&nbsp;
+        </a>
+    </div>
+</div>
+</section>

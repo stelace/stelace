@@ -1,0 +1,332 @@
+@import "../base/all";
+
+.inbox {
+
+    textarea, select, input, label {
+        font-size: 0.875rem;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+    .space {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    h3 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        @media #{$mq-from-tablet} {
+            font-size: 1.375rem;
+        }
+    }
+
+    h3.interlocutor-name, h3.item-name {
+        margin-bottom: 0;
+        font-size: 1.125rem;
+    }
+
+    p {
+        font-size: inherit;
+    }
+
+    .inbox__conversations {
+        > a, > div {
+            color: inherit;
+            padding: 1rem;
+            border-bottom: 1px solid #EEE;
+        }
+
+        > a.new-message {
+            background-color: rgb(245, 245, 250);
+
+            .message {
+                opacity: 1;
+            }
+        }
+
+        .profile__image {
+            flex: 0 0 3rem; // flex-basis is set to ensure correct sizing
+        }
+    }
+
+    .inbox__conversation-content {
+        @media #{$mq-mobile} {
+            position: relative;
+            flex: 1 0; //flex-item--grow
+        }
+        @media #{$mq-from-tablet} {
+            width: 8rem; // whatever content length is
+            flex: 0 0 8rem;
+            &.force-ellipsis {
+                max-width: 8rem;
+            }
+        }
+        padding-left: 1rem;
+    }
+
+    .inbox__conversation-date {
+        @media #{$mq-mobile} {
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0.6;
+        }
+        @media #{$mq-from-tablet} {
+            font-weight: 600;
+        }
+    }
+
+    .inbox__conversation-info {
+        @media #{$mq-from-tablet} {
+            flex: 0 0 7rem;
+        }
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .inbox__conversation-message {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .inbox__conversation-countdown {
+        @media #{$mq-from-tablet} {
+            font-size: 1rem;
+        }
+    }
+
+    .force-ellipsis {
+        // Fix Firefox Bug where ellipsis inside flexbox does not work
+        max-width: calc(100% - 3rem); // profile-image
+        @media #{$mq-from-tablet} {
+            max-width: calc(100% - 3rem - 8rem - 7rem); // profile-image + content + info
+        }
+    }
+
+    // Conversation
+    .conversation-container {
+        padding-top: 0.5rem;
+        font-size: 0.875rem;
+
+        h2 {
+            font-weight: 600;
+            font-size: 1.25rem;
+            @media #{$mq-from-tablet} {
+                font-size: 1.625rem;
+            }
+        }
+
+        > div {
+            @media #{$mq-from-desktop} {
+                padding-top: 1rem;
+            }
+        }
+
+        @media #{$mq-from-desktop} {
+            padding-top: 1rem;
+        }
+
+        .grid-block {
+            overflow: visible;
+        }
+
+        .conversation__answer {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            background-color: #FFF;
+            border: solid 1px #EEE;
+
+            .textarea-auto-adjust {
+                margin: 1rem 0;
+            }
+            button {
+                display: block;
+                margin: 1rem 1rem 1rem auto;
+            }
+        }
+
+        $message-triangle-size: 7px;
+        .conversation__message {
+            margin: 1rem 0;
+            @media #{$mq-mobile} {
+                margin: 1rem -0.75rem;
+            }
+            .message__content {
+                position: relative;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                padding: 1rem 1rem 1.5rem;
+                background-color: #FFF;
+                border: 1px solid #EEE;
+                border-radius: 0.5 * $global-radius;
+                &::after {
+                    @include css-triangle(
+                        $triangle-size: $message-triangle-size,
+                        $triangle-color: #FFF,
+                        $triangle-direction: right
+                    );
+                    position: absolute;
+                    left: - 2 * $message-triangle-size;
+                    top: 1.75rem;
+                    transform: translateY(-50%);
+                }
+            }
+        }
+
+        .message__date {
+            position: absolute;
+            bottom: 0.125rem;
+            right: 0.375rem;
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .message__myself-thumbnail-wrapper:not(.hide-myself-mobile) ~ .message__interlocutor-thumbnail-wrapper {
+            display: none;
+        }
+
+        .hide-myself-mobile {
+            @media #{$mq-mobile} {
+                display: none;
+            }
+
+            & ~ .message__content {
+                &::after {
+                    @include css-triangle(
+                        $triangle-size: $message-triangle-size,
+                        $triangle-color: #FFF,
+                        $triangle-direction: left
+                    );
+                    position: absolute;
+                    left: auto; // reset
+                    right: - 2 * $message-triangle-size;
+                    top: 1.75rem;
+                    transform: translateY(-50%);
+                }
+            }
+        }
+
+        .profile__image {
+            margin: 0.5rem auto 0;
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        @media #{$mq-from-tablet} {
+            .profile__image {
+                margin: 0.5rem 0 0;
+            }
+            .medium-1:last-child .profile__image {
+                margin-left: auto;
+            }
+        }
+
+        .conversation__helper-wrapper {
+            margin-top: 1.5rem;
+            @media #{$mq-from-desktop} {
+                margin-top: 0;
+                margin-left: 1.5rem;
+            }
+
+            .plain-card__divider {
+                .tooltip-badge {
+                    color: rgba($platform-color-darkblue, 0.9);
+                    background-color: #FFF;
+                }
+            }
+        }
+
+        .conversation__interlocutor {
+            > img {
+                width: 5rem;
+                height: 5rem;
+            }
+            > div {
+                padding: 0 0.5rem;
+            }
+        }
+
+        .conversation__item {
+            .card-section {
+                padding: 0;
+            }
+            .item-image {
+                @include aspect-ratio(3, 2);
+                // @media #{$mq-from-desktop} {
+                //     height: 10rem;
+                // }
+            }
+        }
+
+        // Styles specific to Call-to-action and Assessment boxes
+        .conversation__cta, .conversation__assessment {
+            margin: 1rem 0 0;
+            .message__content {
+                padding: 1rem;
+            }
+        }
+        .cta__action {
+            .action-done {
+                margin-top: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+            button {
+                margin-bottom: 0.5rem;
+                margin-right: 0.5rem;
+            }
+            label {
+                margin-top: 0.5rem;
+            }
+        }
+        .conversation__assessment {
+            .plain-card__divider {
+                position: relative; // for collapse arrow positionning
+            }
+            h4 {
+                font-size: 1.125rem;
+            }
+        }
+        .conversation__cta {
+            .bank-account-form .flex-container {
+                select:not(:last-child) {
+                    margin-right: 1rem;
+                }
+
+                div.small-6:not(:last-child) {
+                    padding-right: 0.5rem;
+                }
+
+                div.small-6:last-child {
+                    padding-left: 0.5rem;
+                }
+            }
+
+            .spinner-container {
+                margin-left: 0.5rem;
+                margin-bottom: 0.3rem;
+            }
+        }
+
+        .collapse-arrow {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            color: #FFF;
+            font-size: 1.25rem;
+        }
+
+    }
+
+    .contract-link {
+        display: block;
+        margin-top: 0.5rem; // collapses with .action-done margin-bottom
+        padding-bottom: 0.5rem;
+    }
+
+
+}

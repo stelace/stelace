@@ -1,0 +1,242 @@
+module.exports = {
+
+    // STELACE
+    stelace: {
+        hello: {
+            email: "",
+            name: ""
+        },
+        smtp: {
+            host: "",
+            port: 587,
+            user: "",
+            password: ""
+        },
+        token: {
+            authSecret: "<secret>", // must replace it
+            forceRefreshInHours: 2,
+            authExpirationInDays: 14
+        },
+        secret: "<secret>", // must replace it
+        url: "", // like 'https://example.com'
+    },
+
+
+
+    // SERVER
+    port: process.env.PORT || 1337,
+    environment: process.env.NODE_ENV || 'development',
+    useProxy: false,
+    hookTimeout: 600000, // 10 minutes
+    // basicAuth: "", // ('username:password' in Base64)
+
+
+
+    // EXTERNAL ASSETS
+    tmpDir: "", // e.g. "/home/user/stelace-external/tmp"
+    uploadDir: "", // "/home/user/stelace-external/upload"
+    snapshotsDir: "", // "/home/user/stelace-external/snapshot"
+
+
+
+    // DATABASE
+    models: {
+        migrate: "safe"
+    },
+
+    connections: {
+        MySQLServer: {
+            adapter: 'sails-mysql',
+            host: 'localhost',
+            user: '',
+            password: '',
+            database: '',
+            charset: "utf8mb4",
+            collation: "utf8mb4_unicode_ci"
+        }
+    },
+
+    elasticsearch: {
+        host: '127.0.0.1',
+        protocol: 'http',
+        port: 9200,
+        user: 'elastic',
+        password: 'changeme',
+    },
+
+
+
+    // DEBUGGING
+    localEmailResult: false,
+    // copyMail: "", // debug@example.com
+    debugMail: "", // debug@example.com
+    debugSms: "" // debug@example.com
+
+
+
+    // SOCIAL AUTHENTICATION
+    passport: {
+        // replace null by the object config if there are social authenticaiton
+
+        facebook: null,
+        // facebook: {
+        //     options: {
+        //         clientID: "",
+        //         clientSecret: "",
+        //         callbackURL: "<service_url>/auth/facebook/callback"
+        //     }
+        // },
+
+        google: null,
+        // google: {
+        //     options: {
+        //         clientID: "",
+        //         clientSecret: "",
+        //         callbackURL: "<service_url>/auth/google/callback"
+        //     }
+        // }
+    },
+
+
+
+    // API
+    nexmo: {
+        apiKey: "",
+        apiSecret: ""
+    },
+
+    // mandrill: {
+    //     apiKey: "",
+    //     webhook: {
+    //         key: "",
+    //         url: "<service_url>/webhook/mandrill"
+    //     }
+    // },
+
+    sharinplace: {
+        url: "http://localhost:3000"
+    },
+
+    mangopay: {
+        sandbox: {
+            clientId: "",
+            clientName: "",
+            passphrase: ""
+        },
+
+        production: {
+            clientId: "",
+            clientName: "",
+            passphrase: ""
+        },
+
+        workspace: "sandbox" // change to production if ready
+    },
+
+    sparkpost: {
+        apiKey: '',
+
+        webhook: {
+            user: '',
+            password: '',
+        },
+    },
+
+    telize: {
+        url: '',
+    },
+
+    facebookAppId: '',
+    googleMapApiKey: "",
+
+    odoo: {
+        connection: {
+            protocol: "http:",
+            host: "localhost",
+            port: 8069,
+            database: "odoo",
+            username: "",
+            password: ""
+        },
+
+        enabled: false,
+
+        // ids: {
+        //     // "account_account"
+        //     accounts: {
+        //         customer_goodsSalesAndServiceProvision: 1,
+        //         supplier_goodsPurchaseAndServiceProvision: 1,
+        //         collectedVTA_normalRate: 1,
+        //         serviceProvision: 1,
+        //     },
+        //     // "account_payment_method"
+        //     accountPaymentMethods: {
+        //         inbound: 1,
+        //         outbound: 2
+        //     },
+        //     // "account_payment_term"
+        //     accountPaymentTerms: {
+        //         immediate: 1
+        //     },
+        //     // "account_tax"
+        //     accountTaxes: {
+        //         collectedSaleVAT20: 1,
+        //     },
+        //     // "res_company"
+        //     companies: {
+        //         stelace: 1
+        //     },
+        //     // "res_country"
+        //     countries: {
+        //         fr: 76
+        //     },
+        //     // "res_currency"
+        //     currencies: {
+        //         EUR: 1
+        //     },
+        //     // "account_journal"
+        //     journals: {
+        //         customerInvoices: 1,
+        //         mangopayBank: 1,
+        //         bank1: 1
+        //     },
+        //     // "product_product"
+        //     products: {
+        //         bookingFees: 1,
+        //         purchaseBookingFees: 1,
+        //         paymentFees: 1,
+        //         purchasePaymentFees: 1,
+        //     },
+        //     // "res_partner"
+        //     partners: {
+        //         stelace: 1
+        //     },
+        //     // "res_users"
+        //     users: {
+        //         stelaceBot: 1
+        //     }
+        // },
+
+        // labels: {
+        //     fr: {
+        //         accountTaxes: {
+        //             collectedSaleVAT20: "TVA collectée (vente) 20,0% TTC"
+        //         }
+        //     }
+        // }
+    },
+
+    clientTracking: {
+        // facebook: "dev", // Facebook pixel: "dev" for debugging, or false in non prod environment
+        google: false,
+        facebookPixelId: '',
+        googleAnalyticsId: '',
+    },
+
+    osrmUrl: "localhost",
+    osrmPort: 5000,
+    osrmMock: true,
+
+    priceRecommendationUrl: '',
+
+};

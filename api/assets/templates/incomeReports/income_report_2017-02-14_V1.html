@@ -1,0 +1,107 @@
+<!doctype html>
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Récapitulatif des revenus Sharinplace</title>
+        <meta name="description" content="Ce récapitulatif des revenus vous permettra de déclarer vos revenus auprès de l'administration fiscale.">
+        <meta name="robots" content="noindex">
+        <style type="text/css">
+            body {
+                text-align: justify;
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 13px;
+            }
+            .underline {
+                text-decoration: underline;
+            }
+            .align-right {
+                text-align: left;
+                width: 50%;
+                position: relative;
+                left: 50%;
+            }
+            .section {
+                margin-bottom: 30px;
+            }
+            .italic {
+                font-style: italic;
+            }
+            .note {
+                font-size: 12px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <img src="{{logoUrl}}" width="0" height="0" alt="Sharinplace logo" style="display: none">
+        <p>
+            Sharinplace SAS<br>
+            12 rue Dumas<br>
+            93800 Epinay-sur-Seine<br>
+            0184212649
+        </p>
+
+        <div class="section">
+            <p class="align-right">
+                <strong>Informations communiquées par vos soins</strong><br>
+                Nom&nbsp;: {{#if user.name}}{{user.name}}{{else}}Non renseigné{{/if}}<br>
+                Adresse principale&nbsp;: {{#if mainLocation}}{{mainLocation}}{{else}}Non renseignée{{/if}}<br>
+                E-mail&nbsp;: {{#if user.email}}{{user.email}}{{else}}Non renseignée{{/if}}
+
+                <br><br>
+
+                Le {{editedDate}}
+            </p>
+        </div>
+
+        <div class="section">
+            <p>
+                Objet&nbsp;: Récapitulatif de votre activité sur Sharinplace.fr en vue de votre déclaration d'impôts sur les revenus perçus en {{year}}
+            </p>
+        </div>
+
+        <div class="section">
+            <p>
+                En vertu de la législation française en vigueur depuis le 1<sup>er</sup> juillet 2016 (article 242 bis du Code Général des Impôts), Sharinplace vous communique un récapitulatif annuel de vos revenus générés sur le site au cours de l'année écoulée. Le présent récapitulatif est disponible depuis votre compte sur le site Sharinplace.fr. Un email de rappel donnant accès à ce récapitulatif vous est également envoyé en amont de votre déclaration de revenus.
+            </p>
+
+            <p>
+                <div class="underline">Locations d'objets entre particuliers</div>
+                Nombre de locations réalisées&nbsp;: {{details.renting.nbBookings}}{{#if details.renting.nbFreeBookings}} (dont {{details.renting.nbFreeBookings}} à titre gratuit){{/if}}<br>
+                Sommes perçues&nbsp;: {{details.renting.amount}}€
+            </p>
+
+            <p>
+                <div class="underline">Ventes d'objets entre particuliers*</div>
+                Nombre de ventes réalisées&nbsp;: {{details.purchase.nbBookings}}{{#if details.purchase.nbFreeBookings}} (dont {{details.purchase.nbFreeBookings}} à titre gratuit){{/if}}<br>
+                Sommes perçues&nbsp;: {{details.purchase.amount}}€
+
+                <br>
+
+                <span class="note italic">
+                    *Les revenus tirés de la vente occasionnelle de biens personnels de seconde utilisation ne sont pas imposables et ne sont pas à déclarer.
+                </span>
+            </p>
+
+
+            <p>
+                Total des sommes perçues en {{year}}&nbsp;: {{totalAmount}}€<br>
+                Nombre total de transactions réalisées en {{year}}&nbsp;: {{nbTotalBookings}}
+            </p>
+        </div>
+
+        <div class="section">
+            <p>
+                N'hésitez pas à vous référer aux sites des administrations concernées pour en savoir plus sur vos revenus à déclarer&nbsp;:<br>
+                - <a href="https://www.impots.gouv.fr/portail/node/10841">https://www.impots.gouv.fr/portail/node/10841</a> met à votre disposition des fiches pratiques pour vous aider à savoir quels revenus déclarer&nbsp;;<br>
+                - <a href="http://www.securite-sociale.fr/Vos-droits-et-demarches-dans-le-cadre-des-activites-economiques-entre-particuliers-Article-87">http://www.securite-sociale.fr/Vos-droits-et-demarches-dans-le-cadre-des-activites-economiques-entre-particuliers-Article-87</a> vous informe sur vos droits et démarches dans le cadre des activités économiques entre particuliers.
+            </p>
+        </div>
+
+        <p class="align-right">
+            L'équipe Sharinplace
+        </p>
+    </body>
+</html>

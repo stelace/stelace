@@ -1,0 +1,166 @@
+<!-- Fix: Fluid-height is needed on iPhone (iOS8 Chrome/Safari) to enable scrone inside modal -->
+<div class="fluid-height flex-container flex--wrap flex--align-stretch">
+    <a zf-close="item-question-modal" class="close-button">×</a>
+    <div class="small-12 s-medium-4 helper">
+        <div class="fluid-width">
+            <div class="profile__image profile__thumb">
+                <sip-img ng-src="{{vm.item.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
+            </div>
+            <p class="text--semibold margin-bottom text-center">Envoyez un message à {{vm.item.owner.fullname }}</p>
+            <p class="text--small text-justify margin-bottom">
+                Donnez quelques informations pour l'inciter à vous répondre.
+            </p>
+            <p class="text--small text-justify">
+                Vous pouvez par exemple vous présenter en quelques mots et dire pourquoi cet objet vous intéresse.
+            </p>
+        </div>
+    </div>
+    <div class="small-12 s-medium-8 content">
+        <form name="itemQuestionForm"
+            class="fluid-width form--control"
+            novalidate>
+            <div>
+                <div ng-show="vm.showToggleBookingMode">
+                    <p class="margin-top text--semibold margin-bottom">
+                        Souhaitez-vous louer ou acheter ?
+                    </p>
+                    <div class="text-center">
+                        <button class="button brightblue"
+                            ng-click="vm.toggleBookingMode()"
+                            ng-class="{ gray: vm.purchaseModeSelected }">
+                            Louer
+                        </button>
+                        <button class="button brightblue"
+                            ng-click="vm.toggleBookingMode()"
+                            ng-class="{ gray: ! vm.purchaseModeSelected }">
+                            Acheter
+                        </button>
+                    </div>
+                </div>
+                <div ng-hide="vm.hideQuestionDates">
+                    <p class="margin-top text--semibold">À quelles dates envisagez-vous de réserver&nbsp;?</p>
+                    <div class="flex-container flex--space">
+                        <!-- Previously: ng-if="! vm.inlineDatepicker" -->
+                        <div class="datepicker-side datepicker-left">
+                            <!-- Use ng-focus trigger along with ng-click to allow to tap readonly datepicker on some devices (iOS) -->
+                            <!-- Calendar icon as fallback for closing datepicker -->
+                            <div class="input__inner-icon-container">
+                                <input
+                                    type="text"
+                                    ng-model="vm.startDate"
+                                    ng-click="vm.openDatepicker('startModal')"
+                                    ng-focus="vm.openDatepicker('startModal')"
+                                    ng-blur="vm.closeDatepicker('startModal')"
+                                    ng-change="vm.displayPrice()"
+                                    uib-datepicker-popup="{{vm.formatDate}}"
+                                    data-datepicker-options="vm.startDateOptions"
+                                    data-datepicker-append-to-body="false"
+                                    data-is-open="vm.startDateModalOpened"
+                                    data-show-button-bar="false"
+                                    placeholder="Début"
+                                    readonly
+                                    data-sip-autoblur="vm.iOS">
+                                <div class="input__inner-icon icon-right cursor-pointer"
+                                    ng-class="{active: vm.startDateModalOpened}"
+                                    ng-click="vm.startDateModalOpened = ! vm.startDateModalOpened;">
+                                    <svg class="icon">
+                                        <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="datepicker-side datepicker-right">
+                            <div class="input__inner-icon-container">
+                                <input
+                                    type="text"
+                                    ng-model="vm.endDate"
+                                    ng-click="vm.openDatepicker('endModal')"
+                                    ng-focus="vm.openDatepicker('endModal')"
+                                    ng-blur="vm.closeDatepicker('endModal')"
+                                    ng-change="vm.displayPrice()"
+                                    uib-datepicker-popup="{{vm.formatDate}}"
+                                    data-datepicker-options="vm.endDateOptions"
+                                    data-datepicker-append-to-body="false"
+                                    data-is-open="vm.endDateModalOpened"
+                                    data-show-button-bar="false"
+                                    placeholder="Fin"
+                                    readonly
+                                    data-sip-autoblur="vm.iOS">
+                                <div class="input__inner-icon icon-right cursor-pointer"
+                                    ng-class="{active: vm.endDateModalOpened}"
+                                    ng-click="vm.endDateModalOpened = ! vm.endDateModalOpened;">
+                                    <svg class="icon">
+                                        <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="datepicker-container margin-bottom-plus"
+                         ng-show="vm.inlineDatepicker">
+                        <p class="margin-bottom padding-top padding-bottom text-center"
+                            ng-click="vm.hideModalInlineStartDatepicker = ! vm.hideModalInlineStartDatepicker">
+                            Début de votre location&nbsp;:
+                            <span class="link--blue-underline cursor-pointer">
+                                {{vm.startDate ? vm.displayFullDate(vm.startDate) : "Choisir une date"}}&nbsp;<span ng-show="vm.hideModalInlineStartDatepicker">▼</span><span ng-show="! vm.hideModalInlineStartDatepicker">▲</span>
+                            </span>
+                        </p>
+                        <uib-datepicker class="margin-bottom-plus"
+                            ng-model="vm.startDate"
+                            ng-change="vm.displayPrice()"
+                            datepicker-options="vm.dateOptions"
+                            date-disabled="vm.disableStartDate(date, mode)"
+                            uib-collapse="vm.hideModalInlineStartDatepicker">
+                        </uib-datepicker>
+                        <p class="margin-bottom padding-top padding-bottom text-center"
+                            ng-click="vm.hideModalInlineEndDatepicker = ! vm.hideModalInlineEndDatepicker">
+                            Fin de location&nbsp;:
+                            <span class="link--blue-underline cursor-pointer">
+                                {{vm.endDate ? vm.displayFullDate(vm.endDate) : "Choisir une date"}}&nbsp;<span ng-show="vm.hideModalInlineEndDatepicker">▼</span><span ng-show="! vm.hideModalInlineEndDatepicker">▲</span>
+                            </span>
+                        </p>
+                        <uib-datepicker
+                            ng-model="vm.endDate"
+                            ng-change="vm.displayPrice()"
+                            datepicker-options="vm.dateOptions"
+                            date-disabled="vm.disableEndDate(date, mode)"
+                            uib-collapse="vm.hideModalInlineEndDatepicker">
+                        </uib-datepicker>
+                    </div> -->
+                </div>
+                <p class="text-center" ng-show="vm.showIncorrectDates">Les dates sont incorrectes.</p>
+                <label for="item-question-private-content">Votre message privé&nbsp;:</label>
+                <textarea id="item-question-private-content" name="privateContent"
+                    rows="5"
+                    ng-model="vm.privateContent"
+                    ng-maxlength="2000"
+                    ng-required="! vm.publicContent"
+                    placeholder="Présentation en quelques mots, précisions sur le lieu de rencontre ou les horaires..."
+                    sip-textarea-auto-adjust>
+                </textarea>
+                <!-- Do not show form-warning when invalid-maxlength -->
+                <div class="form-warning text--semibold"
+                    uib-collapse="! itemQuestionForm.privateContent.$touched || ! itemQuestionForm.privateContent.$invalid || itemQuestionForm.privateContent.$error.maxlength">
+                    Veuillez rédiger un message privé destiné à {{vm.item.owner.fullname}} avant d'envoyer votre demande.
+                </div>
+            </div>
+            <div ng-show="vm.editPublicQuestion && ! vm.conversation">
+                <label for="item-question-public-content">Vos questions sur l'objet (message public)&nbsp;:</label>
+                <textarea id="item-question-public-content" name="publicContent"
+                rows="5"
+                ng-model="vm.publicContent"
+                ng-maxlength="2000"
+                placeholder="Vous pouvez ici poser vos questions sur l'objet lui-même: caractéristiques et fonctionnalités, conseils, présence de la notice..."
+                sip-textarea-auto-adjust>
+                </textarea>
+            </div>
+            <button class="button center"
+                type="submit"
+                ng-class="{ disabled: (vm.disableBookingButton && ! vm.itemNotBookable) || itemQuestionForm.privateContent.$invalid || itemQuestionForm.publicContent.$invalid}"
+                ng-disabled="(vm.disableBookingButton && ! vm.itemNotBookable) || itemQuestionForm.privateContent.$invalid || itemQuestionForm.publicContent.$invalid"
+                ng-click="onOk()">
+                Envoyer un message
+            </button>
+        </form>
+    </div>
+</div>

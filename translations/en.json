@@ -1,0 +1,111 @@
+{
+    "stelace": {
+        "powered_by": "We run on",
+        "name": "Stelace",
+        "smart_marketplace": "Smart marketplace launcher"
+    },
+    "service": {
+        "meta_description": "{service_name} runs on {provider_name}."
+    },
+    "listing": {
+        "overview_title": "Overview",
+        "description_label": "Description",
+        "accessories_label": "Accessories",
+        "condition_label": "Condition",
+        "security_deposit_label": "Security deposit",
+        "security_deposit_helper": "Booking secured by deposit",
+        "booking_instructions_label": "Booking instructions",
+        "related_documents_title": "Know more",
+        "see_map_action": "See map",
+        "comments": "Comments",
+        "contact_owner_action": "Contact {owner}",
+        "owner_info_title": "Offered by {owner}",
+        "response_rate_label": "Response rate:",
+        "response_time_label": "Response time:",
+        "validated_info_title": "Account validation",
+        "reviews_title": "Listing reviews",
+        "keywords_title": "Related keywords",
+        "similar_title": "Similar listings",
+        "trust_helper": {
+            "payments": "Secured payment {payment_gateway, select, stripe{with Stripe} mangopay{with Mangopay} other{}}",
+            "online_validation": "Online validation & signature",
+            "service_assistance": "{service_name} assistance"
+        },
+        "time": {
+            "from_day_label": "From",
+            "to_day_label": "To",
+            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Per day} other{# days}} } N{ {nbUnits, plural, one{Per night} other{# nights}} } H{ {nbUnits, plural, one{Per hour} other{# hours}} } M{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }"
+        },
+        "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}",
+        "edit_my_listing_action": "Edit my listing",
+        "not_available_now": "Not available for now",
+        "charge_if_owner_accepts": "You will be charged only if {owner} accepts the transaction",
+        "price_label": "Price",
+        "buy_now": {
+            "title": "Buy now",
+            "text": "Buy now from {owner} at {price}."
+        },
+        "free": "Free"
+    },
+    "user": {
+        "is_level": "{level} user",
+        "service_admin_account": "{service_name}’s account",
+        "join_month": "Joined in {month_year}",
+        "email_label": "Email address",
+        "verified_email_label": "Verified",
+        "phone_number_label": "Phone number",
+        "verified_phone_number_label": "Verified",
+        "no_verified_info_public_text": "{user} has no verified info yet."
+    },
+    "landing": {
+        "homepage": {
+            "title": "Welcome to {service_name}",
+            "title__user_label": "Title of your website",
+            "title__user_helper": "As shown in Web browser and search engine results such as Google.",
+            "header": "Welcome to {service_name}",
+            "header__user_label": "Main header of your homepage",
+            "header__user_helper": "Try to desccribe your activity precisely to improve your SEO.",
+            "subheader": "Your community",
+            "subheader__user_label": "Subheader of your website"
+        },
+        "help": {
+            "header": "Help center"
+        }
+    },
+    "navigation": {
+        "home": "Home",
+        "faq": "FAQ",
+        "new_listing": "New listing",
+        "contact_us": "Contact us",
+        "terms": "Terms",
+        "search": "Search",
+        "back_top_of_page": "Back to top"
+    },
+    "prompt": {
+        "new_listing_minute": "Create your first listing in a minute.",
+        "post_my_listing_button": "Post my listing",
+        "search": {
+            "query_placeholder": "You’re looking for…",
+            "near_location_placholder": "Near…"
+        },
+        "see_more": "See more",
+        "hide": "Hide",
+        "details": "Details",
+        "login_to_manage_map_locations": "Login to manage your locations"
+    },
+    "ratings": {
+        "see_more": "See more ratings",
+        "user_ratings_title": "{user} ratings",
+        "other_ratings_received": "Other ratings granted to {user}",
+        "average_label": "Score:",
+        "count": "{nbRatings, plural, one{# rating} other{# ratings}}",
+        "review_count": "{nbReviews, plural, one{# review} other{# reviews}}"
+    },
+    "places": {
+        "near_place": "Near {place}"
+    },
+    "social": {
+        "join_us": "Join us"
+    },
+    "greeting": "Hello"
+}

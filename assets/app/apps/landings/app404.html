@@ -1,0 +1,36 @@
+<div class="fluid-width app404">
+    <div class="header-space"></div>
+    <div class="fluid-content">
+        <div class="grid-block small-vertical medium-horizontal small-12">
+            <div class="medium-8">
+                <h1 class="semibold">
+                    Lost in Sharinplace
+                </h1>
+                <h2 class="semibold">
+                    Oups, la page que vous cherchez est introuvable.
+                </h2>
+                <h2>
+                    Pas de panique, on vous aide à poursuivre votre route&nbsp;:
+                </h2>
+                <ul class="no-bullet no-margin-bottom">
+                    <li>
+                        <a class="link--blue-underline" ui-sref="home">Accueil</a>
+                    </li>
+                    <li>
+                        <a class="link--blue-underline" ui-sref="search">Recherche d'objets à vendre ou louer</a>
+                    </li>
+                    <li ng-if="vm.randomItem">
+                        <a class="link--blue-underline" ui-sref="item({ slug: vm.randomItem.nameURLSafe + '-' + vm.randomItem.id })" title="Cette fois, vous aurez peut-être un peu plus de chance…">Annonce suprise</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="medium-4">
+                <img class="lost" src="assets/img/common/LostSharinplace.gif" alt="Lost in Sharinplace - Erreur 404">
+            </div>
+        </div>
+        <h3 class="error">
+            Erreur 404
+        </h3>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

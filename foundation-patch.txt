@@ -1,0 +1,16 @@
+330,332c330,332
+<     if (typeof(FastClick) !== 'undefined') {
+<       FastClick.attach(document.body);
+<     }
+---
+>     // if (typeof(FastClick) !== 'undefined') {
+>     //   FastClick.attach(document.body);
+>     // }
+335,337c335,337
+<     if (typeof(viewportUnitsBuggyfill) !== 'undefined') {
+<       viewportUnitsBuggyfill.init();
+<     }
+---
+>     // if (typeof(viewportUnitsBuggyfill) !== 'undefined') {
+>     //   viewportUnitsBuggyfill.init();
+>     // }

@@ -1,0 +1,66 @@
+// Core variables and mixins
+@import "bootstrap/variables"; // change: brand-info, brand-primary, progress-border-radius
+@import "bootstrap/mixins";
+
+// Reset and dependencies
+// @import "bootstrap/normalize";
+// @import "bootstrap/print";
+// @import "bootstrap/glyphicons";
+
+// Core CSS
+// @import "bootstrap/scaffolding";
+// @import "bootstrap/type";
+// @import "bootstrap/code";
+// @import "bootstrap/grid";
+// @import "bootstrap/tables";
+@import "bootstrap/forms"; // changes lines 35-36 (labels) + line 33 (comment inline-block) + liines 132-133 (form-control-focus)
+@import "bootstrap/buttons";
+
+// Components
+@import "bootstrap/component-animations";  // changes lines 36-37 (collapse animation duration)
+@import "bootstrap/dropdowns";
+// @import "bootstrap/button-groups";
+// @import "bootstrap/input-groups";
+// @import "bootstrap/navs";
+// @import "bootstrap/navbar";
+// @import "bootstrap/breadcrumbs";
+@import "bootstrap/pagination";
+// @import "bootstrap/pager";
+// @import "bootstrap/labels";
+// @import "bootstrap/badges";
+// @import "bootstrap/jumbotron";
+// @import "bootstrap/thumbnails";
+// @import "bootstrap/alerts";
+@import "bootstrap/progress-bars";
+// @import "bootstrap/media";
+// @import "bootstrap/list-group";
+// @import "bootstrap/panels";
+// @import "bootstrap/responsive-embed";
+// @import "bootstrap/wells";
+// @import "bootstrap/close";
+
+// Components w/ JavaScript
+// @import "bootstrap/modals";
+@import "bootstrap/tooltip";
+@import "bootstrap/popovers";
+@import "bootstrap/carousel";
+
+// Utility classes
+// @import "bootstrap/utilities";
+// @import "bootstrap/responsive-utilities";
+
+
+.glyphicon {
+    display: inline-block;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    position: relative;
+    top: 1px;
+}
+.glyphicon-chevron-left:before {
+    content: "⬅";
+}
+.glyphicon-chevron-right:before {
+    content: "➡";
+}

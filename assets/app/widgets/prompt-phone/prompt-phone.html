@@ -1,0 +1,53 @@
+<div ng-form="phoneForm"
+    class="prompt-phone"
+    uib-collapse="vm.newValidPhone">
+    <label for="booker-phone">Numéro de téléphone</label>
+    <div class="flex-container small-vertical">
+        <div class="medium-6 s-medium-5 desktop-6">
+            <input id="booker-phone" class="phone-input" name="bookerPhone" type="tel"
+                ng-disabled="vm.promptCode"
+                ng-model="vm.phone"
+                ng-minlength="10"
+                ng-maxlength="10"
+                placeholder="0612..."
+                required>
+        </div>
+        <div class="medium-6">
+            <button class="button"
+                ng-disabled="phoneForm.bookerPhone.$invalid || vm.promptCode || vm.currentRequest"
+                ng-class="{disabled: phoneForm.bookerPhone.$invalid || vm.promptCode || vm.currentRequest}"
+                ng-click="vm.sendCode()">
+                Vérifier mon numéro
+            </button>
+            <span class="spinner-container">
+                <span data-us-spinner="{scale: 0.5}" data-spinner-key="phone-submit-spinner"></span>
+            </span>
+        </div>
+    </div>
+    <div uib-collapse="! vm.promptCode">
+        <label for="booker-phone-code">Code de validation</label>
+        <div class="flex-container small-vertical">
+            <div class="medium-6 s-medium-5 desktop-6">
+                <div>
+                    <input id="booker-phone-code"
+                        class="phone-input"
+                        name="bookerPhoneCode"
+                        type="tel"
+                        ng-model="vm.signCode"
+                        placeholder="XXXX"
+                        ng-pattern="/^[0-9]{4}$/">
+                </div>
+            </div>
+            <div class="medium-6">
+                <button class="button" ng-click="vm.checkCode()"
+                    ng-disabled="phoneForm.bookerPhoneCode.$invalid || vm.currentRequest"
+                    ng-class="{disabled: phoneForm.bookerPhoneCode.$invalid || vm.currentRequest}">
+                    Valider le code
+                </button>
+                <span class="spinner-container">
+                    <span data-us-spinner="{scale: 0.5}" data-spinner-key="code-submit-spinner"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

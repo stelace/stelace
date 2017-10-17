@@ -1,0 +1,167 @@
+<div class="item-wall__item-container item-wall__my-listing-card"
+    ui-sref="editItem({ id: vm.item.id })">
+<div class="item-wall__item flex-container item-wall__item--highlight">
+        <div class="item-wall__image-container">
+        <div class="ar-content">
+            <div class="my-listing-card__pause-overlay"
+                title="Annonce en pause jusqu'au {{ vm.pausedUntil }}: cliquez ici pour réactiver."
+                ng-if="vm.itemPaused && ! vm.item.soldDate"
+                ng-click="vm.togglePauseItem($event)">
+                <svg class="icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#play"/>
+                </svg>
+                En pause
+                <span ng-show="vm.daysPaused">
+                    (J-{{ vm.daysPaused }})
+                </span>
+            </div>
+            <div class="my-listing-card__pause-overlay"
+                title="Objet vendu, bravo!"
+                ng-if="vm.item.soldDate">
+                <svg class="icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
+                </svg>
+                Vendu
+            </div>
+            <div class="my-listing-card__pause-overlay"
+                title="Annonce désactivée par Sharinplace"
+                ng-if="! vm.itemPaused && ! vm.item.soldDate && vm.itemLocked">
+                <svg class="icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                </svg>
+                Désactivé
+            </div>
+            <img class="img--cover-vertical item-wall__image" ng-src="{{::vm.item.url + '?size=450x300'}}"  alt="{{::vm.imageAlt}}">
+        </div>
+    </div>
+    <div class="item-wall__description flex-item--grow-auto"
+        ng-class="{ 'my-listing-card--paused': vm.itemPaused || vm.item.soldDate }">
+        <h3 class="no-margin item-name ellipsis"
+            itemprop="name">
+            {{::vm.item.name}}
+        </h3>
+        <div class="item-wall__price my-listing-card__price">
+            <span class="item-wall__selling-icon-container"
+                ng-show="vm.item.sellable && ! vm.item.rentable"
+                data-tooltip-placement="auto left"
+                data-tooltip-trigger="mouseenter"
+                uib-tooltip="{{::vm.sellableTooltip}}"
+                data-tooltip-append-to-body="true">
+                <svg class="icon">
+                    <use xlink:href="{{::vm.sellableIconUrl}}"/>
+                </svg>
+            </span>
+            <span ng-switch="vm.item.rentable">
+                <span ng-switch-when="true">
+                    <span class="item-wall__booking-modes"
+                        ng-if="vm.bookingModesStr">
+                        <span class="text--semibold item-wall__selling-price"
+                            ng-show="vm.item.sellable">
+                            <span class="item-wall__selling-icon-container"
+                                ng-show="vm.item.sellable"
+                                data-tooltip-placement="auto left"
+                                data-tooltip-trigger="mouseenter"
+                                uib-tooltip="{{::vm.sellableTooltip}}"
+                                data-tooltip-append-to-body="true">
+                                <svg class="icon">
+                                    <use xlink:href="{{::vm.sellableIconUrl}}"/>
+                                </svg>
+                            </span>
+                            {{ ::vm.bookingModesStr }}
+                        </span>
+                        <span class="text--fade">
+                            ou
+                        </span>
+                    </span>
+                    <span itemprop="price">{{::vm.item.dayOnePrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>&nbsp;/&nbsp;j
+                </span>
+                <span ng-switch-default>
+                    <span ng-hide="vm.item.sellingPrice === 0">
+                        <span itemprop="price">{{::vm.item.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
+                    </span>
+                    <span ng-show="vm.item.sellingPrice === 0">
+                        {{ ::vm.bookingModesStr }}
+                    </span>
+                </span>
+            </span>
+        </div>
+        <div class="my-listing-card__stats-container">
+            <div class="item-wall__rating small"
+                ng-if="::vm.item.nbRatings"
+                data-user-score="{{::vm.item.ownerRating.ratingScore}}"
+                data-user-ratings="{{::vm.item.ownerRating.nbRatings}}"
+                data-item-score="{{::vm.item.ratingScore}}"
+                data-item-ratings="{{::vm.item.nbRatings}}"
+                data-is-my-item="true"
+                data-append-to-body="true"
+                data-sip-rating-stars>
+            </div>
+            <div class="ellipsis my-listing-card__stats"
+                ng-class="{ 'content--invisible': ! vm.showStats }">
+                <span ng-click="$event.stopPropagation()"
+                    ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })"
+                    data-tooltip-placement="auto top"
+                    data-tooltip-trigger="mouseenter"
+                    uib-tooltip="{{'Cette annonce a été consultée ' + vm.nbViews + ' fois.'}}"
+                    data-tooltip-append-to-body="true">
+                    <svg class="icon icon--inline">
+                        <use xlink:href="/assets/build/icons/sprite.svg#eye-open"/>
+                    </svg>
+                    {{::vm.item.nbViews}}
+                </span>
+                <span
+                    data-tooltip-placement="auto top"
+                    data-tooltip-trigger="mouseenter"
+                    uib-tooltip="{{'Vous avez été contacté(e) ' + vm.nbContacts + ' fois pour cette annonce.'}}"
+                    data-tooltip-append-to-body="true">
+                    <svg class="icon icon--inline">
+                        <use xlink:href="/assets/build/icons/sprite.svg#chat-bubble-two"/>
+                    </svg>
+                    {{vm.nbContacts}}
+                </span>
+            </div>
+        </div>
+        <p class="ellipsis my-listing-card__control"
+            ng-class="{ 'control-pending': vm.controlPending }">
+            <!-- relative positionning makes IE11 buggy -->
+            <span>
+                <span class="text-control"
+                    title="Supprimez définitivement votre annonce."
+                    tabindex="0"
+                    data-sip-action-key
+                    data-sip-autoblur
+                    ng-click="vm.deleteItem($event)">
+                    <svg class="icon icon--inline">
+                        <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
+                    </svg>
+                </span>
+                <span class="text-control__label">
+                    Supprimer
+                </span>
+            </span>
+            <span ng-hide="vm.item.soldDate">
+                <span class="text-control"
+                    title="Suspendez votre annonce en cas d'indisponibilité."
+                    tabindex="0"
+                    data-sip-action-key
+                    data-sip-autoblur
+                    ng-click="vm.togglePauseItem($event)">
+                    <svg class="icon icon--inline">
+                        <use xlink:href="{{ vm.pauseIcon }}"/>
+                    </svg>
+                </span>
+                <span class="text-control__label">
+                    {{ vm.pauseStr }}
+                </span>
+            </span>
+            <span class="text-control__label text-control__spinner"
+                ng-if="vm.controlSpinnerId">
+                <span class="spinner-container">
+                    <span data-us-spinner="{scale: 0.5}" data-spinner-theme="fiveColors"
+                    data-spinner-key="{{vm.controlSpinnerId}}"></span>
+                </span>
+            </span>
+        </p>
+    </div>
+</div>
+</div>

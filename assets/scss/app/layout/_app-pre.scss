@@ -1,0 +1,35 @@
+.no-js .no-script {
+    margin: 1rem;
+}
+#loading-content {
+    #loading-spinner {
+        opacity: 0;
+        animation: fullFadeIn 0.5s ease-out 1.5s forwards;
+    }
+    #loading-logo {
+        opacity: 0;
+        animation: fullFadeIn 0.5s ease-out 2.5s forwards;
+        // wait longer for svg sprite to load
+    }
+}
+#loading-logo {
+    position: absolute;
+    top: calc(50% - 60px);
+    left: 50%;
+    width: 240px; // fix translateX in Firefox
+    max-width: 100%;
+    transform: translate(-50%, -50%);
+    color: $platform-color-blue;
+    svg {
+        max-width: 100%;
+        max-height: 60px;
+    }
+}
+#loading-spinner img {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}

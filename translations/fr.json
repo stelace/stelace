@@ -1,0 +1,111 @@
+{
+    "stelace": {
+        "powered_by": "Technologie conçue par",
+        "name": "Stelace",
+        "smart_marketplace": "Lanceur de marketplaces intelligentes"
+    },
+    "service": {
+        "meta_description": "{service_name} est une communauté propulsé par {provider_name}"
+    },
+    "listing": {
+        "overview_title": "Aperçu",
+        "description_label": "Description",
+        "accessories_label": "Accessoires",
+        "condition_label": "État",
+        "security_deposit_label": "Dépôt de garantie",
+        "security_deposit_helper": "Un dépôt de garantie permet de sécuriser les échanges liés à cette annonce.",
+        "booking_instructions_label": "Indications sur les réservations",
+        "related_documents_title": "En savoir plus",
+        "see_map_action": "Voir la carte",
+        "comments": "Commentaires",
+        "contact_owner_action": "Contacter {owner}",
+        "owner_info_title": "Informations sur {owner}",
+        "response_rate_label": "Taux de réponse :",
+        "response_time_label": "Temps de réponse :",
+        "validated_info_title": "Confiance et vérification du profil",
+        "reviews_title": "Évaluations de l’annonce",
+        "keywords_title": "Mots-clés",
+        "similar_title": "Annonces similaires",
+        "trust_helper": {
+            "payments": "Paiement sécurisé {payment_gateway, select, stripe{par Stripe} mangopay{par Mangopay} other{}}",
+            "online_validation": "Validation et signature en ligne",
+            "service_assistance": "Assistance {service_name}"
+        },
+        "time": {
+            "from_day_label": "Du",
+            "to_day_label": "Au",
+            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Par jour} other{# jours}} } N{ {nbUnits, plural, one{Par nuit} other{# nuits}} } H{ {nbUnits, plural, one{Par heure} other{# heures}} } M{ {nbUnits, plural, one{Par minute} other{# minutes}} } other{} }"
+        },
+        "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Réserver} NONE{Commander} other{Commander}}",
+        "edit_my_listing_action": "Modifier mon annonce",
+        "not_available_now": "Indisponible pour le moment",
+        "charge_if_owner_accepts": "Vous ne serez débité qu'en cas de confirmation de {owner}",
+        "price_label": "Prix",
+        "buy_now": {
+            "title": "Achat immédiat",
+            "text": "Saisissez cette offre de {owner} dès maintenant pour {price}."
+        },
+        "free": "Gratuit"
+    },
+    "user": {
+        "is_level": "Membre {level}",
+        "service_admin_account": "Compte officiel {service_name}",
+        "join_month": "Membre depuis {month_year}",
+        "email_label": "Adresse email",
+        "verified_email_label": "Verifiée",
+        "phone_number_label": "Numéro de téléphone",
+        "verified_phone_number_label": "Verifié",
+        "no_verified_info_public_text": "{user} n’a pas encore validé ses coordonnées."
+    },
+    "landing": {
+        "homepage": {
+            "title": "Bienvenue sur {service_name}",
+            "title__user_label": "Titre de votre site",
+            "title__user_helper": "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.",
+            "header": "Bienvenue sur {service_name}",
+            "header__user_label": "En-tête principal de votre page d’accueil",
+            "header__user_helper": "Essayez de décrire votre activité précisément pour améliorer votre référencement.",
+            "subheader": "Votre communauté",
+            "subheader__user_label": "En-tête secondaire"
+        },
+        "help": {
+            "header": "Centre d’aide"
+        }
+    },
+    "navigation": {
+        "home": "Accueil",
+        "faq": "Comment ça marche ?",
+        "new_listing": "Publiez votre annonce",
+        "contact_us": "Contactez-nous",
+        "terms": "Conditions Générales",
+        "search": "Rechercher",
+        "back_top_of_page": "Retour en haut de page"
+    },
+    "prompt": {
+        "new_listing_minute": "Enregistrez votre première annonce en quelques instants.",
+        "post_my_listing_button": "Je crée mon annonce",
+        "search": {
+            "query_placeholder": "Que recherchez-vous ?",
+            "near_location_placholder": "À proximité de…"
+        },
+        "see_more": "En voir plus",
+        "hide": "Masquer",
+        "details": "Détail",
+        "login_to_manage_map_locations": "Connectez-vous pour gérér vos lieux favoris"
+    },
+    "ratings": {
+        "see_more": "Voir plus d’évaluations",
+        "user_ratings_title": "Évaluations reçues par {user}",
+        "other_ratings_received": "Autres évaluations reçues par {user}",
+        "average_label": "Note :",
+        "count": "{nbRatings, plural, one{# évaluation} other{# évaluations}}",
+        "review_count": "{nbReviews, plural, one{# commentaire} other{# commentaires}}"
+    },
+    "places": {
+        "near_place": "{place} & environs"
+    },
+    "social": {
+        "join_us": "Rejoignez-nous"
+    },
+    "greeting": "Bonjour"
+}

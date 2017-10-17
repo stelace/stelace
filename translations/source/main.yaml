@@ -1,0 +1,268 @@
+stelace:
+    powered_by:
+        en: "We run on"
+        fr: "Technologie conçue par"
+        context: "Platform provider’s branding"
+    name:
+        en: "Stelace"
+        fr: "Stelace"
+        context: "Unlocalized provider’s name should be “Stelace”."
+    smart_marketplace:
+        en: "Smart marketplace launcher"
+        fr: "Lanceur de marketplaces intelligentes"
+service:
+    meta_description:
+        en: "{service_name} runs on {provider_name}."
+        fr: "{service_name} est une communauté propulsé par {provider_name}"
+listing:
+    overview_title:
+        en: "Overview"
+        fr: "Aperçu"
+    description_label:
+        en: "Description"
+        fr: "Description"
+    accessories_label:
+        en: "Accessories"
+        fr: "Accessoires"
+    condition_label:
+        en: "Condition"
+        fr: "État"
+    security_deposit_label:
+        en: "Security deposit"
+        fr: "Dépôt de garantie"
+    security_deposit_helper:
+        en: "Booking secured by deposit"
+        fr: "Un dépôt de garantie permet de sécuriser les échanges liés à cette annonce."
+    booking_instructions_label:
+        en: "Booking instructions"
+        fr: "Indications sur les réservations"
+    related_documents_title:
+        en: "Know more"
+        fr: "En savoir plus"
+    see_map_action:
+        en: "See map"
+        fr: "Voir la carte"
+    comments:
+        en: "Comments"
+        fr: "Commentaires"
+        context: "Comments or questions & answers about current listing."
+    contact_owner_action:
+        en: "Contact {owner}"
+        fr: "Contacter {owner}"
+    owner_info_title:
+        en: "Offered by {owner}"
+        fr: "Informations sur {owner}"
+    response_rate_label:
+        en: "Response rate:"
+        fr: "Taux de réponse :"
+    response_time_label:
+        en: "Response time:"
+        fr: "Temps de réponse :"
+    validated_info_title:
+        en: "Account validation"
+        fr: "Confiance et vérification du profil"
+    reviews_title:
+        en: "Listing reviews"
+        fr: "Évaluations de l’annonce"
+    keywords_title:
+        en: "Related keywords"
+        fr: "Mots-clés"
+    similar_title:
+        en: "Similar listings"
+        fr: "Annonces similaires"
+    trust_helper:
+        payments:
+            en: "Secured payment {payment_gateway, select, stripe{with Stripe} mangopay{with Mangopay} other{}}"
+            fr: "Paiement sécurisé {payment_gateway, select, stripe{par Stripe} mangopay{par Mangopay} other{}}"
+        online_validation:
+            en: "Online validation & signature"
+            fr: "Validation et signature en ligne"
+        service_assistance:
+            en: "{service_name} assistance"
+            fr: "Assistance {service_name}"
+    time:
+        from_day_label:
+            en: "From"
+            fr: "Du"
+        to_day_label:
+            en: "To"
+            fr: "Au"
+        unit_label:
+            en: "{timeUnit, select,
+            D{ {nbUnits, plural, one{Per day} other{# days}} }
+            N{ {nbUnits, plural, one{Per night} other{# nights}} }
+            H{ {nbUnits, plural, one{Per hour} other{# hours}} }
+            M{ {nbUnits, plural, one{Per minute} other{# minutes}} }
+            other{}
+            }"
+            fr: "{timeUnit, select,
+            D{ {nbUnits, plural, one{Par jour} other{# jours}} }
+            N{ {nbUnits, plural, one{Par nuit} other{# nuits}} }
+            H{ {nbUnits, plural, one{Par heure} other{# heures}} }
+            M{ {nbUnits, plural, one{Par minute} other{# minutes}} }
+            other{}
+            }"
+    checkout_action:
+        en: "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}"
+        fr: "{timeDimension, select, TIME_FLEXIBLE{Réserver} NONE{Commander} other{Commander}}"
+    edit_my_listing_action:
+        en: "Edit my listing"
+        fr: "Modifier mon annonce"
+    not_available_now:
+        en: "Not available for now"
+        fr: "Indisponible pour le moment"
+    charge_if_owner_accepts:
+        en: "You will be charged only if {owner} accepts the transaction"
+        fr: "Vous ne serez débité qu'en cas de confirmation de {owner}"
+    price_label:
+        en: "Price"
+        fr: "Prix"
+    buy_now:
+        title:
+            en: "Buy now"
+            fr: "Achat immédiat"
+        text:
+            en: "Buy now from {owner} at {price}."
+            fr: "Saisissez cette offre de {owner} dès maintenant pour {price}."
+    free:
+        en: "Free"
+        fr: "Gratuit"
+user:
+    is_level:
+        en: "{level} user"
+        fr: "Membre {level}"
+    service_admin_account:
+        en: "{service_name}’s account"
+        fr: "Compte officiel {service_name}"
+    join_month:
+        en: "Joined in {month_year}"
+        fr: "Membre depuis {month_year}"
+    email_label:
+        en: "Email address"
+        fr: "Adresse email"
+    verified_email_label:
+        en: "Verified"
+        fr: "Verifiée"
+    phone_number_label:
+        en: "Phone number"
+        fr: "Numéro de téléphone"
+    verified_phone_number_label:
+        en: "Verified"
+        fr: "Verifié"
+    no_verified_info_public_text:
+        en: "{user} has no verified info yet."
+        fr: "{user} n’a pas encore validé ses coordonnées."
+landing:
+    homepage:
+        title:
+            en: "Welcome to {service_name}"
+            fr: "Bienvenue sur {service_name}"
+            context: "Default website title"
+        title__user_label:
+            en: "Title of your website"
+            fr: "Titre de votre site"
+        title__user_helper:
+            en: "As shown in Web browser and search engine results such as Google."
+            fr: "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google."
+        header:
+            en: "Welcome to {service_name}"
+            fr: "Bienvenue sur {service_name}"
+            context: "Default homepage header (H1)"
+        header__user_label:
+            en: "Main header of your homepage"
+            fr: "En-tête principal de votre page d’accueil"
+        header__user_helper:
+            en: "Try to desccribe your activity precisely to improve your SEO."
+            fr: "Essayez de décrire votre activité précisément pour améliorer votre référencement."
+        subheader:
+            en: "Your community"
+            fr: "Votre communauté"
+        subheader__user_label:
+            en: "Subheader of your website"
+            fr: "En-tête secondaire"
+    help:
+        header:
+            en: "Help center"
+            fr: "Centre d’aide"
+navigation:
+    home:
+        en: "Home"
+        fr: "Accueil"
+    faq:
+        en: "FAQ"
+        fr: "Comment ça marche ?"
+    new_listing:
+        en: "New listing"
+        fr: "Publiez votre annonce"
+    contact_us:
+        en: "Contact us"
+        fr: "Contactez-nous"
+    terms:
+        en: "Terms"
+        fr: "Conditions Générales"
+    search:
+        en: "Search"
+        fr: "Rechercher"
+        context: "Action required to find listings"
+    back_top_of_page:
+        en: "Back to top"
+        fr: "Retour en haut de page"
+prompt:
+    new_listing_minute:
+        en: "Create your first listing in a minute."
+        fr: "Enregistrez votre première annonce en quelques instants."
+    post_my_listing_button:
+        en: "Post my listing"
+        fr: "Je crée mon annonce"
+    search:
+        query_placeholder:
+            en: "You’re looking for…"
+            fr: "Que recherchez-vous ?"
+        near_location_placholder:
+            en: "Near…"
+            fr: "À proximité de…"
+    see_more:
+        en: "See more"
+        fr: "En voir plus"
+    hide:
+        en: "Hide"
+        fr: "Masquer"
+    details:
+        en: "Details"
+        fr: "Détail"
+    login_to_manage_map_locations:
+        en: "Login to manage your locations"
+        fr: "Connectez-vous pour gérér vos lieux favoris"
+ratings:
+    see_more:
+        en: "See more ratings"
+        fr: "Voir plus d’évaluations"
+    user_ratings_title:
+        en: "{user} ratings"
+        fr: "Évaluations reçues par {user}"
+        context: "General introducion to ratings without count"
+    other_ratings_received:
+        en: "Other ratings granted to {user}"
+        fr: "Autres évaluations reçues par {user}"
+        context: "Used when filtering ratings received by user according to context (e.g. ratings received as owner vs. buyer)"
+    average_label:
+        en: "Score:"
+        fr: "Note :"
+    count:
+        en: "{nbRatings, plural, one{# rating} other{# ratings}}"
+        fr: "{nbRatings, plural, one{# évaluation} other{# évaluations}}"
+    review_count:
+        en: "{nbReviews, plural, one{# review} other{# reviews}}"
+        fr: "{nbReviews, plural, one{# commentaire} other{# commentaires}}"
+        context: "Reviews are ratings with a text comment."
+places:
+    near_place:
+        en: "Near {place}"
+        fr: "{place} & environs"
+social:
+    join_us:
+        en: "Join us"
+        fr: "Rejoignez-nous"
+greeting:
+    en: "Hello"
+    fr: "Bonjour"

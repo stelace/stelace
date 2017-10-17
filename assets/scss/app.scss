@@ -1,0 +1,23 @@
+@import "app/fonts";
+
+@import "app/app-foundation-settings";
+@import "foundation";
+
+@import "app/base/all";
+
+@import "app/layout/core";
+@import "app/layout/app-pre";
+@import "app/layout/footer";
+@import "app/layout/header";
+@import "app/layout/offcanvas-menu";
+
+@import "app/widgets/all";
+
+@import "app/apps/landings";
+@import "app/apps/authentication";
+@import "app/apps/backoffice";
+@import "app/apps/inbox";
+@import "app/apps/items";
+@import "app/apps/assessment";
+@import "app/apps/booking";
+@import "app/apps/users";

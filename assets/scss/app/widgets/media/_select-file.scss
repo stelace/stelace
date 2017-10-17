@@ -1,0 +1,20 @@
+.select-file {
+    .select-label {
+        cursor: pointer;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    .select-input {
+        display: none!important; // important just in case
+    }
+
+    &.disabled {
+        .select-label {
+            cursor: default;
+        }
+    }
+}

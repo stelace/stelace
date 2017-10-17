@@ -1,0 +1,105 @@
+<div class="search__advanced-search"
+    data-click-not-here="vm.config.showAdvancedSearch = false"
+    data-click-not-here-bounds-id="header-container"
+    data-click-not-here-exclude-class="main-header"
+    uib-collapse="! vm.config.showAdvancedSearch">
+    <form name="vm.searchFiltersForm"
+        ng-if="! vm.destroyForm">
+        <div class="margin-top-plus">
+            <div class="margin-bottom-plus">
+                <div class="query-label">
+                    Type d'annonce
+                </div>
+                <!-- <select id="search__transaction-type"
+                    ng-model="vm.params.transactionType"
+                    ng-change="vm.config.searchOnChange && vm.search()"
+                    ng-options="type.value as type.label for type in vm.transactionTypes">
+                </select> -->
+                <div class="padding-top flex-container flex--center">
+                    <div class="padded-sides">
+                        <span class="small switch switch--success">
+                            <input id="search__sale-type" type="checkbox"
+                                ng-model="vm.saleType"
+                                ng-change="vm.updateTransactionType('sale')">
+                            <label for="search__sale-type"></label>
+                        </span>
+                        <span>
+                            Vente
+                        </span>
+                    </div>
+                    <div class="padded-sides">
+                        <span class="small switch switch--success">
+                            <input id="search__rental-type" type="checkbox"
+                                ng-model="vm.rentalType"
+                                ng-change="vm.updateTransactionType('rental')">
+                            <label for="search__rental-type"></label>
+                        </span>
+                        <span>
+                            Location
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="">
+                <span class="location-tag ellipsis cursor-pointer"
+                    ng-class="{disabled: ! vm.onlyFree}"
+                    ng-click="vm.onlyFree = !vm.onlyFree">
+                    Gratuit
+                </span>
+            </div> -->
+            <div class="">
+                <div class="query-label">
+                    Type de recherche
+                </div>
+                <select class="search__query-mode"
+                    ng-model="vm.params.queryMode"
+                    ng-change="vm.config.searchOnChange && vm.search()"
+                    ng-options="mode.value as mode.label for mode in vm.queryModes">
+                </select>
+            </div>
+        </div>
+        <div class="search__my-locations padding-bottom margin-bottom"
+            data-uib-collapse="vm.params.queryMode === 'relevance' || ! vm.myLocations.length">
+            <p class="margin-top padding-top query-label text--semibold">
+                <span>Mes lieux favoris</span>&nbsp;
+                <span class="badge tooltip-badge tooltip-dispensable"
+                    data-tooltip-placement="auto bottom"
+                    data-tooltip-trigger="mouseenter outsideClick"
+                    uib-tooltip="Activez plusieurs lieux favoris (domicile, travail…) pour trouver les objets les plus proches de vous. Chaque lieu peut être désactivé en un simple clic.">
+                    ?
+                </span>
+            </p>
+            <div class="flex-container flex--center flex--wrap">
+                <div class="search__location-container"
+                    ng-repeat="loc in vm.myLocations track by loc.id">
+                    <div class="delete-button cursor-pointer"
+                        ng-if="! vm.isAuthenticated"
+                        ng-click="vm.removeTmpLocation(loc); $event.stopPropagation();">
+                        x
+                    </div>
+                    <span class="location-tag ellipsis cursor-pointer"
+                        ng-class="{disabled: ! vm.params.myLocations[loc.id]}"
+                        ng-click="vm.toggleLocation(loc.id)">
+                        {{ loc.alias ? loc.alias : loc.shortName }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="padding-top">
+            <button class="button button--highlight brightblue margin-bottom"
+                type="submit"
+                ng-click="vm.search()">
+                <svg class="icon icon--inline">
+                    <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                </svg>
+                Rechercher
+            </button>
+        </div>
+        <div>
+            <button class="button red text--semibold"
+                ng-click="vm.config.showAdvancedSearch = false">
+                Retour
+            </button>
+        </div>
+    </form>
+</div>

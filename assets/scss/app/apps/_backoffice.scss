@@ -1,0 +1,66 @@
+@import "../base/all";
+
+.backoffice {
+
+    h2 {
+        font-size: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .monitoring-table {
+        @media #{$mq-mobile} {
+            overflow-x: auto;
+            display: block;
+        }
+        @media #{$mq-from-mobile} {
+            width: 100%;
+        }
+
+        .icon {
+            width: 1rem;
+            height: 1rem;
+            fill: #555A5F;
+            position: relative;
+            top: 0.15rem;
+        }
+
+        .status-info {
+            font-weight: bold;
+        }
+
+        .status-warning-light {
+            font-weight: bold;
+            background-color: rgba($platform-color-orange, 0.2);
+        }
+
+        .status-warning {
+            font-weight: bold;
+            background-color: rgba($platform-color-orange, 0.6);
+        }
+
+        .status-warning-strong {
+            font-weight: bold;
+            background-color: $platform-color-orange;
+        }
+
+        .monitoring-title-line,
+        .monitoring-line {
+            text-align: center;
+
+            .monitoring-title-cell,
+            .monitoring-cell {
+                padding: 0.75rem 0;
+                border: 1px solid #CCC;
+            }
+        }
+
+        .monitoring-title-line {
+            border-bottom: 1px solid #CCC;
+        }
+
+        .monitoring-line:nth-child(odd) {
+            background-color: #DDD;
+        }
+    }
+
+}

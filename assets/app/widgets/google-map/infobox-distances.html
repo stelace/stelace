@@ -1,0 +1,77 @@
+<div ng-click="parameter.parent.vm.toggleDetailBox(parameter.parent.vm.itemBox.originatorId, 'itemBox', 'close', $event);" ng-switch="parameter.parent.vm.isOwner">
+    <!-- Must apply only close on click event to allow opening -->
+    <div class="item__image">
+        <sip-img ng-src="{{parameter.parent.vm.item.url + '?size=800x600'}}" type="background"></sip-img>
+    </div>
+    <div class="item__journeys" ng-switch-default>
+        <div class="text--semibold text-center" ng-if="parameter.data.journeys">
+            Depuis vos lieux favoris&nbsp;:
+        </div>
+        <!-- limitTo 4 locations in case a user exceptionally has more locations (e.g. Sharinplace user) -->
+        <div class="flex-container flex--align-center" ng-repeat="journey in parameter.data.journeys | limitTo: 4">
+            <div class="flex-item--grow location-name ellipsis text--semibold text-left">
+                {{journey.fromLocationAlias}}
+            </div>
+            <div class="flex-item--grow text-left">
+                <svg class="icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#transport-car"/>
+                </svg>
+                &nbsp;{{journey.durationString}}
+            </div>
+        </div>
+        <div class="cta text-center"
+            ng-if="! parameter.data.journeys"
+            ng-click="parameter.parent.vm.myLocationCta()">
+            <div>
+                <span class="text--semibold link--blue-underline">Facilitez vos recherches</span> en enregistrant vos lieux favoris.
+            </div>
+            <div class="text--fade margin-top margin-bottom">
+                Exemple&nbsp;:
+            </div>
+            <div class="flex-container flex--align-center">
+                <div class="flex-item--grow location-name ellipsis text--semibold text-left">Bureau</div>
+                <div class="flex-item--grow text-left">
+                    <svg class="icon">
+                        <use xlink:href="/assets/build/icons/sprite.svg#transport-car"/>
+                    </svg>
+                    &nbsp;12 min.
+                </div>
+            </div>
+            <div class="flex-container flex--align-center">
+                <div class="flex-item--grow location-name ellipsis text--semibold text-left">Domicile</div>
+                <div class="flex-item--grow text-left">
+                    <svg class="icon">
+                        <use xlink:href="/assets/build/icons/sprite.svg#transport-car"/>
+                    </svg>
+                    &nbsp;27 min.
+                </div>
+            </div>
+        </div>
+        <div class="cta text-center"
+            ng-if="parameter.data.journeys && parameter.data.journeys.length < 3"
+            ng-click="parameter.parent.vm.myLocationCta()">
+            <span class="text--semibold link--blue-underline">Facilitez vos recherches</span> en enregistrant jusqu'à 4 lieux favoris.
+        </div>
+        <div class="text-center fluid-width"
+            ng-hide="! parameter.data.journeys">
+            <svg class="icon">
+                <use xlink:href="/assets/build/icons/sprite.svg#transport-train"/>
+            </svg>
+            :&nbsp;bientôt disponible&nbsp;!
+        </div>
+    </div>
+    <div class="item__locations text-center" ng-switch-when="true">
+        <div class="text--semibold margin-bottom">
+            Vous avez indiqué que votre objet était disponible à&nbsp;:
+        </div>
+        <!-- limitTo 4 locations in case a user exceptionally has more locations (e.g. Sharinplace user) -->
+        <div ng-repeat="location in parameter.parent.vm.ownerLocationAliases | limitTo: 4">
+            <span class="location-name">
+                {{location}}
+            </span>
+        </div>
+        <div class="fluid-width cta" ng-hide="parameter.parent.vm.ownerLocationAliases.length > 1">
+            <a ui-sref="editItem({ id: parameter.parent.vm.item.id })" class="link--blue-underline text--semibold">Augmentez vos chances de louer</a> votre objet en activant des lieux favoris
+        </div>
+    </div>
+</div>

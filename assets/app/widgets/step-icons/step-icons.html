@@ -1,0 +1,15 @@
+<div class="step-icons text-center padded-sides grid-block small-vertical s-medium-horizontal">
+    <div class="s-medium-4"
+        ng-repeat="step in steps">
+        <img ng-src="{{::step.imgUrl}}"
+            class="icon"
+            ng-if="::step.imgUrl">
+        <svg class="icon" ng-if="::step.icon && ! step.imgUrl">
+            <use xlink:href="{{:: svgSpritePrefix + step.icon }}"/>
+        </svg>
+        <h3 class="step__label no-padding-bottom no-padding-top">{{::step.label}}</h3>
+        <p class="padded-sides">
+            {{::step.content}}
+        </p>
+    </div>
+</div>

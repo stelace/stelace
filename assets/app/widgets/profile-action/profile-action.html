@@ -1,0 +1,31 @@
+<div>
+    <svg class="icon icon--inline success"
+        ng-if="vm.gameStats.actions[action.id]">
+        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+    </svg>
+    <svg class="icon icon--inline light-grey"
+        ng-if="! vm.gameStats.actions[action.id]">
+        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#x"></use>
+    </svg>
+    &nbsp;
+    <span ng-class="{'text--light': rewardedOnce, 'link--underline cursor-pointer': action.hasLink}"
+        ng-click="vm.gameLink(action)"
+        ng-attr-tabindex="{{::action.hasLink && 0}}"
+        ng-attr-sip-action-key="{{::action.hasLink && ''}}">
+        {{::action.name}}
+    </span>
+    <span class="text--light">
+        <span ng-show="rewardLabel">
+            ({{ rewardLabel }})
+        </span>
+    </span>
+    <span ng-if="action.isRequired && vm.willHaveMedal"
+        data-tooltip-placement="auto right"
+        data-tooltip-trigger="outsideClick mouseenter"
+        uib-tooltip="Défi requis pour atteindre le niveau {{vm.levelMap[vm.nextLevelId || 'none']}}">
+        <svg class="icon medal small-medal"
+            ng-class="vm.nextLevelId">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#medal"></use>
+        </svg>
+    </span>
+</div>

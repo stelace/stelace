@@ -1,0 +1,397 @@
+<div class="account">
+    <div class="header-space"></div>
+    <div id="slide-intro-account"
+        class="text-center slide-intro space padded-sides">
+        <h1 class="slide-intro__title">
+            Bienvenue sur Sharinplace {{ vm.currentUser.firstname }}
+        </h1>
+        <div class="slide-intro__subtitle">
+            Maintenez vos informations à jour pour ne rien rater.
+        </div>
+    </div>
+    <div class="fluid-content text-center sticky-helper__flex-container">
+        <div class="small-12 desktop-8">
+            <div class="accont__new-message"
+                ng-if="vm.newMessagesCount">
+                <h2>
+                    Nouvelle demande
+                </h2>
+
+                <p class="margin-bottom">
+                    Vous avez <span class="text--semibold">{{vm.newMessagesCount + (vm.newMessagesCount > 1 ? ' nouveaux messages' : ' nouveau message')}}</span> dans votre
+                    <a class="link--blue-underline text--semibold" ui-sref="inbox">boîte de réception</a>.
+                </p>
+                <hr class="small-6 small-offset-3">
+            </div>
+
+            <div class="account__contact-info">
+                <h2>
+                    Mes coordonnées
+                </h2>
+
+                <div class="flex-container flex-form-line text-left">
+                    <div class="small-6">
+                        <label for="user-firstname">
+                            Prénom
+                        </label>
+                        <input id="user-firstname" type="text"
+                            ng-model="vm.editingCurrentUser.firstname"
+                            ng-blur="vm.updateUser()"
+                            placeholder="Prénom"
+                            title="Mon prénom">
+                    </div>
+                    <div class="small-6">
+                        <label for="user-lastname">
+                            Nom
+                        </label>
+                        <input id="user-lastname" type="text"
+                            ng-model="vm.editingCurrentUser.lastname"
+                            ng-blur="vm.updateUser()"
+                            placeholder="Nom"
+                            title="Mon nom de famille">
+                    </div>
+                </div>
+                <div class="flex-container flex--wrap flex-form-line text-left">
+                    <div class="small-12 medium-7">
+                        <label for="user-email">
+                            Email
+                        </label>
+                        <div class="label-action text--small margin-left"
+                            ng-if="vm.currentUser.email"
+                            ng-switch="vm.currentUser.emailCheck">
+                            <span class="link--underline cursor-pointer text--red"
+                                data-sip-action-key
+                                tabindex="0"
+                                ng-click="vm.checkEmail()"
+                                ng-switch-when="false">
+                                À Vérifier
+                                <svg class="icon icon--inline red">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#exclamation"></use>
+                                </svg>
+                            </span>
+                            <span class="text--success"
+                                ng-switch-default>
+                                Vérifié
+                                <svg class="icon icon--inline success">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+                                </svg>
+                            </span>
+                        </div>
+                        <input id="user-email" type="text"
+                            placeholder="{{ vm.currentUser.email || 'Votre adresse électronique' }}"
+                            ng-class="{ 'data-placeholder': vm.currentUser.email }"
+                            ng-model="vm.dummyEmail"
+                            data-sip-action-key
+                            ng-change="vm.updateEmail()"
+                            ng-click="vm.updateEmail()">
+                    </div>
+                    <div class="small-12 medium-5">
+                        <label for="user-phone">
+                            Téléphone
+                        </label>
+                        <div class="label-action text--small margin-left"
+                            ng-if="vm.currentUser.phone && vm.isSmsActive"
+                            ng-switch="vm.currentUser.phoneCheck">
+                            <span class="link--underline cursor-pointer text--red"
+                                data-sip-action-key
+                                tabindex="0"
+                                ng-click="vm.updatePhone()"
+                                ng-switch-when="false">
+                                À Vérifier
+                                <svg class="icon icon--inline red">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#exclamation"></use>
+                                </svg>
+                            </span>
+                            <span class="text--success"
+                                ng-switch-default>
+                                Vérifié
+                                <svg class="icon icon--inline success">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="input__inner-icon-container" ng-switch="vm.isSmsActive">
+                            <input id="user-phone" type="text"
+                                ng-model="vm.editingPhone"
+                                data-sip-action-key
+                                ng-blur="vm.updateRealPhone()"
+                                ng-switch-when="false">
+                            <input id="user-phone" type="text"
+                                placeholder="{{ vm.currentUser.phone || 'Recevez vos demandes par SMS' }}"
+                                ng-class="{ 'data-placeholder': vm.currentUser.phone }"
+                                ng-model="vm.dummyPhone"
+                                data-sip-action-key
+                                ng-change="vm.updatePhone()"
+                                ng-click="vm.updatePhone()"
+                                ng-switch-default>
+                            <!-- <span class="input__inner-icon icon-right cursor-pointer"
+                                ng-if="vm.currentUser.phone"
+                                ng-click="vm.deletePhone()">
+                                <svg class="icon">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#trash"></use>
+                                </svg>
+                            </span> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="text-left"
+                    ng-if="vm.currentUser.phone || vm.currentUser.emailCheck">
+                    <label for="user-description">
+                        Ma description
+                    </label>
+                    <textarea id="user-description"
+                        class=""
+                        placeholder="Présentez-vous en quelques mots ou décrivez le type d'objet que vous recherchez ou proposez."
+                        rows="4"
+                        ng-blur="vm.updateUser()"
+                        ng-model="vm.editingCurrentUser.description"
+                        ng-maxlength="1000"
+                        data-sip-textarea-auto-adjust>
+                    </textarea>
+                </div>
+                <div class="text-center account__avatar">
+                    <data-sip-prompt-image></data-sip-prompt-image>
+                </div>
+                <hr class="small-6 small-offset-3">
+            </div>
+
+            <div class="account__locations">
+                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer"
+                    ng-switch="vm.collapseLocations">
+                    <span tabindex="0"
+                        ng-click="vm.collapseLocations = ! vm.collapseLocations"
+                        data-sip-action-key>
+                        Mes lieux de recherche
+                        <span ng-switch-when="false">
+                            ▲
+                        </span>
+                        <span ng-switch-default>
+                            ▼
+                        </span>
+                    </span>
+                </h2>
+                <div data-uib-collapse="vm.collapseLocations">
+                    <p class="margin-bottom">
+                        Ajoutez vos lieux favoris pour améliorer vos recherches et rendre vos annonces plus visibles.
+                    </p>
+                    <div ng-if="vm.isGoogleMapSDKReady"
+                        ng-show="! vm.maxLocationsReached">
+                        <label for="account__location-input"
+                            class="no-margin-bottom">
+                            Adresse, ville, gare…
+                        </label>
+                        <div class="flex-container flex--center flex--wrap">
+                            <input id="account__location-input"
+                                class="small-12 medium-8 margin-top margin-bottom-plus"
+                                type="text"
+                                ng-model="vm.locationSearchQuery"
+                                ng-autocomplete
+                                data-options="vm.ngAutocompleteOptions"
+                                data-details="vm.locationSearchObject"
+                                placeholder="Un nouveau lieu favori">
+                            <div class="small-3 padded-sides">
+                                <button
+                                    class="button button--highlight margin-top margin-bottom-plus"
+                                    ng-class="{ disabled: vm.disableAddLocationButton }"
+                                    ng-click="vm.addLocation()">
+                                    Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p ng-show="vm.maxLocationsReached">
+                        Vous avez atteint le maximum de quatre lieux favoris. Il vous suffit d'en supprimer pour les remplacer par de nouveaux.<br>
+                    </p>
+                    <div class="small-10 small-offset-1 text-left padding-bottom"
+                        ng-repeat="location in vm.myLocations">
+                        <div>
+                            <span class="success badge">
+                                {{$index+1}}
+                            </span>
+                            <input class="input--subtle text--semibold" type="text" ng-model="location.aliasEdit" ng-blur="vm.updateLocationAlias(location)" placeholder="Je nomme ce lieu...">
+                            <a class="text-control padded-sides"
+                                title="Supprimer"
+                                tabindex="0"
+                                data-sip-action-key
+                                ng-if="vm.myLocations.length >= 2"
+                                ng-click="vm.removeLocation(location)">
+                                <svg class="light-grey icon icon--inline">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="text-block padded-sides margin-top margin-bottom">
+                            <span ng-if="! location.establishment">
+                                {{location.name}}
+                            </span>
+                            <span ng-if="location.establishment">
+                                {{location.displayAddress}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <hr class="small-6 small-offset-3">
+            </div>
+
+            <div ng-if="vm.showGamification">
+                <h2>
+                    Parrainez vos amis
+                </h2>
+                <p class="margin-bottom">
+                    <a class="link--blue-underline text--semibold" ui-sref="invite">Cliquez ici pour parrainer vos amis.</a>
+                </p>
+                <hr class="small-6 small-offset-3">
+            </div>
+
+            <div class="margin-bottom account__income-reports"
+                ng-if="vm.showIncomeReport">
+                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer"
+                    ng-switch="vm.collapseIncomeReports">
+                    <span tabindex="0"
+                        ng-click="vm.collapseIncomeReports = ! vm.collapseIncomeReports"
+                        data-sip-action-key>
+                        Mes revenus
+                        <span ng-switch-when="false">
+                            ▲
+                        </span>
+                        <span ng-switch-default>
+                            ▼
+                        </span>
+                    </span>
+                </h2>
+                <div data-uib-collapse="vm.collapseIncomeReports">
+                    <label for="income-report-select">
+                        Consulter mon récapitulatif annuel de revenus&nbsp;:&nbsp;
+                    </label>
+                    <select id="income-report-select"
+                        class="mahgin-bottom padding-bottom"
+                        ng-model="vm.selectedIncomeReport"
+                        ng-options="report.year for report in vm.incomeReportYears"
+                        ng-click="vm.selectIncomeReportYear()"> <!-- use ng-click instead of ng-change because window.open() is blocked on Firefox -->
+                        <option value="" selected disabled="disabled">
+                            Année
+                        </option>
+                    </select>
+                </div>
+                <hr class="small-6 small-offset-3">
+            </div>
+
+            <div class="account__password">
+                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer"
+                    ng-switch="vm.showPasswordForm">
+                    <span tabindex="0"
+                        ng-click="vm.showPasswordForm = ! vm.showPasswordForm"
+                        data-sip-action-key>
+                        Mon mot de passe
+                        <span ng-switch-when="true">
+                            ▲
+                        </span>
+                        <span ng-switch-default>
+                            ▼
+                        </span>
+                    </span>
+                </h2>
+                <div data-uib-collapse="! vm.showPasswordForm">
+                    <div ng-if="! vm.needOldPassword" class="margin-bottom">
+                        Pour me connecter à Sharinplace plus facilement.
+                    </div>
+                    <div class="flex-container flex--wrap flex-form-line text-left">
+                        <div class="small-12 medium-6">
+                            <label for="old-password">
+                                Mot de passe actuel
+                            </label>
+                            <input id="old-password" type="password"
+                                ng-if="vm.needOldPassword"
+                                ng-model="vm.oldPassword"
+                                placeholder="Mot de passe à remplacer">
+                        </div>
+                        <div class="small-12 medium-6">
+                            <label for="new-password">
+                                Nouveau mot de passe
+                            </label>
+                            <input id="new-password" type="password"
+                                ng-model="vm.newPassword"
+                                placeholder="{{ vm.needOldPassword ? 'Nouveau mot de passe' : 'Mot de passe'}}">
+                        </div>
+                    </div>
+                    <button class="button text--semibold center"
+                        ng-click="vm.updatePassword(vm.newPassword, vm.oldPassword)">
+                        {{ vm.needOldPassword ? "Changer mon mot de passe" : "Enregistrer mon mot de passe" }}
+                    </button>
+                </div>
+                <hr class="small-6 small-offset-3">
+            </div>
+
+            <div class="margin-bottom-plus"
+                ng-if="vm.myItems.length">
+                <h2 class="text-center margin-bottom-plus">
+                    Mes annonces
+                </h2>
+                <div id="my-items-list"
+                    class="item-wall force-compact-item-card grid-block small-vertical text-left">
+                    <div
+                        class="grid-block item-wall__item-wrapper"
+                        data-item="item"
+                        ng-repeat="item in vm.myItems | orderBy : '-createdDate'"
+                        ng-hide="vm.itemId && vm.itemId === item.id"
+                        data-sip-my-listing-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="helper-column" class="sticky-helper__column desktop-4">
+            <div class="sticky-helper__card image-white-cta"
+                ng-if="vm.stickyOffset"
+                data-bound-id="helper-column"
+                data-offset="{{ vm.stickyOffset }}"
+                data-sip-sticky-sidebar>
+                <div>
+                    <h2 class="text-center"
+                        ng-hide="vm.myItems.length">
+                        Publions votre première annonce
+                    </h2>
+                    <!-- item-card like CTA -->
+                    <div class="item-wall padded-sides item-wall__item-wrapper">
+                        <a class="item-wall__item-container"
+                            ui-sref="itemCreate"
+                            ng-click="vm.uxEvent('Account item card CTA', 'click')">
+                            <div class="item-wall__item flex-container item-wall__item--highlight">
+                                <div class="item-wall__image-container">
+                                    <div class="ar-content">
+                                        <img class="img--cover" src="/assets/img/app/default/search-item-image-cta.png"  alt="Louez vos objets sur Sharinplace">
+                                    </div>
+                                </div>
+                                <div class="item-wall__description flex-item--grow-auto hide-for-small-only">
+                                    <h3 class="no-margin item-name ellipsis">
+                                        Vendez et louez votre matériel
+                                    </h3>
+                                    <p class="ellipsis item-wall__place">
+                                        Déposez gratuitement vos annonces.
+                                    </p>
+                                    <div class="item-wall__meta">
+                                        <span class="item-wall__rating small"
+                                            data-user-score="10"
+                                            data-user-ratings="2"
+                                            data-item-score="10"
+                                            data-item-ratings="2"
+                                            data-count="false"
+                                            data-tooltip-msg="Créez de belles annonces et participez à l'aventure Sharinplace..."
+                                            data-append-to-body="true"
+                                            data-sip-rating-stars></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <a class="button brightblue button--highlight"
+                        ng-if="vm.myItems.length"
+                        ui-sref="myItems">
+                        Voir vos annonces ({{vm.myItems.length}})
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

@@ -1,0 +1,351 @@
+<div id="app-container">
+    <div id="offcanvas-menu"
+        class="offcanvas-item"
+        data-zf-offcanvas
+        data-position="right"
+        ng-cloak>
+        <div class="fluid-width flex-container flex--column flex--space-between offcanvas-item"
+            ng-controller="OffCanvasMenuController as offcanvas"
+            data-sip-action-key="offcanvas.closeMenu()"
+            data-sip-action-key-number="27">
+            <!-- Acessibility: Detect ESC press to close -->
+            <ul id="offcanvas-public-links"
+                class="no-bullet offcanvas-item"
+                ng-if="! offcanvas.isAuthenticated"
+                data-sip-ux-event=".offcanvas-menu__public-link"
+                data-ux-event-name="Offcanvas menu click">
+                <!-- Accessibility: tabindex set to -1 when offcanvas menu is open, else 0 -->
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <a ui-sref="home"
+                        class="offcanvas-menu__public-link"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        Accueil
+                    </a>
+                </li>
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <a ui-sref="search"
+                        class="offcanvas-menu__public-link"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        Rechercher un objet
+                    </a>
+                </li>
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <a ui-sref="itemCreate"
+                        class="offcanvas-menu__public-link"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        Déposez votre annonce
+                    </a>
+                </li>
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <a ui-sref="itemCreate({t: 'sell'})"
+                        class="offcanvas-menu__public-link"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        Vendre
+                    </a>
+                </li>
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <a ui-sref="itemCreate({t: 'rent'})"
+                        class="offcanvas-menu__public-link"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        Louer
+                    </a>
+                </li>
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <!-- opening modal while offcanvas is opened causes layout bugs (flex/vh layout) > deprecate authenticate function -->
+                    <button ui-sref="login({ redirect: offcanvas.currentUrl})"
+                        class="offcanvas-menu__public-link"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        Se connecter
+                    </button>
+                </li>
+            </ul>
+            <ul id="offcanvas-member-links"
+                class="no-bullet offcanvas-item"
+                ng-if="offcanvas.isAuthenticated"
+                data-sip-ux-event=".offcanvas-menu__member-link"
+                data-ux-event-name="Offcanvas menu click">
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <a class="offcanvas-item offcanvas-menu__member-link"
+                        ui-sref="{{::offcanvas.memberLinks[0].sref}}"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()"
+                        ng-attr-sip-autofocus="offcanvas.isMenuOpen">
+                        <!-- Autofocus first link on opening -->
+                        <svg class="icon {{::offcanvas.memberLinks[0].color}}">
+                            <use xlink:href="{{::offcanvas.memberLinks[0].iconUrl}}"></use>
+                        </svg>
+                        <span>{{::offcanvas.memberLinks[0].label}}</span>
+                    </a>
+                </li>
+                <li class="offcanvas-menu__link offcanvas-item"
+                    ng-repeat="memberLink in ::offcanvas.memberLinks | limitTo : 10 : 1">
+                    <a class="offcanvas-item offcanvas-menu__member-link"
+                        ng-class="::{ 'position': memberLink.icon === 'email-envelope' }"
+                        ui-sref="{{::memberLink.sref}}"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.closeMenu()">
+                        <svg class="icon {{::memberLink.color}}">
+                            <use xlink:href="{{::memberLink.iconUrl}}"></use>
+                        </svg>
+                        <span>{{::memberLink.label}}</span>
+                        <span class="alert badge message-badge"
+                            ng-if="::(memberLink.icon === 'email-envelope')"
+                            ng-show="offcanvas.newMessagesCount">
+                            {{offcanvas.newMessagesCount}}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="no-bullet offcanvas-item"
+                ng-if="offcanvas.isAuthenticated">
+                <li class="offcanvas-menu__link offcanvas-item">
+                    <button id="offcanvas-logout"
+                        class="offcanvas-item"
+                        tabindex="{{offcanvas.menuTabindex}}"
+                        ng-click="offcanvas.logout()">
+                        <svg class="icon grey">
+                            <use xlink:href="/assets/build/icons/sprite.svg#power-off"></use>
+                        </svg>
+                        <span>Me déconnecter</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- Make #header-container fixed and independent from #root-content to avoid disappearance when opening offcanvas-menu.
+    Offcanvas transform3D creates local positionning, so fixed position would not be reliable if inside root-content.
+    For more info on this topic, See http://foundation.zurb.com/forum/posts/547-off-canvas-with-fixed-top-bar-->
+    <div id="header-container" class="offcanvas-frame"
+        ng-class="{ 'header-container--expand-search': searchFiltersConfig.showAdvancedSearch }"
+        ng-controller="HeaderController as header"
+        data-sip-ux-event=".header-event"
+        data-ux-event-name="Header click">
+        <header id="mobile-main-header" class="main-header flex-container flex--align-center"
+            ng-if="header.isMobile">
+            <!-- Make container both hoverable and clickable for better touch accessibility -->
+            <div id="mobile-header-progress"
+                class="mobile-progress-container cursor-pointer"
+                ng-if="header.isAuthenticated && header.isMobile && ! header.isTinyMobile && header.showGamification"
+                data-uib-popover-hoverable
+                data-uib-popover-template="'/assets/app/widgets/bootstrap/gamification-progressbar-popover-tpl.html'"
+                data-popover-class="progress-popover"
+                data-popover-title="Ma progression ({{header.levelMap[header.userLvl]}})"
+                data-popover-trigger="outsideClick customMouseenter"
+                data-popover-is-open="header.openProgressPopover"
+                data-popover-placement="auto bottom-left"
+                data-popover-append-to-body="true">
+                <!-- Append to body to allow full-width -->
+                <div
+                    class="small-progress"
+                    ng-class="header.userLvl"
+                    data-max="header.maxLvlPoints"
+                    data-value="header.points"
+                    data-uib-progressbar>
+                </div>
+            </div>
+
+            <form class="flex-item--grow"
+                name="header.searchForm">
+                <div class="search__search-bar flex-container">
+                    <div class="flex-item--grow input__inner-icon-container">
+                        <div id="mobile-main-header__magnifying"
+                            class="input__inner-icon cursor-pointer icon-left header-event"
+                            ng-show="header.searchFocus || searchParams.query"
+                            ng-click="header.search()">
+                            <svg class="icon">
+                                <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                            </svg>
+                        </div>
+                        <div id="mobile-main-header__advanced-search-toggle"
+                            class="search__filter-toggle input__inner-icon cursor-pointer icon-right header-event"
+                            tabindex="0"
+                            data-sip-action-key
+                            data-sip-autoblur
+                            ng-click="searchFiltersConfig.showAdvancedSearch = !searchFiltersConfig.showAdvancedSearch">
+                            <svg class="icon">
+                                <use xlink:href="/assets/build/icons/sprite.svg#switches"/>
+                            </svg>
+                        </div>
+                        <input id="mobile-main-header__search-input" type="search"
+                            class="no-margin header-event"
+                            ng-model="searchParams.query"
+                            data-sip-action-key="header.search()"
+                            data-sip-blur-on
+                            ng-focus="header.searchFocus = !header.searchFocus"
+                            ng-blur="header.searchFocus = !header.searchFocus">
+                        <div class="logo-overlay"
+                            ng-hide="header.searchFocus || searchParams.query">
+                            <svg class="logo-company small">
+                                <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+                            </svg>
+                            <svg class="icon icon--inline">
+                                <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="small-menu anchor-like cursor-pointer"
+                ng-click="header.toggleMenu($event)">
+                <svg class="icon small offcanvas-show-icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#three-bars"></use>
+                </svg>
+                <svg class="icon small offcanvas-close-icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#x"></use>
+                </svg>
+                <span class="alert badge message-badge"
+                    ng-if="header.newMessagesCount">
+                    {{header.newMessagesCount}}
+                </span>
+            </div>
+        </header>
+        <header id="desktop-main-header"
+            class="main-header flex-container flex--space-between flex--align-center hide-for-small-only">
+            <div class="logo-container"
+                ng-if="header.isDesktop">
+                <a id="desktop-main-header__logo-anchor" href="/" class="header-event">
+                    <svg class="logo-company">
+                        <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+                    </svg>
+                </a>
+            </div>
+            <form class="search__search-bar"
+                name="header.searchForm">
+                <div class="input__inner-icon-container">
+                    <div id="desktop-main-header__magnifying"
+                        class="input__inner-icon cursor-pointer icon-left header-event"
+                        ng-show="header.isDesktop || header.searchFocus || searchParams.query"
+                        ng-click="header.search()">
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                        </svg>
+                    </div>
+                    <div id="desktop-main-header__advanced-search-toggle"
+                        class="hide-for-s-medium search__filter-toggle input__inner-icon cursor-pointer icon-right header-event"
+                        tabindex="0"
+                        data-sip-action-key
+                        data-sip-autoblur
+                        ng-click="searchFiltersConfig.showAdvancedSearch = !searchFiltersConfig.showAdvancedSearch">
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#switches"/>
+                        </svg>
+                    </div>
+                    <input id="desktop-main-header__search-input"
+                        type="search"
+                        class="no-margin header-event"
+                        placeholder="Que recherchez-vous ?"
+                        ng-model="searchParams.query"
+                        data-sip-action-key="header.search()"
+                        data-sip-blur-on
+                        ng-focus="header.searchFocus = !header.searchFocus"
+                        ng-blur="header.searchFocus = !header.searchFocus">
+                    <div class="logo-overlay"
+                        ng-hide="header.searchFocus || searchParams.query"
+                        ng-if="! header.isDesktop">
+                        <svg class="logo-company small">
+                            <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+                        </svg>
+                        <svg class="icon icon--inline">
+                            <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                        </svg>
+                    </div>
+                </div>
+            </form>
+            <ul id="header-member-links" class="member-links text--semibold"
+                ng-show="header.isAuthenticated">
+                <!-- Using ng-show to ensure links existence for ux event listener -->
+                <li class="anchor-like cursor-pointer"
+                    tabindex="0"
+                    data-sip-action-key
+                    ng-click="header.toggleMenu($event)">
+                    <div>
+                        Menu
+                        <div class="profile__image">
+                            <sip-img ng-src="{{header.profileImgSrc}}" type="background"></sip-img>
+                        </div>
+                    </div>
+                </li>
+                <li class="cursor-pointer"
+                    ng-if="! header.isMobile && header.showGamification"
+                    data-uib-popover-hoverable
+                    data-uib-popover-template="'/assets/app/widgets/bootstrap/gamification-progressbar-popover-tpl.html'"
+                    data-popover-class="progress-popover"
+                    data-popover-title="Ma progression ({{header.levelMap[header.userLvl]}})"
+                    data-popover-trigger="outsideClick customMouseenter"
+                    data-popover-is-open="header.openProgressPopover"
+                    data-popover-placement="auto bottom-right"
+                    tabindex="0"
+                    data-sip-action-key="header.openProgressPopover = ! header.openProgressPopover">
+                    <div id="desktop-header-progress"
+                        ng-class="[header.userLvl, {'small-progress': header.smallDesktopProgress}]"
+                        data-max="header.maxLvlPoints"
+                        data-value="header.points"
+                        data-uib-progressbar>
+                    </div>
+                </li>
+                <li class="header__link">
+                    <a ui-sref="inbox({f: null})" class="position header-event">
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#email-envelope"></use>
+                        </svg>
+                        <span class="alert badge message-badge" ng-if="header.newMessagesCount">{{header.newMessagesCount}}</span>
+                    </a>
+                </li>
+                <li class="header__link">
+                    <a ui-sref="itemCreate({t: 'sell'})" class="sell-item-button header-event">
+                        Je vends
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#tag"></use>
+                        </svg>
+                    </a>
+                    <a ui-sref="itemCreate({t: 'rent'})" class="rent-item-button header-event">
+                        Je loue
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#refresh"></use>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+            <ul id="header-public-links" class="public-links text--semibold"
+                ng-show="! header.isAuthenticated">
+                <!-- Using ng-show to ensure links existence for ux event listener -->
+                <li>
+                    <a ui-sref="itemCreate({t: 'sell'})" class="sell-item-button header-event">
+                        Je vends
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#tag"></use>
+                        </svg>
+                    </a>
+                    <a ui-sref="itemCreate({t: 'rent'})" class="rent-item-button header-event">
+                        Je loue
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#refresh"></use>
+                        </svg>
+                    </a>
+                </li>
+                <li id="desktop-main-header__auth"
+                    class="anchor-like cursor-pointer header-event"
+                    tabindex="0"
+                    data-sip-action-key
+                    ng-click="header.authenticate('login')">
+                    Connexion
+                </li>
+            </ul>
+        </header>
+        <!-- Search -->
+        <div class="text-center {{ showMap ? 's-medium-7' : 's-medium-12' }}"
+            data-sip-search-filters="searchParams"
+            data-sip-search-filters-config="searchFiltersConfig">
+        </div>
+    </div>
+    <!-- Do not use hardware-acceleration class (transform3d) as it can break some positionned components such as sticky-sidebar -->
+    <div id="root-content" class="offcanvas-frame">
+        <main id="main-grid-block" class="" ui-view></main>
+    </div>
+</div>

@@ -1,0 +1,1615 @@
+@import "../base/all";
+
+html {
+    @media #{$mq-mobile} {
+        font-size: 14px;
+    }
+/*    @media #{$mq-from-xlarge} {
+        font-size: 18px;
+    }*/
+    &.modal-opened {
+        &.lock-both, body {
+            overflow: hidden;
+            // Necessary to set overflow: hidden on HTML too for iOS (with JS) but scroll level is lost in this case
+        }
+    }
+}
+
+body {
+    cursor: default;
+    line-height: 1.4;
+}
+
+[ng\:cloak],
+[ng-cloak],
+[data-ng-cloak],
+[x-ng-cloak],
+.ng-cloak,
+.x-ng-cloak,
+.ng-hide:not(.ng-hide-animate) {
+    display: none !important;
+}
+
+ng\:form {
+    display: block;
+}
+
+// Forms
+
+#{$text-input-selectors}, .ui-select-container {
+    border-radius: 0.5 * $global-radius;
+
+    &.input--subtle {
+        display: inline-block;
+        border-radius: 0.5 * $global-radius;
+        line-height: 1.4;
+        padding: 0 0.2rem 0.1rem;
+        margin: 0.1rem 0;
+        background-color: transparent;
+        transition: background-color 0.3s;
+        border: none;
+        width: 60%;
+        height: auto; // overriding foundation height 2.4rem
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: rgba(0,87,142,0.2);
+            border: none;
+        }
+        &.subtle--small {
+            width: 30%;
+            display: inline-block;
+        }
+
+        &.subtle--large {
+            width: 90%;
+        }
+
+        &.subtle--hint {
+            background-color: rgba(0, 87, 142, 0.05);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: rgba(0,87,142,0.2);
+            }
+        }
+        &.subtle--less-subtle {
+            padding: 0.25rem 1rem;;
+        }
+        &.subtle--more-padding {
+            padding: 0.5rem;
+        }
+        &.subtle--center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+}
+
+select, textarea {
+    border-radius: 0.5 * $global-radius;
+}
+
+select {
+    padding-top: 0.25rem; // avoid crop text with foundation default setting (0.5rem)
+    padding-bottom: 0.25rem;
+    option {
+        color: #333;
+    }
+    option[disabled] {
+        color: #666;
+    }
+    /*See http://stackoverflow.com/questions/3773430/remove-outline-from-select-box-in-ff*/
+    &:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #666;
+    }
+}
+select.input--subtle {
+    width: auto;
+    display: inline-block;
+    border-radius: 0.5 * $global-radius;
+    text-align: center;
+    line-height: 1.4;
+    padding: 0.25rem 1.5rem 0.25rem 1rem;
+    margin: 0.5rem;
+    //Need to encode in base64 for Firefox
+    background: rgba(0,87,142,0.05) url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+DQogIDxwYXRoIGZpbGw9IiMwMDAiIGQ9Im04NiAxMjhjLTEzLTEzLTM0LTEzLTQ4IDBjLTYgNy0xMCAxNi0xMCAyNGMwIDkgNCAxOCAxMCAyNGwyMTggMjE4bDIxOC0yMThjMTMtMTMgMTMtMzUgMC00OGMtMTQtMTMtMzUtMTMtNDkgMGwtMTY5IDE3MHoiLz4NCjwvc3ZnPg0K')
+        right 6px center no-repeat;
+    background-size: 12px 12px;
+    transition: background-color 0.3s;
+    border: none;
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: rgba(0,87,142,0.2);
+    }
+    &.select-subtle--large {
+        width: 60%;
+    }
+}
+
+textarea.input--subtle {
+    display: block;
+    width: 90%;
+    resize: vertical;
+}
+textarea[readonly][data-sip-autoselect] {
+    resize: none;
+}
+textarea[readonly], input[readonly] {
+    &[data-sip-autoselect], &[uib-datepicker-popup] {
+        background-color: $input-background; // overriding foundation [readonly] styling
+        cursor: pointer; // overriding browser stylesheets
+    }
+}
+
+.switch.switch--success {
+    > label {
+        background: none repeat scroll 0 0 $alert-color;
+    }
+    > label::after {
+         border: 4px solid $alert-color;
+    }
+    input:checked + label::after {
+        border-color: $success-color;
+    }
+    input:checked + label {
+        background: none repeat scroll 0 0 $success-color;
+    }
+}
+.switch.vertical-middle {
+    vertical-align: middle;
+}
+
+input, textarea {
+    &::placeholder {
+        color: rgb(140, 145, 150);
+        opacity: 1; // Firefox reset
+        // can't use opacity to fade content since it fades whole input on IE11
+    }
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type=number] {
+    -moz-appearance: textfield;
+    padding-top: 0; // text cropped for number inputs in FF
+    padding-bottom: 0;
+}
+
+.form--control {
+    input, select, textarea {
+        &.ng-invalid.ng-touched, &.force-invalid {
+            background-color: rgba($platform-color-orange, 0.1);
+            border: 1px solid rgba($platform-color-orange, 0.5);
+        }
+    }
+
+    &.ng-submitted .ng-invalid:not([ng-form]):not([disabled]) {
+        background-color: rgba($platform-color-orange, 0.1);
+        border: 1px solid rgba($platform-color-orange, 0.5);
+    }
+
+    input, select, textarea , .default-input-tag-list, .textarea-auto-adjust {
+        ~ .form-warning {
+            color: $platform-color-orange;
+            margin-top: - $global-padding + 0.25rem; // Text-inputs margin-bottom is equal to global-padding in FA settings
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    .length-count {
+        margin-top: - $global-padding + 0.375rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem; // text--small
+        .invalid-length {
+            color: $platform-color-orange;
+        }
+    }
+
+    input, select, textarea {
+        &[disabled] {
+            border: 1px solid #EEE;
+            background: #FEFEFE;
+        }
+    }
+}
+
+.input__inner-icon-container {
+    position: relative;
+
+    .input__inner-icon {
+        $input-height: 2.4rem;
+        position: absolute;
+        top: 0;
+        height: $input-height;
+        line-height: $input-height;
+        padding-left: 0.25rem; // touch accessibility
+        padding-right: 0.25rem;
+        opacity: 0.4;
+        transition: opacity 0.15s;
+
+        &.icon-right {
+            right: 0;
+            padding-right: 0.5rem;
+            ~ input, ~ select {
+                padding-right: $input-height;
+            }
+        }
+        &.icon-left {
+            left: 0;
+            padding-left: 0.5rem;
+            ~ input, ~ select {
+                padding-left: $input-height;
+            }
+        }
+        &:hover {
+            opacity: 0.7;
+        }
+        &:focus {
+            opacity: 1;
+        }
+        img {
+            pointer-events: none;
+        }
+        .icon {
+            height: 100%;
+            width: 1.4rem;
+            fill: #2F2F3B;
+        }
+
+        &.active {
+            opacity: 1;
+            .icon {
+                fill: scale-color($platform-color-blue, $lightness: 30%); // brightblue
+            }
+        }
+    }
+}
+
+
+// Buttons
+
+.button {
+    margin: 0.5rem auto 1rem;
+    &:focus,
+    &:hover,
+    &:active {
+        outline: none;
+    }
+    &.center {
+        display: block;
+    }
+    &[disabled] { // Reproduce foundation .disabled class' default styles
+        transition: all 0.25s; // not only background
+        opacity: 0.5;
+        cursor: default;
+        pointer-events: none;
+    }
+    &[ng-disabled], &.disabled {
+        transition: all 0.25s; // not only background
+    }
+    &.red {
+        @include button-style(
+            $background: $platform-color-red,
+            $background-hover: auto
+        );
+    }
+    &.orange {
+        @include button-style(
+            $background: $platform-color-orange,
+            $background-hover: auto
+        );
+    }
+    &.purple {
+        @include button-style(
+            $background: $platform-color-purple,
+            $background-hover: auto
+        );
+    }
+    &.brightblue {
+        @include button-style(
+            $background: scale-color($platform-color-blue, $lightness: 30%),
+            $background-hover: scale-color($platform-color-blue, $lightness: 40%)
+        );
+    }
+    &.darkblue {
+        @include button-style(
+            $background: $platform-color-darkblue,
+            $background-hover: scale-color($platform-color-darkblue, $lightness: 10%)
+        );
+    }
+    &.gray {
+        @include button-style(
+            $background: $gray-dark,
+            $background-hover: scale-color($gray-dark, $lightness: 10%),
+            $color: #FFF
+        );
+    }
+    &.fb {
+        @include button-style(
+            $background: $facebook-color,
+            $background-hover: auto
+        );
+    }
+    &.tw {
+        @include button-style(
+            $background: $twitter-color,
+            $background-hover: auto
+        );
+    }
+    &.button--big {
+        border-radius: $global-radius;
+        line-height: 1.4;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    &.button--highlight {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+}
+button, .button, .select-file {
+    $spinner-container-width: 2rem;
+    $spinner-container-left-margin: 0.5rem;
+    & ~ span.spinner-container {
+        display: inline-block;
+        position: relative;
+        width: $spinner-container-width;
+        margin-left: $spinner-container-left-margin;
+        margin-bottom: 0.5 * $global-padding; // $global-padding is button margin-bottom in FA settings
+    }
+    &.spinner-button--center ~ span.spinner-container {
+        .spinner-button-container & { // security check, see below
+            margin-right: - $spinner-container-width - $spinner-container-left-margin;
+        }
+    }
+}
+.spinner-button-container {
+    // Container necessary to avoid overflowing body
+    overflow: hidden;
+}
+.spinner-container {
+    z-index: 999; // Avoid being above modals (1000)
+}
+.app-button {
+    @include button-style(
+        $background: #4080cb,
+        $color: #fff,
+        $background-hover: auto
+    );
+    border-radius: 5px / 20px;
+
+    &.disabled,
+    &.disabled:hover {
+        @include button-disabled;
+        cursor: default;
+        background-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 3px 1px rgba(150, 150, 150, 0.5);
+        color: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.sip-button {
+    @include button-style(
+        $background: $primary-color,
+        $color: #fff
+    );
+    border-radius: 0.5 * $global-radius;
+    font-size: 1.1rem;
+}
+
+.text-toggle {
+    display: inline-block;
+    font-size: 0.875rem;
+    text-decoration: underline;
+    &:hover, &:active {
+        cursor: pointer;
+        color: $platform-color-blue;
+    }
+}
+
+.add-item-button {
+    @extend %button;
+    @include button-style(
+        $background: $platform-color-red,
+        $background-hover: auto
+    );
+    margin: auto;
+}
+
+// Accessibility
+
+// Bootstrap : Only display content to screen readers
+//
+// See: http://a11yproject.com/posts/how-to-hide-content/
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+// Use in conjunction with .sr-only to only display content when it's focused.
+// Useful for "Skip to main content" links; see http://www.w3.org/TR/2013/NOTE-WCAG20-TECHS-20130905/G1
+// Credit: HTML5 Boilerplate
+
+.sr-only-focusable {
+    &:active,
+    &:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+    }
+}
+
+// Typography
+
+strong {
+    font-weight: 600;
+}
+
+.text--small {
+    font-size: 0.875rem;
+}
+.text--vsmall {
+    font-size: 0.75rem;
+}
+.text--emphasize {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.text--bold {
+    font-weight: bold;
+}
+.text--semibold {
+    font-weight: 600;
+}
+.text--italic {
+    font-style: italic;
+}
+
+.text--light {
+    color: rgb(140, 145, 150);
+}
+.text--dark {
+    color: #333;
+}
+.text--fade {
+    opacity: 0.6;
+}
+.text--nofade {
+    color: inherit;
+    opacity: 1;
+}
+
+.text--orange {
+    color: $platform-color-orange;
+}
+.text--blue {
+    color: $platform-color-blue;
+}
+.text--success {
+    color: $success-color;
+}
+.text--red {
+    color: $platform-color-red;
+}
+
+.user-generated {
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+.icon {
+    transition: fill 0.3s;
+    &.icon--highlight {
+        display: block;
+        width: 6rem;
+        height: 6rem;
+        @media #{$mq-mobile} {
+            width: 5rem;
+            height: 5rem;
+        }
+        margin: 0 auto 0.5rem;
+    }
+    &.success {
+        fill: $success-color;
+        color: $success-color;
+    }
+    &.grey {
+        fill: #333;
+    }
+    &.light-grey {
+        fill: rgba(140, 145, 150, 0.5);
+    }
+    &.red {
+        fill: $platform-color-red;
+    }
+}
+
+.icon--inline {
+    display: inline-block;
+    vertical-align: sub;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0 0.25rem;
+    &.top {
+        vertical-align: top;
+    }
+    &.clipboard-svg {
+        position: relative;
+        top: 2px;
+        left: 1px;
+    }
+    &.icon--large {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+    &.icon--space {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+}
+
+button, .button {
+    .icon--inline {
+        fill: currentColor;
+    }
+}
+
+// Links
+
+a {
+    color: $platform-color-blue;
+    &:hover, &:focus, &:active {
+        text-decoration: none;
+    }
+}
+.link--grey, a.link--grey {
+    color: #B2B2B2;
+    transition: color 0.3s;
+
+    &:hover {
+        color: #898989;
+    }
+}
+@mixin underline-link() {
+    &:hover, &:focus, &:active {
+        text-decoration: underline;
+    }
+}
+.link--underline {
+    @include underline-link();
+}
+.link--blue-underline, .link--blue-force-underline {
+    color: $platform-color-blue;
+    @include underline-link();
+}
+.link--blue-force-underline {
+    text-decoration: underline;
+}
+
+.anchor-like {
+    transition: color 0.3s ease;
+    &:hover, &:focus {
+        color: $platform-color-blue;
+    }
+    svg.icon {
+        fill: currentColor;
+    }
+    &.anchor-block {
+        display: inline-block;
+    }
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+a, [ng-click], [uib-popover], [uib-tooltip] {
+    svg:not(.svg-pointerevents) {
+        // Can avoid some bugs with click events/handlers, on some devices.
+        // See https://css-tricks.com/links-inline-svg-staying-target-events/
+        pointer-events: none;
+        // WARNING: this prevents clicks on anchors/elements' svg in IE11 if display is not set to block or inline-block
+        // See http://caniuse.com/#feat=pointer-events
+    }
+}
+
+// Layout
+
+#app-container {
+    height: auto;
+    min-height: 100%;
+    overflow: hidden; // Avoid horizontal overflow of graphical elements
+}
+// Foundation for apps override
+.off-canvas ~ #root-content {
+    background: none;
+}
+.offcanvas-frame {
+    position: relative;
+    // Avoid bad positioning of absolutely positionned element relatively to body
+    // Since offcanvas CSS transform creates local positioning in each .offcanvas-frame element
+}
+.off-canvas ~ .offcanvas-frame {
+    background: rgba(#FFF, 0.5); // for advanced-search
+}
+
+#main-grid-block {
+    width:100%; //fix for profile view in tablet layout
+
+    > :not(.signin-form-container) {
+        background-color: rgb(240, 240, 245);
+    }
+
+    // Animations
+    &.ng-enter {
+         animation: semiFadeIn 0.6s both ease-in-out;
+    }
+    &.ng-leave {
+    }
+
+    .grid-divider > div.grid-divider__container {
+        padding: 0 0 0.125rem;
+        // overriding foundation padding
+    }
+    /*.main-card-container {
+        // padding: 0.5rem;
+        // Padding in the container is not taken into account by IE11 when splitting in two columns > wrapping
+        // Setting Margin around the child is preferred
+    }*/
+    .main-card {
+        @include card-container(
+            $background: transparent,
+            $border: none,
+            $radius: 0.5 * $global-radius,
+            $shadow: 1px 3px 5px 2px rgba(0, 0, 0, 0.4),
+            $color: #333,
+            $padding: 0
+        );
+        margin: 0.5rem 0.5rem 1rem;
+        // 1 rem bottom because of margin collapsing in tablet/mobile layout (1 column)
+        @media #{$mq-mobile} {
+            margin: 0.25rem;
+            box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.4)
+        }
+
+        > .card-divider {
+            opacity: 0.8;
+            a {
+                display: block; // ensuring correct behaviour in IE11 despite svg pointer-events set to none
+            }
+        }
+        > a.card-divider {
+            transition: opacity 0.3s ease;
+            &:hover {
+                opacity: 0.9;
+            }
+            &:focus, &:active {
+                opacity: 1;
+            }
+        }
+
+        .card-section {
+            background: rgba(255, 255, 255, 0.85);
+        }
+        // img are 100% width in foundation cards by default
+        img {
+            width: auto,
+        }
+
+        .card {
+            margin: 0.5rem;
+        }
+    }
+
+    .card-divider {
+        color: #fff;
+        font-size: 1.5rem;
+        min-height: 2.5rem;
+        .icon {
+            width: 2rem;
+            height: 2rem;
+            fill:#fff;
+        }
+        h2 {
+            display: inline-block;
+            font-size:1.5rem;
+            line-height: 1;
+        }
+    }
+}
+
+.fluid-content {
+    margin: 0 auto;
+    padding: 0 1rem;
+    width: 100%;
+    @media #{$mq-from-tablet} {
+        width: 90%;
+    }
+    @media #{$mq-from-desktop} {
+        width: 60rem;
+    }
+}
+
+// Flex
+.flex-container {
+    display: flex;
+}
+.flex-container, .grid-block {
+    &.flex--center {
+        justify-content: center;
+    }
+    &.flex--start {
+        justify-content: flex-start;
+    }
+    &.flex--end {
+        justify-content: flex-end;
+    }
+    &.flex--space {
+        justify-content: space-around;
+    }
+    &.flex--space-between {
+        justify-content: space-between;
+    }
+    &.flex--column {
+        flex-direction: column;
+    }
+    &.small-vertical {
+        @media #{$mq-mobile} {
+            flex-direction: column;
+        }
+        &.desktop-horizontal { // extending FA class to flex-container
+            @media #{$mq-until-tablet} {
+                flex-direction: column;
+            }
+        }
+    }
+    &.desktop-vertical { // extending FA class to flex-container
+        @media #{$mq-from-desktop} {
+            flex-direction: column;
+        }
+    }
+
+    &.flex--align-center {
+        align-items: center;
+    }
+    &.flex--align-stretch {
+        align-items: stretch!important; //override foundation .grid-block.wrap
+    }
+
+    &.flex--lines-start {
+        align-content: flex-start;
+    }
+
+    &.flex--wrap {
+        flex-wrap: wrap;
+    }
+
+    &.noscroll-hidden {
+        overflow: hidden;
+        overflow-y: hidden;
+        overflow-x: hidden;
+    }
+}
+
+.flex-item--grow {
+    flex: 1 0; // take only space not used by flex siblings (default here: flex-basis: 0)
+}
+.flex-item--grow-auto {
+    flex: 1 1 auto; // Take necessary space, then take space not used by flex siblings
+    // Allow shrinking when parent is too small
+    // On IE11, fix may be needed to force effective shrinking (with max-width/height)
+}
+.flex-item--self-center {
+    align-self: center;
+}
+
+.fluid-width {
+    width: 100%;
+}
+.fluid-height {
+    height: 100%;
+}
+
+// Layout components
+
+// Factorize small components here
+
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+  &:before {
+    display: block;
+    content: "";
+    width: 100%;
+    padding-top: ($height / $width) * 100%;
+  }
+  > .ar-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background-color: #FFF;
+  }
+}
+
+@mixin input-like() {
+    background-color: #FFF;
+    border: $input-border;
+    padding: $form-padding;
+    margin-bottom: $global-padding; // foundation default 1rem
+    &:focus, &:hover {
+        border: $input-border-hover;
+    }
+}
+.input-style {
+    @include input-like();
+}
+
+.location-tag {
+    background-color: $platform-color-darkblue;
+    border-radius: 0.5 * $global-radius;
+    color: #FFF;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: 600;
+    &.disabled {
+        background-color: rgb(240, 240, 245);
+        color: #BBB;
+    }
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 0.875rem;
+    margin: 0 0.1rem 0.1rem 0;
+    max-height: 1.625rem;
+    max-width: 9rem;
+    padding: 0.125rem 0.4rem 0.4rem;
+}
+
+.profile__image {
+    width: 3rem;
+    height: 3rem;
+    border-radius: $global-rounded;
+    // overflow: hidden;
+    &.profile__image--responsive {
+        width: 30%;
+        height: auto;
+        min-width: 3rem;
+        max-width: 10rem;
+    }
+}
+a.profile__image {
+    display: block;
+}
+
+.tooltip-badge.badge {
+    width: 0.875rem;
+    height: 0.875rem;
+    font-size: 0.8rem;
+}
+.badge {
+    &.font-color {
+        background-color: $body-font-color;
+        color: #FFF;
+    }
+}
+.message-badge {
+    position: absolute;
+    height: 1.25rem;
+    width: 1.25rem;
+    font-size: 0.75rem;
+}
+
+.plain-card {
+    @include card-container(
+        $background: #fff, // Background color
+        $color: rgb(85, 90, 95),
+        $border: 1px solid #DDD,
+        $radius: 0,
+        $shadow: none, // Box shad: ;ow
+        $padding: 1rem,
+        $margin: 1rem // Margin bottom
+    );
+
+    .plain-card__divider {
+        h2, h3 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #FFF;
+            font-size: 1.125rem;
+        }
+        h2 {
+            @media #{$mq-from-tablet} {
+                font-size: 1.25rem;
+            }
+        }
+        @include card-divider(
+            $background: rgba($platform-color-darkblue, 0.9),
+            $padding: 0.5rem 1rem
+        );
+    }
+
+    .plain-card__section {
+        background-color: #FFF; // for absolute positionning
+    }
+}
+
+.trust-contact-info {
+    li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .icon.success {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+    }
+}
+
+.single-rating {
+    .profile__image {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.uib-rating {
+    display: inline-block; // for better looking focus-ring
+    .svg-icon-block {
+        display: inline-block; // make star fully clickable
+    }
+    .svg-icon {
+        display: inline-block;
+        width: 1.5rem;
+        height: 1.5rem;
+        pointer-events: none; // avoids bug with mouseenter event on svg (FF in particular)
+        // See http://stackoverflow.com/questions/17244996/why-do-the-mouseenter-mouseleave-events-fire-when-entering-leaving-child-element#comment-56417700
+        // pointer-events is well supported for svg across browsers (part of SVG spec)
+    }
+    .star {
+        fill: #FFBB00;
+    }
+    .star-empty {
+        fill: #DDD;
+    }
+}
+
+.social-signin {
+    color: #fff;
+    padding: 0.4rem;
+    text-align: center;
+    display: block;
+    border-radius: 2px;
+    margin : 0.5rem auto;
+    min-height: 2rem;
+    font-size: 1rem;
+    .icon {
+        height: 1.25rem;
+        width: 1.25rem;
+        fill: currentColor;
+        display: inline-block;
+        vertical-align: text-bottom;
+    }
+
+    &.inline {
+        display: inline-block;
+    }
+    &.gpl {
+        background-color: $google-plus-color;
+        &:hover, &:focus, &:active {
+            background-color: smartscale($google-plus-color,-5%);
+        }
+    }
+
+    &.fb {
+        background-color: $facebook-color;
+        &:hover, &:focus, &:active {
+            background-color: smartscale($facebook-color,-5%);
+        }
+    }
+}
+
+.slide-intro {
+    // use flex instead of absolute positionning to avoid blur issues
+    // and because flex is cool (unlike IE)
+    display: flex;
+    flex-direction: column;
+    // WARNING: must specify a height for IE when using flex-column with (height-)sized children
+    // No default here. Appropriate height setting is left to view's styles
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    margin: 0;
+    color: #FFF;
+    // IE10-11 Fix. See https://github.com/philipwalton/flexbugs/issues/127
+    > * {
+        max-width: 100%
+    }
+
+    .slide-intro__title, .slide-intro__subtitle {
+        text-align: center;
+        font-weight: 600;
+        text-shadow: 0 0 6px rgba(0,0,0,0.6);
+        color: #FFF;
+    }
+
+    background-position: 50% 100%; // default to override if needed
+
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    &.city-paris {
+        @media #{$mq-mobile} {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-small.jpg");
+        }
+        @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-mlarge.jpg");
+        }
+        @media
+            #{$mq-from-large},
+            #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
+            #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi)
+        {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-xlarge.jpg");
+        }
+    }
+
+    ~ .cc-media-attribution {
+        @include cc-media-attribution();
+    }
+}
+
+.background-cover-dark {
+    position: relative;
+    z-index: 1;
+    &::after {
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: #000;
+        opacity: 0.25;
+        content: " ";
+    }
+}
+
+.image-white-cta {
+    background-color: #FFF;
+    h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+    padding: 0.5rem 1rem;
+    text-align: center;
+}
+.image-white-cta__img-container {
+    display: inline-block;
+    max-width: 100%;
+    img:focus, img:hover, img:active {
+        opacity: 0.95;
+    }
+}
+
+
+// using currentColor as fill property in svg to change medal color
+.icon.medal {
+    height: 6rem;
+    width: 6rem;
+    &.small-medal {
+        vertical-align: sub; // same as icon-inline
+        height: 1.125rem;
+        width: 1.125rem;
+    }
+    &.bronze {
+        color: $platform-color-bronze;
+    }
+    &.gold {
+        color: $platform-color-gold;
+    }
+    &.silver {
+        color: $platform-color-silver;
+    }
+}
+.user__medal {
+    display: inline-block;
+}
+.user__medal-label {
+    display: inline-block;
+    font-weight: 600;
+}
+
+.progress {
+    // brightblue is bootstrap default setting in variables.scss
+    border-right-color: $platform-color-blue;
+    transition: border-color 0.6s ease 1s;
+    .progress-bar {
+        transition: width 0.6s ease, background-color 0.6s ease;
+    }
+}
+.progress.beginner {
+    .progress-bar {
+        background-color: $platform-color-blue;
+    }
+    border-right-color: $platform-color-bronze;
+}
+.progress.bronze {
+    .progress-bar {
+       background-color: $platform-color-bronze;
+    }
+    border-right-color: $platform-color-silver;
+}
+.progress.silver {
+    .progress-bar {
+        background-color: $platform-color-silver;
+    }
+    border-right-color: $platform-color-gold;
+}
+.progress.gold {
+    .progress-bar {
+        background-color: $platform-color-gold;
+    }
+    border-right-color: $platform-color-gold;
+}
+
+
+// Utility
+
+.no-margin-bottom {
+    margin-bottom: 0!important;
+}
+.margin-bottom {
+    margin-bottom: 0.5rem!important;
+}
+.margin-b {
+    margin-bottom: 0.25rem!important;
+}
+.margin-bottom-plus {
+    margin-bottom: 1rem!important;
+}
+.no-margin-top {
+    margin-top: 0!important;
+}
+.margin-top {
+    margin-top: 0.5rem!important;
+}
+.margin-top-plus {
+    margin-top: 1rem!important;
+}
+.margin-left {
+    margin-left: 0.5rem!important;
+}
+.no-margin {
+    margin: 0!important;
+}
+
+.pull-top {
+    margin-top: -1rem!important;
+}
+.pull-t {
+    margin-top: -0.5rem!important;
+}
+.pull-bottom {
+    margin-bottom: -1rem!important;
+}
+.pull-b {
+    margin-bottom: -0.5rem!important;
+}
+
+.no-padding-bottom {
+    padding-bottom: 0!important;
+}
+.padding-bottom {
+    padding-bottom: 0.5rem!important;
+}
+.no-padding-top {
+    padding-top: 0!important;
+}
+.padding-top {
+    padding-top: 0.5rem!important;
+}
+.padding-left {
+    padding-left: 0.5rem!important;
+}
+.no-padding {
+    padding: 0!important;
+}
+
+// mind to nest within a container when using foundation XXX-up-2 (IE doesn't substract padding and wraps)
+.padded-sides {
+    padding-left: 1rem!important;
+    padding-right: 1rem!important;
+}
+
+.v-align-middle {
+    vertical-align: middle;
+}
+
+// can avoid modal's text polluting background during app loading
+.content--hide {
+    display:none;
+}
+.content--invisible {
+    visibility: hidden;
+}
+
+.ellipsis {
+    // works with block element or inline-block with max-width
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.position { // to absolutely position children
+    position: relative;
+}
+
+.force-inline {
+    display: inline!important;
+}
+
+/*Fix for Chromium, sip-img overflows container's border-radius*/
+.-background {
+    border-radius: inherit;
+}
+
+.webkit-render-fix {
+    -webkit-transform: translate3d(0, 0, 0);
+}
+.hardware-acceleration {
+    transform: translate3d(0, 0, 0);
+}
+
+@mixin img--cover-vertical {
+    // img global style height:auto is already applied
+    min-height: 100%;
+    width: 100%;
+}
+
+$lazy-image-blur: 2px;
+img {
+    &.fit-cover {
+        object-fit: cover;
+        overflow: hidden;
+    }
+    &.fit-contain {
+        object-fit: contain;
+        overflow: hidden;
+    }
+    &.img--cover-vertical {
+        @include img--cover-vertical();
+    }
+    &[lazy-img] {
+        filter: blur($lazy-image-blur);
+    }
+    &[lazy-img].success-lazyload {
+        transition: filter 0.5s;
+        filter: blur(0);
+    }
+}
+.fit-replace {
+    &.fit-replace-true {
+        img {
+            // keeps space for backgound replacement, img must come after background
+            visibility: hidden;
+        }
+        .background-replace {
+            // Absolute position fixes for Flexbox (webkit)...
+            // See http://stackoverflow.com/questions/7676022/html5-flexible-box-model-height-calculation/15388247#15388247
+            // and avoids overflow if parent has position:relative
+            position: absolute;
+        }
+    }
+    &.fit-replace-false {
+        .background-replace {
+            display: none;
+        }
+    }
+}
+
+
+// Layout and utility fixes
+
+.show-for-medium.inline {
+    @media #{$mq-from-tablet} {
+        display: inline !important;
+    }
+}
+.show-for-desktop.inline {
+    @media #{$mq-from-desktop} {
+        display: inline !important;
+    }
+}
+
+.hide-for-small-only.flex-container {
+    @media #{$mq-from-tablet} {
+        display: flex !important;
+    }
+}
+.hide-for-desktop.flex-container {
+    @media #{$mq-until-tablet} {
+        display: flex !important;
+    }
+}
+
+// effect similar to desktop-up-2 without side effects
+.desktop-max-width--half {
+    @media #{$mq-from-desktop} {
+        max-width: 50%;
+    }
+}
+
+[class*="-up-"] > div { // foundation small-up-2, medium-up-...
+    padding: 0 0.25rem 0.5rem;
+}
+
+[data-sip-autoblur] {
+    user-select: none;
+}
+
+
+// Overriding plugins or imported themes
+
+// Ui-bootstrap datepicker
+// Fix datepicker position
+// See https://github.com/angular-ui/bootstrap/issues/1012
+.datepicker-side {
+    position: relative;
+    &.datepicker-right .dropdown-menu {
+       left: auto !important;
+       right: 0px;
+    }
+    &.datepicker-left .dropdown-menu {
+       left: 0px;
+       right: auto !important;
+    }
+}
+.dropdown-menu, .datepicker-container {// bootstrap buttons
+    button.btn {
+        border-radius: 0;
+        border: none;
+    }
+    .btn-info.active, .valid-date .btn-info.active {
+        background-color: scale-color($platform-color-blue, $lightness: 30%); // same blue as sidebar inbox
+    }
+    .valid-date .btn {
+        background-color: rgba($platform-color-green, 0.3);
+    }
+    tbody .btn.disabled, tbody .btn[disabled] {
+        background: #DDD;
+        opacity: 0.3;
+    }
+    thead .btn.disabled, thead .btn[disabled] { // month
+        opacity: 1;
+    }
+}
+.uib-datepicker-popup.dropdown-menu {
+    border-radius: 0.5 * $global-radius;
+    min-width: 220px; // Increase min-width as datepicker fix for Firefox and android devices
+    padding: 0; // make focus ring match layout border
+}
+.datepicker-container table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+// Ui-bootstrap tooltips
+[uib-tooltip], [uib-popover] {
+    &.badge, &:not(.input__inner-icon) { // .input__inner-icon has specific dimensions
+        @media #{$mq-until-tablet} {
+            min-width: 1.25rem;
+            min-height: 1.25rem;
+            padding: 0.25rem;
+            font-size: 0.875rem;
+        }
+    }
+    // Optionnaly hide tooltips too big for mobiles or not so useful with this class
+    &.tooltip-dispensable {
+        @media #{$mq-until-tablet} {
+            display: none;
+        }
+    }
+}
+// Override bootstrap popover font
+body .popover {
+    font-family: inherit; // override bootstrap
+}
+// Popover: override view styles
+.popover h3.popover-title, .popover .popover-title {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5rem;
+    margin: 0;
+}
+
+// Select-ui Boostrap
+.ui-select-container.ui-select-multiple.ui-select-bootstrap {
+    border-radius: 0.5 * $global-radius;
+    &.default-input-tag-list {
+        @include input-like();
+        box-shadow: none;
+    }
+    input.ui-select-search {
+        display: inline-block;
+        padding: $form-padding * 0.25 $form-padding * 0.5 $form-padding * 0.5;
+        margin-bottom: 0;
+        height: auto; // Override default size to avoid letters being cropped in Firefox (line-height bug)
+    }
+}
+.ui-select-container.ui-select-bootstrap.flat-border {
+    border: 1px solid #DDD;
+    box-shadow: none;
+    margin-bottom: $global-padding; // foundation default 1rem
+    &:focus, &:hover {
+        border: $input-border;
+    }
+}
+.ui-select-container .ui-select-dropdown {
+    max-height: 9rem!important;
+}
+.ui-select-bootstrap > .ui-select-no-choice {
+    padding-left: 20px;
+}
+// Forcing one-line
+// .ui-select-container.ui-select-multiple {
+//     white-space: nowrap;
+//     :not(.ui-select-choices) {
+//         overflow: hidden;
+//     }
+// }
+
+
+// Modals
+
+.fluid-helper-modal {
+    .modal > .grid-block.wrap, .modal > .flex-container {
+        @media #{$mq-s-small} {
+            // Can't apply this to bigger screens (single line) since this can cause out line shrinking on spec compliant browsers (FF)
+            // According to spec, a single-effective-line flex container with flex-wrap is noneteheless multiline, so that align-content applies
+            // https://github.com/philipwalton/flexbugs/issues/155
+            align-content: flex-start;
+        }
+    }
+    .modal {
+        font-size: 0.875rem;
+        border-radius: 0.5 * $global-radius;
+        overflow-y: auto;
+        > .grid-block, > .flex-container {
+            @media #{$mq-from-tablet} {
+                min-height: 500px;
+            }
+            .helper, .content {
+                padding: 1rem;
+            }
+        }
+    }
+    .helper {
+        background-color: rgb(240, 240, 245);
+    }
+    .profile__image {
+        height: 4.5rem;
+        width: 4.5rem;
+        margin: 0 auto 0.5rem;
+    }
+    .content {
+        background-color: #FFF;
+    }
+    h2.fluid-helper-modal__title {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .joy-icon.items {
+        color: transparent; // customizable background circle colour
+    }
+}
+
+.modal {
+    padding: 0;
+
+    @media #{$mq-from-tablet} {
+        // IE Fix
+        // overrides viewportsUnit buggyfill (100vh > ---px for ALL screens instead of mobiles only)
+        height: auto!important;
+    }
+    .card {
+        color: #333;
+        border: none;
+    }
+    .card-divider {
+        @include card-divider(
+            $padding: 0.5rem 1rem
+        );
+        font-size: 1.125rem;
+        font-weight: 600;
+        h4 {
+            margin: 0;
+        }
+    }
+    .grid-content {
+        padding: 1rem 1rem 0.5rem;
+    }
+    // Foundation for apps accessibility override
+    .close-button {
+        padding: 0.5rem;
+        margin-top: -0.5rem;
+        margin-right: -0.5rem;
+    }
+}
+
+.item-validation__fields .item-validation__switch-label {
+    width: 10rem;
+    display: inline-block;
+}
+
+#feedback-modal {
+    .close-button {
+        top: 0.25rem;
+        right: 0.25rem;
+        color: #FFF;
+        font-size: 1.5rem;
+    }
+    textarea {
+        min-height: 10rem;
+        width: 100%;
+    }
+}
+
+#deleteItemConfirm-modal {
+    .button {
+        margin: 1rem 0.5rem;
+    }
+}
+#registerItemConfirm-modal {
+    .switch {
+        vertical-align: bottom;
+    }
+}
+
+#authenticationModal, #promptInfoModal {
+    .modal {
+        height: auto!important; // vertical centering, even on small screens
+        background: none;
+    }
+    .close-button {
+        right: 2rem; // overriding foundation's 1rem
+    }
+    // overriding authentication.scss
+    .signin-form {
+        background-color: rgba(255, 255, 255, 1);
+        padding: 0.5rem 1rem;
+        width: 90%;
+        margin: 0.5rem auto;
+        border-radius: 0.5 * $global-radius;
+
+        #{$text-input-selectors} {
+            border: 1px solid rgba(133, 130, 133, 0.5);
+            &:hover,
+            &:focus {
+                background-color: #FFF;
+                border: 1px solid rgba(0, 87, 142, 0.5);
+            }
+        }
+    }
+}

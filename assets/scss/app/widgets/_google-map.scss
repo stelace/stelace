@@ -1,0 +1,48 @@
+.map-container {
+    position: relative;
+    width: 100%; //broken if height is set to 100%
+    margin: 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    img {
+        max-width: none;
+        //http://stackoverflow.com/questions/13962398/google-maps-api-v3-tools-visual-distortions
+    }
+    label { width: auto; display: inline; }
+    &.fixed-height-until-tablet {
+        @media #{$mq-until-tablet} {
+            height: 10rem;
+        }
+        @media #{$mq-tablet} and #{$mq-portrait} {
+            height: 15rem;
+        }
+    }
+}
+
+.angular-google-map-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#{$text-input-selectors} {
+    &.map-input {
+        border: $platform-color-green solid 2px;
+        border-radius: $global-radius;
+        line-height: 1.2;
+        padding: 0.2rem 0.4rem;
+        margin-top: 5px;
+        margin-left: 5px;
+        background-color: rgba(255,255,255,0.9);
+        width: 60%;
+        min-width: 160px;
+        &:hover,
+        &:focus {
+            background-color: rgba(255,255,255,1);
+        }
+        &::placeholder {
+            color: #000;
+        }
+    }
+}

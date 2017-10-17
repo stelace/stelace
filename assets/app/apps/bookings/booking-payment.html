@@ -1,0 +1,317 @@
+<div class="booking-step">
+    <div class="header-space"></div>
+
+    <form class="form--control" name="paymentForm"
+        ng-show="vm.item"
+        novalidate>
+    <div class="booking__payment">
+        <div class="fluid-content flex-container small-vertical desktop-horizontal">
+            <div class="desktop-8 small-order-2 desktop-order-1">
+                <h2>
+                    <span ng-if="vm.booking.takerPrice">Paiement</span>
+                    <span ng-if="! vm.booking.takerPrice">Dépôt de garantie pour un emprunt gratuit</span>
+                </h2>
+                <p class="text-justify"
+                    ng-if="vm.booking.deposit">
+                    <span ng-if="! vm.booking.takerPrice">
+                        Afin de réserver cet objet
+                    </span>
+                    <span ng-if="vm.booking.takerPrice">
+                        En complément de votre paiement de {{vm.booking.takerPrice}}€
+                    </span>
+                    pour {{vm.booking.nbBookedDays}} jour{{vm.booking.nbBookedDays > 1 ? "s" : ""}} d'emprunt, un dépôt de garantie (caution) de {{vm.booking.deposit}}€ va être bloqué sur votre carte bancaire, mais ne sera en aucun cas prélevé en l'absence de dégradation, perte ou vol. Il s'agit d'une mesure de sécurité protégeant le propriétaire.
+                </p>
+                <p class="text-justify">
+                    Vous pourrez confirmer le bon état de l'objet avant de le récupérer grâce à un contrat
+                    <span ng-show="vm.booking.free">de prêt</span>
+                    <span ng-hide="vm.booking.free">de location</span>
+                    électronique.
+                    Il vous sera possible d'annuler sans frais en cas de non-conformité avec l'annonce ou de mauvais état de l'objet.
+                </p>
+                <div ng-if="vm.cards.length" ng-switch="vm.cards.length">
+                    <div ng-switch-when="1">
+                        <span class="switch small switch--success">
+                            <input id="switch-extra-card" type="checkbox" ng-model="vm.reuseCard">
+                            <label for="switch-extra-card"></label>
+                        </span>
+                        <span ng-class="{'text--light text--fade': !vm.reuseCard}">
+                            Je souhaite utiliser ma carte
+                            <span class="text--semibold">{{vm.cards[0].alias}} - Exp. {{vm.cards[0].expirationDate.substr(0,2) + "/" + vm.cards[0].expirationDate.substr(2,4)}}</span>
+                        </span>
+                    </div>
+                    <div ng-switch-default>
+                        <div class="margin-bottom">Je souhaite utiliser une de ces cartes&nbsp;:</div>
+                        <div ng-repeat="card in vm.cards track by card.id">
+                            <input type="radio" name="card"
+                                ng-model="vm.selectedCard"
+                                ng-value="card"
+                                ng-click="vm.reuseCard = true">
+                            <label>{{card.alias}} - Exp. {{card.expirationDate.substr(0,2) + "/" + card.expirationDate.substr(2,4)}}</label>
+                        </div>
+                        <div class="margin-top-plus margin-bottom cursor-pointer link--blue-underline"
+                            ng-click="vm.cardsToggle()" ng-switch="vm.reuseCard">
+                            <span ng-switch-when="true">Je souhaite ajouter une carte.</span>
+                            <span ng-switch-when="false">Je souhaite réutiliser une carte.</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Collapse causes bugs on Chromium (input content hidden until resize) > use hardawre acceleration-->
+                <div class="webkit-render-fix"
+                    uib-collapse="vm.cards.length && vm.reuseCard">
+                    <p class="text--semibold margin-top margin-bottom"
+                        ng-if="! vm.reuseCard && vm.cards.length < 2">
+                        Je souhaite utiliser une nouvelle carte
+                    </p>
+                    <label for="card-number">
+                        Numéro de carte
+                    </label>
+                    <div class="flex-container flex--wrap">
+                        <div id="card-input-container" class="input__inner-icon-container small-12 medium-6">
+                            <input id="card-number" name="newCardNumber" type="text"
+                                class=""
+                                ng-model="vm.newCard.number"
+                                data-cc-number
+                                data-cc-format
+                                data-cc-eager-type>
+                            <!-- Tooltip auto left placement if buggy here, probably due to absolute positionning -->
+                            <span class="input__inner-icon icon-right"
+                                data-tooltip-placement="left"
+                                data-tooltip-trigger="mouseenter outsideClick"
+                                uib-tooltip="Votre numéro de carte est crypté par notre partenaire bancaire Mangopay - Crédit Mutuel">
+                                <img src="/assets/img/app/icons/lock-check.png" alt="Verrou - Paiement 3DSecure">
+                            </span>
+                            <div class="form-warning text--semibold"
+                                uib-collapse="vm.editingCardNumber || ! paymentForm.newCardNumber.$touched || ! paymentForm.newCardNumber.$invalid">
+                                Veuillez vérifier votre numéro de carte.
+                            </div>
+                        </div>
+                        <img class="card-type-logo" src="/assets/img/app/payment/visa_logo.png" alt="logo Visa"
+                            ng-class="{ 'active': paymentForm.newCardNumber.$ccEagerType === 'Visa', 'inactive': paymentForm.newCardNumber.$ccEagerType && paymentForm.newCardNumber.$ccEagerType !== 'Visa'}">
+                        <img class="card-type-logo" src="/assets/img/app/payment/mastercard_logo.png" alt="logo MasterCard"
+                            ng-class="{ active: paymentForm.newCardNumber.$ccEagerType === 'MasterCard', 'inactive': paymentForm.newCardNumber.$ccEagerType && paymentForm.newCardNumber.$ccEagerType !== 'MasterCard'}">
+                        <!-- Collapse flickering will be fixed. See https://github.com/tmcgee123/bootstrap/commit/b7b1861dddd98b323d444e5cd2dde7b60110c990 -->
+                    </div>
+                    <label for="select-expiration-month">
+                        Expiration
+                    </label>
+                    <div class="flex-container flex--start booking__card-expiration">
+                        <select id="select-expiration-month" name="card-expiration-month"
+                            ng-model="vm.cardExpirationMonth"
+                            ng-required="! vm.reuseCard">
+                            <option value="" selected disabled>Mois</option>
+                            <option value="01" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 1">1</option>
+                            <option value="02" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 2">2</option>
+                            <option value="03" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 3">3</option>
+                            <option value="04" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 4">4</option>
+                            <option value="05" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 5">5</option>
+                            <option value="06" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 6">6</option>
+                            <option value="07" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 7">7</option>
+                            <option value="08" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 8">8</option>
+                            <option value="09" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 9">9</option>
+                            <option value="10" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 10">10</option>
+                            <option value="11" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 11">11</option>
+                            <option value="12" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 12">12</option>
+                        </select>
+                        <select id="select-expiration-year" name="card-expiration-year"
+                            ng-model="vm.cardExpirationYear"
+                            ng-required="! vm.reuseCard">
+                            <option value="" selected disabled>Année</option>
+                            <option value="{{year}}" ng-repeat="year in vm.expirationYears">{{year}}</option>
+                        </select>
+                    </div>
+                    <label for="card-cvc">
+                        Code de sécurité
+                    </label>
+                    <input id="card-cvc" type="text" name="newCardCvc" class="small-3" placeholder="XXX"
+                        ng-model="vm.newCard.cvx"
+                        data-cc-cvc>
+                    <div class="flex-container">
+                        <div class="text-center">
+                            <input id="switch-forget-card" type="checkbox" ng-model="vm.rememberCard">
+                        </div>
+                        <div class="flex-item--grow padding-left">
+                            Se souvenir de ma carte pour mes prochaines réservations.<br>
+                            <span class="text--light">Sécurisé et pratique pour vous faire gagner du temps.</span>
+                        </div>
+                    </div>
+                    <!-- <button class="button" ng-click="vm.saveCard()">Enregistrer ma carte</button> -->
+                    <img id="powered-by" class="powered-by-mangopay-logo"
+                        src="/assets/img/app/payment/powered-by-mangopay_v2.png" title="Paiement sécurisé via Mangopay et Crédit Mutuel" alt="Logo - Paiement sécurisé via MangoPay / Crédit Mutuel">
+                </div>
+                <hr>
+
+                <h2>Informations de facturation</h2>
+                <div class="flex-form__fields"> <!-- noAccount to avoid block disappearance -->
+                    <div class="flex-container flex-form-line">
+                        <div class="small-6">
+                            <label for="booker-firstname">
+                                Prénom
+                            </label>
+                            <input id="booker-firstname" type="text"
+                                ng-model="vm.firstName"
+                                required>
+                        </div>
+                        <div class="small-6">
+                            <label for="booker-lastname">
+                                Nom
+                            </label>
+                            <input id="booker-lastname" type="text"
+                                ng-model="vm.lastName"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-container" ng-show="vm.showEmail">
+                        <div class="small-12">
+                            <label for="booker-email">
+                                Email
+                            </label>
+                            <input id="booker-email" type="email"
+                                ng-model="vm.email"
+                                required>
+                        </div>
+                    </div>
+                    <div ng-include="'/assets/app/templates/select-birthday.html'"></div>
+                    <div ng-include="'/assets/app/templates/select-country-short.html'"></div>
+                    <!-- <button class="button" ng-click="vm.createAccount()">Enregistrer mon identité</button> -->
+                </div>
+
+                <hr class="collapse-bottom">
+            </div>
+
+            <div class="booking-summary__container small-order-1 desktop-4 desktop-order-2">
+                <!-- Remember to update offset if changing position/marings -->
+                <div class="booking-summary"
+                    data-offset="16"
+                    data-bound-id="booking-confirm"
+                    data-sip-sticky-sidebar>
+                    <div class="booking-summary__title">
+                        <h1 class="ellipsis">{{::vm.booking.itemSnapshot.name}}</h1>
+                    </div>
+                    <div>
+                        <div class="booking-summary__picture">
+                            <sip-img ng-src="{{vm.item.url + '?size=800x600'}}" type="background"></sip-img>
+                        </div>
+                        <div class="booking-summary__content">
+                            <div ng-if="vm.showBookingDuration">
+                                <div class="margin-bottom">
+                                    Réservation pour
+                                    <span class="text--semibold">{{::vm.bookingDuration}}</span>
+                                    du
+                                    <span class="text--semibold">{{::vm.startDate}}</span>
+                                    au
+                                    <span class="text--semibold">{{::vm.endDate}}</span>
+                                </div>
+                                <hr>
+                            </div>
+                            <div class="margin-bottom" ng-if="vm.itemLocations.length">
+                                {{::vm.item.owner.fullname}} a indiqué préférer un rendez-vous
+                                <span ng-if="vm.itemLocations.length > 1">aux lieux suivants</span>
+                                <span ng-if="vm.itemLocations.length <= 1">au lieu suivant</span>&nbsp;:
+                            </div>
+                            <div class="margin-bottom-plus booking-summary__locations" ng-if="vm.itemLocations.length">
+                                <span ng-repeat="loc in vm.itemLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
+                            </div>
+                            <div class="booking-summary__price">
+                                <div data-sip-pricing-table
+                                    ng-if="vm.booking && vm.item"
+                                    booking="vm.booking"
+                                    item="vm.item">
+                                </div>
+                            </div>
+                            <div class="margin-top margin-bottom"
+                                ng-if="vm.booking.deposit">
+                                Dépôt de garantie&nbsp;: <span class="text--semibold">{{vm.booking.deposit}}€</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="booking__message">
+        <div class="fluid-content">
+            <div class="small-12 desktop-8">
+                <h2>Réservez en toute confiance</h2>
+                <label>Présentez-vous à {{::vm.item.owner.fullname}} ou apportez des précisions&nbsp;:</label>
+                <textarea name="privateContent"
+                    rows="5"
+                    ng-maxlength="2000"
+                    placeholder="Donnez quelques informations pour l'inciter à accepter votre réservation si ce n'est pas déjà fait. Vous pouvez par exemple vous présenter en quelques mots et dire pourquoi cet objet vous intéresse."
+                    ng-model="vm.privateContent"
+                    ng-required="! vm.conversation"
+                    sip-textarea-auto-adjust>
+                    </textarea>
+                <label ng-if="! vm.conversation">Poser vos questions sur l'objet&nbsp;:</label>
+                <textarea name="publicContent"
+                    rows="5"
+                    ng-maxlength="2000"
+                    placeholder="Vous pouvez ici poser vos questions sur l'objet lui-même."
+                    ng-model="vm.publicContent"
+                    ng-if="! vm.conversation"
+                    sip-textarea-auto-adjust>
+                </textarea>
+                <hr class="collapse-bottom">
+            </div>
+        </div>
+    </div>
+    <div class="booking__contact-info  text-justify" ng-if="! vm.existingPhone || vm.noImage">
+        <div class="fluid-content">
+            <div class="small-12 desktop-8" ng-if="! vm.existingPhone && vm.isSmsActive">
+                <h2>Facilitez-vous la vie</h2>
+                <p>
+                    Si votre demande est acceptée, nous pourrons vous prévenir gratuitement par SMS et cela facilitera vos échanges avec {{vm.item.owner.firstname || vm.item.owner.fullname}}. Votre numéro ne lui sera communiqué qu'en cas d'acceptation.
+                </p>
+                <data-sip-prompt-phone
+                    ng-class="{'prompt-highlight': vm.promptPhoneHighlight}"
+                    prompt-highlight="vm.promptPhoneHighlight">
+                </data-sip-prompt-phone>
+                <p>Un numéro vérifié est également un gage de confiance sur la plateforme et augmente vos chances de recevoir des réponses favorables.</p>
+                <hr ng-class="{'collapse-bottom': ! vm.noImage}">
+            </div>
+            <div class="small-12 desktop-8" ng-if="vm.noImage">
+                <h2>Inspirez confiance</h2>
+                <p>
+                    Les photos de profil permettent aux membres Sharinplace de se reconnaître lorsqu'ils se recontrent pour échanger des objets et sont un gage de confiance supplémentaire. Ajoutez la vôtre en quelques secondes.
+                </p>
+                <data-sip-prompt-image></data-sip-prompt-image>
+                <hr class="collapse-bottom">
+            </div>
+        </div>
+    </div>
+    <div id="booking-confirm"
+        class="booking__confirm">
+        <div class="fluid-content">
+            <div class="small-12 desktop-8">
+                <p class="booking__confirmation-paragraph" ng-if="vm.booking.takerPrice">
+                    J'accepte de payer {{vm.booking.takerPrice}}€. Je ne serai prélevé qu'en cas d'acceptation de ma réservation et pourrai annuler intégralement la transaction si l'objet n'est pas conforme à l'annonce.
+                </p>
+                <p class="booking__confirmation-paragraph" ng-if="vm.booking.deposit">
+                    J'accepte que le montant du dépôt du garantie, qui s'élève à {{vm.booking.deposit}}€, soit immobilisé sur ma carte bancaire. Il ne sera en aucun cas prélevé en l'absence de litige.
+                </p>
+                <p class="booking__confirmation-paragraph">
+                    En cliquant sur
+                    <span ng-if="vm.booking.takerPrice">"Confirmer et payer",</span>
+                    <span ng-if="! vm.booking.takerPrice">"Confirmer <span ng-if="vm.booking.deposit">le dépôt de garantie</span>",</span>
+                    je déclare avoir lu et accepté les <a ui-sref="terms" target="_blank">Conditions Générales de Services et d'Utilisation de Sharinplace</a>.
+                </p>
+                <div class="submit-zone">
+                    <button id="confirm-pay-button" class="button" type="submit"
+                        ng-click="vm.createPayment()">
+                        <span ng-if="vm.booking.takerPrice">Confirmer et payer</span>
+                        <span ng-if="! vm.booking.takerPrice">Confirmer <span ng-if="vm.booking.deposit">le dépôt de garantie</span></span>
+                    </button>
+                    <span data-us-spinner data-spinner-key="payment-spinner"></span>
+                </div>
+                <div id="secure-mode" ng-if="vm.booking.deposit || vm.booking.takerPrice">
+                    <img id="secure-mode-logo" src="/assets/img/app/payment/3DSecure.png" title="Paiement sécurisé 3DSecure - Mangopay / Crédit Mutuel" alt="Logo - Verified by Visa - MasterCard SecureCode">
+                    <p class="text-center text--semibold medium-10 medium-offset-1">
+                        Pour garantir votre sécurité, votre banque va procéder à une vérification 3DSecure<span ng-if="! vm.booking.takerPrice">&nbsp;dans le cadre du dépôt de garantie d'un montant de {{vm.booking.deposit}}€. Ce montant ne sera jamais débité en l'absence de litige, bien que votre banque puisse employer le terme de "paiement"</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+
+    <div ng-include="'/assets/app/layout/footer.html'" ng-show="vm.item"></div>
+</div>

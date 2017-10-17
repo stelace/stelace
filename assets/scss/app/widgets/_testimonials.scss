@@ -1,0 +1,35 @@
+.stelace-testimonials {
+    overflow-x: auto; // for very small screens
+
+    .profile__image-container {
+        display: block;
+        flex: 0 0 4rem;
+        max-width: 5.5rem;
+        margin-right: 0.5rem;
+        padding-top: 0.375rem;
+        text-align: center;
+    }
+
+    .profile__image {
+        border: 2px solid #FFF;
+        margin: 0 auto;
+    }
+}
+
+.stelace-testimonials__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+.stelace-testimonials__name {
+    font-weight: 600;
+    word-wrap: break-word;
+}
+.stelace-testimonials__message {
+    position: relative;
+    margin-right: 0.25rem;
+}
+.stelace-testimonials__container:last-child {
+    @media #{$mq-tablet} {
+        display: none;
+    }
+}

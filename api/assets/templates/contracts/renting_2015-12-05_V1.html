@@ -1,0 +1,262 @@
+<!doctype html>
+
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Contrat de location d’objet entre particuliers</title>
+        <meta name="description" content="Ce contrat de location définit vos obligations dans le cadre d’une transaction sur Sharinplace.fr, le site de partage et de location d’objets entre particuliers.">
+        <meta name="robots" content="noindex">
+        <style type="text/css">
+            body {
+                text-align: justify;
+                font-family: Helvetica, Arial, sans-serif;;
+                font-size: 13px;
+            }
+            h1 {
+                font-size: 16px;
+                font-weight: bold;
+                text-align: center;
+            }
+            h2 {
+                font-size: 14px;
+                font-weight: bold;
+            }
+            em, .contract__info {
+                font-style: italic;
+            }
+            .contract__party {
+                text-decoration: underline;
+            }
+            .light-text {
+                color: #999;
+            }
+            .user-generated {
+                white-space: pre-line;
+                word-wrap: break-word;
+                font-size: 12px;
+                color: #333;
+            }
+            .contract__signature {
+                font-style: italic;
+                font-weight: bold;
+            }
+            .contract__assessment-title {
+                font-weight: bold;
+            }
+            .contract__assessment-subtitle {
+            }
+            .contract__id {
+                color: #999;
+                margin-top: 30px;
+                margin-bottom: -10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>
+            Contrat de location électronique entre particuliers
+        </h1>
+        <p>
+            En tant que membre de Sharinplace, vous déclarez avoir lu et accepté les <em>Conditions Générales de Service et d’Utilisation</em> de Sharinplace en vigueur le jour de la signature de ce contrat électronique, accessibles à l’adresse <a href="https://sharinplace.fr/terms">https://sharinplace.fr/terms</a>.
+        </p>
+
+
+        <h2>
+            Préambule
+        </h2>
+        <p>
+            Le présent contrat de location est conclu entre les <em>Parties</em>&nbsp;: le <em>Propriétaire</em> de l’objet loué et son <em>Emprunteur</em>, qui déclarent être majeures et certifient l’exactitude de leurs coordonnées figurant ci-après. Ces informations sont librement modifiables par leurs soins dans leurs comptes Sharinplace respectifs avant la signature électronique de ce contrat.
+        </p>
+
+        <p class="contract__party">
+            Le <em>Propriétaire</em>&nbsp;:
+        </p>
+        {{#if owner.obfuscated}}
+        <p class="light-text">
+            Par sécurité, les coordonnées respectives des <em>Parties</em> sont masquées avant le paiement et l’acceptation de la réservation. Ces coordonnées seront affichées avant la signature électronique.
+        </p>
+        {{/if}}
+        <p>
+            Nom&nbsp;: {{#if owner.lastname}}{{owner.lastname}}{{else}}Non renseigné{{/if}}, Prénom&nbsp;: {{#if owner.firstname}}{{owner.firstname}}{{else}}Non renseigné{{/if}}
+        </p>
+        <p>
+            Adresse&nbsp;: {{owner.mainLocation}}
+        </p>
+        <p>
+            Téléphone&nbsp;: {{#if owner.phone}}{{owner.phone}}{{else}}Non renseigné{{/if}}, Adresse email&nbsp;: {{owner.email}}
+        </p>
+
+        <p class="contract__party">
+            L’<em>Emprunteur</em>&nbsp;:
+        </p>
+        {{#if taker.obfuscated}}
+        <p class="light-text">
+            Par sécurité, les coordonnées respectives des <em>Parties</em> sont masquées avant le paiement et l’acceptation de la réservation. Ces coordonnées seront affichées avant la signature électronique.
+        </p>
+        {{/if}}
+        <p>
+            Nom&nbsp;: {{#if taker.lastname}}{{taker.lastname}}{{else}}Non renseigné{{/if}}, Prénom&nbsp;: {{#if taker.firstname}}{{taker.firstname}}{{else}}Non renseigné{{/if}}
+        </p>
+        <p>
+            Adresse&nbsp;: {{#if taker.mainLocation}}{{taker.mainLocation}}{{else}}Non renseignée{{/if}}
+        </p>
+        <p>
+            Téléphone&nbsp;: {{#if taker.phone}}{{taker.phone}}{{else}}Non renseigné{{/if}}, Adresse email&nbsp;: {{taker.email}}
+        </p>
+
+        <p class="contract__info">
+            Il n’est pas nécessaire d’imprimer ce contrat électronique, dont les annexes (&laquo;&nbsp;états des lieux&nbsp;&raquo; signés) sont automatiquement ajoutées à chaque étape de la transaction.
+        </p>
+        <p>
+            Il est rappelé que la société Sharinplace SAS, immatriculée au Registre du Commerce et des Sociétés de Bobigny sous le numéro RCS 813758653, à laquelle appartient le <em>Site</em> Internet sharinplace.fr, ne joue que le rôle d’intermédiaire dans la relation entre les <em>Parties</em> et n’intervient pas dans la location. Par conséquent, elle ne serait être tenue responsable d’une mauvaise exécution du présent contrat par l’une ou l’autre des <em>Parties</em>.
+        </p>
+
+        <h2>
+            Article 1&nbsp;: Objet du contrat
+        </h2>
+        <p>
+            Ce contrat a pour objet la location du bien suivant&nbsp;: {{item.name}}
+        </p>
+        <p>
+            Décrit par le <em>Propriétaire</em> comme suit&nbsp;: <span class="user-generated">{{#if item.description}}{{item.description}}{{else}}Non renseigné{{/if}}</span>
+        </p>
+        <p>
+            Les droits de l’<em>Emprunteur</em> générés par cette location sont personnels et incessibles.
+        </p>
+
+
+        <h2>
+            Article 2&nbsp;: Conditions préalables à respecter par le <em>Propriétaire</em>
+        </h2>
+        <p>
+            Le <em>Propriétaire</em> doit renoncer à louer l’objet s’il a connaissance d’une défaillance ou d’un problème relatif à la sécurité de l’objet. Le <em>Propriétaire</em> certifie que l’objet est en règle, et en particulier en conformité avec les normes européennes en vigueur (associées au sigle &laquo;&nbsp;CE&nbsp;&raquo;).
+        </p>
+        <p>
+            Le <em>Propriétaire</em> s’engage par ailleurs à ce que la description faite de l’objet soit conforme à son état lors de la réservation de celui-ci et de sa transmission à l’<em>Emprunteur</em>.
+        </p>
+
+
+        <h2>
+            Article 3&nbsp;: Durée et exécution du contrat
+        </h2>
+        <p>
+            Ce contrat est conclu pour les dates théoriques suivantes&nbsp;: du {{booking.startDate}} au {{booking.endDate}}.
+        </p>
+        <p>
+            Il prend effet dès lors que les deux <em>Parties</em> ont signé le procès-verbal contradictoire initial, ou &laquo;&nbsp;état des lieux initial&nbsp;&raquo;. Cet état des lieux est rempli par le <em>Propriétaire</em> et accepté par l’<em>Emprunteur</em> qui communique son code secret au <em>Propriétaire</em>. Ce code secret est communiqué à l’<em>Emprunteur</em> par Sharinplace par email et SMS après paiement et acceptation de sa demande de réservation. La saisie de ce code par le <em>Propriétaire</em> dans le champ prévu à cet effet dans son compte Sharinplace en ligne vaut acceptation de l’état des lieux initial par les deux <em>Parties</em>.
+        </p>
+        <p>
+            Pour des raisons de sécurité, tout prolongement de cette période de location devra être effectué par le biais d’une nouvelle demande de réservation effectuée sur le <em>Site</em> Sharinplace.fr. Une nouvelle transaction financière sera réalisée par une empreinte sur la carte bancaire de l’<em>Emprunteur</em> à hauteur du dépôt de garantie.
+        </p>
+        <p>
+            Au terme du contrat, l’<em>Emprunteur</em> devra restituer l’objet au <em>Propriétaire</em> dans l’état dans lequel il lui avait été remis.
+        </p>
+        <p>
+            L’état de l’objet est validé par les deux <em>Parties</em> par le biais de l’état des lieux de restitution, rempli à l’occasion de la restitution de l’objet au <em>Propriétaire</em>. Cet état des lieux est également signé électroniquement, grâce à un code cette fois fourni au <em>Propriétaire</em> par Sharinplace. Le <em>Propriétaire</em> communique ce code secret à l’<em>Emprunteur</em> qui le saisit dans son compte en échange de l’objet restitué pour valider l’état des lieux de restitution. Cette signature du procès-verbal de restitution marque la fin de la location définie par le présent contrat.
+        </p>
+
+
+        <h2>
+            Article 4&nbsp;: Responsabilité de l’<em>Emprunteur</em>
+        </h2>
+        <p>
+            L’<em>Emprunteur</em> est responsable de l’objet dont il a la garde conformément au Code Civil, ainsi que de tous les accessoires mis à sa disposition, et ce pendant toute la durée effective de la location délimitée par les dates de signature des procès-verbaux contradictoires annexés au contrat. L’objet et ses accessoires doivent être rendus dans l’état constaté à l’occasion de l’établissement du procès-verbal contradictoire initial.
+        </p>
+        <p>
+            L’<em>Emprunteur</em> s’engage à utiliser le bien emprunté avec précaution et à respecter l’usage pour lequel le <em>Propriétaire</em> lui loue ce bien. Il s’engage également à garder l’objet, même accidenté, sous sa responsabilité jusqu’à ce que le <em>Propriétaire</em> l’ait récupéré.
+        </p>
+        <p>
+            L’<em>Emprunteur</em> devra prendre toutes précautions pour se conformer au manuel d’utilisation de l’objet. S’il n’est pas fourni l’<em>Emprunteur</em> est censé en cas de doute se renseigner sur le site internet du constructeur.
+        </p>
+        <p>
+            En cas de vol ou de dommage causés à l’objet ou à ses accessoires par la faute ou la négligence de l’<em>Emprunteur</em>, ce dernier est tenu d’indemniser le <em>Propriétaire</em> à hauteur du préjudice effectivement subi.
+        </p>
+
+
+        <h2>
+            Article 5&nbsp;: Restitution
+        </h2>
+        <p>
+            A l’issue du contrat, l’<em>Emprunteur</em> est tenu de restituer l’objet au <em>Propriétaire</em>. Le contrat de location et la responsabilité de l’<em>Emprunteur</em> ne prennent fin qu’à réception de l’objet et à la signature électronique de l’état des lieux de restitution grâce au code secret que le <em>Propriétaire</em> fournit à l’<em>Emprunteur</em>.
+        </p>
+
+
+        <h2>
+            Article 6&nbsp;: Prix de la location et modalités de paiement
+        </h2>
+        <p>
+            Prix de la location payé par l’<em>Emprunteur</em>&nbsp;: {{booking.takerPrice}}€<br>
+            Dont frais de réservation versés par l’<em>Emprunteur</em> à Sharinplace&nbsp;: {{booking.takerFees}}€<br>
+            Dont frais de paiement versés par le <em>Propriétaire</em> à Sharinplace&nbsp;: {{booking.ownerFees}}€<br>
+            Montant du loyer reversé au <em>Propriétaire</em>&nbsp;: {{booking.ownerNetIncome}}€
+        </p>
+        <p>
+            Montant du dépôt de garantie&nbsp;: {{booking.deposit}}€
+        </p>
+        <p>
+            Le paiement s’effectue en ligne sur le <em>Site</em> par l’intermédiaire du prestataire de paiement sécurisé de Sharinplace, Mangopay, qui vérifie la disponibilité du compte de l’<em>Emprunteur</em>. Les conditions générales d’utilisation de Mangopay sont consultables à l’adresse suivante&nbsp;: <a href="https://sharinplace.fr/terms/mangopay">https://sharinplace.fr/terms/mangopay</a>.
+        </p>
+        <p>
+            Sharinplace reverse le prix de la location au <em>Propriétaire</em> après validation de la fin de la location et après déduction des éventuels frais applicables définis dans les <em>Conditions Générales de Services et d’Utilisation</em> du <em>Site</em>, qui lient les <em>Parties</em> à Sharinplace. En cas d’incident de paiement dûment constaté empêchant Sharinplace de prélever les sommes dues par l’<em>Emprunteur</em> au <em>Propriétaire</em>, l’<em>Emprunteur</em> s’engage à s’acquitter directement auprès du <em>Propriétaire</em> des paiements prévus par le présent contrat.
+        </p>
+        <p>
+            En complément du prélèvement du prix de la location effectué dès l’acceptation par le <em>Propriétaire</em>, une empreinte bancaire est réalisée sur la carte bancaire de l’<em>Emprunteur</em>, permettant de bloquer le montant correspondant au dépôt de garantie. En aucun cas cette somme ne sera débitée en l’absence de litige ou en cas de litige résolu rapidement à l’amiable. Le prélèvement du dépôt de garantie ne sera effectué qu’en dernier recours.
+        </p>
+        <p>
+            Si dans les 48 heures suivant la date de fin de la location prévue, l’objet n’est pas restitué par l’<em>Emprunteur</em>, et sans réponse de ce dernier à au moins deux sollicitations électroniques successives, la totalité du dépôt de garantie pourra être prélevée.
+        </p>
+        <p>
+            Le dépôt de garantie a pour objectif d’assurer la bonne exécution des obligations auxquelles est tenu l’<em>Emprunteur</em>, mais ne limite en aucun cas la responsabilité de ce dernier. Il est rappelé que l’<em>Emprunteur</em> est tenu d’indemniser le <em>Propriétaire</em> à hauteur du préjudice effectivement subi en cas de perte, vol ou dégradations.
+        </p>
+
+
+        {{#if initialAssessment.signedDate}}
+        <p class="contract__signature">
+            Contrat signé le {{initialAssessment.signedDate}} par {{taker.firstname}} {{taker.lastname}} et {{owner.firstname}} {{owner.lastname}}.
+        </p>
+
+        <h2>
+            Procès-verbaux contradictoires&nbsp;:
+        </h2>
+        <p class="contract__assessment-title">
+            État initial de l’objet&nbsp;:
+        </p>
+        <p>
+            <span class="contract__assessment-subtitle">Description de l’objet&nbsp;:</span> <span class="user-generated">{{item.description}}</span><br>
+            <br>
+            <span class="contract__assessment-subtitle">État de fonctionnement&nbsp;:</span> {{initialAssessment.workingLevelString}}<br>
+            <span class="contract__assessment-subtitle">État de propreté&nbsp;:</span> {{initialAssessment.cleanlinessLevelString}}<br>
+            <span class="contract__assessment-subtitle">Commentaire&nbsp;:</span> <span class="user-generated">{{initialAssessment.comment}}</span><br>
+            <span class="contract__assessment-subtitle">Date de signature du procès-verbal contradictoire initial&nbsp;:</span> {{initialAssessment.signedDate}}
+        </p>
+        {{#unless finalAssessment.signedDate}}
+        <p class="contract__info">
+            La remise du code de signature de {{owner.firstname}} {{owner.lastname}} à {{taker.firstname}} {{taker.lastname}} en échange de l’objet vaudra signature de l’état des lieux de restitution, une fois ce code saisi et enregistré par {{taker.firstname}} {{taker.lastname}} dans son compte.
+        </p>
+        {{/unless}}
+        {{else}}
+        <p class="contract__info">
+            <span class="contract__signature">Contrat non signé au {{currentDate}}</span>.<br>
+            La remise du code de signature de {{taker.firstname}} {{taker.lastname}} à {{owner.firstname}} {{owner.lastname}} en échange de l’objet vaudra signature du présent contrat, une fois ce code saisi et enregistré par {{owner.firstname}} {{owner.lastname}} dans son compte.
+        </p>
+        {{/if}}
+
+        {{#if finalAssessment.signedDate}}
+        <p class="contract__assessment-title">
+            État de l’objet lors de la restitution&nbsp;:
+        </p>
+        <p>
+            <span class="contract__assessment-subtitle">État de fonctionnement&nbsp;:</span> {{finalAssessment.workingLevelString}}<br>
+            <span class="contract__assessment-subtitle">État de propreté&nbsp;:</span> {{finalAssessment.cleanlinessLevelString}}<br>
+            <span class="contract__assessment-subtitle">Commentaire&nbsp;:</span> <span class="user-generated">{{finalAssessment.comment}}</span><br>
+            <span class="contract__assessment-subtitle">Date de signature du procès-verbal contradictoire de restitution&nbsp;:</span> {{finalAssessment.signedDate}}
+        </p>
+        {{/if}}
+
+        <div class="contract__id">
+            Identifiant de réservation Sharinplace&nbsp;: {{booking.id}}.
+        </div>
+    </body>
+</html>

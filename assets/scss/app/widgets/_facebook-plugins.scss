@@ -1,0 +1,21 @@
+.fb-page__container {
+    overflow: hidden;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.f-share-card {
+    margin: 0.5rem auto;
+    border: 1px solid #DDD;
+    cursor: pointer;
+    text-align: left;
+    .f-share-card__image-container {
+        min-width: 8rem;
+        @include aspect-ratio(4, 3);
+    }
+    .f-share-card__content {
+        min-width: 0; // Allow flex item to shrink below its minimum intrinsic width
+        // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
+        padding: 0.5rem;
+    }
+}

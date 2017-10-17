@@ -1,0 +1,65 @@
+<div class="global-landings friend-referral">
+    <div class="header-space"></div>
+    <div class="text-center slide-intro city-paris background-cover-dark padded-sides">
+        <a class="profile__image profile__image--responsive"
+            ui-sref="user({ id: vm.referrer.id })"
+            ng-if="vm.referrer.media">
+            <sip-img ng-src="{{vm.referrer.media.url + '?size=300x300'}}" alt="{{::vm.referrer.displayName}}" rounded="true"></sip-img>
+        </a>
+        <h1 class="slide-intro__title">
+            {{vm.referrer.displayName}} vous invite à vendre, acheter et louer sans frais et en toute sécurité.
+        </h1>
+        <button class="button brightblue"
+            ng-click="vm.register()">
+            Profitez-en
+        </button>
+    </div>
+    <div class="fluid-content">
+        <h2 class="text-center margin-bottom-plus">
+            Le shopping existe aussi entre particuliers&nbsp;!
+        </h2>
+        <div class="text-center">
+            <a id="friend-search-item-button" class="button button--highlight text--semibold no-margin-top margin-bottom"
+                ui-sref="search">
+                Chercher du matériel
+            </a>
+        </div>
+        <hr>
+        <h2 class="text-center">
+            Vendez, louez ou partagez vos propres objets
+        </h2>
+        <p class="text-center">
+            Inspirez-vous des nombreux objets déjà en ligne.
+        </p>
+        <div id="friend-referral__listing-board" class="item-wall grid-block small-up-2 s-medium-up-3">
+            <div
+                class="grid-block item-wall__item-wrapper"
+                data-item="::item"
+                data-display-duration="false"
+                ng-repeat="item in ::vm.items | limitTo: 3"
+                sip-item-card>
+            </div>
+        </div>
+        <div class="text-center">
+            <a id="friend-add-item-button" class="add-item-button button button--highlight text--semibold"
+                ui-sref="itemCreate">
+                Déposer votre propre annonce
+            </a>
+        </div>
+        <hr>
+        <h2 class="text-center">
+            Comment ça marche&nbsp;?
+        </h2>
+        <div class="padded-sides margin-top-plus"
+            data-sip-step-icons
+            data-steps="vm.rentingSteps">
+        </div>
+        <div class="text-center">
+            <a id="friend-renting-help" class="link--blue-underline text--semibold"
+                ui-sref="help">
+                En savoir plus (FAQ)
+            </a>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

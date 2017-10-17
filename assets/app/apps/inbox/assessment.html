@@ -1,0 +1,303 @@
+<div class="grid-block conversation__assessment">
+    <div class="medium-1"></div>
+    <div class="small-12 medium-10 plain-card">
+        <div class="plain-card__divider"
+            ng-class="{'cursor-pointer': vm.showForm}"
+            ng-click="vm.collapse = ! vm.collapse">
+            <h3>
+                {{vm.heading + (vm.ratings ? " / Commentaires" : "")}}
+            </h3>
+            <div class="collapse-arrow" ng-if="vm.showForm && ! vm.collapse">
+                &#x25B2;
+            </div>
+            <div class="collapse-arrow" ng-if="vm.showForm && vm.collapse">
+                &#x25BC;
+            </div>
+        </div>
+
+        <form class="message__content form--control webkit-render-fix" name="assessmentForm"
+            autocomplete="off"
+            ng-if="vm.showForm"
+            uib-collapse="vm.collapse"
+            novalidate>
+
+            <div class="margin-bottom text-justify"
+                ng-hide="vm.assessment.signedDate">
+                <div class="text--semibold margin-bottom">
+                    En échange de l'objet que vous remettez, vous devez impérativement demander à {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} son code de signature pour valider cet état des lieux.
+                    <span class="badge tooltip-badge"
+                        data-tooltip-placement="auto top"
+                        data-tooltip-trigger="mouseenter outsideClick"
+                        data-tooltip-append-to-body="true"
+                        uib-tooltip="Ce code de signature lui a été transmis par email/SMS de Sharinplace. Il lui permet de signer le contrat électronique par votre intermédiaire.">
+                        ?
+                    </span>
+                </div>
+                <div class="text--light">
+                    Tant que cet état des lieux n'aura pas été signé, vous serez toujours considéré comme responsable de l'objet "{{::vm.item.name}}".
+                </div>
+                <div class="margin-top text--semibold"
+                    ng-if="vm.bankAccountMissing">
+                    La saisie de vos coordonnées bancaires est indispensable pour finaliser la réservation et recevoir votre virement.
+                    Cet état des lieux ne pourra pas être signé avant l'enregistrement de votre IBAN.
+                </div>
+            </div>
+
+            <h4 class="text--semibold no-margin-top margin-bottom" ng-if="! vm.booking">Quel est l'état de restitution de l'objet&nbsp;?</h4>
+            <h4 class="text--semibold no-margin-top margin-bottom" ng-if="vm.booking">Quel est l'état initial de l'objet&nbsp;?</h4>
+            <label for="select-working-level" class="text--fade"
+                ng-if="vm.previousAssessment.workingLevel && ! vm.assessment.signedDate">
+                <span>État de fonctionnement initial&nbsp;:</span>
+                <span ng-switch="vm.previousAssessment.workingLevel">
+                    <span ng-switch-when="good">Fonctionnel</span>
+                    <span ng-switch-when="average">Moyen</span>
+                    <span ng-switch-when="bad">Non fonctionnel</span>
+                </span>
+            </label>
+            <select id="select-working-level" class=""
+                ng-model="vm.assessment.workingLevel"
+                ng-disabled="vm.assessment.signedDate">
+                <option value="" selected disabled="disabled">État de l'objet*</option>
+                <option value="good">Fonctionnel</option>
+                <option value="average">Moyen</option>
+                <option value="bad">Non fonctionnel</option>
+            </select>
+
+            <label for="select-cleanliness-level" class="text--fade"
+                ng-if="vm.previousAssessment.cleanlinessLevel && ! vm.assessment.signedDate">
+                <span>État de propreté initial&nbsp;:</span>
+                <span ng-switch="vm.previousAssessment.cleanlinessLevel">
+                    <span ng-switch-when="good">Propre</span>
+                    <span ng-switch-when="average">Moyen</span>
+                    <span ng-switch-when="bad">Sale</span>
+                </span>
+            </label>
+            <select id="select-cleanliness-level" class=""
+                ng-model="vm.assessment.cleanlinessLevel"
+                ng-disabled="vm.assessment.signedDate">
+                <option value="" selected disabled="disabled">Propreté*</option>
+                <option value="good">Propre</option>
+                <option value="average">Moyen</option>
+                <option value="bad">Sale</option>
+            </select>
+
+            <label for="state-comment"
+                ng-if="! vm.assessment.signedDate && (vm.previousAssessment.comment || vm.previousAssessment.commentDiff)">
+                <span>Commentaire sur l'état initial&nbsp;:</span>
+                <span ng-if="vm.previousAssessment.comment" class="text--fade"><br>{{vm.previousAssessment.comment}}</span>
+                <span ng-if="vm.previousAssessment.commentDiff" class="text--fade"><br>{{vm.previousAssessment.commentDiff}}</span>
+            </label>
+
+            <textarea id="state-comment"
+                rows="6"
+                ng-maxlength="2000"
+                ng-if="vm.assessment.signedDate"
+                ng-model="vm.assessment.globalComment"
+                placeholder="État de l'objet et des accessoires"
+                ng-disabled="vm.assessment.signedDate"
+                sip-textarea-auto-adjust>
+            </textarea>
+            <textarea id="state-comment"
+                rows="6"
+                ng-maxlength="2000"
+                ng-if="! vm.assessment.signedDate && vm.isOwner"
+                ng-model="vm.assessment.comment"
+                ng-model-options="{ debounce: 300 }"
+                placeholder="État de l'objet et des accessoires"
+                ng-disabled="vm.assessment.signedDate"
+                sip-textarea-auto-adjust>
+            </textarea>
+
+            <div ng-if="! vm.assessment.signedDate && !vm.isOwner">
+                <label for="state-comment-diff">
+                    Remarques sur l'état de restitution&nbsp;:
+                </label>
+                <textarea id="state-comment-diff"
+                    rows="6"
+                    ng-maxlength="2000"
+                    ng-model="vm.assessment.commentDiff"
+                    ng-model-options="{ debounce: 300 }"
+                    placeholder="Ajoutez vos éventuels commentaires sur l'état de restitution de l'objet et des accessoires. En cas d'absence de changement, vous pouvez laisser ce champ vide."
+                    ng-disabled="vm.assessment.signedDate"
+                    sip-textarea-auto-adjust>
+                </textarea>
+            </div>
+
+            <div ng-if="! vm.assessment.signedDate">
+                <div class="margin-bottom text--vsmall">
+                    Nous vous invitons à signer cet état des lieux en présence de {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}. Il vous suffit de saisir ci-dessous le code qu'il/elle doit vous remettre à l'issue de la transaction.
+                </div>
+                <label for="sign-code">
+                    Code remis par {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}*
+                </label>
+                <input id="sign-code" name="signToken" class=""
+                    type="text"
+                    placeholder="Code"
+                    spellcheck="false"
+                    autocorrect="off"
+                    autocomplete="off"
+                    autocapitalize="none"
+                    ng-model="vm.signToken"
+                    ng-minlength="9"
+                    required>
+                <div class="form-warning text--semibold"
+                    uib-collapse="!(assessmentForm.$submitted && assessmentForm.ratingComment.$invalid) && (! assessmentForm.signToken.$touched || ! assessmentForm.signToken.$invalid)">
+                    Veuillez saisir le code remis par {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} si vous souhaitez valider définitivement cet état des lieux.
+                </div>
+            </div>
+
+            <a class="contract-link margin-bottom"
+                ng-href="{{vm.contractUrl}}"
+                target="{{vm.contractTarget}}"
+                ng-if="vm.showContract" >
+                Consultez votre contrat électronique.
+            </a>
+
+            <div class="text--semibold margin-bottom-plus" ng-if="vm.assessment.signedDate">
+                {{vm.heading}} signé le {{vm.assessment.signedDateDisplay}}.
+            </div>
+
+            <!-- rating -->
+            <div ng-if="vm.ratings">
+                <div class="margin-bottom text--semibold" ng-if="(vm.otherRatingCreated || vm.otherRatingComplete) && ! vm.myRating.id">
+                    {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} a laissé une évaluation. Laissez votre propre évaluation pour voir son commentaire&nbsp;!
+                </div>
+                <h4 class="text--semibold">
+                    Comment s'est déroulé cet échange avec {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}&nbsp;?
+                </h4>
+                <div class="margin-bottom-plus" ng-if="vm.otherRating.id && vm.ratingsVisible">
+                    <div class="text--semibold margin-bottom">Évaluation laissée par {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}</div>
+                    <div class="margin-bottom">
+                        Avis&nbsp;: {{::vm.scoreMap[vm.otherRating.score]}}&nbsp;
+                        <span
+                            ng-if="::vm.otherRating.score"
+                            data-user-score="{{::vm.otherRating.score}}"
+                            data-no-tooltip="true"
+                            data-sip-rating-stars>
+                        </span>
+                    </div>
+                    <div class="margin-bottom">Commentaire&nbsp;: {{::vm.otherRating.comment}}</div>
+                    <div ng-if="::vm.otherRating.itemComment">
+                        Commentaire sur l'objet&nbsp;: {{::vm.otherRating.itemComment}}
+                    </div>
+                </div>
+                <div class="text--vsmall margin-bottom"
+                    ng-if="vm.hasRated && ! vm.ratingsVisible">
+                    Votre évaluation est enregistrée. Vous pouvez la mettre à jour si vous le souhaitez.
+                    <span ng-if="vm.otherRatingComplete">Vous pourrez consulter le commentaire de {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} dans moins de 24h<span ng-hide="vm.myRating.comment">&nbsp;si vous laissez votre propre commentaire</span>.</span>
+                </div>
+                <label class="text--semibold" for="select-rating-score">
+                    Votre avis
+                </label>
+                <select id="select-rating-score"
+                    ng-model="vm.myRating.score"
+                    ng-options="scoreMap.score as scoreMap.label for scoreMap in vm.scoreMapSelect"
+                    ng-disabled="vm.ratingsVisible">
+                    <option value="" disabled="disabled">Avis*</option>
+                </select>
+                <div class="margin-bottom"
+                    ng-model="vm.myRating.score"
+                    data-max="5"
+                    data-read-only="vm.ratingsVisible"
+                    data-enable-reset="false"
+                    data-uib-rating>
+                </div>
+                <div class="text--light text--small margin-bottom"
+                    ng-show="vm.ratingsVisible">
+                    Vous ne pouvez plus modifier vos avis et commentaires.
+                </div>
+                <label for="rating-comment">
+                    Commentaire sur {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}*
+                </label>
+                <textarea id="rating-comment" name="ratingComment"
+                    rows="4"
+                    ng-maxlength="2000"
+                    placeholder="Qu'avez-vous globalement pensé de cet échange avec {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}? (Vous aurez quelques heures pour mettre à jour votre commentaire)"
+                    ng-model="vm.myRating.comment"
+                    ng-model-options="{ debounce: 300 }"
+                    ng-disabled="vm.ratingsVisible"
+                    ng-class="{'force-invalid': (vm.hasRated && ! vm.myRating.comment)}"
+                    sip-textarea-auto-adjust
+                    required>
+                </textarea>
+                <!-- Show warning when : saving assessment without comment OR leaving empty comment after touching OR rating previously saved without comment -->
+                <div class="form-warning text--semibold webkit-render-fix"
+                    ng-if="! vm.ratingsVisible"
+                    uib-collapse="!(
+                        ((assessmentForm.$submitted && assessmentForm.ratingComment.$invalid)
+                            || (assessmentForm.ratingComment.$touched && assessmentForm.ratingComment.$invalid)
+                            || (vm.hasRated && ! vm.myRating.comment))
+                        && !assessmentForm.ratingComment.$error.maxlength
+                    )">
+                    Vous devriez laisser un petit commentaire...
+                </div>
+                <label for="rating-item-comment"
+                    ng-if="! vm.isOwner">
+                    Avis sur "{{::vm.item.name}}"
+                </label>
+                <textarea id="rating-item-comment"
+                    rows="3"
+                    ng-maxlength="2000"
+                    placeholder="Merci de laisser un commentaire sur l'objet pour aider les autres membres à faire leur choix ;)"
+                    ng-model="vm.myRating.itemComment"
+                    ng-model-options="{ debounce: 300 }"
+                    ng-disabled="vm.ratingsVisible"
+                    ng-if="! vm.isOwner"
+                    required
+                    sip-textarea-auto-adjust>
+                </textarea>
+            </div>
+            <div class="fb-page__container margin-top-plus"
+                ng-if="vm.ratings && vm.facebookPagePlugin">
+                <div class="fb-page"
+                    data-href="https://www.facebook.com/sharinplace/"
+                    data-small-header="true"
+                    data-width="500"
+                    data-adapt-container-width="true"
+                    data-hide-cover="false"
+                    data-show-facepile="false">
+                    <blockquote cite="https://www.facebook.com/sharinplace/" class="fb-xfbml-parse-ignore">
+                        <a href="https://www.facebook.com/sharinplace/">Page Facebook Sharinplace</a>
+                    </blockquote>
+                </div>
+            </div>
+
+            <div class="text-center spinner-button-container">
+                <button class="button sip-button spinner-button--center" type="submit"
+                    ng-if="vm.showSaveButton"
+                    ng-click="vm.save()">
+                    Enregistrer
+                </button>
+                <span class="spinner-container">
+                    <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-assessment-spinner"></span>
+                </span>
+            </div>
+            <div class="text--vsmall text-fade"
+                ng-if="assessmentForm.signToken.$invalid">
+                Un brouillon sera enregistré si vous ne saisissez pas encore
+                <span ng-if="vm.bankAccountMissing">vos coordonnées bancaires et</span>
+                le code remis par {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}.
+            </div>
+        </form>
+
+        <div class="message__content "
+            ng-if="! vm.showForm">
+            <div class="text--semibold margin-bottom">
+                En échange de l'objet qui vous est remis, vous devez impérativement donner votre code de signature
+                <span class="badge tooltip-badge"
+                    data-tooltip-placement="auto top"
+                    data-tooltip-trigger="mouseenter outsideClick"
+                    data-tooltip-append-to-body="true"
+                    uib-tooltip="Ce code de signature vous a été transmis par email/SMS. Il permet de signer votre contrat électronique.">
+                    ?
+                </span>
+                à {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}.
+            </div>
+            <div class="text--light">
+                Il est indispensable que {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} signe l'état des lieux rempli dans son propre compte grâce à votre code secret pour valider la transmission de l'objet "{{::vm.item.name}}". Vous pourrez alors laisser un commentaire à {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}.
+            </div>
+        </div>
+
+    </div>
+    <div class="medium-1"></div>
+</div>

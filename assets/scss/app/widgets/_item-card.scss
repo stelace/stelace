@@ -1,0 +1,238 @@
+.item-wall {
+    width: 100%;
+    -webkit-transform: translate3d(0,0,0); // force display of positionned elements during scroll
+    padding-bottom: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    a p {
+        color: rgb(85, 90, 95);
+        font-weight: 600;
+    }
+    .item-wall__item--highlight {
+        box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.075);
+        &:focus, &:hover, &:active {
+            box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.15); // pass from 6px to 5px because of Chrome remove border-radius bug
+            img {
+                filter: contrast(115%);
+            }
+            img[lazy-img]:not(.success-lazyload) {
+                filter: blur($lazy-image-blur) contrast(115%);
+            }
+        }
+        // Forget transitions on box-shadow for better performance (mobiles...)
+    }
+    h3.item-name {
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0;
+    }
+}
+.grid-block.item-wall__item-wrapper {
+    overflow: hidden;
+    padding: 0; // IE 10/11 adds padding before wrapping, even with border-box
+    // See https://github.com/philipwalton/flexbugs/issues/3
+}
+.item-wall__item-container {
+    display: block;
+    width: 100%;
+    padding: 0.25rem; // just enough for some box-shadow
+}
+.item-wall__item {
+    position: relative;
+}
+
+$bigger-item-card-breakpoint: 481px;
+$item-card-image-container-small-width: 9rem;
+.item-wall__image-container {
+    @include aspect-ratio(16, 9);
+    min-width: $item-card-image-container-small-width;
+    z-index: 1; // Above description
+    text-align: center; // for alt attribute
+}
+.item-wall__price {
+    padding: 0.25rem 0 0 0.25rem;
+    color: rgba($platform-color-darkblue, 0.6);
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 600;
+    text-align: center;
+    sup {
+        font-size: 0.875rem;
+    }
+    .item-wall__selling-icon-container {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+        .icon {
+            vertical-align: bottom;
+        }
+   }
+}
+.item-wall__booking-modes {
+    padding-left: 0.25rem;
+    font-size: 0.875rem;
+    color: rgb(85, 90, 95);
+}
+.item-wall__selling-icon-container {
+    margin-left: 0.25rem;
+    .icon {
+        width: 1rem;
+        height: 1rem;
+        vertical-align: top;
+        fill: rgba($platform-color-darkblue, 0.6);
+   }
+}
+.item-wall__selling-price {
+    color: rgba($platform-color-darkblue, 0.6);
+    font-size: 1rem;
+}
+.item-wall__description {
+    min-width: 0; // Allow flex item to shrink below its minimum intrinsic width
+    // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
+
+    padding: 0.25rem 0.5rem;
+    background-color: #FFF;
+    p {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+}
+.item-wall__place {
+    position: absolute;
+    bottom: 4rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    text-align: center;
+}
+.item-wall__rating.rating-stars {
+    margin-right: 0.75rem; // for stats
+    &.small svg {
+        @media (min-width: $bigger-item-card-breakpoint) {
+            width: 1.125rem;
+            height: 1.125rem;
+        }
+    }
+
+    @media screen and (max-width: 280px) {
+        display: none;
+    }
+}
+
+// Standard item card (search)
+.item-wall .item-wall__item-container:not(.item-wall__my-listing-card) {
+    .item-wall__item {
+        flex-direction: column;
+        border-radius: 2 * $global-radius;
+        overflow: hidden;
+    }
+    .item-wall__image-container {
+        @include aspect-ratio(3, 2);
+    }
+    .item-wall__rating {
+        position: absolute;
+        top: -1.5rem;
+        left: 0.5rem;
+        z-index: 1;
+        width: auto;
+    }
+    .item-wall__price {
+        @media screen and (max-width: 360px) {
+            display: none;
+        }
+    }
+}
+
+// my-lising-card
+.item-wall__my-listing-card .item-wall__description {
+    // IE11 fix, flex-shrink:1 on element is not enough...
+    max-width: calc(100% - #{$item-card-image-container-small-width});
+}
+.my-listing-card__control {
+    position: relative;
+    margin-left: -0.5rem; // compensating for icon margins
+
+    .text-control {
+        cursor: pointer;
+        font-size: 0.75rem;
+        padding: 0.25rem;
+        &:hover, &:focus, &:active {
+            .icon {
+                fill: $platform-color-blue;
+            }
+            & + .text-control__label {
+                color: $platform-color-blue;
+            }
+        }
+
+        &.control-pending + .text-control__label:not(.text-control__spinner) {
+            display: none;
+        }
+
+        .icon {
+            fill: rgba(140, 145, 150, 0.5)
+        }
+    }
+    .text-control__label {
+        display: inline-block;
+        position: absolute;
+        left: 5rem;
+        bottom: 2px;
+
+        pointer-events: none;
+
+        color: transparent;
+        font-weight: 600;
+        transition: 0.3s color;
+    }
+    .text-control__spinner .spinner-container {
+        position: relative;
+        vertical-align: super; // parent has no height
+    }
+}
+.my-listing-card__stats {
+    display: inline-block;
+    vertical-align: text-bottom;
+    color: $body-font-color;
+    margin-left: -0.5rem;
+    font-weight: 600;
+    .icon {
+        fill: $body-font-color;
+    }
+}
+.my-listing-card__stats-container {
+    margin: 0.125rem;
+}
+.my-listing-card--paused {
+    > :not(.my-listing-card__control) {
+        transition: 0.3s opacity;
+        opacity: 0.5;
+    }
+}
+.my-listing-card__pause-overlay {
+    background-color: rgba( $platform-color-darkblue, 0.4);
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    color: #FFF;
+    font-weight: 600;
+    z-index: 1; // above next sibbling .item-wall__image
+    .icon {
+        position: relative;
+        width: 100%;
+        height: 50%;
+        top: 15%;
+        fill: currentColor;
+        margin-bottom: 0.5rem;
+    }
+    & + .item-wall__image {
+        filter: blur(2px);
+    }
+}
+.my-listing-card__price {
+    position: absolute;
+    z-index: 2; // above image-container
+    bottom: 0.25rem;
+    right: 0.25rem;
+    padding: 0.375rem 0.5rem;
+}

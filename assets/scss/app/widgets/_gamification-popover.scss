@@ -1,0 +1,23 @@
+.progress-popover {
+    &.popover {
+        z-index: 999; // WARNING: below foundation modals and header (z-index: 1000)
+    }
+    .progress-popover__link {
+        display: inline-block;
+        .icon{
+            fill: currentColor; // popover can be appended to body and not header (same style)
+            height: 3.5rem;
+            width: 3.5rem;
+            }
+        &.megaphone:focus, &.megaphone:hover {
+            color: $platform-color-red;
+        }
+        &.tag:focus, &.tag:hover {
+            color: $platform-color-purple;
+        }
+    }
+    hr {
+        width: 40%;
+        margin: 0.5rem auto;
+    }
+}

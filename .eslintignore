@@ -1,0 +1,8 @@
+assets/bower_components/**
+node_modules/**
+assets/build/**
+assets/js/vendor/**
+assets/vendors/**
+assets/app/widgets/bootstrap/**
+assets/app/widgets/google-places/**
+.tmp/**

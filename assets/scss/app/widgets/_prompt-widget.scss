@@ -1,0 +1,28 @@
+.prompt-phone, .prompt-image {
+    .flex-container .button {
+        min-height: 2rem;
+        margin-top: 0.25rem;
+        & ~ .spinner-container {
+            margin-bottom: 0.75 * $global-padding; // adapt spinner margin-bottom since changed button's
+        }
+        // better to put label above flex-container
+        // margin-top: 0.875rem * 1.4 + $form-label-margin; // ~ label total height
+        // @media #{$mq-mobile} {
+            // margin-top: 0; // vertical flex
+        // }
+    }
+    .profile__image {
+        height: 4rem;
+        width: 4rem;
+        display: inline-block;
+        margin-right: 2rem;
+        margin-bottom: 0.5rem;
+        vertical-align: middle;
+    }
+}
+.prompt-phone .phone-input {
+    max-width: 15rem;
+}
+.prompt-highlight button:not(:disabled) {
+    outline: 3px solid rgba(255, 120, 0, 0.5);
+}

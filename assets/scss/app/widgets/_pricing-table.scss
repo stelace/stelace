@@ -1,0 +1,27 @@
+.book__prices {
+    width: 100%;
+
+    @media #{$mq-mobile} {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    margin-bottom: 0.5rem;
+
+    tr {
+        border-top: 1px solid #DDD;
+
+        &:first-child {
+            border-top: 0;
+        }
+    }
+
+    td {
+        padding: 0.5rem;
+
+        &.discount {
+            color: $platform-color-green;
+            font-weight: bold;
+        }
+    }
+}

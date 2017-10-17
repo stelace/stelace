@@ -1,0 +1,78 @@
+@import "../base/all";
+
+.stelace-footer {
+    background-color: rgba($platform-color-darkblue, 0.8);
+    color: #FFF;
+    padding: 2rem 1rem 1rem;
+    a {
+        color: #FFF;
+    }
+
+    ul {
+        list-style: none;
+        a:hover {
+            color: #CCC;
+        }
+        li {
+            display: inline-block;
+            padding: 0 0.5rem;
+        }
+    }
+    .internal-links ul {
+        @media #{$mq-from-tablet} {
+           font-size: 0.875rem;
+        }
+    }
+
+    .stelace__testimonials {
+        max-width: 100rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.stelace-footer__partners {
+    margin-top: -1rem;
+}
+.stelace-footer__partner-image {
+    position: relative;
+    width: 6rem;
+    height: 6rem;
+    margin: 0 1rem;
+}
+
+.stelace-footer__soc {
+    p {
+        font-size: 0.875rem;
+    }
+    a {
+        display: block;
+    }
+
+    .icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin: 0 1rem;
+        fill: #FFF;
+    }
+
+    .icon {
+        transition: fill .2s ease-out;
+
+        &.soc-fb:hover {
+            fill: $facebook-color;
+        }
+
+        &.soc-tw:hover {
+            fill: $twitter-color;
+        }
+
+        &.soc-gpl:hover {
+            fill: $google-plus-color;
+        }
+    }
+}
+
+.stelace-footer__attribution {
+    font-size: 0.8rem;
+}

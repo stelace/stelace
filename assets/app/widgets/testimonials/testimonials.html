@@ -1,0 +1,38 @@
+<div class="stelace-testimonials">
+    <p class="text-center stelace-testimonials__title"
+        ng-if="::footer">
+        Ils ont testé Sharinplace&nbsp;!
+    </p>
+    <div class="grid-block small-up-1 medium-up-2 desktop-up-3 padding-bottom">
+        <div class="flex-container stelace-testimonials__container"
+            ng-repeat="testimonial in testimonials">
+            <a class="profile__image-container"
+                ui-sref="user(::{ id: testimonial.userId })">
+                <div class="profile__image">
+                    <sip-img src="{{testimonial.profileImgSrc}}" type="background"></sip-img>
+                </div>
+                <div class="stelace-testimonials__name text--small">{{::testimonial.userName}}</div>
+            </a>
+            <div class="text--small stelace-testimonials__message">
+                <div>
+                    &laquo;&nbsp;{{::testimonial.review}}&nbsp;&raquo;
+                    <a class="text--vsmall"
+                        ng-href="{{::testimonial.sourceUrl}}"
+                        target="_blank"
+                        ng-if="testimonial.sourceUrl">
+                        {{::testimonial.source}}
+                    </a>
+                </div>
+                <!-- <div>
+                    <a class="text--vsmall" ng-href="{{::testimonial.itemUrl}}">
+                        {{::testimonial.itemName}}
+                    </a>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <div class="small-6 desktop-2 small-offset-3 desktop-offset-5"
+        ng-if="::footer">
+        <hr class="margin-top">
+    </div>
+</div>

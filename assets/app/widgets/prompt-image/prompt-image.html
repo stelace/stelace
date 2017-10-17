@@ -1,0 +1,18 @@
+<div class="prompt-image">
+    <div class="profile__image">
+        <sip-img ng-src="{{vm.imageSrc + '?size=128x128'}}" type="background"></sip-img>
+    </div>
+    <div
+        data-sip-select-file
+        class="button"
+        data-select-disabled="! vm.imageToUpload"
+        data-select-disabled-class="select-disabled"
+        data-on-select="vm.uploadImage(file)"
+        data-custom-disabled-action="vm.cancelUploadImage()"
+        data-accept="image/*">
+        {{vm.imageToUpload ? (vm.noImage ? "Choisir une image" : "Changer mon image") : "Annuler"}}
+    </div>
+    <span class="spinner-container">
+        <span data-us-spinner="{scale: 0.5}" data-spinner-key="my-img-upload-spinner"></span>
+    </span>
+</div>

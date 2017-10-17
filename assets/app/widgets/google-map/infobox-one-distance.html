@@ -1,0 +1,11 @@
+<div id="{{parameter.id}}" class="text-center"
+    ng-click="parameter.parent.vm.toggleDetailBox(parameter.id, 'itemBox', 'open', $event);"
+    ng-mouseenter="parameter.parent.vm.toggleDetailBox(parameter.id, 'itemBox', 'open', $event)">
+    <!-- Not using itemref="{{location.markerId}}" in item-view since can't detect mapReady in phantomJS -->
+    <!-- itemprop="geo"
+    itemscope
+    itemtype="http://schema.org/GeoCoordinates" -->
+    {{parameter.content}}
+    <!-- <meta itemprop="longitude" content="{{::parameter.coords.longitude}}">
+    <meta itemprop="latitude" content="{{::parameter.coords.latitude}}"> -->
+</div>

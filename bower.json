@@ -1,0 +1,72 @@
+{
+  "name": "sharinplace",
+  "version": "3.0.0",
+  "authors": [
+    "wingon <wingon.yuen90@gmail.com>",
+    "andy <andy.bruere@gmail.com>"
+  ],
+  "moduleType": [
+    "node"
+  ],
+  "license": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "1.4.9",
+    "angular-animate": "1.4.9",
+    "angular-cookies": "1.4.9",
+    "angular-cookie": "4.1.0",
+    "angular-credit-cards": "2.4.3",
+    "angular-easyfb": "1.5.1",
+    "angular-google-maps": "2.3.2",
+    "angular-i18n": "1.4.9",
+    "angular-jwt": "0.0.9",
+    "angular-lazy-img": "1.5.1",
+    "angular-localforage": "1.2.5",
+    "angular-spinner": "0.8.1",
+    "angular-toastr": "1.7.0",
+    "angular-translate-storage-cookie": "2.15.2",
+    "angular-translate-storage-local": "2.15.2",
+    "angular-translate-loader-static-files": "2.15.2",
+    "angular-translate-interpolation-messageformat": "2.15.2",
+    "angular-ui-router": "0.2.18",
+    "angular-ui-select": "0.19.4",
+    "angular-ui-select-patched": "https://github.com/abruere/ui-select.git#e2d7a4554a3798a341c6373ba1e4fe8f1f6ae8f2",
+    "angularjs-slider": "^6.4.0",
+    "cryptojslib": "3.1.2",
+    "domurl": "2.1.7",
+    "error-stack-parser": "1.2.3",
+    "es6-promise-polyfill": "^1.1.1",
+    "fastclick": "1.0.6",
+    "foundation-apps": "1.2.0",
+    "localforage": "1.4.0",
+    "lodash": "3.10.1",
+    "messageformat": "1.0.2",
+    "modernizr": "2.8.3",
+    "moment": "2.11.2",
+    "ng-redux": "3.5.2",
+    "ng-stats": "2.5.2",
+    "ngAutocomplete": "1.0.0",
+    "photoswipe": "4.1.1",
+    "restangular": "1.5.1",
+    "source-map": "0.5.1",
+    "spin.js": "2.3.2",
+    "stackframe": "0.3.1",
+    "stack-generator": "1.0.7",
+    "stacktrace-gps": "2.3.3",
+    "stacktrace-js": "1.0.4",
+    "svg4everybody": "2.0.3",
+    "viewport-units-buggyfill": "0.5.5"
+  },
+  "resolutions": {
+    "localforage": "~1.4.0",
+    "viewport-units-buggyfill": "0.5.5"
+  },
+  "comments": {}
+}

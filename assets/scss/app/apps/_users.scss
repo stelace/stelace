@@ -1,0 +1,173 @@
+@import "../base/all";
+
+.users {
+    .fluid-content {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        @media #{$mq-from-tablet} {
+            font-size: 2rem;
+        }
+    }
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        @media #{$mq-from-tablet} {
+            font-size: 1.375rem;
+        }
+    }
+
+    h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    #user__game-stats {
+        h3 {
+            margin-top: 1rem;
+        }
+        .icon.light-grey {
+            padding: 1px;
+        }
+    }
+    .user__medal-label {
+        font-size: 1.25rem;
+    }
+
+    #user__introduction {
+        min-height: 6rem; // Warning: this determines sticky-sidebar top offset
+        padding-bottom: 1rem;
+    }
+    #user__content {
+        @media #{$mq-from-desktop} {
+            min-height: 35rem; // enough height for sitcky sidebar
+        }
+        &.user__content--items-only .user__content-section:not(.user__items) {
+            display: none;
+        }
+    }
+    .user__actions-summary {
+        margin-bottom: 1rem;
+        > div {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    $user-info-width: 15rem;
+    #user__info-container {
+        position: relative;
+        max-width: $user-info-width;
+        @media #{$mq-until-tablet} {
+            align-self: center;
+        }
+        .user__image {
+            @include aspect-ratio(1, 1);
+        }
+
+        // move borders from plain-card to children due to card-section-container absolute positionning
+        .plain-card {
+            margin-bottom: 0;
+            width: $user-info-width;
+            border: none;
+            @media #{$mq-from-desktop} {
+                margin-left: 2rem;
+            }
+        }
+
+        // this is sticky-side-bar
+        .card-section-container {
+            background-color: #FFF;
+            width: $user-info-width;
+            border: 1px solid #DDD;
+            border-top: none;
+
+            @media #{$mq-from-desktop} {
+                position: absolute;
+            }
+        }
+
+        .user__image {
+            border: 1px solid #DDD;
+            border-bottom: none;
+        }
+    }
+
+    .user__content-box {
+        h2 {
+            display: inline-block;
+        }
+        padding: 0.75rem 1rem 1rem;
+        background-color: #FFF;
+        border: 1px solid #DDD;
+    }
+}
+
+
+.account {
+    h1 {
+        font-size: 2rem;
+    }
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .slide-intro {
+        min-height: 10rem;
+        height: 10rem; // IE11 centering fix
+        background: linear-gradient(170deg, $platform-color-green 10%, $twitter-color 70%);
+    }
+
+    label {
+        display: inline-block;
+        ~ .label-action {
+            display: inline-block;
+        }
+    }
+
+    .account__contact-info {
+        input#user-phone, input#user-email {
+            &.data-placeholder::placeholder {
+                color: $body-font-color;
+            }
+        }
+    }
+
+    .flex-form-line > :not(:last-child){
+        @media #{$mq-from-tablet} {
+            padding-right: 1rem;
+        }
+    }
+    .flex-form-line:not(.flex--wrap) > :not(:last-child){
+        padding-right: 1rem;
+    }
+
+    .prompt-image .button {
+        font-weight: 600;
+    }
+
+    .account__locations {
+        .text-control:focus, .text-control:hover {
+            .icon {
+                fill: $platform-color-blue;
+            }
+        }
+    }
+
+    .account__income-reports {
+        #income-report-select {
+            display: inline-block;
+            width: auto;
+        }
+        label {
+            font-size: inherit;
+        }
+    }
+}

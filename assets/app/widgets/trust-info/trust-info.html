@@ -1,0 +1,56 @@
+<ul class="no-bullet text--small trust-contact-info">
+    <li ng-if="user.emailCheck">
+        <div>
+            <svg class="icon success">
+                <use xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+            </svg>
+        </div>
+        <div>
+            <div data-translate="user.email_label"></div>
+            <div class="text--light"
+                data-translate="user.verified_email_label"></div>
+        </div>
+    </li>
+    <li ng-if="(user.phoneCheck && isSmsActive) || !isSmsActive">
+        <div ng-if="isSmsActive">
+            <svg class="icon success">
+                <use xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+            </svg>
+        </div>
+        <div ng-if="!isSmsActive">
+            <!-- empty div for space -->
+            <div class="icon success"></div>
+        </div>
+        <div>
+            <div data-translate="user.phone_number_label"></div>
+            <!-- No one-time binding here to reveal when appropriate (conversation)-->
+            <div class="text--light" ng-if="phonePart">{{phonePart}}</div>
+            <div class="text--light" ng-hide="phonePart"
+                data-translate="user.verified_phone_number_label"></div>
+        </div>
+    </li>
+    <li ng-if="::ratingTrust">
+        <div>
+            <svg class="icon success">
+                <use xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+            </svg>
+        </div>
+        <div>
+            <div data-translate="ratings.count"
+                data-translate-values="{ nbRatings: user.nbRatings }"></div>
+            <div class="text--light">
+                <span data-translate="ratings.average_label"></span>
+                <span
+                    data-user-score="{{::user.ratingScore}}"
+                    data-user-ratings="{{::user.nbRatings}}"
+                    data-name="{{::user.fullname}}"
+                    data-sip-rating-stars>
+                </span>
+            </div>
+        </div>
+    </li>
+    <li ng-if="::(! user.emailCheck && ! user.phoneCheck && ! ratingTrust)"
+        data-translate="user.no_verified_info_public_text"
+        data-translate-values="::{ user: user.firstname || user.fullname }">
+    </li>
+</ul>

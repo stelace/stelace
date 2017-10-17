@@ -1,0 +1,95 @@
+<div ng-switch="::itemprop">
+    <a class="profile__image"
+        ui-sref="user(::{ id: rating.userId })">
+        <sip-img ng-src="{{rating.userMedia.url + '?size=128x128'}}" type="background"></sip-img>
+    </a>
+    <div ng-switch-when="review"
+        itemprop="review"
+        itemscope
+        itemtype="http://schema.org/Review">
+        <div class="text--light margin-bottom user-generated">
+            <span ui-sref="user(::{ id: rating.userId })"
+                itemprop="author"
+                itemscope
+                itemtype="http://schema.org/Person">
+                <span itemprop="name">{{::(rating.user.firstname || rating.user.username)}}</span>,&nbsp;
+            </span>
+            <span itemprop="datePublished" content="{{::isoDate}}">{{::displayMonth}}</span>
+            <br>
+            <a class="text--light text--italic"
+                ng-if="::(rating.item && ! isCurrent)"
+                ui-sref="item(::{ slug: rating.item.nameURLSafe + '-' + rating.item.id })">
+                {{::rating.item.name}}
+            </a>
+        </div>
+        <div class="text-center"
+            itemprop="reviewRating"
+            itemscope
+            itemtype="http://schema.org/Rating">
+            <span
+                data-user-score="{{::rating.score}}"
+                data-no-tooltip="true"
+                data-sip-rating-stars>
+            </span>
+            <meta itemprop="ratingValue" content="{{::rating.score}}">
+        </div>
+        <div class="no-margin-bottom padded-sides user-generated"
+            ng-if="::rating.comment"
+            itemprop="reviewBody">
+            {{::rating.comment}}
+        </div>
+        <div class="margin-top"
+            ng-if="::(rating.itemComment && rating.item)">
+            <div class="margin-bottom text--light user-generated">
+                À propos de "{{::rating.item.name}}"&nbsp;:
+            </div>
+            <div class="no-margin-bottom user-generated"
+                ng-if="::!rating.comment"
+                itemprop="reviewBody">
+                {{::rating.itemComment}}
+            </div>
+            <!-- No better solution than using name (or description as in schema.org doc) so far to extend reviewBody -->
+            <div class="no-margin-bottom user-generated"
+                ng-if="::rating.comment"
+                itemprop="name">
+                {{::rating.itemComment}}
+            </div>
+        </div>
+    </div>
+    <!-- No Microdata -->
+    <div ng-switch-default>
+        <div class="text--light margin-bottom user-generated">
+            <span ui-sref="user(::{ id: rating.userId })">
+                {{::(rating.user.firstname || rating.user.username)}},&nbsp;
+            </span>
+            {{::displayMonth}}
+            <br>
+            <a class="text--light text--italic"
+                ng-if="::(rating.item && ! isCurrent)"
+                ui-sref="item(::{ slug: rating.item.nameURLSafe + '-' + rating.item.id })">
+                {{::rating.item.name}}
+            </a>
+        </div>
+        <div class="text-center">
+            <span
+                data-user-score="{{::rating.score}}"
+                data-no-tooltip="true"
+                data-sip-rating-stars>
+            </span>
+        </div>
+        <div class="no-margin-bottom padded-sides user-generated"
+            ng-if="::rating.comment">
+            {{::rating.comment}}
+        </div>
+        <div class="margin-top"
+            ng-if="::(rating.itemComment && rating.item)">
+            <div class="margin-bottom text--light user-generated">
+                À propos de "{{::rating.item.name}}"&nbsp;:
+            </div>
+            <div class="no-margin-bottom user-generated">
+                {{::rating.itemComment}}
+            </div>
+        </div>
+    </div>
+    <hr class="small-8 medium-6 small-offset-2 medium-offset-3" ng-if="::(! last)">
+</div>

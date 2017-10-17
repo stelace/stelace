@@ -1,0 +1,33 @@
+.top-fixed {
+    position: fixed!important;
+    top: $header-height!important;
+}
+
+.sticky-helper__flex-container {
+    display: flex;
+    @media #{$mq-until-tablet} {
+        flex-wrap: wrap;
+    }
+}
+
+.sticky-helper__column {
+    position: relative;
+    margin: 0 auto;
+    @media #{$mq-from-desktop} {
+        min-height: 30rem; // To avoid sticky flickering or mis-positioning on load
+        margin: 0 0 0 1rem;
+    }
+    .sticky-helper__card {
+        @media #{$mq-from-desktop} {
+            position: absolute;
+        }
+    }
+}
+
+.sticky-helper__card {
+    width: 20rem;
+    @media #{$mq-from-large} {
+        width: 23rem;
+        margin-left: 3rem;
+    }
+}

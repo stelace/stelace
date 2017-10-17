@@ -1,0 +1,284 @@
+<div>
+    <div class="header-space"></div>
+    <div id="user-profile-container" class="fluid-content">
+        <div id="user__introduction"
+            ng-class="{ 'pull-bottom': vm.itemsOnly }">
+            <h1>
+                <span ng-hide="vm.isCurrentUser && ! vm.showPublicLayout">
+                    Bienvenue sur ma page<span ng-if="::vm.user.displayName">, je suis</span>
+                </span>
+                <span ng-show="vm.isCurrentUser && ! vm.showPublicLayout">
+                    Voici votre page{{ vm.showGamification ? " et vos défis" : "" }}
+                </span>
+                {{::vm.user.displayName}}&nbsp;!
+            </h1>
+            <div class="text--small text--semibold"
+                ng-if="::vm.user.createdDate">
+                Membre depuis {{::vm.displayMonth(vm.user.createdDate)}}
+            </div>
+        </div>
+        <div class="flex-container small-vertical desktop-horizontal">
+            <div id="user__content" class="desktop-8"
+                ng-class="{ 'user__content--items-only': vm.itemsOnly }">
+                <div id="user__game-stats" class="user__content-section margin-bottom-plus"
+                    ng-if="vm.isCurrentUser || vm.hasMedal">
+                    <div class="user__awards text-center"
+                        ng-if="vm.hasMedal && vm.showGamification">
+                        <span class="user__medal"
+                            uib-popover="{{vm.medalsLabels[vm.userLvl]}}"
+                            data-popover-placement="auto bottom"
+                            data-popover-trigger="mouseenter outsideClick">
+                            <svg class="icon medal"
+                                ng-class="vm.userLvl">
+                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#medal"></use>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="user__progress text-center margin-bottom-plus" ng-if="vm.showGamification">
+                        <span class="user__medal-label">
+                            Membre {{vm.levelMap[vm.userLvl || "none"]}}
+                        </span>
+                        <span class="text--light text--small"
+                            ng-if="vm.isCurrentUser && vm.user.points"
+                            ng-show="! vm.showPublicLayout">
+                            ({{vm.user.points}} point<span ng-show="vm.user.points > 1">s</span>)
+                            <br>
+                            <span ng-if="vm.pointsToNextLvl && vm.userLvl !== 'gold'">
+                                <span ng-if="vm.pointsToNextLvl > 0">
+                                    {{vm.pointsToNextLvl}} point<span ng-show="vm.pointsToNextLvl > 1">s</span>
+                                </span>
+                                <span ng-if="vm.pointsToNextLvl <= 0">
+                                    Encore quelques défis à relever
+                                </span>
+                                avant le niveau&nbsp;{{vm.levelMap[vm.nextLevelId || "none"]}}
+                                <svg class="icon medal small-medal"
+                                    ng-class="vm.nextLevelId"
+                                    ng-if="vm.willHaveMedal">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#medal"></use>
+                                </svg>
+                            </span>
+                        </span>
+                    </div>
+                    <div ng-if="vm.isCurrentUser"
+                        uib-collapse="vm.showPublicLayout || !vm.showGamification">
+                        <h2>
+                            Défis à relever pour obtenir des récompenses
+                        </h2>
+                        <p class="margin-bottom text--small">
+                            Voici quelques idées pour progresser dans la communauté Sharinplace… Des récompenses vous attendent dans votre progression&nbsp;!
+                            <br>
+                        </p>
+                        <div class="user__actions-summary">
+                            <div class="text--semibold">
+                            Derniers défis accomplis&nbsp;:
+                            </div>
+                            <div class="text--small"
+                                ng-repeat="actionId in vm.lastActionsIds">
+                                <svg class="icon icon--inline success">
+                                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
+                                </svg>
+                                &nbsp;
+                                {{vm.actionMap[actionId].name}}
+                            </div>
+                            <div class="text--semibold">
+                                Prochains défis&nbsp;:
+                            </div>
+                            <div class="text--small"
+                                ng-repeat="action in vm.nextActions"
+                                data-sip-profile-action
+                                data-hide-action-reward-detail="true">
+                            </div>
+                        </div>
+                        <p class="text--small margin-bottom">
+                            <span class="link--blue-underline cursor-pointer"
+                                ng-click="vm.hideMissions = ! vm.hideMissions"
+                                tabindex="0"
+                                data-sip-action-key>
+                                <span ng-if="vm.hideMissions">▼ Révéler tous mes défis</span>
+                                <span ng-if="! vm.hideMissions">▲ Masquer mes défis</span>
+                            </span>
+                        </p>
+                        <div class="padding-top"
+                            uib-collapse="vm.hideMissions">
+                            <h3 class="no-margin-top">
+                                Me présenter et inspirer confiance
+                                <span class="text--small text--light"
+                                    ng-hide="vm.willHaveMedal">
+                                    (actions pour atteindre le niveau Initié)
+                                </span>
+                            </h3>
+                            <div class="text--small margin-bottom"
+                                ng-repeat="action in ::vm.gameActions.profile"
+                                data-sip-profile-action>
+                            </div>
+                            <h3>
+                                Découvrir Sharinplace
+                            </h3>
+                            <div class="text--small margin-bottom"
+                                ng-repeat="action in ::vm.gameActions.discover"
+                                data-sip-profile-action>
+                            </div>
+                            <h3>
+                                Faire connaître Sharinplace et contribuer à son amélioration
+                            </h3>
+                            <div class="text--small margin-bottom"
+                                ng-repeat="action in ::vm.gameActions.wom"
+                                data-sip-profile-action>
+                            </div>
+                            <h3>
+                                Utiliser Sharinplace au quotidien
+                            </h3>
+                            <div class="text--small margin-bottom"
+                                ng-repeat="action in ::vm.gameActions.explore"
+                                data-sip-profile-action>
+                            </div>
+                            <h3>
+                                Partager
+                            </h3>
+                            <div class="text--small margin-bottom"
+                                ng-repeat="action in ::vm.gameActions.share"
+                                data-sip-profile-action>
+                            </div>
+                            <h3>
+                                Devenir un expert
+                            </h3>
+                            <div class="text--small margin-bottom"
+                                ng-repeat="action in ::vm.gameActions.expertise"
+                                data-sip-profile-action>
+                            </div>
+                            <p class="text--small margin-top-plus no-margin-bottom">
+                                <span class="link--blue-underline cursor-pointer"
+                                    ng-click="vm.hideMissions = ! vm.hideMissions"
+                                    tabindex="0"
+                                    data-sip-action-key>
+                                    <span>▲ Masquer mes défis</span>
+                                </span>
+                            </p>
+                        </div>
+                        <hr class="small-6 small-offset-3">
+                    </div>
+                    <div ng-if="vm.isCurrentUser && vm.showGamification">
+                        <h2 class="pull-t text--small"
+                            ng-hide="vm.showPublicLayout">
+                            Mes informations publiques
+                        </h2>
+                        <div class="text--small pull-t"
+                            ng-click="vm.showPublicLayout = ! vm.showPublicLayout"
+                            ng-switch="vm.showPublicLayout">
+                            <span class="text--vsmall link--blue-underline cursor-pointer padding-bottom"
+                                ng-switch-when="true">
+                                Voir mes défis et récompenses (n'apparaissent pas dans votre profil public)
+                            </span>
+                            <span class="text--light text--vsmall link--underline cursor-pointer padding-bottom"
+                                ng-switch-default>
+                                Voir mon profil tel qu'affiché publiquement
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <p class="user__content-box user__content-section text--small user-generated"
+                    ng-if="::vm.user.description">
+                    {{::vm.user.description}}
+                </p>
+                <div class="user__content-box user__content-section"
+                    ng-if="::(vm.user.nbRatings && vm.user.ratingScore)">
+                    <div>
+                        <h2>
+                            {{::vm.user.nbRatings}} évaluation<span ng-show="::vm.user.nbRatings > 1">s</span> reçue<span ng-show="::vm.user.nbRatings > 1">s</span>
+                        </h2>
+                        &nbsp;
+                        <span
+                            data-user-score="{{::vm.user.ratingScore}}"
+                            data-user-ratings="{{::vm.user.nbRatings}}"
+                            data-name="{{::vm.user.fullname}}"
+                            data-sip-rating-stars>
+                        </span>
+                    </div>
+                    <!-- vm.ratings : [["owner", ownerRatingsArray], ["taker", takerRatingsArray]] -->
+                    <div class="margin-top-plus padding-bottom"
+                        ng-repeat="ratings in ::vm.ratings">
+                        <p ng-switch="::ratings[0]" class="text--semibold">
+                            <span>Évaluation<span ng-show="::ratings[1].length > 1">s</span> reçue<span ng-show="::ratings[1].length > 1">s</span></span>
+                            <span ng-switch-when="owner">en tant que propriétaire</span>
+                            <span ng-switch-default></span>
+                        </p>
+                        <!-- Adapt ng-repeat limit insted of using ng-show here since this view is not SEO oriented -->
+                        <!-- Must remove one-time binding in ng-repeat -->
+                        <div class="text-center text--small single-rating"
+                            ng-repeat="rating in ratings[1] | limitTo: vm.firstRatings[ratings[0]] track by rating.id"
+                            data-rating="::rating"
+                            data-last="::($index === ratings[1].length - 1)"
+                            data-sip-rating>
+                        </div>
+                        <div class="text-center">
+                            <span class="link--blue-underline text--small text--semibold cursor-pointer"
+                                ng-if="vm.firstRatings[ratings[0]] < ratings[1].length"
+                                ng-click="vm.firstRatings[ratings[0]] = vm.firstRatings[ratings[0]] + 3;"
+                                tabindex="0"
+                                data-sip-action-key>
+                                Voir d'autres avis
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="margin-top-plus user__content-section user__items"
+                    ng-if="::vm.items.length">
+                    <h2>
+                        <span ng-show="::vm.items.length === 1">Mon annonce</span>
+                        <span ng-show="::vm.items.length > 1">Mes annonces</span>
+                    </h2>
+                    <div id="user-items"
+                        class="item-wall grid-block small-up-1 medium-up-2"
+                        itemscope
+                        itemtype="http://schema.org/ItemList">
+                        <div
+                            class="grid-block item-wall__item-wrapper"
+                            data-item="::item"
+                            ng-repeat="item in ::vm.items"
+                            itemprop="itemListElement"
+                            itemscope
+                            itemtype="http://schema.org/Product"
+                            data-sip-item-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sticky sidebar Offset: 1rem (.fluid-content padding-top) + 6 rem (user__introduction) + 15rem (user__image) = 352px (large screen) -->
+            <div id="user__info-container" class="desktop-4">
+                <div class="plain-card">
+                    <div class="user__image">
+                        <div class="ar-content">
+                            <sip-img ng-if="vm.user.media.url" ng-src="{{vm.user.media.url + '?size=300x300'}}" type="background"></sip-img>
+                        </div>
+                    </div>
+                    <div
+                        class="card-section-container"
+                        data-offset="352"
+                        data-bound-id="user-profile-container"
+                        data-sip-sticky-sidebar>
+                        <div class="plain-card__divider">
+                            <h3>Vérification du profil</h3>
+                        </div>
+                        <div class="card-section">
+                            <div
+                                class="margin-top"
+                                ng-if="::vm.user"
+                                data-user="::vm.user"
+                                data-phone-part="::vm.user.phonePart"
+                                data-sip-trust-info>
+                            </div>
+                            <div class="margin-top text-center">
+                                <a class="button brightblue"
+                                    ui-sref="account"
+                                    ng-show="vm.isCurrentUser && ! vm.showPublicLayout">
+                                    Compléter mon profil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

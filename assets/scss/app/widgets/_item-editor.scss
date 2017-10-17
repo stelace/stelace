@@ -1,0 +1,190 @@
+#item-editor {
+    $item-editor-padding: 1rem;
+    padding: $item-editor-padding;
+
+    input {
+        display: inline-block;
+        text-align: center;
+        &.text-input {
+            max-width: 30rem;
+        }
+        &.text-input--small {
+            max-width: 25rem;
+        }
+
+        &:focus::placeholder {
+            opacity: 0;
+        }
+    }
+
+    label:not([for*="item-price-"]) {
+        font-weight: 600;
+    }
+
+    .category-select {
+        width: 15rem;
+        max-width: 100%;
+        display: inline-block;
+        margin: 0.5rem 0.75rem 1rem 0;
+    }
+
+    .item__pricing-slider-container {
+        position: relative;
+        margin: auto;
+        max-width: 30rem;
+        min-height: 4rem;
+
+        .spinner-label {
+            position: absolute;
+            bottom: -10%;
+            width: 100%;
+        }
+    }
+
+    .item__pricing-table {
+        width: 100%;
+        label {
+            margin: 0;
+        }
+    }
+    .item_pricing-table-head {
+        line-height: 2;
+    }
+    .item__pricing-table-row--first {
+        line-height: 1.6;
+    }
+    .item__pricing-table-column {
+        width: 33%;
+        font-weight: 600;
+    }
+    .item__pricing-table-input {
+        text-align: center;
+        width: 30%;
+        padding: 0 0.2rem 0.1rem;
+        margin: 0.1rem 0;
+        height: auto;
+    }
+
+    .item__main-price-input {
+        width: 15rem;
+        max-width: 100%;
+    }
+
+    .item-editor__media {
+        float: left;
+        margin-right: 1rem;
+        .text-control-bar {
+            margin-top: 0.25rem;
+        }
+        .media_progress {
+            margin-bottom: 0.125rem;
+            height: 1.25rem;
+            font-size: 0.875rem;
+        }
+    }
+    .item-editor__media .img-container {
+        height: 5rem;
+        width: 7.5rem;
+        border-radius: 0.5 * $global-radius;
+    }
+
+    .new-media-link {
+        margin-left: 0.5rem;
+    }
+
+    .new-media-link__editor {
+        margin-top: 1rem;
+    }
+
+    .item-editor__instructions {
+        margin-top: 1rem;
+    }
+
+    .item-editor__description {
+        margin-bottom: 1rem;
+    }
+
+    meter {
+        width: 50%;
+        margin : 0 auto 0.5rem;
+    }
+
+    .switch {
+        vertical-align: middle;
+    }
+
+    .item-editor__tags.ui-select-container {
+        padding: 0.2rem 0.2rem 0;
+        margin: 0.1rem 0;
+    }
+
+    .item__locations {
+        overflow: hidden;
+        .location-tag {
+            @media #{$mq-mobile} {
+                max-width: 6rem; //instead of 9rem
+            }
+        }
+    }
+
+    .item-validation__fields.grid-block {
+        margin-left: 1rem;
+    }
+
+    .signin-form-container {
+        @media #{$mq-mobile} {
+            padding: 4% 8px 10px 0;
+        }
+        @media #{$mq-tablet} {
+            padding: 10px 25% 10px 25%; //px for shadow
+        }
+        @media #{$mq-from-desktop} {
+            padding: 10px 25% 10px 25%;
+        }
+    }
+
+    .total-upload-progress {
+        border-radius: 0;
+        box-shadow: none;
+        height: 1rem;
+        background-color: rgba(0, 0, 0, 0.1);
+
+        .progress-bar {
+            min-width: 2rem;
+            line-height: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: rgba($platform-color-darkblue, 0.8);
+        }
+    }
+
+    .spinner-button-container.save-button-container {
+        margin: 0 (-$item-editor-padding); // to show spinner as much as possible despite overflow: hidden
+        padding: 0 $item-editor-padding;
+    }
+
+    // Sticky sidebar
+    .item-editor__import-screenshot-container {
+        @include aspect-ratio(16, 9);
+        max-width: 250px;
+        margin: 0.5rem auto;
+    }
+    .item-editor__import-screenshot-label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1.5rem;
+        text-align: center;
+
+        &.background-color {
+            background-color: $platform-color-blue;
+            color: #FFF;
+        }
+    }
+
+    #item-editor__import-url {
+        font-size: 0.875rem;
+    }
+}
+

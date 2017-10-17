@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Basic authentication</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="robots" content="noindex">
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                font-family: Verdana, Arial, sans-serif;
+                font-size: 16px;
+            }
+            .form-container {
+                width: 80%;
+                max-width: 420px;
+                margin: 10rem auto 0;
+                padding: 16px;
+                border-radius: 2px;
+                border: 1px solid #AAA;
+            }
+            .form-input {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+                line-height: 1rem;
+                padding: 0.5rem;
+            }
+            .form-input:first-child {
+                margin-top: 0;
+            }
+            .form-submit {
+                background-color: #FFF;
+                margin-top: 0.5rem;
+                width: 100%;
+                padding: 0.5rem;
+                background-color: #43AC6A;
+                border: none;
+                color: #FFF;
+                text-align: right;
+                border-radius: 2px;
+                cursor: pointer;
+                text-align: center;
+                transition: all 0.3s;
+            }
+            .form-submit:hover {
+                background-color: #4ACE7B;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="form-container">
+            <form id="basic-auth-form" autocomplete="off" novalidate>
+                <input class="form-input" name="username" type="text" placeholder="username" autofocus>
+                <input class="form-input" name="password" type="password" placeholder="password">
+                <button class="form-submit" type="submit">Envoyer</button>
+            </form>
+        </div>
+
+        <script>
+            var form          = document.getElementById("basic-auth-form");
+            var usernameInput = form.querySelector('input[name="username"]');
+            var passwordInput = form.querySelector('input[name="password"]');
+
+            form.addEventListener("submit", onSubmit);
+
+            function onSubmit(ev) {
+                ev.preventDefault();
+
+                var username = usernameInput.value;
+                var password = passwordInput.value;
+                var basicAuthStr;
+
+                if (! username || ! password) {
+                    return;
+                }
+
+                basicAuthStr = btoa(username + ":" + password);
+
+                sendAuth(basicAuthStr, function () {
+                    document.location.reload(true);
+                });
+            }
+
+            function sendAuth(str, cb) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/api/auth/basic");
+                xhr.onload = cb;
+                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                xhr.responseType = "json";
+
+                var formData = new FormData();
+                formData.append("auth", str);
+
+                xhr.send(formData);
+            }
+        </script>
+    </body>
+</html>

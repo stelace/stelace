@@ -1,0 +1,100 @@
+<div class="">
+    <div class="header-space"></div>
+    <div class="fluid-content space">
+        <div class="plain-card">
+            <div class="plain-card__divider">
+                <h2 ng-switch="vm.filter">
+                    <span ng-switch-when="transactions">Mes transactions et contrats</span>
+                    <span ng-switch-default>Boite de réception</span>
+                </h2>
+            </div>
+            <div class="inbox__conversations">
+                <div ng-if="vm.noConversation">
+                    Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s'afficheront ici.
+                </div>
+                <a class="flex-container flex--align-center"
+                    ng-repeat="conv in vm.conversations"
+                    ng-class="{'new-message': conv.isNewMessage}"
+                    ui-sref="conversation({ conversationId: conv.id })">
+
+                    <div class="profile__image">
+                        <sip-img class="webkit-render-fix" ng-src="{{conv.interlocutorMedia.url + '?size=128x128'}}" alt="{{conv.interlocutor.firstname}}" rounded="true"></sip-img>
+                    </div>
+
+                    <div class="inbox__conversation-content force-ellipsis">
+                        <h3 class="interlocutor-name ellipsis">
+                            {{::conv.interlocutor.displayName}}
+                        </h3>
+                        <div class="show-for-small-only text--semibold text--small ellipsis">
+                            {{::conv.item.name}}
+                        </div>
+                        <div class="show-for-small-only text--small ellipsis text--light">
+                            <div class="text--semibold"
+                                ng-if="(conv.inputAssessmentId || conv.outputAssessmentId)"
+                                ng-hide="conv.agreementStatus === 'cancelled'"
+                                ng-class=" {'text--orange': ! conv.signedAssessment}">
+                                État des lieux
+                                <span ng-if="conv.inputAssessment && ! conv.outputAssessment">initial</span>
+                                <span ng-if="conv.outputAssessment">final</span>
+                                <span ng-show="conv.signedAssessment">signé</span>
+                                <span ng-hide="conv.signedAssessment">à signer</span>
+                            </div>
+                            <div ng-if="(! vm.filter || vm.filter !== 'transactions') || ! (conv.inputAssessmentId || conv.outputAssessmentId)">
+                                {{::(conv.privateContent || 'Conversation avec ' + conv.interlocutor.displayName)}}
+                            </div>
+                        </div>
+                        <div class="inbox__conversation-date text--small">
+                            {{::conv.lastDateString}}
+                        </div>
+                        <div class="show-for-small-only text--small text--semibold">
+                            <span ng-class="{'text--orange': conv.statusWarning}">
+                                {{vm.statusMap[conv.agreementStatus] || 'Information'}}
+                            </span>
+                            <span ng-if="conv.countdown || conv.countdownWarning">
+                                <span class="inbox__conversation-countdown">&nbsp;&bull;&nbsp;{{conv.countdown ? conv.countdown + "s" : ""}}</span>
+                                {{ conv.countdownWarning || "pour accepter"}}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="inbox__conversation-message show-for-medium flex-item--grow force-ellipsis">
+                        <div class="text--small ellipsis">
+                            <span class="text--semibold">
+                                {{::conv.item.name}}
+                            </span>
+                            <span class="text--light">
+                                {{::((conv.bookingDates) ? '(' + conv.bookingDates + ')' : '')}}
+                            </span>
+                        </div>
+                        <div class="text--small ellipsis text--light">
+                            <div class="text--semibold"
+                                ng-if="(conv.inputAssessmentId || conv.outputAssessmentId)"
+                                ng-hide="conv.agreementStatus === 'cancelled'"
+                                ng-class=" {'text--orange': ! conv.signedAssessment}">
+                                État des lieux
+                                <span ng-if="conv.inputAssessment && ! conv.outputAssessment">initial</span>
+                                <span ng-if="conv.outputAssessment">final</span>
+                                <span ng-show="conv.signedAssessment">signé</span>
+                                <span ng-hide="conv.signedAssessment">à signer</span>
+                            </div>
+                            <div ng-if="(! vm.filter || vm.filter !== 'transactions') || ! (conv.inputAssessmentId || conv.outputAssessmentId)">
+                                {{::(conv.privateContent || 'Conversation avec ' + conv.interlocutor.displayName)}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inbox__conversation-info text--semibold show-for-medium text-center">
+                        <div ng-class="{ 'text--orange': conv.statusWarning}">
+                            {{vm.statusMap[conv.agreementStatus] || 'Information'}}
+                        </div>
+                        <div class="text--vsmall" ng-if="conv.countdown || conv.countdownWarning">
+                            <div class="inbox__conversation-countdown">{{conv.countdown ? conv.countdown + "s" : ""}}</div>
+                            <div>{{ conv.countdownWarning || "pour accepter"}}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

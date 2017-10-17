@@ -1,0 +1,92 @@
+<div class="fluid-width home"
+    data-sip-ux-event="^footer__link"
+    data-ux-event-name="Home click">
+    <div id="home-hero" class="home-hero__wrapper">
+        <div class="home-hero__content flex-container flex--column text-center flex--align-center">
+            <h1 class="order-1"
+                data-translate="landing.homepage.header"
+                data-translate-values="{ service_name: SERVICE_NAME }">
+            </h1>
+            <h2 class="order-2"
+                data-translate="landing.homepage.subheader"
+                data-translate-values="{ service_name: SERVICE_NAME }"
+                ></h2>
+            <a class="order-3 button button--big red"
+                ui-sref="itemCreate"
+                data-translate="navigation.new_listing"></a>
+        </div>
+        <div class="search-bar">
+            <form novalidate id="home-search-form">
+                <div class="inline-label">
+                    <div class="input__inner-icon-container">
+                        <span class="input__inner-icon icon-left">
+                            <svg class="icon">
+                                <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                            </svg>
+                        </span>
+                        <input type="search"
+                            id="query-search"
+                            class="form-control"
+                            data-translate-attr ="{ placeholder: 'prompt.search.query_placeholder' }"
+                            ng-model="vm.searchQuery"
+                            autocomplete="off">
+                    </div>
+                    <button ng-click="vm.search()"
+                        class="button button--highlight brightblue">
+                        <span data-translate="navigation.search"></span>
+                        <svg class="icon icon--inline margin-left margin-right">
+                            <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                        </svg>
+                    </button>
+                    <div class="input__inner-icon-container hide-for-small-only">
+                        <span class="input__inner-icon icon-left">
+                            <svg class="icon">
+                                <use xlink:href="/assets/build/icons/sprite.svg#location"/>
+                            </svg>
+                        </span>
+                        <input id="location-search" type="search"
+                            data-translate-attr ="{ placeholder: 'prompt.search.near_location_placholder' }"
+                            ng-model="vm.searchLocationInput"
+                            ng-if="vm.isGoogleMapSDKReady"
+                            ng-autocomplete
+                            data-options="vm.ngAutocompleteOptions"
+                            data-details="vm.searchLocation">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="samples-panel">
+        <div class="padding-bottom">
+            <div id="home-listings" class="home__listing-board item-wall grid-block small-up-2 medium-up-3 desktop-up-6 padded-sides"
+                itemscope
+                itemtype="http://schema.org/ItemList">
+                <div
+                    class="grid-block item-wall__item-wrapper"
+                    data-item="item"
+                    data-display-duration="false"
+                    data-position="{{ $index + 1 }}"
+                    ng-repeat="item in vm.items track by item.id"
+                    itemprop="itemListElement"
+                    itemscope
+                    itemtype="http://schema.org/Product"
+                    sip-item-card>
+                </div>
+            </div>
+        </div>
+        <div class="fluid-content text-center margin-bottom-plus padding-bottom">
+            <h3 class="text-center text--semibold margin-bottom">
+                <span data-translate="prompt.new_listing_minute"></span>
+            </h3>
+            <a id="samples-add-item-button" class="add-item-button button button--highlight"
+                ui-sref="itemCreate">
+                <svg class="icon--inline icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>
+                </svg>
+                &nbsp;
+                <span data-translate="prompt.post_my_listing_button"></span>
+            </a>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

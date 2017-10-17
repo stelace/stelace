@@ -1,0 +1,317 @@
+<div class="grid-content backoffice">
+    <div class="header-space"></div>
+    <div class="grid-block small-up-1 medium-up-2">
+        <div>
+            <h2>S'authentifier</h2>
+            <div>
+                <ui-select
+                    class="text-left"
+                    multiple
+                    ng-model="vm.selectedLoginUsers"
+                    on-select="vm.selectLoginUser($item, $model)">
+                    <ui-select-match placeholder="Recherche d'un utilisateur">{{$item.label}}</ui-select-match>
+                    <ui-select-choices
+                        refresh="vm.getLoginUsers($select.search)"
+                        refresh-delay="300"
+                        repeat="user in vm.queryLoginUsers | filter: $select.search | limitTo: 30">
+                        {{user.label}}
+                    </ui-select-choices>
+                </ui-select>
+                <button class="button" ng-click="vm.loginAs()">S'authentifier</button>
+            </div>
+        </div>
+
+        <div>
+            <h2>Éditer un objet</h2>
+            <div>
+                <ui-select
+                    class="text-left"
+                    multiple
+                    ng-model="vm.selectedEditItems"
+                    on-select="vm.selectEditItem($item, $model)">
+                    <ui-select-match placeholder="Recherche d'un objet">{{$item.label}}</ui-select-match>
+                    <ui-select-choices
+                        refresh="vm.getEditItems($select.search)"
+                        refresh-delay="300"
+                        repeat="item in vm.queryEditItems | filter: $select.search | limitTo: 30">
+                        {{item.label}}
+                    </ui-select-choices>
+                </ui-select>
+                <a class="button"
+                    ng-if="vm.editItemLink"
+                    ng-href="{{vm.editItemLink}}"
+                    target="_blank">
+                    Éditer l'objet
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <section ng-if="vm.incompleteClassicBookings.length" id="section-booking-classic">
+        <h2>Réservations</h2>
+        <div>
+            <table class="monitoring-table">
+                <tbody>
+                    <tr class="monitoring-title-line">
+                        <th class="monitoring-title-cell" title="N° Réservation / Objet">
+                            Rés. / Obj.
+                        </th>
+                        <th class="monitoring-title-cell" title="N° Propriétaire / Emprunteur">
+                            Prop. / Empr.
+                        </th>
+                        <th class="monitoring-title-cell">Nom Objet</th>
+                        <th class="monitoring-title-cell">Dates réservation</th>
+                        <th class="monitoring-title-cell" title="Jours supplémentaires">J. supp.</th>
+                        <th class="monitoring-title-cell" title="Date de paiement">
+                            Paiement
+                        </th>
+                        <th class="monitoring-title-cell" title="Date validation propriétaire">
+                            Validation
+                        </th>
+                        <th class="monitoring-title-cell">Prix</th>
+                        <th class="monitoring-title-cell" title="Date de l'état des lieux initial">
+                            État début
+                        </th>
+                        <th class="monitoring-title-cell" title="Date de l'état des lieux final">
+                            État fin
+                        </th>
+                    </tr>
+                    <tr class="monitoring-line" ng-repeat="booking in vm.incompleteClassicBookings">
+                        <td class="monitoring-cell">{{booking.id}} / {{booking.itemId}}</td>
+                        <td class="monitoring-cell"
+                            title="{{booking.ownerName}} / {{booking.bookerName}}">
+                            {{booking.ownerId}} / {{booking.bookerId}}
+                        </td>
+                        <td class="monitoring-cell" title="{{booking.itemName.title}}">
+                            {{booking.itemName.value}}
+                        </td>
+                        <td class="monitoring-cell" ng-if="booking.isPurchase">
+                            Pas de dates
+                        </td>
+                        <td class="monitoring-cell" ng-if="! booking.isPurchase">
+                            {{booking.startDate}} - {{booking.endDate}} ({{booking.nbBookedDays}}j)
+                        </td>
+                        <td class="monitoring-cell"
+                            ng-class="booking.nbExtraDays.status">
+                            {{booking.nbExtraDays.value}}
+                        </td>
+                        <td class="monitoring-cell"
+                            ng-class="booking.confirmedDate.status"
+                            title="{{booking.confirmedDate.title}}">
+                            {{booking.confirmedDate.value}}
+                            <svg class="icon" ng-if="booking.confirmedDate.clock">
+                                <use xlink:href="/assets/build/icons/sprite.svg#clock"/>
+                            </svg>
+                            <svg class="icon" ng-if="booking.confirmedDate.remove">
+                                <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                            </svg>
+                        </td>
+                        <td class="monitoring-cell"
+                            ng-class="booking.validatedDate.status"
+                            title="{{booking.validatedDate.title}}">
+                            {{booking.validatedDate.value}}
+                            <svg class="icon" ng-if="booking.validatedDate.clock">
+                                <use xlink:href="/assets/build/icons/sprite.svg#clock"/>
+                            </svg>
+                            <svg class="icon" ng-if="booking.validatedDate.remove">
+                                <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                            </svg>
+                        </td>
+                        <td class="monitoring-cell">{{booking.takerPrice}}€</td>
+                        <td class="monitoring-cell"
+                            ng-class="booking.inputAssessmentDate.status"
+                            title="{{booking.inputAssessmentDate.title}}">
+                            {{booking.inputAssessmentDate.value}}
+                            <svg class="icon" ng-if="booking.inputAssessmentDate.clock">
+                                <use xlink:href="/assets/build/icons/sprite.svg#clock"/>
+                            </svg>
+                            <svg class="icon" ng-if="booking.inputAssessmentDate.remove">
+                                <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                            </svg>
+                        </td>
+                        <td class="monitoring-cell"
+                            ng-class="booking.outputAssessmentDate.status"
+                            title="{{booking.outputAssessmentDate.title}}">
+                            {{booking.outputAssessmentDate.value}}
+                            <svg class="icon" ng-if="booking.outputAssessmentDate.clock">
+                                <use xlink:href="/assets/build/icons/sprite.svg#clock"/>
+                            </svg>
+                            <svg class="icon" ng-if="booking.outputAssessmentDate.remove">
+                                <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                            </svg>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2>Annuler une réservation</h2>
+        <input type="number"
+            ng-model="vm.bookingIdToCancel"
+            ng-model-options="{ debounce: 300 }"
+            ng-change="vm.fetchBookingData(vm.bookingIdToCancel)">
+
+        <div ng-if="vm.bookingToCancel">
+            <div>
+                <strong>Informations concernant la réservation n°{{vm.bookingIdToCancel}}</strong>
+            </div>
+            <!-- <div>
+                <u>Mode</u>&nbsp;: {{vm.bookingToCancel.itemMode}}
+            </div> -->
+            <div>
+                <u>Objet</u>&nbsp;: {{vm.bookingToCancel.item.name}}
+            </div>
+            <div ng-if="! vm.bookingToCancel.isPurchase">
+                <u>Dates de réservation</u>&nbsp;: Du {{vm.bookingToCancel.startDateDisplay}} au {{vm.bookingToCancel.endDateDisplay}} ({{vm.bookingToCancel.durationDays}}j)
+            </div>
+            <div>
+                <u>Propriétaire</u>&nbsp;: {{vm.bookingToCancel.ownerName}}
+            </div>
+            <div>
+                <u>Emprunteur</u>&nbsp;: {{vm.bookingToCancel.bookerName}}
+            </div>
+            <div>
+                <u>Montant {{ vm.bookingToCancel.confirmedDate ? "payé" : "à payer" }} par l'emprunteur</u>&nbsp;: {{vm.bookingToCancel.takerPrice}}€
+            </div>
+            <div ng-if="vm.bookingToCancel.takerPrice !== vm.bookingToCancel.ownerNetIncome">
+                <u>Montant pour le propriétaire</u>&nbsp;: {{vm.bookingToCancel.ownerNetIncome}}€
+            </div>
+            <div ng-if="vm.bookingToCancel.ownerFees">
+                <u>Frais de paiement (propriétaire)</u>&nbsp;: {{vm.bookingToCancel.ownerFees}}€
+            </div>
+            <div ng-if="vm.bookingToCancel.takerFees">
+                <u>Frais de réservation (emprunteur)</u>&nbsp;: {{vm.bookingToCancel.takerFees}}€
+            </div>
+            <div ng-if="vm.bookingToCancel.confirmedDate">
+                <u>Date de paiement</u>&nbsp;: {{vm.bookingToCancel.confirmedDateDisplay}}
+            </div>
+            <div ng-if="vm.bookingToCancel.validatedDate">
+                <u>Date de validation</u>&nbsp;: {{vm.bookingToCancel.validatedDateDisplay}}
+            </div>
+            <br>
+        </div>
+        <div ng-show="vm.bookingToCancel">
+            <div ng-show="vm.cannotCancelBooking">
+                <strong><u>Annulation impossible</u></strong>&nbsp;: {{vm.cannotCancelBookingReason}}
+            </div>
+            <div ng-show="! vm.cannotCancelBooking">
+                <label>Motif de l'annulation</label>
+                <select ng-model="vm.selectedReasonType"
+                    ng-options="reason.id as reason.label for reason in vm.reasonTypes track by reason.id"
+                    ng-change="vm.showTrigger = vm.getShowTrigger()"
+                    required>
+                </select>
+
+                <label>Mode de remboursement</label>
+                <select ng-model="vm.selectedCancelBookingAction" required>
+                    <option value="reimbursePaymentAndFees">Rembourser paiement et frais de réservation</option>
+                    <option value="reimbursePayment">Rembourser paiement uniquement</option>
+                    <option value="noReimburse">Aucun remboursement</option>
+                </select>
+
+                <br>
+
+                <textarea
+                    rows="5"
+                    ng-model="vm.reason"
+                    ng-model-options="{ debounce: 300 }"
+                    ng-maxlength="1000"
+                    placeholder="Commentaire"
+                    sip-textarea-auto-adjust>
+                </textarea>
+
+                <div ng-show="vm.showTrigger">
+                    <label>Annulation due à</label>
+                    <select ng-model="vm.selectedTrigger"
+                        ng-options="trigger.id as trigger.label for trigger in vm.triggers track by trigger.id">
+                    </select>
+                </div>
+
+                <button class="button" ng-click="vm.cancelBooking()">Annuler la réservation</button>
+            </div>
+        </div>
+    </section>
+
+    <section ng-if="vm.showGamification">
+        <h2>Récompenser les utilisateurs</h2>
+        <select ng-model="vm.selectedGamificationActionId"
+            ng-options="action.id as action.label for action in vm.selectGamificationActions"
+        >
+        </select>
+        <ui-select
+            class="text-left"
+            multiple
+            ng-model="vm.selectedGamificationUsers">
+            <ui-select-match placeholder="Recherche d'un utilisateur">{{$item.label}}</ui-select-match>
+            <ui-select-choices
+                refresh="vm.getGamificationUsers($select.search)"
+                refresh-delay="300"
+                repeat="user in vm.queryGamificationUsers | filter: $select.search | limitTo: 30">
+                {{user.label}}
+            </ui-select-choices>
+        </ui-select>
+        <button class="button" ng-click="vm.setAction()">Récompenser</button>
+    </section>
+
+    <section>
+        <h2>Supprimer un tag</h2>
+        <ui-select
+            class="text-left"
+            ng-model="vm.tagToDestroy">
+            <ui-select-match placeholder="Recherche du tag à suppprimer">
+                {{$select.selected.name}}
+                - Tag recherché {{$select.selected.timesSearched}} fois
+            </ui-select-match>
+            <ui-select-choices
+                repeat="tag in vm.tagsList | filter: $select.search | limitTo: 100">
+                {{::tag.name}}
+                <span class="text--small text--light">
+                     - recherché {{::tag.timesSearched}} fois
+                </span>
+            </ui-select-choices>
+        </ui-select>
+        <button class="button" ng-click="vm.destroyTag()">Supprimer</button>
+    </section>
+
+    <!-- <section>
+        <h2>Liste des catégories d'objets</h2>
+        <div ng-repeat="itemCategory in vm.itemCategories track by itemCategory.id">
+            <div>
+                {{itemCategory.levelName}} <span ng-click="vm.removeItemCategory(itemCategory)">X</span>
+            </div>
+        </div>
+    </section>
+    <section>
+        <h2>Créer une catégorie</h2>
+        <div>
+            <form novalidate>
+                <input type="text" placeholder="Nom Catégorie" ng-model="vm.newItemCategory.name">
+                <input type="text" placeholder="Catégorie parent" ng-model="vm.newItemCategory.parentName">
+                <button ng-click="vm.createItemCategory(vm.newItemCategory)">Créer</button>
+            </form>
+        </div>
+    </section> -->
+
+    <!-- <section>
+        <h1>Liste des marques</h1>
+        <div>
+            <input type="text" ng-model="vm.brandSearch" ng-blur="vm.listBrand()" placeholder="Lister marques en fonction de catégorie">
+        </div>
+        <div ng-repeat="brand in vm.brands track by brand.id">
+            {{brand.name}}
+        </div>
+    </section>
+    <section>
+        <h1>Créer une marque</h1>
+        <div>
+            <form novalidate>
+                <input type="text" placeholder="Nom marque" ng-model="vm.newBrand.name">
+                <input type="text" placeholder="Catégorie" ng-model="vm.newBrand.itemCategoryName">
+                <button ng-click="vm.createBrand(vm.newBrand)">Créer</button>
+            </form>
+        </div>
+    </section> -->
+</div>
+

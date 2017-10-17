@@ -1,0 +1,9 @@
+[data-env="dev"]:not(.disable-translation-coverage) {
+    [data-translate] {
+        border: 2px solid $platform-color-green;
+    }
+    [data-translate-attr]::placeholder {
+        text-decoration: underline;
+        color: $platform-color-green;
+    }
+}

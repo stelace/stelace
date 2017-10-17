@@ -1,0 +1,990 @@
+@import "../base/all";
+
+body.items {
+    background-color: rgb(240, 240, 245);
+}
+
+.items {
+
+    &.item-search .location-tag {
+        width: 7rem;
+        @media #{$mq-from-tablet} {
+            width: 9rem;
+        }
+    }
+
+    .space {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        @media #{$mq-from-tablet} {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+    }
+
+    .white-slide {
+        background: #FFF
+    }
+
+    .InfoBox {
+        font-family: $body-font-family;
+        font-size: 11px; // google maps default
+        > div {
+        }
+        .location-name {
+            display: inline-block;
+            max-width: 100%;
+            color: #006eb3;
+            font-weight: 600;
+        }
+        .icon {
+            display: inline-block;
+            vertical-align: middle;
+            height: 20px;
+            width: 20px;
+            fill: rgb(88, 88, 114);
+        }
+    }
+
+    $infobox-triangle-size: 6px; // equal to half of pseudo-element width. Equal to pseudo-element visible height but to half of its real height.
+    $infobox-big-triangle-size: 10px;
+
+    // distance-marker, mylocation-marker and item-details-marker specific to item view
+    .InfoBox.distance-marker {
+        $infobox-height: 32px;
+        height: $infobox-height;
+        width: 50px;
+        overflow: hidden;
+
+        > div {
+            cursor: pointer;
+            border-top: 1px solid rgba(0,0,0,0.25);
+            border-left: 1px solid rgba(0,0,0,0.25);
+            border-right: 1px solid rgba(0,0,0,0.15);
+            width: 100%;
+            height: $infobox-height - 2 * $infobox-triangle-size;
+            background-color: #006eb3;
+            border-radius: 0.5 * $global-radius;
+            color: #FFF;
+            line-height: 18px;
+            font-size: 0.75rem;
+            // must wrap pseudo element for ng-hide
+            &::after {
+                @include css-triangle(
+                    $triangle-size: $infobox-triangle-size, // Size of the triangle
+                    $triangle-color: #006eb3, // Color of the triangle
+                    $triangle-direction: top // Orientation of the triangle; can be top, right, bottom, or left
+                );
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+    }
+
+    .InfoBox.mylocation-marker {
+        $infobox-height: 44px;
+        .profile__image {
+            width: $infobox-height - 2 * $infobox-triangle-size;
+            height: $infobox-height - 2 * $infobox-triangle-size;
+            border: 3px solid rgb(88, 88, 114); //rgba($platform-color-darkblue, 0.8)
+            cursor: pointer;
+            &::after {
+                @include css-triangle(
+                    $triangle-size: $infobox-triangle-size,
+                    $triangle-color: rgb(88, 88, 114),
+                    $triangle-direction: top
+                );
+                position: relative;
+                top: 3px - 1px; // 1px above bottom edge of rounded img border
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    }
+
+    .InfoBox.item-details-marker {
+        $infobox-height: 210px;
+        height: $infobox-height;
+        width: 150px;
+
+        > div {
+            width: 100%;
+            height: $infobox-height - 2 * $infobox-big-triangle-size;
+            padding: 5px;
+            background-color: #FFF;
+            &::after {
+                @include css-triangle(
+                    $triangle-size: $infobox-big-triangle-size,
+                    $triangle-color: #FFF,
+                    $triangle-direction: top
+                );
+                position: relative;
+                top: 5px; // padding-bottom of div;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        .cta:hover {
+            cursor: pointer;
+            > .link--blue-underline {
+                text-decoration: underline;
+            }
+        }
+
+        .item__image {
+            width: 60px;
+            height: 45px;
+            margin: 0 auto 0;
+        }
+        .item__journeys, .item__locations {
+            position: relative;
+            height: $infobox-height - 2 * $infobox-big-triangle-size - 45px - 10px; // item__image (45) and padding (2*5)
+            > div {
+                padding-top: 3px;
+                &:last-child {
+                    position: absolute;
+                    bottom: 0;
+                }
+            }
+        }
+        .item__journeys .flex-container .icon {
+            margin-left: 5px;
+        }
+        .item__locations {
+            padding-top: 3px;
+        }
+
+    }
+
+    .InfoBox.item-marker {
+        $infobox-height: 45px;
+        height: $infobox-height;
+        width: $infobox-height;
+        overflow-x: visible;
+        cursor: pointer!important;
+
+        img {
+            width: $infobox-height;
+            height: $infobox-height - 2 * $infobox-triangle-size;
+            border: 2px solid rgb(88, 88, 114);
+            border-radius: $global-radius;
+        }
+
+        &::after {
+            @include css-triangle(
+                $triangle-size: $infobox-triangle-size,
+                $triangle-color: rgb(88, 88, 114),
+                $triangle-direction: top
+            );
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
+    .InfoBox.item-preview-marker {
+        $infobox-height: 230px;
+        $infobox-width: 150px;
+        height: $infobox-height;
+        width: $infobox-width;
+
+        // markup very simial to item-wall items but hard to factorize here
+        > a.item-thumbnail {
+            display: block;
+            height: $infobox-height - 2 * $infobox-big-triangle-size;
+            position: relative;
+            padding: 5px;
+            overflow: hidden;
+            -webkit-transform: translate3d(0,0,0);
+            background-color: #FFF;
+            color: rgb(85, 90, 95);
+        }
+
+        h3.item-name {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 0;
+            margin: 0 0 2px;
+        }
+
+        .item-thumbnail__image-container {
+            @include aspect-ratio(3, 2);
+            // height: $infobox-width * 2 / 3;
+        }
+
+        .item-thumbnail__price {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateX(-100%) translateY(-50%);
+            padding: 0.375rem 0.5rem 0.25rem;
+            color: #FFF;
+            font-size: 1.25rem;
+            background-color: rgba($platform-color-darkblue, 0.8);
+            line-height: 1;
+            font-weight: 600;
+            sup {
+                font-size: 0.875rem;
+            }
+        }
+
+        .item-thumbnail__owner {
+            height: 32px;
+            width: 32px;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            border: 2px solid #FFF;
+        }
+
+        .item-thumbnail__description {
+            height: $infobox-height - 2 * $infobox-big-triangle-size - 5px - $infobox-width * 2 / 3; //(- padding - picture)
+            position: relative;
+            padding: 18px 0 0;
+        }
+
+        .item-thumbnail__places{
+            max-height: 36px;
+            margin: 2px 0 0;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 11px;
+        }
+
+        &::after {
+            @include css-triangle(
+                $triangle-size: $infobox-big-triangle-size,
+                $triangle-color: #FFF,
+                $triangle-direction: top
+            );
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
+    .InfoBox.search-location-marker {
+        $infobox-width: 96px;
+        width: $infobox-width;
+        text-align: center;
+
+        .location-tag {
+            width: $infobox-width;
+            margin: 0;
+            padding: 0 3px 1px;
+            font-size: 0.7rem;
+            text-align: center;
+            border-bottom: 2px solid $platform-color-darkblue;
+        }
+        .call-to-action {
+            display: none;
+        }
+
+        &:not(.anonymous)::after {
+            @include css-triangle(
+                $triangle-size: $infobox-triangle-size,
+                $triangle-color: $platform-color-darkblue,
+                $triangle-direction: top
+            );
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        &.anonymous {
+            height: 80px;
+            background-color: #FFF;
+            border-radius: $global-radius;
+
+            .location-tag {
+                display: none;
+            }
+            .call-to-action {
+                display: block;
+                min-height: 80px;
+                padding: 0.25rem;
+            }
+            .location-name {
+                margin: 0.125rem 0;
+            }
+
+            &::after {
+                @include css-triangle(
+                    $triangle-size: 10px,
+                    $triangle-color: #FFF,
+                    $triangle-direction: top
+                );
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            &:hover {
+                .text--semibold {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+    }
+
+}
+
+$search__query-padding: 0.5rem;
+$search__search-bar-height: 3.5rem;
+.search__query {
+    width: 100%; // limit width with size-XX classes
+    padding: $search__query-padding;
+    background: #FFF;
+    transition: all 0.3s ease;
+    border-right: 1px solid #CCC;
+    border-bottom: 1px solid #CCC;
+
+    &.search-query--fixed {
+        position: fixed;
+        top: $header-height;
+        left: 0;
+        z-index: 1;
+
+        & ~ .search__results {
+            padding: ($search__search-bar-height + $search__query-padding) 0 0;
+        }
+    }
+
+    .search__filter-toggle {
+        .icon {
+            height: 2.4rem; // = input-height
+            width: 4rem;
+            padding: 0.25rem 1rem;
+        }
+    }
+}
+.search__search-bar {
+}
+.search__location-input-container {
+    flex: 0 1 25rem;
+    input, input:hover, input:focus {
+        border: none;
+        border-radius: 0;
+    }
+    input {
+        border-bottom: 1px solid rgba($platform-color-blue, 0.5);
+        transition: all 0.3s ease;
+    }
+    input:hover, input:focus {
+        border-bottom: 2px solid rgba($platform-color-blue, 0.8);
+    }
+}
+
+
+.search__advanced-search {
+    background: #FFF;
+    padding: $search__query-padding;
+    padding-right: 2 * $search__query-padding;
+    border-right: 1px solid #CCC;
+    border-bottom: 1px solid #CCC;
+    opacity: 1;
+    &.ng-hide-add {
+        transition: all ease 0.3s 0;
+    }
+    &.ng-hide-remove {
+        transition: all ease 0.3s 0.3s;
+    }
+    &.ng-hide {
+        opacity: 0;
+    }
+
+    span.query-label {
+        display: inline-block;
+    }
+    .query-label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+
+    .switch ~ span {
+        display: inline-block;
+        margin-left: 0.25rem;
+        vertical-align: top;
+        font-weight: 600;
+    }
+
+    .search__query-mode {
+        display: inline-block;
+        max-width: 15rem;
+        text-align: center;
+    }
+}
+.search__location-container {
+    position: relative;
+    padding: 0 0.5rem 0.5rem;
+    .delete-button {
+        $delete-tag-height: 1.625rem; // location-tag height
+        height: $delete-tag-height;
+        left: 0.5rem; // location-container padding
+        line-height: $delete-tag-height;
+        font-size: 0.875rem;
+
+        width: 1.5rem;
+        position: absolute;
+        top: 0;
+        color: #999;
+        &:focus, &:hover, &:active {
+            color: #FFF;
+        }
+    }
+    .delete-button ~ .location-tag {
+        padding-left: 1.5rem;
+    }
+}
+
+
+.item-search {
+    #map-search {
+        @media #{$mq-from-s-medium} {
+            height: 100vh;
+            // workaround for iOS calc(100vh - 3rem). See http://stackoverflow.com/questions/21224411/css-calc-viewport-units-workaround
+            box-sizing: border-box; // foundation html default anyway
+            padding-top: $header-height;
+            margin-top: - $header-height;
+
+            // position: absolute;
+            // top: $header-height;
+            // bottom: 0; // not using bottom because of offcanvas's tranform local positionning issue
+            // left: 0;
+            // right: 0;
+        }
+    }
+
+    .search-map {
+        @media #{$mq-s-small} {
+            display: none!important;
+        }
+    }
+
+    .map-overlay {
+        z-index: 3;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        &.background {
+            background-color: rgba(#FFF, 0.5);
+        }
+    }
+
+    #search-content {
+        // similar to foundation grid-content without grid nesting unneccessary styles
+        overflow: hidden;
+        overflow-y: auto;
+        background-color: rgb(240, 240, 245);
+        border-right: 1px solid #DDD;
+    }
+
+    .search__results {
+        position: relative; // for spinner
+        min-height: calc(100vh - 2 * #{$search__query-padding} - #{$header-height} - #{$search__search-bar-height});
+        background-color: rgb(240, 240, 245);
+        .search__results-cta:focus, .search__results-cta:hover, .search__results-cta:active {
+            .icon--highlight {
+                fill: $platform-color-red;
+            }
+        }
+    }
+    .search__results-overlay {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(#FFF, 0.5);
+    }
+    #search__results-items {
+        padding-bottom: 0; // override
+    }
+    .search__results-cta a {
+        color: inherit;
+    }
+
+    .pagination-container {
+        text-align: center;
+    }
+
+    .pagination {
+        margin: auto;
+
+        & > li > a, .pagination > li > span {
+            background-color: transparent;
+            color: $platform-color-blue;
+            transition: all 0.3s;
+
+            &:hover {
+                border-color: #CCC;
+                color: scale-color($platform-color-blue, $lightness: 30%);
+            }
+        }
+
+        & > .active {
+            a, a:hover, a:focus,
+            span, span:hover, span:focus {
+                background-color: scale-color($platform-color-blue, $lightness: 30%);
+                border-color: scale-color($platform-color-blue, $lightness: 30%);
+                color: #FFF;
+            }
+        }
+
+        & > .disabled {
+            a, a:hover, a:focus,
+            span, span:hover, span:focus {
+                color: #DDD;
+                border-color: #DDD;
+                background-color: transparent;
+            }
+        }
+    }
+
+    .search__breadcrumb {
+        padding: 0 0 1rem;
+        background-color: rgb(240, 240, 245);
+    }
+}
+
+.item-view {
+    $item__book-width: 20rem;
+
+    h1 {
+        margin-top: 0;
+        font-weight: 600;
+        font-size: 1.125rem;
+        @media #{$mq-from-desktop} {
+            font-size: 1.375rem;
+        }
+    }
+    h2 {
+        margin-top: 0;
+        font-weight: 600;
+        font-size: 1.125rem;
+        @media #{$mq-tablet} {
+            font-size: 1.25rem;
+        }
+        @media #{$mq-from-desktop} {
+            font-size: 1.5rem;
+        }
+        &#mobile-map-title {
+            margin-top: 1.5rem;
+        }
+    }
+    h3 {
+        margin-top: 0;
+        font-weight: 600;
+        font-size: 1rem;
+        @media #{$mq-tablet} {
+            font-size: 1.125rem;
+        }
+        @media #{$mq-from-desktop} {
+            font-size: 1.25rem;
+        }
+    }
+    h4 {
+        margin-top: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    p {
+        font-size: 0.875rem;
+    }
+    .condensed-info > div {
+        padding-right: 1rem;
+    }
+    .profile__thumb {
+        height: 4rem;
+        width: 4rem;
+        margin: 0.5rem 1rem 0.5rem 0.5rem;
+        &.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+
+    .item__map{
+        height: 15rem;
+        @media #{$mq-tablet} {
+            height: 25rem;
+        }
+        @media #{$mq-from-desktop} {
+            height: 30rem;
+        }
+        background-color: rgba(255, 255, 255, 0.85);
+        &.map-container {
+            z-index: 10;
+        }
+    }
+    #mobile-map-container {
+        background-color: rgb(240, 240, 245);
+    }
+
+    .item__essential {
+        position: relative;
+        padding: 0.5rem 1rem;
+        background-color: #FFF;
+        border: 1px solid #DDD;
+        border-top: none;
+        box-shadow: 0 -8px 4px -4px rgba(0, 0, 0, 0.25);
+    }
+    .item__summary {
+        padding: 0 1rem;
+        .giver-thumbnail {
+            display: inline-block;
+            vertical-align: text-bottom;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: $global-rounded;
+        }
+    }
+    .owner__summary {
+        padding-right: 1rem;
+        @media #{$mq-mobile} {
+            order: 0;
+        }
+        p {
+            max-width: 8rem;
+            word-wrap: break-word;
+        }
+        .profile__thumb {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+    .item__summary-img-medium {
+        height: 4rem;
+        width: 13rem; // for small screens
+        > div {
+            width: 6.5rem;
+            height: 100%;
+        }
+        @media #{$mq-mobile} {
+            order: -1;
+            margin: 0.5rem auto;
+        }
+    }
+    .item__book-container {
+        @media #{$mq-until-tablet} {
+            margin: 0.5rem auto;
+        }
+        max-width: $item__book-width;
+    }
+    .item__book {
+        // padding: 0.5rem 1rem;
+        border: 1px solid #DDD;
+        box-sizing: content-box;
+
+        @media #{$mq-from-desktop} {
+            position: absolute;
+            z-index: 10;
+            top: -28rem;
+            width: $item__book-width;
+            margin-left: 1.5rem;
+        }
+        @media #{$mq-from-large} {
+            margin-left: 6rem;
+        }
+        @media #{$mq-from-xlarge} {
+            margin-left: 12rem;
+        }
+
+        display: flex; // Allows ordering
+        flex-direction: column;
+
+        .book__price {
+            background-color: rgba(51, 51, 81, 0.95);
+            padding: 0.25rem 0.5rem;
+            color: #FFF;
+        }
+        .book__pics {
+            position: relative; // prices-overlay positionning
+            width: 100%;
+            height: 3/5 * $item__book-width;
+            background-color: #FFF;
+            @media #{$mq-until-tablet} {
+                order: 1; // last
+                #book__prices-overlay {
+                    opacity: 1;
+                }
+            }
+        }
+        #book__prices-overlay {
+            color: #FFF;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(51, 51, 81, 0.95);
+            opacity: 0;
+            transition: opacity 0.3s;
+            padding: 0.5rem;
+
+            .book__trust-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+            }
+            .book__trust-line {
+                display: flex;
+                align-items: center;
+            }
+            .book__trust-icon {
+                flex: 0 0 2.5rem;
+                .icon {
+                    width: 1.75rem;
+                    height: 1.75rem;
+                    fill: currentColor;
+                }
+            }
+
+            &:hover, &.show-overlay {
+                opacity: 1;
+            }
+        }
+        .book__dates {
+            // Hacky Fix: invisible content on narrow height desktop screens
+            // Preferred to JS for the moment
+            // Between 500px and 640px height : ensure all content is visible
+            &.conditional-scroll { // set when prices are visible
+                @media #{$mq-from-desktop} and (max-height: 660px) {
+                    // all content should be visible with scroll, down to 550px height desktop screens
+                    max-height: 20rem;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                }
+                @media #{$mq-from-desktop} and (max-height: 600px) {
+                    max-height: 17rem; // Just enough to show all content without scroll in classic mode
+                }
+                @media #{$mq-from-desktop} and (max-height: 550px) {
+                    max-height: 11rem;
+                }
+            }
+            // Edge case: Below 550px height, datepicker must be scrolled to be functional
+            // Allow scroll bar even when not much content (stated by conditional scoll)
+            @media #{$mq-from-desktop} and (max-height: 550px) {
+                max-height: 11rem;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            // Below 450px height (on desktop !) : helpless, some content can't be seen
+
+            $book__dates-side-padding: 0.5rem;
+            box-sizing: border-box;
+            padding: $book__dates-side-padding $book__dates-side-padding ($book__dates-side-padding * 0.5);
+            background-color: #FFF;
+            label {
+                border-radius: 0.5 * $global-radius;
+                margin-bottom: 3px;
+            }
+            input {
+                max-width: 8rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .book__free-days {
+                margin-bottom: 0.5rem;
+                @media #{$mq-from-tablet} {
+                    padding-left: 0.5rem;
+                    padding-right: 0.5rem;
+                }
+            }
+
+            .booking-button-trust {
+                font-size: 0.8rem;
+                margin-top: -0.7rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .select-free-days-container {
+                margin-top: 0.25rem;
+            }
+            label[for="select-free-days"] {
+                margin-right: 0.25rem;
+            }
+            #select-free-days {
+                flex: 0 0 auto;
+                width: 3.5rem; // use width instead of flex-basis for IE 11 (not accounting select padding in flex-basis)
+                align-self: center;
+                margin: 0;
+            }
+        }
+
+        #item-book-button {
+            &.disabled {
+                background-color: #DDD;
+            }
+        }
+    }
+
+    .item__context-info {
+        background-color: #FFF;
+        border-radius: 0.5 * $global-radius;
+        padding: 1rem;
+        margin-bottom: 1rem;
+
+        table.book__prices {
+            max-width: 20rem;
+            margin: 0 auto;
+        }
+    }
+
+
+    .item__description {
+        min-height: 15rem;
+        background-color: rgb(240, 240, 245);
+        p {
+            white-space: pre-line;
+            word-wrap: break-word;
+        }
+    }
+    .item__pics-grid {
+        min-height: 10rem;
+        .item__image-container {
+            overflow: hidden;
+            padding: 0.375rem;
+            img {
+                width: 100%;
+                height: 100%;
+                cursor: pointer;
+            }
+            // .img-container {
+            //     // Fix for Flexbox in webkit...
+            //     // See http://stackoverflow.com/questions/7676022/html5-flexible-box-model-height-calculation/15388247#15388247
+            //     position: absolute;
+            // }
+        }
+    }
+
+    .item__questions {
+        padding-top: 2rem;
+
+        > div {
+            padding-top: 0.5rem;
+            padding-bottom: 1rem;
+        }
+
+        .flex-container {
+            padding-bottom: 0.25rem;
+            &:last-child {
+                margin-left: 1.5rem;
+            }
+        }
+
+        .profile__image {
+            flex: 0 0 2rem;
+            height: 2rem;
+            width: 2rem;
+            margin-right: 0.5rem;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+    }
+    .item__ask-question {
+        padding-top: 0.5rem;
+        margin-top: 0.5rem;
+        p {
+            margin-bottom: 0;
+            &:first-child {
+                @media #{$mq-s-small} {
+                    margin-bottom: 1rem;
+                }
+            }
+        }
+    }
+
+
+    .item__contact{
+        min-height: 10rem;
+        background-color: #FFF;
+        border: 1px solid #DDD;
+    }
+    .owner__profile{
+        padding-top: 1rem;
+    }
+    .user__awards {
+        margin-top: 1rem;
+    }
+    .item__comments {
+        h2, h3 {
+            display: inline-block;
+            margin-bottom: 1rem;
+            margin-right: 0.5rem;
+        }
+    }
+
+
+    .item__others {
+        min-height: 10rem;
+        background-color: rgb(240, 240, 245);
+    }
+    .item-tag {
+        display: inline-block;
+        background-color: rgb(230, 230, 235);
+        color: #666;
+        margin-right: 0.5rem;
+        padding: 0.25rem 0.25rem 0.125rem;
+        font-size: 0.75rem;
+        border-radius: 0.5 * $global-radius;
+        transition: all 200ms ease;
+        &:focus, &:hover, &:active {
+            background-color: $platform-color-purple;
+            color: #FFF;
+        }
+    }
+    .item-wall {
+        margin-top: 1rem;
+        @media #{$mq-until-tablet} {
+            max-width: 40rem;
+        }
+    }
+
+}
+
+.my-items {
+    h1 {
+        font-size: 2rem;
+    }
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    label:not(.button):not([class *= "text--"]) {
+        font-size: 1rem;
+    }
+
+    .slide-intro {
+        min-height: 12rem;
+        background: linear-gradient(170deg, $platform-color-blue 10%, $platform-color-brightblue 70%);
+    }
+    .slide-intro:focus, .slide-intro:hover {
+        .my-items__cta .icon {
+            transform: scale(1.2);
+        }
+    }
+    .my-items__cta {
+        padding: 0.5rem;
+        .icon {
+            height: 3rem;
+            width: 3rem;
+            fill: #FFF;
+            transition: transform 0.3s ease;
+        }
+    }
+}

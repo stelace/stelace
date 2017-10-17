@@ -1,0 +1,13 @@
+.rzslider-container .rzslider-overlay {
+    position: absolute;
+    z-index: 2;
+    left: 40%;
+    right: 40%;
+    top: 0;
+    display: inline-block;
+    height: 6px;
+    margin: 34px 0 14px 0;
+    pointer-events: none;
+    background: $success-color;
+    border-radius: 4px;
+}

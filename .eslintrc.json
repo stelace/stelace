@@ -1,0 +1,51 @@
+{
+    "root": true,
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true,
+        "node": true,
+        "commonjs": false,
+        "worker": false,
+        "amd": false,
+        "mocha": true,
+        "jasmine": false,
+        "jest": false,
+        "phantomjs": true,
+        "protractor": false,
+        "qunit": false,
+        "jquery": true,
+        "prototypejs": false,
+        "shelljs": false,
+        "meteor": false,
+        "mongo": false,
+        "applescript": false,
+        "serviceworker": false,
+        "embertest": false,
+        "es6": true
+    },
+    "globals": {
+        // vendor
+        "_": false,
+        "Modernizr": false,
+        "Foundation": false,
+        "angular": false,
+        "sails": false,
+        "Promise": true,
+
+        // own
+        "Utils": true,
+        "Widget": true,
+        "µ": true,
+        "BadRequestError": true,
+        "ForbiddenError": true,
+        "NotFoundError": true
+    },
+    "rules": {
+        "no-console": 0,
+        "require-yield": 0
+    }
+}

@@ -1,0 +1,42 @@
+<div class="select-image">
+    <div class="select-image-container text-control"
+        sip-select-file
+        data-accept="image/*"
+        data-select-disabled="selectDisabled"
+        data-on-select="select(file)"
+        data-on-touch="touch()">
+        <sip-img ng-if="! media.url" ng-src="/assets/img/app/default/default-item-image-upload.png" ratio="3:2"></sip-img>
+        <sip-img ng-if="media.url" ng-src="{{media.url}}" ratio="3:2"></sip-img>
+    </div>
+    <div title="Chargement"
+        ng-if="progress"
+        data-uib-progressbar
+        data-value="progress">
+        {{progress}}%
+    </div>
+    <div class="select-actions text-control-bar text-center">
+        <span class="select-action text-control"
+            ng-class="{ disabled: prevDisabled }"
+            tabindex="0"
+            data-sip-action-key
+            ng-click="prev()">
+            ◀
+        </span>
+        <span class="select-action text-control"
+            ng-class="{ disabled: removeDisabled }"
+            tabindex="0"
+            data-sip-action-key
+            ng-click="remove()">
+            <svg class="icon--inline">
+                <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
+            </svg>
+        </span>
+        <span class="select-action text-control"
+            ng-class="{ disabled: nextDisabled }"
+            tabindex="0"
+            data-sip-action-key
+            ng-click="next()">
+            ▶
+        </span>
+    </div>
+</div>

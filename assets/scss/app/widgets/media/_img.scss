@@ -1,0 +1,46 @@
+// http://www.sitepoint.com/maintain-image-aspect-ratios-responsive-web-design/
+.img-container {
+    position: relative;
+    display: block;
+
+    &.-img {
+        height: 0;
+        padding: 100% 0 0 0; // (height / width) ratio
+        overflow: hidden;
+
+        .img-container__img {
+            position: absolute;
+            display: block;
+            max-width: 100%;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
+    }
+
+    &.-img--radius {
+        img {
+            border-radius: $global-radius;
+        }
+    }
+
+    &.-img--rounded {
+        img {
+            border-radius: $global-rounded;
+        }
+    }
+
+    &.-background {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: no-repeat center center;
+        background-size: cover;
+        &.-contain {
+            background-size: contain;
+        }
+    }
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 20 20"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="medal-lighten.svg"
+   inkscape:export-filename="/home/andy/git/sharinplace/assets/img/app/badges/gold-medal.png"
+   inkscape:export-xdpi="1890"
+   inkscape:export-ydpi="1890">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14">
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Lightness-Contrast"
+       id="filter4428">
+      <feColorMatrix
+         values="1 0 0 0.02 0 0 1 0 0.02 0 0 0 1 0.02 0 0 0 0 1 0 "
+         id="feColorMatrix4430" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="32"
+     inkscape:cx="7.0583881"
+     inkscape:cy="9.754085"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <rect
+     height="0.378"
+     width="3.809"
+     y="6.44"
+     x="8.099"
+     fill="#666"
+     id="rect6" />
+  <polygon
+     points="302.8 142.9 212.2 0 106.5 0 197.2 142.9 "
+     transform="matrix(0.036,0,0,0.036,1,1)"
+     id="polygon8"
+     fill="#00578e" />
+  <polygon
+     points="393.5 0 287.8 0 255.2 51.3 308.1 134.7 "
+     transform="matrix(0.036,0,0,0.036,1,1)"
+     fill="#009bfc"
+     id="polygon10" />
+  <path
+     style="fill:#f2a900;filter:url(#filter4428);fill-opacity:1"
+     d="m 10.001875,7.176484 c -3.272,0 -5.921875,2.6528748 -5.921875,5.921875 0,0.404544 0.041817,0.799825 0.1191406,1.181641 l 0.7050782,-0.408204 c -0.038288,-0.252973 -0.064453,-0.509858 -0.064453,-0.773437 0,-2.848 2.3111094,-5.1621094 5.1621092,-5.1621094 1.215171,0 2.319797,0.4388672 3.203125,1.1445313 L 13.921797,8.6667184 C 13.82476,8.5808199 13.72742,8.4942539 13.624922,8.4147652 12.623922,7.6387653 11.367875,7.176484 10.001875,7.176484 Z m 0,1.0292969 c -2.696,0 -4.8925781,2.1925781 -4.8925781,4.8925781 0,0.213331 0.018306,0.422677 0.044922,0.628906 L 12.955,9.2253121 C 12.131556,8.5955392 11.115429,8.2057809 10.001875,8.2057809 Z"
+     id="path4"
+     inkscape:connector-curvature="0" />
+  <path
+     style="fill:#f2a900;fill-opacity:1"
+     d="m 13.912656,8.6464844 -0.716797,0.4140625 c 1.184024,0.9458811 1.958984,2.3847391 1.958984,4.0175781 0,2.844 -2.318109,5.158203 -5.1621086,5.158203 -2.5807911,0 -4.7222371,-1.904331 -5.0976562,-4.384766 L 4.19,14.259766 C 4.7375024,16.963292 7.1256496,19 9.9927344,19 c 3.2719996,0 5.9218746,-2.652875 5.9218746,-5.921875 0,-1.103 -0.302125,-2.136484 -0.828125,-3.021484 C 14.771899,9.5257265 14.372286,9.0533572 13.912656,8.6464844 Z M 12.945859,9.2050781 5.1450782,13.707031 c 0.3097409,2.400023 2.361304,4.263672 4.8476562,4.263672 2.6959996,0 4.8925776,-2.192578 4.8925776,-4.892578 0,-1.582446 -0.769276,-2.978091 -1.939453,-3.8730469 z"
+     id="path4-2"
+     inkscape:connector-curvature="0" />
+</svg>

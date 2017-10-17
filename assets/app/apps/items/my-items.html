@@ -1,0 +1,820 @@
+<div class="items my-items"
+    ng-switch="vm.viewCreate">
+    <div class="header-space"></div>
+    <a id="slide-intro-item"
+        class="text-center slide-intro space padded-sides"
+        ui-sref="itemCreate"
+        ng-switch-default>
+            <h1 class="slide-intro__title">
+                Publiez
+                <span ng-hide="vm.myItems.length">votre</span>
+                <span ng-show="vm.myItems.length">une nouvelle</span>
+                annonce
+            </h1>
+            <div class="slide-intro__subtitle">
+                Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
+            </div>
+            <div class="my-items__cta"
+                uib-collapse="vm.viewCreate">
+                <svg class="icon--inline icon">
+                    <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>
+                </svg>
+            </div>
+    </a>
+    <div id="slide-intro-item"
+        class="text-center slide-intro space padded-sides"
+        ng-switch-when="true">
+        <h1 class="slide-intro__title">
+            Voici votre nouvelle annonce
+        </h1>
+        <div class="slide-intro__subtitle">
+            Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
+        </div>
+    </div>
+    <div id="item-editor" class="fluid-content sticky-helper__flex-container">
+        <div class="small-12 desktop-8">
+            <h2 class="text-center"
+                ng-if="vm.itemId">
+                Je mets à jour mon annonce <span ng-show="vm.item.name">({{vm.item.name}})</span>
+            </h2>
+            <div class="pull-t text-center margin-bottom-plus"
+                ng-if="vm.itemId">
+                <span class="link--blue-underline text--small text--semibold cursor-pointer padding-bottom"
+                ng-if="vm.myItems.length > 1"
+                ng-click="vm.showItemEditor = ! vm.showItemEditor"
+                ng-switch="vm.showItemEditor"
+                tabindex="0"
+                data-sip-action-key>
+                    <span ng-switch-when="true">
+                        ▲
+                        Voir mes autres annonces
+                    </span>
+                    <span ng-switch-default>
+                        ▼
+                        Voir mon annonce à modifier
+                    </span>
+                </span>
+            </div>
+            <form class="form--control text-center"
+                name="vm.myItemsEditor"
+                uib-collapse="! vm.viewCreate && ! vm.showItemEditor"
+                novalidate>
+                <div ng-if="vm.viewCreate">
+                    <h2 ng-if="vm.isAuthenticated && vm.myItems.length">
+                        Créez votre <span>{{vm.myItems.length + 1}}<sup>e</sup></span> annonce ci-dessous en un clin d'œil
+                    </h2>
+                    <h2 ng-if="!vm.isAuthenticated">
+                        Louez et vendez en toute sécurité
+                    </h2>
+                </div>
+                <div ng-if="vm.viewCreate && ! vm.myItems.length">
+                    <p class="text-center no-margin-bottom"
+                        data-uib-popover="Sur Sharinplace, le montant des transactions est bloqué par validation 3DSecure jusqu'à la signature d'un contrat électronique, généré automatiquement. Votre paiement est garanti, pas de surprises !"
+                        data-popover-trigger="mouseenter outsideClick"
+                        data-popover-placement="auto top"
+                        data-popover-title="Contrat électronique">
+                        <span class="text--semibold">
+                            <span class="step-icons">
+                                <svg class="icon success">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#lock-check"/>
+                                </svg>
+                            </span>
+                            <br>
+                            Paiement en ligne garanti.
+                        </span>
+                    </p>
+                    <p class="text-center">
+                        Commençons par enregistrer ensemble votre offre en un éclair.
+                    </p>
+                </div>
+
+                <div class="step-1">
+                    <div class="padding-bottom"
+                        ng-if="vm.showListingTypes">
+                        <div class="text-center">
+                            <!-- TODO: make a generic directive for each listingType button -->
+                            <div class="button"
+                                ng-class="{
+                                    brightblue: vm.classicItemStates.sellable,
+                                    darkblue: ! vm.classicItemStates.sellable
+                                }"
+                                ng-click="vm.updateItemClassicState({ state: 'sellable' })"
+                                ng-switch="vm.classicItemStates.sellable">
+                                <span ng-switch-when="true">
+                                    <svg class="icon icon--inline">
+                                        <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
+                                    </svg>
+                                </span>
+                                <span ng-switch-when="false">
+                                    <svg class="icon icon--inline">
+                                        <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                                    </svg>
+                                </span>
+                                <span>
+                                    <span ng-show="vm.item.sellingPrice === 0">Je donne</span>
+                                    <span ng-hide="vm.item.sellingPrice === 0">Je vends</span>
+                                </span>
+                            </div>
+                            <div class="button margin-left"
+                                ng-class="{
+                                    brightblue: vm.classicItemStates.rentable,
+                                    darkblue: ! vm.classicItemStates.rentable
+                                }"
+                                ng-click="vm.updateItemClassicState({ state: 'rentable' })"
+                                ng-switch="vm.classicItemStates.rentable">
+                                <span ng-switch-when="true">
+                                    <svg class="icon icon--inline" >
+                                        <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
+                                    </svg>
+                                </span>
+                                <span ng-switch-when="false">
+                                    <svg class="icon icon--inline">
+                                        <use xlink:href="/assets/build/icons/sprite.svg#x"/>
+                                    </svg>
+                                </span>
+                                <span>
+                                    <span ng-show="vm.item.dayOnePrice === 0">Je prête</span>
+                                    <span ng-hide="vm.item.dayOnePrice === 0">Je loue</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-if="vm.showItemCategories">
+                        <label for="category-lvl1-select" class="no-margin-bottom">
+                            Catégorie*&nbsp;:
+                        </label>
+                        <div>
+                            <select id="category-lvl1-select"
+                                name="itemCategory"
+                                class="category-select"
+                                ng-model="vm.selectedItemCategoryLvl1"
+                                ng-options="cat.name for cat in vm.itemCategoriesLvl1"
+                                ng-change="vm.categoryChanged()"
+                                required>
+                                <option value="" selected disabled="disabled">
+                                    Catégorie de mon annonce*
+                                </option>
+                            </select>
+                            <br class="hide-for-desktop">
+                            <select class="category-select" ng-model="vm.selectedItemCategoryLvl2"
+                                ng-options="cat.name for cat in vm.itemCategoriesLvl2"
+                                ng-show="vm.selectedItemCategoryLvl1"
+                                ng-change="vm.updateBrandList(); vm.saveLocal('subcategory')">
+                                <option value="" selected>
+                                     Sous-catégorie
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- <select class=""
+                        ng-model="vm.selectedBrand"
+                        ng-options="brand.name for brand in vm.brands track by brand.id"
+                        ng-show="vm.selectedItemCategoryLvl1">
+                        <option value="" selected>
+                            Marque de mon objet
+                        </option>
+                    </select>
+                    <br>-->
+                    <p class="no-margin-bottom">
+                        <label for="item-name">
+                            Titre de votre annonce*&nbsp;:<br>
+                        </label>
+                    </p>
+                    <input id="item-name"
+                        class="text-input"
+                        name="itemName"
+                        type="text"
+                        ng-model="vm.item.name"
+                        ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
+                        ng-maxlength="75"
+                        placeholder="Titre de mon annonce*"
+                        required>
+                    <!-- Do not show form-warning when invalid-maxlength -->
+                    <div class="form-warning text--semibold"
+                        uib-collapse="! myItemsEditor.itemName.$touched || ! myItemsEditor.itemName.$invalid || myItemsEditor.itemName.$error.maxlength">
+                        Veuillez rédiger le titre de votre annonce avant de poursuivre (marque, modèle...).
+                    </div>
+                    <sip-maxlength class="text--small"
+                        data-content="myItemsEditor.itemName.$viewValue"
+                        data-maxlength="75"
+                        data-threshold="50">
+                    </sip-maxlength>
+                </div>
+                <div class="step-2"
+                    uib-collapse="! vm.step2">
+                    <p class="no-margin-bottom">
+                        <label for="item-price">
+                            Valeur*&nbsp;:
+                            <br>
+                        </label>
+                    </p>
+                    <div class="margin-bottom-plus item__pricing-slider-container" ng-if="vm.isActivePriceRecommendation">
+                        <div class="rzslider-container">
+                            <rzslider
+                                data-rz-slider-model="vm.item.sellingPrice"
+                                data-rz-slider-options="vm.pricingSlider.options"
+                                ng-if="vm.pricingSlider.options.ceil"></rzslider>
+                            <div class="rzslider-overlay"
+                                ng-if="vm.pricingSliderOverlayRight"
+                                ng-style="{ right: vm.pricingSliderOverlayRight, left: vm.pricingSliderOverlayLeft }">
+                            </div>
+                        </div>
+                        <div class="spinner-container text--small text--light text--semibold"
+                            ng-switch="vm.recommendedPrices.status">
+                            <span data-us-spinner="{top: '20%'}"
+                                data-spinner-theme="fiveColors"
+                                data-spinner-key="price-recommendation-spinner"></span>
+                            <div class="spinner-label"
+                                ng-switch-when="pending">
+                                Calcul du prix adapté
+                            </div>
+                            <div class="spinner-label"
+                                ng-switch-when="ok">
+                                Suggestion&nbsp;:
+                                <span class="text--success text--nofade">
+                                    {{ vm.pricingSlider.options.ticksArray[1] + "€ à " + vm.pricingSlider.options.ticksArray[2] + "€" }}
+                                </span>
+                            </div>
+                            <div class="spinner-label"
+                                ng-switch-when="fail">
+                                Aucune suggestion de prix adapté à ce titre&nbsp;:(
+                            </div>
+                            <div class="spinner-label"
+                                ng-switch-default>
+                                Glisser pour modifier
+                            </div>
+                        </div>
+                    </div>
+                    <div uib-collapse="vm.item.sellingPrice === 0">
+                        <input id="item-selling-price" class="item__main-price-input no-margin-bottom"
+                        name="itemSellingprice"
+                        type="number"
+                        ng-model="vm.item.sellingPrice"
+                        ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
+                        ng-change="vm.saveLocal('sellingPrice')"
+                        min="0"
+                        step="1"
+                        placeholder="Valeur de mon offre"
+                        required>
+                    </div>
+                    <div class="margin-top text-small text--semibold"
+                        ng-if="vm.classicItemStates.sellable && vm.item.sellingPrice === 0">
+                        J’offre gratuitement
+                        <svg class="icon icon--inline red">
+                            <use xlink:href="/assets/build/icons/sprite.svg#heart-round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="step-3" ng-if="vm.step3" >
+                    <hr class="small-offset-3 small-6">
+                    <h2 class="text-center margin-bottom-plus">De belles photos font la différence…</h2>
+                    <div class="media-editor grid-block small-up-2 s-medium-up-3">
+                        <div
+                            data-sip-select-image
+                            ng-repeat="configMedia in vm.configMedias track by configMedia.id"
+                            data-media="configMedia.media"
+                            data-on-touch="vm.touchMedia(mediaId)"
+                            data-on-select="vm.selectMedia(mediaId, file)"
+                            data-select-disabled="configMedia.selectDisabled"
+                            data-on-remove="vm.removeMedia(mediaId)"
+                            data-remove-disabled="configMedia.removeDisabled"
+                            data-on-prev="vm.prevMedia(mediaId)"
+                            data-prev-disabled="configMedia.prevDisabled"
+                            data-on-next="vm.nextMedia(mediaId)"
+                            data-next-disabled="configMedia.nextDisabled"
+                            data-progress="{{configMedia.progress}}">
+                        </div>
+                    </div>
+                    <div class="text--small cursor-pointer text-center margin-bottom-plus">
+                        <span
+                            class="link--underline padding-bottom"
+                            ng-show="vm.isMoveModeAllowed"
+                            ng-click="vm.changeMediaMode()"
+                            ng-class="{
+                                'link--blue-underline': vm.mediaMode !== 'edit',
+                                'link--grey': vm.mediaMode === 'edit'
+                            }"
+                            tabindex="0"
+                            data-sip-action-key>
+                            {{ vm.mediaMode === "edit" ? "Changer l'ordre des photos" : "Ajouter / supprimer vos photos" }}
+                        </span>
+                    </div>
+                    <hr class="small-offset-3 small-6">
+
+                    <div>
+                        <label for="item-description">
+                            Description de votre {{vm.item.name}}*&nbsp;:
+                        </label>
+                        <textarea id="item-description" name="itemDescription"
+                            class="item-editor__description"
+                            rows="5"
+                            ng-model="vm.item.description"
+                            ng-maxlength="3000"
+                            ng-change="vm.saveLocal('description')"
+                            placeholder=" Comment je l'utilise? Quelles sont ses fonctions que je trouve les plus pratiques?"
+                            required
+                            data-sip-textarea-auto-adjust>
+                        </textarea>
+                        <div class="form-warning text--semibold"
+                            uib-collapse="! myItemsEditor.itemDescription.$touched || ! myItemsEditor.itemDescription.$invalid || myItemsEditor.itemDescription.$error.maxlength">
+                            Veuillez renseigner une description de votre {{vm.item.name}}.
+                        </div>
+
+                        <div class="item-rentable-price margin-bottom-plus"
+                            uib-collapse="! vm.showRentingPrice || ! vm.validPrice">
+                            <p class="no-margin-bottom">
+                                <label for="item-price">
+                                    Prix de la première journée de location&nbsp;:<br>
+                                </label>
+                            </p>
+                            <input id="item-price" class="item__main-price-input no-margin-bottom"
+                                name="itemPrice"
+                                type="number"
+                                ng-model="vm.item.dayOnePrice"
+                                ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
+                                ng-change="vm.setDefaultPrices(); vm.saveLocal('price')"
+                                min="0"
+                                step="1"
+                                placeholder="{{vm.defaultDayOnePrice}}">
+                            <div class="text--small text--semibold"
+                                ng-hide="! vm.recommendedPrices.highDayOnePrice" ng-if="vm.isActivePriceRecommendation">
+                                <span class="text--light">
+                                    Montant suggéré&nbsp;:
+                                </span>
+                                <span class="text--success">
+                                    {{ vm.recommendedPrices.lowDayOnePrice }}€
+                                    {{ vm.recommendedPrices.lowDayOnePrice !== vm.recommendedPrices.highDayOnePrice ?
+                                        "à " + vm.recommendedPrices.highDayOnePrice + "€" : ""}}
+                                    </span>
+                                    <span class="badge tooltip-badge tooltip-dispensable"
+                                    data-tooltip-placement="auto bottom"
+                                    data-tooltip-trigger="mouseenter outsideClick"
+                                    uib-tooltip="D'après la valeur indiquée plus haut.">
+                                    ?
+                                </span>
+                            </div>
+                            <div class="margin-top text-small text--semibold"
+                                ng-if="vm.classicItemStates.rentable && vm.item.dayOnePrice === 0">
+                                Je partage gratuitement
+                                <svg class="icon icon--inline red">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#heart-round"/>
+                                </svg>
+                            </div>
+                            <p class="margin-top-plus no-margin-bottom text--semibold">
+                                <span class="link--blue-underline cursor-pointer"
+                                ng-click="vm.showRentingPricingDetails = ! vm.showRentingPricingDetails"
+                                tabindex="0"
+                                data-sip-action-key>
+                                Personnalisation des tarifs longue durée&nbsp;:
+                                <span ng-if="! vm.showRentingPricingDetails">▼</span>
+                                <span ng-if="vm.showRentingPricingDetails">▲</span>
+                            </span>
+                            </p>
+                            <div data-uib-collapse="! vm.showRentingPricingDetails">
+                                <table class="item__pricing-table text-center margin-bottom-plus">
+                                    <thead class="item_pricing-table-head">
+                                        <tr>
+                                            <td class="item__pricing-table-column">Exemple de durée</td>
+                                            <td class="item__pricing-table-column">Prix total en €</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- <tr class="item__pricing-table-row--first">
+                                            <td>1&nbsp;jour</td>
+                                            <td>{{ vm.item.dayOnePrice || vm.defaultDayOnePrice }}</td>
+                                        </tr> -->
+                                        <tr ng-repeat="bookingPrice in vm.itemBookingPrices track by bookingPrice.day">
+                                            <td><label for="item-price-{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>
+                                            <td>
+                                                <input id="item-price-{{bookingPrice.day}}"
+                                                    type="number"
+                                                    class="item__pricing-table-input"
+                                                    ng-model="bookingPrice.price"
+                                                    placeholder="{{bookingPrice.defaultPrice}}"
+                                                    ng-blur="vm.fixCustomPricing()"
+                                                    min="0"
+                                                    step="1">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="no-margin-bottom margin-top">
+                                <label for="item-deposit">
+                                    Montant de la caution&nbsp;:<br>
+                                </label>
+                            </p>
+                            <input id="item-deposit"
+                                name="itemDeposit"
+                                type="number"
+                                class="item__main-price-input no-margin-bottom"
+                                ng-model="vm.item.deposit"
+                                ng-model-options="{ updateOn: 'default', debounce: {'default': 500} }"
+                                ng-change="vm.updateDeposit(); vm.saveLocal('deposit')"
+                                placeholder="{{vm.defaultDeposit}}"
+                                min="0"
+                                step="1">
+                            <div class="text--small text--light">
+                                Montant automatiquement bloqué par sécurité sur la carte bancaire des locataires.
+                            </div>
+                            <div class="form-warning text--semibold"
+                                uib-collapse="! vm.showDepositWarning">
+                                La caution par carte bancaire est limitée à {{::vm.maxDeposit}}€. En cas de réservation, nous vous recommandons de demander au locataire un chèque de caution complémentaire pour la partie de votre caution souhaitée dépassant ce montant.
+                            </div>
+                            <!-- <<p>
+                                J'accepte de partager gratuitement mon objet en échange de cadeaux Sharinplace&nbsp;
+                                <span class="small switch switch--success">
+                                    <input id="switch-free" type="checkbox" ng-model="vm.item.acceptFree">
+                                    <label for="switch-free"></label>
+                                </span>
+                            </p> -->
+
+                            <!-- <label for="item-state"  class="margin-top-plus no-margin-bottom">
+                                État et accessoires fournis&nbsp;:
+                            </label>
+                            <div class="text--small text--light">
+                                Gagnez du temps: ces informations seront automatiquement reportées sur votre contrat de location électronique.
+                            </div>
+                            <textarea id="item-state" name="itemState"
+                                class="item-editor__description no-margin-bottom"
+                                rows="3"
+                                ng-model="vm.item.stateComment"
+                                ng-maxlength="1000"
+                                ng-change="vm.saveLocal('state')"
+                                placeholder="Exemple: {{vm.item.name}} en parfait état de fonctionnement et confié avec la notice. Légères rayures visibles."
+                                required
+                                data-sip-textarea-auto-adjust>
+                            </textarea> -->
+
+                            <!-- <label for="item-booking-preferences" class="margin-top-plus">
+                                Préférences de réservation&nbsp;:
+                            </label>
+                            <textarea id="item-booking-preferences" name="itemBookingPreferences"
+                                class="item-editor__description"
+                                rows="3"
+                                ng-maxlength="1000"
+                                ng-change="vm.saveLocal('booking-preferences')"
+                                ng-model="vm.item.bookingPreferences"
+                                placeholder="Facultatif. Exemple: j'accepte les réservations et remises d'objet du lundi au samedi."
+                                data-sip-textarea-auto-adjust>
+                            </textarea> -->
+                        </div>
+
+                    </div>
+
+                    <div class="margin-bottom-plus"
+                        ng-if="vm.showTags">
+                        <label for="item-tags">
+                            Mots-clés (Niveau avancé)&nbsp;:
+                        </label>
+                        <!-- ng-if because the input doesn't all the available if hidden by ng-show and doesn't render again when shown -->
+                        <ui-select
+                            class="text-left margin-top item-editor__tags"
+                            tagging="vm.tagTransform"
+                            tagging-tokens="ENTER|,"
+                            input-id="item-tags"
+                            multiple
+                            ng-model="vm.itemTags"
+                            ng-change="vm.saveLocal('tags')"
+                            ng-if="vm.selectedItemCategoryLvl1">
+                            <ui-select-match placeholder="Mes mots-clés">{{$item.name}}</ui-select-match>
+                            <ui-select-choices
+                                refresh="vm.getTags($select.search)" refresh-delay="300"
+                                repeat="tag in vm.tags | filter: $select.search">
+                                {{tag.name}}
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                    <div class="flex-container flex--column margin-bottom-plus"
+                        ng-if="! vm.createAccount">
+                        <div class="margin-bottom-plus text--semibold">
+                            Je choisis les lieux de disponibilité de mon annonce&nbsp;:
+                        </div>
+                        <div ng-if="vm.item.listLocations.length === 0">
+                            <p>Aucun lieu favori n'est actuellement renseigné.</p>
+                        </div>
+                        <div class="item__locations flex-container small-up-2">
+                            <div ng-repeat="loc in vm.item.listLocations track by loc.id">
+                                <span class="small switch switch--success">
+                                    <input id="item__locations-{{loc.id}}" type="checkbox"
+                                        ng-model="loc.checked"
+                                        tabindex="-1">
+                                    <label for="item__locations-{{loc.id}}"></label>
+                                </span>
+                                <span class="location-tag ellipsis cursor-pointer"
+                                    ng-class="{ disabled: ! loc.checked }"
+                                    ng-click="loc.checked = ! loc.checked"
+                                    tabindex="0"
+                                    data-sip-action-key>
+                                    {{loc.alias ? loc.alias : loc.shortName }}
+                                </span>
+                            </div>
+                        </div>
+                        <div ng-if="vm.item.listLocations.length === 1 && ! vm.viewCreate">
+                            <p>
+                                <span ui-sref="account" class="link--blue-underline">Ajoutez des lieux favoris à votre compte</span> et activez-les sur cette page afin d'augmenter vos chances de louer votre {{vm.item.name}}.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- <div ng-if="vm.viewCreate">
+                        <p class="margin-bottom">
+                            J'accepte que Sharinplace améliore gratuitement mon annonce pour la rendre plus attractive&nbsp;:
+                            <span class="small switch switch--success vertical-middle">
+                                <input id="switch-item-validation" type="checkbox"
+                                    ng-model="vm.itemFullValidation">
+                                <label for="switch-item-validation"></label>
+                            </span>
+                            {{vm.itemFullValidation ? "Oui, avec plaisir" : "Non merci"}}&nbsp;!<br>
+                        </p>
+                    </div>
+                    <div ng-if="vm.viewCreate">
+                        <p class="margin-bottom">
+                            J'accepte que Sharinplace améliore gratuitement mon annonce pour la rendre plus attractive&nbsp;:
+                            <span class="small switch switch--success vertical-middle">
+                                <input id="switch-item-validation" type="checkbox"
+                                    ng-model="vm.itemFullValidation">
+                                <label for="switch-item-validation"></label>
+                            </span>
+                            {{vm.itemFullValidation ? "Oui, avec plaisir" : "Non merci"}}&nbsp;!<br>
+                        </p>
+                        <div uib-collapse="vm.itemFullValidation">
+                            <p>
+                                Je peux marquer en vert les parties de mon annonce pour lesquelles je souhaite quelques améliorations&nbsp;:
+                            </p>
+                            <div class="item-validation__fields grid-block small-up-1 medium-up-2">
+                                <div>
+                                    <span class="item-validation__switch-label">Titre de l'annonce&nbsp;</span>
+                                    <span class="small switch switch--success vertical-middle">
+                                        <input id="switch-item-validation-title" type="checkbox" ng-model="vm.itemValidationFields.title">
+                                        <label for="switch-item-validation-title"></label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="item-validation__switch-label">Catégorie de l'objet&nbsp;</span>
+                                    <span class="small switch switch--success vertical-middle">
+                                        <input id="switch-item-validation-category" type="checkbox" ng-model="vm.itemValidationFields.category">
+                                        <label for="switch-item-validation-category"></label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="item-validation__switch-label">Description&nbsp;</span>
+                                    <span class="small switch switch--success vertical-middle">
+                                        <input id="switch-item-validation-description" type="checkbox" ng-model="vm.itemValidationFields.description">
+                                        <label for="switch-item-validation-description"></label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="item-validation__switch-label">Photographie&nbsp;</span>
+                                    <span class="small switch switch--success vertical-middle">
+                                        <input id="switch-item-validation-media" type="checkbox" ng-model="vm.itemValidationFields.media">
+                                        <label for="switch-item-validation-media"></label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="item-validation__switch-label">Prix&nbsp;</span>
+                                    <span class="small switch switch--success vertical-middle">
+                                        <input id="switch-item-validation-price" type="checkbox" ng-model="vm.itemValidationFields.price">
+                                        <label for="switch-item-validation-price"></label>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="item-validation__switch-label">Caution&nbsp;</span>
+                                    <span class="small switch switch--success vertical-middle">
+                                        <input id="switch-item-validation-deposit" type="checkbox" ng-model="vm.itemValidationFields.deposit">
+                                        <label for="switch-item-validation-deposit"></label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                    <div ng-if="! vm.isAuthenticated">
+                        <hr>
+                        <p class="margin-bottom">
+                            Gérez automatiquement vos annonces grâce à votre compte Sharinplace. Vous serez prévenu par email en cas de réservation.<br>
+                        </p>
+                        <p class="text--small link--blue-force-underline cursor-pointer padding-bottom margin-bottom"
+                            ng-click="vm.createAccount = ! vm.createAccount"
+                            ng-switch="vm.createAccount">
+                            <span ng-switch-when="true">Vous avez déjà un compte&nbsp;?</span>
+                            <span ng-switch-when="false">Vous êtes nouveau sur Sharinplace&nbsp;?</span>
+                            Cliquez ici.
+                        </p>
+                        <label for="new-account-email">Mon adresse email*&nbsp;:</label>
+                        <input id="new-account-email"
+                            class="text-input--small"
+                            type="email"
+                            name="login-email"
+                            placeholder="Adresse email{{vm.createAccount ? ' valide' : ' de votre compte'}}"
+                            ng-model="vm.email"
+                            ng-class="{'force-invalid': vm.invalidAddress}"
+                            required>
+                        <label for="new-account-email">Mon mot de passe*&nbsp;:</label>
+                        <input id="new-account-password"
+                            class="text-input--small"
+                            name="newAccountPassword"
+                            type="password"
+                            placeholder="Mot de passe{{vm.createAccount ? ' (6 caractères minimum)' : ''}}"
+                            ng-model="vm.password"
+                            ng-minlength="6"
+                            required>
+                        <div class="form-warning text--semibold"
+                            uib-collapse="! myItemsEditor.newAccountPassword.$touched || ! myItemsEditor.newAccountPassword.$invalid">
+                            Veuillez indiquer votre mot de passe (au moins 6 caractères).
+                        </div>
+                        <div uib-collapse="! vm.createAccount">
+                            <label for="new-account-firstname">Mon prénom&nbsp;:</label>
+                            <input id="new-account-firstname"
+                                class="text-input--small"
+                                type="text"
+                                placeholder="Avec un prénom, c'est quand même plus convival !"
+                                ng-model="vm.firstname">
+                        </div>
+                        <p class="text--small link--blue-underline cursor-pointer padding-bottom margin-bottom"
+                            ng-hidng-change="vm.setDefaultPrices(); vm.saveLocal('price')"
+                            ng-hide="vm.createAccount"
+                            ng-click="vm.lostPasswordModal()">
+                            Mot de passe oublié&nbsp;? Cliquez ici.
+                        </p>
+                        <div class="signin-form-container margin-bottom-plus" ng-if="vm.showSocialLogin">
+                            <span class="text--emphasize">Ou&nbsp;</span>:
+                            <div class="social-signin fb cursor-pointer" ng-click="vm.socialLogin('facebook')">
+                                <svg class="icon">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#face"/>
+                                </svg>
+                                &nbsp;Utiliser mon compte Facebook
+                            </div>
+                            <div class="social-signin gpl cursor-pointer" ng-click="vm.socialLogin('google')">
+                                <svg class="icon">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#g-pl"/>
+                                </svg>
+                                &nbsp;Utiliser mon compte Google
+                            </div>
+                        </div>
+                    </div>
+                    <div class="margin-top-plus margin-bottom"
+                        ng-if="vm.isAuthenticated && (! vm.existingPhone || vm.noImage)">
+                        <hr class="small-6 small-offset-3">
+                        <div class="small-12" ng-if="! vm.existingPhone">
+                            <h2>
+                                Facilitez-vous la vie
+                            </h2>
+                            <p class="text--small">
+                                Sharinplace vous prévient gratuitement de toute demande par SMS afin que vous ne ratiez aucune occasion. Votre numéro ne sera jamais communiqué à un autre membre tant que vous n'aurez pas accepté sa demande.
+                            </p>
+                            <data-sip-prompt-phone
+                                ng-class="{'prompt-highlight': vm.promptPhoneHighlight}"
+                                prompt-highlight="vm.promptPhoneHighlight">
+                            </data-sip-prompt-phone>
+                            <p class="text--small">
+                                Un numéro vérifié est un gage de confiance sur la plateforme et augmente vos chances de recevoir des demandes.
+                            </p>
+                            <hr class="small-6 small-offset-3" ng-if="vm.noImage">
+                        </div>
+                        <div class="small-12" ng-if="vm.noImage">
+                            <h2>
+                                Inspirez confiance
+                            </h2>
+                            <p class="text--small">
+                                Les photos de profil permettent aux membres Sharinplace de se reconnaître lorsqu'ils se recontrent pour échanger des objets et sont un gage de confiance supplémentaire. Ajoutez la vôtre en quelques secondes.
+                            </p>
+                            <data-sip-prompt-image></data-sip-prompt-image>
+                        </div>
+                        <hr class="small-6 small-offset-3">
+                    </div>
+                    <div ng-if="vm.showTotalMediaUpload" class="margin-top-plus">
+                        <p class="margin-bottom text-center">Progression du chargement des photos...</p>
+                        <div class="total-upload-progress small-offset-3 small-6"
+                            data-uib-progressbar
+                            data-value=vm.totalMediaUpload>
+                            {{vm.totalMediaUpload}}%
+                        </div>
+                    </div>
+                    <div class="text-center spinner-button-container save-button-container">
+                        <div ng-if="vm.item.soldDate">
+                            Cette offre a déjà trouvé preneur. Vous ne pouvez donc plus apporter de modifications à votre annonce.
+                        </div>
+                        <button
+                            class="button button--highlight brightblue spinner-button--center"
+                            type="submit"
+                            ng-disabled="vm.saveItemBtnDisabled"
+                            ng-click="vm.saveItem()">
+                            Enregistrer mon annonce
+                        </button>
+                        <span class="spinner-container">
+                            <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-item-spinner"></span>
+                        </span>
+                    </div>
+                    <div class="text--small text-center margin-top margin-bottom"
+                        ng-if="vm.viewCreate">
+                        En cas de réservation, le prix sera transféré sur votre compte dans les jours qui suivront votre confirmation. Facile et sécurisé&nbsp;!
+                    </div>
+                    <!-- <div class="text-center text--small">
+                    <svg class="icon icon--inline light-grey">
+                            <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                        </svg>
+                        <a class="link--underline link--grey" ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })">
+                            Voir mon annonce
+                        </a>
+                    </div> -->
+                </div>
+                <!-- <uib-progressbar value="vm.stepProgress">
+                    {{vm.stepProgress}}%
+                </uib-progressbar> -->
+                <hr class="small-6 small-offset-3" ng-hide="vm.myItemsView">
+            </form>
+            <div class="margin-bottom-plus"
+                ng-if="vm.myItems.length"
+                ng-hide="vm.itemId && vm.myItems.length === 1">
+                <h2 class="text-center margin-bottom-plus">
+                    Mes <span ng-show="vm.itemId">autres</span> annonces
+                </h2>
+                <div id="my-items-list"
+                    class="item-wall force-compact-item-card grid-block small-vertical">
+                    <div
+                        class="grid-block item-wall__item-wrapper"
+                        data-item="item"
+                        data-on-delete="vm.onDeleteItem"
+                        ng-repeat="item in vm.myItems | orderBy : '-createdDate'"
+                        ng-hide="vm.itemId && vm.itemId === item.id"
+                        data-sip-my-listing-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="helper-column" class="sticky-helper__column desktop-4">
+            <div class="image-white-cta sticky-helper__card"
+                ng-class="{ 'item-editor__sticky-share': ! vm.viewCreate && vm.myItems.length }"
+                ng-if="vm.stickyOffset"
+                ng-switch="! (vm.viewCreate || ! vm.myItems.length)"
+                data-bound-id="helper-column"
+                data-offset="{{ vm.stickyOffset }}"
+                data-sip-sticky-sidebar>
+                <div ng-switch-when="true">
+                    <h2>
+                        Vos offres peuvent intéresser vos amis&nbsp;!
+                    </h2>
+                    <div>
+                        <label for="share-my-item-select" class="text--small">
+                            Choisissez votre plus belle annonce&nbsp;:
+                        </label>
+                        <select id="share-my-item-select" class="text--small"
+                            ng-model="vm.selectedShareItem"
+                            ng-options="item.name for item in vm.myItems track by item.id">
+                            <!-- <option ng-repeat="item in vm.myItems" value="{{item.id}}">{{item.name}}</option> -->
+                        </select>
+                    </div>
+                    <div class="cursor-pointer"
+                        ng-click="vm.facebookShareMyItem()"
+                        tabindex="0"
+                        data-sip-action-key>
+                        <div class="flex-container f-share-card">
+                            <div class="f-share-card__image-container">
+                                <div class="ar-content">
+                                    <img ng-src="{{ vm.selectedShareItem.url + '?size=400x300'}}" alt=" {{ vm.selectedShareItem.name }}"
+                                        class="f-share-card__image">
+                                </div>
+                            </div>
+                            <div class="f-share-card__content flex-item--grow flex-container flex--column flex--space-between">
+                                <div class="text--semibold ellipsis">
+                                    {{ vm.selectedShareItem.name }}
+                                </div>
+                                <div class="text--small ellipsis">
+                                    Ajouté en un éclair par {{ vm.displayName }}
+                                </div>
+                                <div class="text--vsmall text--light ellipsis">
+                                    SHARINPLACE.FR
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center spinner-button-container">
+                            <span class="social-signin inline fb button spinner-button--center">
+                                <svg class="icon">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#face"/>
+                                </svg>
+                                &nbsp;Partagez sur Facebook
+                            </span>
+                            <span class="spinner-container">
+                                <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-item-spinner"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div ng-switch-default>
+                    <h2>
+                        Une belle annonce change tout...
+                    </h2>
+                    <p class="text--small margin-bottom">
+                        Fixez un prix attractif, soignez vos photographies et décrivez votre offre avec amour&nbsp;!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="padded-sides margin-bottom-plus"
+        data-sip-step-icons
+        data-steps="vm.trustSteps"
+        ng-show="! vm.itemId">
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

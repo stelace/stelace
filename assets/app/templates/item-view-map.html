@@ -1,0 +1,73 @@
+<div id="map-container" class="item__map map-container">
+    <span data-us-spinner data-spinner-key="map-spinner" data-spinner-start-active="true"></span>
+    <ui-gmap-google-map
+        ng-if="vm.loadMap"
+        center="vm.gmap.map.center"
+        pan="true"
+        zoom="vm.gmap.map.zoom"
+        draggable="true"
+        options="vm.gmap.options"
+        events="vm.gmap.events">
+        <!-- We use ng-repeat for few windows, more robust and small performance impact -->
+        <!-- See : https://github.com/angular-ui/angular-google-maps/issues/823#issuecomment-61028818 -->
+
+        <!-- ORDER MATTERS for autocenter if disableAutoPan is not set to false in static markers options -->
+
+        <!-- User Locations -->
+        <ui-gmap-window
+            ng-repeat="marker in vm.gmap.markers"
+            ng-if="marker.type === 'myLocation'"
+            coords="marker.coords"
+            show="marker.show"
+            options="marker.windowOptions">
+            <!-- must use $parent since angular google maps creates a child scope. More control with template, see below -->
+            <div class="profile__image"
+                ng-click="$parent.vm.toggleDetailBox($parent.marker.id, 'myLocationBox', 'open', $event);"
+                ng-mouseenter="$parent.vm.toggleDetailBox($parent.marker.id, 'myLocationBox', 'open', $event)">
+                <sip-img ng-src="{{vm.userImgSrc}}" type="background"></sip-img>
+            </div>
+        </ui-gmap-window>
+        <!-- Must use ng-if to update position -->
+        <ui-gmap-window
+            coords="vm.myLocationBox.data"
+            ng-if="vm.myLocationBox.show"
+            show="true"
+            options="vm.myLocationBox.windowOptions">
+            <div ng-click="$parent.vm.toggleDetailBox($parent.vm.myLocationBox.originatorId, 'myLocationBox', 'close', $event)">
+                <span class="location-tag ellipsis">
+                    {{ vm.myLocationBox.data.alias }}
+                </span>
+                <div class="call-to-action cursor-pointer"
+                    ng-click="$parent.vm.myLocationCta()">
+                    <span class="ellipsis location-name">
+                        {{ vm.myLocationBox.data.alias }}
+                    </span><br>
+                    <span class="text--semibold"
+                        data-translate="prompt.login_to_manage_map_locations"></span>
+                </div>
+            </div>
+        </ui-gmap-window>
+
+        <!-- Item Locations -->
+        <!-- ng-if according to show attribute to avoid memory leak when reopening a given infobox -->
+        <ui-gmap-window
+            ng-repeat="marker in vm.gmap.markers"
+            ng-if="marker.type === 'itemLocation' && marker.show"
+            coords="marker.coords"
+            show="marker.show"
+            options="marker.windowOptions"
+            templateUrl="'/assets/app/widgets/google-map/infobox-one-distance.html'"
+            templateParameter="marker">
+            <!-- Using template solves scope issues (can't nest divs with $parent bindings)-->
+        </ui-gmap-window>
+        <ui-gmap-window
+            ng-if="vm.itemBox.show"
+            coords="vm.itemBox.data"
+            show="vm.itemBox.show"
+            options="vm.itemBox.windowOptions"
+            templateUrl="'/assets/app/widgets/google-map/infobox-distances.html'"
+            templateParameter="vm.itemBox">
+            <!-- Using template also allows a dedicated controller if needed -->
+        </ui-gmap-window>
+    </ui-gmap-google-map>
+</div>

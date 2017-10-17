@@ -1,0 +1,132 @@
+<!-- For public item-cards, do not forget to define product itemscope and itemtype on directive element, with optional itemprop -->
+<a class="item-wall__item-container"
+    ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id})"
+    itemprop="url">
+    <!-- For use of mainEntity see http://www.seoskeptic.com/how-to-use-schema-org-v2-0s-mainentityofpage-property/ -->
+    <div class="item-wall__item flex-container item-wall__item--highlight">
+        <div class="item-wall__image-container">
+            <div class="ar-content">
+                <img class="img--cover-vertical"
+                    alt="{{::vm.imageAlt}}"
+                    ng-src="{{::vm.item.urlPlaceholder}}"
+                    data-lazy-img="{{::vm.item.url + '?size=450x300'}}"
+                    itemprop="image">
+            </div>
+            <!-- <div class="item-wall__owner profile__image"
+                ng-hide="vm.hideOwnerImage">
+                <sip-img class="webkit-render-fix" ng-src="{{::vm.item.ownerMedia.url + '?size=128x128'}}" alt="Photo du propriétaire" rounded="true"></sip-img>
+            </div> -->
+        </div>
+        <div class="item-wall__description flex-item--grow-auto flex-container"
+            ng-switch="displayDuration">
+            <h3 class="no-margin item-name ellipsis flex-item--grow"
+                itemprop="name">
+                {{::vm.item.name}}
+            </h3>
+            <div itemprop="offers"
+                itemscope
+                itemtype="http://schema.org/Offer">
+                <div class="item-wall__price">
+                    <span class="item-wall__selling-icon-container"
+                        ng-show="vm.item.sellable && ! vm.item.rentable"
+                        data-tooltip-placement="auto left"
+                        data-tooltip-trigger="mouseenter"
+                        uib-tooltip="{{::vm.sellableTooltip}}"
+                        data-tooltip-append-to-body="true">
+                        <svg class="icon">
+                            <use xlink:href="{{::vm.sellableIconUrl}}"/>
+                        </svg>
+                    </span>
+                    <span ng-switch="vm.item.rentable">
+                        <span ng-switch-when="true">
+                            <span class="item-wall__booking-modes"
+                                ng-if="vm.bookingModesStr">
+                                <span class="text--semibold item-wall__selling-price"
+                                    ng-show="vm.item.sellable">
+                                    <span class="item-wall__selling-icon-container"
+                                        ng-show="vm.item.sellable"
+                                        data-tooltip-placement="auto left"
+                                        data-tooltip-trigger="mouseenter"
+                                        uib-tooltip="{{::vm.sellableTooltip}}"
+                                        data-tooltip-append-to-body="true">
+                                        <svg class="icon">
+                                            <use xlink:href="{{::vm.sellableIconUrl}}"/>
+                                        </svg>
+                                    </span>
+                                    {{ ::vm.bookingModesStr }}
+                                </span>
+                                <span class="text--fade">
+                                    ou
+                                </span>
+                            </span>
+                            <span itemprop="price">{{::vm.item.dayOnePrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>/j
+                        </span>
+                        <span ng-switch-default>
+                            <span ng-hide="vm.item.sellingPrice === 0">
+                                <span itemprop="price">{{::vm.item.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
+                            </span>
+                            <span ng-show="vm.item.sellingPrice === 0">
+                                {{ ::vm.bookingModesStr }}
+                            </span>
+                        </span>
+                    </span>
+                </div>
+                <div class="item-wall__rating small"
+                    ng-if="::vm.item.nbRatings"
+                    data-user-score="{{::vm.item.ownerRating.ratingScore}}"
+                    data-user-ratings="{{::vm.item.ownerRating.nbRatings}}"
+                    data-item-score="{{::vm.item.ratingScore}}"
+                    data-item-ratings="{{::vm.item.nbRatings}}"
+                    data-append-to-body="true"
+                    data-sip-rating-stars>
+                </div>
+                <p class="ellipsis item-wall__place"
+                    ng-switch-when="true">
+                    <span itemprop="availableAtOrFrom"
+                        itemscope
+                        itemtype="http://schema.org/Place">
+                    <span
+                        itemprop="geo"
+                        itemscope
+                        itemtype="http://schema.org/GeoCoordinates">
+                        <meta itemprop="latitude" content="{{::vm.locationCoords.latitude}}">
+                        <meta itemprop="longitude" content="{{::vm.locationCoords.longitude}}">
+                        À
+                    </span>
+                    <span ng-if="vm.durationString">
+                        {{::vm.durationString}} de
+                    </span>
+                    <span class=""
+                        itemprop="address"
+                       itemscope
+                       itemtype="http://schema.org/PostalAddress">
+                       <meta itemprop="addressLocality" content="{{::vm.locationCity}}">
+                       <meta itemprop="addressCountry" content="France">
+                       {{::vm.closestLocationShortName}}
+                    </span>
+                    </span>
+                </p>
+                <p class="ellipsis item-wall__place"
+                    ng-switch-default>
+                    <span itemprop="availableAtOrFrom"
+                        itemscope
+                        itemtype="http://schema.org/Place">
+                        <span itemprop="address"
+                            itemscope
+                            itemtype="http://schema.org/PostalAddress">
+                            <span itemprop="addressLocality">
+                                {{::vm.locationCity}}
+                            </span>
+                            {{::vm.locationRegion ? ", " : ""}}
+                            <span itemprop="addressRegion">
+                                {{::vm.locationRegion}}
+                            </span>
+                        </span>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <meta itemprop="position" content="{{::vm.position}}"
+        ng-if="::vm.position">
+</a>

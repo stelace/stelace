@@ -1,0 +1,31 @@
+@mixin minimalist-carousel($min-height, $mq-breakpoint, $breakpoint-min-height) {
+    overflow: hidden;
+    animation: fadeIn 0.3s ease 1s both;
+    .carousel-inner {
+        min-height: $min-height;
+        @media #{$mq-breakpoint} {
+            min-height: $breakpoint-min-height;
+        }
+        // overflow-x: hidden; // does not work combined with overflow-y: visible
+        // See http://stackoverflow.com/questions/6421966/css-overflow-x-visible-and-overflow-y-hidden-causing-scrollbar-issue
+        .item {
+            padding: 0.25rem 0.25rem 0.75rem; // Room for carousel-indicators
+        }
+    }
+    .carousel-indicators {
+        // width: auto;
+        bottom: -1.5rem;
+        // left: auto;
+        // right: 5%;
+        // margin-left: 0;
+        li {
+            border-color: rgba($platform-color-darkblue, 0.6);
+            &.cursor-disabled {
+                cursor: default;
+            }
+        }
+        .active {
+            background-color: rgba($platform-color-darkblue, 0.8);
+        }
+    }
+}

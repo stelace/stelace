@@ -1,0 +1,324 @@
+<div class="">
+    <div class="header-space"></div>
+    <div class="conversation-container fluid-content space">
+        <h2>
+            Conversation avec {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}
+            <!-- No one-time binding here to reveal when appropriate -->
+            <span class="hide-for-desktop inline text--light" ng-if="vm.interlocutor.showPhone">
+                ({{vm.interlocutor.phonePart}})
+            </span>
+        </h2>
+        <div class="grid-block wrap">
+            <div class="small-12 desktop-8 grid-block vertical"
+                ng-class="{'pull-top': vm.ownerActionRequired}">
+                <div class="grid-block margin-bottom-plus"
+                    ng-if="! vm.ownerActionRequired">
+                    <!-- Fix : Directly setting size-XX classes on grid-block container make it collapse in IE 11, due to flex-basis property... -->
+                    <!-- Using forms variable forces binding to current scope, instead of ng-if child scope. -->
+                    <form class="conversation__answer small-12 medium-10 medium-offset-1 form--control"
+                        name="vm.forms.conversationForm"
+                        ng-submit="vm.resetConversationForm()"
+                        novalidate>
+                        <label for="private-message" class="margin-top margin-bottom text-justify" ng-if="vm.promptPublic">Vous pouvez répondre au message privé de {{::vm.interlocutor.fullname}} ci-dessous&nbsp;:</label>
+                        <textarea name="privateMessage"
+                            id="private-message"
+                            rows="5"
+                            ng-model="vm.privateMessage"
+                            ng-model-options="{ debounce: 500 }"
+                            ng-change="vm.saveMessageTmp();vm.shouldObfuscateMessage('private')"
+                            ng-maxlength="2000"
+                            placeholder="{{vm.promptPublic ? 'Question privée:\n' + vm.messages[0].privateContent.substr(0, 128) + '...' : 'Commencez votre message personnel...'}}"
+                            ng-required="! vm.promptPublic"
+                            sip-textarea-auto-adjust>
+                        </textarea>
+                        <label class="margin-bottom text-justify" ng-if="vm.promptPublic">Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.item.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:</label>
+                        <textarea name="publicMessage"
+                            rows="5"
+                            ng-if="vm.promptPublic"
+                            ng-model="vm.publicMessage"
+                            ng-model-options="{ debounce: 500 }"
+                            ng-change="vm.shouldObfuscateMessage('public')"
+                            ng-maxlength="2000"
+                            placeholder="{{'Question publique:\n' + vm.messages[0].publicContent.substr(0, 128) + '...'}}"
+                            sip-textarea-auto-adjust>
+                        </textarea>
+                        <div class="text--semibold text--blue pull-t margin-bottom" uib-collapse="!vm.showShouldObfuscateMessage">
+                            Par sécurité, vos coordonnées seront masquées dans votre message.
+                        </div>
+                        <button class="button"
+                            type="submit"
+                            ng-click="vm.sendMessage()"
+                            ng-disabled="conversationForm.privateMessage.$invalid || conversationForm.publicMessage.$invalid">
+                            Envoyer un message
+                        </button>
+                    </form>
+                </div>
+
+                <sip-cta-box
+                    ng-if="vm.showDuplicateActionMessage && ! vm.item.snapshot && ! vm.legacyItem"
+                    message="vm.duplicateActionMessage"
+                    conversation="vm.conversation"
+                    booking="vm.duplicateActionMessage.booking"
+                    countdown="vm.countdown"
+                    interlocutor="vm.interlocutor"
+                    item="vm.item"
+                    is-taker="vm.duplicateActionMessage.isTaker"
+                    is-owner="vm.duplicateActionMessage.isOwner"
+                    on-validate="vm.validateBooking"
+                    on-reject="vm.rejectBooking"
+                    on-message="vm.sendMessage"
+                    has-bank-account="vm.hasBankAccount"
+                    bank-account-missing="vm.bankAccountMissing"
+                    public-question="vm.promptPublic && vm.messages[0].publicContent">
+                </sip-cta-box>
+
+                <div class="grid-block conversation__cta"
+                    ng-class="{ 'order-2': (vm.assessmentInput.showForm && ! vm.assessmentInput.assessment.signedDate)
+                        || (vm.assessmentOutput.showForm && ! vm.assessmentOutput.assessment.signedDate) }"
+                    ng-if="vm.booking.confirmedDate && vm.booking.validatedDate">
+                    <div class="medium-1"></div>
+                    <div class="small-12 medium-10 plain-card">
+                        <!-- Using ng-if to prevent 2-line content from showing initially -->
+                        <div class="plain-card__divider">
+                            <h3 ng-hide="::vm.isOwner">
+                                Vous aimez&nbsp;?
+                            </h3>
+                            <h3 ng-if="::vm.isOwner">
+                                Faites connaître votre objet
+                            </h3>
+                        </div>
+                        <div class="message__content">
+                            <div class="text--semibold"
+                                ng-hide="::vm.isOwner">
+                                 Partagez votre découverte avec vos amis&nbsp;;)
+                            </div>
+                            <div class="text--semibold"
+                                ng-if="::vm.isOwner">
+                                 Partagez votre annonce avec vos amis&nbsp;;)
+                            </div>
+                            <div class="text-center cursor-pointer"
+                                ng-click="vm.facebookShare()"
+                                tabindex="0"
+                                data-sip-action-key>
+                                <div class="flex-container f-share-card">
+                                    <div class="f-share-card__image-container">
+                                        <div class="ar-content">
+                                            <img ng-src="{{vm.item.url + '?size=400x300'}}" alt=" {{ vm.item.name }}"
+                                                class="f-share-card__image img--cover-vertical">
+                                        </div>
+                                    </div>
+                                    <div class="f-share-card__content flex-item--grow flex-container flex--column flex--space-between">
+                                        <div class="text--semibold ellipsis">
+                                            {{ vm.item.name }}
+                                        </div>
+                                        <div class="text--small ellipsis">
+                                            A emprunter sur Sharinplace
+                                        </div>
+                                        <div class="text--vsmall text--light ellipsis">
+                                            SHARINPLACE.FR
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center spinner-button-container pull-b">
+                                    <span class="social-signin inline fb button spinner-button--center">
+                                        <svg class="icon">
+                                            <use xlink:href="/assets/build/icons/sprite.svg#face"/>
+                                        </svg>
+                                        &nbsp;Partagez sur Facebook
+                                    </span>
+                                    <span class="spinner-container">
+                                        <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-item-spinner"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- <div class="text--light">
+                                Cet objet pourrait intéresser vos amis, parmi  bien d'autres disponibles sur Sharinplace&nbsp!
+                            </div> -->
+                        </div>
+                    </div>
+                    <div class="medium-1"></div>
+                </div>
+
+
+                <div ng-if="vm.showAssessment">
+                    <sip-assessment
+                        ng-if="vm.assessmentOutput.assessment"
+                        heading="vm.assessmentOutput.heading"
+                        previous-assessment="vm.assessmentOutput.previousAssessment"
+                        assessment="vm.assessmentOutput.assessment"
+                        item="vm.item"
+                        interlocutor="vm.interlocutor"
+                        ratings="vm.assessmentOutput.ratings"
+                        rating-assessment-id="vm.assessmentOutput.ratingAssessmentId"
+                        show-form="vm.assessmentOutput.showForm">
+                    </sip-assessment>
+
+                    <sip-assessment
+                        ng-if="vm.assessmentInput.assessment"
+                        heading="vm.assessmentInput.heading"
+                        previous-assessment="vm.assessmentInput.previousAssessment"
+                        assessment="vm.assessmentInput.assessment"
+                        booking="vm.booking"
+                        bank-account-missing="vm.bankAccountMissing"
+                        item="vm.item"
+                        interlocutor="vm.interlocutor"
+                        ratings="vm.assessmentInput.ratings"
+                        show-form="vm.assessmentInput.showForm">
+                    </sip-assessment>
+                </div>
+
+                <div ng-repeat="message in vm.messages | orderBy : 'createdDate' : true track by message.id">
+                    <!-- Do not show twice the same (active) cta-box (but only duplicate one on top) if less than three messages between them
+                    to avoid visual redundancy -->
+                    <!-- Show inactive CTAs only once -->
+                    <sip-cta-box
+                        ng-if="message.bookingStatus && ! vm.legacyItem
+                        && (! message.isCtaActive || ! (vm.showDuplicateActionMessage && vm.duplicateCtaOffset <= 3))"
+                        message="message"
+                        booking="message.booking"
+                        countdown="vm.countdown"
+                        interlocutor="vm.interlocutor"
+                        item="vm.item"
+                        is-taker="message.isTaker"
+                        is-owner="message.isOwner"
+                        on-validate="vm.validateBooking"
+                        on-reject="vm.rejectBooking"
+                        on-message="vm.sendMessage"
+                        has-bank-account="vm.hasBankAccount"
+                        bank-account-missing="vm.bankAccountMissing"
+                        public-question="vm.promptPublic && vm.messages[0].publicContent">
+                    </sip-cta-box>
+
+                    <!-- Check if message has real content in ng-if since empty transactionnal messages can be sent (booking) -->
+                    <div class="grid-block conversation__message"
+                        ng-if="message.privateContent || message.publicContent">
+                        <div class="small-2 medium-1 message__myself-thumbnail-wrapper"
+                            ng-class="{'hide-myself-mobile': (message.senderId === vm.interlocutor.id)}">
+                            <div class="profile__image" ng-if="::(message.senderId !== vm.interlocutor.id)">
+                                <sip-img class="webkit-render-fix" ng-src="{{vm.myMedia.url + '?size=128x128'}}" alt="Ma photo de profil" rounded="true"></sip-img>
+                            </div>
+                        </div>
+                        <div class="small-10 padded-sides message__content">
+                            <div ng-if="::message.privateContent">
+                                {{::message.privateContent}}
+                            </div>
+                            <div class="padding-top" ng-if="::message.publicContent">
+                                <span class="text--semibold">Concernant l'objet&nbsp;:</span><br>
+                                {{::message.publicContent}}
+                            </div>
+                            <div class="message__date"
+                                ng-if="::message.createdDate">
+                                {{::vm.displayDate(message.createdDate)}}
+                            </div>
+                        </div>
+                        <div class="small-2 medium-1 message__interlocutor-thumbnail-wrapper">
+                            <a class="profile__image"
+                                ui-sref="user({ id: vm.interlocutor.id })"
+                                ng-if="::(message.senderId === vm.interlocutor.id)">
+                                <sip-img class="webkit-render-fix" ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}" alt="Photo de {{::vm.interlocutor.fullname}}" rounded="true"></sip-img>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="small-12 desktop-4">
+                <div class="conversation__helper-wrapper plain-card">
+                    <div class="grid-block conversation__interlocutor">
+                        <a ui-sref="user({ id: vm.interlocutor.id })">
+                            <img ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}" alt="Photo de {{::vm.interlocutor.fullname}}">
+                        </a>
+                        <div>
+                            <h3 class="interlocutor-name"
+                                ui-sref="user({ id: vm.interlocutor.id })">
+                                {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}
+                            </h3>
+                            <p class="text--small text--light"
+                                ng-switch="::vm.interlocutor.id">
+                                <span ng-switch-when="1">Compte officiel Sharinplace</span>
+                                <span ng-switch-default>Membre depuis {{::vm.interlocutor.seniority}}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="plain-card__divider">
+                            <h3>
+                                Informations&nbsp;
+                                <span class="badge tooltip-badge tooltip-dispensable"
+                                    ng-if="vm.interlocutor.emailCheck || vm.interlocutor.phoneCheck"
+                                    data-tooltip-placement="auto bottom"
+                                    data-tooltip-trigger="mouseenter outsideClick"
+                                    uib-tooltip="Les coordonnées des membres sont vérifiées par Sharinplace, et masquées par mesure de sécurité avant la conclusion d'une réservation. Les coordonnées de {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} vous sont transmises par email en cas de réservation.">
+                                    ?
+                                </span>
+                            </h3>
+                        </div>
+                        <div class="card-section">
+                            <div
+                                class="margin-top"
+                                ng-if="::vm.interlocutor"
+                                data-user="::vm.interlocutor"
+                                data-phone-part="vm.interlocutor.phonePart"
+                                data-sip-trust-info>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="conversation__item"
+                        ng-if="vm.item">
+                        <div class="plain-card__divider">
+                            <!-- TODO: request owner identity in controller -->
+                            <h3 class="ellipsis">
+                                {{vm.isOwner ? "Votre objet" : (vm.item.ownerId === 1 ? "Objet Sharinplace" : "Objet de " + (vm.interlocutor.firstname || vm.interlocutor.fullname))}}
+                            </h3>
+                        </div>
+                        <div class="card-section flex-container desktop-vertical">
+                            <div class="item-image small-4 s-medium-3 desktop-12">
+                                <div class="ar-content"
+                                    ui-sref="item(::{ slug: vm.itemSlug })">
+                                    <sip-img ng-src="{{vm.item.url + '?size=400x300'}}" type="background"></sip-img>
+                                </div>
+                            </div>
+                            <div class="text--small padded-sides padding-top padding-bottom">
+                                <h3 class="item-name"
+                                    ui-sref="item(::{ slug: vm.itemSlug })">
+                                    {{::vm.item.name}}
+                                </h3>
+                                <div ng-if="vm.item.owner && vm.itemLocations.length">
+                                    <div class="margin-top margin-bottom">
+                                        {{ vm.isTaker ? (vm.item.owner.firstname || vm.item.owner.fullname) + " est susceptible d'être disponible" : "Vous avez indiqué que cet objet pouvait être disponible" }}
+                                        <span ng-if="vm.itemLocations.length > 1">aux lieux suivants&nbsp;:</span>
+                                        <span ng-if="vm.itemLocations.length <= 1">au lieu suivant&nbsp;:</span>
+                                    </div>
+                                    <div class="margin-bottom-plus booking-summary__locations">
+                                        <span ng-repeat="loc in vm.itemLocations">{{::(loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : ""))}}<br></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="conversation__helper-wrapper">
+                    <div ng-if="vm.interlocutor.id === vm.item.ownerId">
+                        <h3>Sécurisez vos emprunts</h3>
+                        <p class="text--small">
+                            N'effectuez jamais de réservation ou de dépôt de garantie avec d'autres membres en dehors du site Web Sharinplace.
+                        </p>
+                        <p class="text--small">
+                            En ne passant pas par Sharinplace, vous perdriez accès à notre service de paiement sécurisé, à notre politique d'annulation avantageuse et à notre assistance.
+                        </p>
+                    </div>
+                    <div ng-if="vm.interlocutor.id !== vm.item.ownerId">
+                        <h3>Garantissez vos paiements</h3>
+                        <p class="text--small">
+                            N'effectuez jamais de transactions en dehors du site Web Sharinplace.
+                        </p>
+                        <p class="text--small">
+                            En effectuant vos transactions en dehors de Sharinplace, vous perdriez accès au dépôt de garantie protégeant vos objets, à notre service de paiement sécurisé, ainsi qu'à notre assistance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

@@ -1,0 +1,13 @@
+<% if (typeof serverError !== "undefined") { %>
+Un problème est survenu. Veuillez réessayer plus tard.
+<% } else if (typeof badParams !== "undefined") { %>
+Votre désinscription n'a pas été effectuée. Votre lien est incorrect.
+<% } else { %>
+Votre désinscription de Sharinplace a été prise en compte.<br><br>Vous allez être redirigé vers la page principale dans quelques instants...
+
+<script>
+  (function () {
+    setTimeout(function () { window.location.replace("/"); }, 5000);
+  })();
+</script>
+<% } %>

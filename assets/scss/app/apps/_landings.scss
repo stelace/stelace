@@ -1,0 +1,481 @@
+@import "../base/all";
+
+.home {
+    .home-hero__wrapper {
+        position: relative;
+        min-height: 25rem;
+        @media #{$mq-from-tablet} {
+            height: 30rem;
+        }
+        background-position: 50% 90%;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        @media #{$mq-mobile} {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-small.jpg");
+        }
+        @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-mlarge.jpg");
+        }
+        @media
+            #{$mq-from-large},
+            #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
+            #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi)
+        {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-xlarge.jpg");
+        }
+    }
+
+    .home-hero__content {
+        padding: 1rem;
+        position: relative;
+        top: 3rem;
+        @media #{$mq-from-tablet} {
+            top: 3.5rem;
+            height: 22rem;
+            padding-top: 4rem;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #FFF;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            @media #{$mq-from-desktop} {
+                font-size: 1.75rem;
+            }
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #FFF;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            @media #{$mq-from-tablet} {
+                font-size: 2.5rem;
+            }
+            @media #{$mq-from-desktop} {
+                font-size: 3rem;
+            }
+        }
+    }
+
+    .search-bar {
+        $home-search-bar-height: 3.5rem;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: $home-search-bar-height;
+        width: 100%;
+        background: #FFF;
+        form {
+            margin: 0 auto;
+            .inline-label {
+                max-height: $home-search-bar-height;
+                .input__inner-icon-container {
+                    flex: 1 1 auto;
+                }
+                .input__inner-icon {
+                    height: $home-search-bar-height;
+                    line-height: $home-search-bar-height
+                }
+            }
+            input, button {
+                height: $home-search-bar-height;
+                border-radius: 0;
+                border: none;
+            }
+            input {
+                border-bottom: 1px solid rgba($platform-color-brightblue, 0.5);
+                transition: all 0.3s ease;
+                &:hover, &input:focus {
+                    border-bottom: 2px solid rgba($platform-color-brightblue, 0.8);
+                }
+            }
+        }
+    }
+
+    .item-wall {
+        max-width: 100rem;
+        margin: auto;
+    }
+
+
+    .samples-panel {
+        margin: 0 auto;
+        padding: 2rem 0;
+        background-color: rgb(240, 240, 245);
+
+        h2 {
+            margin-top: 0;
+            font-weight: 600;
+            font-size: 1.5rem;
+            @media #{$mq-tablet} {
+                font-size: 1.75rem;
+            }
+            @media #{$mq-from-desktop} {
+                font-size: 2rem;
+            }
+        }
+
+        .samples-panel__subtitle {
+            font-size: 1rem;
+            @media #{$mq-from-tablet} {
+                font-size: 1.25rem;
+            }
+            font-weight: 600;
+        }
+    }
+
+    h3 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        padding: 1.5rem 0;
+        @media #{$mq-from-tablet} {
+            font-size: 2rem;
+        }
+        &.countdown-title {
+            padding: 0;
+            margin-top: -1rem;
+            @media #{$mq-from-tablet} {
+                font-size: 1.75rem;
+            }
+        }
+    }
+
+    .featured {
+        padding-bottom: 1rem;
+        background-color: rgb(133, 130, 133);
+        color: #FFF;
+        h3 {
+            padding-bottom: 0;
+            color: #FFF;
+        }
+        a {
+            color: #FFF;
+        }
+        .fluid-content {
+            @media #{$mq-from-large} {
+                width: 70rem; // override
+            }
+        }
+    }
+
+    .sip-random-wall {
+        background-color: rgb(240, 240, 245);
+        padding: 1rem 0;
+
+        [class*="-up-"] > div {
+            padding: 0; // IE does not deduce padding before wrapping
+        }
+
+        .wall-container {
+            @media screen and (max-width: 319px) {
+                display: none;
+            }
+        }
+
+        .help-small {
+            margin-top: -1rem;
+            padding: 0 0 1rem;
+            font-style: italic;
+        }
+
+        .sip-random-wall__secrets {
+            margin: 0 auto;
+            padding-bottom: 2rem;
+            color: #FFF;
+            @media #{$mq-mobile} {
+                max-width: 30rem;
+            }
+        }
+
+        .secret {
+            position: relative;
+            height: 10rem;
+            font-size: 2rem;
+            line-height: 1;
+            margin: 0 0.5rem 1rem;
+            padding: 1rem 1rem 2.5rem;
+            background-color: #FFF;
+            transition: background-color 1s ease-out;
+
+            .size-xlarge {
+                font-size: 3rem;
+            }
+            .size-large {
+                font-size: 2.4rem;
+            }
+            .size-small {
+                font-size: 1.5rem;
+            }
+            .size-xsmall {
+                font-size: 1.2rem;
+            }
+
+            .revealed {
+                color: rgba(255, 255, 255, 0);
+                font-size: 1rem;
+                line-height: 1.15rem;
+                position: absolute;
+                top: 2%;
+                left: 0;
+                padding: 2% 10%;
+            }
+
+            &.selected,
+            &.active,
+            &:hover {
+                transition: background-color .2s ease-out;
+
+                .revealed {
+                    color: rgba(255, 255, 255, 1);
+                    transition: color .2s .2s ease-in-out;
+                }
+            }
+
+            @media #{$mq-from-tablet} and (max-width: 740px) {
+                min-height: 175px;
+            }
+
+            &.red {
+                color: $platform-color-red;
+                border-color: rgba($platform-color-red, .2);
+
+                &.selected,
+                &.active,
+                &:hover {
+                    background-color: $platform-color-red;
+                }
+            }
+
+            &.orange {
+                color: $platform-color-orange;
+                border-color: rgba($platform-color-orange, .3);
+
+                &.selected,
+                &.active,
+                &:hover {
+                    background-color: $platform-color-orange;
+                }
+            }
+
+            &.green {
+                color: $platform-color-green;
+                border-color: rgba($platform-color-green, .3);
+
+                &.selected,
+                &.active,
+                &:hover {
+                    background-color: $platform-color-green;
+                }
+            }
+
+            &.blue {
+                color: $platform-color-blue;
+                border-color: rgba($platform-color-blue, 0.3);
+
+                &.selected,
+                &.active,
+                &:hover {
+                    background-color: $platform-color-blue;
+                }
+            }
+
+            &.purple {
+                color: $platform-color-purple;
+                border-color: rgba($platform-color-purple, .2);
+
+                &.selected,
+                &.active,
+                &:hover {
+                    background-color: $platform-color-purple;
+                }
+            }
+        }
+    }
+
+}
+
+.app404 {
+    width: 100%;
+
+    .fluid-content {
+        padding-top: 1rem;
+        padding-bottom: 2rem;
+    }
+
+    h1 {
+        margin-top:0;
+        font-size: 2.5rem;
+        @media #{$mq-from-s-medium} {
+            margin-top: 1rem;
+            font-size: 3.5rem;
+        }
+    }
+    h2 {
+        font-size: 1rem;
+        &.semibold {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            @media #{$mq-from-s-medium} {
+                margin-top: 2rem;
+            }
+        }
+    }
+    h3.error {
+        @media #{$mq-from-s-medium} {
+            margin-top: 5rem;
+        }
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    ul {
+        @media #{$mq-from-s-medium} {
+            font-size: 0.875rem;
+        }
+    }
+    img.lost {
+        display: block;
+        height: 225px;
+        width: 150px;
+        @media #{$mq-mobile} {
+            margin: auto;
+        }
+    }
+}
+
+.global-landings {
+    h1, h2, h3 {
+        font-weight: 600;
+    }
+    h1, h2#legal {
+        font-size: 1.5rem;
+        @media #{$mq-from-s-medium} {
+            font-size: 1.75rem;
+        }
+        margin-bottom: 1.25rem;
+    }
+    h2 {
+        font-size: 1.375rem;
+        @media #{$mq-from-s-medium} {
+            font-size: 1.5rem;
+        }
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    h3 {
+        font-size: 1.125rem;
+        @media #{$mq-from-s-medium} {
+            font-size: 1.25rem;
+        }
+        margin-top: 1rem;
+    }
+    b {
+        font-weight: 600;
+    }
+    div.text--small p {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        img {
+            display: block;
+            margin: 0.5rem auto;
+        }
+    }
+    .fluid-content {
+        padding-top: 1rem;
+        padding-bottom: 2rem;
+    }
+
+    .contact__header-background {
+        position: relative;
+        height: 15rem;
+        @media #{$mq-from-tablet} {
+            height: 20rem;
+        }
+        background-position: 50% 85%;
+        background-repeat: no-repeat;
+        background-size: cover;
+        @media #{$mq-mobile} {
+            background-image: url("/assets/img/app/background/TypewriterContactSmall.jpg");
+        }
+        @media #{$mq-from-tablet} {
+            background-image: url("/assets/img/app/background/TypewriterContactDesktop.jpg");
+        }
+    }
+    .cc-media-attribution {
+        @include cc-media-attribution();
+    }
+
+    &.help {
+        .help__question {
+            text-align: left;
+            border-radius: $global-radius;
+            transition: background-color 0.15s;
+            &:focus, &:hover {
+                background-color: rgba($platform-color-blue, 0.1);
+            }
+        }
+        h2 {
+            margin-top: 2rem;
+        }
+        h3 {
+            font-weight: normal;
+        }
+    }
+
+    &.friend-referral {
+        .slide-intro {
+            height: 28rem;
+            &.invite-friends__intro {
+                height: 18rem;
+            }
+            .button {
+                font-size: 1.125rem;
+                font-weight: 600;
+                margin: 0.5rem 0;
+            }
+        }
+        .profile__image--responsive {
+            border: 2px solid #FFF;
+        }
+        h1 {
+            @media #{$mq-from-tablet} {
+                font-size: 2rem;
+            }
+        }
+        h2 {
+            @media #{$mq-from-tablet} {
+                font-size: 1.75rem;
+            }
+        }
+        h1, h2 {
+            margin-bottom: 0.25rem;
+        }
+
+        .invite-register {
+            font-size: 1.125rem;
+        }
+
+        .invite-friends__bar {
+            .button {
+                margin: 0.5rem;
+            }
+            .icon--inline {
+                margin: 0;
+            }
+        }
+
+        .invite-friends__friends-list {
+            .profile__image {
+                flex: 0 0 3rem;
+            }
+            .friend__info {
+                padding: 0.5rem 0 0.5rem 1rem;
+            }
+        }
+    }
+}

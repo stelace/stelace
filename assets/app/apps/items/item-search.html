@@ -1,0 +1,241 @@
+<div class="items item-search"
+    itemscope
+    itemtype="http://schema.org/SearchResultsPage">
+    <div class="header-space"></div>
+    <div id="map-search" class="s-medium-grid-block">
+        <div id="search-content" class="{{vm.showMap ? 's-medium-7' : 's-medium-12'}}" data-lazy-img-container>
+            <div class="search__query {{vm.showMap ? 's-medium-7' : 's-medium-12'}} text-center"
+                ng-class="{ 'search-query--fixed': vm.fixedLocationSearch }"
+                uib-collapse="! vm.isGoogleMapSDKReady">
+                <div class="flex-container"
+                    ng-class="{ 'flex--space-between': vm.fixedLocationSearch, 'flex--center': !vm.fixedLocationSearch }">
+                    <div class="input__inner-icon-container search__location-input-container">
+                        <span class="input__inner-icon icon-left"
+                            ng-hide="vm.showAddLocationButton">
+                            <svg class="icon">
+                                <use xlink:href="/assets/build/icons/sprite.svg#location"/>
+                            </svg>
+                        </span>
+                        <span class="input__inner-icon icon-right delete-button cursor-pointer"
+                            ng-if="vm.searchLocationInput"
+                            ng-click="vm.resetSearchLocation(); $event.stopPropagation();">
+                            x
+                        </span>
+                        <span class="input__inner-icon cursor-pointer icon-left"
+                            title="Ajouter à mes lieux favoris"
+                            ng-click="vm.addLocation()"
+                            ng-if="vm.showAddLocationButton">
+                            <svg class="icon">
+                                <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>
+                            </svg>
+                        </span>
+                        <!-- PhantomJS doens't work after the rendering of this element -->
+                        <input id="search__search-bar-location-input" class="no-margin-bottom"
+                            type="text"
+                            ng-if="vm.isGoogleMapSDKReady && ! vm.isPhantom"
+                            ng-model="vm.searchLocationInput"
+                            ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 300, 'blur': 0 } }"
+                            ng-autocomplete="searchQueryLocation"
+                            data-options="vm.ngAutocompleteOptions"
+                            data-details="vm.searchQuery.location"
+                            placeholder="À proximité de… {{ (nbActiveLocations || '') && '(' + (nbActiveLocations > 1 ? nbActiveLocations + ' lieux favoris activés' : nbActiveLocations + ' lieu favori activé') +')'}}">
+                    </div>
+                    <div class="search__filter-toggle anchor-like text--light cursor-pointer"
+                        tabindex="0"
+                        data-sip-action-key
+                        data-sip-autoblur
+                        ng-if="vm.fixedLocationSearch"
+                        ng-click="searchFiltersConfig.showAdvancedSearch = !searchFiltersConfig.showAdvancedSearch">
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#switches"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="search__results">
+                <div ng-show="vm.showSearchOverlay" class="search__results-overlay"></div>
+                <!-- For use of mainEntity see http://www.seoskeptic.com/how-to-use-schema-org-v2-0s-mainentityofpage-property/ -->
+                <div id="search__results-items" class="item-wall grid-block small-up-2 medium-up-3 {{ vm.showMap ? 's-medium-up-2 desktop-up-3 xlarge-up-4' : 's-medium-up-3 desktop-up-4 xlarge-up-6' }} "
+                    ng-show="vm.items.length"
+                    itemprop="mainEntity"
+                    itemscope
+                    itemtype="http://schema.org/ItemList">
+                    <div
+                        class="grid-block item-wall__item-wrapper"
+                        data-display-duration="true"
+                        data-item="item"
+                        data-position="{{ (vm.currentPage - 1) * vm.nbItemsPerPage + $index + 1 }}"
+                        ng-repeat="item in vm.items"
+                        ng-mouseenter="vm.markerHighlight(item.markersId)"
+                        ng-mouseleave="vm.markerStill(item.markersId)"
+                        itemprop="itemListElement"
+                        itemscope
+                        itemtype="http://schema.org/Product"
+                        sip-item-card>
+                    </div>
+                    <!-- item-card like CTA -->
+                    <div class="grid-block item-wall__item-wrapper"
+                        ng-show="vm.showItemCardCta">
+                        <a class="item-wall__item-container"
+                            ui-sref="itemCreate"
+                            ng-click="vm.uxEvent('Search item card CTA', 'click')">
+                            <div class="item-wall__item flex-container item-wall__item--highlight">
+                                <div class="item-wall__image-container">
+                                    <div class="ar-content">
+                                        <img class="img--cover" src="/assets/img/app/default/search-item-image-cta.png"  alt="Louez vos objets sur Sharinplace">
+                                    </div>
+                                </div>
+                                <div class="item-wall__description flex-item--grow-auto">
+                                    <h3 class="no-margin item-name ellipsis">
+                                        Vendez et louez votre matériel
+                                    </h3>
+                                    <div class="item-wall__meta">
+                                        <span class="item-wall__rating small"
+                                            data-user-score="10"
+                                            data-user-ratings="2"
+                                            data-item-score="10"
+                                            data-item-ratings="2"
+                                            data-count="false"
+                                            data-tooltip-msg="Créez de belles annonces et participez à l'aventure Sharinplace..."
+                                            data-append-to-body="true"
+                                            data-sip-rating-stars></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="pagination-container margin-top-plus">
+                    <uib-pagination
+                        class="pagination-sm"
+                        ng-if="vm.showPagination"
+                        ng-model="vm.currentPage"
+                        ng-change="vm.pageChange()"
+                        total-items="vm.nbTotalItems"
+                        items-per-page="vm.nbItemsPerPage"
+                        max-size="5"
+                        boundary-links="true"
+                        previous-text="{{vm.paginationLinks.previous}}"
+                        next-text="{{vm.paginationLinks.next}}"
+                        first-text="{{vm.paginationLinks.first}}"
+                        last-text="{{vm.paginationLinks.last}}">
+                    </uib-pagination>
+                </div>
+                <div class="search__results-cta margin-top-plus padding-bottom text-center" ng-show="vm.searched">
+                    <p class="text--small"
+                        ng-show="! vm.items.length">
+                        Aucun résultat pour l'instant
+                    </p>
+                    <a class="link--underline"
+                        ui-sref="itemCreate"
+                        ng-click="vm.uxEvent('Search item text CTA', 'click')">
+                        <p class="text--semibold padded-sides margin-bottom">
+                            <span ng-show="! vm.items.length">{{ vm.breadcrumbQuery ? vm.breadcrumbQuery + " : " : "" }}Faites partie des premiers à déposer vos annonces en quelques secondes&nbsp;!</span>
+                            <span ng-show="vm.items.length">Mettez vos objets en vente ou en location en quelques secondes&nbsp;!</span>
+                        </p>
+                        <svg class="icon icon--highlight grey">
+                            <use xlink:href="/assets/build/icons/sprite.svg#tag-circled"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="search__breadcrumb text--vsmall text-center"
+                    ng-if="vm.items.length"
+                    itemprop="breadcrumb">
+                    <hr class="margin-top">
+                    <span
+                        itemscope
+                        itemtype="http://data-vocabulary.org/Breadcrumb">
+                        <a id="search-root-breadcrumb" class="link--blue-underline"
+                            ui-sref="search({reset: 'all'})"
+                            title="Remettre à zéro vos paramètres de recherche"
+                            itemprop="url">
+                            <span itemprop="title">Vente et location de matériel entre particuliers</span>
+                        </a> ›&nbsp;
+                    </span>
+                    <span ng-if="vm.firstLocation.city"
+                        itemscope
+                        itemtype="http://data-vocabulary.org/Breadcrumb">
+                        <!-- // TODO : get nearest big city via a service -->
+                        <a id="search-city-breadcrumb" class="link--blue-underline"
+                            ng-href="{{vm.breadcrumbCityLink}}"
+                            title="{{'Location / Vente près de ' + vm.firstLocation.city}}"
+                            itemprop="url">
+                            <span
+                                itemprop="title"
+                                itemscope
+                                itemtype="http://schema.org/Place">
+                                <span
+                                    itemprop="address"
+                                    itemscope
+                                    itemtype="http://schema.org/PostalAddress">
+                                    <span itemprop="addressLocality">{{vm.firstLocation.city}}</span>
+                                    <!-- WARNING : France is the only country for the moment -->
+                                    <meta itemprop="addressCountry" content="France">
+                                </span>
+                            </span>
+                        </a>
+                    </span>
+                </div>
+                <span data-us-spinner="{ 'top': '10rem' }"
+                    data-spinner-theme="fiveColors"
+                    data-spinner-key="search-spinner"
+                    data-spinner-start-active="true">
+                </span>
+            </div>
+        </div>
+        <div class="s-medium-grid-block {{vm.showMap ? 's-medium-5' : ''}} search-map">
+            <div id="map-container" class="map-container" ng-show="vm.showMap">
+                <div class="map-overlay"
+                    ng-class="{background: vm.backgroundOverlay}"
+                    ng-hide="vm.hideMapOverlay">
+                    <span data-us-spinner
+                        data-spinner-key="map-spinner"
+                        data-spinner-start-active="true"></span>
+                </div>
+                <ui-gmap-google-map
+                    ng-if="vm.mapFit && vm.loadMap"
+                    center="vm.gmap.map.center"
+                    control="vm.mapInstance"
+                    pan="true"
+                    zoom="vm.gmap.map.zoom"
+                    draggable="true"
+                    events="vm.gmap.events"
+                    options="vm.gmap.options">
+                    <!-- <ui-gmap-markers models="vm.gmap.markers" coords="'self'" options="'options'" icon="'icon'"></ui-gmap-markers> -->
+                    <!-- See item-view for explanation -->
+                    <ui-gmap-window
+                        ng-repeat="marker in vm.gmap.markers"
+                        ng-if="marker.type === 'searchLocation'"
+                        coords="marker.coords"
+                        show="marker.show"
+                        options="marker.windowOptions">
+                        <span class="location-tag ellipsis">
+                            {{ marker.myLocation.alias ? marker.myLocation.alias : marker.myLocation.shortName }}
+                        </span>
+                    </ui-gmap-window>
+                    <ui-gmap-window
+                        ng-repeat="marker in vm.gmap.markers track by marker.id"
+                        ng-if="marker.type === 'item'"
+                        coords="marker.coords"
+                        show="marker.show"
+                        options="marker.windowOptions">
+                        <img
+                            ng-src="{{::marker.media + '?size=75x50'}}"
+                            ng-click="$parent.vm.toggleDetailBox($parent.marker.id, 'itemBox','open', $event)"
+                            alt="{{::vm.item.name + ' à louer sur Sharinplace'}}">
+                    </ui-gmap-window>
+                    <!-- ng-if to avoid memory leak when reopening a given infobox -->
+                    <ui-gmap-window
+                        ng-if="vm.itemBox.show"
+                        coords="vm.itemBox.data.location"
+                        show="vm.itemBox.show"
+                        options="vm.itemBox.windowOptions"
+                        templateUrl="'/assets/app/widgets/google-map/infobox-item.html'"
+                        templateParameter="vm.itemBox">
+                        <!-- Using template solves scope issues. Also allow a dedicated controller if needed -->
+                    </ui-gmap-window>
+                </ui-gmap-google-map>
+            </div>
+        </div>
+    </div>
+</div>

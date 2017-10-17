@@ -1,0 +1,120 @@
+@import "../base/all";
+
+.authentication {
+    #app-container {
+        background-position: 50% 90%;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        @media #{$mq-mobile} {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-small.jpg");
+        }
+        @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-mlarge.jpg");
+        }
+        @media
+            #{$mq-from-large},
+            #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
+            #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi),
+            #{$mq-from-desktop} and (min-height: 876px) // avoid to stretch mlarge format
+        {
+            background-image: url("/assets/img/app/background/Paris-TiltShift-xlarge.jpg");
+        }
+    }
+}
+
+.signin-form-container {
+    .authentication & {
+        min-height: 100vh; // simpler than centering parents with flexbox
+        @media screen and (min-height: 30rem) {
+            // IE needs height to vertically center signin-form when screen is bigger (desktop/tablet only)
+            height: 100vh;
+        }
+    }
+
+    @media #{$mq-mobile} {
+        padding: ($header-height + 1rem) 8px 10px;
+    }
+    @media #{$mq-tablet} {
+        padding: 10px 20% 10px; //px for shadow
+    }
+    @media #{$mq-from-desktop} {
+        padding: 10px 30% 10px;
+    }
+
+    .modal {
+        overflow: auto; // allows scroll on small screens
+    }
+
+    .logo-container {
+        height:100px;
+        width: auto;
+        max-width: 385px;
+        margin : 0 auto 0.5rem;
+        @media #{$mq-mobile} {
+            height: 80px;
+        }
+        #logo {
+            color: $platform-color-blue;
+            width:100%;
+            height:100%;
+        }
+    }
+
+    .signin-form {
+        background-color: rgba(255, 255, 255, 0.65);
+        box-shadow: 1px 3px 7px rgba(0, 0, 0, 0.4);
+        border-radius: $global-radius;
+        padding: 0.5rem 1rem;
+        width: 100%;
+        max-width: 25rem;
+        align-self: center;
+        // Worth reading: http://stackoverflow.com/questions/32551291/in-css-flexbox-why-are-there-no-justify-items-and-justify-self-properties/33856609
+
+        #{$text-input-selectors} {
+            border-radius: $global-radius;
+            line-height: 1.4;
+            height: 2.5rem;
+            padding: 0.5rem;
+            border: 1px solid rgba(0, 87, 142, 0.4);
+            @media #{$mq-mobile} {
+                padding: 0.2rem 0.5rem;
+            }
+            margin-bottom: 0.5rem;
+            background-color: rgba(255,255,255,0.5);
+            &:hover,
+            &:focus {
+                background-color: rgba(255,255,255,0.7);
+                border: 1px solid rgba(0, 87, 142, 0.6);
+            }
+        }
+    }
+
+    .grid-sign-button {
+        padding: 0.2rem 0rem 1rem;
+    }
+
+    .social-signin-container {
+        margin: 0 auto;
+    }
+
+    .sign__text {
+        color: #333;
+        font-size: 0.875rem;
+        text-align: center;
+        font-weight: 600;
+        &.sign__error {
+            color: $alert-color;
+        }
+        &.sign__lost {
+            font-weight: normal;
+            a {
+                color: #333;
+                font-style: italic;
+                &:hover, &:focus, &:active {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}

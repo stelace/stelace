@@ -1,0 +1,59 @@
+.rating-stars {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    $star-size-bigger: 1.25rem;
+    $star-size: 1.125rem;
+    $star-size-small: 0.875rem;
+    span {
+        display: inline-block;
+    }
+    svg {
+        width: $star-size;
+        height: $star-size;
+        margin: 0 1px 0;
+    }
+    .background svg {
+        fill: #DDD;
+    }
+    .fill {
+        position: absolute;
+        svg {
+            fill: #FFBB00;
+        }
+    }
+    [uib-tooltip] {
+        position: absolute;
+        z-index: 2; // overlay above svg stars to avoid bugs in Firefox
+    }
+
+    &.small svg {
+        width: $star-size-small;
+        height: $star-size-small;
+        margin: 0;
+    }
+    &.bigger svg {
+        width: $star-size-bigger;
+        height: $star-size-bigger;
+    }
+    // &.big {
+    //     svg {
+    //         width: $star-size-big;
+    //         height: $star-size-big;
+    //     }
+    //     .text--light {
+    //         vertical-align: super;
+    //     }
+    // }
+
+    .ratings-count {
+        vertical-align: top;
+    }
+
+    .user-ratings-average {
+        svg.icon {
+            fill: rgb(140, 145, 150);
+            vertical-align: text-top;
+        }
+    }
+}

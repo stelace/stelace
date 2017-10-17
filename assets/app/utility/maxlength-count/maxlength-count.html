@@ -1,0 +1,13 @@
+<div class="length-count"
+    ng-if="content.length > threshold">
+    <span ng-if="content.length < (maxlength - 1)">{{maxlength - content.length}} caractères restants</span>
+    <span ng-if="(content.length === maxlength) || (content.length === (maxlength - 1))">{{maxlength - content.length}} caractère restant</span>
+    <span ng-if="content.length === (maxlength + 1)"
+        class="invalid-length">
+        Merci de raccourcir votre texte d'au moins 1 caractère
+    </span>
+    <span ng-if="content.length > (maxlength + 1)"
+        class="invalid-length">
+        Merci de raccourcir votre texte d'au moins {{content.length - maxlength}} caractères
+    </span>
+</div>

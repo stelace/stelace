@@ -1,0 +1,92 @@
+<div data-sip-ux-event=".progress-popover__link"
+    data-ux-event-name="Gamification progress popover click">
+    <div class="margin-bottom text--semibold"
+        ng-if="header.showLevelGreeting">
+        Bravo, vous venez d'atteindre le niveau&nbsp;{{header.levelMap[header.userLvl]}}&nbsp;!
+    </div>
+    <div class="margin-bottom text--semibold text--small"
+        ng-if="header.showActionGreeting && ! header.showLevelGreeting">
+        Vous venez d'accomplir un défi, bravo&nbsp;:)
+    </div>
+    <div>
+        <div class="text--semibold text--small">
+            Prochains défis&nbsp;:
+        </div>
+        <div class="text--vsmall"
+            ng-repeat="action in header.nextActions"
+            ng-switch="action.hId">
+            <div class="text-center text--small"
+                ng-switch-when="A_FRIEND_REGISTERED">
+                <hr>
+                <a class="progress-popover__link megaphone link--blue-underline text--semibold "
+                    title="Obtenez des récompenses en parrainant vos amis"
+                    ng-click="header.openProgressPopover = false"
+                    ui-sref="invite">
+                        <div class="margin-bottom">
+                            Parrainer mes amis
+                        </div>
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#megaphone">
+                            </use>
+                        </svg>
+                </a>
+                <hr>
+            </div>
+            <div class="text-center text--small"
+                ng-switch-when="FIRST_VALID_ITEM_AD">
+                <hr>
+                <a class="progress-popover__link tag link--blue-underline text--semibold "
+                    title="Vendez ou louez en quelques clics"
+                    ng-click="header.openProgressPopover = false"
+                    ui-sref="itemCreate">
+                        <div class="margin-bottom">
+                            Créer ma première annonce
+                        </div>
+                        <svg class="icon">
+                            <use xlink:href="/assets/build/icons/sprite.svg#tag">
+                            </use>
+                        </svg>
+                </a>
+                <hr>
+            </div>
+            <div ng-switch-default>-&nbsp;{{header.actionMap[action.id].name}}</div>
+        </div>
+    </div>
+    <div class="margin-top">
+        <div class="text--semibold text--small">
+        Dernier défi accompli&nbsp;:
+        </div>
+        <div class="text--vsmall"
+            ng-repeat="actionId in header.lastActionsIds | limitTo: 1"
+            ng-switch="actionId">
+            <div ng-switch-when="A_FRIEND_REGISTERED">
+                -&nbsp;<a class="progress-popover__link link--blue-underline text--semibold"
+                    ng-click="header.openProgressPopover = false"
+                    ui-sref="invite" >
+                        Parrainer un ami
+                    </a>
+            </div>
+            <div ng-switch-when="VALID_ITEM_AD">
+                -&nbsp;<a class="progress-popover__link link--blue-underline text--semibold"
+                    ng-click="header.openProgressPopover = false"
+                    ui-sref="itemCreate" >
+                        Créer une nouvelle annonce
+                    </a>
+            </div>
+            <div ng-switch-default>-&nbsp;{{header.actionMap[actionId].name}}</div>
+        </div>
+    </div>
+    <div class="flex-container flex--align-center">
+        <a class="progress-popover__link link--blue-underline text--semibold padding-top flex-item--grow text--small"
+            ui-sref="userMe"
+            ng-click="header.openProgressPopover = false">
+            Voir tous mes défis
+        </a>
+        <span class="link--grey link--underline cursor-pointer text--vsmall padding-top"
+            ng-click="header.openProgressPopover = false"
+            tabindex="0"
+            data-sip-action-key>
+            Fermer
+        </span>
+    </div>
+</div>

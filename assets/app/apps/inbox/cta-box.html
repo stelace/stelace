@@ -1,0 +1,253 @@
+<div class="grid-block conversation__cta">
+    <div class="medium-1"></div>
+    <div class="small-12 medium-10 plain-card">
+        <div class="plain-card__divider">
+            <h3>
+                {{vm.ctaTitle}}
+            </h3>
+        </div>
+        <div class="message__content">
+            <div class="cta__description">
+                <div ng-if="vm.message.bookingStatus !== 'info'">
+                    <span class="text--semibold">
+                        <a ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })">{{vm.item.name}}</a>
+                        <span ng-show="vm.booking && ! vm.isPurchase">du {{vm.startDate}} au {{vm.endDate}}</span>
+                        <span ng-show="vm.booking && vm.bookingStatus">
+                            - {{vm.bookingStatus}}
+                        </span>
+                    </span>
+                    <br>
+                    <span class="text--vsmall text--fade"
+                        ng-show="vm.booking && vm.isOwner">
+                        Prix appliqué&nbsp;: {{vm.itemBasePrice}}€&nbsp;&bull;
+                        <span ng-show="vm.booking.ownerFees">Dont</span>
+                        Frais de paiement&nbsp;: {{vm.ownerFeesString}}&nbsp;&bull;
+                        Caution&nbsp;: {{vm.booking.deposit}}€
+                    </span>
+                    <span class="text--vsmall text--semibold"
+                        ng-show="vm.booking && vm.isOwner">
+                        <br>
+                        Montant net vous revenant&nbsp;: {{vm.ownerNetIncome}}€
+                    </span>
+                    <span class="text--vsmall text--fade"
+                        ng-show="vm.booking && ! vm.isOwner">
+                        Prix fixé par le propriétaire&nbsp;: {{vm.itemBasePrice}}€&nbsp;&bull;
+                        Frais de service&nbsp;: {{vm.takerFeesString}}&nbsp;&bull;
+                        Caution&nbsp;: {{vm.booking.deposit}}€
+                    </span>
+                </div>
+                <div ng-if="vm.message.bookingStatus === 'info'">
+                    <a class="text--semibold" ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })">{{vm.item.name}}</a>
+                </div>
+            </div>
+            <div class="cta__action" ng-show="vm.booking">
+                <div ng-switch="vm.bookingState">
+                    <div class="action-done" ng-switch-when="cancelled">
+                        La réservation a été annulée.
+                    </div>
+                    <div class="action-done" ng-switch-when="updated">
+                        Une réservation plus récente a été effectuée.
+                    </div>
+                    <div class="action-done" ng-switch-when="paidAndValidated">
+                        Cette réservation a été acceptée et payée le {{vm.payDate}}.
+                        <!-- {{! vm.isTaker ? "Restez en contact avec " + vm.interlocutor.fullname + " pour lui remettre l'objet." : "" }} -->
+                    </div>
+                    <div class="action-done" ng-switch-when="paid">
+                        {{vm.isTaker ? "Votre paiement a bien été enregistré le " + vm.payDate + "." : "Cette réservation a été payée par " + vm.interlocutor.fullname }}
+                        <div class="margin-top"
+                            ng-if="! vm.isTaker && vm.countdown && (vm.countdown.text || vm.countdown.warning)">
+                            <span class="text--semibold" ng-if="vm.countdown.text">
+                                Il ne vous reste que&nbsp;{{vm.countdown.text}}
+                            </span>
+                            <span class="user-generated"
+                                ng-class="{ 'text--semibold': vm.countdown.warning }">
+                                {{ vm.countdown.warning || "pour l'accepter."}}
+                            </span>
+                            <span class="badge tooltip-badge"
+                                ng-if="vm.countdown.text"
+                                data-tooltip-placement="auto top"
+                                data-tooltip-trigger="mouseenter outsideClick"
+                                data-tooltip-append-to-body="true"
+                                uib-tooltip="Après une réservation, vous disposez de 36h pour l'accepter ou la refuser. Passé ce délai, la réservation est susceptible d'être annulée automatiquement.">
+                                ?
+                            </span>
+                        </div>
+                    </div>
+                    <div class="action-done" ng-switch-when="validated">
+                        {{vm.isTaker ? "La réservation a été acceptée par " + vm.interlocutor.fullname + " le " + vm.acceptDate + "." : "Vous avez accepté cette réservation" }}
+                    </div>
+                </div>
+
+                <a class="contract-link link--underline"
+                    ng-href="{{vm.contractUrl}}"
+                    target="{{vm.contractTarget}}"
+                    ng-if="vm.showContract" >
+                    Consulter mon contrat électronique.
+                </a>
+
+                <div ng-show="! vm.booking.cancellationId && ! vm.item.snapshot && vm.message.isCtaActive">
+                    <div ng-if="vm.isTaker && ! vm.booking.confirmedDate">
+                        <button class="button brightblue"
+                            ui-sref="bookingPayment({id: vm.booking.id})">
+                            Confirmer ma réservation
+                        </button>
+                    </div>
+                    <div ng-show="! vm.booking.validatedDate && vm.isOwner">
+                        <form class="form--control"
+                            name="ctaBookingForm"
+                            novalidate>
+                            <label for="cta-answer-message">Message à {{vm.interlocutor.firstname || vm.interlocutor.fullname}}&nbsp;:</label>
+                            <textarea id="cta-answer-message"
+                                name="ctaAnswerMessage"
+                                ng-class="{ 'force-invalid': vm.missingCtaAnswerMessage && (! vm.ctaAnswerMessage || vm.ctaAnswerMessage.length < 5) }"
+                                rows="6"
+                                ng-maxlength="2000"
+                                ng-model="vm.ctaAnswerMessage"
+                                ng-model-options="{ debounce: 300 }"
+                                placeholder="Veuillez apporter quelques précisions..."
+                                sip-textarea-auto-adjust>
+                            </textarea>
+                            <!-- We do not know if message is required beforehand -->
+                            <div class="form-warning text--semibold"
+                                uib-collapse="! vm.missingCtaAnswerMessage || (vm.ctaAnswerMessage && vm.ctaAnswerMessage.length >= 5)">
+                                <span ng-hide="vm.rejectCollapse">Merci d'expliquer votre refus en quelques mots, cela réconfortera</span>
+                                <span ng-show="vm.rejectCollapse">Merci d'écrire quelques premiers mots à</span>
+                                {{vm.interlocutor.fullname}}
+                            </div>
+                            <p class="margin-bottom text-justify" ng-if="vm.publicQuestion">
+                                Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.item.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:
+                            </p>
+                            <textarea name="publicMessage"
+                                rows="5"
+                                ng-if="vm.publicQuestion"
+                                ng-model="vm.ctaPublicMessage"
+                                ng-model-options="{ debounce: 300 }"
+                                ng-maxlength="2000"
+                                placeholder="{{'Question publique:\n' + vm.publicQuestion.substr(0, 128) + '...'}}"
+                                sip-textarea-auto-adjust>
+                            </textarea>
+                            <button class="button brightblue"
+                                ng-click="vm.validate()"
+                                ng-class="{disabled: ! vm.rejectCollapse}">
+                                Accepter la
+                                <span ng-show="vm.isOwner">réservation</span>
+                                <span ng-hide="vm.isOwner">demande</span>
+                            </button>
+                            <button class="button gray"
+                                ng-click="vm.reveal('reject')"
+                                ng-class="{disabled: ! vm.rejectCollapse}">
+                                Refuser
+                            </button>
+                            <span class="cursor-pointer text--fade link--underline"
+                                ng-show="vm.rejectCollapse"
+                                ng-click="vm.onMessage({ privateMessage: vm.ctaAnswerMessage, publicMessage: vm.ctaPublicMessage }, vm.afterMessage)">
+                                Envoyer
+                            </span>
+                            <span class="spinner-container" ng-if="vm.rejectCollapse">
+                                <span data-us-spinner="{scale: 0.5}" data-spinner-key="booking-validation-spinner"></span>
+                            </span>
+                            <div uib-collapse="vm.rejectCollapse">
+                                <button class="button"
+                                    ng-click="vm.currentRequest = true; vm.onReject(vm.ctaAnswerMessage, vm.booking, vm.afterReject)">
+                                    Confirmer le refus
+                                </button>
+                                <span class="cursor-pointer text--fade link--underline"
+                                    ng-click="vm.reveal('none')">
+                                    Annuler
+                                </span>
+                                <span class="spinner-container" ng-if="! vm.rejectCollapse">
+                                    <span data-us-spinner="{scale: 0.5}" data-spinner-key="booking-validation-spinner"></span>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                    <form class="form--control"
+                        name="bankAccountForm"
+                        novalidate>
+                        <div class="bank-account-form padding-bottom"
+                            ng-show="vm.showBankAccountForm">
+                            <div class="cursor-pointer link--underline text--light"
+                                ng-click="vm.bankAccountActive = ! vm.bankAccountActive"
+                                ng-if="vm.showBankAccountToggle">
+                                {{vm.bankAccountActive ? "Masquer" : "Consulter"}} mes informations bancaires
+                            </div>
+                            <div uib-collapse="! vm.bankAccountActive">
+                                <p ng-hide="vm.hasBankAccount">
+                                    <span class="text--semibold text--orange">
+                                        Je renseigne mes informations bancaires&nbsp;<span ng-if="vm.booking.takerPrice">pour recevoir le paiement</span>&nbsp;:
+                                    </span>
+                                    <br>
+                                    <span class="text--light">Nous vous invitons à vous munir de votre RIB.</span>
+                                </p>
+                                <div class="flex-container">
+                                    <div class="small-6">
+                                        <label for="owner-firstname">
+                                            Prénom
+                                        </label>
+                                        <input id="owner-lastname" type="text"
+                                            ng-model="vm.firstName"
+                                            ng-model-options="{ debounce: 300 }"
+                                            required>
+                                    </div>
+                                    <div class="small-6">
+                                        <label for="owner-firstname">
+                                            Nom
+                                        </label>
+                                        <input id="owner-firstname" type="text"
+                                            ng-model="vm.lastName"
+                                            ng-model-options="{ debounce: 300 }"
+                                            required>
+                                    </div>
+                                </div>
+                                <div ng-if="! vm.hasBankAccount"
+                                    ng-include="'/assets/app/templates/select-birthday.html'"></div>
+                                <label>Adresse indiquée sur mon RIB</label>
+                                <input
+                                    ng-if="vm.isGoogleMapSDKReady"
+                                    ng-class="{'force-invalid': vm.missingAddress}"
+                                    type="text"
+                                    ng-model="vm.addressInput"
+                                    ng-disabled="vm.hasBankAccount"
+                                    ng-autocomplete
+                                    data-options="vm.ngAutocompleteOptions"
+                                    data-details="vm.addressLocation"
+                                    placeholder="Saisissez votre adresse">
+                                <div ng-if="! vm.hasBankAccount"
+                                    ng-include="'/assets/app/templates/select-country-short.html'"></div>
+                                <div class="flex-container">
+                                    <div class="small-12">
+                                        <label for="owner-iban">
+                                            IBAN
+                                        </label>
+                                        <input id="owner-iban" type="text"
+                                            name="ownerIban"
+                                            ng-class="{'force-invalid': vm.badIban}"
+                                            ng-model="vm.iban"
+                                            ng-disabled="vm.hasBankAccount"
+                                            placeholder="FR7630..."
+                                            required>
+                                        <div class="form-warning text--semibold"
+                                            uib-collapse="! bankAccountForm.ownerIban.$touched || ! bankAccountForm.ownerIban.$invalid && ! vm.badIban">
+                                            Veuillez renseigner un IBAN valide pour recevoir votre paiement.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-show="vm.hasBankAccount">
+                                    Pour modifier vos informations bancaires, <a class="link--underline" href="mailto:hello@sharinplace.fr?subject=Changement%20d%27'informations%20bancaires">veuillez nous contacter à l'adresse hello@sharinplace.fr.</a>
+                                </div>
+                                <button class="button"
+                                    ng-click="vm.createBankAccount()">
+                                    Enregistrer mes informations
+                                </button>
+                                <span class="spinner-container" ng-if="vm.bankAccountActive">
+                                    <span data-us-spinner="{scale: 0.5}" data-spinner-key="booking-validation-spinner"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="medium-1"></div>
+</div>

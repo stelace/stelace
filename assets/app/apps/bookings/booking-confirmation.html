@@ -1,0 +1,135 @@
+<div class="booking-confirmation">
+    <div class="header-space"></div>
+    <div class="fluid-content flex-container small-vertical desktop-horizontal">
+        <div class="booking__payment-processing desktop-8">
+            <h2 class="spinner-space">Confirmation de vos coordonnées bancaires</h2>
+            <div class="booking__payment-message text-center">
+                <span data-us-spinner="{top: '0%'}" data-spinner-key="payment-spinner" data-spinner-start-active="true"></span>
+                <div class="status-icon" ng-show="vm.showStatusIcon" ng-switch="vm.showStatusIcon">
+                    <svg class="icon success" ng-switch-when="success">
+                        <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
+                    </svg>
+                    <svg class="icon failure" ng-switch-when="failure">
+                        <use xlink:href="/assets/build/icons/sprite.svg#exclamation"/>
+                    </svg>
+                </div>
+                <div class="margin-bottom-plus">
+                    <div class="text--semibold"
+                        ng-if="vm.paymentProcessing && ! vm.error">
+                        Vérification en cours
+                    </div>
+                    <div class="text--semibold" ng-if="vm.paymentDone">
+                        Transaction réussie
+                    </div>
+                    <div class="margin-bottom-plus"
+                        ng-if="vm.error">
+                        Une erreur s'est produite et nous vous prions de nous en excuser.<br>
+                        Aucun prélèvement ne sera effectué.
+                    </div>
+                    <div class="text--semibold"
+                        ng-if="vm.paymentRedirectionTimeout">
+                        Vous allez être redirigé(e) vers la page de paiement.
+                    </div>
+                </div>
+                <!-- TODO : include mangopay transaction ids -->
+                <p class="text-justify"
+                    ng-if="vm.paymentDone" uib-collapse="! vm.firstTime">
+                    Vous allez recevoir un email de confirmation contenant des informations importantes.
+                    <span ng-show="vm.booking.takerPrice">
+                        Vous venez de réaliser un paiement de {{vm.booking.takerPrice}}€<span ng-if="vm.booking.deposit">
+                        &nbsp;en complément d'un dépôt de garantie de {{vm.booking.deposit}}€</span>.
+                        Ce paiement ne sera effectif qu'une fois l'objet entre vos mains.
+                    </span>
+                    <span ng-show="! vm.booking.takerPrice && vm.booking.deposit">
+                        Vous venez de réaliser un dépôt de garantie à hauteur de {{vm.booking.deposit}}€, en aucun cas prélevé en l'absence de litige.
+                    </span>
+                </p>
+                <p class="text-justify"
+                    ng-if="vm.paymentDone || ! vm.error">
+                    <!-- Conversation is empty if payment failed -->
+                    Accédez à <a id="post-payment-conversation-link" ui-sref="conversation({conversationId: vm.conversation.id})">votre messagerie</a> pour rester en contact avec {{vm.owner.firstname || vm.owner.fullname}}.
+                </p>
+            </div>
+
+            <div class="booking__contact-info text-justify"
+                uib-collapse="! vm.paymentDone">
+                <hr ng-hide="vm.noImage" class="hide-for-desktop">
+                <div ng-if="vm.noImage">
+                    <hr>
+                    <h2>Inspirez confiance</h2>
+                    <p>
+                        Les photos de profil permettent aux membres Sharinplace de se reconnaître lorsqu'ils se recontrent pour échanger des objets et sont un gage de confiance supplémentaire. Ajoutez la vôtre en quelques secondes.
+                    </p>
+                    <sip-prompt-image></sip-prompt-image>
+                    <hr class="hide-for-desktop">
+                </div>
+            </div>
+
+            <div class="fb-page__container margin-top-plus padding-top">
+                <div class="fb-page"
+                    data-href="https://www.facebook.com/sharinplace/"
+                    data-small-header="true"
+                    data-width="500"
+                    data-adapt-container-width="true"
+                    data-hide-cover="false"
+                    data-show-facepile="false">
+                    <blockquote cite="https://www.facebook.com/sharinplace/" class="fb-xfbml-parse-ignore">
+                        <a href="https://www.facebook.com/sharinplace/">Page Facebook Sharinplace</a>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+        <div class="booking-summary__container desktop-4 webkit-render-fix">
+            <div class="booking-summary">
+                <div class="booking-summary__title">
+                    <h1 class="ellipsis">{{::vm.booking.itemSnapshot.name}}</h1>
+                </div>
+                <div>
+                    <div class="booking-summary__picture">
+                        <sip-img ng-src="{{vm.item.url + '?size=800x600'}}" type="background"></sip-img>
+                    </div>
+                    <div class="booking-summary__content">
+                        <div ng-if="vm.showBookingDuration">
+                            <div class="margin-bottom">
+                                Réservation pour
+                                <span class="text--semibold">{{::vm.bookingDuration}}</span>
+                                du
+                                <span class="text--semibold">{{::vm.startDate}}</span>
+                                au
+                                <span class="text--semibold">{{::vm.endDate}}</span>
+                            </div>
+                            <hr>
+                        </div>
+                        <div class="margin-bottom">
+                            {{::vm.owner.fullname}} est susceptible d'être disponible
+                            <span ng-if="vm.itemLocations.length > 1">aux lieux suivants</span>
+                            <span ng-if="vm.itemLocations.length <= 1">au lieu suivant</span>&nbsp;:
+                        </div>
+                        <div class="margin-bottom-plus booking-summary__locations">
+                            <span ng-repeat="loc in vm.itemLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
+                        </div>
+                        <div class="booking-summary__price">
+                            <div data-sip-pricing-table
+                                ng-if="vm.booking && vm.item"
+                                booking="vm.booking"
+                                item="vm.item">
+                            </div>
+                            <div class="margin-top margin-bottom"
+                                ng-if="vm.booking.deposit">
+                                Dépôt de garantie&nbsp;: <span class="text--semibold">{{vm.booking.deposit}}€</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fluid-content show-for-desktop">
+        <div class="powered-by-container desktop-8">
+            <hr class="margin-bottom">
+            <img id="powered-by" class="powered-by-mangopay-logo"
+                src="/assets/img/app/payment/powered-by-mangopay_v2.png" title="Paiement sécurisé via Mangopay et Crédit Mutuel" alt="Logo - Paiement sécurisé via MangoPay / Crédit Mutuel">
+        </div>
+    </div>
+    <div ng-include="'/assets/app/layout/footer.html'"></div>
+</div>

@@ -1,0 +1,130 @@
+<form novalidate name="promptModalForm" class="signin-form" ng-class="{ 'gentle-shake': vm.formAnimationError }">
+    <a zf-close="" class="close-button">×</a>
+    <div class="logo-container">
+        <svg id="logo">
+            <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"/>
+        </svg>
+    </div>
+    <!-- Phone validation -->
+    <div class="margin-bottom" ng-if="vm.info === 'phone' || vm.info === 'phoneNew'" ng-switch="vm.step">
+        <div ng-switch-when="1">
+            <p class="sign__text">
+                {{vm.greeting[vm.info]}}
+            </p>
+            <input type="tel"
+                placeholder="0612..."
+                ng-model="vm.phone"
+                ng-minlength="10"
+                ng-maxlength="10"
+                required
+                data-sip-autofocus="vm.autofocus">
+            <p class="sign__text">
+                <span ng-if="promptModalForm.$invalid">Votre numéro ne sera jamais affiché publiquement.</span>
+                <span ng-if="promptModalForm.$valid">Conservez votre téléphone à portée de main avant de poursuivre, afin de recevoir un code de validation à 4 chiffres.</span>
+            </p>
+        </div>
+        <div ng-switch-when="2">
+            <p class="sign__text">
+                Nous venons de vous envoyer un code de validation à 4 chiffres par SMS. Veuillez le saisir ci-dessous&nbsp;:
+            </p>
+            <!-- Use ng-pattern instead of type number to avoid dropping leading zeros -->
+            <input type="tel"
+                placeholder="Code de validation"
+                ng-model="vm.signCode"
+                ng-pattern="/^[0-9]{4}$/"
+                required
+                data-sip-autofocus="vm.autofocus">
+        </div>
+        <div class="text-center spinner-button-container">
+            <button class="button sip-button spinner-button--center margin-top"
+                    ng-disabled="promptModalForm.$invalid"
+                    ng-class="{disabled: promptModalForm.$invalid}"
+                    ng-click="vm.action()">
+                <span ng-switch="vm.step">
+                    <span ng-switch-when="1">Confirmer</span>
+                    <span ng-switch-when="2">Valider</span>
+                </span>
+            </button>
+            <span class="spinner-container">
+                <span data-us-spinner="{scale: 0.5}" data-spinner-key="phone-verify-spinner"></span>
+            </span>
+        </div>
+        <p class="sign__text sign__error" ng-if="vm.displayPhoneCodeError">Ce code est erroné.</p>
+    </div>
+    <!-- Locations -->
+    <div class="margin-bottom" ng-if="vm.info === 'mainLocation'" ng-switch="vm.step">
+        <p class="sign__text margin-bottom">
+            <span ng-switch-when="1">{{vm.greeting.mainLocation}}</span>
+            <span ng-switch-when="2">{{vm.greeting.secondLocation}}</span>
+        </p>
+        <input type="text"
+            placeholder="Adresse"
+            ng-model="vm.locationSearchInput"
+            ng-autocomplete
+            data-options="vm.ngAutocompleteOptions"
+            data-details="vm.locationSearchObject"
+            data-sip-autofocus="vm.autofocus">
+        <p class="sign__text"
+            ng-switch-when="1">
+            Votre adresse complète ne sera jamais affichée publiquement.
+        </p>
+        <button class="button sip-button center margin-top"
+                ng-disabled="! vm.locationSearchObject"
+                ng-class="{disabled: ! vm.locationSearchObject}"
+                ng-click="vm.action()">
+            <span ng-switch="vm.step">
+                <span ng-switch-when="1">Enregistrer</span>
+                <span ng-switch-when="2">Ajouter</span>
+            </span>
+        </button>
+        <p ng-switch-when="2" class="sign__text no-margin-bottom">
+            <a class=" link--grey" ng-click="vm.bypassLocation()">Plus tard</a>
+        </p>
+    </div>
+    <!-- Email -->
+    <div class="margin-bottom" ng-if="vm.info === 'email'">
+        <p class="sign__text margin-bottom">
+            <span>{{vm.greeting.email}}</span>
+        </p>
+        <input type="email"
+            placeholder="Email"
+            spellcheck="false"
+            ng-model="vm.email"
+            required>
+        <button class="button sip-button center margin-top"
+                ng-disabled="! vm.email"
+                ng-class="{disabled: ! vm.email}"
+                ng-click="vm.action()">
+            <span>Enregistrer</span>
+        </button>
+    </div>
+    <!-- Email new -->
+    <div class="margin-bottom" ng-if="vm.info === 'emailNew'">
+        <p class="sign__text margin-bottom">
+            <label for="prompt-info-modal__email-new-input">
+                {{vm.greeting.emailNew}}
+            </label>
+        </p>
+        <input id="prompt-info-modal__email-new-input"
+            type="email"
+            placeholder="Email"
+            spellcheck="false"
+            ng-model="vm.emailNew"
+            data-sip-autofocus="vm.autofocus"
+            required>
+        <p class="margin-bottom text--small text-center">
+            Rendez-vous dans votre boîte de réception pour valider votre nouvelle adresse&nbsp;;)
+        </p>
+        <div class="text-center spinner-button-container">
+            <button class="button sip-button spinner-button--center margin-top"
+                    ng-disabled="! vm.emailNew"
+                    ng-class="{disabled: ! vm.emailNew}"
+                    ng-click="vm.action()">
+                <span>Confirmer</span>
+            </button>
+            <span class="spinner-container">
+                <span data-us-spinner="{scale: 0.5}" data-spinner-key="email-new-check-spinner"></span>
+            </span>
+        </div>
+    </div>
+</form>

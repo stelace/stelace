@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="no-js" lang="fr" ng-app="app" ng-strict-di>
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+    <meta charset="utf-8">
+    <base href="/">
+    <meta name="fragment" content="!">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Location et partage d'objets entre particuliers</title>
+
+    <!-- OpenGraph -->
+    <% if (typeof facebookAppId !== "undefined" && facebookAppId) { %>
+    <meta property="fb:app_id" content="<%= facebookAppId %>">
+    <% } %>
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Sharinplace : Soyez égoïstes, partagez&nbsp;!">
+    <meta property="og:url" content="https://sharinplace.fr/">
+    <meta property="og:site_name" content="Sharinplace">
+    <meta property="og:image" content="https://sharinplace.fr/assets/img/common/SharinplaceHeader.png">
+    <meta property="og:image:secure_url" content="https://sharinplace.fr/assets/img/common/SharinplaceHeader.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:description" content="Achetez, vendez et louez vos objets entre particuliers. Matériel high-tech, bricolage, mode, loisirs… Dépôt d’annonce gratuit.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@sharinplace">
+    <meta name="twitter:title" content="Vente, location et partage d'objets entre particuliers">
+    <meta name="twitter:description" content="Achetez, vendez et louez vos objets entre particuliers. Matériel high-tech, bricolage, mode, loisirs… Dépôt d’annonce gratuit.">
+    <meta name="twitter:image" content="https://sharinplace.fr/assets/img/common/SharinplaceHeader.png">
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <meta name="apple-mobile-web-app-title" content="Sharinplace">
+    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="application-name" content="Sharinplace">
+    <meta name="theme-color" content="#00578E">
+
+    <% if (typeof metaRobotsTags !== "undefined" && metaRobotsTags) { %>
+    <meta name="robots" href="<%= metaRobotsTags %>">
+    <% } %>
+
+    <% if (typeof canonicalUrl !== "undefined" && canonicalUrl) { %>
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    <% } %>
+
+    <!-- app:css -->
+    <link rel="stylesheet" href="/assets/build/css/app.css">
+    <!-- endinject -->
+  </head>
+
+  <body data-status=""
+        data-env="<%= env %>"
+        data-session-id="<%= sessionId %>"
+        data-session-token="<%= sessionToken %>"
+        data-event-id="<%= eventId %>"
+        data-event-token="<%= eventToken %>"
+        data-ux-version="<%= uxVersion %>">
+
+    <noscript>
+        <div class="no-script">
+            Merci d'activer Javascript dans votre navigateur pour profiter pleinement de Sharinplace&nbsp;;)
+        </div>
+    </noscript>
+
+    <div id="loading-content">
+        <div id="loading-logo">
+            <svg>
+                <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+            </svg>
+        </div>
+        <div id="loading-spinner">
+            <img src="/assets/img/app/AppSpinner.gif" alt="Chargement en cours">
+        </div>
+    </div>
+
+    <!-- Polyfills -->
+    <script>
+        // Element remove
+        if (! ("remove" in Element.prototype)) {
+            Element.prototype.remove = function () {
+                if (this.parentNode) {
+                    this.parentNode.removeChild(this);
+                }
+            };
+        }
+    </script>
+
+    <% if (typeof dataFromServer !== 'undefined' && dataFromServer) { %>
+    <script>
+        window.dataFromServer = <%- dataFromServer %>;
+    </script>
+    <% } %>
+
+    <%- body %>
+
+    <% if (typeof googleTracking !== "undefined" && googleTracking && typeof googleAnalyticsId !== "undefined" && googleAnalyticsId) { %>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', '<%= googleAnalyticsId %>', 'auto');
+        ga('require', 'linkid', 'linkid.js');
+        // ga('send', 'pageview');
+    </script>
+    <% } else { %>
+    <script>
+        window.gaFake = true;
+        window.ga = function () {};
+    </script>
+    <% } %>
+
+    <% if (typeof facebookTracking !== "undefined" && facebookTracking === "dev") { %>
+    <script>
+        // Facebook Pixel Debugging
+        window.fbq = function (t,name,data) { console.log("Facebook Pixel Event:", name, data); };
+    </script>
+    <% } else if (typeof facebookTracking !== "undefined" && facebookTracking && typeof facebookPixelId !== "undefined" && facebookPixelId) { %>
+    <script>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','//connect.facebook.net/en_US/fbevents.js');
+
+        fbq('init', '<%= facebookPixelId %>');
+        // fbq('track', "PageView");
+    </script>
+    <% } else { %>
+    <script>
+        window.fbq = function () {};
+    </script>
+    <% } %>
+
+    <% if (typeof googleMapApiKey !== "undefined" && googleMapApiKey) { %>
+        <script>
+            window.googleMapApiKey = "<%= googleMapApiKey %>";
+        </script>
+    <% } %>
+
+    <!-- app-pre:js -->
+    <script src="/assets/build/js/app-pre.js"></script>
+    <!-- endinject -->
+
+    <% if (typeof featureDetection !== "undefined" && featureDetection) { %>
+    <script>
+        var hasFeatures = (Modernizr.flexbox || Modernizr.flexboxtweener)
+                            && Modernizr.matchmedia;
+
+        if (! hasFeatures) {
+            window.location.replace("/old-browsers");
+        }
+    </script>
+    <% } %>
+
+    <script>
+        (function IECustomEventPolyfill() {
+            if (typeof window.CustomEvent === "function") return false; // If not IE
+
+            function CustomEvent(event, params) {
+                params = params || { bubbles: false, cancelable: false, detail: undefined };
+                var evt = document.createEvent("CustomEvent");
+                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+                return evt;
+            }
+
+            CustomEvent.prototype = window.Event.prototype;
+
+            window.CustomEvent = CustomEvent;
+        })();
+    </script>
+
+    <!-- app:js -->
+    <script src="/assets/build/js/app-lib.js"></script>
+    <script src="/assets/build/js/app-template.js"></script>
+    <script src="/assets/build/js/app.js"></script>
+    <!-- endinject -->
+
+    <!-- app-lang:js -->
+    <script src="/assets/build/js/app-lang.js"></script>
+    <!-- endinject -->
+
+    <script>
+        var loadingContentEl = document.getElementById("loading-content");
+        if (loadingContentEl && loadingContentEl.remove) {
+            loadingContentEl.remove();
+        }
+    </script>
+  </body>
+</html>
