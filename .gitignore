@@ -121,6 +121,7 @@ package-lock.json
 .DS_STORE
 .netbeans
 nbproject
+.vscode
 .idea
 .node_history
 .sass-cache

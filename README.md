@@ -1,12 +1,16 @@
 # Stelace
 
-**Smart marketplace launcher** - https://stelace.com
+Stelace helps entrepreneurs create online marketplaces and communities in no time to let them focus on experimenting and growing their audience.
+
+This repository includes all marketplace features and integrations. Stelace Artificial Intelligence assistance, automatic setup and cloud hosting are also available [without a line of code](https://stelace.com).
 
 ---
 
 ## Warning
 
-Stelace is under active development. **Everything will break in unexpected and harmful ways until v1 is released.**
+Stelace is under active development, with *massive* ongoing updates.
+
+**Everything will break in unexpected ways until v1 is released.**
 
 ![Stelace pre-launch](https://media.giphy.com/media/26xBEamXwaMSUbV72/giphy.gif)
 
@@ -19,6 +23,7 @@ Stelace is under active development. **Everything will break in unexpected and h
 - [Stelace](#stelace)
     - [Warning](#warning)
     - [Contents](#contents)
+    - [Features](#features)
     - [Environment](#environment)
         - [Install environment](#install-environment)
             - [Install Node.js](#install-nodejs)
@@ -30,16 +35,38 @@ Stelace is under active development. **Everything will break in unexpected and h
         - [Configure environment](#configure-environment)
             - [Create the MySQL database](#create-the-mysql-database)
             - [Create the local config](#create-the-local-config)
-            - [PhantomJS symlink](#phantomjs-symlink)
-        - [Run environement](#run-environement)
+            - [PhantomJS symbolic link](#phantomjs-symbolic-link)
+        - [Run environment](#run-environment)
         - [Update environment](#update-environment)
         - [Backup database](#backup-database)
             - [Export the MySQL database](#export-the-mysql-database)
             - [Import the MySQL database](#import-the-mysql-database)
-    - [Docs](#docs)
+    - [Ongoing](#ongoing)
+    - [Open source alternatives](#open-source-alternatives)
     - [License](#license)
 
 <!-- /TOC -->
+
+## Features
+
+Everything but [Stelace AI](https://stelace.com), including:
+
+- Listing management
+- Delayed payments (Stripe / Mangopay)
+- Marketplace fees
+- Advanced search (Elasticsearch)
+- Maps (Google Maps)
+- Booking calendars
+- Flexible listing types and workflows
+- Validation steps
+- User ratings & public accounts
+- Gamification
+- Messaging
+- Emailing
+- Angular templates
+- Translations
+- …
+
 
 ## Environment
 ### Install environment
@@ -54,6 +81,8 @@ To install a specific version or switch to a pre-installed version:
 
     sudo n [version]
 
+> Recommended version: Node 8
+
 To list all possible versions of Node:
 
     n list
@@ -63,7 +92,7 @@ To display help:
     n -h
 
 ##### Node version warning
-Each time you change the version of Node.js, you need to reinstall npm because it's overriden.
+Each time you change the version of Node.js, you need to reinstall npm because it's overridden.
 
     sudo npm install -g npm
 
@@ -83,7 +112,9 @@ And if you switch to another major version of Node.js (Major.Minor.Patch, see ht
 
     sudo apt-get install mysql-server
 
-- Enter your identifiers (the following parameters can be used in dev environment)
+> Recommended version: 5.7
+
+Enter your identifiers (the following parameters can be used in dev environment):
 > user: root
 password: [pwd]
 
@@ -128,7 +159,7 @@ password: [pwd]
 
 > TIP: Omit the "p" parameter if no password is set.
 
-**Create the project database (usually "stelace")**
+**Create the project database**
 
     create schema [database_name];
     exit
@@ -155,7 +186,7 @@ snapshotsDir: "/path/to/project-external/snapshots"
 >Start once with "alter" when some model changes
 
 
-#### PhantomJS symlink
+#### PhantomJS symbolic link
 
     ln -s node_modules/phantomjs/bin/phantomjs
 
@@ -163,7 +194,7 @@ snapshotsDir: "/path/to/project-external/snapshots"
 
 
 
-### Run environement
+### Run environment
 
 Open 2 terminals: 1 for client-side and 1 for server-side.
 
@@ -189,7 +220,7 @@ Now go to the url: http://localhost:3000. Stelace should be up and running!
 
 - If you modify server-side files, don’t forget to restart the server
 
-- Usually on client-side, you want the autoreload. But you can also use `gulp build` rather than `gulp` to get static build served at http://localhost:1337.
+- Usually on client-side, you want the auto-reload. But you can also use `gulp build` rather than `gulp` to get static build served at http://localhost:1337.
 
 > If you have problems with gulp-watch
 https://stackoverflow.com/questions/16748737/grunt-watch-error-waiting-fatal-error-watch-enospc
@@ -233,9 +264,17 @@ Using mysqldump for exporting "small" dataset is ok (< 10GB).
 
     mysql -u [user] -p --default-character-set=utf8mb4 [database_name] < [filename].sql
 
+## Ongoing
 
-## Docs
-No public docs yet, feel free to create an issue if needed.
+- Easier environment setup with docker and setup tools
+- Internationalization (i18n branch)
+- Stripe Connect integration
+- Docs
+
+## Open source alternatives
+- [Sharetribe](https://github.com/sharetribe/sharetribe)
+- [Cocorico](https://github.com/Cocolabs-SAS/cocorico)
+- *Add yours*
 
 ## License
-Stelace is released under the terms of the [GPLv3](LICENSE).
+Stelace is open source under the terms of the [GPLv3](LICENSE).
