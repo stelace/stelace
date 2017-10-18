@@ -165,7 +165,6 @@
 
             $rootScope.searchFiltersConfig = $rootScope.searchFiltersConfig || { showAdvancedSearch: false };
             $rootScope.searchParams        = $rootScope.searchParams || {
-                transactionType: "all",
                 queryMode: "default",
                 myLocations: []
             };
@@ -175,7 +174,9 @@
         }
 
         function search() {
-            $rootScope.searchParams.t = $rootScope.searchParams.transactionType;
+            if ($rootScope.searchParams.listingTypeId) {
+                $rootScope.searchParams.t = $rootScope.searchParams.listingTypeId;
+            }
             $rootScope.searchParams.qm = $rootScope.searchParams.queryMode;
             platform.debugDev("Search from header", $rootScope.searchParams);
 
@@ -192,7 +193,6 @@
                 $state.go("searchWithQuery", $rootScope.searchParams);
             }
         }
-
 
         function authenticate(formType) {
             authenticationModal.process(formType);
@@ -405,11 +405,11 @@
             if (document.hidden) {
                 $interval.cancel(updateMsgInterval);
                 $interval.cancel(updateGamificationInterval);
-              } else {
+                } else {
                 gamification.checkStats(); // default delay
                 _updateMessages();
                 _setUpdateIntervals();
-              }
+                }
         }
 
         function _openProgressPopoverAfterAction() {

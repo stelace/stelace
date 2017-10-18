@@ -27,7 +27,7 @@ module.exports = {
     isMissingIban: isMissingIban,
     getNearestLocations: getNearestLocations,
     getMailTo: getMailTo,
-    isPurchase: isPurchase
+    isNoTime: isNoTime
 
 };
 
@@ -260,7 +260,7 @@ function getBookingValue(booking) {
     return PricingService.getPrice({
         config: booking.customPricingConfig || PricingService.getPricing(booking.pricingId).config,
         dayOne: booking.dayOnePrice,
-        nbDays: booking.nbBookedDays,
+        nbDays: booking.nbTimeUnits,
         custom: !! booking.customPricingConfig,
         array: false
     });
@@ -344,7 +344,6 @@ function getMailTo(email, subject) {
     return encodeURIComponent(str);
 }
 
-// rental-purchase or purchase
-function isPurchase(booking) {
-    return Booking.isPurchase(booking);
+function isNoTime(booking) {
+    return Booking.isNoTime(booking);
 }

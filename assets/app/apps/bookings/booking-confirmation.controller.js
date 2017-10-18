@@ -113,11 +113,11 @@
                 });
 
                 vm.item            = item;
-                vm.bookingDuration = vm.booking.nbBookedDays + " jour" + (vm.booking.nbBookedDays > 1 ? "s" : "");
+                vm.bookingDuration = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
 
                 if (vm.booking.startDate && vm.booking.endDate) {
                     vm.startDate           = _displayDate(vm.booking.startDate);
-                    vm.endDate             = _displayDate(vm.booking.endDate);
+                    vm.endDate             = _displayDate(moment(vm.booking.endDate).subtract({ d: 1 }));
                     vm.showBookingDuration = true;
                 } else {
                     vm.showBookingDuration = false;

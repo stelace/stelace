@@ -1,375 +1,425 @@
 /*
-    global Booking, ContractService, Item, ItemJourneyService,
-    ModelSnapshot, PricingService, User
+    global Booking, ContractService, Item, ListingTypeService, ModelSnapshot, PricingService, User
  */
 
 module.exports = {
 
-    createBooking: createBooking,
-    getParentBookings: getParentBookings
+    createBooking,
+    getAvailabilityPeriods,
 
 };
 
 var moment = require('moment');
 
 /**
- * create booking if all conditions are passed
- * @param  {object}  args
- * @param  {object}  args.user - the booker
- * @param  {number}  args.itemId
- * @param  {string}  args.itemMode - used to make sure server and client are sync
- * @param  {string}  [args.startDate]
- * @param  {string}  [args.endDate]
- * @param  {boolean} [args.purchase = false]
- * @return {Promise<object>} created booking
+ * Create booking based on user input
+ * @param  {Object} user
+ * @param  {Number} itemId
+ * @param  {String} [startDate]
+ * @param  {Number} [nbTimeUnits]
+ * @param  {Number} listingTypeId
+ * @param  {Number} [quantity = 1]
+ * @return {Object}
  */
-function createBooking(args) {
-    var user       = args.user;
-    var itemId     = args.itemId;
-    var itemMode   = args.itemMode;
-    var startDate  = args.startDate;
-    var endDate    = args.endDate;
-    var purchase   = args.purchase || false;
-
+async function createBooking({
+    user,
+    itemId,
+    startDate,
+    nbTimeUnits,
+    listingTypeId,
+    quantity = 1,
+}) {
     if (! itemId
-     || ! itemMode || ! _.contains(Item.get("modes"), itemMode)
+        || !listingTypeId
     ) {
         throw new BadRequestError();
     }
 
-    var now = moment().toISOString();
+    const now = moment().toISOString();
 
-    var state = {
-        user: user,
-        itemId: itemId,
-        itemMode: itemMode,
-        startDate: startDate,
-        endDate: endDate,
-        purchase: purchase,
-        now: now,
-        today: moment(now).format("YYYY-MM-DD")
-    };
+    const [
+        item,
+        listingTypes,
+    ] = await Promise.all([
+        Item.findOne({ id: itemId }),
+        ListingTypeService.getListingTypes(),
+    ]);
 
-    return Promise.coroutine(function* () {
-        yield basicCheckNewBooking(state);
+    if (! item) {
+        throw new NotFoundError();
+    }
 
-        var item = state.item;
-        var hashItemJourneys = yield ItemJourneyService.getItemsJourneys([item.id]);
-        state.itemJourney = hashItemJourneys[item.id];
+    checkBasic({
+        item,
+        user,
+        listingTypeId,
+    });
 
-        if (state.itemJourney.isItemSold()) {
-            throw new BadRequestError("item is sold");
-        }
+    const listingType = _.find(listingTypes, type => type.id === listingTypeId);
+    if (!listingType) {
+        throw new NotFoundError();
+    }
 
-        if (purchase) {
-            yield runPurchaseProcess(state);
-        } else {
-            yield runRentalProcess(state);
-        }
-
-        // TODO: check item.bookingStartDate && item.bookingEndDate for period availability
-
-        var bookingAttrs = yield getNewBookingAttrs(state);
-
-        return yield Booking.create(bookingAttrs);
-    })();
-}
-
-/**
- * check the basic condition to create booking
- * @param  {object}  state
- * @param  {number}  state.itemId
- * @param  {object}  state.user
- * @param  {boolean} state.purchase
- * @param  {string}  state.itemMode
- */
-function basicCheckNewBooking(state) {
-    var itemId   = state.itemId;
-    var user     = state.user;
-    var purchase = state.purchase;
-    var itemMode = state.itemMode;
-
-    return Promise.coroutine(function* () {
-        var result = yield Promise.props({
-            item: Item.findOne({ id: itemId }),
-            bookerLocations: Location.find({ userId: user.id })
-        });
-
-        var item            = result.item;
-        var bookerLocations = result.bookerLocations;
-
-        if (! item) {
-            throw new NotFoundError();
-        }
-        if (item.ownerId === user.id) {
-            throw new ForbiddenError("owner cannot book its own item");
-        }
-        if (item.soldDate) {
-            throw new BadRequestError("item is already sold");
-        }
-        // used to prevent bad synchronization between server and client
-        if (itemMode !== item.mode) {
-            throw new BadRequestError("item mode conflict");
-        }
-        if (purchase && itemMode !== "classic") {
-            throw new BadRequestError("purchase option is only available for classic booking");
-        }
-
-        state.item            = item;
-        state.bookerLocations = bookerLocations;
-    })();
-}
-
-function runRentalProcess(state) {
-    var item        = state.item;
-    var startDate   = state.startDate;
-    var endDate     = state.endDate;
-    var today       = state.today;
-    var nbFreeDays  = state.nbFreeDays;
-    var itemJourney = state.itemJourney;
-    var user        = state.user;
-
-    return Promise.coroutine(function* () {
-        if (! item.rentable) {
-            throw new ForbiddenError("item isn't rentable");
-        }
-
-        var bookingConfig = Booking.get(item.mode);
-        var isValidDates = Booking.isValidDates({
-            startDate: startDate,
-            endDate: endDate,
-            refDate: today
-        }, bookingConfig);
-
-        if (! isValidDates.result) {
-            throw new BadRequestError("not valid booking days");
-        }
-
-        var bookable = Item.isBookable(item);
-
-        if (! bookable) {
-            var error = new BadRequestError("item not bookable");
-            error.expose = true;
-            throw error;
-        }
-
-        var futureBookings = itemJourney.getFutureBookings(today);
-
-        var compatible = Booking.isDatesCompatibleWithExistingBookings({
-            startDate: startDate,
-            endDate: endDate,
-            refDate: today,
-            item: item,
-            futureBookings: futureBookings
-        });
-
-        if (! compatible.result) {
-            throw new BadRequestError("the provided dates aren't compatible with existing bookings");
-        }
-
-        var nbBookedDays = Booking.getBookingDuration(startDate, endDate);
-        checkEnoughFreeDays(user, nbBookedDays, nbFreeDays);
-
-        state.nbBookedDays = nbBookedDays;
-        state.bookingMode  = "renting";
-    })();
-}
-
-/**
- * run purchase booking process
- * @param  {object} state
- * @param  {object} state.item
- * @param  {object} state.itemJourney
- * @param  {string} state.today
- * @param  {object} state.user
- * @param  {number} state.nbFreeDays
- */
-function runPurchaseProcess(state) {
-    var item        = state.item;
-    var itemJourney = state.itemJourney;
-    var today       = state.today;
-    var user        = state.user;
-    var nbFreeDays  = state.nbFreeDays;
-
-    return Promise.coroutine(function* () {
-        if (! item.sellable) {
-            throw new ForbiddenError("item isn't sellable");
-        }
-
-        var bookingMode = itemJourney.getPurchaseMode(user, today);
-
-        if (! bookingMode) {
-            throw new BadRequestError("item cannot be sold because not available now");
-        }
-
-        checkEnoughFreeDays(user, 0, nbFreeDays);
-
-        state.bookingMode = bookingMode;
-    })();
-}
-
-function getNewBookingAttrs(state) {
-    var now             = state.now;
-    var today           = state.today;
-    var item            = state.item;
-    var itemMode        = state.itemMode;
-    var bookingMode     = state.bookingMode;
-    var user            = state.user;
-    var startDate       = state.startDate;
-    var endDate         = state.endDate;
-    var nbBookedDays    = state.nbBookedDays;
-    var nbFreeDays      = state.nbFreeDays;
-    var purchase        = state.purchase;
-    var itemJourney     = state.itemJourney;
-
-    var bookingAttrs = {
+    let bookingAttrs = {
         itemId: item.id,
         ownerId: item.ownerId,
         bookerId: user.id,
-        itemMode: itemMode,
-        bookingMode: bookingMode,
-        nbFreeDays: nbFreeDays,
-        automatedValidated: item.automatedBookingValidation,
-        contractId: ContractService.getContractId()
+        automatedValidated: item.automatedBookingValidation, // TODO: to rename
+        contractId: ContractService.getContractId(),
+        listingTypeId: listingType.id,
+        listingType: listingType,
     };
 
-    return Promise.coroutine(function* () {
-        var result = yield Promise.props({
-            owner: User.findOne({ id: item.ownerId }),
-            itemSnapshot: ModelSnapshot.getSnapshot("item", item)
-        });
+    bookingAttrs = await setBookingTimePeriods({
+        bookingAttrs,
+        item,
+        listingType,
+        startDate,
+        nbTimeUnits,
+    });
 
-        var owner          = result.owner;
-        var itemSnapshot   = result.itemSnapshot;
+    bookingAttrs = await setBookingAvailability({
+        bookingAttrs,
+        item,
+        listingType,
+        startDate,
+        endDate: bookingAttrs.endDate,
+        quantity,
+        now,
+    });
 
-        if (! owner) {
-            throw NotFoundError("Owner not found");
+    bookingAttrs = await setBookingPrices({
+        bookingAttrs,
+        item,
+        listingType,
+        user,
+        nbTimeUnits,
+        now,
+    });
+
+    const itemSnapshot = await ModelSnapshot.getSnapshot('item', item);
+    bookingAttrs.itemSnapshotId = itemSnapshot.id;
+
+    const booking = await Booking.create(bookingAttrs);
+
+    // move to validation
+    // decrement item quantity if there is no time but there is a stock
+    // if (TIME === 'NONE' && AVAILABILITY !== 'NONE') {
+    //     await Item.updateOne({ id: booking.itemId }, { quantity: item.quantity - bookingAttrs.quantity });
+    // }
+
+    return booking;
+}
+
+function checkBasic({
+    item,
+    user,
+    listingTypeId,
+}) {
+    if (item.ownerId === user.id) {
+        throw new ForbiddenError("owner cannot book its own item");
+    }
+    if (!item.listingTypesIds.length) {
+        throw new Error('item has no listing types');
+    }
+    if (!listingTypeId || !_.includes(item.listingTypesIds, listingTypeId)) {
+        throw new BadRequestError('incorrect listing type');
+    }
+    if (!item.quantity) {
+        throw new BadRequestError('not enough quantity');
+    }
+    if (!item.validated) { // admin validation needed
+        throw new BadRequestError();
+    }
+
+    const bookable = Item.isBookable(item);
+    if (! bookable) {
+        throw new BadRequestError("item not bookable");
+    }
+}
+
+async function setBookingTimePeriods({
+    bookingAttrs,
+    item,
+    listingType,
+    startDate,
+    nbTimeUnits,
+}) {
+    const { TIME } = listingType.properties;
+
+    if (TIME === 'TIME_FLEXIBLE') {
+        if (!startDate || !nbTimeUnits) {
+            throw new BadRequestError();
         }
 
-        var ownerFreeFees = User.isFreeFees(owner, now);
-        var takerFreeFees = User.isFreeFees(user, now);
+        const timeUnit = listingType.config.bookingTime.timeUnit;
 
-        var ownerFeesPercent = ! ownerFreeFees
-            ? PricingService.get(purchase ? "ownerFeesPurchasePercent" : "ownerFeesPercent")
-            : 0;
-        var takerFeesPercent = ! takerFreeFees
-            ? PricingService.get(purchase ? "takerFeesPurchasePercent" : "takerFeesPercent")
-            : 0;
+        const validDates = Booking.isValidDates({
+            startDate,
+            nbTimeUnits,
+            refDate: moment().format('YYYY-MM-DD') + 'T00:00:00.000Z',
+            config: listingType.config.bookingTime,
+        });
 
-        var ownerPrice;
-        var freeValue;
-        var discountValue;
-        var maxDiscountPercent;
+        console.log(validDates)
+        if (!validDates.result) {
+            throw new BadRequestError('Invalid dates');
+        }
 
-        if (purchase) {
-            var purchaseConfig = Booking.get("purchase");
+        const endDate = Booking.computeEndDate({
+            startDate,
+            nbTimeUnits,
+            timeUnit,
+        });
 
-            var parentBookings = itemJourney.getParentBookings(item, user.id, {
-                refDate: today,
-                discountPeriodInDays: purchaseConfig.discountPeriod
+        _.assign(bookingAttrs, {
+            startDate,
+            endDate,
+            nbTimeUnits,
+            timeUnit,
+            deposit: item.deposit,
+            dayOnePrice: item.dayOnePrice,
+            pricingId: item.pricingId,
+            customPricingConfig: item.customPricingConfig,
+        });
+    }
+
+    return bookingAttrs;
+}
+
+async function setBookingAvailability({
+    bookingAttrs,
+    item,
+    listingType,
+    startDate,
+    endDate,
+    quantity,
+    now,
+}) {
+    const { TIME, AVAILABILITY } = listingType.properties;
+
+    const maxQuantity = Item.getMaxQuantity(item, listingType);
+
+    if (AVAILABILITY === 'NONE') {
+        bookingAttrs.quantity = 1;
+    } else {
+        if (maxQuantity < quantity) {
+            throw new BadRequestError('Do not have enough quantity');
+        }
+
+        if (TIME === 'TIME_FLEXIBLE') {
+            const futureBookings = await Item.getFutureBookings(item.id, now);
+
+            const availability = getAvailabilityPeriods(futureBookings, {
+                newBooking: {
+                    startDate,
+                    endDate,
+                    quantity,
+                },
+                maxQuantity,
             });
 
-            var parentBooking = parentBookings.purchase;
-
-            if (parentBooking) {
-                var parentPriceResult = PricingService.getPriceAfterRebateAndFees({ booking: parentBooking });
-                discountValue = parentPriceResult.ownerPriceAfterRebate;
-
-                bookingAttrs.parentId = parentBooking.id;
-            } else {
-                discountValue = 0;
+            if (!availability.isAvailable) {
+                throw new BadRequestError('Not available');
             }
-
-            maxDiscountPercent = PricingService.get("maxDiscountPurchasePercent");
-            ownerPrice = item.sellingPrice;
-            freeValue  = 0;
-
-            bookingAttrs.deposit = 0;
-        } else {
-            var prices = PricingService.getPrice({
-                config: item.customPricingConfig || PricingService.getPricing(item.pricingId).config,
-                dayOne: item.dayOnePrice,
-                nbDays: nbBookedDays,
-                custom: !! item.customPricingConfig,
-                array: true
-            });
-
-            ownerPrice = prices[nbBookedDays - 1];
-            freeValue  = (nbFreeDays ? prices[nbFreeDays - 1] : 0);
-
-            bookingAttrs.startDate           = startDate;
-            bookingAttrs.endDate             = endDate;
-            bookingAttrs.nbBookedDays        = nbBookedDays;
-            bookingAttrs.deposit             = item.deposit;
-            bookingAttrs.dayOnePrice         = item.dayOnePrice;
-            bookingAttrs.pricingId           = item.pricingId;
-            bookingAttrs.customPricingConfig = item.customPricingConfig;
-
-            discountValue      = 0;
-            maxDiscountPercent = 0;
         }
 
-        var priceResult = PricingService.getPriceAfterRebateAndFees({
-            ownerPrice: ownerPrice,
-            freeValue: freeValue,
-            ownerFeesPercent: ownerFeesPercent,
-            takerFeesPercent: takerFeesPercent,
-            discountValue: discountValue,
-            maxDiscountPercent: maxDiscountPercent
+        bookingAttrs.quantity = quantity;
+    }
+
+    return bookingAttrs;
+}
+
+async function setBookingPrices({
+    bookingAttrs,
+    item,
+    listingType,
+    user,
+    nbTimeUnits,
+    now,
+}) {
+    const owner = await User.findOne({ id: item.ownerId });
+    if (!owner) {
+        throw new NotFoundError('Owner not found');
+    }
+
+    const {
+        ownerFeesPercent,
+        takerFeesPercent,
+        ownerFreeFees,
+        takerFreeFees,
+    } = await getFeesValues({
+        owner,
+        taker: user,
+        pricing: listingType.config.pricing,
+        now,
+    });
+    const maxDiscountPercent = listingType.config.pricing.maxDiscountPercent;
+
+    const {
+        ownerPrice,
+        freeValue,
+        discountValue,
+    } = await getOwnerPriceValue({ listingType, item, nbTimeUnits });
+
+    var priceResult = PricingService.getPriceAfterRebateAndFees({
+        ownerPrice: ownerPrice,
+        freeValue: freeValue,
+        ownerFeesPercent: ownerFeesPercent,
+        takerFeesPercent: takerFeesPercent,
+        discountValue: discountValue,
+        maxDiscountPercent: maxDiscountPercent
+    });
+
+    bookingAttrs.prices = {
+        freeValue,
+        discountValue,
+        ownerFreeFees,
+        takerFreeFees,
+        maxDiscountPercent,
+    };
+
+    bookingAttrs.ownerFees  = priceResult.ownerFees;
+    bookingAttrs.takerFees  = priceResult.takerFees;
+    bookingAttrs.ownerPrice = ownerPrice;
+    bookingAttrs.takerPrice = priceResult.takerPrice;
+
+    return bookingAttrs;
+}
+
+async function getFeesValues({ owner, taker, pricing, now }) {
+    const ownerFreeFees = User.isFreeFees(owner, now);
+    const takerFreeFees = User.isFreeFees(taker, now);
+
+    const ownerFeesPercent = ! ownerFreeFees ? pricing.ownerFeesPercent : 0;
+    const takerFeesPercent = ! takerFreeFees ? pricing.takerFeesPercent : 0;
+
+    return {
+        ownerFreeFees,
+        takerFreeFees,
+        ownerFeesPercent,
+        takerFeesPercent,
+    };
+}
+
+async function getOwnerPriceValue({ listingType, item, nbTimeUnits }) {
+    let ownerPrice;
+    let discountValue;
+    let freeValue;
+
+    if (listingType.properties.TIME === 'TIME_FLEXIBLE') {
+        const prices = PricingService.getPrice({
+            config: item.customPricingConfig || PricingService.getPricing(item.pricingId).config,
+            dayOne: item.dayOnePrice,
+            nbDays: nbTimeUnits,
+            custom: !! item.customPricingConfig,
+            array: true
+        });
+        ownerPrice    = prices[nbTimeUnits - 1];
+        discountValue = 0;
+        freeValue     = 0;
+    } else {
+        ownerPrice    = item.sellingPrice;
+        freeValue     = 0;
+        discountValue = 0;
+    }
+
+    return {
+        ownerPrice,
+        freeValue,
+        discountValue,
+    };
+}
+
+/**
+ * Check if the listing is available compared to future bookings and stock availability
+ * @param  {Object[]} futureBookings
+ * @param  {Object} futureBookings[i].startDate
+ * @param  {Object} futureBookings[i].endDate
+ * @param  {Object} futureBookings[i].quantity
+ * @param  {Object[]} options.newBooking
+ * @param  {String} options.newBooking.startDate
+ * @param  {String} options.newBooking.endDate
+ * @param  {Number} options.newBooking.quantity
+ * @param  {Number} [options.maxQuantity] - if not defined, treat it as no limit
+ *
+ * @return {Object} res
+ * @return {Boolean} res.isAvailable
+ * @return {Object[]} res.availablePeriods
+ * @return {String} res.availablePeriods[i].date
+ * @return {Number} res.availablePeriods[i].quantity
+ * @return {String} [res.availablePeriods[i].newPeriod]
+ */
+function getAvailabilityPeriods(futureBookings, { newBooking, maxQuantity } = {}) {
+    if (!futureBookings.length) {
+        return {
+            isAvailable: true,
+            availablePeriods: [],
+        };
+    }
+
+    const dateSteps = [];
+
+    _.forEach(futureBookings, booking => {
+        dateSteps.push({
+            date: booking.startDate,
+            delta: booking.quantity,
         });
 
-        bookingAttrs.itemSnapshotId     = itemSnapshot.id;
-        bookingAttrs.ownerFeesPercent   = priceResult.ownerFeesPercent;
-        bookingAttrs.ownerFees          = priceResult.ownerFees;
-        bookingAttrs.ownerFreeFees      = ownerFreeFees;
-        bookingAttrs.takerFeesPercent   = priceResult.takerFeesPercent;
-        bookingAttrs.takerFees          = priceResult.takerFees;
-        bookingAttrs.takerFreeFees      = takerFreeFees;
-        bookingAttrs.free               = (priceResult.takerPrice === 0);
-        bookingAttrs.freeValue          = freeValue;
-        bookingAttrs.ownerPrice         = ownerPrice;
-        bookingAttrs.takerPrice         = priceResult.takerPrice;
-        bookingAttrs.discountValue      = discountValue;
-        bookingAttrs.maxDiscountPercent = maxDiscountPercent;
-
-        return bookingAttrs;
-    })();
-}
-
-function checkEnoughFreeDays(user, nbBookedDays, nbFreeDays) {
-    if (nbBookedDays !== 0 // special case for purchase bookings
-     && nbBookedDays < nbFreeDays) {
-        throw new BadRequestError("nb free days must be inferior to nb booked days");
-    }
-    if (user.nbFreeDays < nbFreeDays) {
-        var error = new BadRequestError("not enough free days");
-        error.expose = true;
-        throw error;
-    }
-}
-
-function getParentBookings(itemId, user) {
-    var today = moment().toISOString().format("YYYY-MM-DD");
-
-    return Promise.coroutine(function* () {
-        var item = yield Item.findOne({ id: itemId });
-        if (! item) {
-            throw new NotFoundError();
-        }
-
-        // no parent booking
-        if (item.soldDate
-         || (! item.rentable && ! item.sellable)
-        ) {
-            return {};
-        }
-
-        var itemsJourneys = yield ItemJourneyService.getItemsJourneys([item.id]);
-        var itemJourney   = itemsJourneys[item.id];
-
-        return itemJourney.getParentBookings(item, user.id, {
-            refDate: today,
-            discountPeriodInDays: Booking.get("purchase").discountPeriod
+        dateSteps.push({
+            date: booking.endDate,
+            delta: -booking.quantity,
         });
     });
+
+    if (newBooking) {
+        dateSteps.push({
+            date: newBooking.startDate,
+            delta: newBooking.quantity,
+            newPeriod: 'start',
+        });
+
+        dateSteps.push({
+            date: newBooking.endDate,
+            delta: -newBooking.quantity,
+            newPeriod: 'end',
+        });
+    }
+
+    const sortedSteps = _.sortBy(dateSteps, step => step.date);
+
+    const availablePeriods = [];
+    let quantity = 0;
+    let oldStep;
+    let currStep;
+    let isAvailable = true;
+
+    _.forEach(sortedSteps, step => {
+        quantity += step.delta;
+
+        currStep = {
+            date: step.date,
+            quantity,
+        };
+
+        if (isAvailable && newBooking && typeof maxQuantity === 'number' && currStep.quantity > maxQuantity) {
+            isAvailable = false;
+        }
+
+        if (step.newPeriod) {
+            currStep.newPeriod = step.newPeriod;
+        }
+
+        if (oldStep && currStep.date === oldStep.date) {
+            oldStep.quantity = quantity;
+        } else {
+            availablePeriods.push(currStep);
+            oldStep = currStep;
+        }
+    });
+
+    return {
+        isAvailable,
+        availablePeriods,
+    };
 }

@@ -79,7 +79,7 @@ function findOne(req, res) {
         var cancellation = result.cancellation;
 
         if (! itemSnapshot
-         || (booking.cancellationId && ! cancellation)
+            || (booking.cancellationId && ! cancellation)
         ) {
             throw new NotFoundError();
         }
@@ -101,24 +101,28 @@ function findOne(req, res) {
     .catch(res.sendError);
 }
 
-function create(req, res) {
-    var filteredAttrs = [
-        "itemId",
-        "itemMode",
-        "startDate",
-        "endDate",
-        "purchase"
-    ];
-    var params = _.pick(req.allParams(), filteredAttrs);
-    var access = "self";
+async function create(req, res) {
+    const attrs = req.allParams();
+    const access = 'self';
 
-    params.user = req.user;
+    attrs.user = req.user;
 
-    return Promise.coroutine(function* () {
-        var booking = yield BookingService.createBooking(params);
+    if (typeof attrs.itemId !== 'undefined') {
+        attrs.itemId = parseInt(attrs.itemId, 10);
+    }
+    if (typeof attrs.nbTimeUnits !== 'undefined') {
+        attrs.nbTimeUnits = parseInt(attrs.nbTimeUnits, 10);
+    }
+    if (typeof attrs.quantity !== 'undefined') {
+        attrs.quantity = parseInt(attrs.quantity, 10);
+    }
+
+    try {
+        const booking = await BookingService.createBooking(attrs);
         res.json(Booking.expose(booking, access));
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function update(req, res) {
@@ -218,7 +222,7 @@ function validate(req, res) {
 
         // cancel other bookings that overlaps this booking that is paid and validated by owner
         if (booking.confirmedDate) {
-            if (Booking.isPurchase(booking)) {
+            if (Booking.isNoTime(booking)) {
                 // item is sold, cancel all bookings
                 yield CancellationService
                     .cancelBookingsFromSameItem(booking, req.logger)
@@ -245,7 +249,7 @@ function validate(req, res) {
             yield Message.createMessage(booking.ownerId, giverMessage, { logger: req.logger });
         }
 
-        if (booking.confirmedDate && Booking.isPurchase(booking)) {
+        if (booking.confirmedDate && Booking.isNoTime(booking)) {
             yield Item.updateOne(booking.itemId, { soldDate: now });
         }
 
@@ -377,17 +381,17 @@ function payment(req, res) {
             }
             // if booking is already paid or cancelled
             if (booking.confirmedDate
-             || booking.cancellationId
-             || (booking.paymentDate && operation === "payment")
-             || (booking.depositDate && operation === "deposit")
-             || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
+                || booking.cancellationId
+                || (booking.paymentDate && operation === "payment")
+                || (booking.depositDate && operation === "deposit")
+                || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
             ) {
                 throw new BadRequestError();
             }
             // if the user doesn't have enough free days and free days aren't already used
             if (booking.nbFreeDays
-             && req.user.nbFreeDays < booking.nbFreeDays
-             && ! freeDaysLog
+                && req.user.nbFreeDays < booking.nbFreeDays
+                && ! freeDaysLog
             ) {
                 error = new BadRequestError("not enough free days");
                 error.expose = true;
@@ -471,7 +475,7 @@ function payment(req, res) {
                 }
 
                 var limitDate;
-                if (Booking.isPurchase(booking)) {
+                if (Booking.isNoTime(booking)) {
                     limitDate = moment().format(formatDate);
                 } else {
                     limitDate = booking.endDate;
@@ -724,9 +728,9 @@ function paymentSecure(req, res) {
  * - *operation
  * - *logger
  - - item
- * - booker
- * - req
- */
+    * - booker
+    * - req
+    */
 // preauthorization can be performed by two ways (secure mode or not)
 function _paymentProcessAfterPreauth(data) {
     var booking          = data.booking;
@@ -812,9 +816,9 @@ function _paymentProcessAfterPreauth(data) {
  * - *operation
  * - *logger
  - - item
- * - booker
- * - req
- */
+    * - booker
+    * - req
+    */
 // set booking payment state when all previous steps go well
 function _paymentEndProcess(data) {
     var booking   = data.booking;
@@ -991,8 +995,8 @@ function _sendBookingPendingEmailsSms(data) {
             })
             .spread((item, owner, booker) => {
                 if (! item
-                 || ! booker
-                 || ! owner
+                    || ! booker
+                    || ! owner
                 ) {
                     error = new Error("Booking confirm missing references");
                     if (! item) {
@@ -1151,7 +1155,7 @@ function _sendBookingPendingEmailsSms(data) {
                 .findOne(findAssessmentAttrs)
                 .then(assessment => {
                     if (! assessment
-                     && booking.bookingMode !== "rental-purchase" // there is no new assessment for rental-purchase booking
+                        && booking.bookingMode !== "rental-purchase" // there is no new assessment for rental-purchase booking
                     ) {
                         throw new NotFoundError("Fail to get assessment for booking confirm emails");
                     }
@@ -1183,8 +1187,8 @@ function _sendBookingConfirmedEmailsSms(data) {
         .resolve()
         .then(() => {
             if (! booking
-             || ! assessment
-             || ! logger
+                || ! assessment
+                || ! logger
             ) {
                 throw new Error("missing args");
             }
@@ -1214,9 +1218,9 @@ function _sendBookingConfirmedEmailsSms(data) {
             })
             .spread((booker, item, owner, conversation) => {
                 if (! booker
-                 || ! item
-                 || ! owner
-                 || ! conversation
+                    || ! item
+                    || ! owner
+                    || ! conversation
                 ) {
                     error = new Error("Booking validate missing references");
                     if (! item) {
@@ -1255,7 +1259,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 data.bookerLocations = bookerLocations;
 
                 if ((! ownerLocations.length && booking.itemMode === "classic")
-                 || ! bookerLocations.length
+                    || ! bookerLocations.length
                 ) {
                     return data;
                 } else {

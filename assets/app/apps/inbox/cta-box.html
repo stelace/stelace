@@ -11,7 +11,7 @@
                 <div ng-if="vm.message.bookingStatus !== 'info'">
                     <span class="text--semibold">
                         <a ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })">{{vm.item.name}}</a>
-                        <span ng-show="vm.booking && ! vm.isPurchase">du {{vm.startDate}} au {{vm.endDate}}</span>
+                        <span ng-show="vm.booking && ! vm.isNoTime">du {{vm.startDate}} au {{vm.endDate}}</span>
                         <span ng-show="vm.booking && vm.bookingStatus">
                             - {{vm.bookingStatus}}
                         </span>

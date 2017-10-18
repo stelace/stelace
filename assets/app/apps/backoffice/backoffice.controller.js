@@ -199,7 +199,7 @@
                     ? moment(moment(now).format(formatDate)).diff(booking.startDate, "d")
                     : 0;
 
-                var isPurchase = BookingService.isPurchase(booking);
+                var isNoTime = BookingService.isNoTime(booking);
 
                 var obj = {
                     id: booking.id,
@@ -210,10 +210,10 @@
                     ownerName: User.getFullname.call(owner, true),
                     bookerId: booker.id,
                     bookerName: User.getFullname.call(booker, true),
-                    isPurchase: isPurchase,
-                    startDate: ! isPurchase ? moment(booking.startDate).format(formatDateDisplay) : null,
-                    endDate: ! isPurchase ? moment(booking.endDate).format(formatDateDisplay) : null,
-                    nbBookedDays: booking.nbBookedDays,
+                    isNoTime: isNoTime,
+                    startDate: ! isNoTime ? moment(booking.startDate).format(formatDateDisplay) : null,
+                    endDate: ! isNoTime ? moment(booking.endDate).format(formatDateDisplay) : null,
+                    nbTimeUnits: booking.nbTimeUnits,
                     nbExtraDays: { value: nbExtraDays },
                     confirmedDate: { value: confirmedDate },
                     validatedDate: { value: validatedDate },
@@ -276,7 +276,7 @@
                                 : duration + "h");
                     }
 
-                    if (! isPurchase) {
+                    if (! isNoTime) {
                         duration = moment(now).diff(booking.endDate, "d");
 
                         if (duration > 0) {
@@ -315,7 +315,7 @@
                             obj.inputAssessmentDate.status = warningStrong;
                         }
                     } else if (! outputAssessmentDate) {
-                        if (! isPurchase) {
+                        if (! isNoTime) {
                             duration = moment(now).diff(booking.endDate, "h");
 
                             if (duration >= 24) {
@@ -654,13 +654,13 @@
 
                     var priceResult = pricing.getPriceAfterRebateAndFees({ booking: booking });
 
-                    var isPurchase = BookingService.isPurchase(booking);
+                    var isNoTime = BookingService.isNoTime(booking);
 
-                    vm.bookingToCancel.isPurchase = isPurchase;
+                    vm.bookingToCancel.isNoTime = isNoTime;
                     vm.bookingToCancel.ownerName  = User.getFullname.call(booking.owner, true);
                     vm.bookingToCancel.bookerName = User.getFullname.call(booking.booker, true);
 
-                    if (! isPurchase) {
+                    if (! isNoTime) {
                         vm.bookingToCancel.startDateDisplay = moment(booking.startDate).format(formatDateDisplay);
                         vm.bookingToCancel.endDateDisplay   = moment(booking.endDate).format(formatDateDisplay);
                         vm.bookingToCancel.durationDays     = moment(booking.endDate).diff(booking.startDate, "d") + 1;

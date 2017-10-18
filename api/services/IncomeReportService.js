@@ -137,7 +137,7 @@ function populateReport(reportData, bookings, transactions, assessments) {
             bookingYear = moment(bookingDate).year();
 
             var amount = transaction ? transaction.payoutAmount : 0;
-            var mode   = Booking.isPurchase(booking) ? "purchase" : "renting";
+            var mode   = Booking.isNoTime(booking) ? "purchase" : "renting";
 
             if (reportData[bookingYear]) {
                 reportData[bookingYear].addBooking(amount, mode, isFree);

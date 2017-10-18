@@ -15,6 +15,7 @@
                                 authenticationModal,
                                 cache,
                                 ItemService,
+                                ListingTypeService,
                                 // LocationService,
                                 map,
                                 platform,
@@ -72,13 +73,17 @@
 
             $q.all({
                 currentUser: UserService.getCurrentUser(),
-                items: ItemService.cleanGetList({ landing: true })
+                items: ItemService.cleanGetList({ landing: true }),
+                listingTypes: ListingTypeService.cleanGetList()
             })
             .then(function (results) {
                 currentUser = tools.clearRestangular(results.currentUser);
                 items       = vm.isSmall ? _.sample(results.items, 6) : results.items;
+                vm.listingTypes = results.listingTypes;
 
-                ItemService.populate(items);
+                ItemService.populate(items, {
+                    listingTypes: vm.listingTypes
+                });
 
                 vm.items     = items;
 

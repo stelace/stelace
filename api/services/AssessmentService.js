@@ -1,6 +1,6 @@
 /*
     global Assessment, AssessmentGamificationService, AssessmentService, Booking, Conversation,
-    EmailTemplateService, Item, ItemJourneyService, SmsTemplateService, User
+    EmailTemplateService, Item, ListingHistoryService, SmsTemplateService, User
  */
 
 module.exports = {
@@ -26,83 +26,81 @@ var moment = require('moment');
  * @return {object}          hashAssessments.beforeInputAssessment
  * @return {object}          hashAssessments.beforeOutputAssessement
  */
-function findAssessments(conversationId, userId) {
-    return Promise.coroutine(function* () {
-        var conversation = yield Conversation.findOne({ id: conversationId });
-        if (! conversation) {
-            throw new NotFoundError();
+async function findAssessments(conversationId, userId) {
+    var conversation = await Conversation.findOne({ id: conversationId });
+    if (! conversation) {
+        throw new NotFoundError();
+    }
+    if (userId && ! Conversation.isPartOfConversation(conversation, userId)) {
+        throw new ForbiddenError();
+    }
+
+    var error;
+
+    if (! conversation.itemId) {
+        error = new Error("Conversation must have an itemId");
+        error.conversationId = conversation.id;
+        throw error;
+    }
+
+    const listingHistories = await ListingHistoryService.getListingHistories([conversation.itemId]);
+    const listingHistory = listingHistories[conversation.itemId];
+
+    var inputAssessment;
+    var outputAssessment;
+    var beforeInputAssessment;
+    var beforeOutputAssessment;
+
+    var manualFetchInput = false;
+
+    var assessments = listingHistory.getAssessments();
+
+    if (conversation.inputAssessmentId) {
+        inputAssessment = _.find(assessments, { id: conversation.inputAssessmentId });
+
+        // item journey doens't take into account bookings that isn't validated and confirmed (pre-booking)
+        // so fetch it manually
+        if (! inputAssessment) {
+            inputAssessment = await Assessment.findOne({ id: conversation.inputAssessmentId });
+            manualFetchInput = true;
         }
-        if (userId && ! Conversation.isPartOfConversation(conversation, userId)) {
-            throw new ForbiddenError();
+    }
+    if (conversation.outputAssessmentId) {
+        outputAssessment = _.find(assessments, { id: conversation.outputAssessmentId });
+    }
+
+    if ((conversation.inputAssessmentId && ! inputAssessment)
+        || (conversation.outputAssessmentId && ! outputAssessment)
+    ) {
+        error = new Error("Conversation assessments missing");
+        error.conversationId = conversation.id;
+        if (! inputAssessment) {
+            error.inputAssessmentId = conversation.inputAssessmentId;
         }
-
-        var error;
-
-        if (! conversation.itemId) {
-            error = new Error("Conversation must have an itemId");
-            error.conversationId = conversation.id;
-            throw error;
+        if (! outputAssessment) {
+            error.outputAssessmentId = conversation.outputAssessmentId;
         }
+        throw error;
+    }
 
-        var itemJourneys = yield ItemJourneyService.getItemsJourneys([conversation.itemId]);
-        var itemJourney = itemJourneys[conversation.itemId];
+    var needBefore = Assessment.needBeforeAssessments(conversation, inputAssessment, outputAssessment);
+    if (needBefore.input && inputAssessment) {
+        beforeInputAssessment = listingHistory.getBeforeAssessment(inputAssessment.id);
+    }
+    if (needBefore.output && outputAssessment) {
+        beforeOutputAssessment = listingHistory.getBeforeAssessment(outputAssessment.id);
+    }
 
-        var inputAssessment;
-        var outputAssessment;
-        var beforeInputAssessment;
-        var beforeOutputAssessment;
+    if (manualFetchInput) {
+        beforeInputAssessment = listingHistory.getLastSignedAssessment();
+    }
 
-        var manualFetchInput = false;
-
-        var assessments = itemJourney.getAssessments();
-
-        if (conversation.inputAssessmentId) {
-            inputAssessment = _.find(assessments, { id: conversation.inputAssessmentId });
-
-            // item journey doens't take into account bookings that isn't validated and confirmed (pre-booking)
-            // so fetch it manually
-            if (! inputAssessment) {
-                inputAssessment = yield Assessment.findOne({ id: conversation.inputAssessmentId });
-                manualFetchInput = true;
-            }
-        }
-        if (conversation.outputAssessmentId) {
-            outputAssessment = _.find(assessments, { id: conversation.outputAssessmentId });
-        }
-
-        if ((conversation.inputAssessmentId && ! inputAssessment)
-         || (conversation.outputAssessmentId && ! outputAssessment)
-        ) {
-            error = new Error("Conversation assessments missing");
-            error.conversationId = conversation.id;
-            if (! inputAssessment) {
-                error.inputAssessmentId = conversation.inputAssessmentId;
-            }
-            if (! outputAssessment) {
-                error.outputAssessmentId = conversation.outputAssessmentId;
-            }
-            throw error;
-        }
-
-        var needBefore = Assessment.needBeforeAssessments(conversation, inputAssessment, outputAssessment);
-        if (needBefore.input && inputAssessment) {
-            beforeInputAssessment = itemJourney.getBeforeAssessment(inputAssessment.id);
-        }
-        if (needBefore.output && outputAssessment) {
-            beforeOutputAssessment = itemJourney.getBeforeAssessment(outputAssessment.id);
-        }
-
-        if (manualFetchInput) {
-            beforeInputAssessment = itemJourney.getLastSignedAssessment();
-        }
-
-        return {
-            inputAssessment: inputAssessment,
-            outputAssessment: outputAssessment,
-            beforeInputAssessment: beforeInputAssessment,
-            beforeOutputAssessment: beforeOutputAssessment
-        };
-    })();
+    return {
+        inputAssessment: inputAssessment,
+        outputAssessment: outputAssessment,
+        beforeInputAssessment: beforeInputAssessment,
+        beforeOutputAssessment: beforeOutputAssessment
+    };
 }
 
 /**
@@ -134,7 +132,7 @@ function createAssessment(args) {
 
     return Promise.coroutine(function* () {
         if (! booking
-         || ! _.includes(["start", "end"], type)
+            || ! _.includes(["start", "end"], type)
         ) {
             throw new BadRequestError();
         }
@@ -186,7 +184,7 @@ function updateAssessment(assessmentId, updateAttrs, userId) {
 
     return Promise.coroutine(function* () {
         if ((updateAttrs.workingLevel && ! _.contains(Assessment.get("workingLevels"), updateAttrs.workingLevel))
-         || (updateAttrs.cleanlinessLevel && ! _.contains(Assessment.get("cleanlinessLevels"), updateAttrs.cleanlinessLevel))
+            || (updateAttrs.cleanlinessLevel && ! _.contains(Assessment.get("cleanlinessLevels"), updateAttrs.cleanlinessLevel))
         ) {
             throw new BadRequestError();
         }
@@ -231,7 +229,7 @@ function signAssessment(assessmentId, signToken, userId, logger, req) {
             throw new ForbiddenError();
         }
         if (! assessment.workingLevel
-         || ! assessment.cleanlinessLevel
+            || ! assessment.cleanlinessLevel
         ) {
             throw new BadRequestError("assessment missing required fields");
         }
@@ -260,8 +258,8 @@ function signAssessment(assessmentId, signToken, userId, logger, req) {
 
         // create an output assessment only for input assessment related to classic renting booking
         if (assessment.itemMode === "classic"
-         && startBooking
-         && startBooking.bookingMode === "renting"
+            && startBooking
+            && startBooking.bookingMode === "renting"
         ) {
             outputAssessment = yield createOutputAssessment(assessment, startBooking);
         }
@@ -352,7 +350,7 @@ function _sendAssessmentEmailsSms(data) {
         .resolve()
         .then(() => {
             if (! assessment
-             || ! logger
+                || ! logger
             ) {
                 throw new BadRequestError("missing args");
             }
@@ -380,10 +378,10 @@ function _sendAssessmentEmailsSms(data) {
             })
             .spread((item, startBooking, endBooking, owner, taker, conversation) => {
                 if (! item
-                 || ! owner
-                 || ! taker
-                 || (assessment.startBookingId && ! startBooking)
-                 || (assessment.endBookingId && ! endBooking)
+                    || ! owner
+                    || ! taker
+                    || (assessment.startBookingId && ! startBooking)
+                    || (assessment.endBookingId && ! endBooking)
                 ) {
                     var error = new Error("Booking confirm missing references");
                     if (! item) {
@@ -453,7 +451,7 @@ function _sendAssessmentEmailsSms(data) {
                 // Classic : send booking-checkout emails to taker and owner if startBookingId, or item-return emails to owner and taker if endBookingId
                 if (item.mode === "classic") {
                     if (assessment.startBookingId) {
-                        if (! newAssessment && ! Booking.isPurchase(startBooking)) {
+                        if (! newAssessment && ! Booking.isNoTime(startBooking)) {
                             throw new BadRequestError("newAssessment missing");
                         }
 

@@ -25,6 +25,7 @@
                                 imgGallery,
                                 ItemCategoryService,
                                 ItemService,
+                                ListingTypeService,
                                 LocationService,
                                 loggerToServer,
                                 map,
@@ -89,9 +90,6 @@
         var galleryImgs;
         var questionModal;
         var searchConfig;
-        var _disableStartDate;
-        var _disableEndDate;
-        var _customClassStartDate;
 
         var vm = this;
         vm.showMap              = StelaceConfig.isFeatureActive('MAP');
@@ -99,12 +97,9 @@
         vm.showTags             = StelaceConfig.isFeatureActive('TAGS');
         vm.mqMobileTablet       = mqMobileTablet.matches;
         vm.formatDate           = "dd/MM/yyyy";
-        vm.durationDays         = null;
         vm.showDate             = false;
         vm.showIncorrectDates   = false;
         vm.dateErrorMessage     = "";
-        vm.startDateOutRange    = false;
-        vm.durationError        = false;
         vm.disableBookingButton = false;
         vm.item                 = null;
         vm.nbPictures           = 1;
@@ -119,6 +114,8 @@
         vm.displaySnapshotView  = false;
         vm.pricingTableData     = {};
         vm.showGamification     = StelaceConfig.isFeatureActive('GAMIFICATION');
+        vm.uniqueListingType    = false;
+        vm.onlyNoTimeListing    = false;
 
         // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
@@ -234,6 +231,7 @@
                 currentUser: UserService.getCurrentUser(),
                 item: ItemService.get(itemId, { snapshot: true }).catch(_redirectTo404),
                 itemCategories: ItemCategoryService.cleanGetList(),
+                listingTypes: ListingTypeService.cleanGetList(),
                 ownerItemLocations: ItemService.getLocations(itemId).catch(function () { return []; }),
                 myLocations: LocationService.getMine(),
                 bookingParams: BookingService.getParams(),
@@ -251,6 +249,8 @@
                 itemPricing        = tools.clearRestangular(results.itemPricing);
                 questions          = results.questions;
                 searchConfig       = results.searchConfig;
+                vm.listingTypes    = results.listingTypes;
+                vm.uniqueListingType = item.listingTypesIds.length === 1;
 
                 // handle legacy items
                 bookingParams[item.mode] = _.assign({}, bookingParams[item.mode]);
@@ -279,8 +279,23 @@
                     // brands: brands,
                     itemCategories: itemCategories,
                     locations: ownerItemLocations,
-                    nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
+                    nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing,
+                    listingTypes: vm.listingTypes
                 });
+
+                // TODO: create tab by listingType
+                if (item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
+                    vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.properties.TIME === 'TIME_FLEXIBLE';
+                    });
+                }
+                if (item.listingTypesProperties.TIME.NONE) {
+                    vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.properties.TIME === 'NONE';
+                    });
+                }
+
+                vm.onlyNoTimeListing = vm.uniqueListingType && item.listingTypesProperties.TIME.NONE;
 
                 item.owner.fullname       = User.getFullname.call(item.owner);
                 item.owner.seniority      = displayMonth(item.owner.createdDate);
@@ -294,7 +309,10 @@
 
                 _setBreadcrumbs();
 
-                _computeDateConstraints(item, bookingParams[item.mode], item.futureBookings);
+                if (!vm.onlyNoTimeListing) {
+                    _computeDateConstraints(item, vm.timeFlexibleListingType);
+                }
+                vm.calendarReady = true;
                 vm.startDate = null;
                 vm.endDate   = null;
                 vm.showDate  = true;
@@ -306,23 +324,19 @@
 
                 vm.item = item;
 
-                vm.pricingTableData.show               = false;
-                vm.pricingTableData.item               = item;
-                vm.pricingTableData.itemMode           = item.mode;
-                vm.pricingTableData.bookingMode        = "renting";
-                vm.pricingTableData.itemPricing        = itemPricing;
-                vm.pricingTableData.parentBooking      = null;
-                vm.pricingTableData.maxBookingDuration = bookingParams[item.mode].maxDuration;
-                vm.pricingTableData.bookingParams      = {};
-                vm.pricingTableData.data               = {
+                vm.pricingTableData.show          = false;
+                vm.pricingTableData.item          = item;
+                vm.pricingTableData.listingType   = vm.onlyNoTimeListing ? vm.timeNoneListingType : vm.timeFlexibleListingType;
+                vm.pricingTableData.itemPricing   = itemPricing;
+                vm.pricingTableData.bookingParams = {};
+                vm.pricingTableData.data          = {
                     totalPrice: 0,
                     dailyPriceStr: ""
                 };
 
                 // the item is only sellable, display the pricing table
-                if (item.sellable && ! item.rentable) {
+                if (vm.onlyNoTimeListing) {
                     vm.pricingTableData.bookingParams.applyFreeFees = vm.applyFreeFees;
-                    vm.pricingTableData.bookingMode                 = "purchase"; // TODO: check rental-purchase
                     vm.pricingTableData.show                        = true;
                     vm.showPrice = true;
                 }
@@ -330,10 +344,7 @@
                 var sellingPriceResult = pricing.getPriceAfterRebateAndFees({
                     ownerPrice: vm.item.sellingPrice,
                     ownerFeesPercent: 0, // do not care about owner fees
-                    takerFeesPercent: UserService.isFreeFees(vm.currentUser) ? 0 : itemPricing.takerFeesPurchasePercent,
-                    // TODO: discount
-                    // discountValue: discountValue,
-                    // maxDiscountPercent: scope.itemPricing.maxDiscountPurchasePercent
+                    takerFeesPercent: UserService.isFreeFees(vm.currentUser) ? 0 : itemPricing.takerFeesPurchasePercent
                 });
                 vm.totalSellingPrice = _.get(sellingPriceResult, "takerPrice");
                 vm.sellingTakerFees  = _.get(sellingPriceResult, "takerFees");
@@ -452,71 +463,67 @@
             return $q.reject("stop");
         }
 
-        function _computeDateConstraints(item, config, futureBookings) {
-            config = config || {};
-            var today = moment().format(formatDate);
+        function _computeDateConstraints(item, listingType) {
+            var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
+            var config = (listingType.config && listingType.config.bookingTime) || {};
+            var quantity = 1; // TODO: make quantity depend on user input
+            var availablePeriods = item.availablePeriods;
 
-            var isWithinBookingsDates = function (dateStr, bookings) {
-                return _.reduce(bookings, function (memo, booking) {
-                    if (booking.startDate <= dateStr && dateStr <= booking.endDate) {
-                        return memo || true;
-                    } else {
-                        return memo;
-                    }
-                }, false);
-            };
-
-            _disableStartDate = function (data) {
+            var _disableStartDate = function (data) {
                 if (item.locked) {
                     return true;
                 }
 
-                var dateStr = moment(data.date).format(formatDate);
+                var startDate = getStartDate(data.date);
 
-                var isValidDates = BookingService.isValidDates({
-                    startDate: dateStr,
-                    refDate: today
-                }, config);
+                var isWithinRange = BookingService.isWithinRangeStartDate({
+                    refDate: refDate,
+                    config: config,
+                    startDate: startDate
+                });
 
-                if (! isValidDates.result) {
+                if (!isWithinRange) {
                     return true;
                 }
 
-                return isWithinBookingsDates(dateStr, futureBookings);
+                var predictedQuantity = BookingService.getPredictedQuantity(startDate, availablePeriods, quantity);
+                if (ItemService.getMaxQuantity(item, vm.timeFlexibleListingType) < predictedQuantity) {
+                    return true;
+                }
+
+                return false;
             };
 
-            _disableEndDate = function (data) {
+            var _disableEndDate = function (data) {
                 if (item.locked) {
                     return true;
                 }
 
-                var dateStr = moment(data.date).format(formatDate);
+                var endDate = getEndDate(data.date);
 
-                var isValidDates = BookingService.isValidDates({
-                    endDate: dateStr,
-                    refDate: today
-                }, config);
+                var isWithinRange = BookingService.isWithinRangeEndDate({
+                    refDate: refDate,
+                    config: config,
+                    endDate: endDate
+                });
 
-                if (! isValidDates.result) {
+                if (!isWithinRange) {
                     return true;
                 }
 
-                return isWithinBookingsDates(dateStr, futureBookings);
-            };
-
-            _customClassStartDate = function (/* data */) {
-                if (item.locked) {
-                    return null;
+                var predictedQuantity = BookingService.getPredictedQuantity(endDate, availablePeriods, quantity);
+                if (ItemService.getMaxQuantity(item, vm.timeFlexibleListingType) < predictedQuantity) {
+                    return true;
                 }
 
                 return false;
             };
 
             /// Init datepicker
-            _.assign(dateOptions, { customClass: _customClassStartDate, dateDisabled: _disableStartDate });
+            _.assign(dateOptions, { dateDisabled: _disableStartDate });
 
             vm.startDateOptions = dateOptions;
-            vm.endDateOptions   = _.assign({}, dateOptions, { customClass: null, dateDisabled: _disableEndDate });
+            vm.endDateOptions   = _.assign({}, dateOptions, { dateDisabled: _disableEndDate });
         }
 
         function displayFullDate(date) {
@@ -544,44 +551,56 @@
         //     displayPrice();
         // }
 
+        function getStartDate(date) {
+            return moment(date).format(formatDate) + 'T00:00:00.000Z';
+        }
+
+        function getEndDate(date) {
+            return moment(date).add({ d: 1 }).format(formatDate) + 'T00:00:00.000Z';
+        }
 
         function displayPrice() {
             if (! vm.startDate || ! vm.endDate) {
                 return;
             }
 
-            var startDate = vm.startDate ? moment(vm.startDate).format(formatDate) : null;
-            var endDate = vm.endDate ? moment(vm.endDate).format(formatDate) : null;
+            var startDate = getStartDate(vm.startDate);
+            var endDate = getEndDate(vm.endDate);
 
-            vm.durationDays = moment(endDate).diff(moment(startDate), "d") + 1;
+            var refDate = moment().format(formatDate) + 'T00:00:00.000Z'; // TODO: compute ref date based on time unit
 
-            var today = moment().format(formatDate);
+            var timeUnit = ListingTypeService.getBookingTimeUnit(vm.timeFlexibleListingType);
+            vm.nbTimeUnits = BookingService.getNbTimeUnits(startDate, endDate, timeUnit);
 
-            var bookingConfig = bookingParams[item.mode];
             var isValidDates;
-            var isCompatibleOldBookings;
+            var isAvailable;
 
-            // do not check existing bookings constraint because calendars do that normally
-            isValidDates = BookingService.isValidDates({
-                startDate: startDate,
-                endDate: endDate,
-                refDate: today
-            }, bookingConfig);
+            // must be a multiple of listingtype time unit (i.e. integer number)
+            if (parseInt(vm.nbTimeUnits, 10) === vm.nbTimeUnits) {
+                isValidDates = BookingService.isValidDates({
+                    startDate: startDate,
+                    nbTimeUnits: vm.nbTimeUnits,
+                    refDate: refDate,
+                    config: vm.timeFlexibleListingType.config.bookingTime
+                });
 
-            isCompatibleOldBookings = BookingService.isDatesCompatibleWithExistingBookings({
-                startDate: startDate,
-                endDate: endDate,
-                refDate: today,
-                item: item,
-                futureBookings: item.futureBookings
-            });
+                if (isValidDates.result) {
+                    isAvailable = BookingService.checkAvailability({
+                        startDate: startDate,
+                        endDate: endDate,
+                        item: item,
+                        availablePeriods: item.availablePeriods,
+                        quantity: 1, // TODO: depend on user input
+                        listingType: vm.timeFlexibleListingType
+                    });
+                } else {
+                    isAvailable = false;
+                }
+            }
 
-            vm.showIncorrectDates = ! isValidDates.result || ! isCompatibleOldBookings.result;
-            vm.durationError      = isValidDates.errors.DURATION;
-            vm.startDateOutRange  = ! isCompatibleOldBookings.result
-                && isCompatibleOldBookings.errors.START_DATE_AFTER_MAX;
+            vm.showIncorrectDates = ! isValidDates.result || ! isAvailable;
 
-            vm.showPrice = ! vm.showIncorrectDates || (vm.startDateOutRange && ! vm.durationError);
+            vm.showPrice = ! vm.showIncorrectDates;
 
             if (vm.showPrice) {
                 vm.pricingTableData.bookingParams.startDate     = startDate;
@@ -592,7 +611,11 @@
                 vm.pricingTableData.show = false;
             }
 
-            _setErrorDateMessage(item, bookingConfig, isValidDates);
+            if (vm.showIncorrectDates) {
+                _setErrorDateMessage(item, vm.timeFlexibleListingType, isValidDates);
+            } else {
+                _removeErrorDateMessage();
+            }
             _setDisableBookingButton();
         }
 
@@ -675,8 +698,12 @@
             });
         }
 
-        function bookItem(purchase) {
-            if (! vm.startDate && ! purchase) {
+        function bookItem(bookInNoTime) {
+            var listingType = _.find(vm.listingTypes, function (listingType) {
+                return listingType.properties.TIME === (bookInNoTime ? 'NONE' : 'TIME_FLEXIBLE');
+            });
+
+            if (! vm.startDate && ! bookInNoTime) {
                 // Hack: only way found to force datepicker to open (even with a $scope variable)
                 // Without timeout, get digest loop in progress error if trying to use $apply
                 // See http://stackoverflow.com/a/18626821
@@ -701,24 +728,18 @@
 
             var createAttrs = {
                 itemId: vm.item.id,
-                itemMode: vm.item.mode,
-                purchase: !! purchase
+                listingTypeId: listingType.id
             };
 
-            if (! purchase) {
-                createAttrs.startDate = moment(vm.startDate).format(formatDate);
-                createAttrs.endDate   = moment(vm.endDate).format(formatDate);
+            if (! bookInNoTime) {
+                createAttrs.startDate = getStartDate(vm.startDate);
+                createAttrs.nbTimeUnits = vm.nbTimeUnits;
             }
 
             // TODO: get parent booking id
             var futureBookingConfig = {
                 itemMode: vm.item.mode
             };
-            if (purchase) {
-                futureBookingConfig.bookingMode = "purchase"; // "rental-purchase"
-            } else {
-                futureBookingConfig.bookingMode = "renting";
-            }
 
             // Google Analytics event
             var gaLabel = 'itemId: ' + vm.item.id;
@@ -777,11 +798,8 @@
             StelaceEvent.sendEvent("Sticky booking button click");
             $window.scrollTo(0, 0);
 
-            if (vm.item.sellable && ! vm.item.rentable) {
-                bookItem(true);
-            } else {
-                bookItem();
-            }
+            var bookInNoTime = vm.onlyNoTimeListing;
+            bookItem(bookInNoTime);
         }
 
         function _promptEndDate(newDate, oldDate) {
@@ -971,7 +989,9 @@
                 item.toLoc             = shortestJourney.toLocation;
                 item.minDurationString = time.getDurationString(shortestJourney.durationSeconds);
             }, vm);
-            ItemService.populate(similarItems);
+            ItemService.populate(similarItems, {
+                listingTypes: vm.listingTypes
+            });
 
             return similarItems;
         }
@@ -1019,8 +1039,8 @@
             var agreementStatus;
             var createBooking = false;
 
-            if ((! vm.purchaseModeSelected && vm.startDate && vm.endDate)
-                || vm.purchaseModeSelected
+            if ((! vm.noTimeBookingSelected && vm.startDate && vm.endDate)
+                || vm.noTimeBookingSelected
             ) {
                 bookingStatus = "pre-booking";
                 agreementStatus = "pending";
@@ -1052,7 +1072,7 @@
                         itemMode: vm.item.mode,
                         startDate: vm.startDate ? moment(vm.startDate).format(formatDate) : null,
                         endDate: vm.endDate ? moment(vm.endDate).format(formatDate) : null,
-                        purchase: vm.purchaseModeSelected
+                        listingTypeId: vm.noTimeBookingSelected ? vm.timeNoneListingType.id : vm.timeFlexibleListingType.id // TODO: find a better way to select it
                     });
                 })
                 .then(function (booking) {
@@ -1070,8 +1090,7 @@
         }
 
         function toggleBookingMode() {
-            vm.purchaseModeSelected = ! vm.purchaseModeSelected;
-            vm.hideQuestionDates    = vm.purchaseModeSelected;
+            vm.noTimeBookingSelected = ! vm.noTimeBookingSelected;
         }
 
         function openQuestionModal(toUser) {
@@ -1080,20 +1099,11 @@
             }
 
             var lockScrollClass      = "modal-opened" + (vm.iOS ? " lock-both" : "");
-            vm.hideQuestionDates     = false;
             vm.editPublicQuestion    = false;
-            vm.showToggleBookingMode = (vm.item.rentable && vm.item.sellable);
-            vm.purchaseModeSelected  = false;
-
-            if (! vm.item.rentable && vm.item.sellable) {
-                vm.purchaseModeSelected = true;
-            }
+            vm.showToggleBookingMode = vm.item.listingTypesIds.length > 1;
+            vm.noTimeBookingSelected = vm.onlyNoTimeListing;
 
             vm.editPublicQuestion = true;
-
-            if (vm.purchaseModeSelected) {
-                vm.hideQuestionDates = true;
-            }
 
             if (toUser === "owner" && vm.conversation) {
                 $state.go("conversation", { conversationId: vm.conversation.id });
@@ -1123,7 +1133,7 @@
             }
 
             var questionGreeting  = "Connectez-vous en quelques secondes pour envoyer votre demande à "
-             + vm.item.owner.fullname;
+                + vm.item.owner.fullname;
             var promptInfoOptions = {
                 greeting: {
                     email: "Veuillez renseigner votre adresse email pour être prévenu(e) en cas de réponse à votre question."
@@ -1208,8 +1218,7 @@
         }
 
         function _setDisableBookingButton() {
-            vm.disableBookingButton = vm.item.locked
-                                        || vm.showIncorrectDates;
+            vm.disableBookingButton = vm.item.locked || vm.showIncorrectDates;
         }
 
         function _checkAuth(customGreeting) {
@@ -1480,30 +1489,29 @@
                 });
         }
 
-        function _setErrorDateMessage(item, bookingConfig, isValidDates) {
-            if (isValidDates.result) {
-                vm.dateErrorMessage = "";
-                return;
-            }
-
-            var defaultMessage = "Les dates sont incorrectes.";
+        function _setErrorDateMessage(item, listingType, isValidDates) {
+            var defaultMessage = 'Les dates sont incorrectes.';
+            var config = listingType.config.bookingTime;
             var str;
 
-            if (isValidDates.errors.BAD_PARAMS) {
-                str = defaultMessage;
-            } else if (isValidDates.errors.DURATION) {
+            if (isValidDates.errors.DURATION) {
+                // TODO: get time unit
                 if (isValidDates.errors.DURATION.BELOW_MIN) {
-                    str = "Les emprunts "
-                        +  "durent " + bookingConfig.minDuration + " jours au minimum.";
+                    str = "Les emprunts durent " + config.minDuration + " jours au minimum.";
                 } else if (isValidDates.errors.DURATION.ABOVE_MAX) {
-                    str = "Les emprunts "
-                        +  "durent " + bookingConfig.maxDuration + " jours au maximum.";
+                    str = "Les emprunts durent " + config.maxDuration + " jours au maximum.";
                 }
-            } else {
+            }
+
+            if (!str) {
                 str = defaultMessage;
             }
 
             vm.dateErrorMessage = str;
+        }
+
+        function _removeErrorDateMessage() {
+            vm.dateErrorMessage = '';
         }
 
         function _setMarkers() {

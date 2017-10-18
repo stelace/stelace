@@ -133,7 +133,7 @@
             platform.setTwitterCard();
 
             // WARNING: Asynchronous translation
-            platform.setTitle(title)
+            platform.setTitle(title || '') // TODO: set a default title to platform name
                 .finally(function () {
                     // Google analaytics page view
                     // Removed from server's app.ejs template to avoid duplicates

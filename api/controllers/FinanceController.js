@@ -49,7 +49,7 @@ function createAccount(req, res) {
     var createAttrs = _.pick(req.allParams(), filteredAttrs);
     var access = "self";
 
-    if (! createAttrs.birthday || ! TimeService.isDateString(createAttrs.birthday, true)
+    if (! createAttrs.birthday || ! TimeService.isDateString(createAttrs.birthday, { onlyDate: true })
      || ! createAttrs.nationality
      || ! createAttrs.countryOfResidence
     ) {

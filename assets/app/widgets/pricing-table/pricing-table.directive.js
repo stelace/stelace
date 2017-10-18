@@ -10,10 +10,6 @@
         /**
          * {object}  booking - if provided, it autofills variables (only need item)
          * {object}  item
-         * {object}  [parentBooking] - only needed for leasing discount in rental-purchase mode
-         * {string}  itemMode - ["classic"]
-         * {string}  bookingMode - ["renting", "purchase", "rental-purchase"]
-         * {object}  itemPricing
          * {number}  maxBookingDuration
          * {object}  data - to get data from internal to external
          *
@@ -26,12 +22,8 @@
             restrict: "EA",
             scope: {
                 booking: "=?",
+                listingType: "=?",
                 item: "=",
-                parentBooking: "=?",
-                itemMode: "=?",
-                bookingMode: "=?",
-                itemPricing: "=?",
-                maxBookingDuration: "=?",
                 bookingParams: "=?",
                 data: "=?"
             },
@@ -62,11 +54,7 @@
             });
 
             scope.$watchGroup([
-                "parentBooking",
-                "itemMode",
-                "bookingMode",
-                "itemPricing",
-                "maxBookingDuration"
+                "listingType",
             ], function (newValue, oldValue) {
                 // do not init twice
                 if (newValue === oldValue) {
@@ -103,28 +91,27 @@
             ////////////////////
             function init() {
                 if (scope.booking) {
-                    scope.itemMode      = scope.booking.itemMode;
-                    scope.bookingMode   = scope.booking.bookingMode;
                     scope.applyFreeFees = scope.booking.takerFreeFees;
                 }
 
-                scope.purchase = isPurchase();
+                scope.noTime = isNoTime();
                 populateItem();
                 setBookingParams();
             }
 
             function populateItem() {
-                if (scope.purchase) {
+                if (scope.noTime) {
                     return;
                 }
 
+                var listingType = getListingType();
                 var nbDays;
 
                 if (scope.booking) {
                     // no need to compute more than booking nb booked days
-                    nbDays = scope.booking.nbBookedDays;
+                    nbDays = scope.booking.nbTimeUnits;
                 } else {
-                    nbDays = scope.maxBookingDuration;
+                    nbDays = listingType.config.bookingTime.maxDuration || 100;
                 }
 
                 ItemService.populate(scope.item, {
@@ -133,15 +120,16 @@
             }
 
             function getBookingDuration() {
-                if (scope.purchase) {
+                if (scope.noTime) {
                     return 0;
                 }
 
                 if (scope.booking) {
-                    return scope.booking.nbBookedDays;
+                    return scope.booking.nbTimeUnits;
                 }
 
-                return BookingService.getBookingDuration(scope.startDate, scope.endDate);
+                var listingType = getListingType();
+                return BookingService.getNbTimeUnits(scope.startDate, scope.endDate, listingType.config.bookingTime.timeUnit);
             }
 
             function setBookingParams() {
@@ -161,14 +149,12 @@
                     scope.dayOnePrice = scope.item.prices[0];
                 }
 
-                scope.nbBookedDays         = getBookingDuration();
+                scope.nbTimeUnits          = getBookingDuration();
                 priceResult                = getPriceResult();
                 scope.fullPrice            = getFullPrice();
                 scope.discount             = getDiscount();
                 scope.durationDiscount     = getDurationDiscount();
                 scope.durationDiscountRate = getDurationDiscountRate();
-                scope.leasingDiscount      = getLeasingDiscount();
-                scope.leasingDiscountRate  = getLeasingDiscountRate();
                 scope.takerFees            = getTakerFees();
                 scope.takerFeesStr         = getTakerFeesDescription(
                     scope.applyFreeFees,
@@ -186,21 +172,31 @@
                 }
             }
 
-            function isPurchase() {
-                return _.includes(["rental-purchase", "purchase"], scope.bookingMode);
+            function getListingType() {
+                if (scope.booking) {
+                    return scope.booking.listingType;
+                } else {
+                    return scope.listingType;
+                }
+            }
+
+            function isNoTime() {
+                var listingType = getListingType();
+
+                return listingType.properties.TIME === 'NONE';
             }
 
             function getFullPrice() {
-                if (! scope.purchase) {
-                    return scope.nbBookedDays * scope.item.prices[0];
+                if (! scope.noTime) {
+                    return scope.nbTimeUnits * scope.item.prices[0];
                 } else {
                     return scope.item.sellingPrice;
                 }
             }
 
             function getRealPrice() {
-                if (! scope.purchase) {
-                    return scope.item.prices[scope.nbBookedDays - 1];
+                if (! scope.noTime) {
+                    return scope.item.prices[scope.nbTimeUnits - 1];
                 } else {
                     return scope.item.sellingPrice;
                 }
@@ -220,25 +216,17 @@
 
             function getPriceResult() {
                 var priceResult;
+                var listingType = getListingType();
 
                 if (scope.booking) {
                     priceResult = pricing.getPriceAfterRebateAndFees({ booking: scope.booking });
                 } else {
-                    var discountValue = 0;
-
-                    // leasing
-                    if (scope.bookingMode === "rental-purchase" && scope.parentBooking) {
-                        var parentPriceResult = pricing.getPriceAfterRebateAndFees({ booking: scope.parentBooking });
-                        discountValue = parentPriceResult.ownerPriceAfterRebate;
-                    }
-
                     priceResult = pricing.getPriceAfterRebateAndFees({
                         ownerPrice: getRealPrice(),
                         freeValue: getDiscount(),
                         ownerFeesPercent: 0, // do not care about owner fees
                         takerFeesPercent: ! scope.applyFreeFees ? getTakerFeesPercent() : 0,
-                        discountValue: discountValue,
-                        maxDiscountPercent: scope.itemPricing.maxDiscountPurchasePercent
+                        maxDiscountPercent: listingType.config.pricing.maxDiscountPercent
                     });
                 }
 
@@ -250,23 +238,8 @@
                     return scope.booking.takerFeesPercent;
                 }
 
-                if (scope.purchase) {
-                    return scope.itemPricing.takerFeesPurchasePercent;
-                } else {
-                    return scope.itemPricing.takerFeesPercent;
-                }
-            }
-
-            function getLeasingDiscount() {
-                if (! scope.purchase) {
-                    return 0;
-                }
-
-                return priceResult.realDiscountValue;
-            }
-
-            function getLeasingDiscountRate() {
-                return Math.round(getLeasingDiscount() / getFullPrice() * 100);
+                var listingType = getListingType();
+                return listingType.config.pricing.takerFeesPercent || 0;
             }
 
             function getTakerFees() {
@@ -278,11 +251,11 @@
             }
 
             function getDailyPrice() {
-                if (scope.purchase) {
+                if (scope.noTime) {
                     return 0;
                 }
 
-                return tools.roundDecimal(getTotalPrice(priceResult) / scope.nbBookedDays, 1);
+                return tools.roundDecimal(getTotalPrice(priceResult) / scope.nbTimeUnits, 1);
             }
 
             function getTakerFeesDescription(applyFreeFees, amount) {

@@ -42,7 +42,7 @@
         </h3>
         <div class="item-wall__price my-listing-card__price">
             <span class="item-wall__selling-icon-container"
-                ng-show="vm.item.sellable && ! vm.item.rentable"
+                ng-show="vm.item.listingTypesProperties.TIME.NONE && ! vm.item.listingTypesProperties.TIME.TIME_FLEXIBLE"
                 data-tooltip-placement="auto left"
                 data-tooltip-trigger="mouseenter"
                 uib-tooltip="{{::vm.sellableTooltip}}"
@@ -51,14 +51,14 @@
                     <use xlink:href="{{::vm.sellableIconUrl}}"/>
                 </svg>
             </span>
-            <span ng-switch="vm.item.rentable">
+            <span ng-switch="vm.item.listingTypesProperties.TIME.TIME_FLEXIBLE">
                 <span ng-switch-when="true">
                     <span class="item-wall__booking-modes"
                         ng-if="vm.bookingModesStr">
                         <span class="text--semibold item-wall__selling-price"
-                            ng-show="vm.item.sellable">
+                            ng-show="vm.item.listingTypesProperties.TIME.NONE">
                             <span class="item-wall__selling-icon-container"
-                                ng-show="vm.item.sellable"
+                                ng-show="vm.item.listingTypesProperties.TIME.NONE"
                                 data-tooltip-placement="auto left"
                                 data-tooltip-trigger="mouseenter"
                                 uib-tooltip="{{::vm.sellableTooltip}}"

@@ -2,7 +2,7 @@
     ElasticsearchService, Item, ItemCategory,
     MapService, Media, PricingService, SearchEvent,
     StelaceConfigService, StelaceEventService, UAService, User
-    */
+*/
 
 module.exports = {
 
@@ -35,7 +35,6 @@ const SEARCH_QUERY_DEFAULTS = {
     page: 1,
     limit: 20,
     sorting: 'creationDate',
-    transactionType: 'all',
 };
 const SEARCH_CONFIG = {
     nearItemsDurationInSeconds: 2 * 3600, // 2 hours
@@ -45,11 +44,6 @@ const queryModes = [
     'default',
     'relevance',
     'distance',
-];
-const transactionTypes = [
-    'all',
-    'rental',
-    'sale',
 ];
 
 async function getItemsFromQuery(searchQuery, type) {
@@ -142,7 +136,7 @@ async function getItemsFromQuery(searchQuery, type) {
         itemsMedias,
         ownersMedias,
     } = await getItemsExtraInfo({ items, getMedia: false });
-     // set getMedia to true when using owner media in search results
+        // set getMedia to true when using owner media in search results
 
     items = getExposedItems({
         items,
@@ -166,8 +160,8 @@ async function getMatchedItemCategoriesIds(itemCategoryId) {
 async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
     const {
         mode,
-        transactionType,
-        onlyFree,
+        listingTypeId,
+        // onlyFree,
         withoutIds,
         sorting,
     } = searchQuery;
@@ -177,9 +171,6 @@ async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
         broken: false,
         locked: false,
     };
-
-    const transactionObjQuery = getTransactionObjQuery({ transactionType, onlyFree });
-    _.assign(findAttrs, transactionObjQuery);
 
     if (itemCategoriesIds) {
         findAttrs.itemCategoryId = itemCategoriesIds;
@@ -201,41 +192,22 @@ async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
 
     findAttrs.soldDate = null;
 
-    return await Item.find(findAttrs);
-}
+    let items = await Item.find(findAttrs);
 
-function getTransactionObjQuery({ transactionType, onlyFree }) {
-    const getRentalObjQuery = (onlyFree) => {
-        const obj = {
-            rentable: true,
-        };
-        if (onlyFree) {
-            _.assign(obj, { dayOnePrice: 0 });
-        }
-        return obj;
-    };
-    const getSaleObjQuery = (onlyFree) => {
-        const obj = {
-            sellable: true,
-        };
-        if (onlyFree) {
-            _.assign(obj, { sellingPrice: 0 });
-        }
-        return obj;
-    };
-
-    if (transactionType === 'all') {
-        return {
-            or: [
-                getRentalObjQuery(onlyFree),
-                getSaleObjQuery(onlyFree),
-            ],
-        };
-    } else if (transactionType === 'rental') {
-        return getRentalObjQuery(onlyFree);
-    } else if (transactionType === 'sale') {
-        return getSaleObjQuery(onlyFree);
+    if (!listingTypeId) {
+        return items;
     }
+
+    items = _.filter(items, item => {
+        return _.reduce(item.listingTypesIds, (memo, id) => {
+            if (listingTypeId === id) {
+                return true;
+            }
+            return memo;
+        }, false);
+    });
+
+    return items;
 }
 
 /**
@@ -650,8 +622,8 @@ function setItemsToCache(cacheKey, items) {
  * @param {number}   [params.itemCategoryId]
  * @param {string}   [params.query]
  * @param {string}   [params.mode]
- * @param {string}   [params.transactionType] - allowed values: ['all', 'rental', 'sale']
- * @param {boolean}  [params.onlyFree]
+ * @param {string}   [params.listingTypeId]
+ * @param {boolean}  [params.onlyFree] // disabled for now
  * @param {string}   [params.queryMode] - allowed values: ['relevance', 'default', 'distance']
  * @param {string}   [params.locationsSource] - indicate where the locations come from
  * @param {object[]} [params.locations]
@@ -669,8 +641,8 @@ function normalizeSearchQuery(params) {
         'itemCategoryId',
         'query',
         'mode',
-        'transactionType',
-        'onlyFree',
+        'listingTypeId',
+        // 'onlyFree',
         'queryMode',
         'locationsSource',
         'locations',
@@ -693,6 +665,7 @@ function normalizeSearchQuery(params) {
                 isValid = typeof value === 'string';
                 break;
 
+            case 'listingTypeId':
             case 'itemCategoryId':
             case 'timestamp':
                 isValid = !isNaN(value);
@@ -700,10 +673,6 @@ function normalizeSearchQuery(params) {
 
             case 'mode':
                 isValid = _.includes(Item.get('modes'), value);
-                break;
-
-            case 'transactionType':
-                isValid = _.includes(transactionTypes, value);
                 break;
 
             case 'queryMode':
@@ -719,9 +688,9 @@ function normalizeSearchQuery(params) {
                 isValid = µ.checkArray(value, 'id');
                 break;
 
-            case 'onlyFree':
-                isValid = typeof value === 'boolean';
-                break;
+            // case 'onlyFree':
+            //     isValid = typeof value === 'boolean';
+            //     break;
 
             case 'page':
             case 'limit':
@@ -814,7 +783,7 @@ function canBeLogged(searchQuery, newDate) {
     var oldDate = SearchDebounceCache.get(cacheKey);
 
     if (! oldDate
-     || (oldDate && oldDate < moment(newDate).subtract(debounceDuration).toISOString())
+        || (oldDate && oldDate < moment(newDate).subtract(debounceDuration).toISOString())
     ) {
         SearchDebounceCache.set(cacheKey, newDate);
         return true;

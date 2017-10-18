@@ -142,9 +142,6 @@ module.exports.routes = {
     'put /api/message/:id/mark-read': "MessageController.markAsRead",
     'put /api/message/:id/update-meta': "MessageController.updateMeta",
 
-    // RatingController
-    'get /api/rating/params': "RatingController.params",
-
     // SmsController
     'post /api/phone/sendCode': "SmsController.sendVerify",
     'post /api/phone/checkCode': "SmsController.checkVerify",

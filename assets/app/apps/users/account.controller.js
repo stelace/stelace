@@ -14,6 +14,7 @@
                                     cache,
                                     gamification,
                                     ItemService,
+                                    ListingTypeService,
                                     LocationService,
                                     map,
                                     MediaService,
@@ -99,10 +100,12 @@
                 fetchCurrentUser: fetchCurrentUser(),
                 myItems: ItemService.getMyItems(),
                 incomeReport: vm.incomeReportActive ? UserService.getIncomeReport() : {},
-                map: uiGmapGoogleMapApi
+                map: uiGmapGoogleMapApi,
+                listingTypes: ListingTypeService.cleanGetList()
             }).then(function (results) {
                 var incomeReport = results.incomeReport;
                 var myItems = results.myItems;
+                vm.listingTypes = results.listingTypes;
 
                 // use a setTimeout because the cache variable can be set after changing state
                 setTimeout(function () {
@@ -137,6 +140,7 @@
                 vm.myItems = _.cloneDeep(myItems);
 
                 ItemService.populate(vm.myItems, {
+                    listingTypes: vm.listingTypes
                     // locations: vm.myLocations
                 });
 

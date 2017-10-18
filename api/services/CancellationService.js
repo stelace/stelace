@@ -108,7 +108,7 @@ function cancelBooking(booking, transactionManager, args) {
 
         var cancellation = yield Cancellation.create(createAttrs);
 
-        if (Booking.isPurchase(booking)) {
+        if (Booking.isNoTime(booking)) {
             yield Item.updateOne(booking.itemId, { soldDate: null });
         }
 

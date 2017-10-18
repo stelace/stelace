@@ -35,9 +35,9 @@
                 // durationString is defined in view controller
                 // Only show if fromLocation and toLocation are not in the same city
                 if (vm.item.loc && vm.item.toLoc
-                 && ((vm.item.loc.city === vm.item.toLoc.city)
-                  || (vm.item.loc.department === vm.item.toLoc.department && vm.item.loc.department === "Paris") // Ignore Paris' Arrondissements...
-                 )
+                    && ((vm.item.loc.city === vm.item.toLoc.city)
+                    || (vm.item.loc.department === vm.item.toLoc.department && vm.item.loc.department === "Paris") // Ignore Paris' Arrondissements...
+                    )
                 ) {
                     vm.durationString = null;
                 } else {
@@ -73,12 +73,12 @@
         function _displayBookingModes() {
             vm.imageAlt = vm.item.name + " à louer sur Sharinplace"; // default
 
-            if (vm.item.sellable && vm.item.sellingPrice) {
+            if (vm.item.listingTypesProperties.TIME.NONE && vm.item.sellingPrice) {
                 vm.bookingModesStr = vm.item.sellingPrice + "€";
                 vm.sellableIconUrl = platform.getSpriteSvgUrl("tag");
                 vm.sellableTooltip = "En vente à " + vm.item.sellingPrice + "€"
                 vm.imageAlt        = vm.item.name + " à vendre sur Sharinplace";
-            } else if (vm.item.sellable) {
+            } else if (vm.item.listingTypesProperties.TIME.NONE) {
                 vm.bookingModesStr = "Don";
                 vm.sellableIconUrl = platform.getSpriteSvgUrl("euro-crossed");
                 vm.sellableTooltip = "Il s'agit d'un don du propriétaire."

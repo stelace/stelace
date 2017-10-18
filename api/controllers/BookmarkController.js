@@ -39,9 +39,9 @@ function create(req, res) {
     var access = "self";
 
     if (! attrs.itemId
-     || ! _.contains(Bookmark.get("types"), attrs.type)
-     || (attrs.wishDate && ! TimeService.isDateString(attrs.wishDate, true))
-     || (attrs.reference && typeof attrs.reference !== "object")
+        || ! _.contains(Bookmark.get("types"), attrs.type)
+        || (attrs.wishDate && ! TimeService.isDateString(attrs.wishDate, { onlyDate: true }))
+        || (attrs.reference && typeof attrs.reference !== "object")
     ) {
         return res.badRequest();
     }

@@ -36,7 +36,7 @@ module.exports = {
             hash1 and hash2 are for card number unicity
             identical card number:
             cardA.hash1 === cardB.hash1 && cardA.hash2 === cardB.hash2
-         */
+            */
         hash1: "string",
         hash2: "string",
 
@@ -105,7 +105,7 @@ function s_disable() {
 }
 
 function s_isExpiredAt(expiredDate) {
-    if (! TimeService.isDateString(expiredDate, true)) {
+    if (! TimeService.isDateString(expiredDate, { onlyDate: true })) {
         throw new Error("Bad value");
     }
 

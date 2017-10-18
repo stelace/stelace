@@ -48,8 +48,8 @@ module.exports = {
             maxLength: 1000
         },
         accessories: "array",
-        bookingStartDate: "string",
-        bookingEndDate: "string",
+        bookingStartDate: "string", // TODO: to remove
+        bookingEndDate: "string", // TODO: to remove
         brandId: {
             type: "integer",
             index: true
@@ -90,16 +90,16 @@ module.exports = {
             type: "integer",
             defaultsTo: 0
         },
-        automatedBookingValidation: {
+        automatedBookingValidation: { // TODO: to remove
             type: "boolean",
             defaultsTo: false
         },
-        companyItem: {
+        companyItem: { // TODO: to remove
             type: "boolean",
             defaultsTo: false
         },
         locations: "array",
-        perimeterDurationMinutes: "integer",
+        perimeterDurationMinutes: "integer", // TODO: to remove
         broken: {
             type: "boolean",
             defaultsTo: false
@@ -108,19 +108,28 @@ module.exports = {
             type: "boolean",
             defaultsTo: false
         },
+        publishedDate: 'string',
         pausedUntil: "string",
-        ownerRecallDate: "string",
-        mode: {
+        ownerRecallDate: "string", // TODO: to remove
+        mode: { // TODO: to remove
             type: "string",
             required: true
         },
-        rentable: {
+        listingTypesIds: {
+            type: 'array',
+            defaultsTo: [],
+        },
+        rentable: { // TODO: to remove
             type: "boolean",
             defaultsTo: true
         },
-        sellable: {
+        sellable: { // TODO: to remove
             type: "boolean",
             defaultsTo: false
+        },
+        quantity: {
+            type: 'integer',
+            defaultsTo: 1,
         },
         soldDate: "string",
         sellingPrice: {
@@ -155,7 +164,6 @@ module.exports = {
     afterUpdate: afterUpdate,
     afterDestroy: afterDestroy,
     isBookable: isBookable,
-    isAvailable: isAvailable,
     getBookings: getBookings,
     getFutureBookings: getFutureBookings,
     updateTags: updateTags,
@@ -164,7 +172,9 @@ module.exports = {
     getMedias: getMedias,
     getInstructionsMedias: getInstructionsMedias,
     getTags: getTags,
-    getItemsOrSnapshots: getItemsOrSnapshots
+    getItemsOrSnapshots: getItemsOrSnapshots,
+    getListingTypesProperties: getListingTypesProperties,
+    getMaxQuantity: getMaxQuantity,
 };
 
 var params = {
@@ -199,10 +209,12 @@ function getAccessFields(access) {
             "locations",
             "broken",
             "locked",
+            "publishedDate",
             "pausedUntil",
             "mode",
-            "rentable",
-            "sellable",
+            "listingTypesIds",
+            "listingTypes", // due to expose transform
+            "quantity",
             "soldDate",
             "dayOnePrice",
             "sellingPrice",
@@ -235,8 +247,9 @@ function getAccessFields(access) {
             "broken",
             "locked",
             "mode",
-            "rentable",
-            "sellable",
+            "listingTypesIds",
+            "listingTypes", // due to expose transform
+            "quantity",
             "soldDate",
             "dayOnePrice",
             "sellingPrice",
@@ -268,7 +281,7 @@ function beforeValidate(values, next) {
     }
 
     if (µ.checkArray(values.accessories, "string", { maxLength: Item.get("maxLengthAccessoryName") })
-     && values.accessories.length <= Item.get("maxNbAccessories")
+        && values.accessories.length <= Item.get("maxNbAccessories")
     ) {
         next();
     } else {
@@ -309,32 +322,12 @@ function afterDestroy(items, next) {
     next();
 }
 
-/**
- * is bookable
- * @param  {object}   item
- * @return {boolean}
- */
 function isBookable(item) {
-    if (item.broken
-     || item.locked
-     || ! item.locations.length
-    ) {
+    if (item.broken || item.locked) {
         return false;
     }
 
     return true;
-}
-
-/**
- * is publicly available for renting or buying
- * @param  {object}   item
- * @return {boolean}
- */
-function isAvailable(item) {
-    return item.validated
-        && (item.rentable || item.sellable)
-        && ! item.locked
-        && ! item.soldDate;
 }
 
 /**
@@ -657,4 +650,33 @@ function getSnapshots(itemsIds) {
             return memo;
         }, []);
     })();
+}
+
+function getListingTypesProperties(item, listingTypes) {
+    return _.reduce(item.listingTypesIds, (memo, listingTypeId) => {
+        const listingType = _.find(listingTypes, l => l.id === listingTypeId);
+        if (listingType) {
+            _.forEach(listingType.properties, (property, key) => {
+                memo[key] = memo[key] || {};
+                memo[key][property] = true;
+            });
+        }
+        return memo;
+    }, {});
+}
+
+function getMaxQuantity(item, listingType) {
+    const { AVAILABILITY } = listingType.properties;
+
+    let maxQuantity;
+
+    if (AVAILABILITY === 'STOCK') {
+        maxQuantity = item.quantity;
+    } else if (AVAILABILITY === 'UNIQUE') {
+        maxQuantity = 1;
+    } else { // AVAILABILITY === 'NONE'
+        maxQuantity = Infinity;
+    }
+
+    return maxQuantity;
 }

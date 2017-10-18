@@ -12,16 +12,26 @@ module.exports = {
 
 var moment = require('moment');
 
+/**
+ * Check if the provided date is an instance of Date and a valid date
+ * @param  {Date}  date
+ * @return {Boolean}
+ */
 function isDate(date) {
-    return date.getTime && ! isNaN(date.getTime());
+    return typeof date === 'object' && date.getTime && !isNaN(date.getTime());
 }
 
-function isDateString(str, onlyDate) {
-    if (typeof str !== "string") {
-        return false;
-    }
+/**
+ * Check if the provided value is UTC-format date string
+ * @param  {String}  value
+ * @param  {Object}  [options]
+ * @param  {Boolean} [options.onlyDate = false]
+ * @return {Boolean}
+ */
+function isDateString(value, { onlyDate = false } = {}) {
+    if (typeof value !== 'string') return false;
 
-    var regex;
+    let regex;
 
     if (onlyDate) {
         regex = /^\d{4}-\d{2}-\d{2}$/;
@@ -29,17 +39,29 @@ function isDateString(str, onlyDate) {
         regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
     }
 
-    if (regex.test(str)) {
-        var date = new Date(str);
-        return isDate(date);
-    } else {
-        return false;
-    }
+    if (!regex.test(value)) return false;
+
+    const date = new Date(value);
+    return isDate(date);
 }
 
+/**
+ * Check if the date has 0 unit below days (0 hour, 0 minute, 0 second, 0 millisecond)
+ * If true, that means the date is probably an automated date (not created by user)
+ * @param  {String|Object}  date
+ * @return {Boolean}
+ */
 function isPureDate(date) {
-    var m = moment(date);
-    return m.hours() === 0 && m.minutes() === 0 && m.seconds() === 0 && m.milliseconds() === 0;
+    if (!isDateString(date) && !isDate(date)) {
+        throw new Error('Expected a valid date');
+    }
+
+    const m = moment(date);
+
+    return m.hours() === 0
+        && m.minutes() === 0
+        && m.seconds() === 0
+        && m.milliseconds() === 0;
 }
 
 function isIntersection(array, value) {
@@ -86,7 +108,7 @@ function getPeriodLimits(date, duration, type) {
 }
 
 function convertTimestampSecToISO(timestampSec) {
-    return moment(new Date(parseInt(timestampSec + "000", 10))).toISOString();
+    return moment(new Date(parseInt(timestampSec + '000', 10))).toISOString();
 }
 
 function getMonthWeekDays(weekDayNum, year, month) {

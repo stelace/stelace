@@ -45,7 +45,6 @@
         service.getFbOfferTypes         = getFbOfferTypes;
         service.getFbSellingPrice       = getFbSellingPrice;
         service.getFbRentingDayOnePrice = getFbRentingDayOnePrice;
-        service.getItemAction           = getItemAction;
         service.getRecommendedPrices    = getRecommendedPrices;
         service.normalizeName           = normalizeName;
         service.encodeUrlQuery          = encodeUrlQuery;
@@ -53,6 +52,8 @@
         service.encodeUrlFullQuery      = encodeUrlFullQuery;
         service.decodeUrlFullQuery      = decodeUrlFullQuery;
         service.isSearchState           = isSearchState;
+        service.getListingTypesProperties = getListingTypesProperties;
+        service.getMaxQuantity          = getMaxQuantity;
 
         CleanService.clean(service);
 
@@ -148,6 +149,7 @@
             var itemCategories = args.itemCategories ? _.indexBy(args.itemCategories, "id") : null;
             var locations      = args.locations ? _.indexBy(args.locations, "id") : null;
             var nbDaysPricing  = args.nbDaysPricing;
+            var listingTypes   = args.listingTypes;
 
             var _populate = function (item) {
                 if (item.brandId && brands) {
@@ -194,6 +196,9 @@
                         array: true
                     });
                 }
+                if (listingTypes) {
+                    item.listingTypesProperties = getListingTypesProperties(item, listingTypes);
+                }
             };
 
             if (_.isArray(itemOrItems)) {
@@ -232,11 +237,6 @@
 
         function getSearchFilters(filter) {
             var filters = {
-                transactionTypes: [
-                    { label: "Location / Vente", value: "all" },
-                    { label: "Location", value: "rental" },
-                    { label: "Vente", value: "sale" }
-                ],
                 queryModes: [
                     { label: "Optimisée", value: "default" },
                     { label: "France entière", value: "relevance" },
@@ -701,14 +701,14 @@
         function getFbOfferTypes(item) {
             var types = [];
 
-            if (item.rentable) {
+            if (item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 types.push("renting");
 
                 if (item.dayOnePrice === 0) {
                     types.push("sharing");
                 }
             }
-            if (item.sellable) {
+            if (item.listingTypesProperties.TIME.NONE) {
                 types.push("purchase");
 
                 if (item.sellingPrice === 0) {
@@ -720,7 +720,7 @@
         }
 
         function getFbSellingPrice(item) {
-            if (! item.sellable) {
+            if (! item.listingTypesProperties.TIME.NONE) {
                 return;
             }
 
@@ -728,21 +728,11 @@
         }
 
         function getFbRentingDayOnePrice(item) {
-            if (! item.rentable) {
+            if (! item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 return;
             }
 
             return item.dayOnePrice;
-        }
-
-        function getItemAction(item, config) {
-            if (item.rentable && item.sellable) {
-                return config.rentableAndSellable;
-            } else if (item.rentable) {
-                return config.rentable;
-            } else if (item.sellable) {
-                return config.sellable;
-            }
         }
 
         function getRecommendedPrices(query) {
@@ -801,8 +791,8 @@
         }
 
         function encodeUrlFullQuery(query) {
-            const simpleEncodedQuery = encodeUrlQuery(query);
-            const fullEncodedQuery = _encodeUrlFullQuery(query);
+            var simpleEncodedQuery = encodeUrlQuery(query);
+            var fullEncodedQuery = _encodeUrlFullQuery(query);
 
             return simpleEncodedQuery !== fullEncodedQuery ? fullEncodedQuery : "";
         }
@@ -830,6 +820,37 @@
             ];
 
             return _.includes(searchViews, $state.current && $state.current.name);
+        }
+
+        function getListingTypesProperties(item, listingTypes) {
+            return _.reduce(item.listingTypesIds, function (memo, listingTypeId) {
+                var listingType = _.find(listingTypes, function (l) {
+                    return l.id === listingTypeId;
+                });
+                if (listingType) {
+                    _.forEach(listingType.properties, function (property, key) {
+                        memo[key] = memo[key] || {};
+                        memo[key][property] = true;
+                    });
+                }
+                return memo;
+            }, {});
+        }
+
+        function getMaxQuantity(item, listingType) {
+            const AVAILABILITY = listingType.properties.AVAILABILITY;
+
+            let maxQuantity;
+
+            if (AVAILABILITY === 'STOCK') {
+                maxQuantity = item.quantity;
+            } else if (AVAILABILITY === 'UNIQUE') {
+                maxQuantity = 1;
+            } else { // AVAILABILITY === 'NONE'
+                maxQuantity = Infinity;
+            }
+
+            return maxQuantity;
         }
     }
 

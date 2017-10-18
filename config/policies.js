@@ -108,6 +108,10 @@ module.exports.policies = {
         sendFriendEmails: ["isAuthenticated", "getUserInfo"]
     },
 
+    ListingTypeController: {
+        find: true,
+    },
+
     LocationController: {
         create: ["isAuthenticated", "getUserInfo"],
         update: ["isAuthenticated", "getUserInfo"],

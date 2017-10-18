@@ -16,16 +16,21 @@ module.exports = {
             type: "integer",
             index: true
         },
-        itemSnapshotId: {
+        itemSnapshotId: { // TODO: to rename into 'itemSnapshot'
             type: "integer",
             index: true
         },
-        itemMode: "string",
-        bookingMode: "string",
-        parentId: "integer",
+        itemMode: "string", // TODO: to remove
+        bookingMode: "string", // TODO: to remove
+        listingTypeId: 'integer',
+        listingType: 'json',
+        parentId: "integer", // TODO: to remove
+
+        // rename: 'confirmedDate' -> 'paidDate'
+        // rename: 'validatedDate' -> 'acceptedDate'
         confirmedDate: "string", // booker action, set if paymentDate and depositDate are set
         validatedDate: "string", // owner action, when validate the booking
-        automatedValidated: {
+        automatedValidated: { // TODO: to rename into 'autoAcceptation'
             type: "boolean",
             defaultsTo: false
         },
@@ -37,38 +42,64 @@ module.exports = {
             type: "integer",
             index: true
         },
+        quantity: {
+            type: 'integer',
+            defaultsTo: 1,
+        },
         startDate: "string",
         endDate: "string",
-        nbBookedDays: "integer",
-        nbFreeDays: {
+        nbTimeUnits: 'integer',
+        timeUnit: 'string',
+        nbBookedDays: "integer", // TODO: to remove (replaced by nbTimeUnits)
+        nbFreeDays: { // TODO: to remove
             type: "integer",
             defaultsTo: 0
         },
-        free: {
+        free: { // TODO: to remove
             type: "boolean",
             defaultsTo: false
         },
+
         ownerPrice: "float", // displayed price set by owner
-        freeValue: "float",
-        discountValue: "float",
-        maxDiscountPercent: "float",
         takerPrice: "float", // after rebate and fees
-        dayOnePrice: "float",
+        ownerFees: "float", // set the value in case the formula change
+        takerFees: "float", // set the value in case the formula change
+        prices: {
+            type: 'json',
+            defaultsTo: {},
+        },
+        options: {
+            type: 'json',
+            defaultsTo: {},
+        },
+        freeValue: "float", // TODO: move to prices
+        discountValue: "float", // TODO: move to prices
+        maxDiscountPercent: "float", // TODO: to remove
+        dayOnePrice: "float", // TODO: move to prices
         pricingId: "integer",
         customPricingConfig: "json",
         deposit: "float",
-        ownerFeesPercent: "float",
-        takerFeesPercent: "float",
-        ownerFees: "float", // set the value in case the formula change
-        takerFees: "float", // set the value in case the formula change
-        ownerFreeFees: {
+        ownerFeesPercent: "float", // TODO: to remove
+        takerFeesPercent: "float", // TODO: to remove
+        ownerFreeFees: { // TODO: move to prices
             type: "boolean",
             defaultsTo: false
         },
-        takerFreeFees: {
+        takerFreeFees: { // TODO: move to prices
             type: "boolean",
             defaultsTo: false
         },
+        dates: {
+            type: 'json',
+            defaultsTo: {},
+        },
+        completedDate: 'string',
+
+        // TODO: to remove 'paymentDate', 'depositDate', 'releaseDepositDate', 'paymentUsedDate', 'paymentTransferDate', 'withdrawalDate'
+        // TODO: to remove 'cancellationPaymentDate', 'cancellationDepositDate'
+
+        // TODO: put 'stopRenewDeposit', 'stopTransferPayment', 'stopWithdrawal' into 'paymentOperations'
+
         paymentDate: "string", // booker action, set when preauth payment is done
         depositDate: "string", // booker action, set when preauth deposit is done
         releaseDepositDate: "string", // renew deposit until this date, after the deposit must be cancelled
@@ -94,19 +125,18 @@ module.exports = {
             defaultsTo: false
         },
         contractId: "string",
-        odooBookerInvoiceNumber: "string",
-        odooOwnerInvoiceNumber: "string"
+        odooBookerInvoiceNumber: "string", // TODO: to remove
+        odooOwnerInvoiceNumber: "string" // TODO: to remove
     },
 
     getAccessFields: getAccessFields,
     get: get,
 
     isValidDates: isValidDates,
-    isDatesCompatibleWithExistingBookings: isDatesCompatibleWithExistingBookings,
-    getBookingDuration: getBookingDuration,
+    computeEndDate,
     getAgreementUserId: getAgreementUserId,
     isValidationTooLate: isValidationTooLate,
-    isPurchase: isPurchase,
+    isNoTime: isNoTime,
     getLaunchDate: getLaunchDate,
     getDueDate: getDueDate,
     updateBookingEndState: updateBookingEndState,
@@ -117,7 +147,6 @@ module.exports = {
     getBookingRef: getBookingRef,
     getPendingBookings: getPendingBookings,
     filterVisibleBookings: filterVisibleBookings,
-    getOwnerBookings: getOwnerBookings
 
 };
 
@@ -148,15 +177,19 @@ function getAccessFields(access) {
             "itemSnapshotId",
             "itemMode",
             "bookingMode",
+            "listingTypeId",
+            "listingType",
             "parentId",
             "confirmedDate",
             "validatedDate",
             "automatedValidated",
             "ownerId",
             "bookerId",
+            "quantity",
             "startDate",
             "endDate",
-            "nbBookedDays",
+            "nbTimeUnits",
+            "timeUnit",
             "nbFreeDays",
             "free",
             "ownerPrice",
@@ -182,15 +215,19 @@ function getAccessFields(access) {
             "itemSnapshotId",
             "itemMode",
             "bookingMode",
+            "listingTypeId",
+            "listingType",
             "parentId",
             "confirmedDate",
             "validatedDate",
             "automatedValidated",
             "ownerId",
             "bookerId",
+            "quantity",
             "startDate",
             "endDate",
-            "nbBookedDays",
+            "nbTimeUnits",
+            "timeUnit",
             "nbFreeDays",
             "free",
             "ownerPrice",
@@ -217,11 +254,16 @@ function getAccessFields(access) {
             "itemId",
             "itemMode",
             "bookingMode",
+            "listingTypeId",
+            "listingType",
             "parentId",
             "ownerId",
             "bookerId",
             "startDate",
             "endDate",
+            "quantity",
+            "nbTimeUnits",
+            "timeUnit",
             "cancellationId"
         ]
     };
@@ -238,100 +280,61 @@ function get(prop) {
 }
 
 /**
- * is valid dates
- * @param  {object}   args
- * @param  {string}   [args.startDate]
- * @param  {string}   [args.endDate]
- * @param  {string}   args.refDate
- * @param  {object}   config
- * @return {object}   obj
- * @return {boolean}  obj.result
- * @return {object}   obj.errors
+ * Check if booking dates are valid when calendar needed based on listing type config
+ * @param  {String}  startDate
+ * @param  {Number}  nbTimeUnits
+ * @param  {String}  refDate
+ * @param  {Object}  config
+ * @return {Boolean}
  */
-function isValidDates(args, config) {
-    var formatDate = "YYYY-MM-DD";
-    var startDate = args.startDate;
-    var endDate   = args.endDate;
-    var refDate   = args.refDate;
+function isValidDates({
+    startDate,
+    nbTimeUnits,
+    refDate,
+    config,
+}) {
+    const errors          = {};
+    const badParamsErrors = {};
 
-    var errors          = {};
-    var badParamsErrors = {};
-
-    if (startDate && ! TimeService.isDateString(startDate, true)) {
+    if (!TimeService.isDateString(startDate)) {
         badParamsErrors.BAD_FORMAT_START_DATE = true;
     }
-    if (endDate && ! TimeService.isDateString(endDate, true)) {
-        badParamsErrors.BAD_FORMAT_END_DATE = true;
-    }
-    if (! TimeService.isDateString(refDate, true)) {
+    if (!TimeService.isDateString(refDate)) {
         badParamsErrors.MISSING_REF_DATE = true;
-    }
-    if (! startDate && ! endDate) {
-        badParamsErrors.MISSING_DATES = true;
-    }
-    if (startDate && endDate && endDate < startDate) {
-        badParamsErrors.END_DATE_BEFORE_START_DATE = true;
     }
     if (! _.isEmpty(badParamsErrors)) {
         errors.BAD_PARAMS = badParamsErrors;
         return exposeResult(errors);
     }
 
-    var durationDays;
-    var startDateMinLimit;
-    var startDateMaxLimit;
-    var endDateMinLimit;
-    var endDateMaxLimit;
+    let startDateMinLimit;
+    let startDateMaxLimit;
 
-    if (startDate && endDate) {
-        durationDays = moment(endDate).diff(moment(startDate), "d") + 1;
-    }
     if (config.startDateMinDelta) {
-        startDateMinLimit = moment(refDate).add(config.startDateMinDelta, "d").format(formatDate);
+        startDateMinLimit = moment(refDate).add(config.startDateMinDelta).toISOString();
     }
     if (config.startDateMaxDelta) {
-        startDateMaxLimit = moment(refDate).add(config.startDateMaxDelta, "d").format(formatDate);
-    }
-    if (config.endDateMinDelta) {
-        endDateMinLimit = moment(refDate).add(config.endDateMinDelta, "d").format(formatDate);
-    } else if (config.startDateMinDelta) {
-        if (config.minDuration) {
-            endDateMinLimit = moment(startDateMinLimit).add(config.minDuration - 1, "d").format(formatDate);
-        } else {
-            endDateMinLimit = startDateMinLimit;
-        }
-    }
-    if (config.endDateMaxDelta) {
-        endDateMaxLimit = moment(refDate).add(config.endDateMaxDelta, "d").format(formatDate);
-    } else if (config.startDateMaxDelta) {
-        if (config.maxDuration) {
-            endDateMaxLimit = moment(startDateMaxLimit).add(config.maxDuration - 1, "d").format(formatDate);
-        } else {
-            endDateMaxLimit = startDateMaxLimit;
-        }
+        startDateMaxLimit = moment(refDate).add(config.startDateMaxDelta).toISOString();
     }
 
-    var durationErrors  = {};
-    var startDateErrors = {};
-    var endDateErrors   = {};
+    let durationErrors  = {};
+    let startDateErrors = {};
 
-    if (durationDays && config.minDuration && durationDays < config.minDuration) {
-        durationErrors.BELOW_MIN = true;
+    if (nbTimeUnits <= 0) {
+        durationErrors.INVALID = true;
+    } else {
+        if (nbTimeUnits && config.minDuration && nbTimeUnits < config.minDuration) {
+            durationErrors.BELOW_MIN = true;
+        }
+        if (nbTimeUnits && config.maxDuration && config.maxDuration < nbTimeUnits) {
+            durationErrors.ABOVE_MAX = true;
+        }
     }
-    if (durationDays && config.maxDuration && config.maxDuration < durationDays) {
-        durationErrors.ABOVE_MAX = true;
-    }
-    if (startDate && startDateMinLimit && startDate < startDateMinLimit) {
+    if (startDateMinLimit && startDate < startDateMinLimit) {
         startDateErrors.BEFORE_MIN = true;
     }
-    if (startDate && startDateMaxLimit && startDateMaxLimit < startDate) {
+    if (startDateMaxLimit && startDateMaxLimit < startDate) {
         startDateErrors.AFTER_MAX = true;
-    }
-    if (endDate && endDateMinLimit && endDate < endDateMinLimit) {
-        endDateErrors.BEFORE_MIN = true;
-    }
-    if (endDate && endDateMaxLimit && endDateMaxLimit < endDate) {
-        endDateErrors.AFTER_MAX = true;
     }
 
     if (! _.isEmpty(durationErrors)) {
@@ -340,9 +343,6 @@ function isValidDates(args, config) {
     if (! _.isEmpty(startDateErrors)) {
         errors.START_DATE = startDateErrors;
     }
-    if (! _.isEmpty(endDateErrors)) {
-        errors.END_DATE = endDateErrors;
-    }
 
     return exposeResult(errors);
 
@@ -356,80 +356,9 @@ function isValidDates(args, config) {
     }
 }
 
-/**
- * is dates compatible withs existing bookings
- * @param  {object}    args
- * @param  {string}    args.startDate
- * @param  {string}    [args.endDate]
- * @param  {string}    [args.refDate]
- * @param  {object}    args.item
- * @param  {object[]}  args.futureBookings
- * @return {object}    obj
- * @return {boolean}   obj.result
- * @return {object}    obj.errors
- */
-function isDatesCompatibleWithExistingBookings(args) {
-    var startDate      = args.startDate;
-    var endDate        = args.endDate;
-    var refDate        = args.refDate;
-    var item           = args.item;
-    var futureBookings = args.futureBookings;
-
-    var errors          = {};
-    var badParamsErrors = {};
-
-    if (! TimeService.isDateString(startDate, true)) {
-        badParamsErrors.BAD_FORMAT_START_DATE = true;
-    }
-    if (endDate && ! TimeService.isDateString(endDate, true)) {
-        badParamsErrors.BAD_FORMAT_END_DATE = true;
-    }
-    if (refDate && ! TimeService.isDateString(refDate, true)) {
-        badParamsErrors.BAD_FORMAT_REF_DATE = true;
-    }
-    if (item.mode === "classic" && ! endDate) {
-        badParamsErrors.CLASSIC_MISSING_END_DATE = true;
-    }
-    if (startDate && endDate && endDate < startDate) {
-        badParamsErrors.END_DATE_BEFORE_START_DATE = true;
-    }
-    if (! item) {
-        badParamsErrors.MISSING_ITEM = true;
-    }
-    if (! futureBookings) {
-        badParamsErrors.MISSING_FUTURE_BOOKINGS = true;
-    }
-
-    if (! _.isEmpty(badParamsErrors)) {
-        errors.BAD_PARAMS = badParamsErrors;
-        return exposeResult(errors);
-    }
-
-    var intersection = TimeService.isIntersection(futureBookings, {
-        startDate: startDate,
-        endDate: endDate
-    });
-
-    // no overlap between booking dates
-    if (intersection) {
-        errors.BOOKINGS_INTERSECTION = true;
-        return exposeResult(errors);
-    }
-
-    return exposeResult(errors);
-
-
-
-    function exposeResult(errors) {
-        return {
-            result: ! _.keys(errors).length,
-            errors: errors
-        };
-    }
-}
-
-function getBookingDuration(startDate, endDate) {
-    return moment(endDate).diff(startDate, "d") + 1;
+function computeEndDate({ startDate, nbTimeUnits, timeUnit }) {
+    const duration = { [timeUnit]: nbTimeUnits };
+    return moment(startDate).add(duration).toISOString();
 }
 
 function getAgreementUserId(booking) {
@@ -441,8 +370,8 @@ function isValidationTooLate(booking, refDate) {
     return booking.confirmedDate && moment(refDate).diff(booking.confirmedDate, "h") > 167;
 }
 
-function isPurchase(booking) {
-    return _.includes(["rental-purchase", "purchase"], booking.bookingMode);
+function isNoTime(booking) {
+    return booking.listingType.properties.TIME === 'NONE';
 }
 
 function getLaunchDate(booking) {
@@ -466,7 +395,7 @@ function getDueDate(booking, type) {
         throw new Error("Bad type");
     }
 
-    if (isPurchase(booking)) {
+    if (isNoTime(booking)) {
         dueDate = getLaunchDate(booking);
         dueDate = moment(dueDate).add(2, "d").format("YYYY-MM-DD");
     } else {
@@ -553,48 +482,47 @@ function isComplete(booking, inputAssessment, outputAssessment) {
 
     // renting booking: input and output assessments signed
     // purchase booking: only input assessment signed
-    if (! Booking.isPurchase(booking)) {
+    if (! Booking.isNoTime(booking)) {
         result = result && (outputAssessment && outputAssessment.signedDate);
     }
 
     return !! result;
 }
 
-function getAssessments(bookings) {
-    return Promise.coroutine(function* () {
-        var bookingsIds = _.pluck(bookings, "id");
+/**
+ * Get visible assessments associated with bookings
+ * @param  {Object} bookings
+ * @return {Object} hashBookings
+ * @return {Object} [hashBookings[bookingId].inputAssessment] - can be null
+ * @return {Object} [hashBookings[bookingId].outputAssessment] - can be null
+ */
+async function getAssessments(bookings) {
+    const bookingsIds = _.pluck(bookings, 'id');
 
-        var assessments = yield Assessment.find({
-            or: [
-                { startBookingId: bookingsIds },
-                { endBookingId: bookingsIds }
-            ]
-        });
+    let assessments = await Assessment.find({
+        or: [
+            { startBookingId: bookingsIds },
+            { endBookingId: bookingsIds },
+        ],
+    });
 
-        var resultAssessments = yield Assessment.filterConversationAssessments(assessments);
+    const resultAssessments = await Assessment.filterConversationAssessments(assessments);
+    assessments = resultAssessments.assessments;
 
-        assessments         = resultAssessments.assessments;
-        var hashAssessments = resultAssessments.hashAssessments;
+    const indexedStart = _.indexBy(assessments, "startBookingId");
+    const indexedEnd   = _.indexBy(assessments, "endBookingId");
 
-        var indexedStart = _.indexBy(assessments, "startBookingId");
-        var indexedEnd   = _.indexBy(assessments, "endBookingId");
+    return _.reduce(bookings, (memo, booking) => {
+        const inputAssessment              = indexedStart[booking.id];
+        const outputAssessment             = indexedEnd[booking.id];
 
-        return _.reduce(bookings, (memo, booking) => {
-            var inputAssessment              = indexedStart[booking.id];
-            var outputAssessment             = indexedEnd[booking.id];
-            var inputAssessmentConversation  = inputAssessment && hashAssessments[inputAssessment.id].conversation;
-            var outputAssessmentConversation = outputAssessment && hashAssessments[outputAssessment.id].conversation;
+        memo[booking.id] = {
+            inputAssessment: inputAssessment || null,
+            outputAssessment: outputAssessment || null,
+        };
 
-            memo[booking.id] = {
-                inputAssessment: inputAssessment || null,
-                inputAssessmentConversation: inputAssessmentConversation || null,
-                outputAssessment: outputAssessment || null,
-                outputAssessmentConversation: outputAssessmentConversation || null
-            };
-
-            return memo;
-        }, {});
-    })();
+        return memo;
+    }, {});
 }
 
 function getBookingRef(bookingId) {
@@ -602,7 +530,7 @@ function getBookingRef(bookingId) {
 }
 
 /**
- * get pending bookings
+ * Get bookings that are not paid or not validated
  * @param  {number}  itemId
  * @param  {object}  [args]
  * @param  {object}  [args.refBooking] - if provided, get pending bookings except this one
@@ -624,7 +552,7 @@ function getPendingBookings(itemId, args) {
             });
 
             // there is no period for a purchase booking
-            if (intersection && ! Booking.isPurchase(refBooking)) {
+            if (intersection && ! Booking.isNoTime(refBooking)) {
                 _.assign(findAttrs, {
                     startDate: { '<=': refBooking.endDate },
                     endDate: { '>=': refBooking.startDate },
@@ -680,13 +608,3 @@ function filterVisibleBookings(bookings) {
     });
 }
 
-function getOwnerBookings(userId) {
-    return Promise.coroutine(function* () {
-        return yield Booking.find({
-            ownerId: userId,
-            cancellationId: null,
-            confirmedDate: { '!': null },
-            validatedDate: { '!': null }
-        });
-    })();
-}

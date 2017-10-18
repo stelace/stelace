@@ -27,17 +27,17 @@
                     <div class="text-center">
                         <button class="button brightblue"
                             ng-click="vm.toggleBookingMode()"
-                            ng-class="{ gray: vm.purchaseModeSelected }">
+                            ng-class="{ gray: vm.noTimeBookingSelected }">
                             Louer
                         </button>
                         <button class="button brightblue"
                             ng-click="vm.toggleBookingMode()"
-                            ng-class="{ gray: ! vm.purchaseModeSelected }">
+                            ng-class="{ gray: ! vm.noTimeBookingSelected }">
                             Acheter
                         </button>
                     </div>
                 </div>
-                <div ng-hide="vm.hideQuestionDates">
+                <div ng-hide="vm.noTimeBookingSelected">
                     <p class="margin-top text--semibold">À quelles dates envisagez-vous de réserver&nbsp;?</p>
                     <div class="flex-container flex--space">
                         <!-- Previously: ng-if="! vm.inlineDatepicker" -->

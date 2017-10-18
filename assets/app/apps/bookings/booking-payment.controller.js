@@ -189,8 +189,7 @@
 
                 if (vm.booking.startDate && vm.booking.endDate) {
                     vm.startDate = _displayDate(vm.booking.startDate);
-                    vm.endDate   = _displayDate(vm.booking.endDate);
-                    vm.nextDate  = _displayDate(moment(vm.booking.endDate).add(1, "d"));
+                    vm.endDate   = _displayDate(moment(vm.booking.endDate).subtract({ d: 1 }));
 
                     vm.showBookingDuration = true;
                 } else {
@@ -217,9 +216,9 @@
                 }
                 ItemService.populate(item, {
                     locations: results.itemLocations,
-                    nbDaysPricing: Math.max(nbDaysPricing, vm.booking.nbBookedDays)
+                    nbDaysPricing: Math.max(nbDaysPricing, vm.booking.nbTimeUnits)
                 });
-                vm.bookingDuration  = vm.booking.nbBookedDays + " jour" + (vm.booking.nbBookedDays > 1 ? "s" : "");
+                vm.bookingDuration  = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
 
                 vm.expirationYears = _.range(vm.thisYear, (vm.thisYear + 10));
 
@@ -435,7 +434,7 @@
             } else if (! vm.privateContent && ! vm.booking.validatedDate) {
                 // Automatic message if needed when user has already booked this item before, or engaged a conversation with owner
                 // But don't create automatic message if already validated by owner...
-                if (BookingService.isPurchase(vm.booking)) {
+                if (BookingService.isNoTime(vm.booking)) {
                     vm.privateContent = "Bonjour, je viens d'effectuer un paiement "
                      + "pour acheter votre " + vm.item.name + ".\n\nAcceptez-vous ma réservation?";
                 } else {

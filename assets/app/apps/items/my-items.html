@@ -94,17 +94,17 @@
                             <!-- TODO: make a generic directive for each listingType button -->
                             <div class="button"
                                 ng-class="{
-                                    brightblue: vm.classicItemStates.sellable,
-                                    darkblue: ! vm.classicItemStates.sellable
+                                    brightblue: vm.listingTypesProperties.TIME.NONE,
+                                    darkblue: ! vm.listingTypesProperties.TIME.NONE
                                 }"
-                                ng-click="vm.updateItemClassicState({ state: 'sellable' })"
-                                ng-switch="vm.classicItemStates.sellable">
+                                ng-click="vm.toggleItemListingTimeProperty('NONE')"
+                                ng-switch="vm.listingTypesProperties.TIME.NONE">
                                 <span ng-switch-when="true">
                                     <svg class="icon icon--inline">
                                         <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
                                     </svg>
                                 </span>
-                                <span ng-switch-when="false">
+                                <span ng-switch-default>
                                     <svg class="icon icon--inline">
                                         <use xlink:href="/assets/build/icons/sprite.svg#x"/>
                                     </svg>
@@ -116,17 +116,17 @@
                             </div>
                             <div class="button margin-left"
                                 ng-class="{
-                                    brightblue: vm.classicItemStates.rentable,
-                                    darkblue: ! vm.classicItemStates.rentable
+                                    brightblue: vm.listingTypesProperties.TIME.TIME_FLEXIBLE,
+                                    darkblue: ! vm.listingTypesProperties.TIME.TIME_FLEXIBLE
                                 }"
-                                ng-click="vm.updateItemClassicState({ state: 'rentable' })"
-                                ng-switch="vm.classicItemStates.rentable">
+                                ng-click="vm.toggleItemListingTimeProperty('TIME_FLEXIBLE')"
+                                ng-switch="vm.listingTypesProperties.TIME.TIME_FLEXIBLE">
                                 <span ng-switch-when="true">
                                     <svg class="icon icon--inline" >
                                         <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
                                     </svg>
                                 </span>
-                                <span ng-switch-when="false">
+                                <span ng-switch-default>
                                     <svg class="icon icon--inline">
                                         <use xlink:href="/assets/build/icons/sprite.svg#x"/>
                                     </svg>
@@ -161,7 +161,7 @@
                                 ng-show="vm.selectedItemCategoryLvl1"
                                 ng-change="vm.updateBrandList(); vm.saveLocal('subcategory')">
                                 <option value="" selected>
-                                     Sous-catégorie
+                                    Sous-catégorie
                                 </option>
                             </select>
                         </div>
@@ -258,7 +258,7 @@
                         required>
                     </div>
                     <div class="margin-top text-small text--semibold"
-                        ng-if="vm.classicItemStates.sellable && vm.item.sellingPrice === 0">
+                        ng-if="vm.item.listingTypesProperties.TIME.NONE && vm.item.sellingPrice === 0">
                         J’offre gratuitement
                         <svg class="icon icon--inline red">
                             <use xlink:href="/assets/build/icons/sprite.svg#heart-round"/>
@@ -321,7 +321,7 @@
                         </div>
 
                         <div class="item-rentable-price margin-bottom-plus"
-                            uib-collapse="! vm.showRentingPrice || ! vm.validPrice">
+                            uib-collapse="! vm.listingTypesProperties.TIME.TIME_FLEXIBLE || ! vm.validPrice">
                             <p class="no-margin-bottom">
                                 <label for="item-price">
                                     Prix de la première journée de location&nbsp;:<br>
@@ -354,7 +354,7 @@
                                 </span>
                             </div>
                             <div class="margin-top text-small text--semibold"
-                                ng-if="vm.classicItemStates.rentable && vm.item.dayOnePrice === 0">
+                                ng-if="vm.item.listingTypesProperties.TIME.TIME_FLEXIBLE && vm.item.dayOnePrice === 0">
                                 Je partage gratuitement
                                 <svg class="icon icon--inline red">
                                     <use xlink:href="/assets/build/icons/sprite.svg#heart-round"/>

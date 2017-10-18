@@ -1,5 +1,5 @@
 /* global
-    Booking, Bookmark, Item, ItemService, Location, Media, ModelSnapshot,
+    BookingService, Bookmark, Item, ItemService, ListingTypeService, Location, Media, ModelSnapshot,
     PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceEventService, Tag, TokenService, ToolsService, User
 */
 
@@ -123,107 +123,78 @@ function find(req, res) {
         .catch(res.sendError);
 }
 
-function findOne(req, res) {
-    var id = req.param("id");
-    var snapshotAllowed = (req.param("snapshot") === "true");
-    var access;
+async function findOne(req, res) {
+    const id = parseInt(req.param('id'), 10);
+    const snapshotAllowed = (req.param('snapshot') === 'true');
+    let access;
 
-    var formatDate = "YYYY-MM-DD";
-    var today = moment().format(formatDate);
+    const formatDate = 'YYYY-MM-DD';
+    const today = moment().format(formatDate);
 
-    return Promise
-        .resolve()
-        .then(() => {
-            if (snapshotAllowed) {
-                return Item.getItemsOrSnapshots(id);
-            } else {
-                return Item.findOne({ id: id });
-            }
-        })
-        .then(item => {
-            if (! item) {
-                throw new NotFoundError();
-            }
+    try {
+        let item;
 
-            return getData(item);
-        })
-        .then(data => {
-            var item                   = data.item;
-            var owner                  = data.owner;
-            var ownerMedia             = data.ownerMedia;
-            var itemMedias             = data.itemMedias;
-            var itemInstructionsMedias = data.itemInstructionsMedias;
-            var futureBookings         = data.futureBookings;
-            var lastBooker             = data.lastBooker;
-            var lastBookerMedia        = data.lastBookerMedia;
-            var lastBookerLocations    = data.lastBookerLocations;
+        if (snapshotAllowed) {
+            item = await Item.getItemsOrSnapshots(id);
+        } else {
+            item = await Item.findOne({ id });
+        }
 
-            if (req.user && item.ownerId === req.user.id) {
-                access = "self";
-            } else {
-                access = "others";
-            }
+        if (!item) {
+            throw new NotFoundError();
+        }
 
-            item = Item.expose(item, access);
+        const [
+            owner,
+            futureBookings,
+        ] = await Promise.all([
+            User.findOne({ id: item.ownerId }),
+            ! item.snapshot ? Item.getFutureBookings(item.id, today) : [],
+        ]);
 
-            if (! item.tags) {
-                item.tags         = [];
-                item.completeTags = [];
-            }
+        if (!item.snapshot) {
+            await Item.getTags(item, true);
+        }
 
-            item.owner              = User.expose(owner, access);
-            item.ownerMedia         = Media.expose(ownerMedia, access);
-            item.pricing            = PricingService.getPricing(item.pricingId);
-            item.medias             = Media.exposeAll(itemMedias, access);
-            item.instructionsMedias = Media.exposeAll(itemInstructionsMedias, access);
-            item.futureBookings     = Booking.exposeAll(futureBookings, access);
+        const [
+            itemMedias,
+            ownerMedia,
+            itemInstructionsMedias,
+        ] = await Promise.all([
+            Item.getMedias([item]).then(itemMedias => itemMedias[item.id]),
+            User.getMedia([owner]).then(ownerMedias => ownerMedias[owner.id]),
+            Item.getInstructionsMedias([item]).then(itemInstructionsMedias => itemInstructionsMedias[item.id])
+        ]);
 
-            if (lastBooker) {
-                item.lastBooker          = User.expose(lastBooker, "others");
-                item.lastBookerMedia     = Media.expose(lastBookerMedia, "others");
-                item.lastBookerLocations = Location.exposeAll(lastBookerLocations, "others");
-            }
+        if (req.user && item.ownerId === req.user.id) {
+            access = 'self';
+        } else {
+            access = 'others';
+        }
 
-            res.json(item);
-        })
-        .catch(res.sendError);
+        item = Item.expose(item, access);
 
+        if (! item.tags) {
+            item.tags         = [];
+            item.completeTags = [];
+        }
 
+        item.owner              = User.expose(owner, access);
+        item.ownerMedia         = Media.expose(ownerMedia, access);
+        item.pricing            = PricingService.getPricing(item.pricingId);
+        item.medias             = Media.exposeAll(itemMedias, access);
+        item.instructionsMedias = Media.exposeAll(itemInstructionsMedias, access);
 
-    function getData(item) {
-        var data = {};
-        data.item = item;
+        const availableResult = BookingService.getAvailabilityPeriods(futureBookings);
+        item.availablePeriods = availableResult.availablePeriods;
 
-        return Promise
-            .resolve()
-            .then(() => {
-                return [
-                    User.findOne({ id: item.ownerId }),
-                    ! item.snapshot ? Item.getFutureBookings(item.id, today) : [],
-                    ! item.snapshot ? Item.getTags(item, true) : null
-                ];
-            })
-            .spread((owner, futureBookings) => {
-                data.owner          = owner;
-                data.futureBookings = futureBookings;
-
-                return [
-                    Item.getMedias([item]).then(itemMedias => itemMedias[item.id]),
-                    User.getMedia([owner]).then(ownerMedias => ownerMedias[owner.id]),
-                    Item.getInstructionsMedias([item]).then(itemInstructionsMedias => itemInstructionsMedias[item.id])
-                ];
-            })
-            .spread((itemMedias, ownerMedia, itemInstructionsMedias) => {
-                data.itemMedias             = itemMedias;
-                data.ownerMedia             = ownerMedia;
-                data.itemInstructionsMedias = itemInstructionsMedias;
-
-                return data;
-            });
+        res.json(item);
+    } catch (err) {
+        res.sendError(err);
     }
 }
 
-function create(req, res) {
+async function create(req, res) {
     var filteredAttrs = [
         "name",
         "reference",
@@ -240,8 +211,7 @@ function create(req, res) {
         "validationFields",
         "locations",
         "mode",
-        "rentable",
-        "sellable",
+        "listingTypesIds",
         "dayOnePrice",
         "sellingPrice",
         "customPricingConfig",
@@ -252,96 +222,93 @@ function create(req, res) {
     createAttrs.ownerId = req.user.id;
     var access = "self";
 
-    createAttrs.rentable = (typeof createAttrs.rentable === "boolean" ? createAttrs.rentable : true);
-    createAttrs.sellable = (typeof createAttrs.sellable === "boolean" ? createAttrs.sellable : true);
-
     if (! createAttrs.name
-     || (createAttrs.tags && ! µ.checkArray(createAttrs.tags, "id"))
-     || (createAttrs.locations && ! µ.checkArray(createAttrs.locations, "id"))
-     || ! createAttrs.mode || ! _.contains(Item.get("modes"), createAttrs.mode)
-     || typeof createAttrs.sellingPrice !== "number" || createAttrs.sellingPrice < 0
-     || typeof createAttrs.dayOnePrice !== "number" || createAttrs.dayOnePrice < 0
-     || ! PricingService.getPricing(createAttrs.pricingId)
-     || typeof createAttrs.deposit !== "number" || createAttrs.deposit < 0
-     || (! createAttrs.rentable && ! createAttrs.sellable)
-     || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
+        || (createAttrs.tags && ! µ.checkArray(createAttrs.tags, "id"))
+        || (createAttrs.locations && ! µ.checkArray(createAttrs.locations, "id"))
+        || ! createAttrs.mode || ! _.contains(Item.get("modes"), createAttrs.mode)
+        || typeof createAttrs.sellingPrice !== "number" || createAttrs.sellingPrice < 0
+        || typeof createAttrs.dayOnePrice !== "number" || createAttrs.dayOnePrice < 0
+        || ! PricingService.getPricing(createAttrs.pricingId)
+        || typeof createAttrs.deposit !== "number" || createAttrs.deposit < 0
+        || (!createAttrs.listingTypesIds || !µ.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
+        || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
     ) {
         return res.badRequest();
     }
 
-    createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
-    createAttrs.dayOnePrice  = PricingService.roundPrice(createAttrs.dayOnePrice);
-    createAttrs.deposit      = PricingService.roundPrice(createAttrs.deposit);
-
-    var pricing = PricingService.getPricing();
-    createAttrs.pricingId = pricing.id;
-
-    // only classic mode item can be created by non-admin users
-    if (createAttrs.mode !== "classic" && ! TokenService.isRole(req, "admin")) {
-        return res.badRequest();
-    }
-
-    return Promise
-        .resolve()
-        .then(() => {
-            return [
-                Location.find({ userId: req.user.id }),
-                Item.isValidReferences({
-                    brandId: createAttrs.brandId,
-                    itemCategoryId: createAttrs.itemCategoryId
-                }),
-                isValidTags()
-            ];
-        })
-        .spread((myLocations, validReferences, validTags) => {
-            if (! validReferences || ! validTags) {
-                throw new BadRequestError();
-            }
-
-            var hashLocations = _.indexBy(myLocations, "id");
-
-            if (createAttrs.locations) {
-                var isValidLocations = _.reduce(createAttrs.locations, function (memo, locationId) {
-                    if (! hashLocations[locationId]) {
-                        memo = memo && false;
-                    }
-                    return memo;
-                }, true);
-                if (! isValidLocations) {
-                    throw new BadRequestError();
-                }
-            } else {
-                createAttrs.locations = _.pluck(myLocations, "id");
-            }
-
-            return Item.create(createAttrs);
-        })
-        .then(item => {
-            return Item.updateTags(item, createAttrs.tags);
-        })
-        .then(item => {
-            res.json(Item.expose(item, access));
-        })
-        .catch(res.sendError);
-
-
-
-    function isValidTags() {
-        if (! createAttrs.tags) {
-            return true;
+    try {
+        const validListingTypesIds = await ListingTypeService.isValidListingTypesIds(createAttrs.listingTypesIds);
+        if (!validListingTypesIds) {
+            return res.badRequest();
         }
 
-        createAttrs.tags = _.uniq(createAttrs.tags);
+        createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
+        createAttrs.dayOnePrice  = PricingService.roundPrice(createAttrs.dayOnePrice);
+        createAttrs.deposit      = PricingService.roundPrice(createAttrs.deposit);
 
-        return Tag
-            .find({ id: createAttrs.tags })
-            .then(tags => {
-                return tags.length === createAttrs.tags.length;
-            });
+        var pricing = PricingService.getPricing();
+        createAttrs.pricingId = pricing.id;
+
+        // only classic mode item can be created by non-admin users
+        if (createAttrs.mode !== "classic" && ! TokenService.isRole(req, "admin")) {
+            return res.badRequest();
+        }
+
+        const [
+            myLocations,
+            validReferences,
+            validTags,
+        ] = await Promise.all([
+            Location.find({ userId: req.user.id }),
+            Item.isValidReferences({
+                brandId: createAttrs.brandId,
+                itemCategoryId: createAttrs.itemCategoryId,
+            }),
+            isValidTags(createAttrs.tags),
+        ]);
+
+        if (!validReferences || !validTags) {
+            throw new BadRequestError();
+        }
+
+        var hashLocations = _.indexBy(myLocations, "id");
+
+        if (createAttrs.locations) {
+            if (!isValidLocations(createAttrs.locations, hashLocations)) {
+                throw new BadRequestError();
+            }
+        } else {
+            createAttrs.locations = _.pluck(myLocations, "id");
+        }
+
+        let item = await Item.create(createAttrs);
+        item = await Item.updateTags(item, createAttrs.tags);
+
+        res.json(Item.expose(item, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+
+
+
+    async function isValidTags(tagsIds) {
+        if (!tagsIds) return true;
+
+        const tags = await Tag.find({ id: _.uniq(tagsIds) });
+        return tags.length === tagsIds.length;
+    }
+
+    function isValidLocations(locationsIds, hashLocations) {
+        return _.reduce(locationsIds, (memo, locationId) => {
+            if (!hashLocations[locationId]) {
+                memo = memo && false;
+            }
+            return memo;
+        }, true);
     }
 }
 
-function update(req, res) {
+async function update(req, res) {
     var id = req.param("id");
     var filteredAttrs = [
         "name",
@@ -357,8 +324,7 @@ function update(req, res) {
         "itemCategoryId",
         "locations",
         // "mode",
-        "rentable",
-        "sellable",
+        "listingTypesIds",
         "dayOnePrice",
         "sellingPrice",
         "customPricingConfig",
@@ -369,12 +335,12 @@ function update(req, res) {
     var access = "self";
 
     if ((updateAttrs.tags && ! µ.checkArray(updateAttrs.tags, "id"))
-     || (updateAttrs.locations && ! µ.checkArray(updateAttrs.locations, "id"))
-     || (updateAttrs.mode && ! _.contains(Item.get("modes"), updateAttrs.mode))
-     || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== "number" || updateAttrs.sellingPrice < 0))
-     || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== "number" || updateAttrs.dayOnePrice < 0))
-     || (updateAttrs.deposit && (typeof updateAttrs.deposit !== "number" || updateAttrs.deposit < 0))
-     || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
+        || (updateAttrs.locations && ! µ.checkArray(updateAttrs.locations, "id"))
+        || (updateAttrs.mode && ! _.contains(Item.get("modes"), updateAttrs.mode))
+        || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== "number" || updateAttrs.sellingPrice < 0))
+        || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== "number" || updateAttrs.dayOnePrice < 0))
+        || (updateAttrs.deposit && (typeof updateAttrs.deposit !== "number" || updateAttrs.deposit < 0))
+        || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
     ) {
         return res.badRequest();
     }
@@ -386,80 +352,71 @@ function update(req, res) {
         updateAttrs.deposit = PricingService.roundPrice(updateAttrs.deposit);
     }
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return [
-                Item.findOne({ id: id }),
-                Item.isValidReferences({
-                    brandId: updateAttrs.brandId,
-                    itemCategoryId: updateAttrs.itemCategoryId
-                }),
-                isValidLocations(),
-                isValidTags()
-            ];
-        })
-        .spread((item, validReferences, validLocations, validTags) => {
-            if (! item) {
-                throw new NotFoundError();
-            }
-            if (item.ownerId !== req.user.id) {
-                throw new ForbiddenError();
-            }
-            if (! validReferences
-             || ! validLocations
-             || ! validTags
-             || item.soldDate
-            ) {
-                throw new BadRequestError();
-            }
-
-            var isItemValidated = (! item.validation || (item.validation && item.validated));
-            if (typeof updateAttrs.name !== "undefined" && ! isItemValidated) {
-                updateAttrs.nameURLSafe = ToolsService.getURLStringSafe(updateAttrs.name);
-            }
-
-            return Item.updateOne(item.id, updateAttrs);
-        })
-        .then(item => {
-            return Item.updateTags(item, updateAttrs.tags);
-        })
-        .then(item => {
-            res.json(Item.expose(item, access));
-        })
-        .catch(res.sendError);
-
-
-
-    function isValidLocations() {
-        if (! updateAttrs.locations) {
-            return true;
+    try {
+        const validListingTypesIds = await ListingTypeService.isValidListingTypesIds(updateAttrs.listingTypesIds);
+        if (!validListingTypesIds) {
+            return res.badRequest();
         }
 
-        updateAttrs.locations = _.uniq(updateAttrs.locations);
+        const [
+            item,
+            validReferences,
+            validLocations,
+            validTags,
+        ] = await Promise.all([
+            Item.findOne({ id: id }),
+            Item.isValidReferences({
+                brandId: updateAttrs.brandId,
+                itemCategoryId: updateAttrs.itemCategoryId
+            }),
+            isValidLocations(updateAttrs.locations),
+            isValidTags(updateAttrs.tags)
+        ]);
 
-        return Location
-            .find({
-                id: updateAttrs.locations,
-                userId: req.user.id
-            })
-            .then(locations => {
-                return locations.length === updateAttrs.locations.length;
-            });
+        if (! item) {
+            throw new NotFoundError();
+        }
+        if (item.ownerId !== req.user.id) {
+            throw new ForbiddenError();
+        }
+        if (! validReferences
+            || ! validLocations
+            || ! validTags
+            || item.soldDate
+        ) {
+            throw new BadRequestError();
+        }
+
+        var isItemValidated = (! item.validation || (item.validation && item.validated));
+        if (typeof updateAttrs.name !== "undefined" && ! isItemValidated) {
+            updateAttrs.nameURLSafe = ToolsService.getURLStringSafe(updateAttrs.name);
+        }
+
+        let exposedItem = await Item.updateOne(item.id, updateAttrs);
+        exposedItem = await Item.updateTags(exposedItem, updateAttrs.tags);
+
+        res.json(Item.expose(exposedItem, access));
+    } catch (err) {
+        res.sendError(err);
     }
 
-    function isValidTags() {
-        if (! updateAttrs.tags) {
-            return true;
-        }
 
-        updateAttrs.tags = _.uniq(updateAttrs.tags);
 
-        return Tag
-            .find({ id: updateAttrs.tags })
-            .then(tags => {
-                return tags.length === updateAttrs.tags.length;
-            });
+    async function isValidLocations(locationsIds) {
+        if (!locationsIds) return true;
+
+        const locations = await Location.find({
+            id: _.uniq(locationsIds),
+            userId: req.user.id,
+        });
+        return locations.length === locationsIds.length;
+    }
+
+    async function isValidTags(tagsIds) {
+        if (!tagsIds) return true;
+
+        const tags = await Tag.find({ id: _.uniq(tagsIds) });
+        return tags.length === tagsIds.length;
     }
 }
 
@@ -615,7 +572,7 @@ function updateMedias(req, res) {
         return res.badRequest();
     }
     if ((mediaType === "item" && Media.get("maxNb").item < mediasIds.length)
-     || (mediaType === "instructions" && Media.get("maxNb").itemInstructions < mediasIds.length)
+        || (mediaType === "instructions" && Media.get("maxNb").itemInstructions < mediasIds.length)
     ) {
         return res.badRequest(new BadRequestError("cannot set too much medias"));
     }
@@ -641,12 +598,12 @@ function updateMedias(req, res) {
             }, true);
 
             if (! item
-             || medias.length !== mediasIds.length
+                || medias.length !== mediasIds.length
             ) {
                 throw new NotFoundError();
             }
             if (req.user.id !== item.ownerId
-             || ! isAllOwnMedias
+                || ! isAllOwnMedias
             ) {
                 throw new ForbiddenError();
             }

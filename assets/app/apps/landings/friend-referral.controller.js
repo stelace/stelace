@@ -12,6 +12,7 @@
                                         authenticationModal,
                                         cache,
                                         ItemService,
+                                        ListingTypeService,
                                         loggerToServer,
                                         MediaService,
                                         platform,
@@ -72,12 +73,14 @@
             return $q.all({
                 items: ItemService.getList({ landing: true }),
                 referrer: UserService.get(referrerId).catch(_handleRedirect),
-                referrerItems: ItemService.getList({ ownerId: referrerId })
+                referrerItems: ItemService.getList({ ownerId: referrerId }),
+                listingTypes: ListingTypeService.cleanGetList()
             })
             .then(function (results) {
                 items         = results.items;
                 referrer      = results.referrer;
                 referrerItems = results.referrerItems.plain ? results.referrerItems.plain() : results.referrerItems;
+                vm.listingTypes = results.listingTypes;
 
                 storage.setItem("referralInfo", {
                     referrerId: referrerId,
@@ -100,7 +103,9 @@
                     items.unshift(_.last(referrerItems));
                 }
 
-                ItemService.populate(items);
+                ItemService.populate(items, {
+                    listingTypes: vm.listingTypes
+                });
                 _.forEach(items, function (item) {
                     item.vLocations = item.locations;
                 });

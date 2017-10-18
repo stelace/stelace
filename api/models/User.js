@@ -304,9 +304,9 @@ function s_createMangopayUser(args) {
                 return user;
             }
 
-            if (! args.birthday || ! TimeService.isDateString(args.birthday, true)
-             || ! args.nationality
-             || ! args.countryOfResidence
+            if (! args.birthday || ! TimeService.isDateString(args.birthday, { onlyDate: true })
+                || ! args.nationality
+                || ! args.countryOfResidence
             ) {
                 throw new Error("Missing or bad parameters");
             }
@@ -372,11 +372,11 @@ function s_createBankAccount() {
                 throw new Error("Missing mangopayUserId");
             }
             if (! user.iban
-             || ! user.address
-             || ! user.address.name
-             || (! user.address.establishment && ! user.address.street)
-             || ! user.address.city
-             || ! user.address.postalCode
+                || ! user.address
+                || ! user.address.name
+                || (! user.address.establishment && ! user.address.street)
+                || ! user.address.city
+                || ! user.address.postalCode
             ) {
                 throw new Error("Missing params");
             }

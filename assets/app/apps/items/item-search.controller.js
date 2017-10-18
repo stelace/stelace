@@ -23,6 +23,7 @@
                                     GoogleMap,
                                     ItemCategoryService,
                                     ItemService,
+                                    ListingTypeService,
                                     LocationService,
                                     map,
                                     platform,
@@ -135,11 +136,11 @@
             if (urlParams.queryMode) {
                 $rootScope.searchParams.queryMode = urlParams.queryMode;
             }
-            if (urlParams.transactionType) {
-                $rootScope.searchParams.transactionType = urlParams.transactionType;
+            if (urlParams.listingTypeId) {
+                $rootScope.searchParams.listingTypeId = urlParams.listingTypeId;
             }
 
-            vm.onlyFree = urlParams.onlyFree;
+            // vm.onlyFree = urlParams.onlyFree;
 
             $rootScope.searchParams.queryMode = $rootScope.searchParams.queryMode || defaultQueryMode;
 
@@ -240,7 +241,7 @@
 
             // noTriggerSearch.myLocations = true;
             noTriggerSearch.location    = true;
-            noTriggerSearch.onlyFree    = true;
+            // noTriggerSearch.onlyFree    = true;
             // noTriggerSearch.query       = true;
             noTriggerSearch.mode        = true;
 
@@ -249,11 +250,13 @@
                 itemCategories: ItemCategoryService.cleanGetList(),
                 myLocations: $rootScope.myLocations || LocationService.getMine(),
                 urlLocation: _getLocationFromURL(urlLocationName),
-                ipLocation: $rootScope.ipLocation || LocationService.getGeoInfo()
+                ipLocation: $rootScope.ipLocation || LocationService.getGeoInfo(),
+                listingTypes: ListingTypeService.cleanGetList()
             }).then(function (results) {
                 currentUser    = tools.clearRestangular(results.currentUser);
                 itemCategories = results.itemCategories;
                 myLocations    = results.myLocations;
+                vm.listingTypes = results.listingTypes;
 
                 vm.isAuthed = !! currentUser;
                 // only display first level item categories
@@ -351,11 +354,11 @@
             if ($stateParams.qm && _.includes(["default", "relevance", "distance"], $stateParams.qm)) {
                 urlParams.queryMode = $stateParams.qm;
             }
-            if ($stateParams.t && _.includes(["all", "rental", "sale"], $stateParams.t)) {
-                urlParams.transactionType = $stateParams.t;
+            if ($stateParams.t && !isNaN($stateParams.t)) {
+                urlParams.listingTypeId = parseInt($stateParams.t, 10);
             }
 
-            urlParams.onlyFree = $stateParams.free === "true";
+            // urlParams.onlyFree = $stateParams.free === "true";
 
             return urlParams;
         }
@@ -424,9 +427,9 @@
             }
             previousSearchLocationInput = vm.searchLocationInput;
 
-            if (vm.onlyFree) {
-                searchParams.onlyFree = true;
-            }
+            // if (vm.onlyFree) {
+            //     searchParams.onlyFree = true;
+            // }
 
             return $q.when(true)
                 .then(function () {
@@ -509,7 +512,9 @@
                     searchParams.limit = vm.nbItemsPerPage;
                     searchParams.query = $rootScope.searchParams.query;
 
-                    searchParams.transactionType = $rootScope.searchParams.transactionType;
+                    if ($rootScope.searchParams.listingTypeId) {
+                        searchParams.listingTypeId = $rootScope.searchParams.listingTypeId;
+                    }
 
                     searchTimestamp        = new Date().getTime();
                     searchParams.timestamp = searchTimestamp;
@@ -590,7 +595,8 @@
                     }
 
                     ItemService.populate(items, {
-                        nbDaysPricing: nbDaysPricing
+                        nbDaysPricing: nbDaysPricing,
+                        listingTypes: vm.listingTypes,
                     });
 
                     vm.fromLocations = fromLocations;
@@ -628,7 +634,7 @@
                         stateParams.page = vm.currentPage;
                     }
 
-                    stateParams.free = (vm.onlyFree ? "true" : null);
+                    // stateParams.free = (vm.onlyFree ? "true" : null);
 
                     vm.nbTotalItems = searchResults.count;
 
@@ -648,7 +654,11 @@
                         stateName = "search";
                     }
 
-                    stateParams.t = vm.searchQuery.transactionType;
+                    if ($rootScope.searchParams.listingTypeId) {
+                        stateParams.t = $rootScope.searchParams.listingTypeId;
+                    } else {
+                        stateParams.t = null;
+                    }
 
                     $state.go(stateName, stateParams, redirectConfig);
 

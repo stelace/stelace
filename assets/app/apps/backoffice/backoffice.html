@@ -85,11 +85,11 @@
                         <td class="monitoring-cell" title="{{booking.itemName.title}}">
                             {{booking.itemName.value}}
                         </td>
-                        <td class="monitoring-cell" ng-if="booking.isPurchase">
+                        <td class="monitoring-cell" ng-if="booking.isNoTime">
                             Pas de dates
                         </td>
-                        <td class="monitoring-cell" ng-if="! booking.isPurchase">
-                            {{booking.startDate}} - {{booking.endDate}} ({{booking.nbBookedDays}}j)
+                        <td class="monitoring-cell" ng-if="! booking.isNoTime">
+                            {{booking.startDate}} - {{booking.endDate}} ({{booking.nbTimeUnits}}j)
                         </td>
                         <td class="monitoring-cell"
                             ng-class="booking.nbExtraDays.status">
@@ -163,7 +163,7 @@
             <div>
                 <u>Objet</u>&nbsp;: {{vm.bookingToCancel.item.name}}
             </div>
-            <div ng-if="! vm.bookingToCancel.isPurchase">
+            <div ng-if="! vm.bookingToCancel.isNoTime">
                 <u>Dates de réservation</u>&nbsp;: Du {{vm.bookingToCancel.startDateDisplay}} au {{vm.bookingToCancel.endDateDisplay}} ({{vm.bookingToCancel.durationDays}}j)
             </div>
             <div>

@@ -236,7 +236,7 @@ function getDefaultVisibleDate(booking) {
     var nbDays = Rating.get("nbDaysAfterBookingEndDateToCreate");
     var date;
 
-    if (! Booking.isPurchase(booking)) {
+    if (! Booking.isNoTime(booking)) {
         date = booking.endDate;
     } else {
         date = Booking.getDueDate(booking, "end");

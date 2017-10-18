@@ -1,5 +1,8 @@
 module.exports = {
 
+    getTimeGranularities,
+    getDefaultListingTypeProperties,
+
     loadFeatures,
     getListFeatures,
     isFeatureActive,
@@ -19,6 +22,30 @@ const featureNames = [
     'TAGS',
 ];
 let features;
+
+const timeGranularities = [
+    'm', // minutes
+    'h', // hours
+    'd', // days
+    'w', // weeks
+    'M', // months
+];
+
+const defaultListingTypeProperties = {
+    TIME: 'NONE',
+    ASSESSMENTS: 'NONE',
+    AVAILABILITY: 'NONE',
+    DYNAMIC_PRICING: 'NONE',
+    PLACE: 'NONE',
+};
+
+function getTimeGranularities() {
+    return timeGranularities;
+}
+
+function getDefaultListingTypeProperties() {
+    return defaultListingTypeProperties;
+}
 
 async function loadFeatures() {
     // TODO: load them from db

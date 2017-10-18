@@ -46,7 +46,7 @@
         vm.showContract          = false;
         vm.contractUrl           = null;
         vm.contractTarget        = "_blank";
-        vm.isPurchase            = false;
+        vm.isNoTime              = false;
         vm.bookingStatus         = "";
 
         // Google Places ngAutocomplete options
@@ -74,7 +74,7 @@
             if (vm.booking) {
                 vm.booking = Restangular.restangularizeElement(null, vm.booking, "booking");
 
-                if (BookingService.isPurchase(vm.booking)) {
+                if (BookingService.isNoTime(vm.booking)) {
                     return;
                 }
 
@@ -87,9 +87,9 @@
                         vm.showContract = vm.message.isCtaActive;
                     });
 
-                vm.isPurchase = BookingService.isPurchase(vm.booking);
+                vm.isNoTime = BookingService.isNoTime(vm.booking);
 
-                if (! vm.isPurchase) {
+                if (! vm.isNoTime) {
                     vm.startDate = moment(vm.booking.startDate).format(displayFormatDate);
                     vm.endDate   = moment(vm.booking.endDate).format(displayFormatDate);
                 } else {

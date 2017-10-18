@@ -15,8 +15,6 @@ module.exports = {
     update: update,
     destroy: destroy,
 
-    params: params
-
 };
 
 var moment = require('moment');
@@ -110,10 +108,4 @@ async function update(req, res) {
 
 function destroy(req, res) {
     return res.forbidden();
-}
-
-function params(req, res) {
-    return res.json({
-        nbDaysAfterBookingEndDateToCreate: Rating.get("nbDaysAfterBookingEndDateToCreate")
-    });
 }

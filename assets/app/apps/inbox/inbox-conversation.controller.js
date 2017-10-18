@@ -389,7 +389,7 @@
                     output.ratings = ratings;
                 } else if (inputAssessment) {
                     // there is no output assessment for purchase booking
-                    if (BookingService.isPurchase(vm.booking)) {
+                    if (BookingService.isNoTime(vm.booking)) {
                         input.ratings = ratings;
                     }
                 }

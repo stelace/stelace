@@ -1,12 +1,12 @@
 <table class="book__prices text--small">
     <tbody>
-        <tr ng-if="! purchase">
+        <tr ng-if="!noTime">
             <td>
-                {{dayOnePrice}}€ × {{nbBookedDays + " jour" + (nbBookedDays > 1 ? "s" : "")}} de location
+                {{dayOnePrice}}€ × {{nbTimeUnits + " jour" + (nbTimeUnits > 1 ? "s" : "")}} de location
             </td>
             <td>{{fullPrice}}€</td>
         </tr>
-        <tr ng-if="purchase">
+        <tr ng-if="noTime">
             <td>Prix de vente</td>
             <td>{{fullPrice}}€</td>
         </tr>
@@ -18,24 +18,16 @@
         </tr>
         <tr ng-if="durationDiscount">
             <td>
-                Réduction {{nbBookedDays}} jour{{nbBookedDays > 1 ? 's' : ''}} ({{- durationDiscountRate}}%)
+                Réduction {{nbTimeUnits}} jour{{nbTimeUnits > 1 ? 's' : ''}} ({{- durationDiscountRate}}%)
                 <span class="badge tooltip-badge"
                     data-tooltip-placement="left"
                     data-tooltip-trigger="mouseenter outsideClick"
-                    uib-tooltip="Vous économisez {{durationDiscount}}€ sur une réservation de {{nbBookedDays}} jour{{nbBookedDays > 1 ? 's' : ''}}">
+                    uib-tooltip="Vous économisez {{durationDiscount}}€ sur une réservation de {{nbTimeUnits}} jour{{nbTimeUnits > 1 ? 's' : ''}}">
                     ?
                 </span>
             </td>
             <td class="discount">
                 {{- durationDiscount}}€
-            </td>
-        </tr>
-        <tr ng-if="leasingDiscount">
-            <td>
-                Réduction après test ({{- leasingDiscountRate}}%)
-            </td>
-            <td class="discount">
-                {{- leasingDiscount}}€
             </td>
         </tr>
         <tr>
@@ -59,7 +51,7 @@
             <td>
                 {{ totalPrice === 0 ? "Gratuit" : totalPrice + "€"}}
                 <span class="text--vsmall"
-                    ng-show="! purchase && nbBookedDays > 1 && dailyPrice > 0">
+                    ng-show="!noTime && nbTimeUnits > 1 && dailyPrice > 0">
                     &nbsp;({{ dailyPriceStr }}€/j.)
                 </span>
             </td>

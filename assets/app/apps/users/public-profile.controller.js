@@ -15,6 +15,7 @@
                                 $window,
                                 gamification,
                                 ItemService,
+                                ListingTypeService,
                                 // LocationService,
                                 loggerToServer,
                                 MediaService,
@@ -111,7 +112,8 @@
                 user: UserService.get(userId).catch(_redirectTo404),
                 userRatings: RatingService.getTargetUserRatings({ targetId: userId, populateItems: true }),
                 userItems: ItemService.cleanGetList({ ownerId: userId }),
-                currentUser: _fetchCurrentUser()
+                currentUser: _fetchCurrentUser(),
+                listingTypes: ListingTypeService.cleanGetList()
                 // myImage: MediaService.getMyImage(),
                 // myItems: ItemService.getMyItems()
             }).then(function (results) {
@@ -119,6 +121,7 @@
                 userItems   = results.userItems;
                 ratings     = results.userRatings;
                 currentUser = results.currentUser;
+                vm.listingTypes = results.listingTypes;
                 // vm.imageSrc           = results.myImage.url;
                 // vm.myItems            = results.myItems;
                 // oldMedia              = results.myImage;
@@ -126,7 +129,9 @@
 
                 // Populate items
                 userItems = _.filter(userItems, "validated");
-                ItemService.populate(userItems);
+                ItemService.populate(userItems, {
+                    listingTypes: vm.listingTypes
+                });
                 // Populate locations manually since it is more convenient here with full locations already populated in each item.
                 _.forEach(userItems, function (item) {
                     item.vLocations  = item.locations;

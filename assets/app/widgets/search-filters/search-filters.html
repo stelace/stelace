@@ -19,8 +19,8 @@
                     <div class="padded-sides">
                         <span class="small switch switch--success">
                             <input id="search__sale-type" type="checkbox"
-                                ng-model="vm.saleType"
-                                ng-change="vm.updateTransactionType('sale')">
+                                ng-model="vm.timeProperties.NONE"
+                                ng-change="vm.updateListingTime('NONE')">
                             <label for="search__sale-type"></label>
                         </span>
                         <span>
@@ -30,8 +30,8 @@
                     <div class="padded-sides">
                         <span class="small switch switch--success">
                             <input id="search__rental-type" type="checkbox"
-                                ng-model="vm.rentalType"
-                                ng-change="vm.updateTransactionType('rental')">
+                                ng-model="vm.timeProperties.TIME_FLEXIBLE"
+                                ng-change="vm.updateListingTime('TIME_FLEXIBLE')">
                             <label for="search__rental-type"></label>
                         </span>
                         <span>

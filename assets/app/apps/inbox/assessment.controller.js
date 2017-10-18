@@ -107,7 +107,7 @@
                 _getBooking()
                     .then(function (booking) {
                         if (! booking
-                         || BookingService.isPurchase(booking)
+                         || BookingService.isNoTime(booking)
                         ) {
                             return;
                         }

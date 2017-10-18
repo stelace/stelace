@@ -22,6 +22,7 @@
                                 ezfb,
                                 ItemCategoryService,
                                 ItemService,
+                                ListingTypeService,
                                 LocationService,
                                 loggerToServer,
                                 MediaService,
@@ -70,8 +71,8 @@
         var vm = this;
         vm.activeTags           = StelaceConfig.isFeatureActive('TAGS');
         vm.showItemCategories   = StelaceConfig.isFeatureActive('ITEM_CATEGORIES');
-        // TODO: abstract available listingTypes
-        vm.showListingTypes     = true; // ItemCategoryService.getListingTypes().length >= 2;
+        vm.listingTypes         = [];
+        vm.showListingTypes     = false;
 
         vm.isActivePriceRecommendation = StelaceConfig.isFeatureActive('PRICE_RECOMMENDATION');
         vm.showTags             = false;
@@ -105,10 +106,7 @@
         vm.footerTestimonials   = true;
         vm.stickyOffset         = 208;
         vm.recommendedPrices    = {};
-        vm.classicItemStates    = { // rentable and sellable by default
-            rentable: typeof vm.listingType === "undefined" ? true : vm.listingType ===  "rent",
-            sellable: typeof vm.listingType === "undefined" ? true : vm.listingType ===  "sell"
-        };
+        vm.listingTypesProperties = {};
         vm.pricingSlider        = {
             options: {
                 floor: 0,
@@ -164,7 +162,7 @@
         vm.changeMediaMode                = changeMediaMode;
         vm.facebookShareMyItem            = facebookShareMyItem;
         vm.fixCustomPricing               = fixCustomPricing;
-        vm.updateItemClassicState         = updateItemClassicState;
+        vm.toggleItemListingTimeProperty  = toggleItemListingTimeProperty;
 
         activate();
 
@@ -236,6 +234,7 @@
                 itemCategories: ItemCategoryService.cleanGetList(),
                 itemPricing: pricing.getPricing(),
                 tags: vm.activeTags ? TagService.cleanGetList() : [],
+                listingTypes: ListingTypeService.cleanGetList(),
                 newItemTmp: ItemService.getNewItemTmp(null)
             }).then(function (results) {
                 // brands                = results.brands;
@@ -247,6 +246,15 @@
                 tags                  = _.sortBy(results.tags, function (tag) {
                     return - (tag.timesSearched + tag.timesAdded);
                 }); // return most used and most searched tags first
+
+                vm.listingTypes = results.listingTypes;
+                vm.showListingTypes = vm.listingTypes.length > 1;
+                vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
+                    return listingType.properties.TIME === 'NONE';
+                });
+                vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
+                    return listingType.properties.TIME === 'TIME_FLEXIBLE';
+                });
 
                 vm.isAuthenticated    = !! currentUser;
                 vm.createAccount      = ! currentUser;
@@ -361,7 +369,8 @@
                             // brands: brands,
                             itemCategories: itemCategories,
                             locations: myLocations,
-                            nbDaysPricing: nbDaysPricing
+                            nbDaysPricing: nbDaysPricing,
+                            listingTypes: vm.listingTypes
                         });
 
                         vm.selectedShareItem = vm.myItems.length ? vm.myItems[0] : null;
@@ -378,7 +387,6 @@
         }
 
         function _initItem() {
-
             if (! item && ! newItemTmp) { // new item from scratch
                 vm.item                     = {};
                 vm.itemMedias               = [];
@@ -390,6 +398,7 @@
                 vm.selectedItemCategoryLvl1 = null;
                 vm.selectedItemCategoryLvl2 = null;
                 vm.mediasMaxNbReached       = false;
+                vm.item.listingTypesIds     = [];
                 stepProgressDone            = {};
 
                 vm.itemFullValidation       = true;
@@ -419,6 +428,7 @@
                 vm.validPrice               = false;
                 vm.selectedItemCategoryLvl1 = null;
                 vm.selectedItemCategoryLvl2 = null;
+                vm.item.listingTypesIds     = vm.item.listingTypesIds || [];
                 stepProgressDone            = {};
                 vm.mediasMaxNbReached       = false;
 
@@ -429,7 +439,7 @@
                 });
 
                 if (currentUser
-                 && (! vm.item.listLocations || ! vm.item.listLocations.length)
+                    && (! vm.item.listLocations || ! vm.item.listLocations.length)
                 ) {
                     // Possibly no location yet if using old anonymous ItemTmp
                     vm.item.listLocations = _.map(myLocations, function (location) {
@@ -460,7 +470,8 @@
                     // brands: brands,
                     itemCategories: itemCategories,
                     locations: myLocations,
-                    nbDaysPricing: nbDaysPricing
+                    nbDaysPricing: nbDaysPricing,
+                    listingTypes: vm.listingTypes
                 });
 
                 vm.itemMedias               = vm.item.medias;
@@ -473,8 +484,6 @@
                 vm.selectedItemCategoryLvl2 = null;
                 stepProgressDone            = {};
                 vm.viewCreate               = false;
-
-                initClassicItemStates(vm.item);
 
                 _populateTags();
                 _populateItemCategories();
@@ -505,7 +514,7 @@
             vm.isMoveModeAllowed = mediasSelector.isMoveModeAllowed();
             vm.mediaMode         = "edit";
 
-            updateModelFromClassicStates();
+            _computeListingTypesProperties();
             _initPrice();
 
             listeners.push($scope.$watch("vm.item.name", _.debounce(_nameChanged, 1500)));
@@ -636,7 +645,7 @@
             platform.debugDev("_nameChanged:", itemNameChanged, newName, "<=", oldName)
 
             if (! itemNameChanged
-             || ! newName
+                || ! newName
             ) {
                 return;
             }
@@ -650,8 +659,7 @@
                 return;
             }
             // No listingType
-            // TODO: abstract listingTypes
-            if (vm.showListingTypes && ! vm.item.rentable && ! vm.item.sellable) {
+            if (vm.showListingTypes && !_.keys(vm.item.listingTypesIds).length) {
                 return;
             }
 
@@ -785,7 +793,7 @@
 
         function showStep3AndUpdatePrice() {
             if (! vm.item
-             || typeof vm.item.sellingPrice === "undefined"
+                || typeof vm.item.sellingPrice === "undefined"
             ) {
                 return;
             }
@@ -843,10 +851,7 @@
                     .then(function (defaultDayOnePrice) {
                         var dayOnePrice = getDayOnePrice(vm.defaultDayOnePrice);
 
-                        updateItemClassicState({
-                            dayOnePrice: dayOnePrice,
-                            sellingPrice: sellingPrice
-                        });
+                        showStep2();
 
                         var prices = pricing.getPrice({
                             dayOne: dayOnePrice,
@@ -915,9 +920,7 @@
                         closeButton: true
                 });
             }
-            if (! vm.item.rentable
-             && ! vm.item.sellable
-            ) {
+            if (!vm.item.listingTypesIds.length) {
                 return toastr.info("Veuillez renseigner un type d'annonce (location, vente…)", "Type d'annonce manquant", {
                     timeOut: 0,
                     closeButton: true
@@ -931,12 +934,12 @@
             }
 
             if (! vm.isAuthenticated
-             && (! vm.email || ! vm.password)
+                && (! vm.email || ! vm.password)
             ) {
                 return toastr.info("Merci de renseigner les identifiants de votre compte.");
             }
             if (! vm.isAuthenticated
-             && ! tools.isEmail(vm.email)
+                && ! tools.isEmail(vm.email)
             ) {
                 vm.invalidAddress = true;
                 return toastr.warning("Merci de renseigner une adresse email valide.");
@@ -1083,8 +1086,7 @@
                 "stateComment",
                 "bookingPreferences",
                 "acceptFree",
-                "rentable",
-                "sellable"
+                "listingTypesIds"
             ]);
             createAttrs.mode = vm.item.mode;
 
@@ -1135,6 +1137,11 @@
                 .then(function (newItem) {
                     createdItem = newItem;
 
+                    // useful because other functions use it below
+                    ItemService.populate(createdItem, {
+                        listingTypes: vm.listingTypes
+                    });
+
                     vm.totalMediaUpload     = 0;
                     vm.showTotalMediaUpload = true;
 
@@ -1178,7 +1185,8 @@
                         // brands: brands,
                         itemCategories: itemCategories,
                         locations: myLocations,
-                        nbDaysPricing: nbDaysPricing
+                        nbDaysPricing: nbDaysPricing,
+                        listingTypes: vm.listingTypes
                     });
 
                     ItemService.setNewItemTmp(null, null);
@@ -1305,7 +1313,8 @@
                         // brands: brands,
                         itemCategories: itemCategories,
                         locations: myLocations,
-                        nbDaysPricing: nbDaysPricing
+                        nbDaysPricing: nbDaysPricing,
+                        listingTypes: vm.listingTypes
                     });
 
                     _initItem();
@@ -1492,13 +1501,13 @@
             var customPricing      = getCustomPricingConfig(dayOnePrice);
 
             if (customPricing
-             && ! pricing.isValidCustomConfig(customPricing)
+                && ! pricing.isValidCustomConfig(customPricing)
             ) {
                 var lastPrice;
 
                 _.forEach(customPricing.breakpoints, function (breakpoint, index) {
                     if (index !== 0
-                     && breakpoint.price < lastPrice
+                        && breakpoint.price < lastPrice
                     ) {
                         breakpoint.price = lastPrice;
                     }
@@ -1722,39 +1731,30 @@
             return tools.clampNumber(dayOnePrice * vm.factorDeposit, initialDefaultDeposit, vm.maxDeposit);
         }
 
-        function updateItemClassicState(params) {
-            var states = [
-                "rentable",
-                "sellable"
-            ];
-            var state = params.state;
+        function toggleItemListingTimeProperty(propertyName) {
+            vm.listingTypesProperties.TIME = vm.listingTypesProperties.TIME || {};
+            vm.listingTypesProperties.TIME[propertyName] = !vm.listingTypesProperties.TIME[propertyName];
 
-            if (state && _.includes(states, state)) {
-                vm.classicItemStates[state] = ! vm.classicItemStates[state];
+            vm.item.listingTypesIds = [];
+
+            if (vm.listingTypesProperties.TIME.NONE) {
+                vm.item.listingTypesIds.push(vm.timeNoneListingType.id);
+            }
+            if (vm.listingTypesProperties.TIME.TIME_FLEXIBLE) {
+                vm.item.listingTypesIds.push(vm.timeFlexibleListingType.id);
+            }
+        }
+
+        function _computeListingTypesProperties() {
+            // not a created item
+            if (!vm.item.id) {
+                // TODO: take the url filter into account
+                _.forEach(vm.listingTypes, function (listingType) {
+                    vm.item.listingTypesIds.push(listingType.id);
+                })
             }
 
-            updateModelFromClassicStates();
-            showStep2();
-        }
-
-        function updateModelFromClassicStates() {
-            isShownRentingPrice();
-            updateItemFromClassicStates();
-        }
-
-        function updateItemFromClassicStates() {
-            vm.item.rentable = vm.classicItemStates.rentable;
-            vm.item.sellable = vm.classicItemStates.sellable;
-        }
-
-        function isShownRentingPrice() {
-            vm.showRentingPrice = vm.classicItemStates.rentable;
-        }
-
-        function initClassicItemStates(item) {
-            // TODO: manage free versions
-            vm.classicItemStates.rentable = item.rentable;
-            vm.classicItemStates.sellable = item.sellable;
+            vm.listingTypesProperties = ItemService.getListingTypesProperties(vm.item, vm.listingTypes);
         }
     }
 

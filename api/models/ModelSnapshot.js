@@ -109,7 +109,7 @@ function getComparedFields(targetType) {
             "locations",
             "perimeterDurationMinutes",
             "mode",
-            "sellable",
+            "listingTypesIds",
             "soldDate",
             "sellingPrice",
             "dayOnePrice",
@@ -160,7 +160,7 @@ function getSnapshot(targetType, model, force) {
         .resolve()
         .then(() => {
             if (! _.contains(ModelSnapshot.get("targetTypes"), targetType)
-             || ! model || ! model.id
+                || ! model || ! model.id
             ) {
                 throw new Error("bad params");
             }

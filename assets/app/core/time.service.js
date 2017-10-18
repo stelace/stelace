@@ -19,7 +19,10 @@
             return date.getTime && ! isNaN(date.getTime());
         }
 
-        function isDateString(str, onlyDate) {
+        function isDateString(str, args) {
+            args = args || {};
+            var onlyDate = typeof args.onlyDate !== 'undefined' ? args.onlyDate : false;
+
             if (typeof str !== "string") {
                 return false;
             }

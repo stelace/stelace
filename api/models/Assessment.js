@@ -1,4 +1,4 @@
-/* global Conversation, GeneratorService, Item, ItemJourneyService, ModelSnapshot, User */
+/* global Conversation, GeneratorService, Item, ListingHistoryService, ModelSnapshot, User */
 
 /**
 * Assessment.js
@@ -188,13 +188,13 @@ function getLastSigned(itemIdOrIds) {
             onlyOne = true;
         }
 
-        var itemJourneys = yield ItemJourneyService.getItemsJourneys(itemsIds);
+        const listingHistories = yield ListingHistoryService.getListingHistories(itemsIds);
 
         if (onlyOne) {
-            return itemJourneys[itemIdOrIds].getLastSignedAssessment();
+            return listingHistories[itemIdOrIds].getLastSignedAssessment();
         } else {
-            return _.reduce(itemJourneys, (memo, itemJourney, itemId) => {
-                memo[itemId] = itemJourney.getLastSignedAssessment();
+            return _.reduce(listingHistories, (memo, listingHistory, itemId) => {
+                memo[itemId] = listingHistory.getLastSignedAssessment();
                 return memo;
             }, {});
         }
@@ -260,8 +260,8 @@ function getSnapshots(assessment) {
         var taker = _.find(users, { id: assessment.takerId });
 
         if (! item
-         || ! owner
-         || ! taker
+            || ! owner
+            || ! taker
         ) {
             throw new NotFoundError();
         }
@@ -271,7 +271,7 @@ function getSnapshots(assessment) {
             ownerSnapshot: ModelSnapshot.getSnapshot("user", owner),
             takerSnapshot: ModelSnapshot.getSnapshot("user", taker),
             ownerLocSnapshot: Location.getMainLocationSnapshot(owner.id),
-            takerLocSnapshot: Location.getMainLocationSnapshot(taker.id)
+            takerLocSnapshot: Location.getMainLocationSnapshot(taker.id),
         });
 
         return {
@@ -279,7 +279,7 @@ function getSnapshots(assessment) {
             ownerSnapshot: results.ownerSnapshot,
             takerSnapshot: results.takerSnapshot,
             ownerMainLocationSnapshot: results.ownerLocSnapshot,
-            takerMainLocationSnapshot: results.takerLocSnapshot
+            takerMainLocationSnapshot: results.takerLocSnapshot,
         };
     })();
 }
@@ -333,39 +333,47 @@ function getAssessmentLevel(type, level) {
     return "";
 }
 
-function filterConversationAssessments(assessments) {
-    return Promise.coroutine(function* () {
-        var assessmentsIds = _.pluck(assessments, "id");
+/**
+ * Make sure the returned assessments are visible through conversations
+ * @param  {Object[]} assessments
+ * @return {Object} res
+ * @return {Object[]} res.assessments - visible assessments
+ * @return {Object} res.hashAssessments - hash indexed by assessmentId
+ * @return {Object} res.hashAssessments[assessmentId].conversation - assessment conversation
+ * @return {Boolean} res.hashAssessments[assessmentId].isInput - is conversation input assessment
+ * @return {Boolean} res.hashAssessments[assessmentId].isOutput - is conversation output assessment
+ */
+async function filterConversationAssessments(assessments) {
+    const assessmentsIds = _.pluck(assessments, 'id');
 
-        var conversations = yield Conversation.find({
-            or: [
-                { inputAssessmentId: assessmentsIds },
-                { outputAssessmentId: assessmentsIds }
-            ]
-        });
+    const conversations = await Conversation.find({
+        or: [
+            { inputAssessmentId: assessmentsIds },
+            { outputAssessmentId: assessmentsIds },
+        ],
+    });
 
-        var indexedInput  = _.indexBy(conversations, "inputAssessmentId");
-        var indexedOutput = _.indexBy(conversations, "outputAssessmentId");
+    const indexedInput  = _.indexBy(conversations, 'inputAssessmentId');
+    const indexedOutput = _.indexBy(conversations, 'outputAssessmentId');
 
-        var result = {
-            assessments: [],
-            hashAssessments: {}
-        };
+    const result = {
+        assessments: [],
+        hashAssessments: {},
+    };
 
-        _.forEach(assessments, assessment => {
-            var conversation = indexedInput[assessment.id] || indexedOutput[assessment.id];
-            if (conversation) {
-                result.assessments.push(assessment);
-                result.hashAssessments[assessment.id] = {
-                    conversation: conversation,
-                    isInput: !! indexedInput[assessment.id],
-                    isOutput: !! indexedOutput[assessment.id]
-                };
-            }
-        });
+    _.forEach(assessments, assessment => {
+        const conversation = indexedInput[assessment.id] || indexedOutput[assessment.id];
+        if (conversation) {
+            result.assessments.push(assessment);
+            result.hashAssessments[assessment.id] = {
+                conversation,
+                isInput: !!indexedInput[assessment.id],
+                isOutput: !!indexedOutput[assessment.id],
+            };
+        }
+    });
 
-        return result;
-    })();
+    return result;
 }
 
 function exposeBeforeAssessment(assessment) {
