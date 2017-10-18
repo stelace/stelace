@@ -439,13 +439,11 @@
                 } else if (secondsLeft >= -43200) { // 12 hours more to accept
                     countdown = "";
                     countdownWarning = "L'annulation de cette réservation est imminente. Merci d'accepter ou de refuser rapidement "
-                     + "la demande de " + vm.interlocutor.fullname + " ou de nous contacter en cas de difficultés, "
-                     + "à l'adresse hello@sharinplace.fr";
+                     + "la demande de " + vm.interlocutor.fullname + " ou de nous contacter en cas de difficultés.";
                 } else if (secondsLeft < -43200) {
                     countdown = "";
                     countdownWarning = "Merci d'accepter ou de refuser rapidement "
-                     + "la demande de " + vm.interlocutor.fullname + " ou de nous contacter en cas de difficultés, "
-                     + "à l'adresse hello@sharinplace.fr.\n\nSans réponse de votre part, votre profil sera malheureusement pénalisé.";
+                     + "la demande de " + vm.interlocutor.fullname + " ou de nous contacter en cas de difficultés.";
                 }
 
                 vm.countdown = {

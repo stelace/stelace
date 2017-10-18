@@ -1,1 +1,32 @@
-{"stelace":{"powered_by":"Platform provider’s branding","name":"Unlocalized provider’s name should be “Stelace”."},"listing":{"comments":"Comments or questions & answers about current listing."},"landing":{"homepage":{"title":"Default website title","header":"Default homepage header (H1)"}},"navigation":{"search":"Action required to find listings"},"ratings":{"user_ratings_title":"General introducion to ratings without count","other_ratings_received":"Used when filtering ratings received by user according to context (e.g. ratings received as owner vs. buyer)","review_count":"Reviews are ratings with a text comment."}}
+{
+    "stelace": {
+        "powered_by": "Platform provider’s branding",
+        "name": "Unlocalized provider’s name should be “Stelace”."
+    },
+    "listing": {
+        "comments": "Comments or questions & answers about current listing."
+    },
+    "landing": {
+        "homepage": {
+            "title": "Default website title",
+            "header": "Default homepage header (H1)"
+        },
+        "help": {
+            "content": "Default placeholder, pending for administrator content"
+        },
+        "terms": {
+            "content": "Default placeholder, pending for administrator content"
+        },
+        "contact": {
+            "content": "Default placeholder, pending for administrator content"
+        }
+    },
+    "navigation": {
+        "search": "Action required to find listings"
+    },
+    "ratings": {
+        "user_ratings_title": "General introduction to ratings, without count",
+        "other_ratings_received": "Used when filtering ratings received by user according to context (e.g. ratings received as owner vs. buyer)",
+        "review_count": "Reviews are ratings with a text comment."
+    }
+}

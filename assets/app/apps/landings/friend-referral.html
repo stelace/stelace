@@ -1,12 +1,12 @@
 <div class="global-landings friend-referral">
     <div class="header-space"></div>
-    <div class="text-center slide-intro city-paris background-cover-dark padded-sides">
+    <div class="text-center stelace-hero stelace-hero__background padded-sides">
         <a class="profile__image profile__image--responsive"
             ui-sref="user({ id: vm.referrer.id })"
             ng-if="vm.referrer.media">
             <sip-img ng-src="{{vm.referrer.media.url + '?size=300x300'}}" alt="{{::vm.referrer.displayName}}" rounded="true"></sip-img>
         </a>
-        <h1 class="slide-intro__title">
+        <h1 class="stelace-hero__title">
             {{vm.referrer.displayName}} vous invite à vendre, acheter et louer sans frais et en toute sécurité.
         </h1>
         <button class="button brightblue"

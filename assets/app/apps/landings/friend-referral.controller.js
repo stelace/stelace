@@ -141,8 +141,8 @@
                 "og:url": canonicalUrl,
                 "og:title": title,
                 "og:description": description,
-                // "og:image": "https://sharinplace.fr/assets/img/common/SharinplaceHeader.png",
-                // "og:image:secure_url": "https://sharinplace.fr/assets/img/common/SharinplaceHeader.png",
+                // "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
+                // "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
                 // "og:image:width": 1200,
                 // "og:image:height": 630,
                 "og:type": "website"
@@ -150,7 +150,7 @@
             platform.setTwitterCard({
                 "twitter:title": title,
                 "twitter:description": description
-                // "twitter:image": "https://sharinplace.fr/assets/img/common/SharinplaceHeader.png"
+                // "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
             });
             platform.setCanonicalLink(canonicalUrl);
         }

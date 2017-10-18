@@ -1,9 +1,9 @@
 {
-  "name": "sharinplace",
-  "version": "3.0.0",
+  "name": "stelace",
+  "version": "0.0.1",
   "authors": [
-    "wingon <wingon.yuen90@gmail.com>",
-    "andy <andy.bruere@gmail.com>"
+    "Wing-On Yuen <wing-on@stelace.com>",
+    "Andy Bruère <andy.bruere@stelace.com>"
   ],
   "moduleType": [
     "node"

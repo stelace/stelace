@@ -209,7 +209,7 @@
     body {
         height: 100%;
         width: 100%;
-        background-color: #C5C9D5;
+        background-color: #FFF;
         overflow: hidden;
     }
 
@@ -219,7 +219,7 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background: url("https://sharinplace.fr/assets/img/app/background/Paris-TiltShift-mlarge.jpg") center center / cover no-repeat;
+        background: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7") center center / cover no-repeat;
         font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica,Arial, sans-serif;
     }
 
@@ -252,7 +252,7 @@
         -ms-transform: translateY(-40%);
         transform: translateY(-40%);
         padding: 16px;
-        background-color: #C5C9D5;
+        background-color: #FFF;
         background-color: rgba(255, 255, 255, 0.6);
         border-radius: 2px;
         box-shadow: 1px 3px 7px rgba(0, 0, 0, 0.4);
@@ -267,13 +267,16 @@
     }
 </style>
 <div class="img-container">
-    <img class="background-img" src="https://sharinplace.fr/assets/img/app/background/Paris-TiltShift-mlarge.jpg" alt="Arrière-plan Sharinplace - Paris">
+    <!-- Old browser background fallback -->
+    <img class="background-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Old browser - update needed">
 </div>
 <div class="background-container">
     <div class="message-container">
         <div class="logo-container">
-            <img src="https://sharinplace.fr/assets/img/common/logo-Sharinplace.png" alt="Logo Sharinplace" class="logo">
+            <img src="https://stelace.com/img/brand/stelace-logo-hd.png" alt="Site Logo" class="logo">
         </div>
-        <p>Vous utilisez un navigateur obsolète. Veuillez mettre à jour votre navigateur ou <a href="http://browsehappy.com/" target="_blank">installer un navigateur plus récent</a> (nous conseillons Mozilla Firefox) pour améliorer votre navigation et profiter pleinement de Sharinplace ;)</p>
+        <p>
+           <a href="http://browsehappy.com/">Please upgrade your browser to use this website.</a> We recommend Mozilla Firefox.
+        </p>
     </div>
 </div>

@@ -64,12 +64,22 @@
             "title__user_helper": "As shown in Web browser and search engine results such as Google.",
             "header": "Welcome to {service_name}",
             "header__user_label": "Main header of your homepage",
-            "header__user_helper": "Try to desccribe your activity precisely to improve your SEO.",
+            "header__user_helper": "Try to describe your activity precisely to improve your SEO.",
             "subheader": "Your community",
             "subheader__user_label": "Subheader of your website"
         },
         "help": {
-            "header": "Help center"
+            "header": "Help center",
+            "content": "Writing in progress"
+        },
+        "terms": {
+            "header": "Terms of use",
+            "last_update_date": "Last Updated: {date}",
+            "content": "Writing in progress"
+        },
+        "contact": {
+            "header": "Contact us",
+            "content": ""
         }
     },
     "navigation": {
@@ -86,7 +96,7 @@
         "post_my_listing_button": "Post my listing",
         "search": {
             "query_placeholder": "You’re looking for…",
-            "near_location_placholder": "Near…"
+            "near_location_placeholder": "Near…"
         },
         "see_more": "See more",
         "hide": "Hide",

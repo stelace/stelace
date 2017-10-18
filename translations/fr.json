@@ -52,9 +52,9 @@
         "service_admin_account": "Compte officiel {service_name}",
         "join_month": "Membre depuis {month_year}",
         "email_label": "Adresse email",
-        "verified_email_label": "Verifiée",
+        "verified_email_label": "Vérifiée",
         "phone_number_label": "Numéro de téléphone",
-        "verified_phone_number_label": "Verifié",
+        "verified_phone_number_label": "Vérifié",
         "no_verified_info_public_text": "{user} n’a pas encore validé ses coordonnées."
     },
     "landing": {
@@ -69,7 +69,17 @@
             "subheader__user_label": "En-tête secondaire"
         },
         "help": {
-            "header": "Centre d’aide"
+            "header": "Centre d’aide",
+            "content": "En cours de rédaction"
+        },
+        "terms": {
+            "header": "Conditions générales de service et d’utilisation",
+            "last_update_date": "Dernière mise à jour : {date}",
+            "content": "En cours de rédaction"
+        },
+        "contact": {
+            "header": "Contactez-nous",
+            "content": ""
         }
     },
     "navigation": {
@@ -86,12 +96,12 @@
         "post_my_listing_button": "Je crée mon annonce",
         "search": {
             "query_placeholder": "Que recherchez-vous ?",
-            "near_location_placholder": "À proximité de…"
+            "near_location_placeholder": "À proximité de…"
         },
         "see_more": "En voir plus",
         "hide": "Masquer",
         "details": "Détail",
-        "login_to_manage_map_locations": "Connectez-vous pour gérér vos lieux favoris"
+        "login_to_manage_map_locations": "Connectez-vous pour gérer vos lieux favoris"
     },
     "ratings": {
         "see_more": "Voir plus d’évaluations",

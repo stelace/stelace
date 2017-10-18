@@ -96,7 +96,7 @@
                 var itemShareUrl;
 
                 if (devEnv || ! itemSlug) {
-                    itemShareUrl = "https://sharinplace.fr/item/27"; // fixed Url that can be crawled by Facebook
+                    itemShareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
                 } else {
                     itemShareUrl = getBaseUrl() + "/item/" + itemSlug;
                 }
@@ -127,7 +127,7 @@
                 var shareUrl;
 
                 if (devEnv || ! urlPath) {
-                    shareUrl = "https://sharinplace.fr"; // fixed Url that can be crawled by Facebook
+                    shareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
                 } else {
                     shareUrl = getBaseUrl() + urlPath;
                 }
@@ -195,13 +195,13 @@
                 };
                 var defaultOgContents = {
                     "og:type": "website",
-                    "og:title": "Sharinplace: Soyez égoïstes, partagez\xa0!",
-                    "og:url": "https://sharinplace.fr",
-                    "og:image": "https://sharinplace.fr/assets/img/common/SharinplaceHeader.png",
-                    "og:image:secure_url": "https://sharinplace.fr/assets/img/common/SharinplaceHeader.png",
-                    "og:image:width": 1200, // Sharinplace header dimensions, to update for any other image
+                    "og:title": "Smart marketplace launcher",
+                    "og:url": "https://stelace.com",
+                    "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
+                    "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
+                    "og:image:width": 1200, // header dimensions, to update for any other image
                     "og:image:height": 630, // See https://developers.facebook.com/docs/sharing/best-practices#images
-                    "og:description": "Achetez, vendez et louez vos objets entre particuliers. Matériel high-tech, bricolage, mode, loisirs… Dépôt d’annonce gratuit."
+                    "og:description": ""
                 };
 
                 _.forEach(existingOgTags, function (ogTag, property) {
@@ -227,10 +227,10 @@
                 };
                 var defaultOgContents = {
                     "twitter:card": "summary_large_image",
-                    "twitter:site": "@sharinplace",
-                    "twitter:title": "Partage d'objets en libre-service et location entre particuliers",
-                    "twitter:description": "Achetez, vendez et louez vos objets entre particuliers. Matériel high-tech, bricolage, mode, loisirs… Dépôt d’annonce gratuit.",
-                    "twitter:image": "https://sharinplace.fr/assets/img/common/SharinplaceHeader.png"
+                    "twitter:site": "@stelaceAI",
+                    "twitter:title": "Smart marketplace launcher",
+                    "twitter:description": "",
+                    "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
                 };
 
                 _.forEach(existingOgTags, function (ogTag, property) {

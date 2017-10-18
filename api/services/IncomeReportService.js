@@ -293,6 +293,13 @@ function getReportFilepath(user, year) {
             data.mainLocation = mainLocationSnapshot ? Location.getAddress(mainLocationSnapshot, true) : "";
             data.logoUrl      = getCompanyLogoUrl();
 
+            // TODO: fill in
+            data.company = {
+                name: "",
+                address: "",
+                phone: ""
+            };
+
             return data;
         })();
     }
@@ -318,7 +325,7 @@ function getReportFilepath(user, year) {
 }
 
 function getCompanyLogoUrl() {
-    return "https://sharinplace.fr/assets/img/common/logo-Sharinplace.png";
+    return "";
 }
 
 function getReportHeader() {
@@ -326,18 +333,19 @@ function getReportHeader() {
 
     return `
         <div style="padding-top: 20px;">
-            <img src="${url}" alt="Sharinplace logo" width="144" height="36">
+            <img src="${url}" alt="Logo" width="144" height="36">
         </div>
     `.split("\n").join(""); // to remove carriage char
 }
 
 function getReportFooter() {
+    // TODO: fill in
     return `
         <div style="text-align: center; font-size: 12px; line-height: 12px;">
-            Sharinplace, société par actions simplifiée au capital social de 15000€, R.C.S. Bobigny.<br>
-            Numéro de TVA&nbsp;: FR50813758653 | Adresse&nbsp;: 12 rue Dumas, 93800 Épinay-sur-Seine<br>
-            Courriel&nbsp;: hello@sharinplace.fr |<br>
-            Site Web&nbsp;: https://sharinplace.fr | Téléphone&nbsp;: 0184212649
+            __ <br>
+            Numéro de TVA&nbsp;: __ | Adresse&nbsp;: __<br>
+            Courriel&nbsp;: __ |<br>
+            Site Web&nbsp;: __ | Téléphone&nbsp;: __
         </div>
     `.split("\n").join(""); // to remove carriage char
 }

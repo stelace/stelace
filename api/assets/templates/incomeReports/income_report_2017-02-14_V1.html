@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
 
-        <title>Récapitulatif des revenus Sharinplace</title>
+        <title>Récapitulatif des revenus {{company.name}}</title>
         <meta name="description" content="Ce récapitulatif des revenus vous permettra de déclarer vos revenus auprès de l'administration fiscale.">
         <meta name="robots" content="noindex">
         <style type="text/css">
@@ -35,12 +35,11 @@
     </head>
 
     <body>
-        <img src="{{logoUrl}}" width="0" height="0" alt="Sharinplace logo" style="display: none">
+        <img src="{{logoUrl}}" width="0" height="0" alt="Logo" style="display: none">
         <p>
-            Sharinplace SAS<br>
-            12 rue Dumas<br>
-            93800 Epinay-sur-Seine<br>
-            0184212649
+            {{company.name}}<br>
+            {{company.address}}<br>
+            {{company.phone}}
         </p>
 
         <div class="section">
@@ -58,13 +57,13 @@
 
         <div class="section">
             <p>
-                Objet&nbsp;: Récapitulatif de votre activité sur Sharinplace.fr en vue de votre déclaration d'impôts sur les revenus perçus en {{year}}
+                Objet&nbsp;: Récapitulatif de votre activité sur {{company.name}} en vue de votre déclaration d'impôts sur les revenus perçus en {{year}}
             </p>
         </div>
 
         <div class="section">
             <p>
-                En vertu de la législation française en vigueur depuis le 1<sup>er</sup> juillet 2016 (article 242 bis du Code Général des Impôts), Sharinplace vous communique un récapitulatif annuel de vos revenus générés sur le site au cours de l'année écoulée. Le présent récapitulatif est disponible depuis votre compte sur le site Sharinplace.fr. Un email de rappel donnant accès à ce récapitulatif vous est également envoyé en amont de votre déclaration de revenus.
+                En vertu de la législation française en vigueur depuis le 1<sup>er</sup> juillet 2016 (article 242 bis du Code Général des Impôts), {{company.name}} vous communique un récapitulatif annuel de vos revenus générés sur le site au cours de l'année écoulée. Le présent récapitulatif est disponible depuis votre compte sur le site {{company.name}}. Un email de rappel donnant accès à ce récapitulatif vous est également envoyé en amont de votre déclaration de revenus.
             </p>
 
             <p>
@@ -101,7 +100,7 @@
         </div>
 
         <p class="align-right">
-            L'équipe Sharinplace
+            L'équipe {{company.name}}
         </p>
     </body>
 </html>

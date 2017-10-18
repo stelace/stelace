@@ -495,7 +495,7 @@ function oldBrowsers(req, res) {
     return res
         .set({ "Cache-Control": "public, max-age=2592000" })
         .view("old_browsers", {
-            title: "Sharinplace : Partage et location d'objets entre particuliers",
+            title: "Please upgrade your browser",
             layout: "layouts/nothing"
         });
 }

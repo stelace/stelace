@@ -83,9 +83,11 @@ Sails.load({
 
     function sendEmail(owner, reportYear, token) {
         var reportUrl = `${sails.config.stelace.url}/api/user/${owner.id}/income-report/${reportYear}?t=${token.value}`;
+        var emailAddress = ""; // Company address
+        var siteName = "notre site"; // Use your name
 
         var preview = `
-            Sharinplace vous facilite la vie avec ce récapitulatif pour déclarer vos revenus perçus sur l'année 2016&nbsp;!
+            Récapitulatif pour déclarer vos revenus perçus sur l'année 2016&nbsp;!
         `;
 
         var content = `
@@ -95,18 +97,18 @@ Sails.load({
                 </p>
 
                 <p>
-                    Vous avez choisi Sharinplace.fr pour louer et vendre vos objets à d'autres particuliers en toute sécurité et toute
+                    Vous avez choisi ${siteName} pour louer et vendre vos objets à d'autres particuliers en toute sécurité et toute
                     l'équipe vous en remercie chaleureusement&nbsp;!
                 </p>
 
                 <p>
                     Vous le savez probablement&nbsp;: de même que pour vos autres sources de revenus, il vous revient de déclarer
-                    annuellement les revenus générés sur Sharinplace.
+                    annuellement les revenus générés sur ${siteName}.
                 </p>
 
                 <p>
                     <strong>Pour vous y aider, nous avons mis à votre disposition un document récapitulatif des revenus que
-                    vous avez perçus sur Sharinplace en 2016. Il est accessible depuis votre compte dans votre tableau de bord
+                    vous avez perçus sur ${siteName} en 2016. Il est accessible depuis votre compte dans votre tableau de bord
                     et <a href="${reportUrl}">téléchargeable directement depuis cet e-mail</a>.</strong>
                 </p>
 
@@ -127,13 +129,8 @@ Sails.load({
 
         var signature = `
             <div>
-                <a href="https://sharinplace.fr/?utm_source=contact-email&utm_medium=email&utm_content=picture&utm_campaign=email-signature"><img src="https://sharinplace.fr/assets/img/common/logo-Sharinplace-signature.png" alt="Logo Sharinplace" height="50" width="196" alt="Logo Sharinplace"></a><br>
-                <b>L'équipe Sharinplace</b><br>
-                Nous sommes joignables<br>
-                par e-mail : hello@sharinplace.fr<br>
-                par téléphone : 01 84 21 26 29<br>
-                <br>
-                Suivez-nous aussi sur <a href="https://www.facebook.com/sharinplace?utm_source=contact-email&utm_medium=email&utm_content=text&utm_campaign=email-signature">Facebook</a> et <a href="https://twitter.com/sharinplace?utm_source=contact-email&utm_medium=email&utm_content=text&utm_campaign=email-signature">Twitter</a>
+                <b>L’équipe ${siteName}</b><br>
+                N’hésitez pas à nous contacter à l’adresse&nbsp;: ${emailAddress}<br>
             </div>
         `;
 

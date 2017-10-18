@@ -632,7 +632,7 @@ a, [ng-click], [uib-popover], [uib-tooltip] {
 
 // Layout
 
-#app-container {
+.app-container {
     height: auto;
     min-height: 100%;
     overflow: hidden; // Avoid horizontal overflow of graphical elements
@@ -1027,7 +1027,7 @@ a.profile__image {
     }
 }
 
-.slide-intro {
+.stelace-hero {
     // use flex instead of absolute positionning to avoid blur issues
     // and because flex is cool (unlike IE)
     display: flex;
@@ -1045,32 +1045,34 @@ a.profile__image {
         max-width: 100%
     }
 
-    .slide-intro__title, .slide-intro__subtitle {
+    .stelace-hero__title, .stelace-hero__subtitle {
         text-align: center;
         font-weight: 600;
         text-shadow: 0 0 6px rgba(0,0,0,0.6);
         color: #FFF;
     }
 
-    background-position: 50% 100%; // default to override if needed
+    background-position: 50% 50%; // default to override if needed
 
     background-repeat: no-repeat;
     background-size: cover;
 
-    &.city-paris {
-        @media #{$mq-mobile} {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-small.jpg");
-        }
-        @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-mlarge.jpg");
-        }
-        @media
-            #{$mq-from-large},
-            #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
-            #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi)
-        {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-xlarge.jpg");
-        }
+    &.stelace-hero__background {
+        background-image: url("/assets/img/app/background/sunset.jpg");
+
+        // @media #{$mq-mobile} {
+        //     background-image: url("");
+        // }
+        // @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
+        //     background-image: url("");
+        // }
+        // @media
+        //     #{$mq-from-large},
+        //     #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
+        //     #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi)
+        // {
+        //     background-image: url("");
+        // }
     }
 
     ~ .cc-media-attribution {
@@ -1078,7 +1080,7 @@ a.profile__image {
     }
 }
 
-.background-cover-dark {
+.background--cover-dark {
     position: relative;
     z-index: 1;
     &::after {

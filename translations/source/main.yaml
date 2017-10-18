@@ -142,13 +142,13 @@ user:
         fr: "Adresse email"
     verified_email_label:
         en: "Verified"
-        fr: "Verifiée"
+        fr: "Vérifiée"
     phone_number_label:
         en: "Phone number"
         fr: "Numéro de téléphone"
     verified_phone_number_label:
         en: "Verified"
-        fr: "Verifié"
+        fr: "Vérifié"
     no_verified_info_public_text:
         en: "{user} has no verified info yet."
         fr: "{user} n’a pas encore validé ses coordonnées."
@@ -172,7 +172,7 @@ landing:
             en: "Main header of your homepage"
             fr: "En-tête principal de votre page d’accueil"
         header__user_helper:
-            en: "Try to desccribe your activity precisely to improve your SEO."
+            en: "Try to describe your activity precisely to improve your SEO."
             fr: "Essayez de décrire votre activité précisément pour améliorer votre référencement."
         subheader:
             en: "Your community"
@@ -184,6 +184,29 @@ landing:
         header:
             en: "Help center"
             fr: "Centre d’aide"
+        content:
+            en: "Writing in progress"
+            fr: "En cours de rédaction"
+            context: &LANDING_CONTENT_PLACEHOLDER_CONTEXT "Default placeholder, pending for administrator content"
+    terms:
+        header:
+            en: "Terms of use"
+            fr: "Conditions générales de service et d’utilisation"
+        last_update_date:
+            en: "Last Updated: {date}"
+            fr: "Dernière mise à jour : {date}"
+        content:
+            en: "Writing in progress"
+            fr: "En cours de rédaction"
+            context: *LANDING_CONTENT_PLACEHOLDER_CONTEXT
+    contact:
+        header:
+            en: "Contact us"
+            fr: "Contactez-nous"
+        content:
+            en: ""
+            fr: ""
+            context: *LANDING_CONTENT_PLACEHOLDER_CONTEXT
 navigation:
     home:
         en: "Home"
@@ -218,7 +241,7 @@ prompt:
         query_placeholder:
             en: "You’re looking for…"
             fr: "Que recherchez-vous ?"
-        near_location_placholder:
+        near_location_placeholder:
             en: "Near…"
             fr: "À proximité de…"
     see_more:
@@ -232,7 +255,7 @@ prompt:
         fr: "Détail"
     login_to_manage_map_locations:
         en: "Login to manage your locations"
-        fr: "Connectez-vous pour gérér vos lieux favoris"
+        fr: "Connectez-vous pour gérer vos lieux favoris"
 ratings:
     see_more:
         en: "See more ratings"
@@ -240,7 +263,7 @@ ratings:
     user_ratings_title:
         en: "{user} ratings"
         fr: "Évaluations reçues par {user}"
-        context: "General introducion to ratings without count"
+        context: "General introduction to ratings, without count"
     other_ratings_received:
         en: "Other ratings granted to {user}"
         fr: "Autres évaluations reçues par {user}"

@@ -1,17 +1,17 @@
 <div class="items my-items"
     ng-switch="vm.viewCreate">
     <div class="header-space"></div>
-    <a id="slide-intro-item"
-        class="text-center slide-intro space padded-sides"
+    <a id="stelace-hero-item"
+        class="text-center stelace-hero space padded-sides"
         ui-sref="itemCreate"
         ng-switch-default>
-            <h1 class="slide-intro__title">
+            <h1 class="stelace-hero__title">
                 Publiez
                 <span ng-hide="vm.myItems.length">votre</span>
                 <span ng-show="vm.myItems.length">une nouvelle</span>
                 annonce
             </h1>
-            <div class="slide-intro__subtitle">
+            <div class="stelace-hero__subtitle">
                 Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
             </div>
             <div class="my-items__cta"
@@ -21,13 +21,12 @@
                 </svg>
             </div>
     </a>
-    <div id="slide-intro-item"
-        class="text-center slide-intro space padded-sides"
+    <div class="text-center stelace-hero space padded-sides"
         ng-switch-when="true">
-        <h1 class="slide-intro__title">
+        <h1 class="stelace-hero__title">
             Voici votre nouvelle annonce
         </h1>
-        <div class="slide-intro__subtitle">
+        <div class="stelace-hero__subtitle">
             Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
         </div>
     </div>

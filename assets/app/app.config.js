@@ -39,7 +39,7 @@
         // Allow to load whitelisted resources
         $sceDelegateProvider.resourceUrlWhitelist([
             "self",
-            "https://sharinplace.fr/**"
+            "https://stelace.com/**"
         ]);
 
         $httpProvider.useApplyAsync(true);

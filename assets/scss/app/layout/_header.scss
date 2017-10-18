@@ -2,7 +2,7 @@
 
 $header-height: 3rem;
 
-#header-container {
+.stelace-header-container {
     position: fixed; // To ensure header is always visible when opening offcanvas menu. See root.html
     left: 0;
     right: 0;
@@ -21,7 +21,7 @@ $header-height: 3rem;
     // }
 
     height: 0;
-    &.header-container--expand-search {
+    &.stelace-header-container--expand-search {
         height: 100%;
     }
 
@@ -72,7 +72,7 @@ $header-height: 3rem;
         }
     }
 
-    .logo-company {
+    .company-logo {
         color: $platform-color-blue;
     }
 
@@ -141,14 +141,14 @@ $header-height: 3rem;
         text-align: center;
     }
 
-    &#mobile-main-header {
+    &.main-header--mobile {
         .message-badge {
             left: 0;
             top: 1px;
             transform: translateX(50%);
         }
     }
-    &#desktop-main-header {
+    &.main-header--desktop {
         padding: 0 0.5rem;
 
         .search__search-bar {
@@ -174,7 +174,7 @@ $header-height: 3rem;
                 display: block;
             }
         }
-        .logo-company {
+        .company-logo {
             height: $header-height;
             @media #{$mq-from-desktop} {
                 width: 11rem;
@@ -199,7 +199,7 @@ $header-height: 3rem;
         .icon {
             width: 1.25rem;
         }
-        .logo-company {
+        .company-logo {
             height: 2rem;
             width: 8rem;
             vertical-align: middle;
@@ -284,12 +284,12 @@ $header-height: 3rem;
             background: none;
             border: 0;
             color: #FFF;
-            .logo-container, .logo-company {
+            .logo-container, .company-logo {
                 @media #{$mq-from-desktop} {
                     width: 14rem;
                 }
             }
-            .logo-company {
+            .company-logo {
                 color: #FFF;
             }
         }
@@ -311,7 +311,7 @@ $header-height: 3rem;
     // }
 }
 
-#offcanvas-menu.is-active ~ #header-container {
+#offcanvas-menu.is-active ~ .stelace-header-container {
     .main-header .small-menu {
         .icon.offcanvas-show-icon, .badge.message-badge {
             visibility: hidden;

@@ -3,38 +3,12 @@
 .home {
     .home-hero__wrapper {
         position: relative;
-        min-height: 25rem;
-        @media #{$mq-from-tablet} {
-            height: 30rem;
-        }
-        background-position: 50% 90%;
-        background-repeat: no-repeat;
-        background-size: cover;
-
-        @media #{$mq-mobile} {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-small.jpg");
-        }
-        @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-mlarge.jpg");
-        }
-        @media
-            #{$mq-from-large},
-            #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
-            #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi)
-        {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-xlarge.jpg");
-        }
     }
 
     .home-hero__content {
-        padding: 1rem;
-        position: relative;
-        top: 3rem;
-        @media #{$mq-from-tablet} {
-            top: 3.5rem;
-            height: 22rem;
-            padding-top: 4rem;
-        }
+        padding: 2rem 1rem 1rem;
+        margin: 4rem 0;
+
         h2 {
             margin-top: 0;
             font-size: 1.5rem;
@@ -160,141 +134,6 @@
             }
         }
     }
-
-    .sip-random-wall {
-        background-color: rgb(240, 240, 245);
-        padding: 1rem 0;
-
-        [class*="-up-"] > div {
-            padding: 0; // IE does not deduce padding before wrapping
-        }
-
-        .wall-container {
-            @media screen and (max-width: 319px) {
-                display: none;
-            }
-        }
-
-        .help-small {
-            margin-top: -1rem;
-            padding: 0 0 1rem;
-            font-style: italic;
-        }
-
-        .sip-random-wall__secrets {
-            margin: 0 auto;
-            padding-bottom: 2rem;
-            color: #FFF;
-            @media #{$mq-mobile} {
-                max-width: 30rem;
-            }
-        }
-
-        .secret {
-            position: relative;
-            height: 10rem;
-            font-size: 2rem;
-            line-height: 1;
-            margin: 0 0.5rem 1rem;
-            padding: 1rem 1rem 2.5rem;
-            background-color: #FFF;
-            transition: background-color 1s ease-out;
-
-            .size-xlarge {
-                font-size: 3rem;
-            }
-            .size-large {
-                font-size: 2.4rem;
-            }
-            .size-small {
-                font-size: 1.5rem;
-            }
-            .size-xsmall {
-                font-size: 1.2rem;
-            }
-
-            .revealed {
-                color: rgba(255, 255, 255, 0);
-                font-size: 1rem;
-                line-height: 1.15rem;
-                position: absolute;
-                top: 2%;
-                left: 0;
-                padding: 2% 10%;
-            }
-
-            &.selected,
-            &.active,
-            &:hover {
-                transition: background-color .2s ease-out;
-
-                .revealed {
-                    color: rgba(255, 255, 255, 1);
-                    transition: color .2s .2s ease-in-out;
-                }
-            }
-
-            @media #{$mq-from-tablet} and (max-width: 740px) {
-                min-height: 175px;
-            }
-
-            &.red {
-                color: $platform-color-red;
-                border-color: rgba($platform-color-red, .2);
-
-                &.selected,
-                &.active,
-                &:hover {
-                    background-color: $platform-color-red;
-                }
-            }
-
-            &.orange {
-                color: $platform-color-orange;
-                border-color: rgba($platform-color-orange, .3);
-
-                &.selected,
-                &.active,
-                &:hover {
-                    background-color: $platform-color-orange;
-                }
-            }
-
-            &.green {
-                color: $platform-color-green;
-                border-color: rgba($platform-color-green, .3);
-
-                &.selected,
-                &.active,
-                &:hover {
-                    background-color: $platform-color-green;
-                }
-            }
-
-            &.blue {
-                color: $platform-color-blue;
-                border-color: rgba($platform-color-blue, 0.3);
-
-                &.selected,
-                &.active,
-                &:hover {
-                    background-color: $platform-color-blue;
-                }
-            }
-
-            &.purple {
-                color: $platform-color-purple;
-                border-color: rgba($platform-color-purple, .2);
-
-                &.selected,
-                &.active,
-                &:hover {
-                    background-color: $platform-color-purple;
-                }
-            }
-        }
-    }
-
 }
 
 .app404 {
@@ -411,24 +250,10 @@
     }
 
     &.help {
-        .help__question {
-            text-align: left;
-            border-radius: $global-radius;
-            transition: background-color 0.15s;
-            &:focus, &:hover {
-                background-color: rgba($platform-color-blue, 0.1);
-            }
-        }
-        h2 {
-            margin-top: 2rem;
-        }
-        h3 {
-            font-weight: normal;
-        }
     }
 
     &.friend-referral {
-        .slide-intro {
+        .stelace-hero {
             height: 28rem;
             &.invite-friends__intro {
                 height: 18rem;

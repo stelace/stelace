@@ -1,12 +1,12 @@
 <div class="global-landings friend-referral invite-friends">
     <div class="header-space"></div>
-    <div class="text-center invite-friends__intro slide-intro city-paris background-cover-dark padded-sides">
+    <div class="text-center invite-friends__intro stelace-hero stelace-hero__background padded-sides">
         <a class="profile__image profile__image--responsive"
             ui-sref="user({ id: vm.currentUser.id })"
             ng-if="vm.currentUser.media">
             <sip-img ng-src="{{vm.currentUser.media.url + '?size=300x300'}}" alt="{{::vm.currentUser.displayName}}" rounded="true"></sip-img>
         </a>
-        <h1 class="slide-intro__title">
+        <h1 class="stelace-hero__title">
             Parrainez vos amis pour faire des économies.
         </h1>
         <p class="show-for-medium text--semibold">

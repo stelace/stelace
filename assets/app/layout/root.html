@@ -1,4 +1,5 @@
-<div id="app-container">
+<!-- IDs are mainly used for events, not for styling. -->
+<div class="app-container">
     <div id="offcanvas-menu"
         class="offcanvas-item"
         data-zf-offcanvas
@@ -8,7 +9,7 @@
             ng-controller="OffCanvasMenuController as offcanvas"
             data-sip-action-key="offcanvas.closeMenu()"
             data-sip-action-key-number="27">
-            <!-- Acessibility: Detect ESC press to close -->
+            <!-- Accessibility: Detect ESC press to close -->
             <ul id="offcanvas-public-links"
                 class="no-bullet offcanvas-item"
                 ng-if="! offcanvas.isAuthenticated"
@@ -121,12 +122,12 @@
     <!-- Make #header-container fixed and independent from #root-content to avoid disappearance when opening offcanvas-menu.
     Offcanvas transform3D creates local positionning, so fixed position would not be reliable if inside root-content.
     For more info on this topic, See http://foundation.zurb.com/forum/posts/547-off-canvas-with-fixed-top-bar-->
-    <div id="header-container" class="offcanvas-frame"
-        ng-class="{ 'header-container--expand-search': searchFiltersConfig.showAdvancedSearch }"
+    <div id="header-container" class="offcanvas-frame stelace-header-container"
+        ng-class="{ 'stelace-header-container--expand-search': searchFiltersConfig.showAdvancedSearch }"
         ng-controller="HeaderController as header"
         data-sip-ux-event=".header-event"
         data-ux-event-name="Header click">
-        <header id="mobile-main-header" class="main-header flex-container flex--align-center"
+        <header id="mobile-main-header" class="main-header main-header--mobile flex-container flex--align-center"
             ng-if="header.isMobile">
             <!-- Make container both hoverable and clickable for better touch accessibility -->
             <div id="mobile-header-progress"
@@ -181,8 +182,8 @@
                             ng-blur="header.searchFocus = !header.searchFocus">
                         <div class="logo-overlay"
                             ng-hide="header.searchFocus || searchParams.query">
-                            <svg class="logo-company small">
-                                <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+                            <svg class="company-logo small">
+                                <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                             </svg>
                             <svg class="icon icon--inline">
                                 <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
@@ -206,12 +207,12 @@
             </div>
         </header>
         <header id="desktop-main-header"
-            class="main-header flex-container flex--space-between flex--align-center hide-for-small-only">
+            class="main-header main-header--desktop flex-container flex--space-between flex--align-center hide-for-small-only">
             <div class="logo-container"
                 ng-if="header.isDesktop">
                 <a id="desktop-main-header__logo-anchor" href="/" class="header-event">
-                    <svg class="logo-company">
-                        <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+                    <svg class="company-logo">
+                        <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                     </svg>
                 </a>
             </div>
@@ -248,8 +249,8 @@
                     <div class="logo-overlay"
                         ng-hide="header.searchFocus || searchParams.query"
                         ng-if="! header.isDesktop">
-                        <svg class="logo-company small">
-                            <use xlink:href="/assets/build/icons/sprite.svg#logo-Sharinplace"></use>
+                        <svg class="company-logo small">
+                            <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                         </svg>
                         <svg class="icon icon--inline">
                             <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>

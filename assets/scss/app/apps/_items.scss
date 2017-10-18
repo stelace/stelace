@@ -969,11 +969,11 @@ $search__search-bar-height: 3.5rem;
         font-size: 1rem;
     }
 
-    .slide-intro {
+    .stelace-hero {
         min-height: 12rem;
         background: linear-gradient(170deg, $platform-color-blue 10%, $platform-color-brightblue 70%);
     }
-    .slide-intro:focus, .slide-intro:hover {
+    .stelace-hero:focus, .stelace-hero:hover {
         .my-items__cta .icon {
             transform: scale(1.2);
         }

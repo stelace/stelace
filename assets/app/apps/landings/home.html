@@ -1,7 +1,7 @@
 <div class="fluid-width home"
     data-sip-ux-event="^footer__link"
     data-ux-event-name="Home click">
-    <div id="home-hero" class="home-hero__wrapper">
+    <div id="home-hero" class="home-hero__wrapper stelace-hero stelace-hero__background">
         <div class="home-hero__content flex-container flex--column text-center flex--align-center">
             <h1 class="order-1"
                 data-translate="landing.homepage.header"
@@ -45,7 +45,7 @@
                             </svg>
                         </span>
                         <input id="location-search" type="search"
-                            data-translate-attr ="{ placeholder: 'prompt.search.near_location_placholder' }"
+                            data-translate-attr ="{ placeholder: 'prompt.search.near_location_placeholder' }"
                             ng-model="vm.searchLocationInput"
                             ng-if="vm.isGoogleMapSDKReady"
                             ng-autocomplete

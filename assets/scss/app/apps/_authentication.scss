@@ -1,25 +1,12 @@
 @import "../base/all";
 
 .authentication {
-    #app-container {
-        background-position: 50% 90%;
+    .app-container {
+        background-position: 50% 50%;
         background-repeat: no-repeat;
         background-size: cover;
 
-        @media #{$mq-mobile} {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-small.jpg");
-        }
-        @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-mlarge.jpg");
-        }
-        @media
-            #{$mq-from-large},
-            #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
-            #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi),
-            #{$mq-from-desktop} and (min-height: 876px) // avoid to stretch mlarge format
-        {
-            background-image: url("/assets/img/app/background/Paris-TiltShift-xlarge.jpg");
-        }
+        background-image: url("/assets/img/app/background/sunset.jpg");
     }
 }
 
@@ -54,7 +41,7 @@
         @media #{$mq-mobile} {
             height: 80px;
         }
-        #logo {
+        .logo {
             color: $platform-color-blue;
             width:100%;
             height:100%;
