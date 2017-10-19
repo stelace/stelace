@@ -367,7 +367,6 @@ function getBookings(itemsIds, args) {
     })();
 }
 
-// refDate is a date with format: "YYYY-MM-DD"
 function getFutureBookings(itemIdOrIds, refDate) {
     return Promise.coroutine(function* () {
         var onlyOne;

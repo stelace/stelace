@@ -41,8 +41,7 @@ var params = {
         "no-action",
         "no-validation",
         "no-payment",
-        "other-booking-first",
-        "item-sold",
+        "out-of-stock",
 
         "rejected",
         "booker-cancellation",
@@ -56,8 +55,7 @@ var params = {
         "no-action",
         "no-validation",
         "no-payment",
-        "other-booking-first",
-        "item-sold",
+        "out-of-stock",
         "rejected"
     ]
 };

@@ -55,7 +55,7 @@
                 </div>
 
                 <sip-cta-box
-                    ng-if="vm.showDuplicateActionMessage && ! vm.item.snapshot && ! vm.legacyItem"
+                    ng-if="vm.showDuplicateActionMessage && ! vm.item.snapshot"
                     message="vm.duplicateActionMessage"
                     conversation="vm.conversation"
                     booking="vm.duplicateActionMessage.booking"
@@ -172,7 +172,7 @@
                     to avoid visual redundancy -->
                     <!-- Show inactive CTAs only once -->
                     <sip-cta-box
-                        ng-if="message.bookingStatus && ! vm.legacyItem
+                        ng-if="message.bookingStatus
                         && (! message.isCtaActive || ! (vm.showDuplicateActionMessage && vm.duplicateCtaOffset <= 3))"
                         message="message"
                         booking="message.booking"

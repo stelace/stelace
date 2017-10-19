@@ -1,5 +1,5 @@
 /* global
-    Assessment, Booking, Conversation, TimeService
+    Assessment, Booking, Conversation, Item, TimeService
 */
 
 /**
@@ -140,6 +140,8 @@ module.exports = {
     getLaunchDate: getLaunchDate,
     getDueDate: getDueDate,
     updateBookingEndState: updateBookingEndState,
+    canItemQuantityEvolve: canItemQuantityEvolve,
+    updateItemQuantity: updateItemQuantity,
 
     getLast: getLast,
     isComplete: isComplete,
@@ -427,6 +429,41 @@ function updateBookingEndState(booking, now) {
     })();
 }
 
+function canItemQuantityEvolve(booking) {
+    const { TIME, AVAILABILITY } = booking.listingType.properties;
+    // item quantity change if there is no time but there is a stock
+    return TIME === 'NONE' && AVAILABILITY !== 'NONE';
+}
+
+/**
+ * After some booking operations, item quantity can evolve
+ * like decrease stock after payment
+ * or increase stock after booking rejection
+ * @param {Object} booking
+ * @param {String} actionType - possible values: ['add', 'remove']
+ */
+async function updateItemQuantity(booking, { actionType }) {
+    if (!_.includes(['add', 'remove'], actionType)) {
+        throw new Error('Incorrect action type');
+    }
+
+    if (!canItemQuantityEvolve(booking)) return;
+
+    const item = await Item.findOne({ id: booking.itemId });
+    if (!item) {
+        throw new NotFoundError();
+    }
+
+    const updateAttrs = {};
+    if (actionType === 'add') {
+        updateAttrs.quantity = item.quantity + booking.quantity;
+    } else if (actionType === 'remove') {
+        updateAttrs.quantity = Math.max(item.quantity - booking.quantity, 0);
+    }
+
+    await Item.updateOne({ id: booking.itemId }, updateAttrs);
+}
+
 function getLast(itemIdOrIds) {
     var onlyOne;
     var itemIds;
@@ -551,7 +588,7 @@ function getPendingBookings(itemId, args) {
                 id: { '!': refBooking.id }
             });
 
-            // there is no period for a purchase booking
+            // there is no period for a no-time booking
             if (intersection && ! Booking.isNoTime(refBooking)) {
                 _.assign(findAttrs, {
                     startDate: { '<=': refBooking.endDate },

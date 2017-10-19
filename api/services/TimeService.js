@@ -66,7 +66,7 @@ function isPureDate(date) {
 
 function isIntersection(array, value) {
     return _.reduce(array, function (memo, element) {
-        if (value.endDate < element.startDate || element.endDate < value.startDate) {
+        if (value.endDate <= element.startDate || element.endDate <= value.startDate) {
             return memo;
         } else {
             return memo || true;

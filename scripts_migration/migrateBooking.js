@@ -1,4 +1,4 @@
-/* global Booking, BootstrapService, Item, TimeService */
+/* global Booking, BootstrapService, Item, ListingTypeService, TimeService */
 
 const Sails = require('sails');
 const moment = require('moment');
@@ -24,9 +24,9 @@ Sails.load({
     BootstrapService.init(null, { sails: sails });
 
     try {
-        const bookings = await Booking.find({
-            quantity: null,
-        });
+        const listingTypes = await ListingTypeService.getListingTypes();
+
+        const bookings = await Booking.find();
 
         await Promise.each(bookings, async (booking) => {
             const updateAttrs = {
@@ -40,6 +40,23 @@ Sails.load({
             }
             if (booking.endDate && TimeService.isDateString(booking.endDate, { onlyDate: true })) {
                 updateAttrs.endDate = moment(booking.endDate + 'T00:00:00.000Z').add({ d: 1 }).toISOString();
+            }
+
+            if (!booking.listingTypeId) {
+                let listingType;
+
+                if (booking.bookingMode === 'renting') {
+                    listingType = _.find(listingTypes, listingType => {
+                        return listingType.properties.TIME === 'TIME_FLEXIBLE';
+                    });
+                } else {
+                    listingType = _.find(listingTypes, listingType => {
+                        return listingType.properties.TIME === 'NONE';
+                    });
+                }
+
+                updateAttrs.listingTypeId = listingType.id;
+                updateAttrs.listingType = listingType;
             }
 
             await Booking.updateOne(booking.id, updateAttrs);

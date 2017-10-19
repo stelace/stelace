@@ -1,15 +1,16 @@
 /* global
-    Booking, BookingPaymentService, Cancellation, Conversation, Item, MathService, User
+    Booking, BookingPaymentService, BookingService, Cancellation, Conversation, Item, MathService, User
 */
 
 module.exports = {
 
     cancelBooking: cancelBooking,
-    cancelIntersectionBookings: cancelIntersectionBookings,
-    cancelBookingsFromSameItem: cancelBookingsFromSameItem,
-    cancelBookingPayment: cancelBookingPayment
+    cancelBookingPayment: cancelBookingPayment,
+    cancelOtherBookings: cancelOtherBookings,
 
 };
+
+const moment = require('moment');
 
 /**
  * cancel booking
@@ -21,6 +22,7 @@ module.exports = {
  * @param  {string}  args.trigger
  * @param  {boolean} [args.updateConversation = true]
  * @param  {boolean} [args.cancelPayment = false] - if false, do not cancel payment or taker fees
+ * @param  {boolean} [args.replenishStock = true] - if true, replenish stock
  *
  * the following params can take number or boolean:
  * if true, cancel what booking has taken
@@ -44,6 +46,9 @@ function cancelBooking(booking, transactionManager, args) {
     var doCancelPayment = typeof args.cancelPayment !== "undefined"
         ? args.cancelPayment
         : false;
+    var doReplenishStock = typeof args.replenishStock !== 'undefined'
+        ? args.doReplenishStock
+        : true;
 
     return Promise.coroutine(function* () {
         var error;
@@ -108,8 +113,9 @@ function cancelBooking(booking, transactionManager, args) {
 
         var cancellation = yield Cancellation.create(createAttrs);
 
-        if (Booking.isNoTime(booking)) {
-            yield Item.updateOne(booking.itemId, { soldDate: null });
+        // replenish stock only if the booking is paid
+        if (doReplenishStock && booking.confirmedDate) {
+            yield Booking.updateItemQuantity(booking, { actionType: 'add' });
         }
 
         booking = yield Booking.updateOne(booking.id, {
@@ -141,7 +147,7 @@ function updateConversation(booking, reasonType, removeInputAssessment) {
 
         if (reasonType === "rejected") {
             agreementStatus = "rejected";
-        } else if (reasonType === "other-booking-first") {
+        } else if (reasonType === "out-of-stock") {
             agreementStatus = "rejected-by-other";
         } else {
             agreementStatus = "cancelled";
@@ -253,25 +259,67 @@ function cancelBookingPayment(booking, transactionManager, args) {
     })();
 }
 
-function cancelIntersectionBookings(booking, logger) {
-    return Promise.coroutine(function* () {
-        var otherBookings = yield Booking.getPendingBookings(booking.itemId, {
+/**
+ * After a booking is paid and validated, cancel other bookings that cannot be performed anymore
+ * due to listing type constraints
+ * @param {Object} booking
+ * @param {Object} logger
+ */
+async function cancelOtherBookings(booking, logger) {
+    const { TIME, AVAILABILITY } = booking.listingType.properties;
+
+    // do not cancel any bookings if there is no availability issues
+    if (AVAILABILITY === 'NONE') return;
+
+    const item = await Item.findOne({ id: booking.itemId });
+    if (!item) {
+        throw new NotFoundError();
+    }
+
+    let otherBookings = [];
+
+    // time does not matter (like selling)
+    // cancel not paid bookings whose quantity is greater than remaining quantity
+    if (TIME === 'NONE') {
+        otherBookings = await Booking.findOne({
+            itemId: booking.itemId,
+            quantity: { '>': item.quantity },
+            id: { '!': booking.id },
+            confirmedDate: null,
+            cancellationId: null,
+        });
+    // time does matter (like renting)
+    // cancel pending bookings whose quantity exceeds the max quantity during the booking period
+    } else if (TIME === 'TIME_FLEXIBLE') {
+        const pendingBookings = await Booking.getPendingBookings(booking.itemId, {
             refBooking: booking,
-            intersection: true
+            intersection: true,
         });
 
-        return yield cancelBookingsByPriority(booking, otherBookings, "other-booking-first", logger);
-    })();
-}
+        const today = moment().format('YYYY-MM-DD');
+        const futureBookings = await Item.getFutureBookings(booking.itemId, today);
 
-function cancelBookingsFromSameItem(booking, logger) {
-    return Promise.coroutine(function* () {
-        var otherBookings = yield Booking.getPendingBookings(booking.itemId, {
-            refBooking: booking
+        // in some configuration, the current booking is not yet considered as future, so add it manually
+        const refBookingInFuture = !!_.find(futureBookings, futureBooking => {
+            return futureBooking.id === booking.id;
         });
+        if (!refBookingInFuture) {
+            futureBookings.push(booking);
+        }
 
-        return yield cancelBookingsByPriority(booking, otherBookings, "item-sold", logger);
-    })();
+        _.forEach(pendingBookings, pendingBooking => {
+            const availableResult = BookingService.getAvailabilityPeriods(futureBookings, {
+                newBooking: pendingBooking,
+                maxQuantity: item.quantity,
+            });
+
+            if (!availableResult.isAvailable) {
+                otherBookings.push(pendingBooking);
+            }
+        });
+    }
+
+    await cancelBookingsByPriority(booking, otherBookings, 'out-of-stock', logger);
 }
 
 function cancelBookingsByPriority(booking, otherBookings, reasonType, logger) {

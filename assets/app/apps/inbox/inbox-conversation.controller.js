@@ -146,7 +146,6 @@
                 var lastMessage  = _.last(messages);
                 var firstMessage = _.first(messages);
 
-                vm.legacyItem = conversation.itemMode !== "classic";
                 vm.isSender   = currentUser.id === conversation.senderId;
                 vm.isReceiver = currentUser.id === conversation.receiverId;
                 // redirect if not a member of conversation
@@ -332,7 +331,6 @@
 
             if ((! conversation.inputAssessmentId
              && ! conversation.outputAssessmentId)
-             || vm.legacyItem
             ) {
                 return;
             }

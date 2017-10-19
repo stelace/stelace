@@ -222,35 +222,19 @@ function validate(req, res) {
 
         // cancel other bookings that overlaps this booking that is paid and validated by owner
         if (booking.confirmedDate) {
-            if (Booking.isNoTime(booking)) {
-                // item is sold, cancel all bookings
-                yield CancellationService
-                    .cancelBookingsFromSameItem(booking, req.logger)
-                    .catch(err => {
-                        req.logger({
-                            err: err,
-                            bookingId: booking.id
-                        }, "Fail cancelling bookings from same item");
-                    });
-            } else {
-                // cancel booking that overlap the dates
-                yield CancellationService
-                    .cancelIntersectionBookings(booking, req.logger)
-                    .catch(err => {
-                        req.logger({
-                            err: err,
-                            bookingId: booking.id
-                        }, "Fail cancelling intersection bookings");
-                    });
-            }
+            yield CancellationService
+                .cancelOtherBookings(booking, req.logger)
+                .catch(err => {
+                    console.log(err)
+                    req.logger.error({
+                        err: err,
+                        bookingId: booking.id
+                    }, "Fail cancelling other bookings");
+                });
         }
 
         if (giverMessage && giverMessage.privateContent && giverMessage.senderId) {
             yield Message.createMessage(booking.ownerId, giverMessage, { logger: req.logger });
-        }
-
-        if (booking.confirmedDate && Booking.isNoTime(booking)) {
-            yield Item.updateOne(booking.itemId, { soldDate: now });
         }
 
         booking = yield Booking.updateOne(booking.id, { validatedDate: now });
@@ -311,6 +295,8 @@ function cancel(req, res) {
                 freeDays: true
             }
         });
+
+        yield Booking.updateItemQuantity(booking, { actionType: 'add' });
 
         if (req.user.id === booking.bookerId) {
             access = "self";
@@ -888,15 +874,19 @@ function _paymentEndProcess(data) {
                 });
         })
         .then(() => {
+            // update quantity before cancelling other bookings
+            return Booking.updateItemQuantity(booking, { actionType: 'remove' });
+        })
+        .then(() => {
             if (booking.confirmedDate && booking.validatedDate) {
-                // cancel other bookings that overlaps this booking that is paid and validated by owner
+                // cancel other bookings if this one is paid
                 return CancellationService
-                    .cancelIntersectionBookings(booking, logger)
+                    .cancelOtherBookings(booking, logger)
                     .catch(err => {
                         logger.error({
                             err: err,
                             bookingId: booking.id
-                        }, "Booking cancel intersection booking");
+                        }, "Booking cancelling other bookings");
                     });
             } else {
                 return;

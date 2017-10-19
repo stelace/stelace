@@ -70,7 +70,7 @@ function ListingHistory(bookings, { hashBookings, groupRatings }) {
  * @param  {boolean}  [signed = false]
  * @return {object[]} assessments
  */
-ListingHistory.prototype.getAssessments = function ({ signed = false }) {
+ListingHistory.prototype.getAssessments = function ({ signed = false } = {}) {
     return _.reduce(this.steps, (memo, step) => {
         if (step.inputAssessment && matchSignCondition(step.inputAssessment, signed)) {
             memo.push(step.inputAssessment);
@@ -105,7 +105,7 @@ ListingHistory.prototype.getBeforeAssessment = function (assessmentId) {
 };
 
 ListingHistory.prototype.getLastSignedAssessment = function () {
-    return _.last(this.getAssessments(true));
+    return _.last(this.getAssessments({ signed: true }));
 };
 
 /**

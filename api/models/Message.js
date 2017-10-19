@@ -174,12 +174,6 @@ function createMessage(userId, createAttrs, params) {
             throw error;
         }
 
-        if ((item.mode !== createAttrs.itemMode)
-         || (item.mode === "classic" && ! _.includes([createAttrs.receiverId, createAttrs.senderId], item.ownerId))
-        ) {
-            throw new BadRequestError();
-        }
-
         // obfuscate all messages if the booking isn't paid and validated
         // and if no obfuscate parameter is passed
         var paidAndValidatedBooking = booking && booking.confirmedDate;

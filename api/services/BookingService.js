@@ -101,13 +101,6 @@ async function createBooking({
     bookingAttrs.itemSnapshotId = itemSnapshot.id;
 
     const booking = await Booking.create(bookingAttrs);
-
-    // move to validation
-    // decrement item quantity if there is no time but there is a stock
-    // if (TIME === 'NONE' && AVAILABILITY !== 'NONE') {
-    //     await Item.updateOne({ id: booking.itemId }, { quantity: item.quantity - bookingAttrs.quantity });
-    // }
-
     return booking;
 }
 
@@ -417,6 +410,14 @@ function getAvailabilityPeriods(futureBookings, { newBooking, maxQuantity } = {}
             oldStep = currStep;
         }
     });
+
+    if (availablePeriods.length) {
+        const firstStep = availablePeriods[0];
+        availablePeriods.unshift({
+            date: moment(firstStep.date).subtract({ d: 1 }).toISOString(),
+            quantity: 0,
+        });
+    }
 
     return {
         isAvailable,
