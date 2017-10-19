@@ -230,6 +230,13 @@ navigation:
     back_top_of_page:
         en: "Back to top"
         fr: "Retour en haut de page"
+    menu:
+        en: "Menu"
+        fr: "Menu"
+        context: "Navigation menu label"
+    login:
+        en: "Log In"
+        fr: "Connexion"
 prompt:
     new_listing_minute:
         en: "Create your first listing in a minute."
@@ -237,6 +244,18 @@ prompt:
     post_my_listing_button:
         en: "Post my listing"
         fr: "Je crée mon annonce"
+    post_listing_short_button_1: &POST_LISTING_SHORT_BUTTON
+        en: "{timeDimension, select,
+            TIME_FLEXIBLE{New listing}
+            NONE{New listing}
+            other{New listing}
+        }"
+        fr: "{timeDimension, select,
+            TIME_FLEXIBLE{Nouvelle annonce}
+            NONE{Nouvelle annonce}
+            other{Nouvelle annonce}
+        }"
+    post_listing_short_button_2: *POST_LISTING_SHORT_BUTTON
     search:
         query_placeholder:
             en: "You’re looking for…"

@@ -89,11 +89,15 @@
         "contact_us": "Contactez-nous",
         "terms": "Conditions Générales",
         "search": "Rechercher",
-        "back_top_of_page": "Retour en haut de page"
+        "back_top_of_page": "Retour en haut de page",
+        "menu": "Menu",
+        "login": "Connexion"
     },
     "prompt": {
         "new_listing_minute": "Enregistrez votre première annonce en quelques instants.",
         "post_my_listing_button": "Je crée mon annonce",
+        "post_listing_short_button_1": "Je vends",
+        "post_listing_short_button_2": "Je loue",
         "search": {
             "query_placeholder": "Que recherchez-vous ?",
             "near_location_placeholder": "À proximité de…"

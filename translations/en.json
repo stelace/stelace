@@ -89,11 +89,15 @@
         "contact_us": "Contact us",
         "terms": "Terms",
         "search": "Search",
-        "back_top_of_page": "Back to top"
+        "back_top_of_page": "Back to top",
+        "menu": "Menu",
+        "login": "Log In"
     },
     "prompt": {
         "new_listing_minute": "Create your first listing in a minute.",
         "post_my_listing_button": "Post my listing",
+        "post_listing_short_button_1": "Let’s sell",
+        "post_listing_short_button_2": "Let’s rent",
         "search": {
             "query_placeholder": "You’re looking for…",
             "near_location_placeholder": "Near…"

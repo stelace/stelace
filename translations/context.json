@@ -22,7 +22,8 @@
         }
     },
     "navigation": {
-        "search": "Action required to find listings"
+        "search": "Action required to find listings",
+        "menu": "Navigation menu label"
     },
     "ratings": {
         "user_ratings_title": "General introduction to ratings, without count",

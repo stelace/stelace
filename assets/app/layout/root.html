@@ -240,7 +240,7 @@
                     <input id="desktop-main-header__search-input"
                         type="search"
                         class="no-margin header-event"
-                        placeholder="Que recherchez-vous ?"
+                        data-translate-attr="{ placeholder: 'prompt.search.query_placeholder' }"
                         ng-model="searchParams.query"
                         data-sip-action-key="header.search()"
                         data-sip-blur-on
@@ -266,7 +266,7 @@
                     data-sip-action-key
                     ng-click="header.toggleMenu($event)">
                     <div>
-                        Menu
+                        <span data-translate="navigation.menu"></span>
                         <div class="profile__image">
                             <sip-img ng-src="{{header.profileImgSrc}}" type="background"></sip-img>
                         </div>
@@ -299,17 +299,13 @@
                     </a>
                 </li>
                 <li class="header__link">
-                    <a ui-sref="itemCreate({t: 'sell'})" class="sell-item-button header-event">
-                        Je vends
-                        <svg class="icon">
-                            <use xlink:href="/assets/build/icons/sprite.svg#tag"></use>
-                        </svg>
+                    <a ui-sref="itemCreate({t: 'sell'})" class="new-listing-button-1 header-event"
+                        data-translate="prompt.post_listing_short_button_1"
+                        data-translate-values="{ timeDimension: 'NONE' }">
                     </a>
-                    <a ui-sref="itemCreate({t: 'rent'})" class="rent-item-button header-event">
-                        Je loue
-                        <svg class="icon">
-                            <use xlink:href="/assets/build/icons/sprite.svg#refresh"></use>
-                        </svg>
+                    <a ui-sref="itemCreate({t: 'rent'})" class="new-listing-button-2 header-event"
+                        data-translate="prompt.post_listing_short_button_2"
+                        data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                     </a>
                 </li>
             </ul>
@@ -317,25 +313,21 @@
                 ng-show="! header.isAuthenticated">
                 <!-- Using ng-show to ensure links existence for ux event listener -->
                 <li>
-                    <a ui-sref="itemCreate({t: 'sell'})" class="sell-item-button header-event">
-                        Je vends
-                        <svg class="icon">
-                            <use xlink:href="/assets/build/icons/sprite.svg#tag"></use>
-                        </svg>
+                    <a ui-sref="itemCreate({t: 'sell'})" class="new-listing-button-1 header-event"
+                        data-translate="prompt.post_listing_short_button_1"
+                        data-translate-values="{ timeDimension: 'NONE' }">
                     </a>
-                    <a ui-sref="itemCreate({t: 'rent'})" class="rent-item-button header-event">
-                        Je loue
-                        <svg class="icon">
-                            <use xlink:href="/assets/build/icons/sprite.svg#refresh"></use>
-                        </svg>
+                    <a ui-sref="itemCreate({t: 'rent'})" class="new-listing-button-2 header-event"
+                        data-translate="prompt.post_listing_short_button_2"
+                        data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                     </a>
                 </li>
                 <li id="desktop-main-header__auth"
                     class="anchor-like cursor-pointer header-event"
                     tabindex="0"
                     data-sip-action-key
-                    ng-click="header.authenticate('login')">
-                    Connexion
+                    ng-click="header.authenticate('login')"
+                    data-translate="navigation.login">
                 </li>
             </ul>
         </header>
