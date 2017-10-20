@@ -283,7 +283,7 @@ gulp.task('serve:build', function () {
 });
 
 /** App templates **/
-gulp.task('build:app-templates', function () {
+const appTemplatesStream = ({ destFolder }) => {
     return gulp.src("assets/app/**/*.html")
         .pipe($$.plumber())
         .pipe($$.minifyHtml({
@@ -292,61 +292,53 @@ gulp.task('build:app-templates', function () {
             quotes: true
         }))
         .pipe($$.angularTemplatecache(getTemplateCacheConfig()))
-        .pipe(gulp.dest("assets/build/js"));
+        .pipe(gulp.dest(destFolder));
+};
+
+gulp.task('build:app-templates', function () {
+    return appTemplatesStream({ destFolder: 'assets/build/js' });
 });
 
 gulp.task('watch:app-templates', function () {
-    return gulp.src("assets/app/**/*.html")
-        .pipe($$.plumber())
-        .pipe($$.minifyHtml({
-            empty: true,
-            conditionals: true,
-            quotes: true
-        }))
-        .pipe($$.angularTemplatecache(getTemplateCacheConfig()))
-        .pipe(gulp.dest(".tmp/public/assets/build/js"))
+    return appTemplatesStream({ destFolder: '.tmp/public/assets/build/js' })
         .pipe(reload({ stream: true }));
 });
 
 /** App **/
-gulp.task('build:app:dev', function () {
+const appDevStream = ({ destFolder }) => {
     return gulp.src(jsConfig.app)
         .pipe($$.plumber())
         .pipe($$.sourcemaps.init())
             .pipe($$.concat("app.js"))
             .pipe($$.ngAnnotate())
         .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest("assets/build/js"));
+        .pipe(gulp.dest(destFolder));
+};
+
+gulp.task('build:app:dev', function () {
+    return appDevStream({ destFolder: 'assets/build/js' });
 });
 
 gulp.task('watch:app:dev', function () {
-    return gulp.src(jsConfig.app)
-        .pipe($$.plumber())
-        .pipe($$.sourcemaps.init())
-            .pipe($$.concat("app.js"))
-            .pipe($$.ngAnnotate())
-        .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest(".tmp/public/assets/build/js"));
+    return appDevStream({ destFolder: '.tmp/public/assets/build/js' });
 });
 
-gulp.task('build:app-pre:dev', function () {
+const appPreStream = ({ destFolder, isProd = false }) => {
     return gulp.src(jsConfig["app-pre"])
         .pipe($$.plumber())
         .pipe($$.sourcemaps.init())
             .pipe($$.concat("app-pre.js"))
-            .pipe($$.ngAnnotate())
+            .pipe($$.if(isProd, $$.uglify()))
         .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest("assets/build/js"));
+        .pipe(gulp.dest(destFolder));
+};
+
+gulp.task('build:app-pre:dev', function () {
+    return appPreStream({ destFolder: 'assets/build/js' });
 });
 
 gulp.task('build:app-pre:prod', function () {
-    return gulp.src(jsConfig["app-pre"])
-        .pipe($$.plumber())
-        .pipe($$.sourcemaps.init())
-            .pipe($$.concat("app-pre.js"))
-            .pipe($$.uglify())
-        .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest("assets/build/js"));
+    return appPreStream({ destFolder: 'assets/build/js', isProd: true });
 });
 
 gulp.task('build:app-lib', function () {
@@ -378,12 +370,12 @@ gulp.task('build:app:prod', function () {
 });
 
 /** Translations **/
-gulp.task('build:translations:cache', function () {
+const translationsCacheStream = ({ destFolder }) => {
     // Cache main language to avoid flash of untranslated content (FOUC)
-    var lang = 'en'; // TODO: use config default language
+    const lang = 'en'; // TODO: use config default language
     // cf. https://www.npmjs.com/package/gulp-ng-lang2js
 
-    var source = `translations/${lang}.json`;
+    const source = `translations/${lang}.json`;
 
     return gulp.src(source)
         .pipe($$.plumber())
@@ -397,53 +389,61 @@ gulp.task('build:translations:cache', function () {
             .pipe($$.ngAnnotate())
             .pipe($$.uglify())
         .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest('assets/build/js'));
+        .pipe(gulp.dest(destFolder));
+};
+
+gulp.task('build:translations:cache', function () {
+    return translationsCacheStream({ destFolder: 'assets/build/js' });
+});
+
+gulp.task('watch:translations:cache', function () {
+    return translationsCacheStream({ destFolder: '.tmp/public/assets/build/js' });
 });
 
 /** Sass **/
-gulp.task('build:sass:dev', function () {
+const sassStream = ({ destFolder, base, isProd = false }) => {
+    let destOptions;
+
+    if (base) {
+        destOptions.base = base;
+    }
+
     return gulp.src(scssConfig.sass)
         .pipe($$.sourcemaps.init())
-            .pipe($$.sass(getSassConfig()))
+            .pipe($$.sass(getSassConfig(isProd)))
                 .on("error", $$.sass.logError)
             .pipe($$.autoprefixer(getAutoprefixerConfig()))
         .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest("assets/build/css"));
+        .pipe(gulp.dest(destFolder, destOptions));
+};
+
+gulp.task('build:sass:dev', function () {
+    return sassStream({ destFolder: 'assets/build/css' });
 });
 
 gulp.task('watch:sass:dev', function () {
-    return gulp.src(scssConfig.sass)
-        .pipe($$.sourcemaps.init())
-            .pipe($$.sass(getSassConfig()))
-                .on("error", $$.sass.logError)
-            .pipe($$.autoprefixer(getAutoprefixerConfig()))
-        .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest(".tmp/public/assets/build/css", { base: "assets/scss" }))
+    return sassStream({ destFolder: '.tmp/public/assets/build/css', base: 'assets/scss' })
         .pipe($$.filter("**/*.css"))
         .pipe(reload({ stream: true }));
 });
 
 gulp.task('build:sass:prod', function () {
-    return gulp.src(scssConfig.sass)
-        .pipe($$.sourcemaps.init())
-            .pipe($$.sass(getSassConfig(true)))
-                .on("error", $$.sass.logError)
-            .pipe($$.autoprefixer(getAutoprefixerConfig()))
-        .pipe($$.sourcemaps.write("../sourcemaps"))
-        .pipe(gulp.dest("assets/build/css"));
+    return sassStream({ destFolder: 'assets/build/css', isProd: true });
 });
 
 /** Sprites **/
-gulp.task('build:sprites-svg:dev', function () {
+const spritesSvgStream = ({ destFolder, isProd = false }) => {
     return gulp.src("assets/icons/*.svg")
-        .pipe($$.svgSprite(getSvgSpriteConfig()))
-        .pipe(gulp.dest("assets/build/icons"));
+        .pipe($$.svgSprite(getSvgSpriteConfig(isProd)))
+        .pipe(gulp.dest(destFolder));
+};
+
+gulp.task('build:sprites-svg:dev', function () {
+    return spritesSvgStream({ destFolder: 'assets/build/icons' });
 });
 
 gulp.task('build:sprites-svg:prod', function () {
-    return gulp.src("assets/icons/*.svg")
-        .pipe($$.svgSprite(getSvgSpriteConfig(true)))
-        .pipe(gulp.dest("assets/build/icons"));
+    return spritesSvgStream({ destFolder: 'assets/build/icons', isProd: true });
 });
 
 /** Linker **/
@@ -511,7 +511,7 @@ gulp.task('default', ['build', 'browser-sync'], function () {
 
     gulp.watch("assets/img/**/*", ["serve:images:dev"]);
 
-    gulp.watch("translations/*.json", ["serve:translations", "build:translations:cache"]);
+    gulp.watch("translations/*.json", ["serve:translations", "watch:translations:cache"]);
 
     gulp.watch("assets/scss/**/*", ["watch:sass:dev"]);
 
