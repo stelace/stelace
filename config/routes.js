@@ -146,6 +146,9 @@ module.exports.routes = {
     'post /api/phone/sendCode': "SmsController.sendVerify",
     'post /api/phone/checkCode': "SmsController.checkVerify",
 
+    // StelaceConfigController
+    'put /api/stelace/config': "StelaceConfigController.update",
+
     // StelaceEventController
     'post /api/stelace/event': "StelaceEventController.createEvent",
     'put /api/stelace/event/:id': "StelaceEventController.updateEvent",

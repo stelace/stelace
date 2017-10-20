@@ -26,6 +26,7 @@
 
         if (window.dataFromServer) {
             state.features = window.dataFromServer.features || {};
+            state.config = window.dataFromServer.config || {};
         }
 
         var reducers = window.Redux.combineReducers(window.reducers || {});

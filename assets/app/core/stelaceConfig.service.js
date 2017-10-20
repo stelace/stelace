@@ -4,10 +4,14 @@
         .module("app.core")
         .factory("StelaceConfig", StelaceConfig);
 
-    function StelaceConfig($ngRedux) {
+    function StelaceConfig($ngRedux, $http, apiBaseUrl) {
         var service = {};
+        service.getConfig       = getConfig;
         service.getListFeatures = getListFeatures;
         service.isFeatureActive = isFeatureActive;
+
+        service.updateConfig   = updateConfig;
+        service.updateFeatures = updateFeatures;
 
         activate();
 
@@ -17,6 +21,11 @@
 
         function activate() {
 
+        }
+
+        function getConfig() {
+            var state = $ngRedux.getState();
+            return state.config || {};
         }
 
         function getListFeatures() {
@@ -32,6 +41,20 @@
             }
 
             return !!state.features[name];
+        }
+
+        function updateConfig(config) {
+            return $http.put(apiBaseUrl + "/stelace/config", { config: config })
+                .then(function (result) {
+                    window.actions.ConfigActions.setConfig(result.config);
+                });
+        }
+
+        function updateFeatures(features) {
+            return $http.put(apiBaseUrl + "/stelace/config", { features: features })
+                .then(function (result) {
+                    window.actions.FeaturesActions.setFeatures(result.features);
+                });
         }
 
     }

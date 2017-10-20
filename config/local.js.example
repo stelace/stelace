@@ -19,6 +19,20 @@ module.exports = {
         },
         secret: "<secret>", // must replace it
         url: "", // like 'https://example.com'
+
+        // CONFIG
+        defaultFeatures: {
+            GAMIFICATION: true,
+            TAGS: true,
+            EVENTS: true,
+            SOCIAL_LOGIN: true,
+            INCOME_REPORT: true,
+            SMS: true,
+            MAP: true,
+        },
+        defaultConfig: {
+            siteName: null,
+        },
     },
 
 

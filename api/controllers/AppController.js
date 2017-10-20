@@ -70,6 +70,7 @@ function index(req, res) {
             return res.redirect(newItemSearchUrl);
         }
 
+        const config = yield StelaceConfigService.getConfig();
         const features = yield StelaceConfigService.getListFeatures();
 
         var eventActive = yield StelaceConfigService.isFeatureActive('EVENTS');
@@ -81,6 +82,7 @@ function index(req, res) {
         var seoConfig = yield getSeoConfig(req.url);
 
         const dataFromServer = {
+            config,
             features,
         };
 

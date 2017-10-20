@@ -14,6 +14,9 @@
             case 'DISABLE_FEATURE':
                 obj[action.name] = false;
                 return _.assign({}, state, obj);
+            case 'TOGGLE_FEATURE':
+                obj[action.name] = !obj[action.name];
+                return _.assign({}, state, obj);
             case 'SET_FEATURES':
                 return _.assign({}, state, action.features);
 

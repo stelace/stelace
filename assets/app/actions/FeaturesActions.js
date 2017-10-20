@@ -2,6 +2,7 @@
     var FeaturesActions = {
         enableFeature: enableFeature,
         disableFeature: disableFeature,
+        toggleFeature: toggleFeature,
         setFeatures: setFeatures,
     };
 
@@ -15,6 +16,13 @@
     function disableFeature(name) {
         return {
             type: 'DISABLE_FEATURE',
+            name: name
+        };
+    }
+
+    function toggleFeature(name) {
+        return {
+            type: 'TOGGLE_FEATURE',
             name: name
         };
     }
