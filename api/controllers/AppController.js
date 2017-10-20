@@ -97,6 +97,7 @@ function index(req, res) {
             eventId: stelaceEvent ? stelaceEvent.id : 0,
             eventToken: stelaceEvent ? stelaceEvent.token : "",
             uxVersion: StelaceEventService.getCurrentVersion(),
+            devHighlightTranslations: sails.config.highlightTranslations ? "dev-highlight-translations" : "",
             featureDetection: ! UAService.isBot(userAgent),
             googleMapApiKey: sails.config.googleMapApiKey,
             dataFromServer: JSON.stringify(dataFromServer || {}),
