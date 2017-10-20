@@ -517,7 +517,7 @@
             _computeListingTypesProperties();
             _initPrice();
 
-            listeners.push($scope.$watch("vm.item.name", _.debounce(_nameChanged, 1500)));
+            listeners.push($scope.$watch("vm.item.name", _.debounce(_nameChanged, vm.isActivePriceRecommendation ? 1500 : 0)));
             listeners.push($scope.$watch("vm.item.sellingPrice", _.throttle(_sellingPriceChanged, 2000)));
         }
 
