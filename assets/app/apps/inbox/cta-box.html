@@ -21,8 +21,8 @@
                         ng-show="vm.booking && vm.isOwner">
                         Prix appliqué&nbsp;: {{vm.itemBasePrice}}€&nbsp;&bull;
                         <span ng-show="vm.booking.ownerFees">Dont</span>
-                        Frais de paiement&nbsp;: {{vm.ownerFeesString}}&nbsp;&bull;
-                        Caution&nbsp;: {{vm.booking.deposit}}€
+                        Frais de paiement&nbsp;: {{vm.ownerFeesString}}
+                        <span ng-if="vm.booking.deposit">&nbsp;&bull;Caution&nbsp;: {{vm.booking.deposit}}€</span>
                     </span>
                     <span class="text--vsmall text--semibold"
                         ng-show="vm.booking && vm.isOwner">
@@ -32,8 +32,8 @@
                     <span class="text--vsmall text--fade"
                         ng-show="vm.booking && ! vm.isOwner">
                         Prix fixé par le propriétaire&nbsp;: {{vm.itemBasePrice}}€&nbsp;&bull;
-                        Frais de service&nbsp;: {{vm.takerFeesString}}&nbsp;&bull;
-                        Caution&nbsp;: {{vm.booking.deposit}}€
+                        Frais de service&nbsp;: {{vm.takerFeesString}}
+                        <span ng-if="vm.booking.deposit">&nbsp;&bull;Caution&nbsp;: {{vm.booking.deposit}}€</span>
                     </span>
                 </div>
                 <div ng-if="vm.message.bookingStatus === 'info'">

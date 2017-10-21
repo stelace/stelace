@@ -74,20 +74,18 @@
             if (vm.booking) {
                 vm.booking = Restangular.restangularizeElement(null, vm.booking, "booking");
 
-                if (BookingService.isNoTime(vm.booking)) {
-                    return;
-                }
-
-                // get contract url
-                vm.booking
-                    .getContractToken()
-                    .then(function (res) {
-                        vm.contractUrl = BookingService.getContractUrl(vm.booking.id, res.value);
-                        vm.contractTarget = "sip-booking-contract_" + vm.booking.id;
-                        vm.showContract = vm.message.isCtaActive;
-                    });
-
                 vm.isNoTime = BookingService.isNoTime(vm.booking);
+
+                if (!vm.isNoTime) {
+                    // get contract url
+                    vm.booking
+                        .getContractToken()
+                        .then(function (res) {
+                            vm.contractUrl = BookingService.getContractUrl(vm.booking.id, res.value);
+                            vm.contractTarget = "sip-booking-contract_" + vm.booking.id;
+                            vm.showContract = vm.message.isCtaActive;
+                        });
+                }
 
                 if (! vm.isNoTime) {
                     vm.startDate = moment(vm.booking.startDate).format(displayFormatDate);

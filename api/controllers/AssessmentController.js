@@ -20,12 +20,12 @@ module.exports = {
 
 };
 
-function find(req, res) {
-    var conversationId = req.param("conversationId");
-    var access = "self";
+async function find(req, res) {
+    const conversationId = req.param('conversationId');
+    const access = 'self';
 
-    return Promise.coroutine(function* () {
-        var hashAssessments = yield AssessmentService.findAssessments(conversationId, req.user.id);
+    try {
+        const hashAssessments = await AssessmentService.findAssessments(conversationId, req.user.id);
 
         hashAssessments.inputAssessment        = Assessment.expose(hashAssessments.inputAssessment, access);
         hashAssessments.outputAssessment       = Assessment.expose(hashAssessments.outputAssessment, access);
@@ -33,89 +33,88 @@ function find(req, res) {
         hashAssessments.beforeOutputAssessment = Assessment.exposeBeforeAssessment(hashAssessments.beforeOutputAssessment);
 
         res.json(hashAssessments);
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
-function findOne(req, res) {
-    var id = req.param("id");
-    var access = "others";
+async function findOne(req, res) {
+    const id = req.param('id');
+    let access = 'others';
 
-    return Promise.coroutine(function* () {
-        var assessment = yield Assessment.findOne({ id: id });
+    try {
+        const assessment = await Assessment.findOne({ id });
         if (! assessment) {
             throw new NotFoundError();
         }
 
         if (Assessment.isAccessSelf(assessment, req.user)) {
-            access = "self";
+            access = 'self';
         }
 
         res.json(Assessment.expose(assessment, access));
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function create(req, res) {
     return res.forbidden();
 }
 
-function update(req, res) {
-    var id = req.param("id");
-    var filteredAttrs = [
-        "workingLevel",
-        "cleanlinessLevel",
-        "comment",
-        "commentDiff"
-    ];
-    var updateAttrs = _.pick(req.allParams(), filteredAttrs);
-    var access = "self";
+async function update(req, res) {
+    const id = req.param('id');
+    const attrs = req.allParams();
+    const access = 'self';
 
-    return Promise.coroutine(function* () {
-        var assessment = yield AssessmentService.updateAssessment(id, updateAttrs, req.user.id);
+    try {
+        const assessment = await AssessmentService.updateAssessment(id, attrs, req.user.id);
 
         res.json(Assessment.expose(assessment, access));
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function destroy(req, res) {
     return res.forbidden();
 }
 
-function sign(req, res) {
-    var id        = req.param("id");
-    var signToken = req.param("signToken");
-    var access    = "self";
+async function sign(req, res) {
+    var id        = req.param('id');
+    var signToken = req.param('signToken');
+    var access    = 'self';
 
     if (! signToken) {
         return res.badRequest();
     }
 
-    return Promise.coroutine(function* () {
-        var assessment = yield AssessmentService.signAssessment(id, signToken, req.user.id, req.logger, req);
+    try {
+        const assessment = await AssessmentService.signAssessment(id, signToken, req.user.id, req.logger, req);
 
         res.json(Assessment.expose(assessment, access));
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
-function last(req, res) {
-    var itemId = req.param("itemId");
-    var access = "others";
+async function last(req, res) {
+    var itemId = req.param('itemId');
+    var access = 'others';
 
     if (! itemId) {
         return res.badRequest();
     }
 
-    return Promise.coroutine(function* () {
-        var assessment = yield Assessment.getLastSigned(itemId);
+    try {
+        const assessment = await Assessment.getLastSigned(itemId);
 
         if (Assessment.isAccessSelf(assessment, req.user)) {
-            access = "self";
+            access = 'self';
         }
 
         res.json(Assessment.expose(assessment, access));
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }

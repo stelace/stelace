@@ -206,9 +206,7 @@ async function updateRating(ratingId, {
 
     var now = moment().toISOString();
 
-    if (!_.includes(Rating.get('scores'), updateAttrs.score)
-     || !updateAttrs.bookingId
-    ) {
+    if (!_.includes(Rating.get('scores'), updateAttrs.score)) {
         throw new BadRequestError();
     }
 

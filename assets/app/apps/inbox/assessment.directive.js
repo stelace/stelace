@@ -11,12 +11,11 @@
                 heading: "=",
                 previousAssessment: "=",
                 assessment: "=",
-                booking: "=", // only for initial assessment. Existence changes assessement behaviour.
+                booking: "=",
                 bankAccountMissing: "=", // to show appropriate warnings to owner
                 interlocutor: "=",
                 item: "=",
-                ratings: "=", // only for final assessment. Idem.
-                ratingAssessmentId: "=", // if we want to associate ratings with another assessment
+                ratings: "=", // only for final assessment
                 onSave: "=",
                 showForm: "="
             },

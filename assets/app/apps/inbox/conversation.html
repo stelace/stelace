@@ -146,10 +146,10 @@
                         heading="vm.assessmentOutput.heading"
                         previous-assessment="vm.assessmentOutput.previousAssessment"
                         assessment="vm.assessmentOutput.assessment"
+                        booking="vm.booking"
                         item="vm.item"
                         interlocutor="vm.interlocutor"
                         ratings="vm.assessmentOutput.ratings"
-                        rating-assessment-id="vm.assessmentOutput.ratingAssessmentId"
                         show-form="vm.assessmentOutput.showForm">
                     </sip-assessment>
 
@@ -166,7 +166,6 @@
                         show-form="vm.assessmentInput.showForm">
                     </sip-assessment>
                 </div>
-
                 <div ng-repeat="message in vm.messages | orderBy : 'createdDate' : true track by message.id">
                     <!-- Do not show twice the same (active) cta-box (but only duplicate one on top) if less than three messages between them
                     to avoid visual redundancy -->

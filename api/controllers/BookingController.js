@@ -174,16 +174,16 @@ function params(req, res) {
  *
  * @return {object} res.json
  */
-function validate(req, res) {
-    var id           = req.param("id");
-    var giverMessage = req.param("userMessage");
-    var access       = "owner";
+async function validate(req, res) {
+    const id           = req.param("id");
+    const giverMessage = req.param("userMessage");
+    const access       = "owner";
 
-    var now = moment().toISOString();
+    const now = moment().toISOString();
 
-    return Promise.coroutine(function* () {
-        var booking = yield Booking.findOne({ id: id });
-        if (! booking) {
+    try {
+        let booking = await Booking.findOne({ id });
+        if (!booking) {
             throw new NotFoundError();
         }
         // the booking cannot be validated by the current user
@@ -200,32 +200,36 @@ function validate(req, res) {
             throw new BadRequestError();
         }
 
-        var assessment = yield AssessmentService.createAssessment({
-            booking: booking,
-            type: "start"
-        });
+        const { ASSESSMENTS } = booking.listingType.properties;
 
-        // set the created assessment as input assessment for the conversation
-        yield Conversation.update(
-            { bookingId: booking.id },
-            { inputAssessmentId: assessment.id }
-        );
+        let assessment;
 
-        var data = {
-            booking: booking,
-            assessment: assessment,
-            giverMessage: giverMessage,
-            logger: req.logger
+        if (ASSESSMENTS !== 'NONE') {
+            assessment = await AssessmentService.createAssessment({
+                booking,
+                type: 'start',
+            });
+
+            await Conversation.update(
+                { bookingId: booking.id },
+                { inputAssessmentId: assessment.id },
+            );
+        }
+
+        const data = {
+            booking,
+            assessment,
+            giverMessage,
+            logger: req.logger,
         };
 
-        yield _sendBookingConfirmedEmailsSms(data);
+        await _sendBookingConfirmedEmailsSms(data);
 
         // cancel other bookings that overlaps this booking that is paid and validated by owner
         if (booking.confirmedDate) {
-            yield CancellationService
+            await CancellationService
                 .cancelOtherBookings(booking, req.logger)
                 .catch(err => {
-                    console.log(err)
                     req.logger.error({
                         err: err,
                         bookingId: booking.id
@@ -234,16 +238,17 @@ function validate(req, res) {
         }
 
         if (giverMessage && giverMessage.privateContent && giverMessage.senderId) {
-            yield Message.createMessage(booking.ownerId, giverMessage, { logger: req.logger });
+            await Message.createMessage(booking.ownerId, giverMessage, { logger: req.logger });
         }
 
-        booking = yield Booking.updateOne(booking.id, { validatedDate: now });
+        booking = await Booking.updateOne(booking.id, { validatedDate: now });
 
         BookingGamificationService.afterBookingPaidAndValidated(booking, req.logger, req);
 
         res.json(Booking.expose(booking, access));
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 /**
@@ -1144,9 +1149,7 @@ function _sendBookingPendingEmailsSms(data) {
             return Assessment
                 .findOne(findAssessmentAttrs)
                 .then(assessment => {
-                    if (! assessment
-                        && booking.bookingMode !== "rental-purchase" // there is no new assessment for rental-purchase booking
-                    ) {
+                    if (! assessment) {
                         throw new NotFoundError("Fail to get assessment for booking confirm emails");
                     }
 
@@ -1163,7 +1166,7 @@ function _sendBookingPendingEmailsSms(data) {
 /**
  * @param data
  * - *booking
- * - assessment            - not available for rental-purchase booking
+ * - assessment            - not always available (ASSESSMENTS === 'NONE')
  * - giverMessage          - To populate bookingConfirmedTaker email with giver's validation message
  * - *logger
  */

@@ -43,8 +43,8 @@
                 </div>
             </div>
 
-            <h4 class="text--semibold no-margin-top margin-bottom" ng-if="! vm.booking">Quel est l'état de restitution de l'objet&nbsp;?</h4>
-            <h4 class="text--semibold no-margin-top margin-bottom" ng-if="vm.booking">Quel est l'état initial de l'objet&nbsp;?</h4>
+            <h4 class="text--semibold no-margin-top margin-bottom" ng-if="vm.assessment.endBookingId">Quel est l'état de restitution de l'objet&nbsp;?</h4>
+            <h4 class="text--semibold no-margin-top margin-bottom" ng-if="vm.assessment.startBookingId">Quel est l'état initial de l'objet&nbsp;?</h4>
             <label for="select-working-level" class="text--fade"
                 ng-if="vm.previousAssessment.workingLevel && ! vm.assessment.signedDate">
                 <span>État de fonctionnement initial&nbsp;:</span>

@@ -281,7 +281,7 @@ async function cancelOtherBookings(booking, logger) {
     // time does not matter (like selling)
     // cancel not paid bookings whose quantity is greater than remaining quantity
     if (TIME === 'NONE') {
-        otherBookings = await Booking.findOne({
+        otherBookings = await Booking.find({
             itemId: booking.itemId,
             quantity: { '>': item.quantity },
             id: { '!': booking.id },

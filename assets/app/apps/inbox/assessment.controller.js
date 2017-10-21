@@ -104,25 +104,23 @@
 
                 vm.isOwner = (vm.item.ownerId === currentUser.id);
 
-                _getBooking()
-                    .then(function (booking) {
-                        if (! booking
-                         || BookingService.isNoTime(booking)
-                        ) {
-                            return;
-                        }
+                if (!BookingService.isNoTime(vm.booking)) {
+                    var booking = Restangular.restangularizeElement(null, vm.booking, "booking");
 
-                        booking = Restangular.restangularizeElement(null, booking, "booking");
+                    // get contract url
+                    booking
+                        .getContractToken()
+                        .then(function (res) {
+                            vm.contractUrl    = BookingService.getContractUrl(booking.id, res.value);
+                            vm.contractTarget = "sip-booking-contract_" + booking.id;
+                            vm.showContract   = true;
+                        });
+                }
 
-                        // get contract url
-                        booking
-                            .getContractToken()
-                            .then(function (res) {
-                                vm.contractUrl    = BookingService.getContractUrl(booking.id, res.value);
-                                vm.contractTarget = "sip-booking-contract_" + booking.id;
-                                vm.showContract   = true;
-                            });
-                    });
+                var properties = vm.booking.listingType.properties;
+                vm.uniqueAssessment = properties.ASSESSMENTS === 'ONE_STEP';
+                vm.dynamicPricing = properties.DYNAMIC_PRICING === 'DYNAMIC';
+                vm.isConfirmation = vm.uniqueAssessment && !vm.dynamicPricing;
 
                 _setShowButton();
             });
@@ -149,26 +147,9 @@
 
                     usSpinnerService.spin('save-assessment-spinner');
 
-                    if (! vm.assessment.id) {
-                        var createAttrs = _.clone(vm.assessment);
-                        createAttrs.itemId = vm.item.id;
-                        createAttrs.toUserId = vm.toUser.id;
-
-                        if (vm.booking) {
-                            createAttrs.bookingId = vm.booking.id;
-                        }
-
-                        return AssessmentService.post(createAttrs);
-                    } else {
-                        return vm.assessment.save();
-                    }
+                    return vm.assessment.save();
                 })
-                .then(function (newAssessment) {
-                    // assessment creation
-                    if (! vm.assessment.id) {
-                        vm.assessment = newAssessment;
-                    }
-
+                .then(function () {
                     if (! vm.assessment.signedDate && ! vm.signToken) {
                         toastr.info("Pour valider définitivement l'état des lieux, vous devez "
                             + (vm.bankAccountMissing ? "renseigner vos coordonnées bancaires pour recevoir le virement et " : "")
@@ -278,7 +259,7 @@
             }
 
             if (! vm.myRating.id) {
-                vm.myRating.assessmentId = vm.ratingAssessmentId || vm.assessment.id;
+                vm.myRating.bookingId = vm.booking.id;
 
                 return RatingService
                     .post(vm.myRating)
@@ -359,20 +340,6 @@
 
         function _setShowButton() {
             vm.showSaveButton = (! vm.assessment || ! vm.assessment.signedDate || (vm.ratings && ! vm.ratingsVisible));
-        }
-
-        function _getBooking() {
-            return $q
-                .when()
-                .then(function () {
-                    if (vm.booking) {
-                        return vm.booking;
-                    } else if (vm.assessment.endBookingId) {
-                        return BookingService.get(vm.assessment.endBookingId);
-                    } else {
-                        return;
-                    }
-                });
         }
     }
 

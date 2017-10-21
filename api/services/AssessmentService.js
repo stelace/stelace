@@ -5,14 +5,14 @@
 
 module.exports = {
 
-    findAssessments: findAssessments,
-    createAssessment: createAssessment,
-    updateAssessment: updateAssessment,
-    signAssessment: signAssessment
+    findAssessments,
+    createAssessment,
+    updateAssessment,
+    signAssessment,
 
 };
 
-var moment = require('moment');
+const moment = require('moment');
 
 /**
  * find assessments from conversation (input, output, before input, before output)
@@ -214,82 +214,75 @@ function updateAssessment(assessmentId, updateAttrs, userId) {
  * @param  {object} [req] - useful for gamification
  * @return {Promise<object>} signed assessment
  */
-function signAssessment(assessmentId, signToken, userId, logger, req) {
-    var now = moment().toISOString();
+async function signAssessment(assessmentId, signToken, userId, logger, req) {
+    const now = moment().toISOString();
 
-    var error;
+    let assessment = await Assessment.findOne({ id: assessmentId });
+    if (! assessment) {
+        throw new NotFoundError();
+    }
+    // the user that can sign assessment is the one that gives the item
+    if (Assessment.getRealGiverId(assessment) !== userId) {
+        throw new ForbiddenError();
+    }
+    if (! assessment.workingLevel
+        || ! assessment.cleanlinessLevel
+    ) {
+        throw new BadRequestError('assessment missing required fields');
+    }
+    if (assessment.signedDate) {
+        throw new BadRequestError('assessment already signed');
+    }
+    if (assessment.signToken !== signToken) {
+        const error = new BadRequestError('wrong token');
+        error.expose = true;
+        throw error;
+    }
 
-    return Promise.coroutine(function* () {
-        var assessment = yield Assessment.findOne({ id: assessmentId });
-        if (! assessment) {
-            throw new NotFoundError();
-        }
-        // the user that can sign assessment is the one that gives the item
-        if (Assessment.getRealGiverId(assessment) !== userId) {
-            throw new ForbiddenError();
-        }
-        if (! assessment.workingLevel
-            || ! assessment.cleanlinessLevel
-        ) {
-            throw new BadRequestError("assessment missing required fields");
-        }
-        if (assessment.signedDate) {
-            throw new BadRequestError("assessment already signed");
-        }
-        if (assessment.signToken !== signToken) {
-            error = new BadRequestError("wrong token");
-            error.expose = true;
+    let startBooking;
+    let outputAssessment;
+
+    if (assessment.startBookingId) {
+        startBooking = await Booking.findOne({ id: assessment.startBookingId });
+        if (! startBooking) {
+            const error = new Error('Assessment start booking not found');
+            error.assessmentId = assessment.id;
+            error.bookingId    = assessment.startBookingId;
             throw error;
         }
 
-        var startBooking;
-
-        if (assessment.startBookingId) {
-            startBooking = yield Booking.findOne({ id: assessment.startBookingId });
-            if (! startBooking) {
-                error = new Error("Assessment start booking not found");
-                error.assessmentId = assessment.id;
-                error.bookingId    = assessment.startBookingId;
-                throw error;
-            }
+        // create an assessment only if this is a process with two steps
+        const { ASSESSMENTS } = startBooking.listingType.properties;
+        if (ASSESSMENTS === 'TWO_STEPS') {
+            outputAssessment = await createOutputAssessment(assessment, startBooking);
         }
+    }
 
-        var outputAssessment;
+    const data = {
+        assessment: assessment,
+        newAssessment: outputAssessment,
+        logger: logger
+    };
 
-        // create an output assessment only for input assessment related to classic renting booking
-        if (assessment.itemMode === "classic"
-            && startBooking
-            && startBooking.bookingMode === "renting"
-        ) {
-            outputAssessment = yield createOutputAssessment(assessment, startBooking);
-        }
+    await _sendAssessmentEmailsSms(data);
 
-        var data = {
-            assessment: assessment,
-            newAssessment: outputAssessment,
-            logger: logger
-        };
+    if (assessment.endBookingId) {
+        await setEndOfBooking(assessment, now);
+    }
 
-        yield _sendAssessmentEmailsSms(data);
+    const updateAttrs = {
+        signedDate: now
+    };
 
-        if (assessment.endBookingId) {
-            yield setEndOfBooking(assessment, now);
-        }
+    // refresh snapshots to have the last version before freezing the assessment
+    const snapshots = await Assessment.getSnapshots(assessment);
+    _.assign(updateAttrs, Assessment.getSnapshotsIds(snapshots));
 
-        var updateAttrs = {
-            signedDate: now
-        };
+    assessment = await Assessment.updateOne(assessment.id, updateAttrs);
 
-        // refresh snapshots to have the last version before freezing the assessment
-        var snapshots = yield Assessment.getSnapshots(assessment);
-        _.assign(updateAttrs, Assessment.getSnapshotsIds(snapshots));
+    AssessmentGamificationService.afterAssessmentSigned(assessment, logger, req);
 
-        assessment = yield Assessment.updateOne(assessment.id, updateAttrs);
-
-        AssessmentGamificationService.afterAssessmentSigned(assessment, logger, req);
-
-        return assessment;
-    })();
+    return assessment;
 }
 
 function createOutputAssessment(assessment, startBooking) {
