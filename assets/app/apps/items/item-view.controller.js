@@ -252,6 +252,12 @@
                 vm.listingTypes    = results.listingTypes;
                 vm.uniqueListingType = item.listingTypesIds.length === 1;
 
+                if (vm.uniqueListingType) {
+                    vm.itemListingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.id === item.listingTypesIds[0];
+                    });
+                }
+
                 // handle legacy items
                 bookingParams[item.mode] = _.assign({}, bookingParams[item.mode]);
 
@@ -263,7 +269,12 @@
                     }
                 }
 
-                if (results.item.snapshot || results.item.soldDate) {
+                var noMoreAvailable = false;
+                if (vm.itemListingType && vm.itemListingType.properties.TIME === 'NONE' && item.quantity === 0) {
+                    noMoreAvailable = true;
+                }
+
+                if (item.snapshot || noMoreAvailable) {
                     vm.displaySnapshotView = true;
                     return _displayItemSnapshot(results);
                 }
