@@ -192,7 +192,7 @@ function getExtension(filepath) {
         return null;
     }
 
-    return extension.slice(1);
+    return extension.slice(1).toLowerCase();
 }
 
 function getTypeFromExtension(extension) {
