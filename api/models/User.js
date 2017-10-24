@@ -1,5 +1,5 @@
 /* global
-    FreeDaysLog, GamificationService, GeneratorService, Link, mangopay, Media, OdooService,
+    GamificationService, GeneratorService, Link, mangopay, Media, OdooService,
     User, TimeService, Token, ToolsService, UserXTag
 */
 
@@ -58,10 +58,6 @@ module.exports = {
         emailCheck: {
             type: "boolean",
             defaultsTo: false
-        },
-        nbFreeDays: {
-            type: "integer",
-            defaultsTo: 0
         },
         freeFeesDate: "string",
         mediaId: "integer",
@@ -129,7 +125,6 @@ module.exports = {
     getMedia: getMedia,
     createCheckEmailToken: createCheckEmailToken,
     syncOdooUser: syncOdooUser,
-    updateNbFreeDays: updateNbFreeDays,
     updateTags: updateTags,
     isFreeFees: isFreeFees,
     canApplyFreeFees: canApplyFreeFees,
@@ -144,7 +139,6 @@ var params = {
     maxNbLocations: 4,
     freeFees: {
         minLevelId: "BEGINNER",
-        nbFreeDaysUsed: 2,
         duration: { // 3 months and 1 day
             M: 3,
             d: 1
@@ -168,7 +162,6 @@ function getAccessFields(access) {
             "role",
             "email",
             "emailCheck",
-            "nbFreeDays",
             "freeFeesDate",
             "mediaId",
             "tagsIds",
@@ -475,47 +468,6 @@ function syncOdooUser(user, args) {
 }
 
 /**
- * update nb free days
- * @param  {object} user
- * @param  {object} args
- * @param  {number} args.delta
- * @param  {string} args.targetType
- * @param  {number} args.targetId
- * @param  {string} args.reasonType
- * @return {object} user
- */
-function updateNbFreeDays(user, args) {
-    var createAttrs = _.pick(args, [
-        "delta",
-        "targetType",
-        "targetId",
-        "reasonType"
-    ]);
-
-    return Promise.coroutine(function* () {
-        if (user.nbFreeDays + createAttrs.delta < 0) {
-            var error = new Error("Not enough free days");
-            error.userId = user.id;
-            error.delta  = createAttrs.delta;
-            throw error;
-        }
-
-        if (createAttrs.delta === 0) {
-            return user;
-        }
-
-        createAttrs.userId = user.id;
-        createAttrs.total  = user.nbFreeDays + createAttrs.delta;
-
-        var freeDaysLog = yield FreeDaysLog.create(createAttrs);
-
-        return yield User.updateOne(user.id, {
-            nbFreeDays: freeDaysLog.total
-        });
-    })();
-}
-
-/**
  * @param {Object[]} users - Users to retrieve media for
  */
 function getMedia(users) {
@@ -610,7 +562,6 @@ function isFreeFees(user, refDate) {
  * @param  {object} user
  * @param  {object} args
  * @param  {string} args.minLevelId
- * @param  {number} args.nbFreeDaysUsed
  * @return {boolean}
  */
 function canApplyFreeFees(user, args) {
@@ -625,11 +576,6 @@ function canApplyFreeFees(user, args) {
 
         if (levelIndex < minLevelIndex) {
             errors.MIN_LEVEL = true;
-        }
-    }
-    if (args.nbFreeDaysUsed) {
-        if (user.nbFreeDays < args.nbFreeDaysUsed) {
-            errors.NOT_ENOUGH_FREE_DAYS = true;
         }
     }
 
@@ -658,7 +604,6 @@ function getNewFreeFeesDate(user, duration) {
  * @param  {object} user
  * @param  {object} args
  * @param  {string} args.minLevelId
- * @param  {number} args.nbFreeDaysUsed
  * @param  {object} args.duration
  * @return {Promise<object>}
  */
@@ -676,14 +621,6 @@ function applyFreeFees(user, args) {
         }
 
         var newFreeFeesDate = getNewFreeFeesDate(user, args.duration);
-
-        if (args.nbFreeDaysUsed) {
-            user = yield User.updateNbFreeDays(user, {
-                delta: - args.nbFreeDaysUsed,
-                targetType: "freeFees",
-                reasonType: `use (${JSON.stringify(args.duration)})`
-            });
-        }
 
         return yield User.updateOne(user.id, { freeFeesDate: newFreeFeesDate });
     })();

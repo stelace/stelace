@@ -87,8 +87,7 @@ function getStats(req, res) {
                 actions: userStats.actions,
                 lastActions: userStats.lastActions,
                 nextLevelId: userStats.nextLevelId,
-                levelsPoints: userStats.levelsPoints,
-                nbFreeDays: req.user.nbFreeDays
+                levelsPoints: userStats.levelsPoints
             };
 
             res.json(exposedStats);

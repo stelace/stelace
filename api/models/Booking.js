@@ -51,10 +51,6 @@ module.exports = {
         nbTimeUnits: 'integer',
         timeUnit: 'string',
         nbBookedDays: "integer", // TODO: to remove (replaced by nbTimeUnits)
-        nbFreeDays: { // TODO: to remove
-            type: "integer",
-            defaultsTo: 0
-        },
         free: { // TODO: to remove
             type: "boolean",
             defaultsTo: false
@@ -192,7 +188,6 @@ function getAccessFields(access) {
             "endDate",
             "nbTimeUnits",
             "timeUnit",
-            "nbFreeDays",
             "free",
             "ownerPrice",
             "freeValue",
@@ -230,7 +225,6 @@ function getAccessFields(access) {
             "endDate",
             "nbTimeUnits",
             "timeUnit",
-            "nbFreeDays",
             "free",
             "ownerPrice",
             "freeValue",

@@ -23,8 +23,8 @@
                 </p>
                 <p class="text-justify">
                     Vous pourrez confirmer le bon état de l'objet avant de le récupérer grâce à un contrat
-                    <span ng-show="vm.booking.free">de prêt</span>
-                    <span ng-hide="vm.booking.free">de location</span>
+                    <span ng-show="vm.booking.takerPrice">de prêt</span>
+                    <span ng-hide="!vm.booking.takerPrice">de location</span>
                     électronique.
                     Il vous sera possible d'annuler sans frais en cas de non-conformité avec l'annonce ou de mauvais état de l'objet.
                 </p>

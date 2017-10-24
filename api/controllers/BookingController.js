@@ -1,7 +1,7 @@
 /* global
     Assessment, AssessmentService, Booking, BookingService, BookingGamificationService,
     Cancellation, CancellationService, Card, ContractService, Conversation,
-    EmailTemplateService, FileCachingService, FreeDaysService, GeneratorService, Item, Location, Message, mangopay,
+    EmailTemplateService, FileCachingService, GeneratorService, Item, Location, Message, mangopay,
     MapService, ModelSnapshot, PaymentError, SmsTemplateService, StelaceEventService, Token, TransactionService, User
 */
 
@@ -296,9 +296,6 @@ function cancel(req, res) {
         booking = yield CancellationService.cancelBooking(booking, null, {
             reasonType: reasonType,
             trigger: trigger,
-            cancel: {
-                freeDays: true
-            }
         });
 
         yield Booking.updateItemQuantity(booking, { actionType: 'add' });
@@ -332,7 +329,6 @@ function payment(req, res) {
 
     var access = "self";
     var formatDate = "YYYY-MM-DD";
-    var error;
 
     if (! cardId
         || ! operation || ! _.contains(["payment", "deposit", "deposit-payment"], operation)
@@ -360,10 +356,9 @@ function payment(req, res) {
                 booking,
                 card,
                 hashBookingsManagers[booking.id],
-                FreeDaysService.getFreeDaysUsedForBooking(req.user, booking)
             ];
         })
-        .spread((booking, card, transactionManager, freeDaysLog) => {
+        .spread((booking, card, transactionManager) => {
             if (! booking) {
                 throw new NotFoundError();
             }
@@ -378,15 +373,6 @@ function payment(req, res) {
                 || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
             ) {
                 throw new BadRequestError();
-            }
-            // if the user doesn't have enough free days and free days aren't already used
-            if (booking.nbFreeDays
-                && req.user.nbFreeDays < booking.nbFreeDays
-                && ! freeDaysLog
-            ) {
-                error = new BadRequestError("not enough free days");
-                error.expose = true;
-                throw error;
             }
 
             // store booking message for emails sent before message creation in booking-confirmation view
@@ -851,13 +837,6 @@ function _paymentEndProcess(data) {
                 // if email fails, do not save booking dates in order the process to be done again
                 return _sendBookingPendingEmailsSms(data2)
                     .then(() => {
-                        if (booking.nbFreeDays) {
-                            return useFreeDays(booker, booking, logger);
-                        } else {
-                            return;
-                        }
-                    })
-                    .then(() => {
                         return Booking.updateOne(booking.id, updateAttrs);
                     });
             } else {
@@ -898,45 +877,6 @@ function _paymentEndProcess(data) {
             }
         })
         .then(() => booking);
-
-
-
-    function useFreeDays(booker, booking, logger) {
-        return Promise
-            .resolve()
-            .then(() => {
-                if (booker) {
-                    return;
-                }
-
-                return User
-                    .findOne({ id: booking.bookerId })
-                    .then(b => {
-                        if (! b) {
-                            throw new Error("Booker not found");
-                        }
-
-                        booker = b;
-                    });
-            })
-            .then(() => {
-                return FreeDaysService.getFreeDaysUsedForBooking(booker, booking);
-            })
-            .then(freeDaysLog => {
-                if (freeDaysLog) {
-                    return;
-                } else {
-                    return FreeDaysService.useFreeDaysForBooking(booker, booking);
-                }
-            })
-            .catch(err => {
-                logger.error({
-                    err: err,
-                    bookingId: booking.id,
-                    userId: booking.bookerId
-                }, "Fail to use free days");
-            });
-    }
 }
 
 /**

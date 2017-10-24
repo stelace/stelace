@@ -109,7 +109,7 @@
             vm.validateCollapse = true; // deprecated
             vm.rejectCollapse   = true;
 
-            loadIBANForm = vm.isOwner && ! vm.booking.free;
+            loadIBANForm = vm.isOwner && vm.booking.takerPrice;
 
             if (loadIBANForm) {
                 $q.all({

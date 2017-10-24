@@ -310,7 +310,7 @@
 
                 vm.ownerActionRequired = ! vm.booking.validatedDate && ! vm.booking.cancellationId && message.isOwner;
                 vm.takerActionRequired = ! vm.booking.confirmedDate && message.isTaker;
-                vm.bankAccountMissing  = ! vm.booking.free && message.isOwner && ! vm.hasBankAccount;
+                vm.bankAccountMissing  = vm.booking.takerPrice && message.isOwner && ! vm.hasBankAccount;
 
                 vm.actionRequired = vm.takerActionRequired || vm.ownerActionRequired || vm.bankAccountMissing;
 

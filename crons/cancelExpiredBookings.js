@@ -101,9 +101,6 @@ Sails.load({
         // do not cancel payment (another script takes care of it)
         return CancellationService.cancelBooking(booking, null, {
             reasonType: reasonType,
-            cancel: {
-                freeDays: true
-            }
         });
     }
 
