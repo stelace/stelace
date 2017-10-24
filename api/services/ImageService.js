@@ -2,6 +2,7 @@ module.exports = {
 
     getSize,
     resize,
+    autoOrient,
     compress,
 
     getColor,
@@ -35,6 +36,20 @@ function resize(filepath, destPath, { width, height }) {
     return new Promise((resolve, reject) => {
         gm(filepath)
             .resize(width, height)
+            .write(destPath, function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+    });
+}
+
+function autoOrient(filepath, destPath) {
+    return new Promise((resolve, reject) => {
+        gm(filepath)
+            .autoOrient()
             .write(destPath, function (err) {
                 if (err) {
                     reject(err);

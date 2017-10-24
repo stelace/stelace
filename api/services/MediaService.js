@@ -200,26 +200,27 @@ async function runImageOperations(media, { logger }) {
     const tmpFilepath = path.join(tmpDir, Media.getStorageFilename(media));
 
     try {
-        await ImageService.compress(filepath, tmpDir);
-    } catch (err) {
-        logger.warn({
-            err: err,
-            mediaId: media.id,
-        }, 'Image compression fail');
-        return;
-    }
-
-    try {
+        await ImageService.autoOrient(filepath, tmpFilepath);
         await fs.renameAsync(tmpFilepath, filepath);
     } catch (err) {
         logger.error({
-            err: err,
+            err,
             mediaId: media.id,
-            filepath: tmpFilepath
-        }, 'Rename file after upload failed');
+            filepath: tmpFilepath,
+        }, 'Auto-orient file after upload failed');
+        await fs.unlinkAsync(tmpFilepath).catch(() => null);
+    }
 
-        fs.unlinkAsync(tmpFilepath).catch(() => null);
-        return;
+    try {
+        await ImageService.compress(filepath, tmpDir);
+        await fs.renameAsync(tmpFilepath, filepath);
+    } catch (err) {
+        logger.error({
+            err,
+            mediaId: media.id,
+            filepath: tmpFilepath,
+        }, 'Rename file after upload failed');
+        await fs.unlinkAsync(tmpFilepath).catch(() => null);
     }
 
     setImagePlaceholders(media).catch(() => null); // not blocking
