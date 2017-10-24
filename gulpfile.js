@@ -6,6 +6,7 @@ var browserSync = require('browser-sync');
 var fs          = require('fs');
 var crypto      = require('crypto'); // eslint-disable-line
 var path        = require('path');
+var exec        = require('child_process').exec;
 
 var reload      = browserSync.reload;
 
@@ -236,6 +237,9 @@ gulp.task('serve:root', function () {
 
 gulp.task('serve:translations', function () {
     return gulp.src("translations/*.json")
+        .pipe($$.jsonFormat(4))
+        .pipe($$.eol("\n"))
+        .pipe(gulp.dest("translations"))
         .pipe(gulp.dest(".tmp/public/assets/translations"));
 });
 
@@ -370,6 +374,14 @@ gulp.task('build:app:prod', function () {
 });
 
 /** Translations **/
+gulp.task('build:translations', function (cb) {
+    exec('npm run translate', function (err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+        cb(err);
+    });
+});
+
 const translationsCacheStream = ({ destFolder }) => {
     // Cache main language to avoid flash of untranslated content (FOUC)
     const lang = 'en'; // TODO: use config default language
@@ -511,7 +523,9 @@ gulp.task('default', ['build', 'browser-sync'], function () {
 
     gulp.watch("assets/img/**/*", ["serve:images:dev"]);
 
-    gulp.watch("translations/*.json", ["serve:translations", "watch:translations:cache"]);
+    gulp.watch("translations/**/*.yaml", ['build:translations']);
+
+    gulp.watch("translations/*.json", ['serve:translations', 'watch:translations:cache']);
 
     gulp.watch("assets/scss/**/*", ["watch:sass:dev"]);
 
@@ -520,8 +534,8 @@ gulp.task('default', ['build', 'browser-sync'], function () {
 
 gulp.task('build', function (cb) {
     runSequence(
-        ['build:app-pre:dev', 'build:app:dev', 'build:app-lib', 'build:app-templates', 'build:sass:dev', 'build:sprites-svg:dev', 'build:translations:cache'],
-        ['serve:root', 'serve:translations', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
+        ['build:app-pre:dev', 'build:app:dev', 'build:app-lib', 'build:app-templates', 'build:sass:dev', 'build:sprites-svg:dev', 'build:translations'],
+        ['serve:root', 'serve:translations', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components', 'build:translations:cache'],
         'linker:dev',
         cb
     );
@@ -529,7 +543,7 @@ gulp.task('build', function (cb) {
 
 gulp.task('build-prod', function (cb) {
     runSequence(
-        ['build:app-templates'],
+        ['build:app-templates', 'build:translations'],
         ['build:app-pre:prod', 'build:app:prod', 'build:sass:prod', 'build:sprites-svg:prod', 'build:translations:cache'],
         ['serve:root', 'serve:translations', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
         ['linker:prod', 'cache-bust'],
