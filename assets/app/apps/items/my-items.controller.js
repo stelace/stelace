@@ -415,8 +415,6 @@
                     });
                 }
 
-                vm.item.mode = "classic";
-
                 vm.itemTags = [];
             } else if (! item && newItemTmp) { // when using local storage
                 vm.item                     = _.cloneDeep(newItemTmp);
@@ -448,8 +446,6 @@
                         return l;
                     });
                 }
-
-                vm.item.mode = "classic";
 
                 _populateTags();
                 _populateItemCategories();

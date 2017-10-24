@@ -16,9 +16,8 @@
 
 
 
-        function getImcompleteBookings(itemMode) {
-            var url = apiBaseUrl + "/backoffice/incompleteBookings"
-                + (itemMode ? "?itemMode=" + itemMode : "");
+        function getImcompleteBookings() {
+            var url = apiBaseUrl + "/backoffice/incompleteBookings";
 
             return $http.get(url)
                 .then(function (res) {

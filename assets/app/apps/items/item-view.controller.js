@@ -75,7 +75,6 @@
         var itemLocations;
         var myLocations;
         var itemPricing;
-        var bookingParams;
         var questions;
         var journeys;
         var sortedJourneys;
@@ -234,7 +233,6 @@
                 listingTypes: ListingTypeService.cleanGetList(),
                 ownerItemLocations: ItemService.getLocations(itemId).catch(function () { return []; }),
                 myLocations: LocationService.getMine(),
-                bookingParams: BookingService.getParams(),
                 itemPricing: pricing.getPricing(),
                 questions: MessageService.getPublicMessages(itemId),
                 searchConfig: _getSearchConfig()
@@ -245,7 +243,6 @@
                 itemCategories     = results.itemCategories;
                 myLocations        = tools.clearRestangular(results.myLocations);
                 ownerItemLocations = tools.clearRestangular(results.ownerItemLocations);
-                bookingParams      = tools.clearRestangular(results.bookingParams);
                 itemPricing        = tools.clearRestangular(results.itemPricing);
                 questions          = results.questions;
                 searchConfig       = results.searchConfig;
@@ -258,8 +255,23 @@
                     });
                 }
 
-                // handle legacy items
-                bookingParams[item.mode] = _.assign({}, bookingParams[item.mode]);
+                ItemService.populate(item, {
+                    listingTypes: vm.listingTypes
+                });
+
+                // TODO: create tab by listingType
+                if (item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
+                    vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.properties.TIME === 'TIME_FLEXIBLE';
+                    });
+                }
+                if (item.listingTypesProperties.TIME.NONE) {
+                    vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.properties.TIME === 'NONE';
+                    });
+                }
+
+                vm.onlyNoTimeListing = vm.uniqueListingType && item.listingTypesProperties.TIME.NONE;
 
                 if (vm.currentUser) {
                     var now = moment().toISOString();
@@ -284,29 +296,17 @@
                     return $q.reject("item no locations");
                 }
 
-                var maxDurationBooking = bookingParams[item.mode].maxDuration;
+                var maxDurationBooking;
+                if (vm.timeFlexibleListingType) {
+                    maxDurationBooking = vm.timeFlexibleListingType.config.bookingTime.maxDuration;
+                }
 
                 ItemService.populate(item, {
                     // brands: brands,
                     itemCategories: itemCategories,
                     locations: ownerItemLocations,
-                    nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing,
-                    listingTypes: vm.listingTypes
+                    nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
                 });
-
-                // TODO: create tab by listingType
-                if (item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
-                    vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.properties.TIME === 'TIME_FLEXIBLE';
-                    });
-                }
-                if (item.listingTypesProperties.TIME.NONE) {
-                    vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.properties.TIME === 'NONE';
-                    });
-                }
-
-                vm.onlyNoTimeListing = vm.uniqueListingType && item.listingTypesProperties.TIME.NONE;
 
                 item.owner.fullname       = User.getFullname.call(item.owner);
                 item.owner.seniority      = displayMonth(item.owner.createdDate);
@@ -747,11 +747,6 @@
                 createAttrs.nbTimeUnits = vm.nbTimeUnits;
             }
 
-            // TODO: get parent booking id
-            var futureBookingConfig = {
-                itemMode: vm.item.mode
-            };
-
             // Google Analytics event
             var gaLabel = 'itemId: ' + vm.item.id;
             ga('send', 'event', 'Items', 'Booking', gaLabel);
@@ -760,7 +755,7 @@
                 content_name: vm.item.name,
                 content_ids: [vm.item.id],
                 content_category: ItemCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
-                sip_transaction_type: BookingService.getFbTransactionType(futureBookingConfig)
+                stl_transaction_type: listingType.name
             };
             fbq('track', 'InitiateCheckout', fbEventParams);
             // Stelace event
@@ -820,13 +815,13 @@
             }
 
             if (! vm.endDate) {
-                var minDuration = bookingParams[vm.item.mode].minDuration;
+                var minDuration = vm.timeFlexibleListingType.config.bookingTime.minDuration;
 
-                if (! minDuration || minDuration < 2) {
-                    minDuration = 2;
+                if (! minDuration) {
+                    minDuration = 1;
                 }
 
-                vm.endDate = moment(vm.startDate).add(minDuration - 1, "d").toDate();
+                vm.endDate = moment(vm.startDate).add(minDuration, "d").toDate();
             }
 
             $timeout(function () {
@@ -1016,7 +1011,10 @@
             vm.ownerHasMedal     = gamification.hasMedal(vm.ownerLvl);
             itemLocations        = [];
 
-            var maxDurationBooking = bookingParams[item.mode].maxDuration;
+            var maxDurationBooking;
+            if (vm.timeFlexibleListingType) {
+                maxDurationBooking = vm.timeFlexibleListingType.config.bookingTime.maxDuration;
+            }
 
             _setBreadcrumbs();
 
@@ -1067,7 +1065,6 @@
                 startDate: vm.startDate ? moment(vm.startDate).format(formatDate) : null,
                 endDate: vm.endDate ? moment(vm.endDate).format(formatDate) : null,
                 itemId: vm.item.id,
-                itemMode: vm.item.mode,
                 receiverId: vm.item.owner.id,
                 senderId: vm.currentUser.id
             };
@@ -1080,7 +1077,6 @@
 
                     return BookingService.post({
                         itemId: vm.item.id,
-                        itemMode: vm.item.mode,
                         startDate: vm.startDate ? moment(vm.startDate).format(formatDate) : null,
                         endDate: vm.endDate ? moment(vm.endDate).format(formatDate) : null,
                         listingTypeId: vm.noTimeBookingSelected ? vm.timeNoneListingType.id : vm.timeFlexibleListingType.id // TODO: find a better way to select it

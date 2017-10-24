@@ -6,9 +6,8 @@
         .module("app.data")
         .factory("BookingService", BookingService);
 
-    function BookingService($q, Restangular, Booking, cache, ItemService, time, tools) {
+    function BookingService($q, Restangular, Booking, cache, ItemService, time) {
         var service = Restangular.all("booking");
-        service.getParams                             = getParams;
         service.getMine                               = getMine;
 
         service.checkAvailability                     = checkAvailability;
@@ -33,27 +32,6 @@
         return service;
 
 
-
-        function getParams() {
-            return $q.when()
-                .then(function () {
-                    var cacheBookingParams = cache.get("bookingParams");
-
-                    if (cacheBookingParams) {
-                        return cacheBookingParams;
-                    } else {
-                        return service.customGET("params")
-                            .then(function (params) {
-                                params = tools.clearRestangular(params);
-                                cache.set("bookingParams", params);
-                                return params;
-                            })
-                            .catch(function (err) {
-                                return $q.reject(err);
-                            });
-                    }
-                });
-        }
 
         function getMine(as) {
             as = as || "booker";
@@ -388,7 +366,11 @@
         }
 
         function getFbTransactionType(booking) {
-            return booking.bookingMode;
+            if (booking.listingType) {
+                return booking.listingType.name;
+            } else {
+                return '';
+            }
         }
     }
 

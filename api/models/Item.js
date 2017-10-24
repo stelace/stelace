@@ -111,10 +111,6 @@ module.exports = {
         publishedDate: 'string',
         pausedUntil: "string",
         ownerRecallDate: "string", // TODO: to remove
-        mode: { // TODO: to remove
-            type: "string",
-            required: true
-        },
         listingTypesIds: {
             type: 'array',
             defaultsTo: [],
@@ -168,7 +164,6 @@ module.exports = {
     getFutureBookings: getFutureBookings,
     updateTags: updateTags,
     isValidReferences: isValidReferences,
-    canChangeItemSharingMode: canChangeItemSharingMode,
     getMedias: getMedias,
     getInstructionsMedias: getInstructionsMedias,
     getTags: getTags,
@@ -178,7 +173,6 @@ module.exports = {
 };
 
 var params = {
-    modes: ["classic"],
     bookingModes: ["renting", "rental-purchase", "purchase"],
     maxNbAccessories: 10,
     maxLengthAccessoryName: 255
@@ -211,7 +205,6 @@ function getAccessFields(access) {
             "locked",
             "publishedDate",
             "pausedUntil",
-            "mode",
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
@@ -246,7 +239,6 @@ function getAccessFields(access) {
             "locations",
             "broken",
             "locked",
-            "mode",
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
@@ -448,10 +440,6 @@ function isValidReferences(args) {
         .then(results => {
             return !! results.existsBrand && !! results.existsItemCategory;
         });
-}
-
-function canChangeItemSharingMode(mode) {
-    return mode === "classic";
 }
 
 /**

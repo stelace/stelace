@@ -108,7 +108,6 @@ function getComparedFields(targetType) {
             "companyItem",
             "locations",
             "perimeterDurationMinutes",
-            "mode",
             "listingTypesIds",
             "soldDate",
             "sellingPrice",

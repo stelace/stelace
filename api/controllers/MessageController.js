@@ -43,7 +43,6 @@ function create(req, res) {
     var filteredAttrs = [
         "conversationId",
         "itemId",
-        "itemMode",
         "senderId",
         "receiverId",
         "startDate",

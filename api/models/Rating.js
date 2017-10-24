@@ -37,7 +37,6 @@ module.exports = {
             type: "integer",
             index: true
         },
-        itemMode: "string",
         visibleDate: "string" // if now is after "visibleDate", then the rating can be visible
     },
 
@@ -82,7 +81,6 @@ function getAccessFields(access) {
             "targetId",
             "targetType",
             "bookingId",
-            "itemMode",
             "visibleDate",
             "createdDate",
             "updatedDate",
@@ -97,7 +95,6 @@ function getAccessFields(access) {
             "userType",
             "targetId",
             "targetType",
-            "itemMode",
             "visibleDate",
             "createdDate",
             "updatedDate"

@@ -23,7 +23,6 @@ module.exports = {
             type: "integer",
             index: true
         },
-        itemMode: "string",
         startBookingId: {
             type: "integer",
             index: true
@@ -100,7 +99,6 @@ function getAccessFields(access) {
             "commentDiff",
             "itemId",
             "itemSnapshotId",
-            "itemMode",
             "startBookingId",
             "endBookingId",
             "ownerId",
@@ -119,7 +117,6 @@ function getAccessFields(access) {
             "commentDiff",
             "itemId",
             "itemSnapshotId",
-            "itemMode",
             "signedDate",
             "cancellationId"
         ]

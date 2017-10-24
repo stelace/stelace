@@ -2,7 +2,7 @@
     Assessment, AssessmentService, Booking, BookingService, BookingGamificationService,
     Cancellation, CancellationService, Card, ContractService, Conversation,
     EmailTemplateService, FileCachingService, GeneratorService, Item, Location, Message, mangopay,
-    MapService, ModelSnapshot, PaymentError, SmsTemplateService, StelaceEventService, Token, TransactionService, User
+    ModelSnapshot, PaymentError, SmsTemplateService, StelaceEventService, Token, TransactionService, User
 */
 
 /**
@@ -21,7 +21,6 @@ module.exports = {
     destroy: destroy,
 
     my: my,
-    params: params,
     validate: validate,
     cancel: cancel,
 
@@ -156,13 +155,6 @@ function my(req, res) {
         res.json(Booking.exposeAll(bookings, access));
     })()
     .catch(res.sendError);
-}
-
-function params(req, res) {
-    return res.json({
-        classic: Booking.get("classic"),
-        purchase: Booking.get("purchase")
-    });
 }
 
 /**
@@ -976,7 +968,7 @@ function _sendBookingPendingEmailsSms(data) {
     function getConversation(booking, message, logger) {
         var messageAttrs  = {
             itemId: booking.itemId,
-            itemMode: booking.itemMode,
+            listingTypeId: booking.listingTypeId,
             bookingId: booking.id,
             senderId: booking.bookerId,
             receiverId: booking.ownerId,
@@ -1017,9 +1009,9 @@ function _sendBookingPendingEmailsSms(data) {
                 // Only send pending emails to both owner and taker and SMS to owner if owner has not validated yet (payment -i.e. confirmation- first)
                 if (! booking.validatedDate) {
                     return Promise.all([
-                        sendEmailClassicBookingPendingToTaker(),
-                        sendEmailClassicBookingPendingToOwner(),
-                        sendSmsClassicBookingPendingToOwner()
+                        sendEmailBookingPendingToTaker(),
+                        sendEmailBookingPendingToOwner(),
+                        sendSmsBookingPendingToOwner()
                     ]);
                 } else { // Booking was pre-accepted (validated) by owner so that payment concludes transaction
                     return sendEmailAndSmsBookingConfirmed();
@@ -1028,7 +1020,7 @@ function _sendBookingPendingEmailsSms(data) {
 
 
 
-        function sendEmailClassicBookingPendingToTaker() {
+        function sendEmailBookingPendingToTaker() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-pending-taker', {
                     user: booker,
@@ -1044,7 +1036,7 @@ function _sendBookingPendingEmailsSms(data) {
                 });
         }
 
-        function sendEmailClassicBookingPendingToOwner() {
+        function sendEmailBookingPendingToOwner() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-pending-owner', {
                     user: owner,
@@ -1060,7 +1052,7 @@ function _sendBookingPendingEmailsSms(data) {
                 });
         }
 
-        function sendSmsClassicBookingPendingToOwner() {
+        function sendSmsBookingPendingToOwner() {
             if (owner.phoneCheck) { // owner.phone is not automatically checked
                 return SmsTemplateService
                     .sendSmsTemplate('booking-pending-owner', {
@@ -1191,20 +1183,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 data.ownerLocations  = ownerLocations;
                 data.bookerLocations = bookerLocations;
 
-                if ((! ownerLocations.length && booking.itemMode === "classic")
-                    || ! bookerLocations.length
-                ) {
-                    return data;
-                } else {
-                    return MapService.getOsrmJourneys(bookerLocations, ownerLocations)
-                        .then(journeys => {
-                            journeys = MapService.sortUniqueOsrmJourneys(journeys, "from", "minDuration");
-
-                            data.journeys = journeys;
-                            return data;
-                        })
-                        .catch(() => data);
-                }
+                return data;
             });
     }
 
@@ -1219,29 +1198,28 @@ function _sendBookingConfirmedEmailsSms(data) {
         var itemMedias      = data.itemMedias;
         var ownerLocations  = data.ownerLocations;
         var bookerLocations = data.bookerLocations;
-        var journeys        = data.journeys;
 
         return Promise
             .resolve()
             .then(() => {
                 if (booking.confirmedDate) { // payment done
                     return Promise.all([
-                        sendEmailClassicBookingConfirmedToTaker(),
-                        sendSmsClassicBookingConfirmedToTaker(),
-                        sendEmailClassicBookingConfirmedToOwner() // No SMS to owner here since she has just validated
+                        sendEmailBookingConfirmedToTaker(),
+                        sendSmsBookingConfirmedToTaker(),
+                        sendEmailBookingConfirmedToOwner() // No SMS to owner here since she has just validated
                     ]);
                 } else { // booker has not paid yet
                     return Promise.all([
-                        sendEmailClassicPrebookingPendingToTaker(),
-                        sendSmsClassicPrebookingPendingToTaker(),
-                        sendEmailClassicPrebookingConfirmedToOwner()
+                        sendEmailPrebookingPendingToTaker(),
+                        sendSmsPrebookingPendingToTaker(),
+                        sendEmailPrebookingConfirmedToOwner()
                     ]);
                 }
             });
 
 
 
-        function sendEmailClassicBookingConfirmedToTaker() {
+        function sendEmailBookingConfirmedToTaker() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-confirmed-taker', {
                     user: booker,
@@ -1253,7 +1231,6 @@ function _sendBookingConfirmedEmailsSms(data) {
                     assessment: assessment,
                     ownerLocations: ownerLocations,
                     takerLocations: bookerLocations,
-                    journeys: journeys
                 })
                 .catch(err => {
                     // not critical
@@ -1261,7 +1238,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 });
         }
 
-        function sendSmsClassicBookingConfirmedToTaker() {
+        function sendSmsBookingConfirmedToTaker() {
             return SmsTemplateService.sendSmsTemplate('booking-confirmed-taker', {
                 user: booker,
                 item,
@@ -1273,7 +1250,7 @@ function _sendBookingConfirmedEmailsSms(data) {
             });
         }
 
-        function sendEmailClassicBookingConfirmedToOwner() {
+        function sendEmailBookingConfirmedToOwner() {
             // (full info since booking is paid)
             return EmailTemplateService
                 .sendEmailTemplate('booking-confirmed-owner', {
@@ -1283,7 +1260,6 @@ function _sendBookingConfirmedEmailsSms(data) {
                     itemMedias: itemMedias,
                     booker: booker,
                     ownerLocations: ownerLocations,
-                    journeys: journeys,
                     conversation: conversation
                 })
                 .catch(err => {
@@ -1292,7 +1268,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 });
         }
 
-        function sendEmailClassicPrebookingPendingToTaker() {
+        function sendEmailPrebookingPendingToTaker() {
             // Taker ('booker') call to action
             return EmailTemplateService
                 .sendEmailTemplate('prebooking-pending-taker', {
@@ -1310,7 +1286,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 });
         }
 
-        function sendSmsClassicPrebookingPendingToTaker() {
+        function sendSmsPrebookingPendingToTaker() {
             return SmsTemplateService
                 .sendSmsTemplate('prebooking-pending-taker', {
                     user: booker,
@@ -1323,7 +1299,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 });
         }
 
-        function sendEmailClassicPrebookingConfirmedToOwner() {
+        function sendEmailPrebookingConfirmedToOwner() {
             return EmailTemplateService
                 .sendEmailTemplate('prebooking-confirmed-owner', {
                     user: owner,

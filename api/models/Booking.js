@@ -20,7 +20,6 @@ module.exports = {
             type: "integer",
             index: true
         },
-        itemMode: "string", // TODO: to remove
         bookingMode: "string", // TODO: to remove
         listingTypeId: 'integer',
         listingType: 'json',
@@ -126,7 +125,6 @@ module.exports = {
     },
 
     getAccessFields: getAccessFields,
-    get: get,
 
     isValidDates: isValidDates,
     computeEndDate,
@@ -148,23 +146,6 @@ module.exports = {
 
 };
 
-// booking date constraints is given in days
-// if end date deltas are null, they are similar to start date deltas
-var params = {
-    classic: {
-        minDuration: 1,
-        maxDuration: 100,
-        startDateMinDelta: 1,
-        startDateMaxDelta: 90,
-        endDateMinDelta: null,
-        endDateMaxDelta: null,
-        releaseDateAfterEndDate: 7
-    },
-    purchase: {
-        discountPeriod: 31, // 1 month
-    }
-};
-
 var moment = require('moment');
 
 function getAccessFields(access) {
@@ -173,7 +154,6 @@ function getAccessFields(access) {
             "id",
             "itemId",
             "itemSnapshotId",
-            "itemMode",
             "bookingMode",
             "listingTypeId",
             "listingType",
@@ -210,7 +190,6 @@ function getAccessFields(access) {
             "id",
             "itemId",
             "itemSnapshotId",
-            "itemMode",
             "bookingMode",
             "listingTypeId",
             "listingType",
@@ -248,7 +227,6 @@ function getAccessFields(access) {
         others: [
             "id",
             "itemId",
-            "itemMode",
             "bookingMode",
             "listingTypeId",
             "listingType",
@@ -265,14 +243,6 @@ function getAccessFields(access) {
     };
 
     return accessFields[access];
-}
-
-function get(prop) {
-    if (prop) {
-        return params[prop];
-    } else {
-        return params;
-    }
 }
 
 /**
@@ -412,11 +382,11 @@ function updateBookingEndState(booking, now) {
             return booking;
         }
 
-        var nbDaysReleaseDeposit = Booking.get(booking.itemMode).releaseDateAfterEndDate;
+        const releaseDuration = booking.listingType.config.bookingTime.releaseDateAfterEndDate;
 
         // the deposit expires N days after the return date of the booking
         var updateAttrs = {
-            releaseDepositDate: moment(now).add(nbDaysReleaseDeposit, "d").toISOString()
+            releaseDepositDate: moment(now).add(releaseDuration).toISOString()
         };
 
         return yield Booking.updateOne(booking.id, updateAttrs);

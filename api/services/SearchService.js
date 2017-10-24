@@ -159,7 +159,6 @@ async function getMatchedItemCategoriesIds(itemCategoryId) {
 
 async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
     const {
-        mode,
         listingTypeId,
         // onlyFree,
         withoutIds,
@@ -174,9 +173,6 @@ async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
 
     if (itemCategoriesIds) {
         findAttrs.itemCategoryId = itemCategoriesIds;
-    }
-    if (mode) {
-        findAttrs.mode = mode;
     }
     if (withoutIds) {
         findAttrs.id = { '!': withoutIds };
@@ -284,19 +280,19 @@ function mergePublishedAndQueryItems(items, queryItems) {
  */
 async function getItemsLocations(items) {
 
-    const classicItemsLocations = await getClassicItemsLocations(items);
+    const itemsLocations = await _getItemsLocations(items);
 
     const hashLocations = {};
 
-    const indexedClassicItemsLocations = _.indexBy(classicItemsLocations, 'id');
+    const indexedItemsLocations = _.indexBy(itemsLocations, 'id');
     _.forEach(items, item => {
-        hashLocations[item.id] = _.map(item.locations, locationId => indexedClassicItemsLocations[locationId]);
+        hashLocations[item.id] = _.map(item.locations, locationId => indexedItemsLocations[locationId]);
     });
 
     return hashLocations;
 }
 
-async function getClassicItemsLocations(items) {
+async function _getItemsLocations(items) {
     if (!items.length) {
         return [];
     }
@@ -621,7 +617,6 @@ function setItemsToCache(cacheKey, items) {
  * @param {object}   params
  * @param {number}   [params.itemCategoryId]
  * @param {string}   [params.query]
- * @param {string}   [params.mode]
  * @param {string}   [params.listingTypeId]
  * @param {boolean}  [params.onlyFree] // disabled for now
  * @param {string}   [params.queryMode] - allowed values: ['relevance', 'default', 'distance']
@@ -640,7 +635,6 @@ function normalizeSearchQuery(params) {
     var searchFields = [
         'itemCategoryId',
         'query',
-        'mode',
         'listingTypeId',
         // 'onlyFree',
         'queryMode',
@@ -669,10 +663,6 @@ function normalizeSearchQuery(params) {
             case 'itemCategoryId':
             case 'timestamp':
                 isValid = !isNaN(value);
-                break;
-
-            case 'mode':
-                isValid = _.includes(Item.get('modes'), value);
                 break;
 
             case 'queryMode':
@@ -747,7 +737,7 @@ async function createEvent({
         type,
         userAgent,
         userId: req.user && req.user.id,
-        mode: searchQuery.mode,
+        listingTypeId: searchQuery.listingTypeId,
         query: searchQuery.query,
         page: searchQuery.page,
         limit: searchQuery.limit,

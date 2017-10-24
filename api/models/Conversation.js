@@ -14,7 +14,6 @@ module.exports = {
             index: true,
             required: true
         },
-        itemMode: "string",
         bookingId: {
             type: "integer",
             index: true
@@ -87,7 +86,6 @@ function getAccessFields(access) {
         self: [
             "id",
             "itemId",
-            "itemMode",
             "bookingId",
             "inputAssessmentId",
             "outputAssessmentId",
@@ -108,7 +106,6 @@ function getAccessFields(access) {
         others: [
             "id",
             "itemId",
-            "itemMode",
             "bookingId",
             "senderId",
             "receiverId",

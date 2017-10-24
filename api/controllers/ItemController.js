@@ -210,7 +210,6 @@ async function create(req, res) {
         "validation",
         "validationFields",
         "locations",
-        "mode",
         "listingTypesIds",
         "dayOnePrice",
         "sellingPrice",
@@ -225,7 +224,6 @@ async function create(req, res) {
     if (! createAttrs.name
         || (createAttrs.tags && ! µ.checkArray(createAttrs.tags, "id"))
         || (createAttrs.locations && ! µ.checkArray(createAttrs.locations, "id"))
-        || ! createAttrs.mode || ! _.contains(Item.get("modes"), createAttrs.mode)
         || typeof createAttrs.sellingPrice !== "number" || createAttrs.sellingPrice < 0
         || typeof createAttrs.dayOnePrice !== "number" || createAttrs.dayOnePrice < 0
         || ! PricingService.getPricing(createAttrs.pricingId)
@@ -248,11 +246,6 @@ async function create(req, res) {
 
         var pricing = PricingService.getPricing();
         createAttrs.pricingId = pricing.id;
-
-        // only classic mode item can be created by non-admin users
-        if (createAttrs.mode !== "classic" && ! TokenService.isRole(req, "admin")) {
-            return res.badRequest();
-        }
 
         const [
             myLocations,
@@ -323,7 +316,6 @@ async function update(req, res) {
         "brandId",
         "itemCategoryId",
         "locations",
-        // "mode",
         "listingTypesIds",
         "dayOnePrice",
         "sellingPrice",
@@ -336,7 +328,6 @@ async function update(req, res) {
 
     if ((updateAttrs.tags && ! µ.checkArray(updateAttrs.tags, "id"))
         || (updateAttrs.locations && ! µ.checkArray(updateAttrs.locations, "id"))
-        || (updateAttrs.mode && ! _.contains(Item.get("modes"), updateAttrs.mode))
         || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== "number" || updateAttrs.sellingPrice < 0))
         || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== "number" || updateAttrs.dayOnePrice < 0))
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== "number" || updateAttrs.deposit < 0))

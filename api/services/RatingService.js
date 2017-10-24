@@ -159,7 +159,6 @@ async function createRating({
 
     createAttrs.itemId      = booking.itemId;
     createAttrs.visibleDate = visibleDate;
-    createAttrs.itemMode    = booking.itemMode;
 
     _.assign(createAttrs, Rating.getRoles(booking, user.id));
 

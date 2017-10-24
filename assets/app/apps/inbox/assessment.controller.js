@@ -223,10 +223,8 @@
                         _setSignInfo();
                     });
 
-                    // display output assessment after signing input assessment in classic
-                    if (vm.assessment.itemMode === "classic") {
-                        $rootScope.$emit("refreshInbox");
-                    }
+                    // refresh the inbox in case there is an output assessment after signing input assessment
+                    $rootScope.$emit("refreshInbox");
 
                     // when ratings are relevant, only collapse assessment if user has written a comment
                     if (! vm.ratings || (vm.ratings && vm.myRating.comment)) {

@@ -51,7 +51,7 @@ Sails.load({
         var purchaseCreatedDateLimit = moment().add(- purchaseNbDaysAfterCreatedDate, "d").format("YYYY-MM-DD");
 
         bookings = _.filter(bookings, booking => {
-            if (Booking.isPurchase(booking)) {
+            if (Booking.isNoTime(booking)) {
                 return booking.createdDate < purchaseCreatedDateLimit;
             } else {
                 return booking.startDate < rentingStartDateLimit;

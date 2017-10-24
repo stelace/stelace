@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <section ng-if="vm.incompleteClassicBookings.length" id="section-booking-classic">
+    <section ng-if="vm.incompleteBookings.length" id="section-booking">
         <h2>Réservations</h2>
         <div>
             <table class="monitoring-table">
@@ -76,7 +76,7 @@
                             État fin
                         </th>
                     </tr>
-                    <tr class="monitoring-line" ng-repeat="booking in vm.incompleteClassicBookings">
+                    <tr class="monitoring-line" ng-repeat="booking in vm.incompleteBookings">
                         <td class="monitoring-cell">{{booking.id}} / {{booking.itemId}}</td>
                         <td class="monitoring-cell"
                             title="{{booking.ownerName}} / {{booking.bookerName}}">
@@ -157,9 +157,6 @@
             <div>
                 <strong>Informations concernant la réservation n°{{vm.bookingIdToCancel}}</strong>
             </div>
-            <!-- <div>
-                <u>Mode</u>&nbsp;: {{vm.bookingToCancel.itemMode}}
-            </div> -->
             <div>
                 <u>Objet</u>&nbsp;: {{vm.bookingToCancel.item.name}}
             </div>

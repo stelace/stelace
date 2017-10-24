@@ -45,22 +45,27 @@ function destroy(req, res) {
     return res.forbidden();
 }
 
-function getIncompleteBookings(req, res) {
-    var itemMode = req.param("itemMode");
+async function getIncompleteBookings(req, res) {
+    let listingTypeId = req.param('listingTypeId');
     var access = "self";
 
     if (! TokenService.isRole(req, "admin")) {
         return res.forbidden();
     }
 
-    return Promise.coroutine(function* () {
-        var result = yield MonitoringService.getIncompleteBookings({
-            access: access,
-            itemMode: itemMode
+    if (listingTypeId) {
+        listingTypeId = parseInt(listingTypeId, 10);
+    }
+
+    try {
+        const result = await MonitoringService.getIncompleteBookings({
+            access,
+            listingTypeId,
         });
         res.json(result);
-    })()
-    .catch(res.sendError);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function setAction(req, res) {

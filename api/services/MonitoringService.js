@@ -17,8 +17,8 @@ module.exports = {
 /**
  * get uncompleted bookings
  * @param {object} args
- * @param {string} args.access
- * @param {string} args.itemMode
+ * @param {string} [args.access]
+ * @param {Number} [args.listingTypeId]
  */
 function getIncompleteBookings(args) {
     args = args || {};
@@ -26,7 +26,7 @@ function getIncompleteBookings(args) {
     var access = args.access || "self";
 
     return Promise.coroutine(function* () {
-        var bookings = yield getRealBookings(args.itemMode);
+        var bookings = yield getRealBookings(args.listingTypeId);
 
         if (! bookings.length) {
             return { bookings: [] };
@@ -47,13 +47,13 @@ function getIncompleteBookings(args) {
 
 
     // get bookings that are paid by booker or validated by owner
-    function getRealBookings(itemMode) {
+    function getRealBookings(listingTypeId) {
         var findAttrs = {
             cancellationId: null
         };
 
-        if (itemMode) {
-            findAttrs.itemMode = itemMode;
+        if (listingTypeId) {
+            findAttrs.listingTypeId = listingTypeId;
         }
 
         findAttrs.or = [
@@ -122,7 +122,7 @@ function getIncompleteBookings(args) {
  * @param  {string}   [args.toDate]
  * @param  {boolean}  [args.cancelled = false]
  * @param  {boolean}  [args.validated]
- * @param  {string}   [args.itemMode]
+ * @param  {Number}   [args.listingTypeId]
  */
 function getPaidBookings(args) {
     args = args || {};
@@ -136,8 +136,8 @@ function getPaidBookings(args) {
         .then(() => {
             var findAttrs = {};
 
-            if (args.itemMode) {
-                findAttrs.itemMode = args.itemMode;
+            if (args.listingTypeId) {
+                findAttrs.listingTypeId = args.listingTypeId;
             }
 
             var periodAttrs = ToolsService.getPeriodAttrs(args.fromDate, args.toDate);
@@ -378,7 +378,7 @@ function getRevenue(args) {
             });
 
             var revenue = _.reduce(bookings, (memo, booking) => {
-                var isPeer2Peer = (booking.itemMode === "classic" && booking.ownerId !== 1);
+                var isPeer2Peer = booking.ownerId !== 1;
 
                 var priceResult = PricingService.getPriceAfterRebateAndFees({ booking: booking });
 

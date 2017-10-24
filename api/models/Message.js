@@ -90,7 +90,6 @@ function getAccessFields(access) {
  * @param {integer} createAttrs.conversationId
  * @param {integer} createAttrs.senderId
  * @param {integer} createAttrs.receiverId
- * @param {string}  createAttrs.itemMode
  * @param {string}  [createAttrs.privateContent]
  * @param {string}  [createAttrs.publicContent]
  * @param {integer} [createAttrs.bookingId]
@@ -192,12 +191,9 @@ function createMessage(userId, createAttrs, params) {
         var existingPaidBooking = booking && booking.confirmedDate && ! booking.cancellationId ? booking : null;
         var newBookingDifferentThanExisting = newBooking && existingPaidBooking && existingPaidBooking.id !== newBooking.id;
 
-        // rental-purchase bookings (in the future: extended bookings)
-        var newBookingLinkedToExisting = newBooking && booking && newBooking.parentId === booking.id && newBooking.itemMode === "rental-purchase";
-
         if (params.forceNewConversation
          || ! conversation
-         || (newBookingDifferentThanExisting && ! newBookingLinkedToExisting)
+         || newBookingDifferentThanExisting
         ) {
             newMessageData = yield createMessageWithNewConversation({
                 createAttrs: createAttrs,
@@ -303,7 +299,6 @@ function createMessageWithNewConversation(args) {
 
     var createConvAttrs        = _.pick(createAttrs, pickUpdateConversationAttrs);
     createConvAttrs.itemId     = createAttrs.itemId;
-    createConvAttrs.itemMode   = createAttrs.itemMode;
     createConvAttrs.senderId   = createAttrs.senderId;
     createConvAttrs.receiverId = createAttrs.receiverId;
 

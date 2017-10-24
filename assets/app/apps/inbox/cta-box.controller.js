@@ -260,10 +260,10 @@
         function createBankAccount() {
             var editingCurrentUser = Restangular.copy(vm.currentUser);
 
+            console.log(vm.currentRequest)
             if (vm.currentRequest) { // debounce
                 return;
             }
-            vm.currentRequest = true;
 
             vm.identity.birthday = "" + vm.birthYear + "-" + vm.birthMonth + "-" + vm.birthDay; // ISO
 
@@ -280,6 +280,7 @@
                 )
             ) {
                 toastr.warning("Il manque des informations nécessaires à la validation de la réservation.", "Informations bancaires");
+                vm.currentRequest = false;
                 return;
             }
 

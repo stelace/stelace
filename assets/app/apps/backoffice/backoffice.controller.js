@@ -135,11 +135,7 @@
 
                     var incompleteBookings = res.incompleteBookings;
 
-                    var bookings = _populateIncompleteBookings(incompleteBookings);
-
-                    vm.incompleteClassicBookings = _.filter(bookings, function (booking) {
-                        return booking.itemMode === "classic";
-                    });
+                    vm.incompleteBookings = _populateIncompleteBookings(incompleteBookings);
 
                     vm.tagsList = _.sortBy(res.tagsList, function (tag) {
                         return tag.timesSearched;
@@ -205,7 +201,6 @@
                     id: booking.id,
                     itemId: item.id,
                     itemName: { value: tools.shrinkString(item.name, 40), title: item.name },
-                    itemMode: booking.itemMode,
                     ownerId: owner.id,
                     ownerName: User.getFullname.call(owner, true),
                     bookerId: booker.id,

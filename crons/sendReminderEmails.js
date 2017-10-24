@@ -711,9 +711,9 @@ Sails.load({
                 var assessments     = resultAssessments.assessments;
                 var hashAssessments = resultAssessments.hashAssessments;
 
-                // get start bookings for classic mode
+                // get start bookings
                 var startBookingsIds = _.reduce(assessments, (memo, assessment) => {
-                    if (assessment.itemMode === "classic" && assessment.startBookingId) {
+                    if (assessment.startBookingId) {
                         memo.push(assessment.startBookingId);
                     }
                     return memo;
@@ -731,27 +731,25 @@ Sails.load({
                 assessments = _.filter(assessments, assessment => {
                     var booking;
 
-                    if (assessment.itemMode === "classic") {
-                        if (assessment.startBookingId) {
-                            booking = indexedBookings[assessment.startBookingId];
-                            if (! booking) {
-                                var error          = new NotFoundError("Booking not found");
-                                error.assessmentId = assessment.id;
-                                error.bookingId    = assessment.startBookingId;
-                                logger.error({ err: error });
-                            }
+                    if (assessment.startBookingId) {
+                        booking = indexedBookings[assessment.startBookingId];
+                        if (! booking) {
+                            var error          = new NotFoundError("Booking not found");
+                            error.assessmentId = assessment.id;
+                            error.bookingId    = assessment.startBookingId;
+                            logger.error({ err: error });
+                        }
 
-                            // input assessments can be rated for classic purchase bookings
-                            if (Booking.isPurchase(booking)) {
-                                return true;
-                            } else {
-                                // only output classic renting assessments can be rated
-                                return hashAssessments[assessment.id].output;
-                            }
+                        // input assessments can be rated for no time bookings
+                        if (Booking.isNoTime(booking)) {
+                            return true;
                         } else {
-                            // only output classic renting assessments can be rated
+                            // only output renting assessments can be rated
                             return hashAssessments[assessment.id].output;
                         }
+                    } else {
+                        // only output renting assessments can be rated
+                        return hashAssessments[assessment.id].output;
                     }
                 });
 
@@ -1032,7 +1030,7 @@ Sails.load({
 
     /**
      * send email late unsigned assessments
-     * in classic owner signs input assessment and taker signs output one
+     * owner signs input assessment and taker signs output one
      * @param {object} args
      * @param {object} args.assessment
      * @param {object} args.booking
@@ -1082,8 +1080,8 @@ Sails.load({
         var giver        = args.giver;
         var item         = args.item;
 
-        // not signing end assessment for classic booking is not critical
-        if (booking.itemMode === "classic" && assessment.endBookingId) {
+        // not signing end assessment is not critical
+        if (assessment.endBookingId) {
             return;
         }
 

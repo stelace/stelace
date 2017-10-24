@@ -81,7 +81,7 @@ Sails.load({
 
                     yield BookingPaymentService.cancelDeposit(booking, transactionManager)
                         .then(() => ++info.cancel.nb);
-                } else if (releaseClassicBookingDeposit(booking, bookingAssessments, releaseDepositLimitDate)
+                } else if (releaseBookingDeposit(booking, bookingAssessments, releaseDepositLimitDate)
                  || releaseCancelledBooking(booking, cancellation, releaseDepositLimitDate)
                 ) {
                     ++info.cancel.total;
@@ -149,13 +149,12 @@ Sails.load({
             && releaseDeposit;
     }
 
-    function releaseClassicBookingDeposit(booking, bookingAssessments, releaseDepositLimitDate) {
-        // if classic renting booking has no release deposit date
+    function releaseBookingDeposit(booking, bookingAssessments, releaseDepositLimitDate) {
+        // if booking has no release deposit date
         // and end date is theoretically long time ago
         // and the input assessment was signed
         // and the output assessment hasn't been signed
-        return booking.itemMode === "classic"
-         && ! Booking.isPurchase(booking)
+        return ! Booking.isNoTime(booking)
          && ! booking.releaseDepositDate
          && booking.endDate < releaseDepositLimitDate
          && bookingAssessments.inputAssessment

@@ -414,7 +414,7 @@
                 content_ids: [vm.item.id],
                 content_name: vm.item.name,
                 content_category: ItemCategoryService.getCategoriesString(vm.itemCategoryName, vm.notCategoryTags[0]),
-                sip_transaction_type: BookingService.getFbTransactionType(vm.booking)
+                stl_transaction_type: BookingService.getFbTransactionType(vm.booking)
             };
             fbq('track', 'AddPaymentInfo', fbEventParams);
 

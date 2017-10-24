@@ -76,7 +76,6 @@ module.exports.routes = {
 
     // BookingController
     'get /api/booking/my': "BookingController.my",
-    'get /api/booking/params': "BookingController.params",
     'post /api/booking/:id/cancel': "BookingController.cancel",
     'post /api/booking/:id/validate': "BookingController.validate",
     'post /api/booking/:id/payment': "BookingController.payment",

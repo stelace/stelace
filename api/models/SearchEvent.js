@@ -11,7 +11,7 @@ module.exports = {
         type: "string",
         userId: "integer",
         tagsIds: "array",
-        mode: "string",
+        listingTypeId: "integer",
         query: "string",
         page: "integer",
         limit: "integer",

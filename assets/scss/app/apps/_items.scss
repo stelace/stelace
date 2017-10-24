@@ -770,7 +770,7 @@ $search__search-bar-height: 3.5rem;
                     overflow-x: hidden;
                 }
                 @media #{$mq-from-desktop} and (max-height: 600px) {
-                    max-height: 17rem; // Just enough to show all content without scroll in classic mode
+                    max-height: 17rem; // Just enough to show all content without scroll
                 }
                 @media #{$mq-from-desktop} and (max-height: 550px) {
                     max-height: 11rem;

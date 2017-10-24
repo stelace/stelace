@@ -124,9 +124,9 @@ Sails.load({
                     newLinks: getNewLinks(fromDate, toDate),
                     newItems: getNewItems(fromDate, toDate),
                     itemsToValidate: getItemsToValidate(fromDate, toDate),
-                    validatedClassicBookings: getValidatedClassicBookings(fromDate, toDate),
-                    classicBookingsToValidate: getClassicBookingsToValidate(fromDate, toDate),
-                    oldClassicBookingsToValidate: getOldClassicBookingsToValidate(fromDate, toDate),
+                    validatedBookings: getValidatedBookings(fromDate, toDate),
+                    bookingsToValidate: getBookingsToValidate(fromDate, toDate),
+                    oldBookingsToValidate: getOldBookingsToValidate(fromDate, toDate),
                     preBookingsToValidate: getPreBookingsToValidate(fromDate, toDate),
                     unsignedAssessments: getUnsignedAssessments(fromDate, toDate, logger),
                     revenue: getRevenue(fromDate, toDate)
@@ -185,21 +185,20 @@ Sails.load({
                 });
         }
 
-        function getValidatedClassicBookings(fromDate, toDate) {
+        function getValidatedBookings(fromDate, toDate) {
             return MonitoringService
                 .getPaidBookings({
                     fromDate: fromDate,
                     toDate: toDate,
                     validated: true,
-                    itemMode: "classic"
                 })
                 .catch(err => {
-                    logger.error({ err: err }, "Fail getting validated classic bookings");
+                    logger.error({ err: err }, "Fail getting validated bookings");
                     return null;
                 });
         }
 
-        function getClassicBookingsToValidate(fromDate, toDate) {
+        function getBookingsToValidate(fromDate, toDate) {
             var formatDate = "YYYY-MM-DD";
 
             return MonitoringService
@@ -207,27 +206,25 @@ Sails.load({
                     fromDate: moment(toDate).subtract(2, "d").format(formatDate),
                     toDate: moment(toDate).subtract(1, "d").format(formatDate),
                     validated: false,
-                    itemMode: "classic"
                 })
                 .then(bookings => _populateBookings(bookings))
                 .catch(err => {
-                    logger.error({ err: err }, "Fail getting classic bookings to validate");
+                    logger.error({ err: err }, "Fail getting bookings to validate");
                     return null;
                 });
         }
 
-        function getOldClassicBookingsToValidate(fromDate, toDate) {
+        function getOldBookingsToValidate(fromDate, toDate) {
             var formatDate = "YYYY-MM-DD";
 
             return MonitoringService
                 .getPaidBookings({
                     toDate: moment(toDate).subtract(2, "d").format(formatDate),
                     validated: false,
-                    itemMode: "classic"
                 })
                 .then(bookings => _populateBookings(bookings))
                 .catch(err => {
-                    logger.error({ err: err }, "Fail getting old classic bookings to validate");
+                    logger.error({ err: err }, "Fail getting old bookings to validate");
                     return null;
                 });
         }
@@ -378,8 +375,8 @@ Sails.load({
 
         var nbNewUsers    = data.newUsers ? data.newUsers.length : null;
         var nbNewItems    = data.newItems ? data.newItems.length : null;
-        var nbNewBookings = data.validatedClassicBookings
-            ? data.validatedClassicBookings.length
+        var nbNewBookings = data.validatedBookings
+            ? data.validatedBookings.length
             : null;
 
         previewContent += `${nbNewUsers !== null ? nbNewUsers : errorMsg} ${pluralize(nbNewUsers, "inscrit")}`;
@@ -461,32 +458,32 @@ Sails.load({
         content += `<br><h3>Réservations</h3>`;
 
 
-        ////////////////////////////////
-        // VALIDATED CLASSIC BOOKINGS //
-        ////////////////////////////////
+        ////////////////////////
+        // VALIDATED BOOKINGS //
+        ////////////////////////
         content += `Réservations en Classique&nbsp;: `;
-        if (data.validatedClassicBookings) {
-            content += data.validatedClassicBookings.length;
+        if (data.validatedBookings) {
+            content += data.validatedBookings.length;
         } else {
             content += errorMsg;
         }
         content += `<br>`;
 
-        //////////////////////////////////
-        // CLASSIC BOOKINGS TO VALIDATE //
-        //////////////////////////////////
+        //////////////////////////
+        // BOOKINGS TO VALIDATE //
+        //////////////////////////
         if (periodType === "day") {
             content += `Réservations non acceptées en Classique&nbsp;: `;
-            if (data.classicBookingsToValidate) {
-                content += data.classicBookingsToValidate.length;
+            if (data.bookingsToValidate) {
+                content += data.bookingsToValidate.length;
 
-                if (data.classicBookingsToValidate.length) {
+                if (data.bookingsToValidate.length) {
                     content += `<ul style="margin: 0;">`;
-                    _.forEach(data.classicBookingsToValidate, booking => {
+                    _.forEach(data.bookingsToValidate, booking => {
                         var startDate;
                         var endDate;
 
-                        if (! Booking.isPurchase(booking)) {
+                        if (! Booking.isNoTime(booking)) {
                             startDate = moment(booking.startDate).format(formatDateDisplay);
                             endDate   = moment(booking.endDate).format(formatDateDisplay);
                         }
@@ -504,7 +501,7 @@ Sails.load({
                         }
 
                         content += ` - ${booking.takerPrice}€`;
-                        if (Booking.isPurchase(booking)) {
+                        if (Booking.isNoTime(booking)) {
                             content += ` - Vente`;
                         } else {
                             content += ` - du ${startDate} au ${endDate}`;
@@ -519,22 +516,22 @@ Sails.load({
             content += `<br>`;
         }
 
-        //////////////////////////////////////
-        // OLD CLASSIC BOOKINGS TO VALIDATE //
-        //////////////////////////////////////
+        //////////////////////////////
+        // OLD BOOKINGS TO VALIDATE //
+        //////////////////////////////
         if (periodType === "day") {
-            if (data.oldClassicBookingsToValidate
-             && data.oldClassicBookingsToValidate.length
+            if (data.oldBookingsToValidate
+             && data.oldBookingsToValidate.length
             ) {
                 content += `Anciennes réservations non acceptées en Classique&nbsp;: `;
-                content += `<strong>${data.oldClassicBookingsToValidate.length}</strong>`;
+                content += `<strong>${data.oldBookingsToValidate.length}</strong>`;
 
                 content += `<ul style="margin: 0;">`;
-                _.forEach(data.oldClassicBookingsToValidate, booking => {
+                _.forEach(data.oldBookingsToValidate, booking => {
                     var startDate;
                     var endDate;
 
-                    if (! Booking.isPurchase(booking)) {
+                    if (! Booking.isNoTime(booking)) {
                         startDate = moment(booking.startDate).format(formatDateDisplay);
                         endDate   = moment(booking.endDate).format(formatDateDisplay);
                     }
@@ -554,7 +551,7 @@ Sails.load({
                     }
 
                     content += ` - ${booking.takerPrice}€`;
-                    if (Booking.isPurchase(booking)) {
+                    if (Booking.isNoTime(booking)) {
                         content += ` - Vente`;
                     } else {
                         content += ` - du ${startDate} au ${endDate}`;
@@ -565,30 +562,28 @@ Sails.load({
             }
         }
 
-        var classicPrebookingsToValidate = data.preBookingsToValidate
-            ? _.filter(data.preBookingsToValidate, booking => booking.itemMode === "classic")
-            : null;
+        var prebookingsToValidate = data.preBookingsToValidate;
 
         if (periodType === "day") {
             content += `<br><h3>Pré-réservations</h3>`;
         }
 
-        //////////////////////////////////////
-        // CLASSIC PRE-BOOKINGS TO VALIDATE //
-        //////////////////////////////////////
+        //////////////////////////////
+        // PRE-BOOKINGS TO VALIDATE //
+        //////////////////////////////
         if (periodType === "day") {
             content += `Pré-réservations en Classique en attente d'acceptation&nbsp;: `;
 
-            if (classicPrebookingsToValidate) {
-                content += classicPrebookingsToValidate.length;
+            if (prebookingsToValidate) {
+                content += prebookingsToValidate.length;
 
-                if (classicPrebookingsToValidate.length) {
+                if (prebookingsToValidate.length) {
                     content += `<ul style="margin: 0;">`;
-                    _.forEach(classicPrebookingsToValidate, booking => {
+                    _.forEach(prebookingsToValidate, booking => {
                         var startDate;
                         var endDate;
 
-                        if (! Booking.isPurchase(booking)) {
+                        if (! Booking.isNoTime(booking)) {
                             startDate = moment(booking.startDate).format(formatDateDisplay);
                             endDate   = moment(booking.endDate).format(formatDateDisplay);
                         }
@@ -610,7 +605,7 @@ Sails.load({
                             - ${booking.takerPrice}€
                         `;
 
-                        if (Booking.isPurchase(booking)) {
+                        if (Booking.isNoTime(booking)) {
                             content += ` - Vente`;
                         } else {
                             content += ` - du ${startDate} au ${endDate}`;
@@ -625,25 +620,23 @@ Sails.load({
             content += `<br>`;
         }
 
-        var unsignedClassicAssessments = data.unsignedAssessments
-            ? _.filter(data.unsignedAssessments, assessment => assessment.itemMode === "classic")
-            : null;
+        var unsignedAssessments = data.unsignedAssessments;
 
         if (periodType === "day") {
             content += `<br><h3>États des lieux et commentaires</h3>`;
         }
 
-        //////////////////////////////////
-        // UNSIGNED CLASSIC ASSESSMENTS //
-        //////////////////////////////////
+        //////////////////////////
+        // UNSIGNED ASSESSMENTS //
+        //////////////////////////
         if (periodType === "day") {
             content += `État des lieux en Classique en attente de signature&nbsp;: `;
-            if (unsignedClassicAssessments) {
-                content += unsignedClassicAssessments.length;
+            if (unsignedAssessments) {
+                content += unsignedAssessments.length;
 
-                if (unsignedClassicAssessments.length) {
+                if (unsignedAssessments.length) {
                     content += `<ul style="margin: 0;">`;
-                    _.forEach(unsignedClassicAssessments, assessment => {
+                    _.forEach(unsignedAssessments, assessment => {
                         var assessmentState = (assessment.startBookingId ? "initial" : "final");
 
                         content += `<li>`;

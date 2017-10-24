@@ -49,7 +49,6 @@ module.exports = {
             type: "integer",
             index: true
         },
-        itemMode: "string",
         resourceType: "string",
         resourceId: "string",
         preauthExpirationDate: "string",
@@ -130,7 +129,6 @@ function createTransactionDetails(transactionId, details) {
  * @param  {number} [args.preauthAmount = 0]
  * @param  {number} [args.payoutAmount = 0]
  * @param  {number} args.bookingId
- * @param  {string} args.itemMode
  * @param  {string} args.resourceType
  * @param  {string} args.resourceId
  * @param  {string} [args.preauthExpirationDate]
@@ -192,7 +190,6 @@ function createTransaction(args) {
             "preauthAmount",
             "payoutAmount",
             "bookingId",
-            "itemMode",
             "resourceType",
             "resourceId",
             "preauthExpirationDate",

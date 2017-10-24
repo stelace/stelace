@@ -243,7 +243,6 @@
             noTriggerSearch.location    = true;
             // noTriggerSearch.onlyFree    = true;
             // noTriggerSearch.query       = true;
-            noTriggerSearch.mode        = true;
 
             return $q.all({
                 currentUser: UserService.getCurrentUser(),

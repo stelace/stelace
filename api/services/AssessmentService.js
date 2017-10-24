@@ -148,7 +148,6 @@ function createAssessment(args) {
         }
 
         createAttrs.itemId   = booking.itemId;
-        createAttrs.itemMode = booking.itemMode;
         createAttrs.ownerId  = booking.ownerId;
         createAttrs.takerId  = booking.bookerId;
 
@@ -439,32 +438,28 @@ function _sendAssessmentEmailsSms(data) {
         return Promise
             .resolve()
             .then(() => {
-                // return;
-
-                // Classic : send booking-checkout emails to taker and owner if startBookingId, or item-return emails to owner and taker if endBookingId
-                if (item.mode === "classic") {
-                    if (assessment.startBookingId) {
-                        if (! newAssessment && ! Booking.isNoTime(startBooking)) {
-                            throw new BadRequestError("newAssessment missing");
-                        }
-
-                        return Promise.all([
-                            sendEmailClassicBookingCheckoutToTaker(),
-                            sendEmailClassicBookingCheckoutToOwner(),
-                            sendSmsClassicBookingPendingToOwner()
-                        ]);
-                    } else if (assessment.endBookingId) {
-                        return Promise.all([
-                            sendEmailClassicItemReturnToTaker(),
-                            sendEmailClassicItemReturnToOwner()
-                        ]);
+                // send booking-checkout emails to taker and owner if startBookingId, or item-return emails to owner and taker if endBookingId
+                if (assessment.startBookingId) {
+                    if (! newAssessment && ! Booking.isNoTime(startBooking)) {
+                        throw new BadRequestError("newAssessment missing");
                     }
+
+                    return Promise.all([
+                        sendEmailBookingCheckoutToTaker(),
+                        sendEmailBookingCheckoutToOwner(),
+                        sendSmsBookingPendingToOwner()
+                    ]);
+                } else if (assessment.endBookingId) {
+                    return Promise.all([
+                        sendEmailItemReturnToTaker(),
+                        sendEmailItemReturnToOwner()
+                    ]);
                 }
             });
 
 
 
-        function sendEmailClassicBookingCheckoutToTaker() {
+        function sendEmailBookingCheckoutToTaker() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-checkout-taker', {
                     user: taker,
@@ -480,7 +475,7 @@ function _sendAssessmentEmailsSms(data) {
                 });
         }
 
-        function sendEmailClassicBookingCheckoutToOwner() {
+        function sendEmailBookingCheckoutToOwner() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-checkout-owner', {
                     user: owner,
@@ -499,7 +494,7 @@ function _sendAssessmentEmailsSms(data) {
                 });
         }
 
-        function sendSmsClassicBookingPendingToOwner() {
+        function sendSmsBookingPendingToOwner() {
             if (! owner.phoneCheck) {
                 return;
             }
@@ -515,7 +510,7 @@ function _sendAssessmentEmailsSms(data) {
                 });
         }
 
-        function sendEmailClassicItemReturnToTaker() {
+        function sendEmailItemReturnToTaker() {
             return EmailTemplateService
                 .sendEmailTemplate('item-return-taker', {
                     user: taker,
@@ -530,7 +525,7 @@ function _sendAssessmentEmailsSms(data) {
                 });
         }
 
-        function sendEmailClassicItemReturnToOwner() {
+        function sendEmailItemReturnToOwner() {
             return EmailTemplateService
                 .sendEmailTemplate('item-return-owner', {
                     user: owner,

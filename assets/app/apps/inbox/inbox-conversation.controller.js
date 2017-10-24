@@ -471,7 +471,6 @@
                     receiverId: vm.interlocutor.id,
                     senderId: currentUser.id,
                     itemId: vm.item.id,
-                    itemMode: vm.item.mode,
                     agreementStatus: "agreed"
                 };
             } else {
@@ -546,7 +545,6 @@
                 receiverId: vm.interlocutor.id,
                 senderId: currentUser.id,
                 itemId: vm.item.id,
-                itemMode: vm.item.mode,
                 agreementStatus: "rejected"
             };
 
@@ -621,7 +619,6 @@
                 startDate: vm.conversation.startDate ? moment(vm.conversation.startDate).format(formatDate) : null, // keep same dates
                 endDate: vm.conversation.endDate ? moment(vm.conversation.endDate).format(formatDate) : null,
                 itemId: vm.item.id,
-                itemMode: vm.item.mode,
                 receiverId: vm.interlocutor.id,
                 senderId: currentUser.id
             };
