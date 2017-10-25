@@ -320,15 +320,15 @@ function getFeesProductId(booking, type) {
     var field;
 
     if (type === "booking") {
-        if (booking.bookingMode === "purchase") {
+        if (Booking.isNotTime(booking)) {
             field = "purchaseBookingFees";
-        } else { // booking.bookingMode === "renting"
+        } else {
             field = "bookingFees";
         }
     } else { // type === "payment"
-        if (booking.bookingMode === "purchase") {
+        if (Booking.isNotTime(booking)) {
             field = "purchasePaymentFees";
-        } else { // booking.bookingMode === "renting"
+        } else {
             field = "paymentFees";
         }
     }

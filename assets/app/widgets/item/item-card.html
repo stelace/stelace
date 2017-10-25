@@ -40,7 +40,7 @@
                     <span ng-switch="vm.item.listingTypesProperties.TIME.TIME_FLEXIBLE">
                         <span ng-switch-when="true">
                             <span class="item-wall__booking-modes"
-                                ng-if="vm.bookingModesStr">
+                                ng-if="vm.bookingDescription">
                                 <span class="text--semibold item-wall__selling-price"
                                     ng-show="vm.item.listingTypesProperties.TIME.NONE">
                                     <span class="item-wall__selling-icon-container"
@@ -53,7 +53,7 @@
                                             <use xlink:href="{{::vm.sellableIconUrl}}"/>
                                         </svg>
                                     </span>
-                                    {{ ::vm.bookingModesStr }}
+                                    {{ ::vm.bookingDescription }}
                                 </span>
                                 <span class="text--fade">
                                     ou
@@ -66,7 +66,7 @@
                                 <span itemprop="price">{{::vm.item.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
                             </span>
                             <span ng-show="vm.item.sellingPrice === 0">
-                                {{ ::vm.bookingModesStr }}
+                                {{ ::vm.bookingDescription }}
                             </span>
                         </span>
                     </span>

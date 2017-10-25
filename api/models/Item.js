@@ -173,7 +173,6 @@ module.exports = {
 };
 
 var params = {
-    bookingModes: ["renting", "rental-purchase", "purchase"],
     maxNbAccessories: 10,
     maxLengthAccessoryName: 255
 };

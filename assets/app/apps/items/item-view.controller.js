@@ -144,7 +144,7 @@
         vm.toggleDetailBox       = _toggleDetailBox;
         // vm.toggleDetailBox       = _.throttle(_toggleDetailBox, 200, { trailing: false }) ;
         vm.myLocationCta         = myLocationCta;
-        vm.toggleBookingMode     = toggleBookingMode;
+        vm.toggleListingType     = toggleListingType;
 
         activate();
 
@@ -1096,7 +1096,7 @@
                 });
         }
 
-        function toggleBookingMode() {
+        function toggleListingType() {
             vm.noTimeBookingSelected = ! vm.noTimeBookingSelected;
         }
 
@@ -1107,7 +1107,7 @@
 
             var lockScrollClass      = "modal-opened" + (vm.iOS ? " lock-both" : "");
             vm.editPublicQuestion    = false;
-            vm.showToggleBookingMode = vm.item.listingTypesIds.length > 1;
+            vm.showToggleListingType = vm.item.listingTypesIds.length > 1;
             vm.noTimeBookingSelected = vm.onlyNoTimeListing;
 
             vm.editPublicQuestion = true;

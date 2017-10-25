@@ -38,7 +38,7 @@
             $scope.$watch('item', function (newItem) {
                 vm.item = newItem;
                 _showPauseState()
-                _displayBookingModes();
+                _displayBookingInfo();
                 _showStats();
             });
 
@@ -47,16 +47,16 @@
             });
         }
 
-        function _displayBookingModes() {
+        function _displayBookingInfo() {
             vm.imageAlt = vm.item.name + " à louer sur Sharinplace"; // default
 
             if (vm.item.listingTypesProperties.TIME.NONE && vm.item.sellingPrice) {
-                vm.bookingModesStr = vm.item.sellingPrice + "€";
+                vm.bookingDescription = vm.item.sellingPrice + "€";
                 vm.sellableIconUrl = platform.getSpriteSvgUrl("tag");
                 vm.sellableTooltip = "En vente à " + vm.item.sellingPrice + "€"
                 vm.imageAlt        = vm.item.name + " à vendre sur Sharinplace";
             } else if (vm.item.listingTypesProperties.TIME.NONE) {
-                vm.bookingModesStr = "Don";
+                vm.bookingDescription = "Don";
                 vm.sellableIconUrl = platform.getSpriteSvgUrl("euro-crossed");
                 vm.sellableTooltip = "Il s'agit d'un don du propriétaire."
                 vm.imageAlt        = vm.item.name + " à donner sur Sharinplace";

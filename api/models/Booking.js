@@ -20,7 +20,6 @@ module.exports = {
             type: "integer",
             index: true
         },
-        bookingMode: "string", // TODO: to remove
         listingTypeId: 'integer',
         listingType: 'json',
         parentId: "integer", // TODO: to remove
@@ -154,7 +153,6 @@ function getAccessFields(access) {
             "id",
             "itemId",
             "itemSnapshotId",
-            "bookingMode",
             "listingTypeId",
             "listingType",
             "parentId",
@@ -190,7 +188,6 @@ function getAccessFields(access) {
             "id",
             "itemId",
             "itemSnapshotId",
-            "bookingMode",
             "listingTypeId",
             "listingType",
             "parentId",
@@ -227,7 +224,6 @@ function getAccessFields(access) {
         others: [
             "id",
             "itemId",
-            "bookingMode",
             "listingTypeId",
             "listingType",
             "parentId",
