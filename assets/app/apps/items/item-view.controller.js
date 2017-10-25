@@ -23,7 +23,7 @@
                                 gamification,
                                 GoogleMap,
                                 imgGallery,
-                                ItemCategoryService,
+                                ListingCategoryService,
                                 ItemService,
                                 ListingTypeService,
                                 LocationService,
@@ -70,7 +70,7 @@
         var itemId;
         var item;
         // var brands;
-        var itemCategories;
+        var listingCategories;
         var ownerItemLocations;
         var itemLocations;
         var myLocations;
@@ -92,7 +92,7 @@
 
         var vm = this;
         vm.showMap              = StelaceConfig.isFeatureActive('MAP');
-        vm.showItemCategories   = StelaceConfig.isFeatureActive('ITEM_CATEGORIES');
+        vm.showListingCategories = StelaceConfig.isFeatureActive('LISTING_CATEGORIES');
         vm.showTags             = StelaceConfig.isFeatureActive('TAGS');
         vm.mqMobileTablet       = mqMobileTablet.matches;
         vm.formatDate           = "dd/MM/yyyy";
@@ -229,7 +229,7 @@
                 // brands: BrandService.getList(),
                 currentUser: UserService.getCurrentUser(),
                 item: ItemService.get(itemId, { snapshot: true }).catch(_redirectTo404),
-                itemCategories: ItemCategoryService.cleanGetList(),
+                listingCategories: ListingCategoryService.cleanGetList(),
                 listingTypes: ListingTypeService.cleanGetList(),
                 ownerItemLocations: ItemService.getLocations(itemId).catch(function () { return []; }),
                 myLocations: LocationService.getMine(),
@@ -240,7 +240,7 @@
                 // brands             = results.brands;
                 vm.currentUser     = tools.clearRestangular(results.currentUser);
                 item               = tools.clearRestangular(results.item);
-                itemCategories     = results.itemCategories;
+                listingCategories  = results.listingCategories;
                 myLocations        = tools.clearRestangular(results.myLocations);
                 ownerItemLocations = tools.clearRestangular(results.ownerItemLocations);
                 itemPricing        = tools.clearRestangular(results.itemPricing);
@@ -303,7 +303,7 @@
 
                 ItemService.populate(item, {
                     // brands: brands,
-                    itemCategories: itemCategories,
+                    listingCategories: listingCategories,
                     locations: ownerItemLocations,
                     nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
                 });
@@ -382,7 +382,7 @@
                 var fbEventParams = {
                     content_name: vm.item.name,
                     content_ids: [vm.item.id],
-                    content_category: ItemCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
+                    content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
                     sip_offer_types: ItemService.getFbOfferTypes(vm.item)
                 };
 
@@ -754,7 +754,7 @@
             var fbEventParams = {
                 content_name: vm.item.name,
                 content_ids: [vm.item.id],
-                content_category: ItemCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
+                content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
                 stl_transaction_type: listingType.name
             };
             fbq('track', 'InitiateCheckout', fbEventParams);
@@ -845,8 +845,8 @@
         }
 
         function _setBreadcrumbs() {
-            if (vm.showItemCategories) {
-                vm.breadcrumbCategory     = ItemCategoryService.findItemCategory(item, itemCategories);
+            if (vm.showListingCategories) {
+                vm.breadcrumbCategory     = ListingCategoryService.findListingCategory(item, listingCategories);
                 vm.breadcrumbCategoryLink = $state.href("searchWithQuery", {
                     query: tools.getURLStringSafe(vm.breadcrumbCategory)
                 });
@@ -1019,7 +1019,7 @@
             _setBreadcrumbs();
 
             ItemService.populate(item, {
-                itemCategories: itemCategories,
+                listingCategories: listingCategories,
                 nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
             });
 

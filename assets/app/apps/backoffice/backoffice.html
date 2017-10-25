@@ -274,9 +274,9 @@
 
     <!-- <section>
         <h2>Liste des catégories d'objets</h2>
-        <div ng-repeat="itemCategory in vm.itemCategories track by itemCategory.id">
+        <div ng-repeat="listingCategory in vm.listingCategories track by listingCategory.id">
             <div>
-                {{itemCategory.levelName}} <span ng-click="vm.removeItemCategory(itemCategory)">X</span>
+                {{listingCategory.levelName}} <span ng-click="vm.removeListingCategory(listingCategory)">X</span>
             </div>
         </div>
     </section>
@@ -284,9 +284,9 @@
         <h2>Créer une catégorie</h2>
         <div>
             <form novalidate>
-                <input type="text" placeholder="Nom Catégorie" ng-model="vm.newItemCategory.name">
-                <input type="text" placeholder="Catégorie parent" ng-model="vm.newItemCategory.parentName">
-                <button ng-click="vm.createItemCategory(vm.newItemCategory)">Créer</button>
+                <input type="text" placeholder="Nom Catégorie" ng-model="vm.newListingCategory.name">
+                <input type="text" placeholder="Catégorie parent" ng-model="vm.newListingCategory.parentName">
+                <button ng-click="vm.createListingCategory(vm.newListingCategory)">Créer</button>
             </form>
         </div>
     </section> -->
@@ -305,7 +305,7 @@
         <div>
             <form novalidate>
                 <input type="text" placeholder="Nom marque" ng-model="vm.newBrand.name">
-                <input type="text" placeholder="Catégorie" ng-model="vm.newBrand.itemCategoryName">
+                <input type="text" placeholder="Catégorie" ng-model="vm.newBrand.listingCategoryName">
                 <button ng-click="vm.createBrand(vm.newBrand)">Créer</button>
             </form>
         </div>

@@ -15,7 +15,7 @@ module.exports = {
             size: 191,
             unique: true
         },
-        itemCategories: "array"
+        listingCategories: "array"
     },
 
     getAccessFields: getAccessFields

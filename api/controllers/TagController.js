@@ -20,12 +20,12 @@ module.exports = {
 function find(req, res) {
     var access = "others";
     // TODO manage array of Ids
-    // var itemCategoryId = req.param("itemCategoryId");
+    // var listingCategoryId = req.param("listingCategoryId");
 
     var findAttrs = {};
 
-    // if (itemCategoryId) {
-    //     findAttrs.itemCategoryId = itemCategoryId;
+    // if (listingCategoryId) {
+    //     findAttrs.listingCategoryId = listingCategoryId;
     // }
 
     return Tag
@@ -44,7 +44,7 @@ function findOne(req, res) {
 function create(req, res) {
     var filteredAttrs = [
         "name",
-        "itemCategoryIds"
+        "listingCategoryIds"
     ];
     var createAttrs = _.pick(req.allParams(), filteredAttrs);
     var access = "others";

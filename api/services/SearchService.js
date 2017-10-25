@@ -1,5 +1,5 @@
 /* global
-    ElasticsearchService, Item, ItemCategory,
+    ElasticsearchService, Item, ListingCategory,
     MapService, Media, PricingService, SearchEvent,
     StelaceConfigService, StelaceEventService, UAService, User
 */
@@ -48,18 +48,18 @@ const queryModes = [
 
 async function getItemsFromQuery(searchQuery, type) {
     const {
-        itemCategoryId,
+        listingCategoryId,
         query,
         queryMode,
         locations,
         similarToItemsIds,
     } = searchQuery;
 
-    const categoryActive = await StelaceConfigService.isFeatureActive('ITEM_CATEGORIES');
+    const categoryActive = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
 
-    const itemCategoriesIds = itemCategoryId && categoryActive ? await getMatchedItemCategoriesIds(itemCategoryId) : null;
+    const listingCategoriesIds = listingCategoryId && categoryActive ? await getMatchedListingCategoriesIds(listingCategoryId) : null;
 
-    let items = await fetchPublishedItems(searchQuery, { itemCategoriesIds });
+    let items = await fetchPublishedItems(searchQuery, { listingCategoriesIds });
 
     let hashLocations = await getItemsLocations(items);
     let hashJourneys;
@@ -152,12 +152,12 @@ async function getItemsFromQuery(searchQuery, type) {
     return items;
 }
 
-async function getMatchedItemCategoriesIds(itemCategoryId) {
-    const itemCategories = await ItemCategory.getChildrenCategories(itemCategoryId, true);
-    return _.pluck(itemCategories, 'id');
+async function getMatchedListingCategoriesIds(listingCategoryId) {
+    const listingCategories = await ListingCategory.getChildrenCategories(listingCategoryId, true);
+    return _.pluck(listingCategories, 'id');
 }
 
-async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
+async function fetchPublishedItems(searchQuery, { listingCategoriesIds }) {
     const {
         listingTypeId,
         // onlyFree,
@@ -171,8 +171,8 @@ async function fetchPublishedItems(searchQuery, { itemCategoriesIds }) {
         locked: false,
     };
 
-    if (itemCategoriesIds) {
-        findAttrs.itemCategoryId = itemCategoriesIds;
+    if (listingCategoriesIds) {
+        findAttrs.listingCategoryId = listingCategoriesIds;
     }
     if (withoutIds) {
         findAttrs.id = { '!': withoutIds };
@@ -615,7 +615,7 @@ function setItemsToCache(cacheKey, items) {
 /**
  * Normalize the search parameters
  * @param {object}   params
- * @param {number}   [params.itemCategoryId]
+ * @param {number}   [params.listingCategoryId]
  * @param {string}   [params.query]
  * @param {string}   [params.listingTypeId]
  * @param {boolean}  [params.onlyFree] // disabled for now
@@ -633,7 +633,7 @@ function setItemsToCache(cacheKey, items) {
  */
 function normalizeSearchQuery(params) {
     var searchFields = [
-        'itemCategoryId',
+        'listingCategoryId',
         'query',
         'listingTypeId',
         // 'onlyFree',
@@ -660,7 +660,7 @@ function normalizeSearchQuery(params) {
                 break;
 
             case 'listingTypeId':
-            case 'itemCategoryId':
+            case 'listingCategoryId':
             case 'timestamp':
                 isValid = !isNaN(value);
                 break;

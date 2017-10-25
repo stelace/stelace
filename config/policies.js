@@ -85,6 +85,11 @@ module.exports.policies = {
         updateProgressView: ["isAuthenticated", "getUserInfo"]
     },
 
+    LinkController: {
+        createReferredBy: ["isAuthenticated", "getUserInfo"],
+        sendFriendEmails: ["isAuthenticated", "getUserInfo"]
+    },
+
     ItemController: {
         find: ["isAuthenticatedOptional"],
         findOne: ["isAuthenticatedOptional"],
@@ -96,15 +101,10 @@ module.exports.policies = {
         pauseItemToggle: ["isAuthenticated"]
     },
 
-    ItemCategoryController: {
+    ListingCategoryController: {
         find: ["isAuthenticatedOptional"],
         findOne: ["isAuthenticatedOptional"],
         search: ["isAuthenticatedOptional"]
-    },
-
-    LinkController: {
-        createReferredBy: ["isAuthenticated", "getUserInfo"],
-        sendFriendEmails: ["isAuthenticated", "getUserInfo"]
     },
 
     ListingTypeController: {

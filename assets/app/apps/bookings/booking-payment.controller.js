@@ -15,7 +15,7 @@
                                     BookingService,
                                     CardService,
                                     finance,
-                                    ItemCategoryService,
+                                    ListingCategoryService,
                                     ItemService,
                                     mangopay,
                                     map,
@@ -238,8 +238,8 @@
                     location.displayAddress = map.getPlaceName(location);
                 });
 
-                vm.itemCategoryName = ItemCategoryService.findItemCategory(item/*,itemCategories*/); // can be empty if item-view was by-passed
-                vm.notCategoryTags  = ItemCategoryService.notCategoryTags(item.completeTags, vm.itemCategoryName);
+                vm.listingCategoryName = ListingCategoryService.findListingCategory(item/*,listingCategories*/); // can be empty if item-view was by-passed
+                vm.notCategoryTags     = ListingCategoryService.notCategoryTags(item.completeTags, vm.listingCategoryName);
 
                 // $timeout(function () {
                 //     vm.hideSummary = false; // for collapse
@@ -389,7 +389,7 @@
             var fbEventParams = {
                 content_ids: [vm.item.id],
                 content_name: vm.item.name,
-                content_category: ItemCategoryService.getCategoriesString(vm.itemCategoryName, vm.notCategoryTags[0]),
+                content_category: ListingCategoryService.getCategoriesString(vm.listingCategoryName, vm.notCategoryTags[0]),
                 stl_transaction_type: BookingService.getFbTransactionType(vm.booking)
             };
             fbq('track', 'AddPaymentInfo', fbEventParams);

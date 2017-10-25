@@ -1,4 +1,4 @@
-/* global Brand, ItemCategory, TokenService */
+/* global Brand, ListingCategory, TokenService */
 
 /**
  * BrandController
@@ -18,13 +18,13 @@ module.exports = {
 };
 
 function find(req, res) {
-    var itemCategoryId = req.param("itemCategoryId");
+    var listingCategoryId = req.param("listingCategoryId");
     var access = "others";
 
     return Promise
         .resolve()
         .then(() => {
-            return findBrand(itemCategoryId);
+            return findBrand(listingCategoryId);
         })
         .then(brands => {
             res.json(Brand.exposeAll(brands, access));
@@ -33,8 +33,8 @@ function find(req, res) {
 
 
 
-    function findBrand(itemCategoryId) {
-        if (! itemCategoryId) {
+    function findBrand(listingCategoryId) {
+        if (! listingCategoryId) {
             return Brand
                 .find()
                 .sort({ name: 1 });
@@ -43,17 +43,17 @@ function find(req, res) {
                 .resolve()
                 .then(() => {
                     return [
-                        ItemCategory.getParentCategories(itemCategoryId, true),
+                        ListingCategory.getParentCategories(listingCategoryId, true),
                         Brand.find()
                     ];
                 })
-                .spread((itemParentCategories, brands) => {
-                    var itemParentCategoryIds = _.pluck(itemParentCategories, "id");
+                .spread((listingParentCategories, brands) => {
+                    var listingParentCategoryIds = _.pluck(listingParentCategories, "id");
 
                     var matchBrands = _(brands)
                         .filter(brand => {
-                            return ! brand.itemCategories
-                                || ! _.intersection(brand.itemCategories, itemParentCategoryIds).length;
+                            return ! brand.listingCategories
+                                || ! _.intersection(brand.listingCategories, listingParentCategoryIds).length;
                         })
                         .sortBy(brand => brand.name)
                         .value();
@@ -85,31 +85,31 @@ function findOne(req, res) {
 
 function create(req, res) {
     var name           = req.param("name");
-    var itemCategoryId = req.param("itemCategoryId");
+    var listingCategoryId = req.param("listingCategoryId");
     var access = "others";
     var createAttrs = {
         name: name,
-        itemCategories: null
+        listingCategories: null
     };
 
     return Promise
         .resolve()
         .then(() => {
             return [
-                itemCategoryId ? ItemCategory.findOne({ id: itemCategoryId }) : null,
+                listingCategoryId ? ListingCategory.findOne({ id: listingCategoryId }) : null,
                 Brand.findOne({ name: name })
             ];
         })
-        .spread((itemCategory, brand) => {
+        .spread((listingCategory, brand) => {
             if (brand) {
                 throw new BadRequestError("existing brand");
             }
-            if (itemCategoryId && ! itemCategory) {
-                throw new BadRequestError("item category doesn't exist");
+            if (listingCategoryId && ! listingCategory) {
+                throw new BadRequestError("listing category doesn't exist");
             }
 
-            if (itemCategoryId) {
-                createAttrs.itemCategories = [itemCategoryId];
+            if (listingCategoryId) {
+                createAttrs.listingCategories = [listingCategoryId];
             }
 
             return Brand.create(createAttrs);
@@ -125,25 +125,25 @@ function update(req, res) {
     var access = "others";
     var filteredAttrs = [
         "name",
-        "itemCategories"
+        "listingCategories"
     ];
     var updateAttrs = _.pick(req.allParams(), filteredAttrs);
 
     if (! TokenService.isRole(req, "admin")) {
         return res.forbidden();
     }
-    if (! µ.checkArray(updateAttrs.itemCategories, "id")) {
+    if (! µ.checkArray(updateAttrs.listingCategories, "id")) {
         return res.badRequest();
     }
 
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory.find({ id: updateAttrs.itemCategories });
+            return ListingCategory.find({ id: updateAttrs.listingCategories });
         })
-        .then(itemCategories => {
-            if (itemCategories.length !== updateAttrs.itemCategories.length) {
-                throw new BadRequestError("item categories don't all exist");
+        .then(listingCategories => {
+            if (listingCategories.length !== updateAttrs.listingCategories.length) {
+                throw new BadRequestError("listing categories don't all exist");
             }
 
             return Brand.updateOne(id, updateAttrs);

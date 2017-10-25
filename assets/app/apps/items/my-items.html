@@ -139,16 +139,16 @@
                         </div>
                     </div>
 
-                    <div ng-if="vm.showItemCategories">
+                    <div ng-if="vm.showListingCategories">
                         <label for="category-lvl1-select" class="no-margin-bottom">
                             Catégorie*&nbsp;:
                         </label>
                         <div>
                             <select id="category-lvl1-select"
-                                name="itemCategory"
+                                name="listingCategory"
                                 class="category-select"
-                                ng-model="vm.selectedItemCategoryLvl1"
-                                ng-options="cat.name for cat in vm.itemCategoriesLvl1"
+                                ng-model="vm.selectedListingCategoryLvl1"
+                                ng-options="cat.name for cat in vm.listingCategoriesLvl1"
                                 ng-change="vm.categoryChanged()"
                                 required>
                                 <option value="" selected disabled="disabled">
@@ -156,9 +156,9 @@
                                 </option>
                             </select>
                             <br class="hide-for-desktop">
-                            <select class="category-select" ng-model="vm.selectedItemCategoryLvl2"
-                                ng-options="cat.name for cat in vm.itemCategoriesLvl2"
-                                ng-show="vm.selectedItemCategoryLvl1"
+                            <select class="category-select" ng-model="vm.selectedListingCategoryLvl2"
+                                ng-options="cat.name for cat in vm.listingCategoriesLvl2"
+                                ng-show="vm.selectedListingCategoryLvl1"
                                 ng-change="vm.updateBrandList(); vm.saveLocal('subcategory')">
                                 <option value="" selected>
                                     Sous-catégorie
@@ -169,7 +169,7 @@
                     <!-- <select class=""
                         ng-model="vm.selectedBrand"
                         ng-options="brand.name for brand in vm.brands track by brand.id"
-                        ng-show="vm.selectedItemCategoryLvl1">
+                        ng-show="vm.selectedListingCategoryLvl1">
                         <option value="" selected>
                             Marque de mon objet
                         </option>
@@ -476,7 +476,7 @@
                             multiple
                             ng-model="vm.itemTags"
                             ng-change="vm.saveLocal('tags')"
-                            ng-if="vm.selectedItemCategoryLvl1">
+                            ng-if="vm.selectedListingCategoryLvl1">
                             <ui-select-match placeholder="Mes mots-clés">{{$item.name}}</ui-select-match>
                             <ui-select-choices
                                 refresh="vm.getTags($select.search)" refresh-delay="300"

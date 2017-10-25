@@ -1,4 +1,4 @@
-/* global Item, ItemCategory, ItemXTag, LoggerService, StelaceConfigService, Tag */
+/* global Item, ListingCategory, ItemXTag, LoggerService, StelaceConfigService, Tag */
 
 module.exports = {
 
@@ -24,7 +24,7 @@ const ITEM_FIELDS = [
     'bookingPreferences',
     'ownerId',
     'reference',
-    'itemCategoryId',
+    'listingCategoryId',
 ];
 
 let itemsIdsToSync = [];
@@ -86,17 +86,17 @@ async function syncItems() {
 
     const [
         items,
-        itemCategories,
+        listingCategories,
         tags,
         itemsXTags,
     ] = await Promise.all([
         Item.find({ validated: true }),
-        ItemCategory.find(),
+        ListingCategory.find(),
         Tag.find(),
         ItemXTag.find(),
     ]);
 
-    const indexedCategories = _.indexBy(itemCategories, 'id');
+    const indexedCategories = _.indexBy(listingCategories, 'id');
     const indexedTags = _.indexBy(tags, 'id');
     const indexedItemsXTagsByItemId = _.groupBy(itemsXTags, 'itemId');
 
@@ -245,7 +245,7 @@ async function createTypeItemMapping() {
                             },
                         },
                     },
-                    itemCategoryLabel: {
+                    listingCategoryLabel: {
                         type: 'text',
                         analyzer: 'custom_french',
                         fields: {
@@ -308,7 +308,7 @@ async function searchItems(query, {
                 fields: [
                     'name^4',
                     'description^2',
-                    'itemCategoryLabel^2',
+                    'listingCategoryLabel^2',
                     'stateComment',
                     'tags',
                 ],
@@ -345,7 +345,7 @@ async function getSimilarItems({ itemsIds = [], texts = [] }, { attributes = fal
             more_like_this: {
                 fields: [
                     'name',
-                    'itemCategoryLabel',
+                    'listingCategoryLabel',
                     'tags',
                 ],
                 like,
@@ -383,18 +383,18 @@ function normalizeItem(item, { indexedCategories, indexedTags, indexedItemsXTags
     transformedItem.mediasIds = transformedItem.mediasIds || [];
     transformedItem.instructionsMediasIds = transformedItem.instructionsMediasIds || [];
     transformedItem.locations = transformedItem.locations || [];
-    transformedItem.itemCategoryLabel = getCategoryLabel(item, { indexedCategories });
+    transformedItem.listingCategoryLabel = getCategoryLabel(item, { indexedCategories });
     transformedItem.tags = getTags(item, { indexedTags, indexedItemsXTagsByItemId });
 
     return transformedItem;
 }
 
 function getCategoryLabel(item, { indexedCategories }) {
-    if (! item.itemCategoryId) {
+    if (! item.listingCategoryId) {
         return null;
     }
 
-    const childCategory = indexedCategories[item.itemCategoryId];
+    const childCategory = indexedCategories[item.listingCategoryId];
     if (! childCategory) {
         return null;
     }
@@ -456,12 +456,12 @@ async function triggerSyncItems() {
 
         const [
             items,
-            itemCategories,
+            listingCategories,
             tags,
             itemsXTags,
         ] = await Promise.all([
             Item.find({ id: itemsIds }),
-            ItemCategory.find(),
+            ListingCategory.find(),
             Tag.find(),
             ItemXTag.find(),
         ]);
@@ -470,11 +470,11 @@ async function triggerSyncItems() {
         let indexedTags;
         let indexedItemsXTagsByItemId;
 
-        const activeItemCategories = await StelaceConfigService.isFeatureActive('ITEM_CATEGORIES');
+        const activeListingCategories = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
         const activeTags = await StelaceConfigService.isFeatureActive('TAGS');
 
-        if (activeItemCategories) {
-            indexedCategories = _.indexBy(itemCategories, 'id');
+        if (activeListingCategories) {
+            indexedCategories = _.indexBy(listingCategories, 'id');
         }
         if (activeTags) {
             indexedTags = _.indexBy(tags, 'id');

@@ -1,9 +1,9 @@
-/* global Brand, ItemCategory, TokenService */
+/* global Brand, ListingCategory, TokenService */
 
 /**
- * ItemCategoryController
+ * ListingCategoryController
  *
- * @description :: Server-side logic for managing itemcategories
+ * @description :: Server-side logic for managing listingcategories
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
@@ -20,10 +20,10 @@ module.exports = {
 function find(req, res) {
     var access = "others";
 
-    return ItemCategory
+    return ListingCategory
         .find()
-        .then(itemCategories => {
-            res.json(ItemCategory.exposeAll(itemCategories, access));
+        .then(listingCategories => {
+            res.json(ListingCategory.exposeAll(listingCategories, access));
         })
         .catch(res.sendError);
 }
@@ -32,14 +32,14 @@ function findOne(req, res) {
     var id = req.param("id");
     var access = "others";
 
-    return ItemCategory
+    return ListingCategory
         .findOne({ id: id })
-        .then(itemCategory => {
-            if (! itemCategory) {
+        .then(listingCategory => {
+            if (! listingCategory) {
                 throw new NotFoundError();
             }
 
-            res.json(ItemCategory.expose(itemCategory, access));
+            res.json(ListingCategory.expose(listingCategory, access));
         })
         .catch(res.sendError);
 }
@@ -57,12 +57,12 @@ function create(req, res) {
         .resolve()
         .then(() => {
             return [
-                ItemCategory.findOne({ name: name }),
-                parentId ? ItemCategory.findOne({ id: parentId }) : null
+                ListingCategory.findOne({ name: name }),
+                parentId ? ListingCategory.findOne({ id: parentId }) : null
             ];
         })
-        .spread((itemCategory, parentCategory) => {
-            if (! itemCategory) {
+        .spread((listingCategory, parentCategory) => {
+            if (! listingCategory) {
                 throw new BadRequestError("category already exists");
             }
             if (parentId && ! parentCategory) {
@@ -74,10 +74,10 @@ function create(req, res) {
                 parentId: parentId
             };
 
-            return ItemCategory.createItemCategory(createAttrs);
+            return ListingCategory.ListingCategory(createAttrs);
         })
-        .then(itemCategory => {
-            res.json(ItemCategory.expose(itemCategory, access));
+        .then(listingCategory => {
+            res.json(ListingCategory.expose(listingCategory, access));
         })
         .catch(res.sendError);
 }
@@ -98,15 +98,15 @@ function update(req, res) {
         name: name
     };
 
-    return ItemCategory
+    return ListingCategory
         .updateOne(id, updateAttrs)
-        .then(itemCategory => {
-            res.json(ItemCategory.expose(itemCategory, access));
+        .then(listingCategory => {
+            res.json(ListingCategory.expose(listingCategory, access));
         })
         .catch(res.sendError);
 }
 
-// !!! Before destroying item category, check if any brand is associated with it or its children
+// !!! Before destroying listing category, check if any brand is associated with it or its children
 function destroy(req, res) {
     var id = req.param("id");
 
@@ -120,27 +120,27 @@ function destroy(req, res) {
             return Brand.find();
         })
         .then(brands => {
-            return removeItemCategoryFromBrands(id, brands);
+            return removeListingCategoryFromBrands(id, brands);
         })
         .then(() => {
-            return ItemCategory.removeItemCategory(id);
+            return ListingCategory.removeListingCategory(id);
         })
         .then(() => res.json({ id: id }))
         .catch(res.sendError);
 
 
 
-    function removeItemCategoryFromBrands(id, brands) {
+    function removeListingCategoryFromBrands(id, brands) {
         id = parseInt(id, 10);
 
         return Promise
             .resolve(brands)
             .each(brand => {
-                if (! brand.itemCategories || ! _.contains(brand.itemCategories, id)) {
+                if (! brand.listingCategories || ! _.contains(brand.listingCategories, id)) {
                     return;
                 }
 
-                return Brand.updateOne(brand.id, { itemCategories: _.without(brand.itemCategories, id) });
+                return Brand.updateOne(brand.id, { listingCategories: _.without(brand.listingCategories, id) });
             });
     }
 }

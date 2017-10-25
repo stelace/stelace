@@ -1,5 +1,5 @@
 /* global
-        Booking, Brand, ElasticsearchService Item, ItemCategory, ItemXTag, Location, Media, ModelSnapshot, Tag,
+        Booking, Brand, ElasticsearchService, Item, ListingCategory, ItemXTag, Location, Media, ModelSnapshot, Tag,
         ToolsService
 */
 
@@ -55,7 +55,7 @@ module.exports = {
             index: true
         },
         reference: "string",
-        itemCategoryId: {
+        listingCategoryId: {
             type: "integer",
             index: true
         },
@@ -195,7 +195,7 @@ function getAccessFields(access) {
             "ownerId",
             "brandId",
             "reference",
-            "itemCategoryId",
+            "listingCategoryId",
             "validated",
             "ratingScore",
             "nbRatings",
@@ -231,7 +231,7 @@ function getAccessFields(access) {
             "ownerId",
             "brandId",
             "reference",
-            "itemCategoryId",
+            "listingCategoryId",
             "validated",
             "ratingScore",
             "nbRatings",
@@ -425,19 +425,19 @@ function updateTags(item, tagIds) {
 /**
  * @param args
  * - brandId
- * - itemCategoryId
+ * - listingCategoryId
  */
 function isValidReferences(args) {
     var brandId        = args.brandId;
-    var itemCategoryId = args.itemCategoryId;
+    var listingCategoryId = args.listingCategoryId;
 
     return Promise
         .props({
             existsBrand: brandId ? Brand.findOne({ id: brandId }) : true,
-            existsItemCategory: itemCategoryId ? ItemCategory.findOne({ id: itemCategoryId }) : true
+            existsListingCategory: listingCategoryId ? ListingCategory.findOne({ id: listingCategoryId }) : true
         })
         .then(results => {
-            return !! results.existsBrand && !! results.existsItemCategory;
+            return !! results.existsBrand && !! results.existsListingCategory;
         });
 }
 

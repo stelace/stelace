@@ -206,7 +206,7 @@ async function create(req, res) {
         "bookingStartDate",
         "bookingEndDate",
         "brandId",
-        "itemCategoryId",
+        "listingCategoryId",
         "validation",
         "validationFields",
         "locations",
@@ -255,7 +255,7 @@ async function create(req, res) {
             Location.find({ userId: req.user.id }),
             Item.isValidReferences({
                 brandId: createAttrs.brandId,
-                itemCategoryId: createAttrs.itemCategoryId,
+                listingCategoryId: createAttrs.listingCategoryId,
             }),
             isValidTags(createAttrs.tags),
         ]);
@@ -314,7 +314,7 @@ async function update(req, res) {
         "bookingStartDate",
         "bookingEndDate",
         "brandId",
-        "itemCategoryId",
+        "listingCategoryId",
         "locations",
         "listingTypesIds",
         "dayOnePrice",
@@ -358,7 +358,7 @@ async function update(req, res) {
             Item.findOne({ id: id }),
             Item.isValidReferences({
                 brandId: updateAttrs.brandId,
-                itemCategoryId: updateAttrs.itemCategoryId
+                listingCategoryId: updateAttrs.listingCategoryId
             }),
             isValidLocations(updateAttrs.locations),
             isValidTags(updateAttrs.tags)

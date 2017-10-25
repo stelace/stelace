@@ -146,7 +146,7 @@
         function populate(itemOrItems, args) {
             args = args || {};
             var brands         = args.brands ? _.indexBy(args.brands, "id") : null;
-            var itemCategories = args.itemCategories ? _.indexBy(args.itemCategories, "id") : null;
+            var listingCategories = args.listingCategories ? _.indexBy(args.listingCategories, "id") : null;
             var locations      = args.locations ? _.indexBy(args.locations, "id") : null;
             var nbDaysPricing  = args.nbDaysPricing;
             var listingTypes   = args.listingTypes;
@@ -155,8 +155,8 @@
                 if (item.brandId && brands) {
                     item.brandName = brands[item.brandId].name;
                 }
-                if (item.itemCategoryId && itemCategories) {
-                    item.itemCategoryName = itemCategories[item.itemCategoryId].name;
+                if (item.listingCategoryId && listingCategories) {
+                    item.listingCategoryName = listingCategories[item.listingCategoryId].name;
                 }
                 if (item.medias && item.medias.length) {
                     _.forEach(item.medias, function (media) {

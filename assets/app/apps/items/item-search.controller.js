@@ -21,7 +21,7 @@
                                     cache,
                                     diacritics,
                                     GoogleMap,
-                                    ItemCategoryService,
+                                    ListingCategoryService,
                                     ItemService,
                                     ListingTypeService,
                                     LocationService,
@@ -58,7 +58,7 @@
         var searchQueryLocation;
         var previousSearchLocationInput;
         var currentUser;
-        var itemCategories;
+        var listingCategories;
         var myLocations;
         var ipLocation;
         var stopSpinnerTimeout;
@@ -246,21 +246,21 @@
 
             return $q.all({
                 currentUser: UserService.getCurrentUser(),
-                itemCategories: ItemCategoryService.cleanGetList(),
+                listingCategories: ListingCategoryService.cleanGetList(),
                 myLocations: $rootScope.myLocations || LocationService.getMine(),
                 urlLocation: _getLocationFromURL(urlLocationName),
                 ipLocation: $rootScope.ipLocation || LocationService.getGeoInfo(),
                 listingTypes: ListingTypeService.cleanGetList()
             }).then(function (results) {
                 currentUser    = tools.clearRestangular(results.currentUser);
-                itemCategories = results.itemCategories;
+                listingCategories = results.listingCategories;
                 myLocations    = results.myLocations;
                 vm.listingTypes = results.listingTypes;
 
                 vm.isAuthed = !! currentUser;
-                // only display first level item categories
-                vm.itemCategories = _.filter(itemCategories, function (itemCategory) {
-                    return ! itemCategory.parentId;
+                // only display first level listing categories
+                vm.listingCategories = _.filter(listingCategories, function (listingCategory) {
+                    return ! listingCategory.parentId;
                 });
                 $rootScope.myLocations = myLocations;
                 urlLocation = results.urlLocation;
@@ -416,8 +416,8 @@
                 searchParams.sorting = sorting;
             }
 
-            // if (vm.searchQuery.selectedItemCategory) {
-            //     searchParams.itemCategoryId = vm.searchQuery.selectedItemCategory.id;
+            // if (vm.searchQuery.selectedListingCategory) {
+            //     searchParams.listingCategoryId = vm.searchQuery.selectedListingCategory.id;
             // }
 
             // reset url location if user changes search input
@@ -677,7 +677,7 @@
                     var fbEventParams = {
                         content_ids: _.pluck(items, "id"),
                         search_string: $rootScope.searchParams.query,
-                        content_category: ItemCategoryService.getCategoriesString(vm.breadcrumbCategory)
+                        content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory)
                     };
                     fbq('track', 'Search', fbEventParams);
 
@@ -1074,8 +1074,8 @@
                         });
                     }
 
-                    // if (searchConfig.itemCategoryId) {
-                    //     vm.searchQuery.selectedItemCategory = searchConfig.itemCategoryId;
+                    // if (searchConfig.listingCategoryId) {
+                    //     vm.searchQuery.selectedListingCategory = searchConfig.listingCategoryId;
                     // }
                 });
         }
@@ -1104,8 +1104,8 @@
                 searchConfig.queryMode = $rootScope.searchParams.queryMode;
             }
 
-            // if (vm.searchQuery.selectedItemCategory) {
-            //     searchConfig.itemCategoryId = vm.searchQuery.selectedItemCategory;
+            // if (vm.searchQuery.selectedListingCategory) {
+            //     searchConfig.listingCategoryId = vm.searchQuery.selectedListingCategory;
             // }
 
             return ItemService.setSearchConfig(searchConfig, currentUser);

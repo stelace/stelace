@@ -84,8 +84,8 @@
         vm.reason            = null;
         vm.cancellingBooking = false;
 
-        // vm.createItemCategory = createItemCategory;
-        // vm.removeItemCategory = removeItemCategory;
+        // vm.createListingCategory = createListingCategory;
+        // vm.removeListingCategory = removeListingCategory;
         // vm.createBrand        = createBrand;
         // vm.listBrand          = listBrand;
         vm.loginAs              = loginAs;
@@ -143,7 +143,7 @@
                 });
 
             // $q.all({
-            //     itemCategories: _renderItemCategoriesList(),
+            //     listingCategories: _renderListingCategoriesList(),
             //     brands: BrandService.getList()
             // })
             // .then(function (results) {
@@ -335,14 +335,14 @@
             });
         }
 
-        // function createItemCategory(newItemCategory) {
+        // function createListingCategory(newListingCategory) {
         //     var createAttrs = {
-        //         name: newItemCategory.name
+        //         name: newListingCategory.name
         //     };
 
-        //     if (newItemCategory.parentName) {
-        //         var parentCategory = _.find(vm.itemCategories, function (itemCategory) {
-        //             return itemCategory.name === newItemCategory.parentName;
+        //     if (newListingCategory.parentName) {
+        //         var parentCategory = _.find(vm.listingCategories, function (listingCategory) {
+        //             return listingCategory.name === newListingCategory.parentName;
         //         });
 
         //         if (! parentCategory) {
@@ -353,68 +353,68 @@
         //         createAttrs.parentId = parentCategory.id;
         //     }
 
-        //     ItemCategoryService.post(createAttrs)
+        //     ListingCategoryService.post(createAttrs)
         //         .then(function () {
-        //             newItemCategory.name = null;
-        //             newItemCategory.parentName = null;
+        //             newListingCategory.name = null;
+        //             newListingCategory.parentName = null;
 
-        //             return _renderItemCategoriesList();
+        //             return _renderListingCategoriesList();
         //         });
         // }
 
-        // function removeItemCategory(itemCategory) {
-        //     itemCategory
+        // function removeListingCategory(listingCategory) {
+        //     listingCategory
         //         .remove()
         //         .then(function () {
-        //             return _renderItemCategoriesList();
+        //             return _renderListingCategoriesList();
         //         });
         // }
 
-        // function _renderItemCategoriesList() {
-        //     return ItemCategoryService
+        // function _renderListingCategoriesList() {
+        //     return ListingCategoryService
         //         .getList()
-        //         .then(function (itemCategories) {
-        //             vm.itemCategories = _getFormattedItemCategories(itemCategories);
+        //         .then(function (listingCategories) {
+        //             vm.listingCategories = _getFormattedListingCategories(listingCategories);
         //         });
         // }
 
-        // function _getFormattedItemCategories(itemCategories) {
-        //     itemCategories = _.sortBy(itemCategories, function (itemCategory) {
-        //         return itemCategory.lft;
+        // function _getFormattedListingCategories(listingCategories) {
+        //     listingCategories = _.sortBy(listingCategories, function (listingCategory) {
+        //         return listingCategory.lft;
         //     });
 
-        //     _.each(itemCategories, function (itemCategory) {
-        //         if (! itemCategory.parentId) {
-        //             itemCategory.level = 0;
+        //     _.each(listingCategories, function (listingCategory) {
+        //         if (! listingCategory.parentId) {
+        //             listingCategory.level = 0;
         //         } else {
-        //             var parentCategory = _.find(itemCategories, function (i) {
-        //                 return i.id === itemCategory.parentId;
+        //             var parentCategory = _.find(listingCategories, function (i) {
+        //                 return i.id === listingCategory.parentId;
         //             });
-        //             itemCategory.level = parentCategory.level + 1;
+        //             listingCategory.level = parentCategory.level + 1;
         //         }
         //     });
 
-        //     itemCategories = _.map(itemCategories, function (itemCategory) {
+        //     listingCategories = _.map(listingCategories, function (listingCategory) {
         //         var levelName = "";
-        //         for (var i = 0; i < itemCategory.level; ++i) {
+        //         for (var i = 0; i < listingCategory.level; ++i) {
         //             levelName += "....";
         //         }
 
-        //         itemCategory.levelName = (levelName + itemCategory.name);
-        //         return itemCategory;
+        //         listingCategory.levelName = (levelName + listingCategory.name);
+        //         return listingCategory;
         //     });
 
-        //     return itemCategories;
+        //     return listingCategories;
         // }
 
         // function listBrand() {
-        //     var itemCategory = _.find(vm.itemCategories, function (itemCategory) {
-        //         return itemCategory.name === vm.brandSearch;
+        //     var listingCategory = _.find(vm.listingCategories, function (listingCategory) {
+        //         return listingCategory.name === vm.brandSearch;
         //     });
 
         //     var params = {};
-        //     if (itemCategory) {
-        //         params.itemCategoryId = itemCategory.id;
+        //     if (listingCategory) {
+        //         params.listingCategoryId = listingCategory.id;
         //     }
 
         //     BrandService
@@ -429,23 +429,23 @@
         //         name: newBrand.name
         //     };
 
-        //     if (newBrand.itemCategoryName) {
-        //         var itemCategory = _.find(vm.itemCategories, function (itemCategory) {
-        //             return itemCategory.name === newBrand.itemCategoryName;
+        //     if (newBrand.listingCategoryName) {
+        //         var listingCategory = _.find(vm.listingCategories, function (listingCategory) {
+        //             return listingCategory.name === newBrand.listingCategoryName;
         //         });
 
-        //         if (! itemCategory) {
-        //             toastr.warning("item category name error");
+        //         if (! listingCategory) {
+        //             toastr.warning("listing category name error");
         //             return;
         //         }
 
-        //         createAttrs.itemCategoryId = itemCategory.id;
+        //         createAttrs.listingCategoryId = listingCategory.id;
         //     }
 
         //     BrandService.post(createAttrs)
         //         .then(function () {
         //             newBrand.name = null;
-        //             newBrand.itemCategoryName = null;
+        //             newBrand.listingCategoryName = null;
 
         //             listBrand();
         //         });

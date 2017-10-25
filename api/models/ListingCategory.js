@@ -1,7 +1,7 @@
-/* global ItemCategory */
+/* global ListingCategory */
 
 /**
-* ItemCategory.js
+* ListingCategory.js
 *
 * @description :: TODO: You might write a short summary of how this model works and what it represents here.
 * @docs        :: http://sailsjs.org/#!documentation/models
@@ -30,8 +30,8 @@ module.exports = {
     hasChildrenCategories: hasChildrenCategories,
     getChildrenCategories: getChildrenCategories,
     getParentCategories: getParentCategories,
-    createItemCategory: createItemCategory,
-    removeItemCategory: removeItemCategory,
+    createListingCategory: createListingCategory,
+    removeListingCategory: removeListingCategory,
 
 };
 
@@ -53,20 +53,20 @@ function _createSpace(left) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory
+            return ListingCategory
                 .find({ rgt: { '>=': left } })
                 .sort({ lft: 1 });
         })
-        .each(itemCategory => {
+        .each(listingCategory => {
             var updateAttrs = {
-                rgt: itemCategory.rgt + 2
+                rgt: listingCategory.rgt + 2
             };
 
-            if (itemCategory.lft >= left) {
-                updateAttrs.lft = itemCategory.lft + 2;
+            if (listingCategory.lft >= left) {
+                updateAttrs.lft = listingCategory.lft + 2;
             }
 
-            return ItemCategory.updateOne(itemCategory.id, updateAttrs);
+            return ListingCategory.updateOne(listingCategory.id, updateAttrs);
         });
 }
 
@@ -74,20 +74,20 @@ function _removeSpace(left) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory
+            return ListingCategory
                 .find({ rgt: { '>=': left } })
                 .sort({ lft: 1 });
         })
-        .each(itemCategory => {
+        .each(listingCategory => {
             var updateAttrs = {
-                rgt: itemCategory.rgt - 2
+                rgt: listingCategory.rgt - 2
             };
 
-            if (itemCategory.lft >= left) {
-                updateAttrs.lft = itemCategory.lft - 2;
+            if (listingCategory.lft >= left) {
+                updateAttrs.lft = listingCategory.lft - 2;
             }
 
-            return ItemCategory.updateOne(itemCategory.id, updateAttrs);
+            return ListingCategory.updateOne(listingCategory.id, updateAttrs);
         });
 }
 
@@ -99,16 +99,16 @@ function hasChildrenCategories(categoryId) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory.findOne({ id: categoryId });
+            return ListingCategory.findOne({ id: categoryId });
         })
-        .then(itemCategory => {
-            if (! itemCategory) {
-                var error = new Error("ItemCategory not found");
-                error.itemCategoryId = categoryId;
+        .then(listingCategory => {
+            if (! listingCategory) {
+                var error = new Error("ListingCategory not found");
+                error.listingCategoryId = categoryId;
                 throw error;
             }
 
-            return itemCategory.hasChildrenCategories();
+            return listingCategory.hasChildrenCategories();
         });
 }
 
@@ -116,58 +116,58 @@ function getChildrenCategories(categoryId, includeSelf) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory.findOne({ id: categoryId });
+            return ListingCategory.findOne({ id: categoryId });
         })
-        .then(itemCategory => {
-            if (! itemCategory) {
-                var error = new NotFoundError("ItemCategory not found");
-                error.itemCategoryId = categoryId;
+        .then(listingCategory => {
+            if (! listingCategory) {
+                var error = new NotFoundError("ListingCategory not found");
+                error.listingCategoryId = categoryId;
                 throw error;
             }
 
             var findAttrs;
             if (includeSelf) {
                 findAttrs = {
-                    lft: { '>=': itemCategory.lft },
-                    rgt: { '<=': itemCategory.rgt }
+                    lft: { '>=': listingCategory.lft },
+                    rgt: { '<=': listingCategory.rgt }
                 };
             } else {
                 findAttrs = {
-                    lft: { '>': itemCategory.lft },
-                    rgt: { '<': itemCategory.rgt }
+                    lft: { '>': listingCategory.lft },
+                    rgt: { '<': listingCategory.rgt }
                 };
             }
 
-            return ItemCategory
+            return ListingCategory
                 .find(findAttrs)
                 .sort({ lft: 1 });
         });
 }
 
 function s_getParentCategories(includeSelf) {
-    var itemCategory = this;
+    var listingCategory = this;
 
     return Promise
         .resolve()
         .then(() => {
-            if (! itemCategory.parentId) {
-                return (includeSelf ? [itemCategory] : []);
+            if (! listingCategory.parentId) {
+                return (includeSelf ? [listingCategory] : []);
             }
 
             var findAttrs;
             if (includeSelf) {
                 findAttrs = {
-                    lft: { '<=': itemCategory.lft },
-                    rgt: { '>=': itemCategory.rgt }
+                    lft: { '<=': listingCategory.lft },
+                    rgt: { '>=': listingCategory.rgt }
                 };
             } else {
                 findAttrs = {
-                    lft: { '<': itemCategory.lft },
-                    rgt: { '>': itemCategory.rgt }
+                    lft: { '<': listingCategory.lft },
+                    rgt: { '>': listingCategory.rgt }
                 };
             }
 
-            return ItemCategory
+            return ListingCategory
                 .find(findAttrs)
                 .sort({ lft: -1 });
         });
@@ -177,16 +177,16 @@ function getParentCategories(categoryId, includeSelf) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory.findOne({ id: categoryId });
+            return ListingCategory.findOne({ id: categoryId });
         })
-        .then(itemCategory => {
-            if (! itemCategory) {
-                var error = new NotFoundError("Item category not found");
-                error.itemCategoryId = categoryId;
+        .then(listingCategory => {
+            if (! listingCategory) {
+                var error = new NotFoundError("Listing category not found");
+                error.listingCategoryId = categoryId;
                 throw error;
             }
 
-            return itemCategory.getParentCategories(includeSelf);
+            return listingCategory.getParentCategories(includeSelf);
         });
 }
 
@@ -210,33 +210,33 @@ function _insertIntoParent(args) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory.find({ parentId: parentId });
+            return ListingCategory.find({ parentId: parentId });
         })
-        .then(itemCategories => {
-            var sortedItemCategories = _.sortBy(itemCategories, function (itemCategory) {
-                return itemCategory.name.toLowerCase();
+        .then(listingCategories => {
+            var sortedListingCategories = _.sortBy(listingCategories, function (listingCategory) {
+                return listingCategory.name.toLowerCase();
             });
-            var alphabeticallyNextItemCategory = _.find(sortedItemCategories, function (itemCategory) {
-                return name.toLowerCase() < itemCategory.name.toLowerCase();
+            var alphabeticallyNextListingCategory = _.find(sortedListingCategories, function (listingCategory) {
+                return name.toLowerCase() < listingCategory.name.toLowerCase();
             });
-            var lastItemCategory = _.last(sortedItemCategories);
+            var lastListingCategory = _.last(sortedListingCategories);
 
             // if first level category and no category after the new one
-            if (! parentId && ! alphabeticallyNextItemCategory) {
+            if (! parentId && ! alphabeticallyNextListingCategory) {
                 // if the new category is the first one
-                if (! lastItemCategory) {
+                if (! lastListingCategory) {
                     createAttrs.lft = 1;
                     createAttrs.rgt = 2;
                 } else {
-                    createAttrs.lft = lastItemCategory.rgt + 1;
-                    createAttrs.rgt = lastItemCategory.rgt + 2;
+                    createAttrs.lft = lastListingCategory.rgt + 1;
+                    createAttrs.rgt = lastListingCategory.rgt + 2;
                 }
             } else {
                 needCreateSpace = true;
 
-                if (alphabeticallyNextItemCategory) {
-                    createAttrs.lft = alphabeticallyNextItemCategory.lft;
-                    createAttrs.rgt = alphabeticallyNextItemCategory.lft + 1;
+                if (alphabeticallyNextListingCategory) {
+                    createAttrs.lft = alphabeticallyNextListingCategory.lft;
+                    createAttrs.rgt = alphabeticallyNextListingCategory.lft + 1;
                 } else {
                     createAttrs.lft = parent.rgt;
                     createAttrs.rgt = parent.rgt + 1;
@@ -246,10 +246,10 @@ function _insertIntoParent(args) {
             if (needCreateSpace) {
                 return _createSpace(createAttrs.lft)
                     .then(() => {
-                        return ItemCategory.create(createAttrs);
+                        return ListingCategory.create(createAttrs);
                     });
             } else {
-                return ItemCategory.create(createAttrs);
+                return ListingCategory.create(createAttrs);
             }
         });
 }
@@ -259,7 +259,7 @@ function _insertIntoParent(args) {
  * - *name
  * - parentId
  */
-function createItemCategory(args) {
+function createListingCategory(args) {
     var name     = args.name;
     var parentId = args.parentId;
 
@@ -267,19 +267,19 @@ function createItemCategory(args) {
         .resolve()
         .then(() => {
             if (parentId) {
-                return ItemCategory
+                return ListingCategory
                     .findOne({ id: parentId })
-                    .then(itemCategory => {
-                        if (! itemCategory) {
+                    .then(listingCategory => {
+                        if (! listingCategory) {
                             var error = new NotFoundError("Parent category not found");
-                            error.itemCategoryId = parentId;
+                            error.listingCategoryId = parentId;
                             throw error;
                         }
 
                         return _insertIntoParent({
                             name: name,
                             parentId: parentId,
-                            parent: itemCategory
+                            parent: listingCategory
                         });
                     });
             } else {
@@ -288,26 +288,26 @@ function createItemCategory(args) {
         });
 }
 
-function removeItemCategory(categoryId) {
+function removeListingCategory(categoryId) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemCategory.findOne({ id: categoryId });
+            return ListingCategory.findOne({ id: categoryId });
         })
-        .then(itemCategory => {
-            if (! itemCategory) {
-                var error = new NotFoundError("ItemCategory not found");
-                error.itemCategoryId = categoryId;
+        .then(listingCategory => {
+            if (! listingCategory) {
+                var error = new NotFoundError("ListingCategory not found");
+                error.listingCategoryId = categoryId;
                 throw error;
             }
-            if (itemCategory.hasChildrenCategories()) {
-                throw new ForbiddenError("ItemCategory cannot be removed: has children categories");
+            if (listingCategory.hasChildrenCategories()) {
+                throw new ForbiddenError("ListingCategory cannot be removed: has children categories");
             }
 
-            return ItemCategory
-                .destroy({ id: itemCategory.id })
+            return ListingCategory
+                .destroy({ id: listingCategory.id })
                 .then(() => {
-                    return _removeSpace(itemCategory.lft);
+                    return _removeSpace(listingCategory.lft);
                 });
         });
 }

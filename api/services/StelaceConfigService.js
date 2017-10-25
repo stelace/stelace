@@ -32,7 +32,7 @@ const featureNames = [
     'EVENTS',
     'GAMIFICATION',
     'INCOME_REPORT',
-    'ITEM_CATEGORIES',
+    'LISTING_CATEGORIES',
     'MAP',
     'PRICE_RECOMMENDATION',
     'REFERRAL',
@@ -115,7 +115,7 @@ async function _loadFeatures(stelaceConfig) {
 
     // create alias for some features
     _.assign(features, {
-        ITEM_CATEGORIES: features.TAGS,
+        LISTING_CATEGORIES: features.TAGS,
         REFERRAL: features.GAMIFICATION,
     });
 

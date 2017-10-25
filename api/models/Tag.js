@@ -17,7 +17,7 @@ module.exports = {
             maxLength: 191
         },
         nameURLSafe: "string",
-        itemCategoryIds: "array",
+        listingCategoryIds: "array",
         validated: {
             type: "boolean",
             defaultsTo: false
@@ -52,7 +52,7 @@ function getAccessFields(access) {
             "id",
             "name",
             "nameURLSafe",
-            "itemCategoryIds",
+            "listingCategoryIds",
             "validated",
             "priorityScore",
             "timesSearched",

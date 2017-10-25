@@ -97,7 +97,7 @@ function getComparedFields(targetType) {
             "bookingEndDate",
             "brandId",
             "reference",
-            "itemCategoryId",
+            "listingCategoryId",
             "mediasIds",
             "instructionsMediasIds",
             "validated",

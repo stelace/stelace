@@ -20,7 +20,7 @@
                                 crossTabCommunication,
                                 diacritics,
                                 ezfb,
-                                ItemCategoryService,
+                                ListingCategoryService,
                                 ItemService,
                                 ListingTypeService,
                                 LocationService,
@@ -53,7 +53,7 @@
         var item;
         var myItems;
         // var brands;
-        var itemCategories;
+        var listingCategories;
         var itemPricing;
         var stepProgressDone;
         var myLocations;
@@ -70,7 +70,7 @@
 
         var vm = this;
         vm.activeTags           = StelaceConfig.isFeatureActive('TAGS');
-        vm.showItemCategories   = StelaceConfig.isFeatureActive('ITEM_CATEGORIES');
+        vm.showListingCategories = StelaceConfig.isFeatureActive('LISTING_CATEGORIES');
         vm.listingTypes         = [];
         vm.showListingTypes     = false;
 
@@ -95,8 +95,8 @@
         vm.myItems              = [];
         vm.selectedShareItem    = null;
         // vm.brands            = [];
-        vm.itemCategoriesLvl1   = [];
-        vm.itemCategoriesLvl2   = [];
+        vm.listingCategoriesLvl1 = [];
+        vm.listingCategoriesLvl2 = [];
         vm.itemTags             = [];
         vm.configMedias         = [];
         vm.isMoveModeAllowed    = false;
@@ -141,7 +141,7 @@
         }];
 
         vm.socialLogin                    = socialLogin;
-        vm.selectItemCategoryLvl2         = selectItemCategoryLvl2;
+        vm.selectListingCategoryLvl2         = selectListingCategoryLvl2;
         vm.categoryChanged                = categoryChanged;
         vm.saveItem                       = saveItem;
         // vm.updateBrandList             = updateBrandList;
@@ -231,7 +231,7 @@
             $q.all({
                 currentUser: UserService.getCurrentUser(),
                 // brands: BrandService.getList(),
-                itemCategories: ItemCategoryService.cleanGetList(),
+                listingCategories: ListingCategoryService.cleanGetList(),
                 itemPricing: pricing.getPricing(),
                 tags: vm.activeTags ? TagService.cleanGetList() : [],
                 listingTypes: ListingTypeService.cleanGetList(),
@@ -240,7 +240,7 @@
                 // brands                = results.brands;
                 // vm.brands             = brands;
                 currentUser           = results.currentUser;
-                itemCategories        = results.itemCategories;
+                listingCategories     = results.listingCategories;
                 myLocations           = tools.clearRestangular(results.myLocations);
                 itemPricing           = results.itemPricing;
                 tags                  = _.sortBy(results.tags, function (tag) {
@@ -258,7 +258,7 @@
 
                 vm.isAuthenticated    = !! currentUser;
                 vm.createAccount      = ! currentUser;
-                vm.itemCategoriesLvl1 = _selectItemCategory();
+                vm.listingCategoriesLvl1 = _selectListingCategory();
 
                 return _fetchUserInfo();
             }).then(function () {
@@ -325,7 +325,7 @@
 
 
                     var shouldRecycleAnonymousItmTmp = currentUser
-                        && (! newItemTmp || (newItemTmp && ! (newItemTmp.name && newItemTmp.itemCategoryId)));
+                        && (! newItemTmp || (newItemTmp && ! (newItemTmp.name && newItemTmp.listingCategoryId)));
                     // Keep work of anonymous user who has just authenticated
                     // Old user draft automatic locations or prices alone do not count for much if item name is missing
                     if (shouldRecycleAnonymousItmTmp) {
@@ -367,7 +367,7 @@
 
                         ItemService.populate(vm.myItems, {
                             // brands: brands,
-                            itemCategories: itemCategories,
+                            listingCategories: listingCategories,
                             locations: myLocations,
                             nbDaysPricing: nbDaysPricing,
                             listingTypes: vm.listingTypes
@@ -395,8 +395,8 @@
                 vm.step3                    = false;
                 vm.saveItemBtnDisabled      = false;
                 vm.validPrice               = false;
-                vm.selectedItemCategoryLvl1 = null;
-                vm.selectedItemCategoryLvl2 = null;
+                vm.selectedListingCategoryLvl1 = null;
+                vm.selectedListingCategoryLvl2 = null;
                 vm.mediasMaxNbReached       = false;
                 vm.item.listingTypesIds     = [];
                 stepProgressDone            = {};
@@ -424,8 +424,8 @@
                 vm.step3                    = false;
                 vm.saveItemBtnDisabled      = false;
                 vm.validPrice               = false;
-                vm.selectedItemCategoryLvl1 = null;
-                vm.selectedItemCategoryLvl2 = null;
+                vm.selectedListingCategoryLvl1 = null;
+                vm.selectedListingCategoryLvl2 = null;
                 vm.item.listingTypesIds     = vm.item.listingTypesIds || [];
                 stepProgressDone            = {};
                 vm.mediasMaxNbReached       = false;
@@ -448,7 +448,7 @@
                 }
 
                 _populateTags();
-                _populateItemCategories();
+                _populateListingCategories();
 
                 setDefaultPrices();
                 showStep2();
@@ -464,7 +464,7 @@
 
                 ItemService.populate(vm.item, {
                     // brands: brands,
-                    itemCategories: itemCategories,
+                    listingCategories: listingCategories,
                     locations: myLocations,
                     nbDaysPricing: nbDaysPricing,
                     listingTypes: vm.listingTypes
@@ -476,13 +476,13 @@
                 vm.step3                    = true;
                 vm.saveItemBtnDisabled      = !! item.soldDate;
                 vm.validPrice               = true;
-                vm.selectedItemCategoryLvl1 = null;
-                vm.selectedItemCategoryLvl2 = null;
+                vm.selectedListingCategoryLvl1 = null;
+                vm.selectedListingCategoryLvl2 = null;
                 stepProgressDone            = {};
                 vm.viewCreate               = false;
 
                 _populateTags();
-                _populateItemCategories();
+                _populateListingCategories();
 
                 setDefaultPrices();
 
@@ -527,11 +527,11 @@
             return _.debounce(function (field) {
                 var newItem = _.cloneDeep(vm.item);
 
-                if (vm.showItemCategories) {
-                    if (vm.selectedItemCategoryLvl2) {
-                        newItem.itemCategoryId = vm.selectedItemCategoryLvl2.id;
-                    } else if (vm.selectedItemCategoryLvl1) {
-                        newItem.itemCategoryId = vm.selectedItemCategoryLvl1.id;
+                if (vm.showListingCategories) {
+                    if (vm.selectedListingCategoryLvl2) {
+                        newItem.listingCategoryId = vm.selectedListingCategoryLvl2.id;
+                    } else if (vm.selectedListingCategoryLvl1) {
+                        newItem.listingCategoryId = vm.selectedListingCategoryLvl1.id;
                     }
                 }
 
@@ -562,40 +562,40 @@
             }, []);
         }
 
-        function _populateItemCategories() {
-            if (!vm.showItemCategories) {
+        function _populateListingCategories() {
+            if (!vm.showListingCategories) {
                 return;
             }
 
-            if (vm.item.itemCategoryId) {
-                var cat = _.find(itemCategories, function (itemCat) {
-                    return itemCat.id === vm.item.itemCategoryId;
+            if (vm.item.listingCategoryId) {
+                var cat = _.find(listingCategories, function (itemCat) {
+                    return itemCat.id === vm.item.listingCategoryId;
                 });
                 if (! cat.parentId) {
-                    vm.selectedItemCategoryLvl1 = cat;
+                    vm.selectedListingCategoryLvl1 = cat;
                 } else {
-                    vm.selectedItemCategoryLvl2 = cat;
-                    vm.selectedItemCategoryLvl1 = _.find(itemCategories, function (itemCat) {
+                    vm.selectedListingCategoryLvl2 = cat;
+                    vm.selectedListingCategoryLvl1 = _.find(listingCategories, function (itemCat) {
                         return itemCat.id === cat.parentId;
                     });
                 }
-                selectItemCategoryLvl2();
+                selectListingCategoryLvl2();
             }
         }
 
-        function selectItemCategoryLvl2() {
-            if (!vm.showItemCategories) {
+        function selectListingCategoryLvl2() {
+            if (!vm.showListingCategories) {
                 return;
             }
 
-            vm.itemCategoriesLvl2 = _selectItemCategory(vm.selectedItemCategoryLvl1.id);
+            vm.listingCategoriesLvl2 = _selectListingCategory(vm.selectedListingCategoryLvl1.id);
             updateBrandList();
 
-            var selectedCatLvl2 = vm.selectedItemCategoryLvl2 ? _.find(vm.itemCategoriesLvl2, function (cat) {
-                return cat.id === vm.selectedItemCategoryLvl2.id;
+            var selectedCatLvl2 = vm.selectedListingCategoryLvl2 ? _.find(vm.listingCategoriesLvl2, function (cat) {
+                return cat.id === vm.selectedListingCategoryLvl2.id;
             }) : null;
             if (! selectedCatLvl2) {
-                vm.selectedItemCategoryLvl2 = null;
+                vm.selectedListingCategoryLvl2 = null;
             }
 
             if (! stepProgressDone.catLvl2) {
@@ -604,33 +604,33 @@
             }
         }
 
-        function _selectItemCategory(id) {
-            return _.filter(itemCategories, function (itemCategory) {
+        function _selectListingCategory(id) {
+            return _.filter(listingCategories, function (listingCategory) {
                 if (id) {
-                    return itemCategory.parentId === id;
+                    return listingCategory.parentId === id;
                 } else {
-                    return ! itemCategory.parentId;
+                    return ! listingCategory.parentId;
                 }
             });
         }
 
         function categoryChanged() {
-            selectItemCategoryLvl2();
+            selectListingCategoryLvl2();
             showStep2();
             saveLocal("category");
         }
 
         function updateBrandList() {
-            // var itemCategoryId;
+            // var listingCategoryId;
 
-            // if (vm.selectedItemCategoryLvl2) {
-            //     itemCategoryId = vm.selectedItemCategoryLvl2.id;
-            // } else if (vm.selectedItemCategoryLvl1) {
-            //     itemCategoryId = vm.selectedItemCategoryLvl1.id;
+            // if (vm.selectedListingCategoryLvl2) {
+            //     listingCategoryId = vm.selectedListingCategoryLvl2.id;
+            // } else if (vm.selectedListingCategoryLvl1) {
+            //     listingCategoryId = vm.selectedListingCategoryLvl1.id;
             // }
 
             // BrandService
-            //     .getList({ itemCategoryId: itemCategoryId })
+            //     .getList({ listingCategoryId: listingCategoryId })
             //     .then(function (brands) {
             //         vm.brands = brands;
             //     });
@@ -659,7 +659,7 @@
                 return;
             }
 
-            if (! vm.selectedItemCategoryLvl1 && vm.showItemCategories) {
+            if (! vm.selectedListingCategoryLvl1 && vm.showListingCategories) {
                 return;
             }
 
@@ -1042,14 +1042,14 @@
                     attrs.dayOnePrice  = dayOnePrice;
                     attrs.deposit      = getDeposit(dayOnePrice);
 
-                    if (vm.showItemCategories) {
+                    if (vm.showListingCategories) {
                         if (vm.selectedBrand) {
                             attrs.brandId = vm.selectedBrand.id;
                         }
-                        if (vm.selectedItemCategoryLvl2) {
-                            attrs.itemCategoryId = vm.selectedItemCategoryLvl2.id;
+                        if (vm.selectedListingCategoryLvl2) {
+                            attrs.listingCategoryId = vm.selectedListingCategoryLvl2.id;
                         } else {
-                            attrs.itemCategoryId = vm.selectedItemCategoryLvl1.id;
+                            attrs.listingCategoryId = vm.selectedListingCategoryLvl1.id;
                         }
                     }
 
@@ -1179,7 +1179,7 @@
 
                     ItemService.populate(vm.myItems, {
                         // brands: brands,
-                        itemCategories: itemCategories,
+                        listingCategories: listingCategories,
                         locations: myLocations,
                         nbDaysPricing: nbDaysPricing,
                         listingTypes: vm.listingTypes
@@ -1307,7 +1307,7 @@
 
                     ItemService.populate(vm.myItems, {
                         // brands: brands,
-                        itemCategories: itemCategories,
+                        listingCategories: listingCategories,
                         locations: myLocations,
                         nbDaysPricing: nbDaysPricing,
                         listingTypes: vm.listingTypes

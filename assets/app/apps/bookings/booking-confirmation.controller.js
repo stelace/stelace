@@ -15,7 +15,7 @@
                                         $window,
                                         BookingService,
                                         gamification,
-                                        ItemCategoryService,
+                                        ListingCategoryService,
                                         ItemService,
                                         map,
                                         MediaService,
@@ -77,7 +77,7 @@
                         bookingId: vm.booking.id
                     }),
                     item: ItemService.get(vm.booking.itemId),
-                    itemCategories: ItemCategoryService.cleanGetList(),
+                    listingCategories: ListingCategoryService.cleanGetList(),
                     itemLocations: ItemService.getLocations(vm.booking.itemId),
                     cardId: tools.getLocalData("cardId", vm.currentUser.id)
                 });
@@ -85,7 +85,7 @@
             .then(function (results) {
                 var conversations  = results.conversations;
                 var item           = results.item;
-                var itemCategories = results.itemCategories;
+                var listingCategories = results.listingCategories;
                 cardId             = results.cardId;
 
 
@@ -123,8 +123,8 @@
                     vm.showBookingDuration = false;
                 }
 
-                vm.itemCategoryName = ItemCategoryService.findItemCategory(item, itemCategories);
-                vm.notCategoryTags  = ItemCategoryService.notCategoryTags(item.completeTags, vm.itemCategoryName);
+                vm.listingCategoryName = ListingCategoryService.findListingCategory(item, listingCategories);
+                vm.notCategoryTags     = ListingCategoryService.notCategoryTags(item.completeTags, vm.listingCategoryName);
 
                 var locationSearch = $location.search();
 
@@ -220,7 +220,7 @@
                     currency: "EUR",
                     content_name: vm.item.name,
                     content_ids: [vm.item.id],
-                    content_category: ItemCategoryService.getCategoriesString(vm.itemCategoryName, vm.notCategoryTags[0]),
+                    content_category: ListingCategoryService.getCategoriesString(vm.listingCategoryName, vm.notCategoryTags[0]),
                     stl_transaction_type: BookingService.getFbTransactionType(vm.booking)
                 };
                 fbq('track', 'Purchase', fbEventParams);

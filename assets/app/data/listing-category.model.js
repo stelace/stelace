@@ -2,9 +2,9 @@
 
     angular
         .module("app.data")
-        .factory("ItemCategory", ItemCategory);
+        .factory("ListingCategory", ListingCategory);
 
-    function ItemCategory() {
+    function ListingCategory() {
         var service = {};
         service.mixInto = mixInto;
 
