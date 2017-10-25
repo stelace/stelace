@@ -1,4 +1,4 @@
-/* global ElasticsearchService, ItemXTag, Tag, TokenService, User, UserXTag */
+/* global ElasticsearchService, ListingXTag, Tag, TokenService, User, UserXTag */
 
 /**
  * TagController
@@ -98,7 +98,7 @@ function destroy(req, res) {
 
         var tagUse = yield Promise.props({
             userTags: UserXTag.find({ tagId: tagId }),
-            itemTags: ItemXTag.find({ tagId: tagId })
+            listingTags: ListingXTag.find({ tagId: tagId })
         });
 
         tagUsersIds  = _.pluck(tagUse.userTags, "userId");
@@ -119,15 +119,15 @@ function destroy(req, res) {
         yield Promise.all([
             Tag.destroy({ id: tagId }),
             UserXTag.destroy({ tagId: tagId }),
-            ItemXTag.destroy({ tagId: tagId })
+            ListingXTag.destroy({ tagId: tagId })
         ]);
 
-        var itemsIds = _.pluck(tagUse.itemTags, "itemId");
+        var itemsIds = _.pluck(tagUse.listingTags, "itemId");
         ElasticsearchService.shouldSyncItems(itemsIds);
 
         return res.json({
             nbUsers: tagUse.userTags.length,
-            nbItems: tagUse.itemTags.length
+            nbItems: tagUse.listingTags.length
         });
     })()
     .catch(res.sendError);

@@ -1,5 +1,5 @@
 /* global
-        Booking, Brand, ElasticsearchService, Item, ListingCategory, ItemXTag, Location, Media, ModelSnapshot, Tag,
+        Booking, Brand, ElasticsearchService, Item, ListingCategory, ListingXTag, Location, Media, ModelSnapshot, Tag,
         ToolsService
 */
 
@@ -395,23 +395,23 @@ function updateTags(item, tagIds) {
             throw new BadRequestError();
         }
 
-        var itemXTags = yield ItemXTag.find({ itemId: item.id });
+        var listingXTags = yield ListingXTag.find({ listingId: item.id });
 
-        var oldTagIds     = _.pluck(itemXTags, "tagId");
+        var oldTagIds     = _.pluck(listingXTags, "tagId");
         var addedTagIds   = _.difference(tagIds, oldTagIds);
         var removedTagIds = _.difference(oldTagIds, tagIds);
 
         if (addedTagIds.length) {
             yield Promise.each(addedTagIds, tagId => {
-                return ItemXTag.create({
-                    itemId: item.id,
+                return ListingXTag.create({
+                    listingId: item.id,
                     tagId: tagId
                 });
             });
         }
         if (removedTagIds.length) {
-            yield ItemXTag.destroy({
-                itemId: item.id,
+            yield ListingXTag.destroy({
+                listingId: item.id,
                 tagId: removedTagIds
             });
         }
@@ -519,40 +519,40 @@ function getTags(itemOrItems, completeObj) {
     return Promise
         .resolve()
         .then(() => {
-            return ItemXTag.find({ itemId: _.pluck(items, "id") });
+            return ListingXTag.find({ listingId: _.pluck(items, "id") });
         })
-        .then(itemXTags => {
+        .then(listingXTags => {
             var getTags = () => {
-                if (! completeObj || ! itemXTags.length) {
+                if (! completeObj || ! listingXTags.length) {
                     return [];
                 }
 
-                var tagIds = _.uniq(_.pluck(itemXTags, "tagId"));
+                var tagIds = _.uniq(_.pluck(listingXTags, "tagId"));
 
                 return Tag.find({ id: tagIds });
             };
 
             return [
-                itemXTags,
+                listingXTags,
                 getTags()
             ];
         })
-        .spread((itemXTags, tags) => {
+        .spread((listingXTags, tags) => {
             var hashTags = _.indexBy(tags, "id");
 
-            var hashItemXTags = _.reduce(itemXTags, function (memo, itemXTag) {
-                if (memo[itemXTag.itemId]) {
-                    memo[itemXTag.itemId].push(itemXTag.tagId);
+            var hashListingXTags = _.reduce(listingXTags, function (memo, itemXTag) {
+                if (memo[itemXTag.listingId]) {
+                    memo[itemXTag.listingId].push(itemXTag.tagId);
                 } else {
-                    memo[itemXTag.itemId] = [itemXTag.tagId];
+                    memo[itemXTag.listingId] = [itemXTag.tagId];
                 }
                 return memo;
             }, {});
 
 
             _.forEach(items, function (item) {
-                if (hashItemXTags[item.id]) {
-                    item.tags = hashItemXTags[item.id];
+                if (hashListingXTags[item.id]) {
+                    item.tags = hashListingXTags[item.id];
                 } else {
                     item.tags = [];
                 }

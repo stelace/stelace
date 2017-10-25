@@ -1,4 +1,4 @@
-/* global Item, ListingCategory, ItemXTag, LoggerService, StelaceConfigService, Tag */
+/* global Item, ListingCategory, ListingXTag, LoggerService, StelaceConfigService, Tag */
 
 module.exports = {
 
@@ -88,20 +88,20 @@ async function syncItems() {
         items,
         listingCategories,
         tags,
-        itemsXTags,
+        listingsXTags,
     ] = await Promise.all([
         Item.find({ validated: true }),
         ListingCategory.find(),
         Tag.find(),
-        ItemXTag.find(),
+        ListingXTag.find(),
     ]);
 
     const indexedCategories = _.indexBy(listingCategories, 'id');
     const indexedTags = _.indexBy(tags, 'id');
-    const indexedItemsXTagsByItemId = _.groupBy(itemsXTags, 'itemId');
+    const indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'listingId');
 
     const normalizedItems = _.map(items, item => {
-        return normalizeItem(item, { indexedCategories, indexedTags, indexedItemsXTagsByItemId });
+        return normalizeItem(item, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
     });
 
     const indexExists = await client.indices.exists({
@@ -377,14 +377,14 @@ async function getItem(itemId) {
     });
 }
 
-function normalizeItem(item, { indexedCategories, indexedTags, indexedItemsXTagsByItemId }) {
+function normalizeItem(item, { indexedCategories, indexedTags, indexedListingsXTagsByListingId }) {
     const transformedItem = _.pick(item, ITEM_FIELDS);
 
     transformedItem.mediasIds = transformedItem.mediasIds || [];
     transformedItem.instructionsMediasIds = transformedItem.instructionsMediasIds || [];
     transformedItem.locations = transformedItem.locations || [];
     transformedItem.listingCategoryLabel = getCategoryLabel(item, { indexedCategories });
-    transformedItem.tags = getTags(item, { indexedTags, indexedItemsXTagsByItemId });
+    transformedItem.tags = getTags(item, { indexedTags, indexedListingsXTagsByListingId });
 
     return transformedItem;
 }
@@ -415,16 +415,16 @@ function getCategoryLabel(item, { indexedCategories }) {
     return label;
 }
 
-function getTags(item, { indexedTags, indexedItemsXTagsByItemId }) {
-    const itemsXTags = indexedItemsXTagsByItemId[item.id];
+function getTags(item, { indexedTags, indexedListingsXTagsByListingId }) {
+    const listingsXTags = indexedListingsXTagsByListingId[item.id];
 
-    if (! itemsXTags || ! itemsXTags.length) {
+    if (! listingsXTags || ! listingsXTags.length) {
         return [];
     }
 
     const tags = [];
 
-    _.forEach(itemsXTags, itemXTag => {
+    _.forEach(listingsXTags, itemXTag => {
         const tag = indexedTags[itemXTag.tagId];
         if (tag) {
             tags.push(tag.name);
@@ -458,17 +458,17 @@ async function triggerSyncItems() {
             items,
             listingCategories,
             tags,
-            itemsXTags,
+            listingsXTags,
         ] = await Promise.all([
             Item.find({ id: itemsIds }),
             ListingCategory.find(),
             Tag.find(),
-            ItemXTag.find(),
+            ListingXTag.find(),
         ]);
 
         let indexedCategories;
         let indexedTags;
-        let indexedItemsXTagsByItemId;
+        let indexedListingsXTagsByListingId;
 
         const activeListingCategories = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
         const activeTags = await StelaceConfigService.isFeatureActive('TAGS');
@@ -478,7 +478,7 @@ async function triggerSyncItems() {
         }
         if (activeTags) {
             indexedTags = _.indexBy(tags, 'id');
-            indexedItemsXTagsByItemId = _.groupBy(itemsXTags, 'itemId');
+            indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'itemId');
         }
 
 
@@ -494,7 +494,7 @@ async function triggerSyncItems() {
             if (! item || ! item.validated) {
                 body.push({ delete: { _index: 'catalog', _type: 'item', _id: itemId } });
             } else {
-                const normalizedItem = normalizeItem(item, { indexedCategories, indexedTags, indexedItemsXTagsByItemId });
+                const normalizedItem = normalizeItem(item, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
                 body.push({ update: { _index: 'catalog', _type: 'item', _id: normalizedItem.id } });
                 body.push({ doc: _.omit(normalizedItem, 'id'), doc_as_upsert: true });
             }
