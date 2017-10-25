@@ -42,8 +42,8 @@ Sails.load({
         var bookings = yield Booking.find({
             cancellationId: null,
             or: [
-                { validatedDate: null },
-                { confirmedDate: null }
+                { acceptedDate: null },
+                { paidDate: null }
             ]
         });
 
@@ -90,11 +90,11 @@ Sails.load({
 
     function cancelBooking(booking) {
         var reasonType;
-        if (! booking.validatedDate && ! booking.confirmedDate) {
+        if (! booking.acceptedDate && ! booking.paidDate) {
             reasonType = "no-action";
-        } else if (! booking.validatedDate) {
+        } else if (! booking.acceptedDate) {
             reasonType = "no-validation";
-        } else if (! booking.confirmedDate) {
+        } else if (! booking.paidDate) {
             reasonType = "no-payment";
         }
 

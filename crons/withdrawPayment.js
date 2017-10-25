@@ -38,7 +38,6 @@ Sails.load({
         // find bookings whose transfer payment is done but not cancelled
         // and the withdraw payment isn't done
         var bookings = yield Booking.find({
-            stopWithdrawal: false,
             cancellationId: null,
             withdrawalDate: null,
             paymentTransferDate: { '!': null }

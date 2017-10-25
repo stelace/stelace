@@ -216,13 +216,13 @@ function getRoles(booking, userId) {
         targetType: null
     };
 
-    if (userId === booking.bookerId) {
+    if (userId === booking.takerId) {
         roles.userType   = 'taker';
         roles.targetId   = booking.ownerId;
         roles.targetType = 'owner';
     } else { // userId === booking.ownerId
         roles.userType   = 'owner';
-        roles.targetId   = booking.bookerId;
+        roles.targetId   = booking.takerId;
         roles.targetType = 'taker';
     }
 
@@ -330,5 +330,5 @@ function canUpdateVisibleDate(rating) {
 }
 
 function getRatersIds(booking) {
-    return [booking.ownerId, booking.bookerId];
+    return [booking.ownerId, booking.takerId];
 }

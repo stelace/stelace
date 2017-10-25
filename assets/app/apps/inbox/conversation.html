@@ -64,7 +64,7 @@
                     item="vm.item"
                     is-taker="vm.duplicateActionMessage.isTaker"
                     is-owner="vm.duplicateActionMessage.isOwner"
-                    on-validate="vm.validateBooking"
+                    on-accept="vm.acceptBooking"
                     on-reject="vm.rejectBooking"
                     on-message="vm.sendMessage"
                     has-bank-account="vm.hasBankAccount"
@@ -75,7 +75,7 @@
                 <div class="grid-block conversation__cta"
                     ng-class="{ 'order-2': (vm.assessmentInput.showForm && ! vm.assessmentInput.assessment.signedDate)
                         || (vm.assessmentOutput.showForm && ! vm.assessmentOutput.assessment.signedDate) }"
-                    ng-if="vm.booking.confirmedDate && vm.booking.validatedDate">
+                    ng-if="vm.booking.paidDate && vm.booking.acceptedDate">
                     <div class="medium-1"></div>
                     <div class="small-12 medium-10 plain-card">
                         <!-- Using ng-if to prevent 2-line content from showing initially -->
@@ -180,7 +180,7 @@
                         item="vm.item"
                         is-taker="message.isTaker"
                         is-owner="message.isOwner"
-                        on-validate="vm.validateBooking"
+                        on-accept="vm.acceptBooking"
                         on-reject="vm.rejectBooking"
                         on-message="vm.sendMessage"
                         has-bank-account="vm.hasBankAccount"

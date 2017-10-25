@@ -67,7 +67,7 @@ Sails.load({
 
     function getHash(users, items, bookings, assessments, ratings) {
         var indexedItems            = _.groupBy(items, "ownerId");
-        var indexedBookingsAsBooker = _.groupBy(bookings, "bookerId");
+        var indexedBookingsAsTaker  = _.groupBy(bookings, "takerId");
         var indexedBookingsAsOwner  = _.groupBy(bookings, "ownerId");
         var indexedRatings          = _.groupBy(ratings, "userId");
 
@@ -93,7 +93,7 @@ Sails.load({
             var info = {
                 user: user,
                 items: indexedItems[user.id] || [],
-                bookingsAsBooker: indexedBookingsAsBooker[user.id] || [],
+                bookingsAsTaker: indexedBookingsAsTaker[user.id] || [],
                 bookingsAsOwner: indexedBookingsAsOwner[user.id] || [],
                 assessments: indexedAssessments[user.id] || [],
                 ratings: indexedRatings[user.id] || []
@@ -108,7 +108,7 @@ Sails.load({
 
     function getCheckActionsParams(info) {
         var items            = info.items;
-        var bookingsAsBooker = info.bookingsAsBooker;
+        var bookingsAsTaker  = info.bookingsAsTaker;
         var bookingsAsOwner  = info.bookingsAsOwner;
         var ratings          = info.ratings;
 
@@ -140,10 +140,10 @@ Sails.load({
             FIRST_VALID_ITEM_AD: _.map(items, item => ({ item: item })),
             VALID_ITEM_AD: _.map(items, item => ({ item: item })),
             FIRST_RATING: _.map(ratings, rating => ({ rating: rating })),
-            FIRST_BOOKING: _.map(bookingsAsBooker, booking => ({ booking: booking })),
+            FIRST_BOOKING: _.map(bookingsAsTaker, booking => ({ booking: booking })),
             FIRST_RENTING_OUT: _.map(bookingsAsOwner, booking => ({ booking: booking })),
-            FIRST_COMPLETE_BOOKING: _.map(bookingsAsBooker.concat(bookingsAsOwner), booking => ({ booking: booking })),
-            COMPLETE_BOOKING: _.map(bookingsAsBooker.concat(bookingsAsOwner), booking => ({ booking: booking })),
+            FIRST_COMPLETE_BOOKING: _.map(bookingsAsTaker.concat(bookingsAsOwner), booking => ({ booking: booking })),
+            COMPLETE_BOOKING: _.map(bookingsAsTaker.concat(bookingsAsOwner), booking => ({ booking: booking })),
         };
 
         return {

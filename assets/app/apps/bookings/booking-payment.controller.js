@@ -60,8 +60,6 @@
         vm.footerTestimonials   = true;
 
         vm.cardsToggle   = cardsToggle;
-        vm.confirm       = k_confirm;
-        vm.cancel        = cancel;
         vm.checkCountry  = checkCountry;
         vm.createAccount = createAccount;
         vm.saveCard      = saveCard;
@@ -118,9 +116,9 @@
                 bookingPaymentMessages = results.bookingPaymentMessages || {};
                 cardId                 = results.cardId;
 
-                if (currentUser.id !== results.booking.bookerId) {
+                if (currentUser.id !== results.booking.takerId) {
                     $state.go("item", { slug: results.booking.itemId });
-                    return $q.reject("User is not booker");
+                    return $q.reject("User is not taker");
                 }
 
                 return tools.getLocalData("cardId", currentUser.id)
@@ -179,12 +177,6 @@
                         vm.birthMonth = birth[1];
                         vm.birthDay   = birth[2];
                     }
-                }
-
-                if (vm.booking.cancellationId) {
-                    vm.bookingStatus = "cancelled";
-                } else if (vm.booking.confirmedDate) {
-                    vm.bookingStatus = "confirmed";
                 }
 
                 if (vm.booking.startDate && vm.booking.endDate) {
@@ -272,22 +264,6 @@
             vm.selectedCard = vm.reuseCard ? vm.cards[0] : null;
         }
 
-        function k_confirm() {
-            vm.booking
-                .confirm()
-                .then(function () {
-                    vm.bookingStatus = "confirmed";
-                });
-        }
-
-        function cancel() {
-            vm.booking
-                .cancel()
-                .then(function () {
-                    vm.bookingStatus = "cancelled";
-                });
-        }
-
         function checkCountry() {
             if (!_.includes(euroCountriesIsos, vm.identity.countryOfResidence)) {
                 vm.euroCountryWarning = true;
@@ -338,7 +314,7 @@
                 editingCurrentUser.lastname = vm.lastName;
             }
             if (validBirthday
-             && ($scope.paymentForm.bookerBirthDay.$dirty || $scope.paymentForm.bookerBirthMonth.$dirty || $scope.paymentForm.bookerBirthYear.$dirty)
+             && ($scope.paymentForm.takerBirthDay.$dirty || $scope.paymentForm.takerBirthMonth.$dirty || $scope.paymentForm.takerBirthYear.$dirty)
             ) {
                 // At least one of inputs has changed... Not very safe anyway
                 editingCurrentUser.birthday = vm.identity.birthday;
@@ -431,9 +407,9 @@
 
             if (! vm.conversation && ! vm.privateContent) {
                 return toastr.info("Vous devriez écrire quelques mots au propriétaire afin qu'il accepte votre demande.", "Un petit mot...");
-            } else if (! vm.privateContent && ! vm.booking.validatedDate) {
+            } else if (! vm.privateContent && ! vm.booking.acceptedDate) {
                 // Automatic message if needed when user has already booked this item before, or engaged a conversation with owner
-                // But don't create automatic message if already validated by owner...
+                // But don't create automatic message if already accepted by owner...
                 if (BookingService.isNoTime(vm.booking)) {
                     vm.privateContent = "Bonjour, je viens d'effectuer un paiement "
                      + "pour acheter votre " + vm.item.name + ".\n\nAcceptez-vous ma réservation?";

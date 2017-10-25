@@ -12,9 +12,8 @@
         var service = {};
         service.mixInto          = mixInto;
         service.payment          = payment;
-        service.confirm          = k_confirm;
         service.cancel           = cancel;
-        service.validate         = validate;
+        service.accept           = accept;
         service.getContractToken = getContractToken;
 
         return service;
@@ -29,17 +28,13 @@
             return this.customPOST(args, "payment");
         }
 
-        function k_confirm() {
-            return this.customPOST({}, "confirm");
-        }
-
         function cancel(args) {
             return this.customPOST(args, "cancel");
         }
 
-        function validate(args) {
+        function accept(args) {
             args = args || {};
-            return this.customPOST(args, "validate");
+            return this.customPOST(args, "accept");
         }
 
         function getContractToken() {

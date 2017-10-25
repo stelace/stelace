@@ -1,10 +1,10 @@
 <div ng-form="phoneForm"
     class="prompt-phone"
     uib-collapse="vm.newValidPhone">
-    <label for="booker-phone">Numéro de téléphone</label>
+    <label for="taker-phone">Numéro de téléphone</label>
     <div class="flex-container small-vertical">
         <div class="medium-6 s-medium-5 desktop-6">
-            <input id="booker-phone" class="phone-input" name="bookerPhone" type="tel"
+            <input id="taker-phone" class="phone-input" name="takerPhone" type="tel"
                 ng-disabled="vm.promptCode"
                 ng-model="vm.phone"
                 ng-minlength="10"
@@ -14,8 +14,8 @@
         </div>
         <div class="medium-6">
             <button class="button"
-                ng-disabled="phoneForm.bookerPhone.$invalid || vm.promptCode || vm.currentRequest"
-                ng-class="{disabled: phoneForm.bookerPhone.$invalid || vm.promptCode || vm.currentRequest}"
+                ng-disabled="phoneForm.takerPhone.$invalid || vm.promptCode || vm.currentRequest"
+                ng-class="{disabled: phoneForm.takerPhone.$invalid || vm.promptCode || vm.currentRequest}"
                 ng-click="vm.sendCode()">
                 Vérifier mon numéro
             </button>
@@ -25,13 +25,13 @@
         </div>
     </div>
     <div uib-collapse="! vm.promptCode">
-        <label for="booker-phone-code">Code de validation</label>
+        <label for="taker-phone-code">Code de validation</label>
         <div class="flex-container small-vertical">
             <div class="medium-6 s-medium-5 desktop-6">
                 <div>
-                    <input id="booker-phone-code"
+                    <input id="taker-phone-code"
                         class="phone-input"
-                        name="bookerPhoneCode"
+                        name="takerPhoneCode"
                         type="tel"
                         ng-model="vm.signCode"
                         placeholder="XXXX"
@@ -40,8 +40,8 @@
             </div>
             <div class="medium-6">
                 <button class="button" ng-click="vm.checkCode()"
-                    ng-disabled="phoneForm.bookerPhoneCode.$invalid || vm.currentRequest"
-                    ng-class="{disabled: phoneForm.bookerPhoneCode.$invalid || vm.currentRequest}">
+                    ng-disabled="phoneForm.takerPhoneCode.$invalid || vm.currentRequest"
+                    ng-class="{disabled: phoneForm.takerPhoneCode.$invalid || vm.currentRequest}">
                     Valider le code
                 </button>
                 <span class="spinner-container">

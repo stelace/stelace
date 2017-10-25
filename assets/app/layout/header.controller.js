@@ -259,7 +259,7 @@
                     + _.filter(sortedConversations.false, { senderRead : false }).length;
                     $rootScope.headerNewMessagesCount = vm.newMessagesCount;
 
-                    // Refresh inbox if user has just validated a booking (read statu can be unchanged)
+                    // Refresh inbox if user has just accepted a booking (read statu can be unchanged)
                     var oldPendingConvsCount = pendingConvsCount;
                     pendingConvsCount = _.filter(conversations, function (conv) {
                         return conv.booking

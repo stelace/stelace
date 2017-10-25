@@ -2,13 +2,13 @@
 
 module.exports = {
 
-    afterBookingPaidAndValidated: afterBookingPaidAndValidated
+    afterBookingPaidAndAccepted: afterBookingPaidAndAccepted
 
 };
 
-function afterBookingPaidAndValidated(booking, logger, req) {
+function afterBookingPaidAndAccepted(booking, logger, req) {
     return Promise.coroutine(function* () {
-        var users = yield getAfterBookingPaidAndValidatedData(booking);
+        var users = yield getAfterBookingPaidAndAcceptedData(booking);
 
         return Promise.map(users, user => {
             var actionsIds  = [];
@@ -21,7 +21,7 @@ function afterBookingPaidAndValidated(booking, logger, req) {
                 actionsData = {
                     FIRST_RENTING_OUT: { booking: booking },
                 };
-            } else if (booking.bookerId === user.id) {
+            } else if (booking.takerId === user.id) {
                 actionsIds = [
                     "FIRST_BOOKING",
                 ];
@@ -34,24 +34,24 @@ function afterBookingPaidAndValidated(booking, logger, req) {
         });
     })()
     .catch(err => {
-        logger.warn({ err: err }, "Gamification booking paid and validated fail");
+        logger.warn({ err: err }, "Gamification booking paid and accepted fail");
     });
 }
 
-function getAfterBookingPaidAndValidatedData(booking) {
+function getAfterBookingPaidAndAcceptedData(booking) {
     return Promise.coroutine(function* () {
-        var usersIds = [booking.ownerId, booking.bookerId];
+        var usersIds = [booking.ownerId, booking.takerId];
         var users = yield User.find({ id: usersIds });
 
         var owner  = _.find(users, { id: booking.ownerId });
-        var booker = _.find(users, { id: booking.bookerId });
+        var taker  = _.find(users, { id: booking.takerId });
 
         var errorData = {};
         if (! owner) {
             errorData.ownerId = booking.ownerId;
         }
-        if (! booker) {
-            errorData.bookerId = booking.bookerId;
+        if (! taker) {
+            errorData.takerId = booking.takerId;
         }
 
         if (! _.isEmpty(errorData)) {

@@ -44,7 +44,7 @@ module.exports.policies = {
     BookingController: {
         create: ["isAuthenticated", "getUserInfo"],
         confirm: ["isAuthenticated", "getUserInfo"],
-        validate: ["isAuthenticated", "getUserInfo"],
+        accept: ["isAuthenticated", "getUserInfo"],
         payment: ["isAuthenticated", "getUserInfo"],
         paymentSecure: true,
         getContract: true

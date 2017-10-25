@@ -86,7 +86,7 @@ function createPreauthorization(args) {
         }
 
         var config = {
-            fromUserId: booking.bookerId,
+            fromUserId: booking.takerId,
             toUserId: booking.ownerId,
             preauthAmount: preauthAmount,
             bookingId: booking.id,
@@ -185,7 +185,7 @@ function createPayin(args) {
         }
 
         var config = {
-            fromUserId: booking.bookerId,
+            fromUserId: booking.takerId,
             toUserId: booking.ownerId,
             fromWalletId: payin.CreditedWalletId,
             bookingId: booking.id,
@@ -327,7 +327,7 @@ function createTransfer(args) {
         }
 
         var config = {
-            fromUserId: booking.bookerId,
+            fromUserId: booking.takerId,
             toUserId: booking.ownerId,
             fromWalletId: transfer.DebitedWalletId,
             toWalletId: transfer.CreditedWalletId,
@@ -450,7 +450,7 @@ function createPayout(args) {
         }
 
         var config = {
-            fromUserId: booking.bookerId,
+            fromUserId: booking.takerId,
             toUserId: booking.ownerId,
             toWalletId: payout.DebitedWalletId,
             bankAccountId: payout.BankAccountId,

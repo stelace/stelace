@@ -54,7 +54,7 @@
         vm.sendMessage             = sendMessage;
         vm.resetConversationForm   = resetConversationForm;
         vm.displayDate             = displayDate;
-        vm.validateBooking         = validateBooking;
+        vm.acceptBooking           = acceptBooking;
         vm.rejectBooking           = rejectBooking;
         vm.saveMessageTmp          = saveMessageTmp;
         vm.facebookShare           = facebookShare;
@@ -203,7 +203,7 @@
                 if (conversation.booking) {
                     conversation.booking = Restangular.restangularizeElement(null, conversation.booking, "booking");
                     vm.booking = conversation.booking;
-                    vm.isTaker = (vm.booking.bookerId === currentUser.id);
+                    vm.isTaker = (vm.booking.takerId === currentUser.id);
                 }
 
                 // Show a toast for contact details obfuscation
@@ -304,12 +304,12 @@
                 }
 
                 message.booking     = Restangular.restangularizeElement(null, message.booking, "booking");
-                message.isTaker     = (message.booking.bookerId === currentUser.id);
+                message.isTaker     = (message.booking.takerId === currentUser.id);
                 message.isOwner     = (message.booking.ownerId === currentUser.id);
                 message.isCtaActive = (message.booking.id === vm.booking.id);
 
-                vm.ownerActionRequired = ! vm.booking.validatedDate && ! vm.booking.cancellationId && message.isOwner;
-                vm.takerActionRequired = ! vm.booking.confirmedDate && message.isTaker;
+                vm.ownerActionRequired = ! vm.booking.acceptedDate && ! vm.booking.cancellationId && message.isOwner;
+                vm.takerActionRequired = ! vm.booking.paidDate && message.isTaker;
                 vm.bankAccountMissing  = vm.booking.takerPrice && message.isOwner && ! vm.hasBankAccount;
 
                 vm.actionRequired = vm.takerActionRequired || vm.ownerActionRequired || vm.bankAccountMissing;
@@ -395,7 +395,7 @@
                 var isTaker = input.assessment && input.assessment.takerId && (input.assessment.takerId === currentUser.id);
                 // Do not show assessment to taker if booking has not been paid yet to improve conversion
                 if (isTaker && ! _.find(messages, function (message) {
-                    return (message.booking && message.booking.confirmedDate);
+                    return (message.booking && message.booking.paidDate);
                 })) {
                     vm.showAssessment = false;
                 } else {
@@ -406,8 +406,8 @@
 
         function _setCountdown() {
             if (! (vm.booking
-             && vm.booking.confirmedDate
-             && vm.booking.bookerId !== currentUser.id
+             && vm.booking.paidDate
+             && vm.booking.takerId !== currentUser.id
              && (vm.conversation.agreementStatus === "pending" || vm.conversation.agreementStatus === "pending-giver")
             )) {
                 vm.countdown = null;
@@ -418,7 +418,7 @@
             var countdown, countdownWarning, hours, minutes, seconds;
 
             countdownInterval = $interval(function () {
-                var targetDate = moment(vm.booking.confirmedDate).add(36, "h");
+                var targetDate = moment(vm.booking.paidDate).add(36, "h");
                 var timeLeft   = targetDate.diff();
 
                 var secondsLeft = timeLeft / 1000;
@@ -453,11 +453,11 @@
             intervals.push(countdownInterval);
         }
 
-        function validateBooking(message, booking, afterValidate) {
+        function acceptBooking(message, booking, afterAcceptation) {
             if (! message && ! _.find(vm.messages, { senderId: vm.conversation.receiverId })) {
                 // Force user to leave a message if no answer yet
                 toastr.warning("Veuillez saisir un message.");
-                afterValidate("missingMessage"); // must stop spinner
+                afterAcceptation("missingMessage"); // must stop spinner
                 return;
             }
             var messageCreateAttrs;
@@ -484,10 +484,10 @@
             return $q.when(true)
                 .then(function () {
                     // TODO: look why the booking model isn't correctly restangularized
-                    return booking.customPOST({ userMessage: messageCreateAttrs }, "validate");
+                    return booking.customPOST({ userMessage: messageCreateAttrs }, "accept");
                 })
                 .then(function (b) {
-                    booking.validatedDate = b.validatedDate;
+                    booking.acceptedDate = b.acceptedDate;
 
                     toastr.success("Merci ! Nous avons informé " + vm.interlocutor.fullname + " de votre acceptation.",
                         "Demande de réservation acceptée", {
@@ -500,10 +500,10 @@
                     }
                 })
                 .finally(function () {
-                    afterValidate("ok");
+                    afterAcceptation("ok");
                     // Always send Google Analytics since user is engaged
                     var gaLabel = '{bookingId: ' + booking.id
-                     + ', status: "validateBooking"'
+                     + ', status: "acceptBooking"'
                      + '}';
                     ga('send', 'event', 'Items', 'BookingValidation', gaLabel);
                     // Stelace event
@@ -514,7 +514,7 @@
                             tagsIds: vm.item.tags,
                             bookingId: booking.id,
                             targetUserId: vm.interlocutor.id,
-                            status: "validateBooking"
+                            status: "acceptBooking"
                         }
                     });
 
@@ -523,7 +523,7 @@
                             return _populateAssessments();
                         })
                         .catch(function (err) {
-                            var errMsg = (booking.validatedDate && booking.confirmedDate) ? "Veuillez rafraîchir la page pour faire apparaître l'état des lieux."
+                            var errMsg = (booking.acceptedDate && booking.paidDate) ? "Veuillez rafraîchir la page pour faire apparaître l'état des lieux."
                              : "Nous sommes désolés et cherchons à résoudre le problème.";
                             toastr.warning(errMsg, "Oups, une erreur est survenue.");
                             loggerToServer.error(err);
@@ -675,7 +675,7 @@
             var text = (type === 'private' ? vm.privateMessage : vm.publicMessage);
 
             var noMessage = ! text;
-            var bookingPaid = vm.booking && vm.booking.confirmedDate;
+            var bookingPaid = vm.booking && vm.booking.paidDate;
 
             if (noMessage || bookingPaid) {
                 vm.showShouldObfuscateMessage = false;

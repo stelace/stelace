@@ -322,7 +322,7 @@ function isBookable(item) {
 }
 
 /**
- * get bookings from items that are confirmed and validated
+ * get bookings from items that are paid and accepted
  * @param  {number[]} itemsIds
  * @param  {object} [args]
  * @param  {string} [args.minStartDate] - filter bookings that start after that date included
@@ -349,8 +349,8 @@ function getBookings(itemsIds, args) {
 
         findAttrs.itemId         = itemsIds;
         findAttrs.cancellationId = null;
-        findAttrs.confirmedDate  = { '!': null };
-        findAttrs.validatedDate  = { '!': null };
+        findAttrs.paidDate       = { '!': null };
+        findAttrs.acceptedDate   = { '!': null };
 
         return yield Booking
             .find(findAttrs)

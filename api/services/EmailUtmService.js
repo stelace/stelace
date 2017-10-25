@@ -138,7 +138,7 @@ var utmConfig = {
         },
         reminder: { // reminder emails related to bookings
             templates: [
-                "reminder-bookings-to-validate",
+                "reminder-bookings-to-accept",
                 "reminder-late-unsigned-assessments",
                 "reminder-no-ratings",
                 "reminder-upcoming-assessments-giver",

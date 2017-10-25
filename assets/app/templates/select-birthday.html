@@ -7,8 +7,8 @@
         ?
     </span>
 </label>
-<div class="flex-container flex--start booking__booker-birthday">
-    <select id="select-birth-day" name="bookerBirthDay" ng-model="vm.birthDay">
+<div class="flex-container flex--start booking__taker-birthday">
+    <select id="select-birth-day" name="takerBirthDay" ng-model="vm.birthDay">
         <option value="01">1</option>
         <option value="02">2</option>
         <option value="03">3</option>
@@ -48,7 +48,7 @@
             31
         </option>
     </select>
-    <select id="select-birth-month" name="bookerBirthMonth" ng-model="vm.birthMonth">
+    <select id="select-birth-month" name="takerBirthMonth" ng-model="vm.birthMonth">
         <option value="01">Janv.</option>
         <option value="02">Févr.</option>
         <option value="03">Mar.</option>
@@ -62,7 +62,7 @@
         <option value="11">Nov.</option>
         <option value="12">Déc.</option>
     </select>
-    <select id="select-birth-year" name="bookerBirthYear"
+    <select id="select-birth-year" name="takerBirthYear"
         ng-model="vm.birthYear"
         ng-options="year for year in vm.birthYears">
             <!-- Must use ngOptions to set default value. See https://github.com/angular/angular.js/issues/639 -->

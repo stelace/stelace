@@ -69,7 +69,7 @@
             { id: "no-validation", label: "Pas de validation" },
             { id: "no-payment", label: "Pas de paiement" },
             { id: "rejected", label: "Annulation due au propriétaire / donneur" },
-            { id: "booker-cancellation", label: "Annulation due à l'emprunteur" },
+            { id: "taker-cancellation", label: "Annulation due à l'emprunteur" },
             { id: "assessment-missed", label: "Rendez-vous manqué (force majeure)" },
             { id: "assessment-refused", label: "Refus de l'objet lors de l'état des lieux" },
             { id: "other", label: "Autre" }
@@ -166,19 +166,19 @@
 
             return _.map(bookings, function (booking) {
                 var owner  = indexedUsers[booking.ownerId] || {};
-                var booker = indexedUsers[booking.bookerId] || {};
+                var taker  = indexedUsers[booking.takerId] || {};
                 var item   = indexedItems[booking.itemId] || {};
 
                 var hash             = assessmentsHash[booking.id];
                 var inputAssessment  = hash.inputAssessment;
                 var outputAssessment = hash.outputAssessment;
 
-                var confirmedDate = booking.confirmedDate
-                    ? moment(booking.confirmedDate).format(formatDateDisplay)
+                var paidDate = booking.paidDate
+                    ? moment(booking.paidDate).format(formatDateDisplay)
                     : null;
 
-                var validatedDate = booking.validatedDate
-                    ? moment(booking.validatedDate).format(formatDateDisplay)
+                var acceptedDate = booking.acceptedDate
+                    ? moment(booking.acceptedDate).format(formatDateDisplay)
                     : null;
 
                 var inputAssessmentDate  = inputAssessment && inputAssessment.signedDate;
@@ -203,15 +203,15 @@
                     itemName: { value: tools.shrinkString(item.name, 40), title: item.name },
                     ownerId: owner.id,
                     ownerName: User.getFullname.call(owner, true),
-                    bookerId: booker.id,
-                    bookerName: User.getFullname.call(booker, true),
+                    takerId: taker.id,
+                    takerName: User.getFullname.call(taker, true),
                     isNoTime: isNoTime,
                     startDate: ! isNoTime ? moment(booking.startDate).format(formatDateDisplay) : null,
                     endDate: ! isNoTime ? moment(booking.endDate).format(formatDateDisplay) : null,
                     nbTimeUnits: booking.nbTimeUnits,
                     nbExtraDays: { value: nbExtraDays },
-                    confirmedDate: { value: confirmedDate },
-                    validatedDate: { value: validatedDate },
+                    paidDate: { value: paidDate },
+                    acceptedDate: { value: acceptedDate },
                     takerPrice: booking.takerPrice,
                     inputAssessmentDate: { value: inputAssessmentDateDisplay },
                     outputAssessmentDate: { value: outputAssessmentDateDisplay }
@@ -230,44 +230,44 @@
                 }
 
 
-                // booking not validated by owner
-                if (! booking.validatedDate) {
-                    duration = moment(now).diff(booking.confirmedDate, "h");
+                // booking not accepted by owner
+                if (! booking.acceptedDate) {
+                    duration = moment(now).diff(booking.paidDate, "h");
 
                     if (duration >= 0) {
-                        obj.validatedDate.clock = true;
+                        obj.acceptedDate.clock = true;
 
-                        obj.validatedDate.title = "En attente de validation depuis "
+                        obj.acceptedDate.title = "En attente de validation depuis "
                             + (duration > 48
-                                ? moment(now).diff(booking.confirmedDate, "d") + "j"
+                                ? moment(now).diff(booking.paidDate, "d") + "j"
                                 : duration + "h");
                     }
 
                     if (isWithinRange(duration, "[36,96[")) {
-                        obj.validatedDate.status = warningLight;
+                        obj.acceptedDate.status = warningLight;
                     } else if (isWithinRange(duration, "[96,120[")) {
-                        obj.validatedDate.status = warning;
+                        obj.acceptedDate.status = warning;
                     } else if (isWithinRange(duration, "[120,168[")) {
-                        obj.validatedDate.status = warningStrong;
+                        obj.acceptedDate.status = warningStrong;
                     } else if (isWithinRange(duration, "[168,Inf[")) { // one week
-                        obj.validatedDate.clock = false;
-                        obj.validatedDate.status = warningStrong;
-                        obj.validatedDate.remove = true;
+                        obj.acceptedDate.clock = false;
+                        obj.acceptedDate.status = warningStrong;
+                        obj.acceptedDate.remove = true;
 
-                        obj.validatedDate.title = "Paiement expiré, réservation à annuler";
+                        obj.acceptedDate.title = "Paiement expiré, réservation à annuler";
                     }
                 }
 
                 // booking not paid
-                if (! booking.confirmedDate) {
-                    duration = moment(now).diff(booking.validatedDate, "h");
+                if (! booking.paidDate) {
+                    duration = moment(now).diff(booking.acceptedDate, "h");
 
                     if (duration >= 0) {
-                        obj.confirmedDate.clock = true;
+                        obj.paidDate.clock = true;
 
-                        obj.confirmedDate.title = "Validation de la réservation il y a "
+                        obj.paidDate.title = "Validation de la réservation il y a "
                             + (duration > 48
-                                ? moment(now).diff(booking.validatedDate, "d") + "j"
+                                ? moment(now).diff(booking.acceptedDate, "d") + "j"
                                 : duration + "h");
                     }
 
@@ -275,21 +275,21 @@
                         duration = moment(now).diff(booking.endDate, "d");
 
                         if (duration > 0) {
-                            obj.confirmedDate.clock  = false;
-                            obj.confirmedDate.remove = true;
+                            obj.paidDate.clock  = false;
+                            obj.paidDate.remove = true;
 
                             if (duration > 7) {
-                                obj.confirmedDate.status = warningLight;
+                                obj.paidDate.status = warningLight;
                             }
 
-                            obj.confirmedDate.title = "Date de fin dépassée depuis "
+                            obj.paidDate.title = "Date de fin dépassée depuis "
                                 + duration
                                 + " j, réservation à annuler";
                         }
                     }
                 }
 
-                if (booking.validatedDate && booking.confirmedDate) {
+                if (booking.acceptedDate && booking.paidDate) {
                     if (! inputAssessmentDate) {
                         var dueDate = BookingService.getDueDate(booking, "start");
 
@@ -653,7 +653,7 @@
 
                     vm.bookingToCancel.isNoTime = isNoTime;
                     vm.bookingToCancel.ownerName  = User.getFullname.call(booking.owner, true);
-                    vm.bookingToCancel.bookerName = User.getFullname.call(booking.booker, true);
+                    vm.bookingToCancel.talerName  = User.getFullname.call(booking.taler, true);
 
                     if (! isNoTime) {
                         vm.bookingToCancel.startDateDisplay = moment(booking.startDate).format(formatDateDisplay);
@@ -661,8 +661,8 @@
                         vm.bookingToCancel.durationDays     = moment(booking.endDate).diff(booking.startDate, "d") + 1;
                     }
 
-                    vm.bookingToCancel.confirmedDateDisplay = moment(booking.confirmedDate).format(formatDateDisplay);
-                    vm.bookingToCancel.validatedDateDisplay = moment(booking.validatedDate).format(formatDateDisplay);
+                    vm.bookingToCancel.paidDateDisplay = moment(booking.paidDate).format(formatDateDisplay);
+                    vm.bookingToCancel.acceptedDateDisplay = moment(booking.acceptedDate).format(formatDateDisplay);
                     vm.bookingToCancel.ownerNetIncome       = priceResult.ownerNetIncome;
 
                     if (booking.cancellationId) {
@@ -770,11 +770,11 @@
 
                 var reasonTypeFields     = [];
                 var omitReasonTypeFields = [];
-                if (! booking.confirmedDate && ! booking.validatedDate) {
+                if (! booking.paidDate && ! booking.acceptedDate) {
                     reasonTypeFields = ["no-action"];
-                } else if (! booking.confirmedDate) {
+                } else if (! booking.paidDate) {
                     reasonTypeFields = ["no-payment"];
-                } else if (! booking.validatedDate) {
+                } else if (! booking.acceptedDate) {
                     reasonTypeFields = ["no-validation"];
                 } else {
                     omitReasonTypeFields = [

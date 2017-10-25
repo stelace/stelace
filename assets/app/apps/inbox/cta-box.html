@@ -86,13 +86,13 @@
                 </a>
 
                 <div ng-show="! vm.booking.cancellationId && ! vm.item.snapshot && vm.message.isCtaActive">
-                    <div ng-if="vm.isTaker && ! vm.booking.confirmedDate">
+                    <div ng-if="vm.isTaker && ! vm.booking.paidDate">
                         <button class="button brightblue"
                             ui-sref="bookingPayment({id: vm.booking.id})">
                             Confirmer ma réservation
                         </button>
                     </div>
-                    <div ng-show="! vm.booking.validatedDate && vm.isOwner">
+                    <div ng-show="! vm.booking.acceptedDate && vm.isOwner">
                         <form class="form--control"
                             name="ctaBookingForm"
                             novalidate>
@@ -127,7 +127,7 @@
                                 sip-textarea-auto-adjust>
                             </textarea>
                             <button class="button brightblue"
-                                ng-click="vm.validate()"
+                                ng-click="vm.accept()"
                                 ng-class="{disabled: ! vm.rejectCollapse}">
                                 Accepter la
                                 <span ng-show="vm.isOwner">réservation</span>

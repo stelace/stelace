@@ -35,13 +35,13 @@ Sails.load({
     logger.info("Start cron");
 
     return Promise.coroutine(function* () {
-        // find bookings that are confirmed and validated but not cancelled
+        // find bookings that are paid and accepted but not cancelled
         // and the preauth payment isn't done
         var bookings = yield Booking.find({
             paymentUsedDate: null,
             cancellationId: null,
-            confirmedDate: { '!': null },
-            validatedDate: { '!': null }
+            paidDate: { '!': null },
+            acceptedDate: { '!': null }
         });
 
         if (! bookings.length) {
@@ -49,25 +49,25 @@ Sails.load({
         }
 
         var bookingsIds = _.pluck(bookings, "id");
-        var bookersIds  = _.pluck(bookings, "bookerId");
+        var takersIds   = _.pluck(bookings, "takerId");
 
         var result = yield Promise.props({
             hashTransactionsManagers: TransactionService.getBookingTransactionsManagers(bookingsIds),
-            bookers: User.find({ id: bookersIds })
+            takers: User.find({ id: takersIds })
         });
 
         var hashTransactionsManagers = result.hashTransactionsManagers;
-        var bookers                  = result.bookers;
+        var takers                   = result.takers;
 
-        var indexedBookers = _.indexBy(bookers, "id");
+        var indexedTakers = _.indexBy(takers, "id");
 
         info.total = bookings.length;
 
         yield Promise.each(bookings, booking => {
             var transactionManager = hashTransactionsManagers[booking.id];
-            var booker             = indexedBookers[booking.bookerId];
+            var taker              = indexedTakers[booking.takerId];
 
-            return bookingProcess(booking, transactionManager, booker)
+            return bookingProcess(booking, transactionManager, taker)
                 .then(() => ++info.nb)
                 .catch(err => {
                     logger.error({
@@ -90,15 +90,15 @@ Sails.load({
 
 
 
-    function bookingProcess(booking, transactionManager, booker) {
+    function bookingProcess(booking, transactionManager, taker) {
         return Promise.coroutine(function* () {
-            if (! booker) {
-                var error = new Error("Booker not found");
-                error.bookerId = booking.bookerId;
+            if (! taker) {
+                var error = new Error("Taker not found");
+                error.takerId = booking.takerId;
                 throw error;
             }
 
-            return yield BookingPaymentService.payinPayment(booking, transactionManager, booker);
+            return yield BookingPaymentService.payinPayment(booking, transactionManager, taker);
         })();
     }
 

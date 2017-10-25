@@ -136,7 +136,7 @@ Sails.load({
         }
 
         var reasonTypes = Cancellation.get("cancelPaymentReasonTypes");
-        reasonTypes.push("booker-cancellation");
+        reasonTypes.push("taker-cancellation");
 
         var releaseDeposit;
         if (_.includes(reasonTypes, cancellation.reasonType)) {

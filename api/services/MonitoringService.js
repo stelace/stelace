@@ -4,7 +4,7 @@ module.exports = {
 
     getIncompleteBookings: getIncompleteBookings,
     getPaidBookings: getPaidBookings,
-    getPreBookingsToValidate: getPreBookingsToValidate,
+    getPreBookingsToAccept: getPreBookingsToAccept,
     getAssessmentsDueDates: getAssessmentsDueDates,
     getUnsignedAssessments: getUnsignedAssessments,
     getUsers: getUsers,
@@ -46,7 +46,7 @@ function getIncompleteBookings(args) {
 
 
 
-    // get bookings that are paid by booker or validated by owner
+    // get bookings that are paid by taker or accepted by owner
     function getRealBookings(listingTypeId) {
         var findAttrs = {
             cancellationId: null
@@ -57,8 +57,8 @@ function getIncompleteBookings(args) {
         }
 
         findAttrs.or = [
-            { confirmedDate: { '!': null } },
-            { validatedDate: { '!': null } }
+            { paidDate: { '!': null } },
+            { acceptedDate: { '!': null } }
         ];
 
         return Booking.find(findAttrs);
@@ -76,7 +76,7 @@ function getIncompleteBookings(args) {
 
     function getExtraInfo(bookings) {
         var usersIds = _.reduce(bookings, (memo, booking) => {
-            memo.push(booking.bookerId);
+            memo.push(booking.takerId);
             memo.push(booking.ownerId);
 
             return memo;
@@ -121,7 +121,7 @@ function getIncompleteBookings(args) {
  * @param  {string}   [args.fromDate]
  * @param  {string}   [args.toDate]
  * @param  {boolean}  [args.cancelled = false]
- * @param  {boolean}  [args.validated]
+ * @param  {boolean}  [args.accepted]
  * @param  {Number}   [args.listingTypeId]
  */
 function getPaidBookings(args) {
@@ -143,20 +143,20 @@ function getPaidBookings(args) {
             var periodAttrs = ToolsService.getPeriodAttrs(args.fromDate, args.toDate);
 
             if (periodAttrs) {
-                findAttrs.confirmedDate = periodAttrs;
+                findAttrs.paidDate = periodAttrs;
             }
-            if (typeof args.validated !== "undefined" && ! args.validated) {
-                findAttrs.validatedDate = null;
+            if (typeof args.accepted !== "undefined" && ! args.accepted) {
+                findAttrs.acceptedDate = null;
             }
             if (! args.cancelled) {
                 findAttrs.cancellationId = null;
             }
 
             if (! periodAttrs) {
-                findAttrs.confirmedDate = { '!': null };
+                findAttrs.paidDate = { '!': null };
             }
-            if (args.validated) {
-                findAttrs.validatedDate = { '!': null };
+            if (args.accepted) {
+                findAttrs.acceptedDate = { '!': null };
             }
             if (args.cancelled) {
                 findAttrs.cancellationId = { '!': null };
@@ -167,14 +167,14 @@ function getPaidBookings(args) {
 }
 
 /**
- * get pre-bookings to validate
+ * get pre-bookings to accept
  * @param  {object}  args
  * @param  {string}  [args.fromDate]
  * @param  {string}  [args.toDate]
  * @param  {string}  [args.logger]
  * @return {Promise<Booking[]>}
  */
-function getPreBookingsToValidate(args) {
+function getPreBookingsToAccept(args) {
     args = args || {};
 
     return Promise
@@ -182,8 +182,8 @@ function getPreBookingsToValidate(args) {
         .then(() => {
             var findAttrs = {
                 cancellationId: null,
-                confirmedDate: null,
-                validatedDate: null
+                paidDate: null,
+                acceptedDate: null
             };
 
             var periodAttrs = ToolsService.getPeriodAttrs(args.fromDate, args.toDate);
@@ -359,8 +359,8 @@ function getRevenue(args) {
         .then(() => {
             return Booking.find({
                 cancellationId: null,
-                confirmedDate: { '!': null },
-                validatedDate: { '!': null }
+                paidDate: { '!': null },
+                acceptedDate: { '!': null }
             });
         })
         .then(bookings => {

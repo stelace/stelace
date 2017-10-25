@@ -58,7 +58,7 @@ async function findAssessments(conversationId, userId) {
     if (conversation.inputAssessmentId) {
         inputAssessment = _.find(assessments, { id: conversation.inputAssessmentId });
 
-        // item journey doens't take into account bookings that isn't validated and confirmed (pre-booking)
+        // listing history doens't take into account bookings that isn't accepted and paid (pre-booking)
         // so fetch it manually
         if (! inputAssessment) {
             inputAssessment = await Assessment.findOne({ id: conversation.inputAssessmentId });
@@ -149,7 +149,7 @@ function createAssessment(args) {
 
         createAttrs.itemId   = booking.itemId;
         createAttrs.ownerId  = booking.ownerId;
-        createAttrs.takerId  = booking.bookerId;
+        createAttrs.takerId  = booking.takerId;
 
         _.assign(createAttrs, Assessment.getBookingState(booking, type));
 
@@ -375,7 +375,7 @@ function _sendAssessmentEmailsSms(data) {
                     || (assessment.startBookingId && ! startBooking)
                     || (assessment.endBookingId && ! endBooking)
                 ) {
-                    var error = new Error("Booking confirm missing references");
+                    var error = new Error("Booking accept missing references");
                     if (! item) {
                         error.itemId = assessment.itemId;
                     }
@@ -481,7 +481,7 @@ function _sendAssessmentEmailsSms(data) {
                     user: owner,
                     item: item,
                     booking: startBooking,
-                    booker: taker,
+                    taker: taker,
                     assessment: assessment,
                     newAssessment: newAssessment,
                     conversation: conversation
@@ -531,7 +531,7 @@ function _sendAssessmentEmailsSms(data) {
                     user: owner,
                     item: item,
                     booking: endBooking,
-                    booker: taker,
+                    taker: taker,
                     assessment: assessment,
                     conversation: conversation
                 })

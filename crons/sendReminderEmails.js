@@ -44,7 +44,7 @@ Sails.load({
             var nbSms    = 0;
 
             // reminder twice a day to have more precision about the email sending moment
-            return getBookingsToValidate(now)
+            return getBookingsToAccept(now)
                 .then(result => {
                     return Promise
                         .resolve(result)
@@ -52,26 +52,26 @@ Sails.load({
                             var sendEmail = () => {
                                 return Promise
                                     .resolve()
-                                    .then(() => sendEmailBookingsToValidate(obj))
+                                    .then(() => sendEmailBookingsToAccept(obj))
                                     .then(() => ++nbEmails)
                                     .catch(err => {
                                         logger.error({
                                             err: err,
                                             bookingId: obj.booking.id
-                                        }, "Fail sending email: bookings to validate");
+                                        }, "Fail sending email: bookings to accept");
                                     });
                             };
 
                             var sendSms = () => {
                                 return Promise
                                     .resolve()
-                                    .then(() => sendSmsBookingsToValidate(obj))
+                                    .then(() => sendSmsBookingsToAccept(obj))
                                     .then(() => ++nbSms)
                                     .catch(err => {
                                         logger.error({
                                             err: err,
                                             bookingId: obj.booking.id
-                                        }, "Fail sending sms: bookings to validate");
+                                        }, "Fail sending sms: bookings to accept");
                                     });
                             };
 
@@ -81,10 +81,10 @@ Sails.load({
                             ]);
                         })
                         .then(() => {
-                            logger.info(`Email bookings to validate: ${nbEmails} / ${result.length}`);
+                            logger.info(`Email bookings to accept: ${nbEmails} / ${result.length}`);
                         })
                         .catch(err => {
-                            logger.error({ err: err }, "Fail getting bookings to validate");
+                            logger.error({ err: err }, "Fail getting bookings to accept");
                         });
                 });
         })
@@ -269,8 +269,8 @@ Sails.load({
         return 6 <= hour && hour <= 11;
     }
 
-    // optimal duration after the booking confirmation date -> 18h
-    function getBookingsToValidate(now) {
+    // optimal duration after the booking paid date -> 18h
+    function getBookingsToAccept(now) {
         return Promise
             .resolve()
             .then(() => {
@@ -279,16 +279,16 @@ Sails.load({
                 return [
                     MonitoringService.getPaidBookings({
                         fromDate: fromDate,
-                        validated: false
+                        accepted: false
                     }),
-                    MonitoringService.getPreBookingsToValidate({ fromDate: fromDate })
+                    MonitoringService.getPreBookingsToAccept({ fromDate: fromDate })
                 ];
             })
             .spread((bookings, prebookings) => {
                 bookings = bookings.concat(prebookings);
 
                 bookings = _.filter(bookings, booking => {
-                    var refDate = booking.confirmedDate || booking.createdDate;
+                    var refDate = booking.paidDate || booking.createdDate;
 
                     var minDate = moment(refDate).add(12, "h").toISOString();
                     var maxDate = moment(refDate).add(24, "h").toISOString();
@@ -296,7 +296,7 @@ Sails.load({
                     return minDate <= now && now < maxDate;
                 });
 
-                var takersIds = _.map(bookings, booking => getTakerId(booking));
+                var takersIds = _.map(bookings, booking => booking.takerId);
                 var ownerIds  = _.map(bookings, booking => booking.ownerId);
                 var itemsIds  = _.pluck(bookings, "itemId");
 
@@ -315,7 +315,7 @@ Sails.load({
                 var indexedConversations = _.indexBy(conversations, "bookingId");
 
                 var result = _.reduce(bookings, (memo, booking) => {
-                    var taker        = indexedTakers[getTakerId(booking)];
+                    var taker        = indexedTakers[booking.takerId];
                     var owner        = indexedOwners[booking.ownerId];
                     var item         = indexedItems[booking.itemId];
                     var conversation = indexedConversations[booking.id];
@@ -324,7 +324,7 @@ Sails.load({
                     if (! taker) {
                         error = new NotFoundError("Taker not found");
                         error.bookingId = booking.id;
-                        error.takerId   = getTakerId(booking);
+                        error.takerId   = booking.takerId;
                         logger.error({ err: error });
                     }
                     if (! owner) {
@@ -374,12 +374,6 @@ Sails.load({
                     return obj;
                 });
             });
-
-
-
-        function getTakerId(booking) {
-            return booking.bookerId;
-        }
     }
 
     function getOwnersWithoutBankAccount(now) {
@@ -391,11 +385,11 @@ Sails.load({
                 return Booking.find({
                     takerPrice: { '!': 0 },
                     or: [
-                        { confirmedDate: { '>': lastCronDate } },
-                        { validatedDate: { '>': lastCronDate } }
+                        { paidDate: { '>': lastCronDate } },
+                        { acceptedDate: { '>': lastCronDate } }
                     ],
-                    confirmedDate: { '!': null },
-                    validatedDate: { '!': null }
+                    paidDate: { '!': null },
+                    acceptedDate: { '!': null }
                 });
             })
             .then(bookings => {
@@ -870,7 +864,7 @@ Sails.load({
     // EMAILS AND SMS //
     ////////////////////
     /**
-     * send email bookings to validate
+     * send email bookings to accept
      * @param {object} args
      * @param {object} args.booking
      * @param {object} args.item
@@ -879,7 +873,7 @@ Sails.load({
      * @param {object} args.conversation
      * @param {object} [args.media]
      */
-    function sendEmailBookingsToValidate(args) {
+    function sendEmailBookingsToAccept(args) {
         var booking      = args.booking;
         var item         = args.item;
         var taker        = args.taker;
@@ -887,7 +881,7 @@ Sails.load({
         var conversation = args.conversation;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('booking-to-validate-owner', {
+        return EmailTemplateService.sendEmailTemplate('booking-to-accept-owner', {
             user: owner,
             item: item,
             itemMedias: [media],
@@ -898,7 +892,7 @@ Sails.load({
     }
 
     /**
-     * send sms bookings to validate
+     * send sms bookings to accept
      * @param {object} args
      * @param {object} args.booking
      * @param {object} args.item
@@ -907,7 +901,7 @@ Sails.load({
      * @param {object} args.conversation
      * @param {object} [args.media]
      */
-    function sendSmsBookingsToValidate(args) {
+    function sendSmsBookingsToAccept(args) {
         var booking      = args.booking;
         var item         = args.item;
         var giver        = args.giver;

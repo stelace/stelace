@@ -56,8 +56,8 @@
         };
 
         vm.reveal            = reveal;
-        vm.validate          = validate;
-        vm.afterValidate     = afterValidate;
+        vm.accept            = accept;
+        vm.afterAccept       = afterAccept;
         vm.afterReject       = afterReject;
         vm.afterMessage      = afterMessage;
         vm.createBankAccount = createBankAccount;
@@ -153,8 +153,8 @@
 
                     // For now, bank account user editing is not possible
                     // Prompt user to contact our team for bank info editing only after accepting
-                    vm.showBankAccountToggle = vm.hasBankAccount && !! vm.booking.validatedDate;
-                    vm.bankAccountActive     = ! vm.hasBankAccount && !! vm.booking.validatedDate;
+                    vm.showBankAccountToggle = vm.hasBankAccount && !! vm.booking.acceptedDate;
+                    vm.bankAccountActive     = ! vm.hasBankAccount && !! vm.booking.acceptedDate;
                 });
             }
 
@@ -209,7 +209,7 @@
             }
         }
 
-        function validate() {
+        function accept() {
             if (vm.currentRequest) { // debounce
                 return;
             }
@@ -217,10 +217,10 @@
 
             usSpinnerService.spin('booking-validation-spinner');
             // error messages handled in the function
-            vm.onValidate(vm.ctaAnswerMessage, vm.booking, vm.afterValidate);
+            vm.onAccept(vm.ctaAnswerMessage, vm.booking, vm.afterAccept);
         }
 
-        function afterValidate(param) {
+        function afterAccept(param) {
             _setBookingState();
             usSpinnerService.stop('booking-validation-spinner');
             vm.currentRequest = false;
@@ -408,15 +408,15 @@
                 vm.bookingState = "cancelled";
             } else if (! vm.message.isCtaActive) {
                 vm.bookingState = "updated";
-            } else if (vm.booking.validatedDate && vm.booking.confirmedDate) {
+            } else if (vm.booking.acceptedDate && vm.booking.paidDate) {
                 vm.bookingState = "paidAndValidated";
-                vm.payDate      = moment(vm.booking.confirmedDate).format(displayFormatDate);
-            } else if (vm.booking.confirmedDate) {
+                vm.payDate      = moment(vm.booking.paidDate).format(displayFormatDate);
+            } else if (vm.booking.paidDate) {
                 vm.bookingState = "paid";
-                vm.payDate      = moment(vm.booking.confirmedDate).format(displayFormatDate);
-            } else if (vm.booking.validatedDate) {
+                vm.payDate      = moment(vm.booking.paidDate).format(displayFormatDate);
+            } else if (vm.booking.acceptedDate) {
                 vm.bookingState = "validated";
-                vm.acceptDate   = moment(vm.booking.validatedDate).format(displayFormatDate);
+                vm.acceptDate   = moment(vm.booking.acceptedDate).format(displayFormatDate);
             }
         }
 
@@ -424,13 +424,13 @@
             switch (bookingStatus) {
                 case "info":
                 case "pre-booking":
-                    if (vm.booking && vm.booking.validatedDate && vm.isOwner && ! vm.hasBankAccount) {
+                    if (vm.booking && vm.booking.acceptedDate && vm.isOwner && ! vm.hasBankAccount) {
                         return "Coordonnées requises";
                     }
                     return "Demande d'information";
 
                 default:
-                    if (vm.booking && vm.booking.validatedDate && vm.isOwner && ! vm.hasBankAccount) {
+                    if (vm.booking && vm.booking.acceptedDate && vm.isOwner && ! vm.hasBankAccount) {
                         return "Coordonnées requises";
                     }
                     return "Demande de réservation";

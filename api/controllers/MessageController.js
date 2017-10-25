@@ -165,9 +165,9 @@ function conversationMeta(req, res) {
                 receiver ? User.getMedia([receiver]).then(receiverMedias => receiverMedias[receiver.id]) : null
             ];
         }).spread((conversation, sender, receiver, receiverLocations, booking, senderMedia, receiverMedia) => {
-            // do not obfuscate phone if booking is paid and validated
+            // do not obfuscate phone if booking is paid and accepted
             // Otherwise, expose 2 last digits of users' phones only
-            var revealInfo = (booking && booking.confirmedDate && booking.validatedDate);
+            var revealInfo = (booking && booking.paidDate && booking.acceptedDate);
 
             conversation = Conversation.expose(conversation, access);
 
@@ -326,9 +326,9 @@ function getConversations(req, res) {
                         // custom exposition
                         conversation.booking = {
                             id: booking.id,
-                            bookerId: booking.bookerId,
-                            confirmedDate: booking.confirmedDate,
-                            validatedDate: booking.validatedDate
+                            takerId: booking.takerId,
+                            paidDate: booking.paidDate,
+                            acceptedDate: booking.acceptedDate
                         };
                     }
                 });

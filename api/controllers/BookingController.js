@@ -21,7 +21,7 @@ module.exports = {
     destroy: destroy,
 
     my: my,
-    validate: validate,
+    accept: accept,
     cancel: cancel,
 
     payment: payment,
@@ -85,7 +85,7 @@ function findOne(req, res) {
 
         if (booking.ownerId === req.user.id) {
             access = "owner";
-        } else if (booking.bookerId === req.user.id) {
+        } else if (booking.takerId === req.user.id) {
             access = "self";
         }
 
@@ -134,7 +134,7 @@ function destroy(req, res) {
 
 function my(req, res) {
     var as = req.param("as");
-    var asTypes = ["booker", "owner"];
+    var asTypes = ["taker", "owner"];
     var access;
     var findAttrs;
 
@@ -142,9 +142,9 @@ function my(req, res) {
         return res.badRequest();
     }
 
-    if (as === "booker") {
+    if (as === "taker") {
         access = "self";
-        findAttrs = { bookerId: req.user.id };
+        findAttrs = { takerId: req.user.id };
     } else { // as === "owner"
         access = "owner";
         findAttrs = { ownerId: req.user.id };
@@ -158,7 +158,7 @@ function my(req, res) {
 }
 
 /**
- * Validate booking
+ * Accept booking
  * Handle message creation and confirmation email
  * @param {object}  req
  * @param {object}  [params.userMessage]  - validation message (for bookingConfirmiedTaker email)
@@ -166,7 +166,7 @@ function my(req, res) {
  *
  * @return {object} res.json
  */
-async function validate(req, res) {
+async function accept(req, res) {
     const id           = req.param("id");
     const giverMessage = req.param("userMessage");
     const access       = "owner";
@@ -178,12 +178,12 @@ async function validate(req, res) {
         if (!booking) {
             throw new NotFoundError();
         }
-        // the booking cannot be validated by the current user
+        // the booking cannot be accepted by the current user
         if (Booking.getAgreementUserId(booking) !== req.user.id) {
             throw new ForbiddenError();
         }
-        // booking cancelled or already validated
-        if (booking.cancellationId || booking.validatedDate) {
+        // booking cancelled or already accepted
+        if (booking.cancellationId || booking.acceptedDate) {
             throw new BadRequestError();
         }
         if (Booking.isValidationTooLate(booking, now)) {
@@ -217,8 +217,8 @@ async function validate(req, res) {
 
         await _sendBookingConfirmedEmailsSms(data);
 
-        // cancel other bookings that overlaps this booking that is paid and validated by owner
-        if (booking.confirmedDate) {
+        // cancel other bookings that overlaps this booking that is paid and accepted by owner
+        if (booking.paidDate) {
             await CancellationService
                 .cancelOtherBookings(booking, req.logger)
                 .catch(err => {
@@ -233,9 +233,9 @@ async function validate(req, res) {
             await Message.createMessage(booking.ownerId, giverMessage, { logger: req.logger });
         }
 
-        booking = await Booking.updateOne(booking.id, { validatedDate: now });
+        booking = await Booking.updateOne(booking.id, { acceptedDate: now });
 
-        BookingGamificationService.afterBookingPaidAndValidated(booking, req.logger, req);
+        BookingGamificationService.afterBookingPaidAndAccepted(booking, req.logger, req);
 
         res.json(Booking.expose(booking, access));
     } catch (err) {
@@ -279,7 +279,7 @@ function cancel(req, res) {
         }
 
         var trigger;
-        if (req.user.id === booking.bookerId) {
+        if (req.user.id === booking.takerId) {
             trigger = "taker";
         } else if (req.user.id === booking.ownerId) {
             trigger = "owner";
@@ -292,7 +292,7 @@ function cancel(req, res) {
 
         yield Booking.updateItemQuantity(booking, { actionType: 'add' });
 
-        if (req.user.id === booking.bookerId) {
+        if (req.user.id === booking.takerId) {
             access = "self";
         } else if (req.user.id === booking.ownerId) {
             access = "owner";
@@ -354,11 +354,11 @@ function payment(req, res) {
             if (! booking) {
                 throw new NotFoundError();
             }
-            if (req.user.id !== booking.bookerId) {
+            if (req.user.id !== booking.takerId) {
                 throw new ForbiddenError();
             }
             // if booking is already paid or cancelled
-            if (booking.confirmedDate
+            if (booking.paidDate
                 || booking.cancellationId
                 || (booking.paymentDate && operation === "payment")
                 || (booking.depositDate && operation === "deposit")
@@ -427,7 +427,7 @@ function payment(req, res) {
         return false;
     }
 
-    function doPayment(booking, booker, card, operation, logger) {
+    function doPayment(booking, taker, card, operation, logger) {
         var error;
 
         return Promise
@@ -479,7 +479,7 @@ function payment(req, res) {
                 var createAttrs = {
                     type: type,
                     value: randomString,
-                    userId: booker.id,
+                    userId: taker.id,
                     expirationDate: moment().add(1, "d").toISOString()
                 };
 
@@ -503,7 +503,7 @@ function payment(req, res) {
 
                 var returnURL = host
                                     + "/api/booking/" + id
-                                    + "/payment-secure?u=" + booker.id
+                                    + "/payment-secure?u=" + taker.id
                                     + "&v=" + token.value
                                     + "&t=" + token.type;
 
@@ -519,7 +519,7 @@ function payment(req, res) {
 
                 return mangopay.preauthorization.create({
                     body: {
-                        AuthorId: booker.mangopayUserId,
+                        AuthorId: taker.mangopayUserId,
                         DebitedFunds: {
                             Amount: Math.round(price * 100),
                             Currency: "EUR"
@@ -558,7 +558,7 @@ function payment(req, res) {
                 } else {
                     var data = {
                         booking: booking,
-                        booker: booker,
+                        taker: taker,
                         operation: operation,
                         preauthorization: preauthorization,
                         logger: logger,
@@ -621,7 +621,7 @@ function paymentSecure(req, res) {
                 User.findOne({ id: userId })
             ];
         })
-        .spread((booking, token, booker) => {
+        .spread((booking, token, taker) => {
             var operation;
 
             if (tokenType === "depositSecure") {
@@ -634,14 +634,14 @@ function paymentSecure(req, res) {
 
             if (! booking
                 || ! token
-                || ! booker
+                || ! taker
             ) {
                 error = new Error();
                 error.errorType = "badRequest";
                 throw error;
             }
             if (booking.cancellationId
-                || booking.bookerId !== booker.id
+                || booking.takerId !== taker.id
                 || (booking.depositDate && operation === "deposit")
                 || (booking.paymentDate && operation === "payment")
                 || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
@@ -658,7 +658,7 @@ function paymentSecure(req, res) {
                 .then(preauthorization => {
                     var data = {
                         booking: booking,
-                        booker: booker,
+                        taker: taker,
                         operation: operation,
                         preauthorization: preauthorization,
                         logger: req.logger,
@@ -696,10 +696,10 @@ function paymentSecure(req, res) {
  * - *preauthorization
  * - *operation
  * - *logger
- - - item
-    * - booker
-    * - req
-    */
+ * - item
+ * - taker
+ * - req
+ */
 // preauthorization can be performed by two ways (secure mode or not)
 function _paymentProcessAfterPreauth(data) {
     var booking          = data.booking;
@@ -733,7 +733,7 @@ function _paymentProcessAfterPreauth(data) {
                 PaymentError.createError({
                     req,
                     preauthorization,
-                    userId: booking.bookerId,
+                    userId: booking.takerId,
                     bookingId: booking.id,
                     cardId: card.id,
                 }).catch(() => { /* do nothing */ });
@@ -785,7 +785,7 @@ function _paymentProcessAfterPreauth(data) {
  * - *operation
  * - *logger
  - - item
-    * - booker
+    * - taker
     * - req
     */
 // set booking payment state when all previous steps go well
@@ -794,7 +794,7 @@ function _paymentEndProcess(data) {
     var operation = data.operation;
     var logger    = data.logger;
     var item      = data.item;
-    var booker    = data.booker;
+    var taker    = data.taker;
     var req       = data.req;
 
     var updateAttrs = {};
@@ -814,16 +814,16 @@ function _paymentEndProcess(data) {
             }
 
             if (booking.paymentDate && booking.depositDate) {
-                updateAttrs.confirmedDate = now;
-                booking.confirmedDate     = now;
+                updateAttrs.paidDate = now;
+                booking.paidDate     = now;
             }
 
-            if (updateAttrs.confirmedDate) {
+            if (updateAttrs.paidDate) {
                 var data2 = {
                     booking: booking,
                     logger: logger,
                     item: item,
-                    booker: booker
+                    taker: taker
                 };
 
                 // if email fails, do not save booking dates in order the process to be done again
@@ -838,7 +838,7 @@ function _paymentEndProcess(data) {
         .then(b => {
             booking = b;
 
-            BookingGamificationService.afterBookingPaidAndValidated(booking, logger, req);
+            BookingGamificationService.afterBookingPaidAndAccepted(booking, logger, req);
 
             return Conversation
                 .update({ bookingId: booking.id }, { bookingStatus: "booking" })
@@ -854,7 +854,7 @@ function _paymentEndProcess(data) {
             return Booking.updateItemQuantity(booking, { actionType: 'remove' });
         })
         .then(() => {
-            if (booking.confirmedDate && booking.validatedDate) {
+            if (booking.paidDate && booking.acceptedDate) {
                 // cancel other bookings if this one is paid
                 return CancellationService
                     .cancelOtherBookings(booking, logger)
@@ -876,13 +876,13 @@ function _paymentEndProcess(data) {
  * - *booking
  * - *logger
  * - item
- * - booker
+ * - taker
  */
 function _sendBookingPendingEmailsSms(data) {
     var booking = data.booking;
     var logger  = data.logger;
     var item    = data.item;
-    var booker  = data.booker;
+    var taker  = data.taker;
     var message = messageCache.get(booking.id);
 
     var error;
@@ -894,7 +894,7 @@ function _sendBookingPendingEmailsSms(data) {
                 throw new Error("missing args");
             }
 
-            return getData(booking, item, booker, logger);
+            return getData(booking, item, taker, logger);
         })
         .then(data => {
             return getConversation(booking, message, logger)
@@ -907,7 +907,7 @@ function _sendBookingPendingEmailsSms(data) {
 
 
 
-    function getData(booking, item, booker, logger) {
+    function getData(booking, item, taker, logger) {
         var data         = {};
 
         return Promise
@@ -917,12 +917,12 @@ function _sendBookingPendingEmailsSms(data) {
                 return [
                     ! item ? Item.findOne({ id: booking.itemId }) : item,
                     User.findOne({ id: booking.ownerId }),
-                    ! booker ? User.findOne({ id: booking.bookerId }) : booker
+                    ! taker ? User.findOne({ id: booking.takerId }) : taker
                 ];
             })
-            .spread((item, owner, booker) => {
+            .spread((item, owner, taker) => {
                 if (! item
-                    || ! booker
+                    || ! taker
                     || ! owner
                 ) {
                     error = new Error("Booking confirm missing references");
@@ -938,7 +938,7 @@ function _sendBookingPendingEmailsSms(data) {
                 data.booking      = booking;
                 data.item         = item;
                 data.owner        = owner;
-                data.booker       = booker;
+                data.taker        = taker;
                 data.logger       = logger;
 
                 return Item
@@ -970,12 +970,12 @@ function _sendBookingPendingEmailsSms(data) {
             itemId: booking.itemId,
             listingTypeId: booking.listingTypeId,
             bookingId: booking.id,
-            senderId: booking.bookerId,
+            senderId: booking.takerId,
             receiverId: booking.ownerId,
             startDate: booking.startDate,
             endDate: booking.endDate,
             bookingStatus: "booking",
-            agreementStatus: booking.validatedDate ? "agreed" : "pending", // "agreed" possible if pre-booking
+            agreementStatus: booking.acceptedDate ? "agreed" : "pending", // "agreed" possible if pre-booking
             privateContent: message.privateContent,
             publicContent: message.publicContent
         };
@@ -985,7 +985,7 @@ function _sendBookingPendingEmailsSms(data) {
             emptyConversationMeta: message,
             logger: logger
         };
-        return Message.createMessage(booking.bookerId, messageAttrs, messageParams)
+        return Message.createMessage(booking.takerId, messageAttrs, messageParams)
             .then((message) => {
                 messageCache.unset(booking.id);
 
@@ -998,7 +998,7 @@ function _sendBookingPendingEmailsSms(data) {
         var booking      = data.booking;
         var item         = data.item;
         var owner        = data.owner;
-        var booker       = data.booker;
+        var taker        = data.taker;
         var itemMedias   = data.itemMedias;
         var conversation = data.conversation;
         var logger       = data.logger;
@@ -1006,14 +1006,14 @@ function _sendBookingPendingEmailsSms(data) {
         return Promise
             .resolve()
             .then(() => {
-                // Only send pending emails to both owner and taker and SMS to owner if owner has not validated yet (payment -i.e. confirmation- first)
-                if (! booking.validatedDate) {
+                // Only send pending emails to both owner and taker and SMS to owner if owner has not accepted yet (payment -i.e. confirmation- first)
+                if (! booking.acceptedDate) {
                     return Promise.all([
                         sendEmailBookingPendingToTaker(),
                         sendEmailBookingPendingToOwner(),
                         sendSmsBookingPendingToOwner()
                     ]);
-                } else { // Booking was pre-accepted (validated) by owner so that payment concludes transaction
+                } else { // Booking was pre-accepted by owner so that payment concludes transaction
                     return sendEmailAndSmsBookingConfirmed();
                 }
             });
@@ -1023,7 +1023,7 @@ function _sendBookingPendingEmailsSms(data) {
         function sendEmailBookingPendingToTaker() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-pending-taker', {
-                    user: booker,
+                    user: taker,
                     item: item,
                     booking: booking,
                     itemMedias: itemMedias,
@@ -1043,7 +1043,7 @@ function _sendBookingPendingEmailsSms(data) {
                     item: item,
                     booking: booking,
                     itemMedias: itemMedias,
-                    booker: booker,
+                    taker: taker,
                     conversation: conversation
                 })
                 .catch(err => {
@@ -1073,7 +1073,7 @@ function _sendBookingPendingEmailsSms(data) {
             var findAssessmentAttrs = {
                 itemId: booking.itemId,
                 startBookingId: booking.id, // only startBooking is relevant for (taker's) signToken
-                takerId: booking.bookerId,
+                takerId: booking.takerId,
                 ownerId: booking.ownerId
             };
 
@@ -1135,14 +1135,14 @@ function _sendBookingConfirmedEmailsSms(data) {
             .resolve()
             .then(() => {
                 return [
-                    User.findOne({ id: booking.bookerId }),
+                    User.findOne({ id: booking.takerId }),
                     Item.findOne({ id: booking.itemId }),
                     User.findOne({ id: booking.ownerId }),
                     Conversation.findOne({ bookingId: booking.id })
                 ];
             })
-            .spread((booker, item, owner, conversation) => {
-                if (! booker
+            .spread((taker, item, owner, conversation) => {
+                if (! taker
                     || ! item
                     || ! owner
                     || ! conversation
@@ -1151,8 +1151,8 @@ function _sendBookingConfirmedEmailsSms(data) {
                     if (! item) {
                         error.itemId = booking.itemId;
                     }
-                    if (! booker) {
-                        error.bookerId = booking.bookerId;
+                    if (! taker) {
+                        error.takerId = booking.takerId;
                     }
                     if (! owner) {
                         error.ownerId = booking.ownerId;
@@ -1166,7 +1166,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                 data.booking      = booking;
                 data.assessment   = assessment;
                 data.logger       = logger;
-                data.booker       = booker;
+                data.taker       = taker;
                 data.item         = item;
                 data.owner        = owner;
                 data.conversation = conversation;
@@ -1175,13 +1175,13 @@ function _sendBookingConfirmedEmailsSms(data) {
                     data,
                     Item.getMedias([item]).then(itemMedias => itemMedias[item.id]).catch(() => []),
                     Location.find({ userId: owner.id }).catch(() => []),
-                    Location.find({ userId: booker.id }).catch(() => [])
+                    Location.find({ userId: taker.id }).catch(() => [])
                 ];
             })
-            .spread((data, itemMedias, ownerLocations, bookerLocations) => {
+            .spread((data, itemMedias, ownerLocations, takerLocations) => {
                 data.itemMedias      = itemMedias;
                 data.ownerLocations  = ownerLocations;
-                data.bookerLocations = bookerLocations;
+                data.takerLocations = takerLocations;
 
                 return data;
             });
@@ -1191,24 +1191,24 @@ function _sendBookingConfirmedEmailsSms(data) {
         var booking         = data.booking;
         var assessment      = data.assessment;
         var logger          = data.logger;
-        var booker          = data.booker;
+        var taker           = data.taker;
         var item            = data.item;
         var owner           = data.owner;
         var conversation    = data.conversation;
         var itemMedias      = data.itemMedias;
         var ownerLocations  = data.ownerLocations;
-        var bookerLocations = data.bookerLocations;
+        var takerLocations  = data.takerLocations;
 
         return Promise
             .resolve()
             .then(() => {
-                if (booking.confirmedDate) { // payment done
+                if (booking.paidDate) { // payment done
                     return Promise.all([
                         sendEmailBookingConfirmedToTaker(),
                         sendSmsBookingConfirmedToTaker(),
                         sendEmailBookingConfirmedToOwner() // No SMS to owner here since she has just validated
                     ]);
-                } else { // booker has not paid yet
+                } else { // taker has not paid yet
                     return Promise.all([
                         sendEmailPrebookingPendingToTaker(),
                         sendSmsPrebookingPendingToTaker(),
@@ -1222,7 +1222,7 @@ function _sendBookingConfirmedEmailsSms(data) {
         function sendEmailBookingConfirmedToTaker() {
             return EmailTemplateService
                 .sendEmailTemplate('booking-confirmed-taker', {
-                    user: booker,
+                    user: taker,
                     item: item,
                     booking: booking,
                     conversation: conversation,
@@ -1230,23 +1230,23 @@ function _sendBookingConfirmedEmailsSms(data) {
                     owner: owner,
                     assessment: assessment,
                     ownerLocations: ownerLocations,
-                    takerLocations: bookerLocations,
+                    takerLocations: takerLocations,
                 })
                 .catch(err => {
                     // not critical
-                    logger.error({ err: err }, "send email booking confirmed to booker");
+                    logger.error({ err: err }, "send email booking confirmed to taker");
                 });
         }
 
         function sendSmsBookingConfirmedToTaker() {
             return SmsTemplateService.sendSmsTemplate('booking-confirmed-taker', {
-                user: booker,
+                user: taker,
                 item,
                 booking,
             })
             .catch(err => {
                 // This SMS is critical but not enough to prevent booking...
-                logger.error({ err: err }, "WARNING : send sms booking confirmed to booker");
+                logger.error({ err: err }, "WARNING : send sms booking confirmed to taker");
             });
         }
 
@@ -1258,7 +1258,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                     item: item,
                     booking: booking,
                     itemMedias: itemMedias,
-                    booker: booker,
+                    taker: taker,
                     ownerLocations: ownerLocations,
                     conversation: conversation
                 })
@@ -1269,10 +1269,10 @@ function _sendBookingConfirmedEmailsSms(data) {
         }
 
         function sendEmailPrebookingPendingToTaker() {
-            // Taker ('booker') call to action
+            // Taker call to action
             return EmailTemplateService
                 .sendEmailTemplate('prebooking-pending-taker', {
-                    user: booker,
+                    user: taker,
                     item: item,
                     booking: booking,
                     conversation: conversation,
@@ -1282,14 +1282,14 @@ function _sendBookingConfirmedEmailsSms(data) {
                 })
                 .catch(err => {
                     // not critical
-                    logger.error({ err: err }, "send email prebooking pending to booker");
+                    logger.error({ err: err }, "send email prebooking pending to taker");
                 });
         }
 
         function sendSmsPrebookingPendingToTaker() {
             return SmsTemplateService
                 .sendSmsTemplate('prebooking-pending-taker', {
-                    user: booker,
+                    user: taker,
                     item,
                     booking,
                 })
@@ -1307,7 +1307,7 @@ function _sendBookingConfirmedEmailsSms(data) {
                     booking: booking,
                     conversation: conversation,
                     itemMedias: itemMedias,
-                    booker: booker
+                    taker: taker
                 })
                 .catch(err => {
                     // not critical
@@ -1349,7 +1349,7 @@ function createContractToken(req, res) {
 
             var allowedPeople = [
                 booking.ownerId,
-                booking.bookerId
+                booking.takerId
             ];
 
             if (! _.contains(allowedPeople, req.user.id)) {

@@ -71,7 +71,7 @@ Sails.load({
         const groupedConversations = _.groupBy(conversations, "itemId");
 
         const bookings = yield Booking.find({
-            confirmedDate: dateConstraints
+            paidDate: dateConstraints
         });
         const groupedBookings = _.groupBy(bookings, "itemId");
 

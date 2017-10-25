@@ -79,8 +79,8 @@
                     <tr class="monitoring-line" ng-repeat="booking in vm.incompleteBookings">
                         <td class="monitoring-cell">{{booking.id}} / {{booking.itemId}}</td>
                         <td class="monitoring-cell"
-                            title="{{booking.ownerName}} / {{booking.bookerName}}">
-                            {{booking.ownerId}} / {{booking.bookerId}}
+                            title="{{booking.ownerName}} / {{booking.takerName}}">
+                            {{booking.ownerId}} / {{booking.takerId}}
                         </td>
                         <td class="monitoring-cell" title="{{booking.itemName.title}}">
                             {{booking.itemName.value}}
@@ -96,24 +96,24 @@
                             {{booking.nbExtraDays.value}}
                         </td>
                         <td class="monitoring-cell"
-                            ng-class="booking.confirmedDate.status"
-                            title="{{booking.confirmedDate.title}}">
-                            {{booking.confirmedDate.value}}
-                            <svg class="icon" ng-if="booking.confirmedDate.clock">
+                            ng-class="booking.paidDate.status"
+                            title="{{booking.paidDate.title}}">
+                            {{booking.paidDate.value}}
+                            <svg class="icon" ng-if="booking.paidDate.clock">
                                 <use xlink:href="/assets/build/icons/sprite.svg#clock"/>
                             </svg>
-                            <svg class="icon" ng-if="booking.confirmedDate.remove">
+                            <svg class="icon" ng-if="booking.paidDate.remove">
                                 <use xlink:href="/assets/build/icons/sprite.svg#x"/>
                             </svg>
                         </td>
                         <td class="monitoring-cell"
-                            ng-class="booking.validatedDate.status"
-                            title="{{booking.validatedDate.title}}">
-                            {{booking.validatedDate.value}}
-                            <svg class="icon" ng-if="booking.validatedDate.clock">
+                            ng-class="booking.acceptedDate.status"
+                            title="{{booking.acceptedDate.title}}">
+                            {{booking.acceptedDate.value}}
+                            <svg class="icon" ng-if="booking.acceptedDate.clock">
                                 <use xlink:href="/assets/build/icons/sprite.svg#clock"/>
                             </svg>
-                            <svg class="icon" ng-if="booking.validatedDate.remove">
+                            <svg class="icon" ng-if="booking.acceptedDate.remove">
                                 <use xlink:href="/assets/build/icons/sprite.svg#x"/>
                             </svg>
                         </td>
@@ -167,10 +167,10 @@
                 <u>Propriétaire</u>&nbsp;: {{vm.bookingToCancel.ownerName}}
             </div>
             <div>
-                <u>Emprunteur</u>&nbsp;: {{vm.bookingToCancel.bookerName}}
+                <u>Emprunteur</u>&nbsp;: {{vm.bookingToCancel.takerName}}
             </div>
             <div>
-                <u>Montant {{ vm.bookingToCancel.confirmedDate ? "payé" : "à payer" }} par l'emprunteur</u>&nbsp;: {{vm.bookingToCancel.takerPrice}}€
+                <u>Montant {{ vm.bookingToCancel.paidDate ? "payé" : "à payer" }} par l'emprunteur</u>&nbsp;: {{vm.bookingToCancel.takerPrice}}€
             </div>
             <div ng-if="vm.bookingToCancel.takerPrice !== vm.bookingToCancel.ownerNetIncome">
                 <u>Montant pour le propriétaire</u>&nbsp;: {{vm.bookingToCancel.ownerNetIncome}}€
@@ -181,11 +181,11 @@
             <div ng-if="vm.bookingToCancel.takerFees">
                 <u>Frais de réservation (emprunteur)</u>&nbsp;: {{vm.bookingToCancel.takerFees}}€
             </div>
-            <div ng-if="vm.bookingToCancel.confirmedDate">
-                <u>Date de paiement</u>&nbsp;: {{vm.bookingToCancel.confirmedDateDisplay}}
+            <div ng-if="vm.bookingToCancel.paidDate">
+                <u>Date de paiement</u>&nbsp;: {{vm.bookingToCancel.paidDateDisplay}}
             </div>
-            <div ng-if="vm.bookingToCancel.validatedDate">
-                <u>Date de validation</u>&nbsp;: {{vm.bookingToCancel.validatedDateDisplay}}
+            <div ng-if="vm.bookingToCancel.acceptedDate">
+                <u>Date de validation</u>&nbsp;: {{vm.bookingToCancel.acceptedDateDisplay}}
             </div>
             <br>
         </div>

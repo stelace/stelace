@@ -22,21 +22,17 @@ module.exports = {
         },
         listingTypeId: 'integer',
         listingType: 'json',
-        parentId: "integer", // TODO: to remove
-
-        // rename: 'confirmedDate' -> 'paidDate'
-        // rename: 'validatedDate' -> 'acceptedDate'
-        confirmedDate: "string", // booker action, set if paymentDate and depositDate are set
-        validatedDate: "string", // owner action, when validate the booking
-        automatedValidated: { // TODO: to rename into 'autoAcceptation'
-            type: "boolean",
-            defaultsTo: false
+        paidDate: 'string', // taker action, set if paymentDate and depositDate are set
+        acceptedDate: 'string', // owner action, when accepting the booking
+        autoAcceptation: {
+            type: 'boolean',
+            defaultsTo: false,
         },
         ownerId: {
             type: "integer",
             index: true
         },
-        bookerId: {
+        takerId: {
             type: "integer",
             index: true
         },
@@ -48,17 +44,13 @@ module.exports = {
         endDate: "string",
         nbTimeUnits: 'integer',
         timeUnit: 'string',
-        nbBookedDays: "integer", // TODO: to remove (replaced by nbTimeUnits)
-        free: { // TODO: to remove
-            type: "boolean",
-            defaultsTo: false
-        },
-
+        timeUnitPrice: "float",
+        currency: 'string',
         ownerPrice: "float", // displayed price set by owner
         takerPrice: "float", // after rebate and fees
         ownerFees: "float", // set the value in case the formula change
         takerFees: "float", // set the value in case the formula change
-        prices: {
+        priceData: {
             type: 'json',
             defaultsTo: {},
         },
@@ -66,40 +58,23 @@ module.exports = {
             type: 'json',
             defaultsTo: {},
         },
-        freeValue: "float", // TODO: move to prices
-        discountValue: "float", // TODO: move to prices
-        maxDiscountPercent: "float", // TODO: to remove
-        dayOnePrice: "float", // TODO: move to prices
         pricingId: "integer",
         customPricingConfig: "json",
         deposit: "float",
-        ownerFeesPercent: "float", // TODO: to remove
-        takerFeesPercent: "float", // TODO: to remove
-        ownerFreeFees: { // TODO: move to prices
-            type: "boolean",
-            defaultsTo: false
-        },
-        takerFreeFees: { // TODO: move to prices
-            type: "boolean",
-            defaultsTo: false
-        },
         dates: {
             type: 'json',
             defaultsTo: {},
         },
         completedDate: 'string',
+        paymentCompleted: 'boolean',
 
-        // TODO: to remove 'paymentDate', 'depositDate', 'releaseDepositDate', 'paymentUsedDate', 'paymentTransferDate', 'withdrawalDate'
-        // TODO: to remove 'cancellationPaymentDate', 'cancellationDepositDate'
-
-        // TODO: put 'stopRenewDeposit', 'stopTransferPayment', 'stopWithdrawal' into 'paymentOperations'
-
-        paymentDate: "string", // booker action, set when preauth payment is done
-        depositDate: "string", // booker action, set when preauth deposit is done
+        paymentDate: "string", // taker action, set when preauth payment is done
+        depositDate: "string", // taker action, set when preauth deposit is done
         releaseDepositDate: "string", // renew deposit until this date, after the deposit must be cancelled
         paymentUsedDate: "string", // set when preauth payment is used
         paymentTransferDate: "string", // set when the payment can be withdrawn by the owner
         withdrawalDate: "string", // owner action, set when the withdrawal is done
+
         cancellationId: {
             type: "integer",
             index: true
@@ -110,17 +85,7 @@ module.exports = {
             type: "boolean",
             defaultsTo: false
         },
-        stopTransferPayment: {
-            type: "boolean",
-            defaultsTo: false
-        },
-        stopWithdrawal: {
-            type: "boolean",
-            defaultsTo: false
-        },
         contractId: "string",
-        odooBookerInvoiceNumber: "string", // TODO: to remove
-        odooOwnerInvoiceNumber: "string" // TODO: to remove
     },
 
     getAccessFields: getAccessFields,
@@ -156,30 +121,23 @@ function getAccessFields(access) {
             "listingTypeId",
             "listingType",
             "parentId",
-            "confirmedDate",
-            "validatedDate",
-            "automatedValidated",
+            "paidDate",
+            "acceptedDate",
+            "autoAcceptation",
             "ownerId",
-            "bookerId",
+            "takerId",
             "quantity",
             "startDate",
             "endDate",
             "nbTimeUnits",
             "timeUnit",
-            "free",
+            "timeUnitPrice",
             "ownerPrice",
-            "freeValue",
-            "discountValue",
-            "maxDiscountPercent",
+            "priceData",
             "takerPrice",
-            "dayOnePrice",
             "deposit",
-            "ownerFeesPercent",
-            "takerFeesPercent",
             "ownerFees",
             "takerFees",
-            "ownerFreeFees",
-            "takerFreeFees",
             "paymentDate",
             "depositDate",
             "cancellationId"
@@ -191,30 +149,23 @@ function getAccessFields(access) {
             "listingTypeId",
             "listingType",
             "parentId",
-            "confirmedDate",
-            "validatedDate",
-            "automatedValidated",
+            "paidDate",
+            "acceptedDate",
+            "autoAcceptation",
             "ownerId",
-            "bookerId",
+            "takerId",
             "quantity",
             "startDate",
             "endDate",
             "nbTimeUnits",
             "timeUnit",
-            "free",
+            "timeUnitPrice",
             "ownerPrice",
-            "freeValue",
-            "discountValue",
-            "maxDiscountPercent",
+            "priceData",
             "takerPrice",
-            "dayOnePrice",
             "deposit",
-            "ownerFeesPercent",
-            "takerFeesPercent",
             "ownerFees",
             "takerFees",
-            "ownerFreeFees",
-            "takerFreeFees",
             "paymentDate",
             "depositDate",
             "paymentTransferDate",
@@ -228,7 +179,7 @@ function getAccessFields(access) {
             "listingType",
             "parentId",
             "ownerId",
-            "bookerId",
+            "takerId",
             "startDate",
             "endDate",
             "quantity",
@@ -328,8 +279,8 @@ function getAgreementUserId(booking) {
 }
 
 function isValidationTooLate(booking, refDate) {
-    // booking can't be validated if confirmed and "7 days - 1 hour" after the confirmation date
-    return booking.confirmedDate && moment(refDate).diff(booking.confirmedDate, "h") > 167;
+    // booking can't be accepted if paid and "7 days - 1 hour" after the paid date
+    return booking.paidDate && moment(refDate).diff(booking.paidDate, "h") > 167;
 }
 
 function isNoTime(booking) {
@@ -337,10 +288,10 @@ function isNoTime(booking) {
 }
 
 function getLaunchDate(booking) {
-    if (booking.confirmedDate < booking.validatedDate) {
-        return booking.validatedDate;
+    if (booking.paidDate < booking.acceptedDate) {
+        return booking.acceptedDate;
     } else {
-        return booking.confirmedDate;
+        return booking.paidDate;
     }
 }
 
@@ -440,8 +391,8 @@ function getLast(itemIdOrIds) {
         var findAttrs = {
             itemId: itemIds,
             cancellationId: null,
-            confirmedDate: { '!': null },
-            validatedDate: { '!': null }
+            paidDate: { '!': null },
+            acceptedDate: { '!': null }
         };
 
         if (onlyOne) {
@@ -472,8 +423,8 @@ function getLast(itemIdOrIds) {
 function isComplete(booking, inputAssessment, outputAssessment) {
     var result;
 
-    result = booking.validatedDate
-        && booking.confirmedDate
+    result = booking.acceptedDate
+        && booking.paidDate
         && ! booking.cancellationId
         && inputAssessment && inputAssessment.signedDate;
 
@@ -559,8 +510,8 @@ function getPendingBookings(itemId, args) {
 
         _.assign(findAttrs, {
             or: [
-                { confirmedDate: null },
-                { validatedDate: null }
+                { paidDate: null },
+                { acceptedDate: null }
             ],
             cancellationId: null
         });

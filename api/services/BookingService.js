@@ -63,8 +63,8 @@ async function createBooking({
     let bookingAttrs = {
         itemId: item.id,
         ownerId: item.ownerId,
-        bookerId: user.id,
-        automatedValidated: item.automatedBookingValidation, // TODO: to rename
+        takerId: user.id,
+        autoAcceptation: item.automatedBookingValidation, // TODO: to rename
         contractId: ContractService.getContractId(),
         listingTypeId: listingType.id,
         listingType: listingType,
@@ -172,7 +172,8 @@ async function setBookingTimePeriods({
             nbTimeUnits,
             timeUnit,
             deposit: item.deposit,
-            dayOnePrice: item.dayOnePrice,
+            timeUnitPrice: item.dayOnePrice,
+            currency: 'EUR', // TODO: allow to set other currencies
             pricingId: item.pricingId,
             customPricingConfig: item.customPricingConfig,
         });
@@ -271,12 +272,11 @@ async function setBookingPrices({
         maxDiscountPercent: maxDiscountPercent
     });
 
-    bookingAttrs.prices = {
+    bookingAttrs.priceData = {
         freeValue,
         discountValue,
         ownerFreeFees,
         takerFreeFees,
-        maxDiscountPercent,
     };
 
     bookingAttrs.ownerFees  = priceResult.ownerFees;

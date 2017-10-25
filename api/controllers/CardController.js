@@ -143,7 +143,7 @@ function createCardRegistration(req, res) {
             return mangopay.card.createRegistration({
                 body: {
                     UserId: req.user.mangopayUserId,
-                    Currency: "EUR",
+                    Currency: "EUR", // TODO: allow other currencies
                     CardType: cardType
                 }
             });

@@ -34,7 +34,7 @@
 
 
         function getMine(as) {
-            as = as || "booker";
+            as = as || "taker";
             var deferred = $q.defer();
 
             var cacheBookingMine = cache.get("bookingMine");
@@ -331,10 +331,10 @@
         }
 
         function getLaunchDate(booking) {
-            if (booking.confirmedDate < booking.validatedDate) {
-                return booking.validatedDate;
+            if (booking.paidDate < booking.acceptedDate) {
+                return booking.acceptedDate;
             } else {
-                return booking.confirmedDate;
+                return booking.paidDate;
             }
         }
 

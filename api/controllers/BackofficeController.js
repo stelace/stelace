@@ -144,7 +144,7 @@ function getBooking(req, res) {
             throw new NotFoundError();
         }
 
-        var usersIds = [booking.ownerId, booking.bookerId];
+        var usersIds = [booking.ownerId, booking.takerId];
 
         var result = yield Promise.props({
             users: User.find({ id: usersIds }),
@@ -161,7 +161,7 @@ function getBooking(req, res) {
         booking                  = Booking.expose(booking, access);
         booking.item             = Item.expose(item, access);
         booking.owner            = User.expose(indexedUsers[booking.ownerId], userAccess);
-        booking.booker           = User.expose(indexedUsers[booking.bookerId], userAccess);
+        booking.taker            = User.expose(indexedUsers[booking.takerId], userAccess);
         booking.inputAssessment  = bookingAssessments.inputAssessment;
         booking.outputAssessment = bookingAssessments.outputAssessment;
 

@@ -180,8 +180,8 @@
 
         function _setCountdown(conversation) {
             if (! (conversation.booking
-             && conversation.booking.confirmedDate
-             && conversation.booking.bookerId !== currentUser.id
+             && conversation.booking.paidDate
+             && conversation.booking.takerId !== currentUser.id
              && (conversation.agreementStatus === "pending" || conversation.agreementStatus === "pending-giver")
             )) {
                 conversation.countdown = null;
@@ -192,7 +192,7 @@
             var countdown, hours, minutes, seconds;
 
             conversation.countdownInterval = $interval(function () {
-                var targetDate = moment(conversation.booking.confirmedDate).add(36, "h");
+                var targetDate = moment(conversation.booking.paidDate).add(36, "h");
                 var timeLeft   = targetDate.diff();
 
                 var secondsLeft = timeLeft / 1000;

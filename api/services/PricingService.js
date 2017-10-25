@@ -372,11 +372,11 @@ function getPriceAfterRebateAndFees(args) {
     if (booking) {
         return getPriceAfterRebateAndFees({
             ownerPrice: booking.ownerPrice,
-            freeValue: booking.freeValue,
+            freeValue: booking.priceData.freeValue,
             ownerFees: booking.ownerFees,
             takerFees: booking.takerFees,
-            discountValue: booking.discountValue,
-            maxDiscountPercent: booking.maxDiscountPercent
+            discountValue: booking.priceData.discountValue,
+            maxDiscountPercent: booking.listingType.config.pricing.maxDiscountPercent
         });
     }
 

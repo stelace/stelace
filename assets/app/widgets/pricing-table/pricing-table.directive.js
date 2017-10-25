@@ -91,7 +91,7 @@
             ////////////////////
             function init() {
                 if (scope.booking) {
-                    scope.applyFreeFees = scope.booking.takerFreeFees;
+                    scope.applyFreeFees = scope.booking.priceData.takerFreeFees;
                 }
 
                 scope.noTime = isNoTime();
@@ -144,7 +144,7 @@
                 }
 
                 if (scope.booking) {
-                    scope.dayOnePrice = scope.booking.dayOnePrice;
+                    scope.dayOnePrice = scope.booking.timeUnitPrice;
                 } else {
                     scope.dayOnePrice = scope.item.prices[0];
                 }

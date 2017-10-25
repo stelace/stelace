@@ -346,7 +346,7 @@ function s_createWallet() {
                     body: {
                         Owners: [user.mangopayUserId],
                         Description: "Main wallet",
-                        Currency: "EUR"
+                        Currency: "EUR", // TODO: allow other currencies
                     }
                 })
                 .then(wallet => {

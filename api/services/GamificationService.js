@@ -1119,11 +1119,11 @@ function _getConfig() {
 
             return ! alreadySet
                 && link.fromUserId === user.id
-                && booking.bookerId === link.toUserId
+                && booking.takerId === link.toUserId
                 && link.relationship === "refer"
                 && link.validated
-                && booking.confirmedDate
-                && booking.validatedDate
+                && booking.paidDate
+                && booking.acceptedDate
                 && ! booking.cancellationId;
         };
 
@@ -1181,8 +1181,8 @@ function _getConfig() {
                 && booking.ownerId === link.toUserId
                 && link.relationship === "refer"
                 && link.validated
-                && booking.confirmedDate
-                && booking.validatedDate
+                && booking.paidDate
+                && booking.acceptedDate
                 && ! booking.cancellationId;
         };
 
@@ -1269,7 +1269,7 @@ function _getConfig() {
         cf.actions.checks.FIRST_BOOKING = function (user, data) {
             var booking = data.booking;
 
-            return booking.bookerId === user.id
+            return booking.takerId === user.id
                 && (booking.depositDate || booking.paymentDate)
                 && ! booking.cancellationId;
         };
@@ -1286,7 +1286,7 @@ function _getConfig() {
             var booking = data.booking;
 
             return booking.ownerId === user.id
-                && booking.validatedDate
+                && booking.acceptedDate
                 && ! booking.cancellationId;
         };
 
@@ -1301,7 +1301,7 @@ function _getConfig() {
         cf.actions.checks.FIRST_COMPLETE_BOOKING = function (user, data) {
             var booking = data.booking;
 
-            if (! _.contains([booking.ownerId, booking.bookerId], user.id)) {
+            if (! _.contains([booking.ownerId, booking.takerId], user.id)) {
                 return false;
             }
 
@@ -1419,7 +1419,7 @@ function _getConfig() {
             });
 
             if (alreadySet
-             || ! _.contains([booking.ownerId, booking.bookerId], user.id)
+             || ! _.contains([booking.ownerId, booking.takerId], user.id)
             ) {
                 return false;
             }

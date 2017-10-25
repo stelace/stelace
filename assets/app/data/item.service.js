@@ -182,10 +182,10 @@
                 } else {
                     item.ownerMedia = { url: platform.getDefaultProfileImageUrl() };
                 }
-                if (item.lastBookerMedia) {
-                    MediaService.setUrl(item.lastBookerMedia);
+                if (item.lastTakerMedia) {
+                    MediaService.setUrl(item.lastTakerMedia);
                 } else {
-                    item.lastBookerMedia = { url: platform.getDefaultProfileImageUrl() };
+                    item.lastTakerMedia = { url: platform.getDefaultProfileImageUrl() };
                 }
                 if (nbDaysPricing) {
                     item.prices = pricing.getPrice({

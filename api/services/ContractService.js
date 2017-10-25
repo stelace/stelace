@@ -131,9 +131,9 @@ function _getData(booking) {
                 finalAssessment,
                 ! initialAssessmentSigned ? Item.findOne({ id: booking.itemId }) : null,
                 ! initialAssessmentSigned ? User.findOne({ id: booking.ownerId }) : null,
-                ! initialAssessmentSigned ? User.findOne({ id: booking.bookerId }) : null,
+                ! initialAssessmentSigned ? User.findOne({ id: booking.takerId }) : null,
                 ! initialAssessmentSigned ? getMainLocation(booking.ownerId) : null,
-                ! initialAssessmentSigned ? getMainLocation(booking.bookerId) : null,
+                ! initialAssessmentSigned ? getMainLocation(booking.takerId) : null,
                 initialAssessment ? getSnapshots(snapshotsIds) : []
             ];
         })
@@ -198,8 +198,8 @@ function _transformData(data, userId) {
     var formatDate     = "DD/MM/YYYY";
     var signFormatDate = "LLL";
     var isOwner        = userId === data.booking.ownerId;
-    var isTaker        = userId === data.booking.bookerId;
-    var obfuscate      = ! (data.booking.confirmedDate && data.booking.validatedDate);
+    var isTaker        = userId === data.booking.takerId;
+    var obfuscate      = ! (data.booking.paidDate && data.booking.acceptedDate);
 
     // booking date variables are modified so take a snapshot here
     var startDate = data.booking.startDate;
@@ -236,7 +236,7 @@ function _transformData(data, userId) {
     data.booking.startDate  = moment(startDate).format(formatDate);
     data.booking.endDate    = moment(endDate).format(formatDate);
 
-    // Obfuscate contact info before booking confirmation and validation
+    // Obfuscate contact info before booking acceptation and validation
     if (! isOwner && obfuscate) {
         _obfuscateContactInfo("owner", data);
     }

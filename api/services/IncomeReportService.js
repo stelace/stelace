@@ -57,8 +57,8 @@ function getReportData(user, year) {
         var bookings = yield Booking.find({
             ownerId: user.id,
             cancellationId: null,
-            confirmedDate: { '!': null },
-            validatedDate: { '!': null }
+            paidDate: { '!': null },
+            acceptedDate: { '!': null }
         });
 
         // if there is no bookings for this user, stop the fetching process

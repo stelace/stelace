@@ -121,16 +121,16 @@ function cancelMangopayPreauth(transaction) {
     })();
 }
 
-function createMangopayPayin(booking, transaction, booker, amount, takerFees) {
+function createMangopayPayin(booking, transaction, taker, amount, takerFees) {
     takerFees = takerFees || 0;
 
     return Promise.coroutine(function* () {
         var payin = yield mangopay.payin.preauthorizedDirect({
             body: {
-                AuthorId: booker.mangopayUserId,
+                AuthorId: taker.mangopayUserId,
                 DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
                 Fees: { Amount: Math.round(takerFees * 100), Currency: "EUR" },
-                CreditedWalletId: booker.walletId,
+                CreditedWalletId: taker.walletId,
                 PreauthorizationId: transaction.resourceId,
                 Tag: Booking.getBookingRef(booking.id)
             }
@@ -148,11 +148,11 @@ function createMangopayPayin(booking, transaction, booker, amount, takerFees) {
     })();
 }
 
-function cancelMangopayPayin(booking, transaction, booker, amount, refundTakerFees) {
+function cancelMangopayPayin(booking, transaction, taker, amount, refundTakerFees) {
     var refundTotally = (typeof amount === "undefined" && typeof refundTakerFees === "undefined");
 
     var body = {
-        AuthorId: booker.mangopayUserId,
+        AuthorId: taker.mangopayUserId,
         Tag: Booking.getBookingRef(booking.id)
     };
 
@@ -182,14 +182,14 @@ function cancelMangopayPayin(booking, transaction, booker, amount, refundTakerFe
     })();
 }
 
-function createMangopayTransfer(booking, booker, owner, amount, fees) {
+function createMangopayTransfer(booking, taker, owner, amount, fees) {
     return Promise.coroutine(function* () {
         var transfer = yield mangopay.wallet.createTransfer({
             body: {
-                AuthorId: booker.mangopayUserId,
+                AuthorId: taker.mangopayUserId,
                 DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
                 Fees: { Amount: Math.round(fees * 100), Currency: "EUR" },
-                DebitedWalletId: booker.walletId,
+                DebitedWalletId: taker.walletId,
                 CreditedWalletId: owner.walletId,
                 Tag: Booking.getBookingRef(booking.id)
             }
@@ -207,12 +207,12 @@ function createMangopayTransfer(booking, booker, owner, amount, fees) {
     })();
 }
 
-function cancelMangopayTransfer(booking, transaction, booker) {
+function cancelMangopayTransfer(booking, transaction, taker) {
     return Promise.coroutine(function* () {
         var refund = yield mangopay.refund.transfer({
             transferId: transaction.resourceId,
             body: {
-                AuthorId: booker.mangopayUserId,
+                AuthorId: taker.mangopayUserId,
                 Tag: Booking.getBookingRef(booking.id)
             }
         });
@@ -390,12 +390,12 @@ function cancelPreauthPayment(booking, transactionManager) {
  * payin payment
  * @param  {object} booking
  * @param  {object} transactionManager
- * @param  {object} booker
+ * @param  {object} taker
  * @param  {object} [paymentValues]
  * @param  {number} [paymentValues.amount] - if not provided, take booking payment
  * @return {object} booking
  */
-function payinPayment(booking, transactionManager, booker, paymentValues) {
+function payinPayment(booking, transactionManager, taker, paymentValues) {
     return Promise.coroutine(function* () {
         var skipProcess = booking.paymentUsedDate;
 
@@ -403,7 +403,7 @@ function payinPayment(booking, transactionManager, booker, paymentValues) {
             return booking;
         }
 
-        checkMangopayItems(booking, [booker]);
+        checkMangopayItems(booking, [taker]);
 
         var payin = transactionManager.getPayinPayment();
 
@@ -424,7 +424,7 @@ function payinPayment(booking, transactionManager, booker, paymentValues) {
                 throw error;
             }
 
-            var mangopayPayin = yield createMangopayPayin(booking, preauthPayment, booker, amount);
+            var mangopayPayin = yield createMangopayPayin(booking, preauthPayment, taker, amount);
 
             var resultTransaction = yield TransactionService.createPayin({
                 booking: booking,
@@ -445,14 +445,14 @@ function payinPayment(booking, transactionManager, booker, paymentValues) {
  * cancel payin payment
  * @param  {object} booking
  * @param  {object} transactionManager
- * @param  {object} booker
+ * @param  {object} taker
  * @param  {object} [paymentValues]
  * @param  {number} [paymentValues.amount] - if not provided, cancel booking payment
  * @return {object} booking
  */
-function cancelPayinPayment(booking, transactionManager, booker, paymentValues) {
+function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
     return Promise.coroutine(function* () {
-        checkMangopayItems(booking, [booker]);
+        checkMangopayItems(booking, [taker]);
 
         var payin = transactionManager.getPayinPayment();
 
@@ -476,7 +476,7 @@ function cancelPayinPayment(booking, transactionManager, booker, paymentValues) 
 
         // do not perform refund if 0 amount
         if (amount) {
-            mangopayRefundPayin = yield cancelMangopayPayin(booking, payin, booker, amount);
+            mangopayRefundPayin = yield cancelMangopayPayin(booking, payin, taker, amount);
 
             var resultTransaction = yield TransactionService.cancelPayin({
                 transaction: payin,
@@ -495,7 +495,7 @@ function cancelPayinPayment(booking, transactionManager, booker, paymentValues) 
  * transfer payment
  * @param  {object} booking
  * @param  {object} transactionManager
- * @param  {object} booker
+ * @param  {object} taker
  * @param  {object} owner
  * @param  {object} [paymentValues]
  * @param  {number} [paymentValues.amount] - if not provided, take booking payment
@@ -503,7 +503,7 @@ function cancelPayinPayment(booking, transactionManager, booker, paymentValues) 
  * @param  {number} [paymentValues.takerFees] - if not provided, take taker fees
  * @return {object} booking
  */
-function transferPayment(booking, transactionManager, booker, owner, paymentValues) {
+function transferPayment(booking, transactionManager, taker, owner, paymentValues) {
     return Promise.coroutine(function* () {
         var skipProcess = booking.paymentTransferDate
             || booking.stopTransferPayment;
@@ -512,7 +512,7 @@ function transferPayment(booking, transactionManager, booker, owner, paymentValu
             return booking;
         }
 
-        checkMangopayItems(booking, [booker, owner]);
+        checkMangopayItems(booking, [taker, owner]);
 
         var transfer = transactionManager.getTransferPayment();
 
@@ -534,7 +534,7 @@ function transferPayment(booking, transactionManager, booker, owner, paymentValu
             || transfer;
 
         if (! skipProcessWithUpdate) {
-            var mangopayTransfer = yield createMangopayTransfer(booking, booker, owner, mgpAmount, mgpSumFees);
+            var mangopayTransfer = yield createMangopayTransfer(booking, taker, owner, mgpAmount, mgpSumFees);
 
             var resultTransaction = yield TransactionService.createTransfer({
                 booking: booking,
@@ -558,16 +558,16 @@ function transferPayment(booking, transactionManager, booker, owner, paymentValu
  * cancel transfer payment
  * @param  {object} booking
  * @param  {object} transactionManager
- * @param  {object} booker
+ * @param  {object} taker
  * @param  {object} [paymentValues]
  * @param  {number} [paymentValues.amount] - if not provided, cancel booking payment
  * @param  {number} [paymentValues.refundOwnerFees] - if not provided, cancel owner fees
  * @param  {number} [paymentValues.refundTakerFees] - if not provided, cancel taker fees
  * @return {object} booking
  */
-function cancelTransferPayment(booking, transactionManager, booker, paymentValues) {
+function cancelTransferPayment(booking, transactionManager, taker, paymentValues) {
     return Promise.coroutine(function* () {
-        checkMangopayItems(booking, [booker]);
+        checkMangopayItems(booking, [taker]);
 
         var transfer = transactionManager.getTransferPayment();
 
@@ -593,7 +593,7 @@ function cancelTransferPayment(booking, transactionManager, booker, paymentValue
         var refundOwnerFees = paymentValues.refundOwnerFees;
         var refundTakerFees = paymentValues.refundTakerFees;
 
-        var mangopayRefundTransfer = yield cancelMangopayTransfer(booking, transfer, booker);
+        var mangopayRefundTransfer = yield cancelMangopayTransfer(booking, transfer, taker);
 
         var resultTransaction = yield TransactionService.cancelTransfer({
             transaction: transfer,

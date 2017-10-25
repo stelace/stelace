@@ -12,7 +12,7 @@ module.exports = {
 var diacritics = require('diacritics');
 var moment     = require('moment');
 
-var allowedRoles = ["owner", "booker"];
+var allowedRoles = ["owner", "taker"];
 
 /**
  * synchronize db transactions with odoo
@@ -80,7 +80,7 @@ function syncTransactionsWithOdoo(args) {
                 if (transaction.action === "transfer") {
                     var item   = indexedItems[booking.itemId];
                     var owner  = indexedUsers[booking.ownerId];
-                    var booker = indexedUsers[booking.bookerId];
+                    var taker  = indexedUsers[booking.takerId];
 
                     if (! item) {
                         error = new Error("Missing item");
@@ -94,22 +94,22 @@ function syncTransactionsWithOdoo(args) {
                         error.ownerId   = booking.ownerId;
                         throw error;
                     }
-                    if (! booker) {
-                        error = new Error("Missing booker");
+                    if (! taker) {
+                        error = new Error("Missing taker");
                         error.bookingId = booking.id;
-                        error.bookerId  = booking.bookerId;
+                        error.takerId  = booking.takerId;
                         throw error;
                     }
 
-                    var bookerInvoiceFields = getInvoiceFields(booking, "booker", transactionManager);
-                    if (canGenerateInvoice(bookerInvoiceFields)) {
+                    var takerInvoiceFields = getInvoiceFields(booking, "taker", transactionManager);
+                    if (canGenerateInvoice(takerInvoiceFields)) {
                         yield generateInvoiceFromRole({
                             item: item,
                             booking: booking,
-                            user: booker,
-                            invoiceFields: bookerInvoiceFields,
+                            user: taker,
+                            invoiceFields: takerInvoiceFields,
                             transactionManager: transactionManager,
-                            role: "booker"
+                            role: "taker"
                         });
                     }
 
@@ -181,7 +181,7 @@ function getTransactionsData(startDate, endDate) {
 
         var itemsIds = _.pluck(bookings, "itemId");
         var usersIds = _.reduce(bookings, (memo, booking) => {
-            memo = memo.concat([booking.ownerId, booking.bookerId]);
+            memo = memo.concat([booking.ownerId, booking.takerId]);
             return memo;
         }, []);
         usersIds = _.uniq(usersIds);
@@ -246,7 +246,7 @@ function getInvoiceFields(booking, role, transactionManager) {
     var takerFees       = _.find(transferDetails, { label: "taker fees" });
     var ownerFees       = _.find(transferDetails, { label: "owner fees" });
 
-    if (role === "booker") {
+    if (role === "taker") {
         if (takerFees && takerFees.cashing) {
             invoiceFields.takerFees = takerFees.cashing;
         }
@@ -268,7 +268,7 @@ function canGenerateInvoice(invoiceFields) {
 //////////////////////////
 // ODOO OPERATIONS NAME //
 //////////////////////////
-function getBookerInvoiceName(bookingId) {
+function getTakerInvoiceName(bookingId) {
     return `BKG_${bookingId}`;
 }
 
@@ -288,18 +288,6 @@ function getPayoutCommunication(mangopayPayoutId) {
 ////////////////////
 // BOOKING FIELDS //
 ////////////////////
-function getBookingInvoiceField(role) {
-    if (! _.includes(allowedRoles, role)) {
-        throw new Error("Bad role");
-    }
-
-    if (role === "owner") {
-        return "odooOwnerInvoiceNumber";
-    } else { // role === "booker"
-        return "odooBookerInvoiceNumber";
-    }
-}
-
 function getInvoiceName(bookingId, role) {
     if (! _.includes(allowedRoles, role)) {
         throw new Error("Bad role");
@@ -307,8 +295,8 @@ function getInvoiceName(bookingId, role) {
 
     if (role === "owner") {
         return getOwnerInvoiceName(bookingId);
-    } else { // role === "booker"
-        return getBookerInvoiceName(bookingId);
+    } else { // role === "taker"
+        return getTakerInvoiceName(bookingId);
     }
 }
 
@@ -369,15 +357,15 @@ function getTakerFeesInvoiceLineName(item) {
 function fetchInvoiceId(bookingId, role) {
     if (role === "owner") {
         return fetchOwnerInvoiceId(bookingId);
-    } else { // role === "booker"
-        return fetchBookerInvoiceId(bookingId);
+    } else { // role === "taker"
+        return fetchTakerInvoiceId(bookingId);
     }
 }
 
-function fetchBookerInvoiceId(bookingId) {
+function fetchTakerInvoiceId(bookingId) {
     var params = {
         domain: [
-            ["name", "=", getBookerInvoiceName(bookingId)],
+            ["name", "=", getTakerInvoiceName(bookingId)],
         ]
     };
 
@@ -445,21 +433,6 @@ function createPayout(payout) {
 
 
 ////////////////////
-// UPDATE BOOKING //
-////////////////////
-function updateBookingInvoiceNumber(booking, invoiceId, field) {
-    return Promise.coroutine(function* () {
-        var invoice = yield OdooService.getInvoiceData(invoiceId);
-
-        var updateAttrs = {};
-        updateAttrs[field] = invoice.number;
-
-        return yield Booking.updateOne(booking.id, updateAttrs);
-    })();
-}
-
-
-////////////////////
 // CREATE INVOICE //
 ////////////////////
 /**
@@ -486,16 +459,9 @@ function generateInvoiceFromRole(args) {
             throw new Error("Bad role");
         }
 
-        var bookingInvoiceField = getBookingInvoiceField(role);
-
         // invoice already generated
         var invoiceId = yield fetchInvoiceId(booking.id, role);
         if (invoiceId) {
-            if (! booking[bookingInvoiceField]) {
-                booking = yield updateBookingInvoiceNumber(booking, invoiceId, bookingInvoiceField)
-                    .catch(() => booking);
-            }
-
             return booking;
         }
 
@@ -512,16 +478,11 @@ function generateInvoiceFromRole(args) {
             comment: comment
         });
 
-        booking = yield updateBookingInvoiceNumber(booking, invoiceId, bookingInvoiceField)
-            .catch(() => booking);
-
         var amount = _.reduce(_.values(invoiceFields), (memo, price) => {
             return memo + price;
         }, 0);
 
         yield createTransfer(amount, user.odooId, transfer, invoiceId);
-
-        booking[bookingInvoiceField] = invoiceId;
         return booking;
     })();
 }
@@ -530,7 +491,7 @@ function generateInvoiceFromRole(args) {
  * create invoice
  * @param  {object} booking
  * @param  {number} userOdooId
- * @param  {string} role - must be "owner" or "booker"
+ * @param  {string} role - must be "owner" or "taker"
  * @param  {object} args
  * @param  {object} args.item
  * @param  {string} args.invoiceDate

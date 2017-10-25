@@ -220,7 +220,6 @@ function getUrl() {
  * Get formated and localized prices. Can return theoric prices when fees are missing.
  * @param {object}  booking
  * @param {number}  booking.ownerPrice
- * @param {number}  [booking.freeValue=0]
  * @param {number}  [booking.ownerFees]              Theoric fees are computed when missing
  * @param {number}  [booking.takerFees]              Theoric fees are computed when missing
  *
@@ -259,7 +258,7 @@ function getPriceAfterRebateAndFees(booking) {
 function getBookingValue(booking) {
     return PricingService.getPrice({
         config: booking.customPricingConfig || PricingService.getPricing(booking.pricingId).config,
-        dayOne: booking.dayOnePrice,
+        dayOne: booking.timeUnitPrice,
         nbDays: booking.nbTimeUnits,
         custom: !! booking.customPricingConfig,
         array: false

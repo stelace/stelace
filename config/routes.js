@@ -77,7 +77,7 @@ module.exports.routes = {
     // BookingController
     'get /api/booking/my': "BookingController.my",
     'post /api/booking/:id/cancel': "BookingController.cancel",
-    'post /api/booking/:id/validate': "BookingController.validate",
+    'post /api/booking/:id/accept': "BookingController.accept",
     'post /api/booking/:id/payment': "BookingController.payment",
     'get /api/booking/:id/payment-secure': "BookingController.paymentSecure",
     'post /api/booking/:id/contract-token': "BookingController.createContractToken",

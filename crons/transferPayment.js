@@ -43,7 +43,6 @@ Sails.load({
         // find bookings whose preauth payment is used but not cancelled
         // and the transfer payment isn't done
         var bookings = yield Booking.find({
-            stopTransferPayment: false,
             cancellationId: null,
             paymentTransferDate: null,
             paymentUsedDate: { '!': null }
@@ -55,8 +54,8 @@ Sails.load({
 
         var bookingsIds = _.pluck(bookings, "id");
         var ownersIds   = _.pluck(bookings, "ownerId");
-        var bookersIds  = _.pluck(bookings, "bookerId");
-        var usersIds    = ownersIds.concat(bookersIds);
+        var takersIds   = _.pluck(bookings, "takerId");
+        var usersIds    = ownersIds.concat(takersIds);
 
         var result = yield Promise.props({
             hashTransactionsManagers: TransactionService.getBookingTransactionsManagers(bookingsIds),
@@ -75,11 +74,11 @@ Sails.load({
         yield Promise.each(bookings, booking => {
             var transactionManager = hashTransactionsManagers[booking.id];
             var owner              = indexedUsers[booking.ownerId];
-            var booker             = indexedUsers[booking.bookerId];
+            var taker              = indexedUsers[booking.takerId];
             var bookingAssessments = hashAssessments[booking.id];
             var inputAssessment    = bookingAssessments.inputAssessment;
 
-            return bookingProcess(booking, transactionManager, owner, booker, inputAssessment, now)
+            return bookingProcess(booking, transactionManager, owner, taker, inputAssessment, now)
                 .then(() => ++info.nb)
                 .catch(err => {
                     logger.error({
@@ -102,7 +101,7 @@ Sails.load({
 
 
 
-    function bookingProcess(booking, transactionManager, owner, booker, inputAssessment, now) {
+    function bookingProcess(booking, transactionManager, owner, taker, inputAssessment, now) {
         return Promise.coroutine(function* () {
             var error;
 
@@ -111,9 +110,9 @@ Sails.load({
                 error.ownerId = booking.ownerId;
                 throw error;
             }
-            if (! booker) {
-                error = new Error("Booker not found");
-                error.bookerId = booking.bookerId;
+            if (! taker) {
+                error = new Error("Taker not found");
+                error.takerId = booking.takerId;
                 throw error;
             }
             if (! inputAssessment) {
@@ -132,7 +131,7 @@ Sails.load({
                 return;
             }
 
-            return yield BookingPaymentService.transferPayment(booking, transactionManager, booker, owner);
+            return yield BookingPaymentService.transferPayment(booking, transactionManager, taker, owner);
         })();
     }
 });

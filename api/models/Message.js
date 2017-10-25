@@ -173,12 +173,12 @@ function createMessage(userId, createAttrs, params) {
             throw error;
         }
 
-        // obfuscate all messages if the booking isn't paid and validated
+        // obfuscate all messages if the booking isn't paid and accepted
         // and if no obfuscate parameter is passed
-        var paidAndValidatedBooking = booking && booking.confirmedDate;
+        var paidAndAcceptedBooking = booking && booking.paidDate;
 
         if (! params.noObfuscate
-         && ! paidAndValidatedBooking
+         && ! paidAndAcceptedBooking
         ) {
             createAttrs.privateContent = ToolsService.obfuscateContactDetails(createAttrs.privateContent);
             createAttrs.publicContent  = ToolsService.obfuscateContactDetails(createAttrs.publicContent);
@@ -188,7 +188,7 @@ function createMessage(userId, createAttrs, params) {
 
         // create new conversation for new (pre-)booking if preexisting paid booking that has not been cancelled (if pending > new conversation)
         // to avoid 2 effective bookings in same conversation. Note: Only (pre-)bookings have a bookingId
-        var existingPaidBooking = booking && booking.confirmedDate && ! booking.cancellationId ? booking : null;
+        var existingPaidBooking = booking && booking.paidDate && ! booking.cancellationId ? booking : null;
         var newBookingDifferentThanExisting = newBooking && existingPaidBooking && existingPaidBooking.id !== newBooking.id;
 
         if (params.forceNewConversation
@@ -365,7 +365,7 @@ function createMessageWithExistingConversation(args) {
         var isFirstMessage = ! messages.length;
 
         if (conversation.senderId === createAttrs.senderId && createAttrs.publicContent) {
-            // concatenate public and private parts for all booker messages except first one
+            // concatenate public and private parts for all taker messages except first one
             // should not happen if managed correctly client-side (public input hidden)
             if (! createAttrs.privateContent) {
                 createAttrs.privateContent = createAttrs.publicContent;
@@ -483,7 +483,7 @@ function _sendNewMessageEmailsAndSms(data, logger) {
                         message: message,
                         sender: sender,
                         senderMedia: senderMedia,
-                        booking: booking // to check if booking has already been validated
+                        booking: booking // to check if booking has already been accepted
                     })
                     .catch(err => {
                         logger.error({ err: err }, "send new message email");
@@ -495,7 +495,7 @@ function _sendNewMessageEmailsAndSms(data, logger) {
             }
 
             // Send SMS to owner when pre-booking or firstMessage, and to giver when firstMessage
-            // SMS is already sent after booking payment (confirmation) or validation in Booking Controller
+            // SMS is already sent after booking payment or acceptation in Booking Controller
             if (message.bookingStatus === "pre-booking" || (firstMessage && receiverIsOwner)) {
                 SmsTemplateService
                     .sendSmsTemplate('new-message', {

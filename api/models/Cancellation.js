@@ -44,7 +44,7 @@ var params = {
         "out-of-stock",
 
         "rejected",
-        "booker-cancellation",
+        "taker-cancellation",
 
         "assessment-missed",
         "assessment-refused",

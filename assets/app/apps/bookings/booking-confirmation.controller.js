@@ -60,12 +60,12 @@
                 vm.noImage             = (results.myImage.url === platform.getDefaultProfileImageUrl());
                 bookingPaymentMessages = results.bookingPaymentMessages || {};
 
-                if (vm.currentUser.id !== vm.booking.bookerId) {
+                if (vm.currentUser.id !== vm.booking.takerId) {
                     $state.go("item", { id: vm.booking.itemId });
-                    return $q.reject("User is not booker");
+                    return $q.reject("User is not taker");
                 }
 
-                if (vm.booking.confirmedDate) {
+                if (vm.booking.paidDate) {
                     vm.paymentDone = true;
                 }
 
@@ -203,7 +203,7 @@
                     booking = res;
                 }
 
-                if (booking.confirmedDate) {
+                if (booking.paidDate) {
                     vm.paymentProcessing = false;
                     vm.paymentDone = true;
                 }

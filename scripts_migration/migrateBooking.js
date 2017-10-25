@@ -33,6 +33,7 @@ Sails.load({
                 quantity: 1,
                 timeUnit: 'd',
                 nbTimeUnits: booking.nbBookedDays,
+                currency: 'EUR',
             };
 
             if (booking.startDate && TimeService.isDateString(booking.startDate, { onlyDate: true })) {

@@ -107,14 +107,14 @@ function cancelBooking(booking, transactionManager, args) {
             reasonType: args.reasonType,
             reason: args.reason,
             ownerId: booking.ownerId,
-            takerId: booking.bookerId,
+            takerId: booking.takerId,
             trigger: args.trigger
         };
 
         var cancellation = yield Cancellation.create(createAttrs);
 
         // replenish stock only if the booking is paid
-        if (doReplenishStock && booking.confirmedDate) {
+        if (doReplenishStock && booking.paidDate) {
             yield Booking.updateItemQuantity(booking, { actionType: 'add' });
         }
 
@@ -127,7 +127,7 @@ function cancelBooking(booking, transactionManager, args) {
 
 function getBookingAssessments(booking) {
     return Promise.coroutine(function* () {
-        if (! booking.confirmedDate || ! booking.validatedDate) {
+        if (! booking.paidDate || ! booking.acceptedDate) {
             return {};
         }
 
@@ -182,10 +182,10 @@ function cancelBookingPayment(booking, transactionManager, args) {
     var error;
 
     return Promise.coroutine(function* () {
-        var booker = yield User.findOne({ id: booking.bookerId });
-        if (! booker) {
-            error = new Error("Booker not found");
-            error.bookerId = booking.bookerId;
+        var taker = yield User.findOne({ id: booking.takerId });
+        if (! taker) {
+            error = new Error("Taker not found");
+            error.takerId = booking.takerId;
             throw error;
         }
 
@@ -210,7 +210,7 @@ function cancelBookingPayment(booking, transactionManager, args) {
 
         // reimburse payment and taker fees
         if (payment && refundTakerFees) {
-            return yield BookingPaymentService.cancelPayinPayment(booking, transactionManager, booker);
+            return yield BookingPaymentService.cancelPayinPayment(booking, transactionManager, taker);
         }
 
         // reimburse taker fees only
@@ -230,12 +230,12 @@ function cancelBookingPayment(booking, transactionManager, args) {
         // reimburse payment only
         if (payment && ! refundTakerFees) {
             booking = yield BookingPaymentService
-                .cancelPayinPayment(booking, transactionManager, booker, {
+                .cancelPayinPayment(booking, transactionManager, taker, {
                     amount: MathService.roundDecimal(booking.takerPrice - booking.takerFees, 2)
                 });
 
             booking = yield BookingPaymentService
-                .transferPayment(booking, transactionManager, booker, owner, {
+                .transferPayment(booking, transactionManager, taker, owner, {
                     amount: 0,
                     ownerFees: 0,
                     takerFees: booking.takerFees
@@ -247,7 +247,7 @@ function cancelBookingPayment(booking, transactionManager, args) {
         // reimburse nothing
         if (! payment && ! refundTakerFees) {
             booking = yield BookingPaymentService
-                .transferPayment(booking, transactionManager, booker, owner);
+                .transferPayment(booking, transactionManager, taker, owner);
 
             if (owner.bankAccountId) {
                 booking = yield BookingPaymentService
@@ -260,7 +260,7 @@ function cancelBookingPayment(booking, transactionManager, args) {
 }
 
 /**
- * After a booking is paid and validated, cancel other bookings that cannot be performed anymore
+ * After a booking is paid and accepted, cancel other bookings that cannot be performed anymore
  * due to listing type constraints
  * @param {Object} booking
  * @param {Object} logger
@@ -285,7 +285,7 @@ async function cancelOtherBookings(booking, logger) {
             itemId: booking.itemId,
             quantity: { '>': item.quantity },
             id: { '!': booking.id },
-            confirmedDate: null,
+            paidDate: null,
             cancellationId: null,
         });
     // time does matter (like renting)

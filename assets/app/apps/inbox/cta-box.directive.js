@@ -16,7 +16,7 @@
                 item: "=",
                 isTaker: "=",
                 isOwner: "=",
-                onValidate: "=",
+                onAccept: "=",
                 onReject: "=",
                 onMessage: "=",
                 hasBankAccount: "=",
