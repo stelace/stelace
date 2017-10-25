@@ -94,6 +94,7 @@ async function createBooking({
         listingType,
         user,
         nbTimeUnits,
+        quantity: bookingAttrs.quantity,
         now,
     });
 
@@ -229,6 +230,7 @@ async function setBookingPrices({
     listingType,
     user,
     nbTimeUnits,
+    quantity,
     now,
 }) {
     const owner = await User.findOne({ id: item.ownerId });
@@ -253,7 +255,12 @@ async function setBookingPrices({
         ownerPrice,
         freeValue,
         discountValue,
-    } = await getOwnerPriceValue({ listingType, item, nbTimeUnits });
+    } = await getOwnerPriceValue({
+        listingType,
+        item,
+        nbTimeUnits,
+        quantity,
+    });
 
     var priceResult = PricingService.getPriceAfterRebateAndFees({
         ownerPrice: ownerPrice,
@@ -295,7 +302,7 @@ async function getFeesValues({ owner, taker, pricing, now }) {
     };
 }
 
-async function getOwnerPriceValue({ listingType, item, nbTimeUnits }) {
+async function getOwnerPriceValue({ listingType, item, nbTimeUnits, quantity = 1 }) {
     let ownerPrice;
     let discountValue;
     let freeValue;
@@ -318,7 +325,7 @@ async function getOwnerPriceValue({ listingType, item, nbTimeUnits }) {
     }
 
     return {
-        ownerPrice,
+        ownerPrice: ownerPrice * quantity,
         freeValue,
         discountValue,
     };
