@@ -1,6 +1,6 @@
 /* global
     EmailTemplateService, GamificationService, GeneratorService,
-    IncomeReportService, Location, Media, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User
+    IncomeReportService, Location, Media, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User, UserService
 */
 
 /**
@@ -166,46 +166,27 @@ function find(req, res) {
     }
 }
 
-function findOne(req, res) {
-    var id = req.param("id");
-    var access = "others";
+async function findOne(req, res) {
+    const id = req.param('id');
+    const access = 'others';
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return User.findOne({
-                id: id,
-                destroyed: false
-            });
-        })
-        .then(user => {
-            if (! user) {
-                throw new NotFoundError();
-            }
+    try {
+        let { user, media } = await UserService.findUser(id, { populateMedia: true });
 
-            return User
-                .getMedia([user])
-                .then(hashMedias => {
-                    return [
-                        user,
-                        hashMedias[user.id]
-                    ];
-                });
-        })
-        .spread((user, userMedia) => {
-            var hasValidPhone = user.phone && user.phoneCheck;
-            var userPhone     = user.phone;
+        user = User.expose(user, access);
+        user.media = Media.expose(media, access);
 
-            user       = User.expose(user, access);
-            user.media = Media.expose(userMedia, access);
+        const hasValidPhone = user.phone && user.phoneCheck;
+        const userPhone     = user.phone;
 
-            if (hasValidPhone) {
-                user.phonePart = ToolsService.obfuscatePhone(userPhone);
-            }
+        if (hasValidPhone) {
+            user.phonePart = ToolsService.obfuscatePhone(userPhone);
+        }
 
-            res.json(user);
-        })
-        .catch(res.sendError);
+        res.json(user);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function create(req, res) {

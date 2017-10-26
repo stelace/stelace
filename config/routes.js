@@ -171,6 +171,27 @@ module.exports.routes = {
 
 
 
+    // API ROUTES
+
+    'post /api/v0.1/api-key': 'v0_1/ApiKeyController.create',
+    'delete /api/v0.1/api-key': 'v0_1/ApiKeyController.destroy',
+
+    'get /api/v0.1/bookings': 'v0_1/BookingController.find',
+    'get /api/v0.1/bookings/:id': 'v0_1/BookingController.findOne',
+
+    'get /api/v0.1/listings': 'v0_1/ListingController.find',
+    'get /api/v0.1/listings/:id': 'v0_1/ListingController.findOne',
+
+    'get /api/v0.1/listing-types': 'v0_1/ListingTypeController.find',
+    'get /api/v0.1/listing-types/:id': 'v0_1/ListingTypeController.findOne',
+
+    'get /api/v0.1/searches': 'v0_1/SearchController.find',
+    'get /api/v0.1/searches/:id': 'v0_1/SearchController.findOne',
+
+    'get /api/v0.1/users': 'v0_1/UserController.find',
+    'get /api/v0.1/users/:id': 'v0_1/UserController.findOne',
+
+
     ////////////////
     // App routes //
     ////////////////

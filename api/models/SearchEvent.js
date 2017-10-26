@@ -21,6 +21,27 @@ module.exports = {
         device: "string",
         userAgent: "string",
         completionDuration: "integer" // in milliseconds
-    }
+    },
+
+    getAccessFields,
 
 };
+
+function getAccessFields(access) {
+    const accessFields = {
+        self: [
+            'id',
+            'type',
+            'userId',
+            'tagsIds',
+            'listingTypeId',
+            'query',
+            'page',
+            'limit',
+            'params',
+            'createdDate',
+        ],
+    };
+
+    return accessFields[access];
+}

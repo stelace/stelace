@@ -258,4 +258,6 @@ module.exports = {
 
     priceRecommendationUrl: '',
 
+    providerApiKey: '',
+
 };

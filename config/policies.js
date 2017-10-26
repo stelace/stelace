@@ -171,7 +171,41 @@ module.exports.policies = {
         applyFreeFees: ["isAuthenticated", "getUserInfo"],
         getIncomeReport: ["isAuthenticated", "getUserInfo"],
         getIncomeReportPdf: true,
-    }
+    },
+
+
+
+    // API ROUTES
+
+    'v0_1/ApiKeyController': {
+        '*': ['isProvider'],
+    },
+
+    'v0_1/BookingController': {
+        find: ['isApiAuthenticated'],
+        findOne: ['isApiAuthenticated'],
+    },
+
+    'v0_1/ListingController': {
+        find: ['isApiAuthenticated'],
+        findOne: ['isApiAuthenticated'],
+    },
+
+    'v0_1/ListingTypeController': {
+        find: ['isApiAuthenticated'],
+        findOne: ['isApiAuthenticated'],
+    },
+
+    'v0_1/SearchController': {
+        find: ['isApiAuthenticated'],
+        findOne: ['isApiAuthenticated'],
+    },
+
+    'v0_1/UserController': {
+        find: ['isApiAuthenticated'],
+        findOne: ['isApiAuthenticated'],
+    },
+
 
     /***************************************************************************
     *                                                                          *

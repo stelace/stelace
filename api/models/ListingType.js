@@ -28,4 +28,22 @@ module.exports = {
         },
     },
 
+    getAccessFields,
+
 };
+
+function getAccessFields(access) {
+    const accessFields = {
+        self: [
+            'id',
+            'name',
+            'properties',
+            'config',
+            'active',
+            'createdDate',
+            'updatedDate',
+        ],
+    };
+
+    return accessFields[access];
+}
