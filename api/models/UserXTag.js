@@ -1,7 +1,7 @@
 /**
 * UserXTag.js
 *
-* @description :: Matchmaking between users searching items and potentiel owners relies on this model
+* @description :: Matchmaking between users searching listings and potentiel owners relies on this model
 * @docs        :: http://sailsjs.org/#!documentation/models
 */
 

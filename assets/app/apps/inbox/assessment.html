@@ -34,7 +34,7 @@
                     </span>
                 </div>
                 <div class="text--light">
-                    Tant que cet état des lieux n'aura pas été signé, vous serez toujours considéré comme responsable de l'objet "{{::vm.item.name}}".
+                    Tant que cet état des lieux n'aura pas été signé, vous serez toujours considéré comme responsable de l'objet "{{::vm.listing.name}}".
                 </div>
                 <div class="margin-top text--semibold"
                     ng-if="vm.bankAccountMissing">
@@ -177,8 +177,8 @@
                         </span>
                     </div>
                     <div class="margin-bottom">Commentaire&nbsp;: {{::vm.otherRating.comment}}</div>
-                    <div ng-if="::vm.otherRating.itemComment">
-                        Commentaire sur l'objet&nbsp;: {{::vm.otherRating.itemComment}}
+                    <div ng-if="::vm.otherRating.listingComment">
+                        Commentaire sur l'objet&nbsp;: {{::vm.otherRating.listingComment}}
                     </div>
                 </div>
                 <div class="text--vsmall margin-bottom"
@@ -233,13 +233,13 @@
                 </div>
                 <label for="rating-item-comment"
                     ng-if="! vm.isOwner">
-                    Avis sur "{{::vm.item.name}}"
+                    Avis sur "{{::vm.listing.name}}"
                 </label>
                 <textarea id="rating-item-comment"
                     rows="3"
                     ng-maxlength="2000"
                     placeholder="Merci de laisser un commentaire sur l'objet pour aider les autres membres à faire leur choix ;)"
-                    ng-model="vm.myRating.itemComment"
+                    ng-model="vm.myRating.listingComment"
                     ng-model-options="{ debounce: 300 }"
                     ng-disabled="vm.ratingsVisible"
                     ng-if="! vm.isOwner"
@@ -294,7 +294,7 @@
                 à {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}.
             </div>
             <div class="text--light">
-                Il est indispensable que {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} signe l'état des lieux rempli dans son propre compte grâce à votre code secret pour valider la transmission de l'objet "{{::vm.item.name}}". Vous pourrez alors laisser un commentaire à {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}.
+                Il est indispensable que {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} signe l'état des lieux rempli dans son propre compte grâce à votre code secret pour valider la transmission de l'objet "{{::vm.listing.name}}". Vous pourrez alors laisser un commentaire à {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}.
             </div>
         </div>
 

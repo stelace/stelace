@@ -1,4 +1,4 @@
-/* global Bookmark, Item, TimeService */
+/* global Bookmark, Listing, TimeService */
 
 /**
  * BookmarkController
@@ -30,7 +30,7 @@ function findOne(req, res) {
 
 function create(req, res) {
     var filteredAttrs = [
-        "itemId",
+        "listingId",
         "type",
         "wishDate",
         "reference"
@@ -38,7 +38,7 @@ function create(req, res) {
     var attrs = _.pick(req.allParams(), filteredAttrs);
     var access = "self";
 
-    if (! attrs.itemId
+    if (! attrs.listingId
         || ! _.contains(Bookmark.get("types"), attrs.type)
         || (attrs.wishDate && ! TimeService.isDateString(attrs.wishDate, { onlyDate: true }))
         || (attrs.reference && typeof attrs.reference !== "object")
@@ -49,18 +49,18 @@ function create(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return Item.findOne({ id: attrs.itemId });
+            return Listing.findOne({ id: attrs.listingId });
         })
-        .then(item => {
-            if (! item) {
+        .then(listing => {
+            if (! listing) {
                 throw new NotFoundError;
             }
-            if (item.ownerId === req.user.id) {
-                throw new ForbiddenError("owner can't bookmark own items");
+            if (listing.ownerId === req.user.id) {
+                throw new ForbiddenError("owner can't bookmark own listings");
             }
 
             return Bookmark.findOne({
-                itemId: item.id,
+                listingId: listing.id,
                 userId: req.user.id
             });
         })
@@ -125,13 +125,13 @@ function destroyLink(req, res) {
             if (! bookmarks.length) {
                 res.redirect("/?destroy-bookmark=success");
             } else {
-                return Item
-                    .findOne({ id: bookmarks[0].itemId })
-                    .then(item => {
-                        if (! item) {
+                return Listing
+                    .findOne({ id: bookmarks[0].listingId })
+                    .then(listing => {
+                        if (! listing) {
                             res.redirect("/?destroy-bookmark=success");
                         } else {
-                            var redirectURL = sails.config.stelace.url + "/item/" + item.nameURLSafe + "-" + item.id + "?destroy-bookmark=success";
+                            var redirectURL = sails.config.stelace.url + "/listing/" + listing.nameURLSafe + "-" + listing.id + "?destroy-bookmark=success";
                             res.redirect(redirectURL);
                         }
                     });

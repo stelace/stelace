@@ -1,4 +1,4 @@
-/* global Assessment, Item, ModelSnapshot, PhantomService, PricingService, ToolsService, User */
+/* global Assessment, Listing, ModelSnapshot, PhantomService, PricingService, ToolsService, User */
 
 module.exports = {
 
@@ -100,7 +100,7 @@ function _getData(booking) {
 
             if (initialAssessment) {
                 snapshotsIds = [
-                    initialAssessment.itemSnapshotId,
+                    initialAssessment.listingSnapshotId,
                     initialAssessment.ownerSnapshotId,
                     initialAssessment.takerSnapshotId
                 ];
@@ -129,7 +129,7 @@ function _getData(booking) {
             return [
                 initialAssessment,
                 finalAssessment,
-                ! initialAssessmentSigned ? Item.findOne({ id: booking.itemId }) : null,
+                ! initialAssessmentSigned ? Listing.findOne({ id: booking.listingId }) : null,
                 ! initialAssessmentSigned ? User.findOne({ id: booking.ownerId }) : null,
                 ! initialAssessmentSigned ? User.findOne({ id: booking.takerId }) : null,
                 ! initialAssessmentSigned ? getMainLocation(booking.ownerId) : null,
@@ -137,9 +137,9 @@ function _getData(booking) {
                 initialAssessment ? getSnapshots(snapshotsIds) : []
             ];
         })
-        .spread((initialAssessment, finalAssessment, item, owner, taker, ownerMainLocation, takerMainLocation, snapshots) => {
+        .spread((initialAssessment, finalAssessment, listing, owner, taker, ownerMainLocation, takerMainLocation, snapshots) => {
             var indexedSnapshots = _.indexBy(snapshots, "id");
-            var itemSnapshot              = initialAssessment ? indexedSnapshots[initialAssessment.itemSnapshotId] : null;
+            var listingSnapshot              = initialAssessment ? indexedSnapshots[initialAssessment.listingSnapshotId] : null;
             var ownerSnapshot             = initialAssessment ? indexedSnapshots[initialAssessment.ownerSnapshotId] : null;
             var takerSnapshot             = initialAssessment ? indexedSnapshots[initialAssessment.takerSnapshotId] : null;
             var ownerMainLocationSnapshot = initialAssessment && initialAssessment.ownerMainLocationSnapshotId ? indexedSnapshots[initialAssessment.ownerMainLocationSnapshotId] : null;
@@ -154,15 +154,15 @@ function _getData(booking) {
             // before signin, take the most recent changes
             // after signin, take snapshots
             if (initialAssessment) {
-                data.item  = (initialAssessment.signedDate ? itemSnapshot : (item || itemSnapshot));
+                data.listing  = (initialAssessment.signedDate ? listingSnapshot : (listing || listingSnapshot));
                 data.owner = (initialAssessment.signedDate ? ownerSnapshot : (owner || ownerSnapshot));
                 data.taker = (initialAssessment.signedDate ? takerSnapshot : (taker || takerSnapshot));
             } else {
-                data.item  = item;
+                data.listing  = listing;
                 data.owner = owner;
                 data.taker = taker;
 
-                if (! item || ! owner || ! taker) {
+                if (! listing || ! owner || ! taker) {
                     var error = new Error("Missing references");
                     error.bookingId = booking.id;
                     throw error;

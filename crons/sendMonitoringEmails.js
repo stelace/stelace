@@ -1,4 +1,4 @@
-/* global Assessment, Booking, BootstrapService, EmailTemplateService, Item, LoggerService, MonitoringService */
+/* global Assessment, Booking, BootstrapService, EmailTemplateService, Listing, LoggerService, MonitoringService */
 
 var Sails  = require('sails');
 var moment = require('moment');
@@ -122,8 +122,8 @@ Sails.load({
                     toDate: toDate,
                     newUsers: getNewUsers(fromDate, toDate),
                     newLinks: getNewLinks(fromDate, toDate),
-                    newItems: getNewItems(fromDate, toDate),
-                    itemsToValidate: getItemsToValidate(fromDate, toDate),
+                    newListings: getNewListings(fromDate, toDate),
+                    listingsToValidate: getListingsToValidate(fromDate, toDate),
                     acceptedBookings: getAcceptedBookings(fromDate, toDate),
                     bookingsToAccept: getBookingsToAccept(fromDate, toDate),
                     oldBookingsToAccept: getOldBookingsToAccept(fromDate, toDate),
@@ -159,28 +159,28 @@ Sails.load({
                 });
         }
 
-        function getNewItems(fromDate, toDate) {
+        function getNewListings(fromDate, toDate) {
             return MonitoringService
-                .getItems({
+                .getListings({
                     fromDate: fromDate,
                     toDate: toDate
                 })
                 .catch(err => {
-                    logger.error({ err: err }, "Fail getting new items");
+                    logger.error({ err: err }, "Fail getting new listings");
                     return null;
                 });
         }
 
-        function getItemsToValidate(fromDate, toDate) {
+        function getListingsToValidate(fromDate, toDate) {
             return MonitoringService
-                .getItems({
+                .getListings({
                     fromDate: fromDate,
                     toDate: toDate,
                     validated: false
                 })
-                .then(items => _populateItems(items))
+                .then(listings => _populateListings(listings))
                 .catch(err => {
-                    logger.error({ err: err }, "Fail getting items to validate");
+                    logger.error({ err: err }, "Fail getting listings to validate");
                     return null;
                 });
         }
@@ -286,16 +286,16 @@ Sails.load({
 
                     return [
                         assessments,
-                        Item.find({ id: _.pluck(assessments, "itemId") })
+                        Listing.find({ id: _.pluck(assessments, "listingId") })
                     ];
                 })
-                .spread((assessments, items) => {
-                    var indexedItems = _.indexBy(items, "id");
+                .spread((assessments, listings) => {
+                    var indexedListings = _.indexBy(listings, "id");
 
                     _.forEach(assessments, assessment => {
-                        var item = indexedItems[assessment.itemId];
-                        if (item) {
-                            assessment.item = item;
+                        var listing = indexedListings[assessment.listingId];
+                        if (listing) {
+                            assessment.listing = listing;
                         }
                     });
 
@@ -307,10 +307,10 @@ Sails.load({
                 });
         }
 
-        function _populateItems(items) {
-            var locationsIds = _.reduce(items, (memo, item) => {
-                if (item.locations && item.locations.length) {
-                    memo.push(item.locations[0]);
+        function _populateListings(listings) {
+            var locationsIds = _.reduce(listings, (memo, listing) => {
+                if (listing.locations && listing.locations.length) {
+                    memo.push(listing.locations[0]);
                 }
                 return memo;
             }, []);
@@ -320,27 +320,27 @@ Sails.load({
                 .then(locations => {
                     var indexedLocations = _.indexBy(locations, "id");
 
-                    return _.reduce(items, (memo, item) => {
-                        if (item.locations && item.locations.length) {
-                            var location = indexedLocations[item.locations[0]];
-                            item.location = location;
+                    return _.reduce(listings, (memo, listing) => {
+                        if (listing.locations && listing.locations.length) {
+                            var location = indexedLocations[listing.locations[0]];
+                            listing.location = location;
                         }
-                        memo.push(item);
+                        memo.push(listing);
                         return memo;
                     }, []);
                 });
         }
 
         function _populateBookings(bookings) {
-            return Item
-                .find({ id: _.pluck(bookings, "itemId") })
-                .then(items => {
-                    var indexedItems = _.indexBy(items, "id");
+            return Listing
+                .find({ id: _.pluck(bookings, "listingId") })
+                .then(listings => {
+                    var indexedListings = _.indexBy(listings, "id");
 
                     return _.reduce(bookings, (memo, booking) => {
-                        var item = indexedItems[booking.itemId];
-                        if (item) {
-                            booking.item = item;
+                        var listing = indexedListings[booking.listingId];
+                        if (listing) {
+                            booking.listing = listing;
                             memo.push(booking);
                         }
                         return memo;
@@ -374,13 +374,13 @@ Sails.load({
         subject = `Rapport ${reportSuffix}`;
 
         var nbNewUsers    = data.newUsers ? data.newUsers.length : null;
-        var nbNewItems    = data.newItems ? data.newItems.length : null;
+        var nbNewListings = data.newListings ? data.newListings.length : null;
         var nbNewBookings = data.acceptedBookings
             ? data.acceptedBookings.length
             : null;
 
         previewContent += `${nbNewUsers !== null ? nbNewUsers : errorMsg} ${pluralize(nbNewUsers, "inscrit")}`;
-        previewContent += ` - ${nbNewItems !== null ? nbNewItems : errorMsg} ${pluralize(nbNewItems, "objet")}`;
+        previewContent += ` - ${nbNewListings !== null ? nbNewListings : errorMsg} ${pluralize(nbNewListings, "objet")}`;
         previewContent += ` - ${nbNewBookings !== null ? nbNewBookings : errorMsg} ${pluralize(nbNewBookings, "réservation")}`;
 
         leadingContent += `Voici le rapport d'activité ${reportSuffix}&nbsp;:<br>`;
@@ -415,33 +415,33 @@ Sails.load({
 
         content += `<br><h3>Objets</h3>`;
 
-        ///////////////
-        // NEW ITEMS //
-        ///////////////
+        //////////////////
+        // NEW LISTINGS //
+        //////////////////
         content += `Objets ajoutés&nbsp;: `;
-        if (data.newItems) {
-            content += data.newItems.length;
+        if (data.newListings) {
+            content += data.newListings.length;
         } else {
             content += errorMsg;
         }
         content += `<br>`;
 
-        ///////////////////////
-        // ITEMS TO VALIDATE //
-        ///////////////////////
+        //////////////////////////
+        // LISTINGS TO VALIDATE //
+        //////////////////////////
         if (periodType === "day") {
             content += `Objets à valider&nbsp;: `;
-            if (data.itemsToValidate) {
-                content += data.itemsToValidate.length;
+            if (data.listingsToValidate) {
+                content += data.listingsToValidate.length;
 
-                if (data.itemsToValidate.length) {
+                if (data.listingsToValidate.length) {
                     content += `<ul style="margin: 0;">`;
-                    _.forEach(data.itemsToValidate, item => {
+                    _.forEach(data.listingsToValidate, listing => {
                         content += `<li>`;
-                        content += `User n°${item.ownerId} - ${item.name} [${item.id}] - `;
+                        content += `User n°${listing.ownerId} - ${listing.name} [${listing.id}] - `;
 
-                        if (item.location) {
-                            content += displayLocation(item.location);
+                        if (listing.location) {
+                            content += displayLocation(listing.location);
                         } else {
                             content += `Pas de lieu favori trouvé`;
                         }
@@ -494,10 +494,10 @@ Sails.load({
                             - User n°${booking.ownerId} -
                         `;
 
-                        if (booking.item) {
-                            content += `${booking.item.name} [${booking.itemId}]`;
+                        if (booking.listing) {
+                            content += `${booking.listing.name} [${booking.listingId}]`;
                         } else {
-                            content += `Objet introuvable [${booking.itemId}]`;
+                            content += `Objet introuvable [${booking.listingId}]`;
                         }
 
                         content += ` - ${booking.takerPrice}€`;
@@ -544,10 +544,10 @@ Sails.load({
                         - User n°${booking.ownerId} -
                     `;
 
-                    if (booking.item) {
-                        content += `${booking.item.name} [${booking.itemId}]`;
+                    if (booking.listing) {
+                        content += `${booking.listing.name} [${booking.listingId}]`;
                     } else {
-                        content += `Objet introuvable [${booking.itemId}]`;
+                        content += `Objet introuvable [${booking.listingId}]`;
                     }
 
                     content += ` - ${booking.takerPrice}€`;
@@ -594,10 +594,10 @@ Sails.load({
                             - Taker n°${booking.takerId} -
                         `;
 
-                        if (booking.item) {
-                            content += `${booking.item.name} [${booking.itemId}]`;
+                        if (booking.listing) {
+                            content += `${booking.listing.name} [${booking.listingId}]`;
                         } else {
-                            content += `Objet introuvable [${booking.itemId}]`;
+                            content += `Objet introuvable [${booking.listingId}]`;
                         }
 
                         content += `
@@ -650,10 +650,10 @@ Sails.load({
 
                         content += ` - User n°${Assessment.getRealGiverId(assessment)} - `;
 
-                        if (assessment.item) {
-                            content += `${assessment.item.name} [${assessment.itemId}]`;
+                        if (assessment.listing) {
+                            content += `${assessment.listing.name} [${assessment.listingId}]`;
                         } else {
-                            content += `Objet introuvable [${assessment.itemId}]`;
+                            content += `Objet introuvable [${assessment.listingId}]`;
                         }
                         content += `</li>`;
                     });

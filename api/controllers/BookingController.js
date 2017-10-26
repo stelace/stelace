@@ -1,7 +1,7 @@
 /* global
     Assessment, AssessmentService, Booking, BookingService, BookingGamificationService,
     Cancellation, CancellationService, Card, ContractService, Conversation,
-    EmailTemplateService, FileCachingService, GeneratorService, Item, Location, Message, mangopay,
+    EmailTemplateService, FileCachingService, GeneratorService, Listing, Location, Message, mangopay,
     ModelSnapshot, PaymentError, SmsTemplateService, StelaceEventService, Token, TransactionService, User
 */
 
@@ -51,7 +51,7 @@ function initMessageCache() {
             filepath: path.join(sails.config.tmpDir, "bookingPaymentMessages.json")
         });
 
-        messageCache.loadFromFile();
+        yield messageCache.loadFromFile();
     })();
 }
 
@@ -70,14 +70,14 @@ function findOne(req, res) {
         }
 
         var result = yield Promise.props({
-            itemSnapshot: ModelSnapshot.fetch(booking.itemSnapshotId),
+            listingSnapshot: ModelSnapshot.fetch(booking.listingSnapshotId),
             cancellation: booking.cancellationId ? Cancellation.findOne({ id: booking.cancellationId }) : null
         });
 
-        var itemSnapshot = result.itemSnapshot;
+        var listingSnapshot = result.listingSnapshot;
         var cancellation = result.cancellation;
 
-        if (! itemSnapshot
+        if (! listingSnapshot
             || (booking.cancellationId && ! cancellation)
         ) {
             throw new NotFoundError();
@@ -90,7 +90,7 @@ function findOne(req, res) {
         }
 
         var b = Booking.expose(booking, access);
-        b.itemSnapshot = Item.expose(itemSnapshot, "others");
+        b.listingSnapshot = Listing.expose(listingSnapshot, "others");
         if (cancellation) {
             b.cancellation = Cancellation.expose(cancellation, "others");
         }
@@ -106,8 +106,8 @@ async function create(req, res) {
 
     attrs.user = req.user;
 
-    if (typeof attrs.itemId !== 'undefined') {
-        attrs.itemId = parseInt(attrs.itemId, 10);
+    if (typeof attrs.listingId !== 'undefined') {
+        attrs.listingId = parseInt(attrs.listingId, 10);
     }
     if (typeof attrs.nbTimeUnits !== 'undefined') {
         attrs.nbTimeUnits = parseInt(attrs.nbTimeUnits, 10);
@@ -290,7 +290,7 @@ function cancel(req, res) {
             trigger: trigger,
         });
 
-        yield Booking.updateItemQuantity(booking, { actionType: 'add' });
+        yield Booking.updateListingQuantity(booking, { actionType: 'add' });
 
         if (req.user.id === booking.takerId) {
             access = "self";
@@ -329,10 +329,11 @@ function payment(req, res) {
         return res.badRequest();
     }
 
-    initMessageCache();
-
     return Promise
         .resolve()
+        .then(() => {
+            return initMessageCache();
+        })
         .then(() => {
             return [
                 Booking.findOne({ id: id }),
@@ -696,7 +697,7 @@ function paymentSecure(req, res) {
  * - *preauthorization
  * - *operation
  * - *logger
- * - item
+ * - listing
  * - taker
  * - req
  */
@@ -784,7 +785,7 @@ function _paymentProcessAfterPreauth(data) {
  * - *booking
  * - *operation
  * - *logger
- - - item
+ - - listing
     * - taker
     * - req
     */
@@ -793,17 +794,18 @@ function _paymentEndProcess(data) {
     var booking   = data.booking;
     var operation = data.operation;
     var logger    = data.logger;
-    var item      = data.item;
-    var taker    = data.taker;
+    var listing   = data.listing;
+    var taker     = data.taker;
     var req       = data.req;
 
     var updateAttrs = {};
     var now = moment().toISOString();
 
-    initMessageCache();
-
     return Promise
         .resolve()
+        .then(() => {
+            return initMessageCache();
+        })
         .then(() => {
             if (operation === "deposit" || operation === "deposit-payment") {
                 updateAttrs.depositDate = now;
@@ -822,7 +824,7 @@ function _paymentEndProcess(data) {
                 var data2 = {
                     booking: booking,
                     logger: logger,
-                    item: item,
+                    listing: listing,
                     taker: taker
                 };
 
@@ -851,7 +853,7 @@ function _paymentEndProcess(data) {
         })
         .then(() => {
             // update quantity before cancelling other bookings
-            return Booking.updateItemQuantity(booking, { actionType: 'remove' });
+            return Booking.updateListingQuantity(booking, { actionType: 'remove' });
         })
         .then(() => {
             if (booking.paidDate && booking.acceptedDate) {
@@ -875,14 +877,14 @@ function _paymentEndProcess(data) {
  * @param data
  * - *booking
  * - *logger
- * - item
+ * - listing
  * - taker
  */
 function _sendBookingPendingEmailsSms(data) {
     var booking = data.booking;
     var logger  = data.logger;
-    var item    = data.item;
-    var taker  = data.taker;
+    var listing = data.listing;
+    var taker   = data.taker;
     var message = messageCache.get(booking.id);
 
     var error;
@@ -894,7 +896,7 @@ function _sendBookingPendingEmailsSms(data) {
                 throw new Error("missing args");
             }
 
-            return getData(booking, item, taker, logger);
+            return getData(booking, listing, taker, logger);
         })
         .then(data => {
             return getConversation(booking, message, logger)
@@ -907,7 +909,7 @@ function _sendBookingPendingEmailsSms(data) {
 
 
 
-    function getData(booking, item, taker, logger) {
+    function getData(booking, listing, taker, logger) {
         var data         = {};
 
         return Promise
@@ -915,19 +917,19 @@ function _sendBookingPendingEmailsSms(data) {
             .then(() => {
 
                 return [
-                    ! item ? Item.findOne({ id: booking.itemId }) : item,
+                    ! listing ? Listing.findOne({ id: booking.listingId }) : listing,
                     User.findOne({ id: booking.ownerId }),
                     ! taker ? User.findOne({ id: booking.takerId }) : taker
                 ];
             })
-            .spread((item, owner, taker) => {
-                if (! item
+            .spread((listing, owner, taker) => {
+                if (! listing
                     || ! taker
                     || ! owner
                 ) {
                     error = new Error("Booking confirm missing references");
-                    if (! item) {
-                        error.itemId = booking.itemId;
+                    if (! listing) {
+                        error.listingId = booking.listingId;
                     }
                     if (! owner) {
                         error.ownerId = booking.ownerId;
@@ -936,21 +938,21 @@ function _sendBookingPendingEmailsSms(data) {
                 }
 
                 data.booking      = booking;
-                data.item         = item;
+                data.listing      = listing;
                 data.owner        = owner;
                 data.taker        = taker;
                 data.logger       = logger;
 
-                return Item
-                    .getMedias([item])
-                    .then(hashMedias => hashMedias[item.id])
+                return Listing
+                    .getMedias([listing])
+                    .then(hashMedias => hashMedias[listing.id])
                     .catch(err => {
                         logger.error({ err: err }); // not critical
                         return [];
                     });
             })
-            .then(itemMedias => {
-                data.itemMedias = itemMedias;
+            .then(listingMedias => {
+                data.listingMedias = listingMedias;
                 return data;
             });
     }
@@ -967,7 +969,7 @@ function _sendBookingPendingEmailsSms(data) {
      */
     function getConversation(booking, message, logger) {
         var messageAttrs  = {
-            itemId: booking.itemId,
+            listingId: booking.listingId,
             listingTypeId: booking.listingTypeId,
             bookingId: booking.id,
             senderId: booking.takerId,
@@ -996,10 +998,10 @@ function _sendBookingPendingEmailsSms(data) {
 
     function sendEmails(data) {
         var booking      = data.booking;
-        var item         = data.item;
+        var listing      = data.listing;
         var owner        = data.owner;
         var taker        = data.taker;
-        var itemMedias   = data.itemMedias;
+        var listingMedias = data.listingMedias;
         var conversation = data.conversation;
         var logger       = data.logger;
 
@@ -1024,9 +1026,9 @@ function _sendBookingPendingEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('booking-pending-taker', {
                     user: taker,
-                    item: item,
+                    listing: listing,
                     booking: booking,
-                    itemMedias: itemMedias,
+                    listingMedias: listingMedias,
                     owner: owner,
                     conversation: conversation
                 })
@@ -1040,9 +1042,9 @@ function _sendBookingPendingEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('booking-pending-owner', {
                     user: owner,
-                    item: item,
+                    listing: listing,
                     booking: booking,
-                    itemMedias: itemMedias,
+                    listingMedias: listingMedias,
                     taker: taker,
                     conversation: conversation
                 })
@@ -1057,7 +1059,7 @@ function _sendBookingPendingEmailsSms(data) {
                 return SmsTemplateService
                     .sendSmsTemplate('booking-pending-owner', {
                         user: owner,
-                        item,
+                        listing,
                         booking,
                     })
                     .catch(err => {
@@ -1071,7 +1073,7 @@ function _sendBookingPendingEmailsSms(data) {
 
         function sendEmailAndSmsBookingConfirmed() {
             var findAssessmentAttrs = {
-                itemId: booking.itemId,
+                listingId: booking.listingId,
                 startBookingId: booking.id, // only startBooking is relevant for (taker's) signToken
                 takerId: booking.takerId,
                 ownerId: booking.ownerId
@@ -1136,20 +1138,20 @@ function _sendBookingConfirmedEmailsSms(data) {
             .then(() => {
                 return [
                     User.findOne({ id: booking.takerId }),
-                    Item.findOne({ id: booking.itemId }),
+                    Listing.findOne({ id: booking.listingId }),
                     User.findOne({ id: booking.ownerId }),
                     Conversation.findOne({ bookingId: booking.id })
                 ];
             })
-            .spread((taker, item, owner, conversation) => {
+            .spread((taker, listing, owner, conversation) => {
                 if (! taker
-                    || ! item
+                    || ! listing
                     || ! owner
                     || ! conversation
                 ) {
                     error = new Error("Booking validate missing references");
-                    if (! item) {
-                        error.itemId = booking.itemId;
+                    if (! listing) {
+                        error.listingId = booking.listingId;
                     }
                     if (! taker) {
                         error.takerId = booking.takerId;
@@ -1166,22 +1168,22 @@ function _sendBookingConfirmedEmailsSms(data) {
                 data.booking      = booking;
                 data.assessment   = assessment;
                 data.logger       = logger;
-                data.taker       = taker;
-                data.item         = item;
+                data.taker        = taker;
+                data.listing      = listing;
                 data.owner        = owner;
                 data.conversation = conversation;
 
                 return [
                     data,
-                    Item.getMedias([item]).then(itemMedias => itemMedias[item.id]).catch(() => []),
+                    Listing.getMedias([listing]).then(listingMedias => listingMedias[listing.id]).catch(() => []),
                     Location.find({ userId: owner.id }).catch(() => []),
                     Location.find({ userId: taker.id }).catch(() => [])
                 ];
             })
-            .spread((data, itemMedias, ownerLocations, takerLocations) => {
-                data.itemMedias      = itemMedias;
+            .spread((data, listingMedias, ownerLocations, takerLocations) => {
+                data.listingMedias   = listingMedias;
                 data.ownerLocations  = ownerLocations;
-                data.takerLocations = takerLocations;
+                data.takerLocations  = takerLocations;
 
                 return data;
             });
@@ -1192,10 +1194,10 @@ function _sendBookingConfirmedEmailsSms(data) {
         var assessment      = data.assessment;
         var logger          = data.logger;
         var taker           = data.taker;
-        var item            = data.item;
+        var listing         = data.listing;
         var owner           = data.owner;
         var conversation    = data.conversation;
-        var itemMedias      = data.itemMedias;
+        var listingMedias   = data.listingMedias;
         var ownerLocations  = data.ownerLocations;
         var takerLocations  = data.takerLocations;
 
@@ -1223,10 +1225,10 @@ function _sendBookingConfirmedEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('booking-confirmed-taker', {
                     user: taker,
-                    item: item,
+                    listing: listing,
                     booking: booking,
                     conversation: conversation,
-                    itemMedias: itemMedias,
+                    listingMedias: listingMedias,
                     owner: owner,
                     assessment: assessment,
                     ownerLocations: ownerLocations,
@@ -1241,7 +1243,7 @@ function _sendBookingConfirmedEmailsSms(data) {
         function sendSmsBookingConfirmedToTaker() {
             return SmsTemplateService.sendSmsTemplate('booking-confirmed-taker', {
                 user: taker,
-                item,
+                listing,
                 booking,
             })
             .catch(err => {
@@ -1255,9 +1257,9 @@ function _sendBookingConfirmedEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('booking-confirmed-owner', {
                     user: owner,
-                    item: item,
+                    listing: listing,
                     booking: booking,
-                    itemMedias: itemMedias,
+                    listingMedias: listingMedias,
                     taker: taker,
                     ownerLocations: ownerLocations,
                     conversation: conversation
@@ -1273,10 +1275,10 @@ function _sendBookingConfirmedEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('prebooking-pending-taker', {
                     user: taker,
-                    item: item,
+                    listing: listing,
                     booking: booking,
                     conversation: conversation,
-                    itemMedias: itemMedias,
+                    listingMedias: listingMedias,
                     giver: owner,
                     giverMessage: giverMessage
                 })
@@ -1290,7 +1292,7 @@ function _sendBookingConfirmedEmailsSms(data) {
             return SmsTemplateService
                 .sendSmsTemplate('prebooking-pending-taker', {
                     user: taker,
-                    item,
+                    listing,
                     booking,
                 })
                 .catch(err => {
@@ -1303,10 +1305,10 @@ function _sendBookingConfirmedEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('prebooking-confirmed-owner', {
                     user: owner,
-                    item: item,
+                    listing: listing,
                     booking: booking,
                     conversation: conversation,
-                    itemMedias: itemMedias,
+                    listingMedias: listingMedias,
                     taker: taker
                 })
                 .catch(err => {

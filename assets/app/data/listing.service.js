@@ -2,9 +2,9 @@
 
     angular
         .module("app.data")
-        .factory("ItemService", ItemService);
+        .factory("ListingService", ListingService);
 
-    function ItemService(
+    function ListingService(
         $http,
         $location,
         $q,
@@ -12,7 +12,7 @@
         cache,
         CleanService,
         diacritics,
-        Item,
+        Listing,
         LocationService,
         map,
         MediaService,
@@ -23,22 +23,22 @@
         tools
     ) {
         var cacheFields = {};
-        cacheFields.myItems       = "myItems";
-        cacheFields.itemLocations = "itemLocations"; // prepend item ID
+        cacheFields.myListings    = "myListings";
+        cacheFields.listingLocations = "listingLocations"; // prepend listing ID
 
-        var service = Restangular.all("item");
-        service.queryItems              = queryItems;
-        service.getMyItems              = getMyItems;
-        service.clearMyItems            = clearMyItems;
+        var service = Restangular.all("listing");
+        service.queryListings              = queryListings;
+        service.getMyListings              = getMyListings;
+        service.clearMyListings            = clearMyListings;
         service.getLocations            = getLocations;
-        service.getItemSlug             = getItemSlug;
+        service.getListingSlug             = getListingSlug;
         service.populate                = populate;
         service.search                  = search;
         service.getSearchFilters        = getSearchFilters;
         service.getSearchConfig         = getSearchConfig;
         service.setSearchConfig         = setSearchConfig;
-        service.getNewItemTmp           = getNewItemTmp;
-        service.setNewItemTmp           = setNewItemTmp;
+        service.getNewListingTmp           = getNewListingTmp;
+        service.setNewListingTmp           = setNewListingTmp;
         service.getMediasSelector       = getMediasSelector;
         service.uploadMedias            = uploadMedias;
         service.getUploadMediasManager  = getUploadMediasManager;
@@ -57,57 +57,57 @@
 
         CleanService.clean(service);
 
-        Restangular.extendModel("item", function (obj) {
-            return Item.mixInto(obj);
+        Restangular.extendModel("listing", function (obj) {
+            return Listing.mixInto(obj);
         });
 
         return service;
 
 
 
-        function queryItems(query, noLabel) {
+        function queryListings(query, noLabel) {
             if (! query) {
                 return $q.resolve([]);
             }
 
-            return $http.get(apiBaseUrl + "/item/query?q=" + query)
+            return $http.get(apiBaseUrl + "/listing/query?q=" + query)
                 .then(function (res) {
-                    var items = res.data;
+                    var listings = res.data;
 
                     if (noLabel) {
-                        return items;
+                        return listings;
                     } else {
-                        return _.map(items, function (item) {
-                            var label = item.id;
+                        return _.map(listings, function (listing) {
+                            var label = listing.id;
 
-                            if (item.name) {
-                                label += " - " + item.name;
+                            if (listing.name) {
+                                label += " - " + listing.name;
                             }
 
-                            item.label = label;
+                            listing.label = label;
 
-                            return item;
+                            return listing;
                         });
                     }
                 });
         }
 
-        function getMyItems(clearCache) {
+        function getMyListings(clearCache) {
             return $q.when()
                 .then(function () {
                     if (clearCache) {
-                        cache.set(cacheFields.myItems, null);
+                        cache.set(cacheFields.myListings, null);
                     }
 
-                    if (cache.get(cacheFields.myItems)) {
-                        return cache.get(cacheFields.myItems);
+                    if (cache.get(cacheFields.myListings)) {
+                        return cache.get(cacheFields.myListings);
                     } else {
                         return service.customGETLIST("my")
-                            .then(function (items) {
-                                items = tools.clearRestangular(items);
+                            .then(function (listings) {
+                                listings = tools.clearRestangular(listings);
 
-                                cache.set(cacheFields.myItems, items);
-                                return cache.get(cacheFields.myItems);
+                                cache.set(cacheFields.myListings, listings);
+                                return cache.get(cacheFields.myListings);
                             })
                             .catch(function (err) {
                                 return $q.reject(err);
@@ -116,14 +116,14 @@
                 });
         }
 
-        function clearMyItems() {
-            cache.set(cacheFields.myItems, null);
+        function clearMyListings() {
+            cache.set(cacheFields.myListings, null);
         }
 
-        function getLocations(itemId) { // sending only id avoids to wait for item request
-            var item = Restangular.restangularizeElement(null, { id: itemId }, "item");  // empty item
+        function getLocations(listingId) { // sending only id avoids to wait for listing request
+            var listing = Restangular.restangularizeElement(null, { id: listingId }, "listing");  // empty listing
 
-            return item.customGETLIST("locations")
+            return listing.customGETLIST("locations")
                 .then(function (locations) {
                     locations = tools.clearRestangular(locations);
 
@@ -135,15 +135,15 @@
                 });
         }
 
-        function getItemSlug(item) {
-            if (item && item.nameURLSafe && item.id) {
-                return item.nameURLSafe + "-" + item.id;
+        function getListingSlug(listing) {
+            if (listing && listing.nameURLSafe && listing.id) {
+                return listing.nameURLSafe + "-" + listing.id;
             } else {
                 return "";
             }
         }
 
-        function populate(itemOrItems, args) {
+        function populate(listingOrListings, args) {
             args = args || {};
             var brands         = args.brands ? _.indexBy(args.brands, "id") : null;
             var listingCategories = args.listingCategories ? _.indexBy(args.listingCategories, "id") : null;
@@ -151,62 +151,62 @@
             var nbDaysPricing  = args.nbDaysPricing;
             var listingTypes   = args.listingTypes;
 
-            var _populate = function (item) {
-                if (item.brandId && brands) {
-                    item.brandName = brands[item.brandId].name;
+            var _populate = function (listing) {
+                if (listing.brandId && brands) {
+                    listing.brandName = brands[listing.brandId].name;
                 }
-                if (item.listingCategoryId && listingCategories) {
-                    item.listingCategoryName = listingCategories[item.listingCategoryId].name;
+                if (listing.listingCategoryId && listingCategories) {
+                    listing.listingCategoryName = listingCategories[listing.listingCategoryId].name;
                 }
-                if (item.medias && item.medias.length) {
-                    _.forEach(item.medias, function (media) {
+                if (listing.medias && listing.medias.length) {
+                    _.forEach(listing.medias, function (media) {
                         MediaService.setUrl(media);
                     });
-                    item.url = item.medias[0].url;
-                    item.urlPlaceholder = item.medias[0].placeholder;
+                    listing.url = listing.medias[0].url;
+                    listing.urlPlaceholder = listing.medias[0].placeholder;
                 } else {
-                    item.url = platform.getDefaultItemImageUrl();
+                    listing.url = platform.getDefaultListingImageUrl();
                 }
-                if (item.instructionsMedias && item.instructionsMedias.length) {
-                    _.forEach(item.instructionsMedias, function (media) {
+                if (listing.instructionsMedias && listing.instructionsMedias.length) {
+                    _.forEach(listing.instructionsMedias, function (media) {
                         MediaService.setUrl(media);
                     });
                 }
-                if (locations && item.locations && item.locations.length) {
-                    item.vLocations = _.map(item.locations, function (locationId) {
+                if (locations && listing.locations && listing.locations.length) {
+                    listing.vLocations = _.map(listing.locations, function (locationId) {
                         return locations[locationId];
                     });
                 }
-                if (item.ownerMedia && item.ownerMedia.url !== platform.getDefaultProfileImageUrl()) {
-                    MediaService.setUrl(item.ownerMedia);
+                if (listing.ownerMedia && listing.ownerMedia.url !== platform.getDefaultProfileImageUrl()) {
+                    MediaService.setUrl(listing.ownerMedia);
                 } else {
-                    item.ownerMedia = { url: platform.getDefaultProfileImageUrl() };
+                    listing.ownerMedia = { url: platform.getDefaultProfileImageUrl() };
                 }
-                if (item.lastTakerMedia) {
-                    MediaService.setUrl(item.lastTakerMedia);
+                if (listing.lastTakerMedia) {
+                    MediaService.setUrl(listing.lastTakerMedia);
                 } else {
-                    item.lastTakerMedia = { url: platform.getDefaultProfileImageUrl() };
+                    listing.lastTakerMedia = { url: platform.getDefaultProfileImageUrl() };
                 }
                 if (nbDaysPricing) {
-                    item.prices = pricing.getPrice({
-                        config: item.customPricingConfig || item.pricing.config,
+                    listing.prices = pricing.getPrice({
+                        config: listing.customPricingConfig || listing.pricing.config,
                         nbDays: nbDaysPricing,
-                        dayOne: item.dayOnePrice,
-                        custom: !! item.customPricingConfig,
+                        dayOne: listing.dayOnePrice,
+                        custom: !! listing.customPricingConfig,
                         array: true
                     });
                 }
                 if (listingTypes) {
-                    item.listingTypesProperties = getListingTypesProperties(item, listingTypes);
+                    listing.listingTypesProperties = getListingTypesProperties(listing, listingTypes);
                 }
             };
 
-            if (_.isArray(itemOrItems)) {
-                _.forEach(itemOrItems, function (item) {
-                    _populate(item);
+            if (_.isArray(listingOrListings)) {
+                _.forEach(listingOrListings, function (listing) {
+                    _populate(listing);
                 });
             } else {
-                _populate(itemOrItems);
+                _populate(listingOrListings);
             }
         }
 
@@ -227,7 +227,7 @@
                         count: res.count,
                         page: res.page,
                         limit: res.limit,
-                        items: res.items,
+                        listings: res.listings,
                         timestamp: res.timestamp
                     };
 
@@ -269,30 +269,30 @@
             return tools.setLocalData(prop, key, config);
         }
 
-        function getNewItemTmp(user) {
-            var prop = "newItem";
+        function getNewListingTmp(user) {
+            var prop = "newListing";
             var key  = (user ? user.id : "anonymous");
 
             return tools.getLocalData(prop, key);
         }
 
-        function setNewItemTmp(user, item) {
-            var prop = "newItem";
+        function setNewListingTmp(user, listing) {
+            var prop = "newListing";
             var key  = (user ? user.id : "anonymous");
 
-            var newItem;
+            var newListing;
 
             try {
-                newItem = JSON.parse(JSON.stringify(item || {})); // remove unnecessary functions
+                newListing = JSON.parse(JSON.stringify(listing || {})); // remove unnecessary functions
             } catch (e) {
                 return;
             }
 
-            if (newItem.tags && ! newItem.tags.length) {
-                delete newItem.tags;
+            if (newListing.tags && ! newListing.tags.length) {
+                delete newListing.tags;
             }
 
-            return tools.setLocalData(prop, key, newItem);
+            return tools.setLocalData(prop, key, newListing);
         }
 
         /**
@@ -541,7 +541,7 @@
             }
         }
 
-        function uploadMedias(itemId, newMedias, oldMedias, onProgress) {
+        function uploadMedias(listingId, newMedias, oldMedias, onProgress) {
             var allPromises = _.reduce(newMedias, function (memo, media) {
                 memo[media.id] = $q.when()
                     .then(function () {
@@ -562,8 +562,8 @@
                                 });
                         } else {
                             var params = {
-                                field: "item",
-                                targetId: itemId,
+                                field: "listing",
+                                targetId: listingId,
                                 media: media.file
                             };
 
@@ -698,20 +698,20 @@
             }
         }
 
-        function getFbOfferTypes(item) {
+        function getFbOfferTypes(listing) {
             var types = [];
 
-            if (item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
+            if (listing.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 types.push("renting");
 
-                if (item.dayOnePrice === 0) {
+                if (listing.dayOnePrice === 0) {
                     types.push("sharing");
                 }
             }
-            if (item.listingTypesProperties.TIME.NONE) {
+            if (listing.listingTypesProperties.TIME.NONE) {
                 types.push("purchase");
 
-                if (item.sellingPrice === 0) {
+                if (listing.sellingPrice === 0) {
                     types.push("giving");
                 }
             }
@@ -719,20 +719,20 @@
             return types;
         }
 
-        function getFbSellingPrice(item) {
-            if (! item.listingTypesProperties.TIME.NONE) {
+        function getFbSellingPrice(listing) {
+            if (! listing.listingTypesProperties.TIME.NONE) {
                 return;
             }
 
-            return item.sellingPrice;
+            return listing.sellingPrice;
         }
 
-        function getFbRentingDayOnePrice(item) {
-            if (! item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
+        function getFbRentingDayOnePrice(listing) {
+            if (! listing.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 return;
             }
 
-            return item.dayOnePrice;
+            return listing.dayOnePrice;
         }
 
         function getRecommendedPrices(query) {
@@ -822,8 +822,8 @@
             return _.includes(searchViews, $state.current && $state.current.name);
         }
 
-        function getListingTypesProperties(item, listingTypes) {
-            return _.reduce(item.listingTypesIds, function (memo, listingTypeId) {
+        function getListingTypesProperties(listing, listingTypes) {
+            return _.reduce(listing.listingTypesIds, function (memo, listingTypeId) {
                 var listingType = _.find(listingTypes, function (l) {
                     return l.id === listingTypeId;
                 });
@@ -837,13 +837,13 @@
             }, {});
         }
 
-        function getMaxQuantity(item, listingType) {
+        function getMaxQuantity(listing, listingType) {
             const AVAILABILITY = listingType.properties.AVAILABILITY;
 
             let maxQuantity;
 
             if (AVAILABILITY === 'STOCK') {
-                maxQuantity = item.quantity;
+                maxQuantity = listing.quantity;
             } else if (AVAILABILITY === 'UNIQUE') {
                 maxQuantity = 1;
             } else { // AVAILABILITY === 'NONE'

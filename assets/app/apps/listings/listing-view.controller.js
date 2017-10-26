@@ -3,10 +3,10 @@
 (function () {
 
     angular
-        .module("app.items")
-        .controller("ItemViewController", ItemViewController);
+        .module("app.listings")
+        .controller("ListingViewController", ListingViewController);
 
-    function ItemViewController($document,
+    function ListingViewController($document,
                                 $rootScope,
                                 $scope,
                                 $stateParams,
@@ -24,7 +24,7 @@
                                 GoogleMap,
                                 imgGallery,
                                 ListingCategoryService,
-                                ItemService,
+                                ListingService,
                                 ListingTypeService,
                                 LocationService,
                                 loggerToServer,
@@ -67,14 +67,14 @@
             initDate: todayDate // required since 1.1.2 update
             // Bug with use of datepicker-options for inline datepickers if initDate is not set
         };
-        var itemId;
-        var item;
+        var listingId;
+        var listing;
         // var brands;
         var listingCategories;
-        var ownerItemLocations;
-        var itemLocations;
+        var ownerListingLocations;
+        var listingLocations;
         var myLocations;
-        var itemPricing;
+        var listingPricing;
         var questions;
         var journeys;
         var sortedJourneys;
@@ -100,7 +100,7 @@
         vm.showIncorrectDates   = false;
         vm.dateErrorMessage     = "";
         vm.disableBookingButton = false;
-        vm.item                 = null;
+        vm.listing              = null;
         vm.nbPictures           = 1;
         vm.gmap                 = null;
         vm.displayQuestions     = false;
@@ -129,8 +129,8 @@
         // vm.hideModalInlineStartDatepicker = true;
         // vm.hideModalInlineEndDatepicker   = true;
         // vm.displayMobileEndDatePicker     = true;
-        vm.bookItem              = bookItem;
-        vm.stickyButtonBookItem  = stickyButtonBookItem;
+        vm.bookListing              = bookListing;
+        vm.stickyButtonBookListing  = stickyButtonBookListing;
         // vm.changeMobileStartDate = changeMobileStartDate;
         // vm.changeMobileEndDate   = changeMobileEndDate;
         vm.displayPrice          = displayPrice;
@@ -153,7 +153,7 @@
                 var slugId = _.last($stateParams.slug.split("-"));
 
                 if (slugId && ! isNaN(slugId)) {
-                    itemId = slugId;
+                    listingId = slugId;
                 } else {
                     $state.go("404", null, { location: false });
                     return;
@@ -163,7 +163,7 @@
                 return;
             }
 
-            StelaceEvent.sendScrollEvent("Item view", { itemId: itemId })
+            StelaceEvent.sendScrollEvent("Listing view", { listingId: listingId })
                 .then(function (obj) {
                     listeners.push(obj.cancelScroll);
                 });
@@ -228,50 +228,50 @@
             $q.all({
                 // brands: BrandService.getList(),
                 currentUser: UserService.getCurrentUser(),
-                item: ItemService.get(itemId, { snapshot: true }).catch(_redirectTo404),
+                listing: ListingService.get(listingId, { snapshot: true }).catch(_redirectTo404),
                 listingCategories: ListingCategoryService.cleanGetList(),
                 listingTypes: ListingTypeService.cleanGetList(),
-                ownerItemLocations: ItemService.getLocations(itemId).catch(function () { return []; }),
+                ownerListingLocations: ListingService.getLocations(listingId).catch(function () { return []; }),
                 myLocations: LocationService.getMine(),
-                itemPricing: pricing.getPricing(),
-                questions: MessageService.getPublicMessages(itemId),
+                listingPricing: pricing.getPricing(),
+                questions: MessageService.getPublicMessages(listingId),
                 searchConfig: _getSearchConfig()
             }).then(function (results) {
                 // brands             = results.brands;
                 vm.currentUser     = tools.clearRestangular(results.currentUser);
-                item               = tools.clearRestangular(results.item);
+                listing               = tools.clearRestangular(results.listing);
                 listingCategories  = results.listingCategories;
                 myLocations        = tools.clearRestangular(results.myLocations);
-                ownerItemLocations = tools.clearRestangular(results.ownerItemLocations);
-                itemPricing        = tools.clearRestangular(results.itemPricing);
+                ownerListingLocations = tools.clearRestangular(results.ownerListingLocations);
+                listingPricing        = tools.clearRestangular(results.listingPricing);
                 questions          = results.questions;
                 searchConfig       = results.searchConfig;
                 vm.listingTypes    = results.listingTypes;
-                vm.uniqueListingType = item.listingTypesIds.length === 1;
+                vm.uniqueListingType = listing.listingTypesIds.length === 1;
 
                 if (vm.uniqueListingType) {
-                    vm.itemListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.id === item.listingTypesIds[0];
+                    vm.selectedListingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.id === listing.listingTypesIds[0];
                     });
                 }
 
-                ItemService.populate(item, {
+                ListingService.populate(listing, {
                     listingTypes: vm.listingTypes
                 });
 
                 // TODO: create tab by listingType
-                if (item.listingTypesProperties.TIME.TIME_FLEXIBLE) {
+                if (listing.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                     vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
                         return listingType.properties.TIME === 'TIME_FLEXIBLE';
                     });
                 }
-                if (item.listingTypesProperties.TIME.NONE) {
+                if (listing.listingTypesProperties.TIME.NONE) {
                     vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
                         return listingType.properties.TIME === 'NONE';
                     });
                 }
 
-                vm.onlyNoTimeListing = vm.uniqueListingType && item.listingTypesProperties.TIME.NONE;
+                vm.onlyNoTimeListing = vm.uniqueListingType && listing.listingTypesProperties.TIME.NONE;
 
                 if (vm.currentUser) {
                     var now = moment().toISOString();
@@ -282,18 +282,18 @@
                 }
 
                 var noMoreAvailable = false;
-                if (vm.itemListingType && vm.itemListingType.properties.TIME === 'NONE' && item.quantity === 0) {
+                if (vm.selectedListingType && vm.selectedListingType.properties.TIME === 'NONE' && listing.quantity === 0) {
                     noMoreAvailable = true;
                 }
 
-                if (item.snapshot || noMoreAvailable) {
+                if (listing.snapshot || noMoreAvailable) {
                     vm.displaySnapshotView = true;
-                    return _displayItemSnapshot(results);
+                    return _displayListingSnapshot(results);
                 }
 
-                if (! item.locations.length) {
+                if (! listing.locations.length) {
                     $state.go("404", null, { location: false });
-                    return $q.reject("item no locations");
+                    return $q.reject("listing no locations");
                 }
 
                 var maxDurationBooking;
@@ -301,27 +301,27 @@
                     maxDurationBooking = vm.timeFlexibleListingType.config.bookingTime.maxDuration;
                 }
 
-                ItemService.populate(item, {
+                ListingService.populate(listing, {
                     // brands: brands,
                     listingCategories: listingCategories,
-                    locations: ownerItemLocations,
+                    locations: ownerListingLocations,
                     nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
                 });
 
-                item.owner.fullname       = User.getFullname.call(item.owner);
-                item.owner.seniority      = displayMonth(item.owner.createdDate);
-                vm.nbPictures             = item.medias.length;
+                listing.owner.fullname       = User.getFullname.call(listing.owner);
+                listing.owner.seniority      = displayMonth(listing.owner.createdDate);
+                vm.nbPictures             = listing.medias.length;
 
-                itemLocations = ownerItemLocations;
+                listingLocations = ownerListingLocations;
 
-                vm.ownerMainLocation = _.find(ownerItemLocations, { main: true }) || ownerItemLocations[0];
-                vm.ownerLvl          = item.owner.levelId && item.owner.levelId.toLowerCase();
+                vm.ownerMainLocation = _.find(ownerListingLocations, { main: true }) || ownerListingLocations[0];
+                vm.ownerLvl          = listing.owner.levelId && listing.owner.levelId.toLowerCase();
                 vm.ownerHasMedal     = gamification.hasMedal(vm.ownerLvl);
 
                 _setBreadcrumbs();
 
                 if (!vm.onlyNoTimeListing) {
-                    _computeDateConstraints(item, vm.timeFlexibleListingType);
+                    _computeDateConstraints(listing, vm.timeFlexibleListingType);
                 }
                 vm.calendarReady = true;
                 vm.startDate = null;
@@ -329,23 +329,23 @@
                 vm.showDate  = true;
                 $scope.$watch('vm.startDate', _promptEndDate, true);
 
-                galleryImgs  = createImgGallery(item.medias);
+                galleryImgs  = createImgGallery(listing.medias);
 
                 _populateQuestions();
 
-                vm.item = item;
+                vm.listing = listing;
 
                 vm.pricingTableData.show          = false;
-                vm.pricingTableData.item          = item;
+                vm.pricingTableData.listing          = listing;
                 vm.pricingTableData.listingType   = vm.onlyNoTimeListing ? vm.timeNoneListingType : vm.timeFlexibleListingType;
-                vm.pricingTableData.itemPricing   = itemPricing;
+                vm.pricingTableData.listingPricing   = listingPricing;
                 vm.pricingTableData.bookingParams = {};
                 vm.pricingTableData.data          = {
                     totalPrice: 0,
                     dailyPriceStr: ""
                 };
 
-                // the item is only sellable, display the pricing table
+                // the listing is only sellable, display the pricing table
                 if (vm.onlyNoTimeListing) {
                     vm.pricingTableData.bookingParams.applyFreeFees = vm.applyFreeFees;
                     vm.pricingTableData.show                        = true;
@@ -353,9 +353,9 @@
                 }
 
                 var sellingPriceResult = pricing.getPriceAfterRebateAndFees({
-                    ownerPrice: vm.item.sellingPrice,
+                    ownerPrice: vm.listing.sellingPrice,
                     ownerFeesPercent: 0, // do not care about owner fees
-                    takerFeesPercent: UserService.isFreeFees(vm.currentUser) ? 0 : itemPricing.takerFeesPurchasePercent
+                    takerFeesPercent: UserService.isFreeFees(vm.currentUser) ? 0 : listingPricing.takerFeesPurchasePercent
                 });
                 vm.totalSellingPrice = _.get(sellingPriceResult, "takerPrice");
                 vm.sellingTakerFees  = _.get(sellingPriceResult, "takerFees");
@@ -365,11 +365,11 @@
                 return _populateRatings();
             }).then(function () {
                 return $q.all({
-                    similarItems: _getSimilarItems()
+                    similarListings: _getSimilarListings()
                 });
             }).then(function (results) {
-                var similarItems = (results.similarItems && results.similarItems.items) || [];
-                vm.similarItems  = _populateSimilarItems(similarItems);
+                var similarListings = (results.similarListings && results.similarListings.listings) || [];
+                vm.similarListings  = _populateSimilarListings(similarListings);
 
                 _setDisableBookingButton();
 
@@ -380,14 +380,14 @@
             }).then(function () {
                 // Facebook tracking, no use to record details in GA
                 var fbEventParams = {
-                    content_name: vm.item.name,
-                    content_ids: [vm.item.id],
+                    content_name: vm.listing.name,
+                    content_ids: [vm.listing.id],
                     content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
-                    sip_offer_types: ItemService.getFbOfferTypes(vm.item)
+                    sip_offer_types: ListingService.getFbOfferTypes(vm.listing)
                 };
 
-                var fbRentingDayOnePrice = ItemService.getFbRentingDayOnePrice(vm.item);
-                var fbSellingPrice       = ItemService.getFbSellingPrice(vm.item);
+                var fbRentingDayOnePrice = ListingService.getFbRentingDayOnePrice(vm.listing);
+                var fbSellingPrice       = ListingService.getFbSellingPrice(vm.listing);
                 if (typeof fbRentingDayOnePrice === "number") {
                     fbEventParams.sip_renting_day_one_price = fbRentingDayOnePrice;
                 }
@@ -408,11 +408,11 @@
                 var markers = _setMarkers();  // map is populated before loading
 
                 // must create early for angular-google-maps
-                // detail Boxes (1 for item locations and 1 for user locations)
-                vm.itemBox = {
+                // detail Boxes (1 for listing locations and 1 for user locations)
+                vm.listingBox = {
                     id: _.uniqueId("marker_"),
                     show: false,
-                    targetData: "itemLocation",
+                    targetData: "listingLocation",
                     pixelOffsets: {
                         anonymous: new google.maps.Size(-75, -200), // X : 150/2 (width), Y : 190 (height) + 10 (triangle)
                         authenticated: new google.maps.Size(-75, -200) // idem
@@ -449,7 +449,7 @@
                     zoom: 10,
                     events: {
                         click: _closeDetailBoxes,
-                        tilesloaded: _setCenter // draws attention to itemLocation
+                        tilesloaded: _setCenter // draws attention to listingLocation
                     },
                     options: {
                         scrollwheel: false
@@ -474,14 +474,14 @@
             return $q.reject("stop");
         }
 
-        function _computeDateConstraints(item, listingType) {
+        function _computeDateConstraints(listing, listingType) {
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
             var config = (listingType.config && listingType.config.bookingTime) || {};
             var quantity = 1; // TODO: make quantity depend on user input
-            var availablePeriods = item.availablePeriods;
+            var availablePeriods = listing.availablePeriods;
 
             var _disableStartDate = function (data) {
-                if (item.locked) {
+                if (listing.locked) {
                     return true;
                 }
 
@@ -498,7 +498,7 @@
                 }
 
                 var predictedQuantity = BookingService.getPredictedQuantity(startDate, availablePeriods, quantity);
-                if (ItemService.getMaxQuantity(item, vm.timeFlexibleListingType) < predictedQuantity) {
+                if (ListingService.getMaxQuantity(listing, vm.timeFlexibleListingType) < predictedQuantity) {
                     return true;
                 }
 
@@ -506,7 +506,7 @@
             };
 
             var _disableEndDate = function (data) {
-                if (item.locked) {
+                if (listing.locked) {
                     return true;
                 }
 
@@ -523,7 +523,7 @@
                 }
 
                 var predictedQuantity = BookingService.getPredictedQuantity(endDate, availablePeriods, quantity);
-                if (ItemService.getMaxQuantity(item, vm.timeFlexibleListingType) < predictedQuantity) {
+                if (ListingService.getMaxQuantity(listing, vm.timeFlexibleListingType) < predictedQuantity) {
                     return true;
                 }
 
@@ -599,8 +599,8 @@
                     isAvailable = BookingService.checkAvailability({
                         startDate: startDate,
                         endDate: endDate,
-                        item: item,
-                        availablePeriods: item.availablePeriods,
+                        listing: listing,
+                        availablePeriods: listing.availablePeriods,
                         quantity: 1, // TODO: depend on user input
                         listingType: vm.timeFlexibleListingType
                     });
@@ -623,7 +623,7 @@
             }
 
             if (vm.showIncorrectDates) {
-                _setErrorDateMessage(item, vm.timeFlexibleListingType, isValidDates);
+                _setErrorDateMessage(listing, vm.timeFlexibleListingType, isValidDates);
             } else {
                 _removeErrorDateMessage();
             }
@@ -632,17 +632,17 @@
 
         function _populateRatings() {
             return $q.all({
-                ownerMsgStats: User.getMessageStats.call(vm.item.owner, (3600 * 48)),
-                ownerRatings: RatingService.getTargetUserRatings({ targetId: vm.item.owner.id, populateItems: true })
+                ownerMsgStats: User.getMessageStats.call(vm.listing.owner, (3600 * 48)),
+                ownerRatings: RatingService.getTargetUserRatings({ targetId: vm.listing.owner.id, populateListings: true })
             }).then(function (results) {
                 var ownerMessageStats   = results.ownerMsgStats;
                 var ownerRatings        = results.ownerRatings;
-                var ownerAvgRating      = vm.item.owner.nbRatings && Math.min(vm.item.owner.ratingScore / vm.item.owner.nbRatings, 5);
-                var itemAvgRating       = vm.item.nbRatings && Math.min(vm.item.ratingScore / vm.item.nbRatings, 5);
-                var itemNbReviews       = 0;
-                var otherItemsNbReviews = 0;
+                var ownerAvgRating      = vm.listing.owner.nbRatings && Math.min(vm.listing.owner.ratingScore / vm.listing.owner.nbRatings, 5);
+                var listingAvgRating       = vm.listing.nbRatings && Math.min(vm.listing.ratingScore / vm.listing.nbRatings, 5);
+                var listingNbReviews       = 0;
+                var otherListingsNbReviews = 0;
 
-                // Populate owner Ratings (itemRatings and otherItemsRatings)
+                // Populate owner Ratings (listingRatings and otherListingsRatings)
                 var sortRatings = function (ratings) {
                     return _.sortByOrder(ratings, [
                         function (rating) {
@@ -657,26 +657,26 @@
                         rating.userMedia = { url: platform.getDefaultProfileImageUrl() };
                     }
 
-                    rating.currentItem = (vm.item.id === rating.itemId);
+                    rating.currentListing = (vm.listing.id === rating.listingId);
 
-                    if (rating.comment || rating.itemComment) {
+                    if (rating.comment || rating.listingComment) {
                         rating.isReview = true;
-                        return (rating.currentItem ? itemNbReviews++ : otherItemsNbReviews++);
+                        return (rating.currentListing ? listingNbReviews++ : otherListingsNbReviews++);
                     }
                 });
                 ownerRatings = sortRatings(ownerRatings);
                 ownerRatings = _.groupBy(ownerRatings, function (rating) {
-                    return rating.currentItem ? "currentItem" : "otherItems";
+                    return rating.currentListing ? "currentListing" : "otherListings";
                 });
 
                 vm.ownerAvgRating      = (Math.round(ownerAvgRating * 10) / 10).toLocaleString();
-                vm.itemAvgRating       = (Math.round(itemAvgRating * 10) / 10).toLocaleString();
-                vm.itemRatings         = ownerRatings.currentItem;
-                vm.otherItemsRatings   = ownerRatings.otherItems;
-                vm.itemNbReviews       = itemNbReviews;
-                vm.otherItemsNbReviews = otherItemsNbReviews;
-                vm.itemFirstRatings    = (itemNbReviews >= 3 && 3) || 6; // only 3 comments if possible
-                vm.othersFirstRatings  = Math.min(otherItemsNbReviews || 3, 3); // only comment(s) if 1 at least, 3 else
+                vm.listingAvgRating       = (Math.round(listingAvgRating * 10) / 10).toLocaleString();
+                vm.listingRatings         = ownerRatings.currentListing;
+                vm.otherListingsRatings   = ownerRatings.otherListings;
+                vm.listingNbReviews       = listingNbReviews;
+                vm.otherListingsNbReviews = otherListingsNbReviews;
+                vm.listingFirstRatings    = (listingNbReviews >= 3 && 3) || 6; // only 3 comments if possible
+                vm.othersFirstRatings  = Math.min(otherListingsNbReviews || 3, 3); // only comment(s) if 1 at least, 3 else
                 // show first 3 comments when possible to save some scroll
 
                 // Message Stats
@@ -709,7 +709,7 @@
             });
         }
 
-        function bookItem(bookInNoTime) {
+        function bookListing(bookInNoTime) {
             var listingType = _.find(vm.listingTypes, function (listingType) {
                 return listingType.properties.TIME === (bookInNoTime ? 'NONE' : 'TIME_FLEXIBLE');
             });
@@ -725,7 +725,7 @@
                 if (! startDateOpenedOnce) {
                     startDateOpenedOnce = true;
                     StelaceEvent.sendEvent("Booking datepicker use", {
-                        itemId: itemId,
+                        listingId: listingId,
                         type: "click",
                         data: { datepicker: "start" }
                     });
@@ -738,7 +738,7 @@
             }
 
             var createAttrs = {
-                itemId: vm.item.id,
+                listingId: vm.listing.id,
                 listingTypeId: listingType.id
             };
 
@@ -748,12 +748,12 @@
             }
 
             // Google Analytics event
-            var gaLabel = 'itemId: ' + vm.item.id;
-            ga('send', 'event', 'Items', 'Booking', gaLabel);
+            var gaLabel = 'listingId: ' + vm.listing.id;
+            ga('send', 'event', 'Listings', 'Booking', gaLabel);
             // Facebook event
             var fbEventParams = {
-                content_name: vm.item.name,
-                content_ids: [vm.item.id],
+                content_name: vm.listing.name,
+                content_ids: [vm.listing.id],
                 content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
                 stl_transaction_type: listingType.name
             };
@@ -761,13 +761,13 @@
             // Stelace event
             var stlEvent;
             var stlEventData = {
-                itemId: itemId,
-                tagsIds: vm.showTags ? _.pluck(vm.item.completeTags, "id") : null,
+                listingId: listingId,
+                tagsIds: vm.showTags ? _.pluck(vm.listing.completeTags, "id") : null,
                 type: "click",
-                nbItemLocations: itemLocations.length,
+                nbListingLocations: listingLocations.length,
                 nbPictures: vm.nbPictures
             };
-            StelaceEvent.sendEvent("Item booking", { data: stlEventData })
+            StelaceEvent.sendEvent("Listing booking", { data: stlEventData })
                 .then(function (stelaceEvent) {
                     stlEvent = stelaceEvent;
                 });
@@ -778,7 +778,7 @@
                         return $q.reject("not authenticated");
                     }
 
-                    if (vm.item.ownerId === vm.currentUser.id) {
+                    if (vm.listing.ownerId === vm.currentUser.id) {
                         toastr.warning("Vous ne pouvez pas emprunter votre propre objet ;)");
                         return;
                     }
@@ -800,12 +800,12 @@
                 });
         }
 
-        function stickyButtonBookItem() {
+        function stickyButtonBookListing() {
             StelaceEvent.sendEvent("Sticky booking button click");
             $window.scrollTo(0, 0);
 
             var bookInNoTime = vm.onlyNoTimeListing;
-            bookItem(bookInNoTime);
+            bookListing(bookInNoTime);
         }
 
         function _promptEndDate(newDate, oldDate) {
@@ -834,7 +834,7 @@
                 if (! endDateOpenedOnce) {
                     endDateOpenedOnce = true;
                     StelaceEvent.sendEvent("Booking datepicker use", {
-                        itemId: itemId,
+                        listingId: listingId,
                         type: "click",
                         data: { datepicker: "end" }
                     });
@@ -846,16 +846,16 @@
 
         function _setBreadcrumbs() {
             if (vm.showListingCategories) {
-                vm.breadcrumbCategory     = ListingCategoryService.findListingCategory(item, listingCategories);
+                vm.breadcrumbCategory     = ListingCategoryService.findListingCategory(listing, listingCategories);
                 vm.breadcrumbCategoryLink = $state.href("searchWithQuery", {
                     query: tools.getURLStringSafe(vm.breadcrumbCategory)
                 });
             }
 
-            vm.breadcrumbQuery = ItemService.normalizeName(item.name);
+            vm.breadcrumbQuery = ListingService.normalizeName(listing.name);
             vm.breadcrumbQueryLink = $state.href("searchWithQuery", {
-                query: ItemService.encodeUrlQuery(vm.breadcrumbQuery),
-                q: ItemService.encodeUrlFullQuery(vm.breadcrumbQuery)
+                query: ListingService.encodeUrlQuery(vm.breadcrumbQuery),
+                q: ListingService.encodeUrlFullQuery(vm.breadcrumbQuery)
             });
         }
 
@@ -925,7 +925,7 @@
         function openImgSmallGallery(event) {
             var target = event.target;
 
-            if (! item.medias.length) {
+            if (! listing.medias.length) {
                 return;
             }
 
@@ -942,12 +942,12 @@
                 }
             });
 
-            StelaceEvent.sendEvent("Item view image gallery opening", {
-                itemId: itemId,
+            StelaceEvent.sendEvent("Listing view image gallery opening", {
+                listingId: listingId,
                 type: "click",
                 data: {
                     gallery: "small",
-                    nbPictures: item.medias.length
+                    nbPictures: listing.medias.length
                 }
             });
 
@@ -957,7 +957,7 @@
         function openImgGallery(event) {
             var target = event.target;
 
-            if (! item.medias.length) {
+            if (! listing.medias.length) {
                 return;
             }
 
@@ -974,42 +974,42 @@
                 }
             });
 
-            StelaceEvent.sendEvent("Item view image gallery opening", {
+            StelaceEvent.sendEvent("Listing view image gallery opening", {
                 type: "click",
                 data: {
                     gallery: "main",
-                    nbPictures: item.medias.length
+                    nbPictures: listing.medias.length
                 }
             });
 
             imgGallery.render(galleryImgs, parseInt(target.getAttribute("data-index"), 10) || 0);
         }
 
-        function _populateSimilarItems(similarItems) {
-            _.forEach(similarItems, function (item) {
-                var shortestJourney  = item.journeysDurations[0]; // sorted by server (ItemController, MapService)
+        function _populateSimilarListings(similarListings) {
+            _.forEach(similarListings, function (listing) {
+                var shortestJourney  = listing.journeysDurations[0]; // sorted by server (ListingController, MapService)
                 var shortestLocation = _.find(vm.searchFromLocations, function (location, index) {
                     return shortestJourney.index === index;
                 });
-                item.loc               = shortestLocation;
-                item.toLoc             = shortestJourney.toLocation;
-                item.minDurationString = time.getDurationString(shortestJourney.durationSeconds);
+                listing.loc               = shortestLocation;
+                listing.toLoc             = shortestJourney.toLocation;
+                listing.minDurationString = time.getDurationString(shortestJourney.durationSeconds);
             }, vm);
-            ItemService.populate(similarItems, {
+            ListingService.populate(similarListings, {
                 listingTypes: vm.listingTypes
             });
 
-            return similarItems;
+            return similarListings;
         }
 
-        function _displayItemSnapshot() {
-            vm.item              = item;
-            item.owner.fullname  = User.getFullname.call(item.owner);
-            item.owner.seniority = displayMonth(item.owner.createdDate);
-            vm.nbPictures        = item.medias.length;
-            vm.ownerLvl          = item.owner.levelId && item.owner.levelId.toLowerCase();
+        function _displayListingSnapshot() {
+            vm.listing              = listing;
+            listing.owner.fullname  = User.getFullname.call(listing.owner);
+            listing.owner.seniority = displayMonth(listing.owner.createdDate);
+            vm.nbPictures        = listing.medias.length;
+            vm.ownerLvl          = listing.owner.levelId && listing.owner.levelId.toLowerCase();
             vm.ownerHasMedal     = gamification.hasMedal(vm.ownerLvl);
-            itemLocations        = [];
+            listingLocations        = [];
 
             var maxDurationBooking;
             if (vm.timeFlexibleListingType) {
@@ -1018,23 +1018,23 @@
 
             _setBreadcrumbs();
 
-            ItemService.populate(item, {
+            ListingService.populate(listing, {
                 listingCategories: listingCategories,
                 nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
             });
 
             _populateQuestions();
 
-            galleryImgs = createImgGallery(item.medias);
+            galleryImgs = createImgGallery(listing.medias);
 
             $timeout.cancel(stopSpinnerTimeout);
 
             return _populateRatings()
                 .then(function () {
-                    return _getSimilarItems();
+                    return _getSimilarListings();
                 })
-                .then(function (similarItems) {
-                    vm.similarItems = _populateSimilarItems((similarItems && similarItems.items) || []);
+                .then(function (similarListings) {
+                    vm.similarListings = _populateSimilarListings((similarListings && similarListings.listings) || []);
                 })
                 .then(function () {
                     _setSEOTags();
@@ -1064,8 +1064,8 @@
                 agreementStatus: agreementStatus,
                 startDate: vm.startDate ? moment(vm.startDate).format(formatDate) : null,
                 endDate: vm.endDate ? moment(vm.endDate).format(formatDate) : null,
-                itemId: vm.item.id,
-                receiverId: vm.item.owner.id,
+                listingId: vm.listing.id,
+                receiverId: vm.listing.owner.id,
                 senderId: vm.currentUser.id
             };
 
@@ -1076,7 +1076,7 @@
                     }
 
                     return BookingService.post({
-                        itemId: vm.item.id,
+                        listingId: vm.listing.id,
                         startDate: vm.startDate ? moment(vm.startDate).format(formatDate) : null,
                         endDate: vm.endDate ? moment(vm.endDate).format(formatDate) : null,
                         listingTypeId: vm.noTimeBookingSelected ? vm.timeNoneListingType.id : vm.timeFlexibleListingType.id // TODO: find a better way to select it
@@ -1101,13 +1101,13 @@
         }
 
         function openQuestionModal(toUser) {
-            if (! vm.item) {
+            if (! vm.listing) {
                 return;
             }
 
             var lockScrollClass      = "modal-opened" + (vm.iOS ? " lock-both" : "");
             vm.editPublicQuestion    = false;
-            vm.showToggleListingType = vm.item.listingTypesIds.length > 1;
+            vm.showToggleListingType = vm.listing.listingTypesIds.length > 1;
             vm.noTimeBookingSelected = vm.onlyNoTimeListing;
 
             vm.editPublicQuestion = true;
@@ -1140,15 +1140,15 @@
             }
 
             var questionGreeting  = "Connectez-vous en quelques secondes pour envoyer votre demande à "
-                + vm.item.owner.fullname;
+                + vm.listing.owner.fullname;
             var promptInfoOptions = {
                 greeting: {
                     email: "Veuillez renseigner votre adresse email pour être prévenu(e) en cas de réponse à votre question."
                 }
             };
 
-            StelaceEvent.sendEvent("Item view question", {
-                itemId: itemId,
+            StelaceEvent.sendEvent("Listing view question", {
+                listingId: listingId,
                 type: "click",
                 data: { receiver: toUser || "owner" }
             });
@@ -1189,14 +1189,14 @@
             if (datepicker.indexOf("start") >= 0 && ! startDateOpenedOnce) {
                 startDateOpenedOnce = true;
                 StelaceEvent.sendEvent("Booking datepicker use", {
-                    itemId: itemId,
+                    listingId: listingId,
                     type: "click",
                     data: { datepicker: "start" }
                 });
             } else if (datepicker.indexOf("end") >= 0 && ! endDateOpenedOnce) {
                 endDateOpenedOnce = true;
                 StelaceEvent.sendEvent("Booking datepicker use", {
-                    itemId: itemId,
+                    listingId: listingId,
                     type: "click",
                     data: { datepicker: "end" }
                 });
@@ -1225,12 +1225,12 @@
         }
 
         function _setDisableBookingButton() {
-            vm.disableBookingButton = vm.item.locked || vm.showIncorrectDates;
+            vm.disableBookingButton = vm.listing.locked || vm.showIncorrectDates;
         }
 
         function _checkAuth(customGreeting) {
             var authModalOptions = {
-                greeting: customGreeting || ("Connectez-vous en quelques secondes pour réserver \"" + vm.item.name + "\"."),
+                greeting: customGreeting || ("Connectez-vous en quelques secondes pour réserver \"" + vm.listing.name + "\"."),
                 preventSubscriptionRedirect: true
             };
 
@@ -1274,10 +1274,10 @@
                     }
                 }
 
-                if (vm.currentUser && item.owner.id === vm.currentUser.id) {
-                    // associating owner's myLocations aliases to item locations for detailBox
-                    _.forEach(ownerItemLocations, function (itemLocation) {
-                        var matchingMyLocation = _.find(myLocations, { id: itemLocation.id });
+                if (vm.currentUser && listing.owner.id === vm.currentUser.id) {
+                    // associating owner's myLocations aliases to listing locations for detailBox
+                    _.forEach(ownerListingLocations, function (listingLocation) {
+                        var matchingMyLocation = _.find(myLocations, { id: listingLocation.id });
                         vm.ownerLocationAliases.push(matchingMyLocation.alias || matchingMyLocation.shortName);
                     });
                 }
@@ -1299,7 +1299,7 @@
                     return $q.when();
                 }
 
-                return LocationService.getJourneysDuration(myLocations, itemLocations);
+                return LocationService.getJourneysDuration(myLocations, listingLocations);
             }).then(function (table) {
                 journeys = table;
                 sortedJourneys = _.sortBy(journeys, "durationSeconds");
@@ -1312,18 +1312,18 @@
                 }
 
 
-                // display shortest myLocation if user has locations, else itemLocation city
+                // display shortest myLocation if user has locations, else listingLocation city
                 vm.breadcrumbCity = sortedJourneys.length ? myLocations[sortedJourneys[0].fromIndex].city
-                    : itemLocations[0].city;
+                    : listingLocations[0].city;
                 vm.breadcrumbCityLink = $state.href("searchWithQuery", {
-                    query: ItemService.encodeUrlQuery(vm.breadcrumbQuery),
-                    q: ItemService.encodeUrlFullQuery(vm.breadcrumbQuery),
+                    query: ListingService.encodeUrlQuery(vm.breadcrumbQuery),
+                    q: ListingService.encodeUrlFullQuery(vm.breadcrumbQuery),
                     location: vm.breadcrumbCity
                 });
 
                 if (vm.currentUser) {
                     return MessageService.getConversations({
-                        itemId: vm.item.id,
+                        listingId: vm.listing.id,
                         senderId: vm.currentUser.id
                     });
                 }
@@ -1346,9 +1346,9 @@
                 vm.myLocationBox.show = false;
                 googleMap.showMarker(vm.myLocationBox.originatorId);
             }
-            if (vm.itemBox.show) {
-                vm.itemBox.show = false;
-                googleMap.showMarker(vm.itemBox.originatorId);
+            if (vm.listingBox.show) {
+                vm.listingBox.show = false;
+                googleMap.showMarker(vm.listingBox.originatorId);
             }
             $scope.$digest(); // needed since google event happen outside of angular
         }
@@ -1389,7 +1389,7 @@
                 return;
             }
 
-            // DetailBox : "myLocationBox" or "itemBox"
+            // DetailBox : "myLocationBox" or "listingBox"
             var triggerMarker  = googleMap.getMarker(markerId);
             var highestMarker  = _.max(vm.gmap.markers, "windowOptions.zIndex");
 
@@ -1417,9 +1417,9 @@
                     vm.myLocationBox.show = false;
                     googleMap.showMarker(vm.myLocationBox.originatorId);
                 }
-                if (vm.itemBox.show) {
-                    vm.itemBox.show = false;
-                    googleMap.showMarker(vm.itemBox.originatorId);
+                if (vm.listingBox.show) {
+                    vm.listingBox.show = false;
+                    googleMap.showMarker(vm.listingBox.originatorId);
                 }
             }
             // Old behavior : handle properly previous marker that opened *current* detailBox if needed
@@ -1436,7 +1436,7 @@
             } else if (oneWay !== "close") {
                 vm[detailBox].show          = false;
                 vm[detailBox].originatorId  = markerId;
-                vm[detailBox].data          = triggerMarker[vm[detailBox].targetData]; // itemLocation or myLocation
+                vm[detailBox].data          = triggerMarker[vm[detailBox].targetData]; // listingLocation or myLocation
                 if (vm.currentUser) {
                     vm[detailBox].anonymousUser             = false;
                     vm[detailBox].windowOptions.boxClass    = vm[detailBox].windowOptions.boxClass.replace(/ anonymous/g, "");
@@ -1453,8 +1453,8 @@
                     vm[detailBox].show = ! vm[detailBox].show;
                 });
 
-                if (detailBox === "itemBox") {
-                    StelaceEvent.sendEvent("Item view map itemBox opening");
+                if (detailBox === "listingBox") {
+                    StelaceEvent.sendEvent("Listing view map listingBox opening");
                 }
             }
         }
@@ -1496,7 +1496,7 @@
                 });
         }
 
-        function _setErrorDateMessage(item, listingType, isValidDates) {
+        function _setErrorDateMessage(listing, listingType, isValidDates) {
             var defaultMessage = 'Les dates sont incorrectes.';
             var config = listingType.config.bookingTime;
             var str;
@@ -1523,37 +1523,37 @@
 
         function _setMarkers() {
             var newMarkers           = [];
-            var itemLocationsMarkers = [];
+            var listingLocationsMarkers = [];
             var myLocationsMarkers   = [];
 
             if (! vm.isOwner) {
                 closestLocations = {
                     fromId: sortedJourneys.length ? myLocations[sortedJourneys[0].fromIndex].id : null,
-                    toId: sortedJourneys.length ? itemLocations[sortedJourneys[0].toIndex].id : null
+                    toId: sortedJourneys.length ? listingLocations[sortedJourneys[0].toIndex].id : null
                 };
             } else {
                 closestLocations = {
-                    fromId: itemLocations[0].id
+                    fromId: listingLocations[0].id
                     // convention for fitting. Only owners have fromId but no toId in closestLocations
                     // users without locations are the opposite
                 };
             }
 
-            // Item locations markers
-            _.forEach(itemLocations, function (itemLocation, index) {
+            // Listing locations markers
+            _.forEach(listingLocations, function (listingLocation, index) {
                 var markerId     = _.uniqueId("marker_");
                 var marker       = {};
                 var placeholders = ["Ici", "Et là", "Là", "Ou là", "Ou là", "Ou là", "Ou là", "Ou là"];
 
-                itemLocation.markerId = markerId;
+                listingLocation.markerId = markerId;
 
-                marker.itemLocation         = itemLocation;
-                marker.itemLocation.toIndex = index; // for journeys matching
+                marker.listingLocation         = listingLocation;
+                marker.listingLocation.toIndex = index; // for journeys matching
                 marker.coords               = {
-                    longitude: marker.itemLocation.longitude,
-                    latitude: marker.itemLocation.latitude
+                    longitude: marker.listingLocation.longitude,
+                    latitude: marker.listingLocation.latitude
                 };
-                marker.type                 = "itemLocation";
+                marker.type                 = "listingLocation";
                 marker.index                = index;
                 marker.id                   = markerId;
                 marker.show                 = true;
@@ -1575,20 +1575,20 @@
                         journey.durationString    = time.getDurationString(journey.durationSeconds, true);
                         journey.fromLocationAlias = myLocations[journey.fromIndex].alias || myLocations[journey.fromIndex].shortName;
                     });
-                    marker.itemLocation.journeys = toLocationSortedJourneys;
+                    marker.listingLocation.journeys = toLocationSortedJourneys;
                     marker.content               = toLocationSortedJourneys[0].durationString; // for detailBox
                     marker.smallestDuration      = toLocationSortedJourneys[0].durationSeconds; // for map centering
                 }
 
-                itemLocationsMarkers.push(marker); // "Ici" marker is first
+                listingLocationsMarkers.push(marker); // "Ici" marker is first
             });
 
-            vm.itemCities = _.uniq(itemLocations, "city"); // defined here since we need markerId for microdata
+            vm.listingCities = _.uniq(listingLocations, "city"); // defined here since we need markerId for microdata
 
             if (myLocations.length && ! vm.isOwner) { // if there are journeys, use closest location first
-                newMarkers = _.sortBy(itemLocationsMarkers, "smallestDuration");
+                newMarkers = _.sortBy(listingLocationsMarkers, "smallestDuration");
             } else {
-                newMarkers = itemLocationsMarkers;
+                newMarkers = listingLocationsMarkers;
             }
 
             // User locations markers
@@ -1631,16 +1631,16 @@
                     latitude: myLocationsMarkers[0].myLocation.latitude,
                     longitude: myLocationsMarkers[0].myLocation.longitude
                 };
-                mapCenter     = (newMarkers[0].itemLocation) || loadMapCenter; // closest itemLocation marker
+                mapCenter     = (newMarkers[0].listingLocation) || loadMapCenter; // closest listingLocation marker
                 // console.log("loadMapCenter ", myLocationsMarkers[0].myLocation);
             } else {
                 loadMapCenter = {
-                    latitude: newMarkers[0].itemLocation.latitude, // "Ici marker"
-                    longitude: newMarkers[0].itemLocation.longitude
+                    latitude: newMarkers[0].listingLocation.latitude, // "Ici marker"
+                    longitude: newMarkers[0].listingLocation.longitude
                 };
-                mapCenter     = newMarkers.length > 1 ? newMarkers[1].itemLocation  // "Et là" placholder
+                mapCenter     = newMarkers.length > 1 ? newMarkers[1].listingLocation  // "Et là" placholder
                     : loadMapCenter;
-                // console.log("anonymous loadMapCenter ", newMarkers[0].itemLocation);
+                // console.log("anonymous loadMapCenter ", newMarkers[0].listingLocation);
             }
 
             newMarkers = myLocationsMarkers.concat(newMarkers);
@@ -1689,7 +1689,7 @@
         function _getSearchConfig() {
             return UserService.getCurrentUser()
                 .then(function (currentUser) {
-                    return ItemService.getSearchConfig(currentUser);
+                    return ListingService.getSearchConfig(currentUser);
                 });
         }
 
@@ -1707,22 +1707,22 @@
             vm.displayQuestions = ! _.isEmpty(vm.questions);
         }
 
-        function _getSimilarItems() {
+        function _getSimilarListings() {
             return $q.when(true)
                 .then(function () {
                     var searchQuery = {
-                        similarToItemsIds: [item.id], // force array when there is only one element
+                        similarToListingsIds: [listing.id], // force array when there is only one element
                         limit: 6,
                     }
 
-                    // if there are no searched locations, use item's
+                    // if there are no searched locations, use listing's
                     if (! searchConfig
                         || ((! searchConfig.activeLocations || ! searchConfig.activeLocations.length)
                             && ! searchConfig.queryLocation)
                     ) {
-                        if (itemLocations.length) {
-                            searchQuery.locations = _.map(itemLocations, function (location) {
-                                return _.assign({}, location, { source: "item" });
+                        if (listingLocations.length) {
+                            searchQuery.locations = _.map(listingLocations, function (location) {
+                                return _.assign({}, location, { source: "listing" });
                             });
                         }
                     // otherwise use them
@@ -1738,7 +1738,7 @@
                     }
 
                     if (searchQuery.locations && searchQuery.locations.length) {
-                        vm.similarItemsShowDuration = true;
+                        vm.similarListingsShowDuration = true;
                     } else {
                         searchQuery.locations = [];
                     }
@@ -1749,32 +1749,32 @@
                         return _.pick(location, ["latitude", "longitude", "source"]);
                     });
 
-                    return ItemService.search({ type: "similar", searchQuery: searchQuery });
+                    return ListingService.search({ type: "similar", searchQuery: searchQuery });
                 })
                 .catch(loggerToServer.error);
         }
 
         function _setRole(currentUser) {
             if (currentUser) {
-                if (currentUser.id === item.owner.id) {
+                if (currentUser.id === listing.owner.id) {
                     vm.isOwner = true;
                 }
             }
         }
 
         function _setSEOTags() {
-            var title  = vm.item.name;
-            var imgUrl = platform.getBaseUrl() + vm.item.url + "?size=1600x1200&displayType=containOriginal";
+            var title  = vm.listing.name;
+            var imgUrl = platform.getBaseUrl() + vm.listing.url + "?size=1600x1200&displayType=containOriginal";
             var description;
             var og;
 
-            if (vm.item.description) {
-                description = tools.shrinkString(vm.item.description, 140);
+            if (vm.listing.description) {
+                description = tools.shrinkString(vm.listing.description, 140);
             } else {
                 description = (vm.breadcrumbCategory ? vm.breadcrumbCategory + " : " : "");
             }
 
-            var urlCanonical    = platform.getBaseUrl() + $state.current.urlWithoutParams + "/" + vm.item.nameURLSafe + "-" + itemId;
+            var urlCanonical    = platform.getBaseUrl() + $state.current.urlWithoutParams + "/" + vm.listing.nameURLSafe + "-" + listingId;
             var isSelfCanonical = platform.isSelfCanonical(urlCanonical);
 
             if (isSelfCanonical) {
@@ -1789,13 +1789,13 @@
                 "og:description": description
             };
 
-            // Default's Sharinplace header is better than item image placeholder
-            if (vm.item.medias && vm.item.medias[0]) {
+            // Default's Sharinplace header is better than listing image placeholder
+            if (vm.listing.medias && vm.listing.medias[0]) {
                 og["og:image"]            = imgUrl;
                 og["og:image:secure_url"] = imgUrl;
                 // No upscaling: Set real img dimensions, with max 1600 * 1200 (containOriginal)
-                og["og:image:width"]      = Math.min(1600, vm.item.medias[0].width);
-                og["og:image:height"]     = Math.min(1200, vm.item.medias[0].height);
+                og["og:image:width"]      = Math.min(1600, vm.listing.medias[0].width);
+                og["og:image:height"]     = Math.min(1200, vm.listing.medias[0].height);
             }
 
             platform.setOpenGraph(og);

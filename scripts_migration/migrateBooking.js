@@ -1,4 +1,4 @@
-/* global Booking, BootstrapService, Item, ListingTypeService, TimeService */
+/* global Booking, BootstrapService, Listing, ListingTypeService, TimeService */
 
 const Sails = require('sails');
 const moment = require('moment');
@@ -63,9 +63,9 @@ Sails.load({
             await Booking.updateOne(booking.id, updateAttrs);
         });
 
-        const items = await Item.find();
-        await Promise.map(items, async (item) => {
-            await Item.updateOne(item.id, { quantity: 1 });
+        const listings = await Listing.find();
+        await Promise.map(listings, async (listing) => {
+            await Listing.updateOne(listing.id, { quantity: 1 });
         });
     } catch (err) {
         console.log(err);

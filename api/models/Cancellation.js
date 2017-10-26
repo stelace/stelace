@@ -8,7 +8,7 @@
 module.exports = {
 
     attributes: {
-        itemId: {
+        listingId: {
             type: "integer",
             index: true
         },
@@ -64,7 +64,7 @@ function getAccessFields(access) {
     var accessFields = {
         self: [ // req.user.id in (ownerId || taker)
             "id",
-            "itemId",
+            "listingId",
             "reasonType",
             "reason",
             "createdDate",
@@ -74,7 +74,7 @@ function getAccessFields(access) {
         ],
         others: [
             "id",
-            "itemId",
+            "listingId",
             "createdDate"
         ]
     };

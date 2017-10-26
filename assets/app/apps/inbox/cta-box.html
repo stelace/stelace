@@ -10,7 +10,7 @@
             <div class="cta__description">
                 <div ng-if="vm.message.bookingStatus !== 'info'">
                     <span class="text--semibold">
-                        <a ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })">{{vm.item.name}}</a>
+                        <a ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id })">{{vm.listing.name}}</a>
                         <span ng-show="vm.booking && ! vm.isNoTime">du {{vm.startDate}} au {{vm.endDate}}</span>
                         <span ng-show="vm.booking && vm.bookingStatus">
                             - {{vm.bookingStatus}}
@@ -19,7 +19,7 @@
                     <br>
                     <span class="text--vsmall text--fade"
                         ng-show="vm.booking && vm.isOwner">
-                        Prix appliqué&nbsp;: {{vm.itemBasePrice}}€&nbsp;&bull;
+                        Prix appliqué&nbsp;: {{vm.listingBasePrice}}€&nbsp;&bull;
                         <span ng-show="vm.booking.ownerFees">Dont</span>
                         Frais de paiement&nbsp;: {{vm.ownerFeesString}}
                         <span ng-if="vm.booking.deposit">&nbsp;&bull;Caution&nbsp;: {{vm.booking.deposit}}€</span>
@@ -31,13 +31,13 @@
                     </span>
                     <span class="text--vsmall text--fade"
                         ng-show="vm.booking && ! vm.isOwner">
-                        Prix fixé par le propriétaire&nbsp;: {{vm.itemBasePrice}}€&nbsp;&bull;
+                        Prix fixé par le propriétaire&nbsp;: {{vm.listingBasePrice}}€&nbsp;&bull;
                         Frais de service&nbsp;: {{vm.takerFeesString}}
                         <span ng-if="vm.booking.deposit">&nbsp;&bull;Caution&nbsp;: {{vm.booking.deposit}}€</span>
                     </span>
                 </div>
                 <div ng-if="vm.message.bookingStatus === 'info'">
-                    <a class="text--semibold" ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id })">{{vm.item.name}}</a>
+                    <a class="text--semibold" ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id })">{{vm.listing.name}}</a>
                 </div>
             </div>
             <div class="cta__action" ng-show="vm.booking">
@@ -85,7 +85,7 @@
                     Consulter mon contrat électronique.
                 </a>
 
-                <div ng-show="! vm.booking.cancellationId && ! vm.item.snapshot && vm.message.isCtaActive">
+                <div ng-show="! vm.booking.cancellationId && ! vm.listing.snapshot && vm.message.isCtaActive">
                     <div ng-if="vm.isTaker && ! vm.booking.paidDate">
                         <button class="button brightblue"
                             ui-sref="bookingPayment({id: vm.booking.id})">
@@ -115,7 +115,7 @@
                                 {{vm.interlocutor.fullname}}
                             </div>
                             <p class="margin-bottom text-justify" ng-if="vm.publicQuestion">
-                                Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.item.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:
+                                Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.listing.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:
                             </p>
                             <textarea name="publicMessage"
                                 rows="5"

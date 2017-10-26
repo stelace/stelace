@@ -1,12 +1,12 @@
 /* global
-    BookingService, Bookmark, Item, ItemService, ListingTypeService, Location, Media, ModelSnapshot,
+    BookingService, Bookmark, Listing, ListingService, ListingTypeService, Location, Media, ModelSnapshot,
     PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceEventService, Tag, TokenService, ToolsService, User
 */
 
 /**
- * ItemController
+ * ListingController
  *
- * @description :: Server-side logic for managing items
+ * @description :: Server-side logic for managing listings
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
@@ -26,7 +26,7 @@ module.exports = {
     getPricing: getPricing,
     getRecommendedPrices: getRecommendedPrices,
     getRentingPriceFromSellingPrice: getRentingPriceFromSellingPrice,
-    pauseItemToggle: pauseItemToggle
+    pauseListingToggle: pauseListingToggle
 
 };
 
@@ -44,21 +44,15 @@ function find(req, res) {
         return res.forbidden();
     }
 
-    // var itemIds = [12, 35, 26];
-    // var itemIds = [85, 75, 50];
-    // var itemIds = [10, 165, 146];
-    // var itemIds = [207, 141, 167];
-    // var itemIds = [253, 296, 278];
-    // var itemIds = [391, 337, 494];
     var formatDate = "YYYY-MM-DD";
     var landingPastLimit = moment().subtract(60, "d").format(formatDate);
-    var landingItems = landingCache.get("candidates");
+    var landingListings = landingCache.get("candidates");
 
     return Promise
         .resolve()
         .then(() => {
             if (landing) {
-                return landingItems || Item.find({
+                return landingListings || Listing.find({
                     validated: true,
                     locked: false,
                     updatedDate: {
@@ -66,59 +60,59 @@ function find(req, res) {
                     }
                 });
             } else if (ownerId) {
-                return Item.find({ ownerId: ownerId });
+                return Listing.find({ ownerId: ownerId });
             }
         })
-        .then(items => {
-            if (landing && ! landingItems) {
-                landingCache.set("candidates", items);
+        .then(listings => {
+            if (landing && ! landingListings) {
+                landingCache.set("candidates", listings);
             }
             if (landing) {
-                items = _(items)
-                    .filter(item => item.mediasIds.length)
+                listings = _(listings)
+                    .filter(listing => listing.mediasIds.length)
                     .uniq("ownerId")
                     .sample(12)
                     .value();
             }
 
-            var locationsIds = _.reduce(items, function (memo, item) {
-                memo = memo.concat(item.locations);
+            var locationsIds = _.reduce(listings, function (memo, listing) {
+                memo = memo.concat(listing.locations);
                 return memo;
             }, []);
             locationsIds = _.uniq(locationsIds);
 
             return [
-                items,
-                User.find({ id: _.pluck(items, "ownerId") }),
+                listings,
+                User.find({ id: _.pluck(listings, "ownerId") }),
                 Location.find({ id: locationsIds })
             ];
         })
-        .spread((items, owners, locations) => {
+        .spread((listings, owners, locations) => {
             return [
-                items,
+                listings,
                 owners,
                 locations,
-                Item.getMedias(items),
+                Listing.getMedias(listings),
                 User.getMedia(owners)
             ];
         })
-        .spread((items, owners, locations, itemMedias, ownerMedias) => {
+        .spread((listings, owners, locations, listingMedias, ownerMedias) => {
             var indexedOwners = _.indexBy(owners, "id");
 
-            items = _.map(items, function (item) {
-                item            = Item.expose(item, access);
-                item.medias     = Media.exposeAll(itemMedias[item.id], access);
-                item.owner      = User.expose(indexedOwners[item.ownerId], access);
-                item.ownerMedia = Media.expose(ownerMedias[item.ownerId], access);
-                item.locations  = _.filter(locations, function (location) {
-                    return _.contains(item.locations, location.id);
+            listings = _.map(listings, function (listing) {
+                listing            = Listing.expose(listing, access);
+                listing.medias     = Media.exposeAll(listingMedias[listing.id], access);
+                listing.owner      = User.expose(indexedOwners[listing.ownerId], access);
+                listing.ownerMedia = Media.expose(ownerMedias[listing.ownerId], access);
+                listing.locations  = _.filter(locations, function (location) {
+                    return _.contains(listing.locations, location.id);
                 });
-                item.locations  = Location.exposeAll(item.locations, access);
+                listing.locations  = Location.exposeAll(listing.locations, access);
 
-                return item;
+                return listing;
             });
 
-            res.json(items);
+            res.json(listings);
         })
         .catch(res.sendError);
 }
@@ -132,15 +126,15 @@ async function findOne(req, res) {
     const today = moment().format(formatDate);
 
     try {
-        let item;
+        let listing;
 
         if (snapshotAllowed) {
-            item = await Item.getItemsOrSnapshots(id);
+            listing = await Listing.getListingsOrSnapshots(id);
         } else {
-            item = await Item.findOne({ id });
+            listing = await Listing.findOne({ id });
         }
 
-        if (!item) {
+        if (!listing) {
             throw new NotFoundError();
         }
 
@@ -148,47 +142,47 @@ async function findOne(req, res) {
             owner,
             futureBookings,
         ] = await Promise.all([
-            User.findOne({ id: item.ownerId }),
-            ! item.snapshot ? Item.getFutureBookings(item.id, today) : [],
+            User.findOne({ id: listing.ownerId }),
+            ! listing.snapshot ? Listing.getFutureBookings(listing.id, today) : [],
         ]);
 
-        if (!item.snapshot) {
-            await Item.getTags(item, true);
+        if (!listing.snapshot) {
+            await Listing.getTags(listing, true);
         }
 
         const [
-            itemMedias,
+            listingMedias,
             ownerMedia,
-            itemInstructionsMedias,
+            listingInstructionsMedias,
         ] = await Promise.all([
-            Item.getMedias([item]).then(itemMedias => itemMedias[item.id]),
+            Listing.getMedias([listing]).then(listingMedias => listingMedias[listing.id]),
             User.getMedia([owner]).then(ownerMedias => ownerMedias[owner.id]),
-            Item.getInstructionsMedias([item]).then(itemInstructionsMedias => itemInstructionsMedias[item.id])
+            Listing.getInstructionsMedias([listing]).then(listingInstructionsMedias => listingInstructionsMedias[listing.id])
         ]);
 
-        if (req.user && item.ownerId === req.user.id) {
+        if (req.user && listing.ownerId === req.user.id) {
             access = 'self';
         } else {
             access = 'others';
         }
 
-        item = Item.expose(item, access);
+        listing = Listing.expose(listing, access);
 
-        if (! item.tags) {
-            item.tags         = [];
-            item.completeTags = [];
+        if (! listing.tags) {
+            listing.tags         = [];
+            listing.completeTags = [];
         }
 
-        item.owner              = User.expose(owner, access);
-        item.ownerMedia         = Media.expose(ownerMedia, access);
-        item.pricing            = PricingService.getPricing(item.pricingId);
-        item.medias             = Media.exposeAll(itemMedias, access);
-        item.instructionsMedias = Media.exposeAll(itemInstructionsMedias, access);
+        listing.owner              = User.expose(owner, access);
+        listing.ownerMedia         = Media.expose(ownerMedia, access);
+        listing.pricing            = PricingService.getPricing(listing.pricingId);
+        listing.medias             = Media.exposeAll(listingMedias, access);
+        listing.instructionsMedias = Media.exposeAll(listingInstructionsMedias, access);
 
         const availableResult = BookingService.getAvailabilityPeriods(futureBookings);
-        item.availablePeriods = availableResult.availablePeriods;
+        listing.availablePeriods = availableResult.availablePeriods;
 
-        res.json(item);
+        res.json(listing);
     } catch (err) {
         res.sendError(err);
     }
@@ -253,7 +247,7 @@ async function create(req, res) {
             validTags,
         ] = await Promise.all([
             Location.find({ userId: req.user.id }),
-            Item.isValidReferences({
+            Listing.isValidReferences({
                 brandId: createAttrs.brandId,
                 listingCategoryId: createAttrs.listingCategoryId,
             }),
@@ -274,10 +268,10 @@ async function create(req, res) {
             createAttrs.locations = _.pluck(myLocations, "id");
         }
 
-        let item = await Item.create(createAttrs);
-        item = await Item.updateTags(item, createAttrs.tags);
+        let listing = await Listing.create(createAttrs);
+        listing = await Listing.updateTags(listing, createAttrs.tags);
 
-        res.json(Item.expose(item, access));
+        res.json(Listing.expose(listing, access));
     } catch (err) {
         res.sendError(err);
     }
@@ -350,13 +344,13 @@ async function update(req, res) {
         }
 
         const [
-            item,
+            listing,
             validReferences,
             validLocations,
             validTags,
         ] = await Promise.all([
-            Item.findOne({ id: id }),
-            Item.isValidReferences({
+            Listing.findOne({ id: id }),
+            Listing.isValidReferences({
                 brandId: updateAttrs.brandId,
                 listingCategoryId: updateAttrs.listingCategoryId
             }),
@@ -364,29 +358,29 @@ async function update(req, res) {
             isValidTags(updateAttrs.tags)
         ]);
 
-        if (! item) {
+        if (! listing) {
             throw new NotFoundError();
         }
-        if (item.ownerId !== req.user.id) {
+        if (listing.ownerId !== req.user.id) {
             throw new ForbiddenError();
         }
         if (! validReferences
             || ! validLocations
             || ! validTags
-            || item.soldDate
+            || listing.soldDate
         ) {
             throw new BadRequestError();
         }
 
-        var isItemValidated = (! item.validation || (item.validation && item.validated));
-        if (typeof updateAttrs.name !== "undefined" && ! isItemValidated) {
+        var isListingValidated = (! listing.validation || (listing.validation && listing.validated));
+        if (typeof updateAttrs.name !== "undefined" && ! isListingValidated) {
             updateAttrs.nameURLSafe = ToolsService.getURLStringSafe(updateAttrs.name);
         }
 
-        let exposedItem = await Item.updateOne(item.id, updateAttrs);
-        exposedItem = await Item.updateTags(exposedItem, updateAttrs.tags);
+        let exposedListing = await Listing.updateOne(listing.id, updateAttrs);
+        exposedListing = await Listing.updateTags(exposedListing, updateAttrs.tags);
 
-        res.json(Item.expose(exposedItem, access));
+        res.json(Listing.expose(exposedListing, access));
     } catch (err) {
         res.sendError(err);
     }
@@ -418,22 +412,22 @@ function destroy(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return Item.findOne({
+            return Listing.findOne({
                 id: id,
                 ownerId: req.user.id
             });
         })
-        .then(item => {
-            if (! item) {
+        .then(listing => {
+            if (! listing) {
                 throw new NotFoundError();
             }
 
             return [
-                item,
-                Item.getFutureBookings(item.id, today)
+                listing,
+                Listing.getFutureBookings(listing.id, today)
             ];
         })
-        .spread((item, futureBookings) => {
+        .spread((listing, futureBookings) => {
             if (futureBookings.length) {
                 var error = new BadRequestError("remaining bookings");
                 error.expose = true;
@@ -441,17 +435,17 @@ function destroy(req, res) {
             }
 
             return [
-                item,
-                Bookmark.update({ itemId: id }, { active: false }) // disable bookmarks associated to this item
+                listing,
+                Bookmark.update({ listingId: id }, { active: false }) // disable bookmarks associated to this listing
             ];
         })
-        .spread(item => {
-            // create a snapshot before destroying the item
-            return ModelSnapshot.getSnapshot("item", item);
+        .spread(listing => {
+            // create a snapshot before destroying the listing
+            return ModelSnapshot.getSnapshot("listing", listing);
         })
         .then(() => sendEvent(req, res, id))
         .then(() => {
-            return Item.destroy({ id: id });
+            return Listing.destroy({ id: id });
         })
         .then(() => {
             res.json({ id: id });
@@ -460,12 +454,12 @@ function destroy(req, res) {
 
 
 
-    function sendEvent(req, res, itemId) {
+    function sendEvent(req, res, listingId) {
         return StelaceEventService.createEvent({
             req: req,
             res: res,
-            label: "Item destroy",
-            data: { itemId: itemId }
+            label: "Listing destroy",
+            data: { listingId: listingId }
         });
     }
 }
@@ -485,30 +479,30 @@ function query(req, res) {
             return res.json([]);
         }
 
-        var itemId = getItemId(query);
-        var items = [];
-        var item;
+        var listingId = getListingId(query);
+        var listings = [];
+        var listing;
 
-        if (itemId) {
-            item = yield Item.findOne({ id: itemId });
-            if (item) {
-                items.push(item);
+        if (listingId) {
+            listing = yield Listing.findOne({ id: listingId });
+            if (listing) {
+                listings.push(listing);
             }
         } else {
             if (isEnoughLongToken(query)) {
-                items = yield Item.find({ name: { contains: query } });
+                listings = yield Listing.find({ name: { contains: query } });
             } else {
-                items = [];
+                listings = [];
             }
         }
 
-        res.json(Item.exposeAll(items, access));
+        res.json(Listing.exposeAll(listings, access));
     })()
     .catch(res.sendError);
 
 
 
-    function getItemId(str) {
+    function getListingId(str) {
         var parsedStr = parseInt(str, 10);
         return ! isNaN(parsedStr) ? parsedStr : null;
     }
@@ -524,29 +518,29 @@ function my(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return Item.find({ ownerId: req.user.id });
+            return Listing.find({ ownerId: req.user.id });
         })
-        .then(items => {
+        .then(listings => {
             return [
-                items,
-                Item.getMedias(items),
-                Item.getInstructionsMedias(items),
-                Item.getTags(items)
+                listings,
+                Listing.getMedias(listings),
+                Listing.getInstructionsMedias(listings),
+                Listing.getTags(listings)
             ];
         })
-        .spread((items, hashMedias, hashInstructionsMedias) => {
-            items = Item.exposeAll(items, access);
+        .spread((listings, hashMedias, hashInstructionsMedias) => {
+            listings = Listing.exposeAll(listings, access);
 
-            _.forEach(items, function (item) {
-                var medias             = hashMedias[item.id];
-                var instructionsMedias = hashInstructionsMedias[item.id];
+            _.forEach(listings, function (listing) {
+                var medias             = hashMedias[listing.id];
+                var instructionsMedias = hashInstructionsMedias[listing.id];
 
-                item.medias             = _.map(medias, media => Media.expose(media, access));
-                item.pricing            = PricingService.getPricing(item.pricingId);
-                item.instructionsMedias = _.map(instructionsMedias, media => Media.expose(media, access));
+                listing.medias             = _.map(medias, media => Media.expose(media, access));
+                listing.pricing            = PricingService.getPricing(listing.pricingId);
+                listing.instructionsMedias = _.map(instructionsMedias, media => Media.expose(media, access));
             });
 
-            res.json(items);
+            res.json(listings);
         })
         .catch(res.sendError);
 }
@@ -559,11 +553,11 @@ function updateMedias(req, res) {
     if (! mediasIds || ! µ.checkArray(mediasIds, "id")) {
         return res.badRequest();
     }
-    if (! _.contains(["item", "instructions"], mediaType)) {
+    if (! _.contains(["listing", "instructions"], mediaType)) {
         return res.badRequest();
     }
-    if ((mediaType === "item" && Media.get("maxNb").item < mediasIds.length)
-        || (mediaType === "instructions" && Media.get("maxNb").itemInstructions < mediasIds.length)
+    if ((mediaType === "listing" && Media.get("maxNb").listing < mediasIds.length)
+        || (mediaType === "instructions" && Media.get("maxNb").listingInstructions < mediasIds.length)
     ) {
         return res.badRequest(new BadRequestError("cannot set too much medias"));
     }
@@ -576,11 +570,11 @@ function updateMedias(req, res) {
         .resolve()
         .then(() => {
             return [
-                Item.findOne({ id: id }),
+                Listing.findOne({ id: id }),
                 Media.find({ id: mediasIds })
             ];
         })
-        .spread((item, medias) => {
+        .spread((listing, medias) => {
             var isAllOwnMedias = _.reduce(medias, function (memo, media) {
                 if (req.user.id !== media.userId) {
                     memo = memo && false;
@@ -588,12 +582,12 @@ function updateMedias(req, res) {
                 return memo;
             }, true);
 
-            if (! item
+            if (! listing
                 || medias.length !== mediasIds.length
             ) {
                 throw new NotFoundError();
             }
-            if (req.user.id !== item.ownerId
+            if (req.user.id !== listing.ownerId
                 || ! isAllOwnMedias
             ) {
                 throw new ForbiddenError();
@@ -601,13 +595,13 @@ function updateMedias(req, res) {
 
             var updateAttrs = {};
 
-            if (mediaType === "item") {
+            if (mediaType === "listing") {
                 updateAttrs.mediasIds = mediasIds;
             } else if (mediaType === "instructions") {
                 updateAttrs.instructionsMediasIds = mediasIds;
             }
 
-            return Item.updateOne(item.id, updateAttrs);
+            return Listing.updateOne(listing.id, updateAttrs);
         })
         .then(() => {
             res.ok({ id: id });
@@ -639,17 +633,17 @@ async function search(req, res) {
 
         // retrieve the search query from the cache and use if it exists
         const cacheKey = SearchService.getQueryHash(searchQuery);
-        let items = SearchService.getItemsFromCache(cacheKey);
+        let listings = SearchService.getListingsFromCache(cacheKey);
 
         // results not in cache, so compute the search
-        if (! items) {
-            items = await SearchService.getItemsFromQuery(searchQuery, type);
-            SearchService.setItemsToCache(cacheKey, items); // set results in cache
+        if (! listings) {
+            listings = await SearchService.getListingsFromQuery(searchQuery, type);
+            SearchService.setListingsToCache(cacheKey, listings); // set results in cache
         }
 
         let { page, limit, timestamp } = searchQuery;
 
-        if (SearchService.isWrongPageParams(items, page, limit)) {
+        if (SearchService.isWrongPageParams(listings, page, limit)) {
             page = 1;
         }
 
@@ -667,8 +661,8 @@ async function search(req, res) {
             page,
             limit,
             timestamp, // is used for client-side to prevent old requests racing
-            count: items.length,
-            items: SearchService.getItemsByPagination(items, page, limit), // return only items based on pagination params
+            count: listings.length,
+            listings: SearchService.getListingsByPagination(listings, page, limit), // return only listings based on pagination params
         });
     })()
     .catch(res.sendError);
@@ -686,14 +680,14 @@ function getLocations(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return Item.findOne({ id: id });
+            return Listing.findOne({ id: id });
         })
-        .then(item => {
-            if (! item) {
+        .then(listing => {
+            if (! listing) {
                 throw new NotFoundError();
             }
 
-            return Location.find({ id: item.locations });
+            return Location.find({ id: listing.locations });
         })
         .then(locations => {
             res.json(Location.exposeAll(locations, access));
@@ -720,21 +714,21 @@ function getPricing(req, res) {
     });
 }
 
-function pauseItemToggle(req, res) {
-    var itemId = req.param("id");
+function pauseListingToggle(req, res) {
+    var listingId = req.param("id");
     var pausedUntil = req.param("pausedUntil");
     var pause = req.param("pause");
     var access = "self";
 
     return Promise.coroutine(function* () {
-        var updatedItem = yield ItemService.pauseItemToggle({
-            itemId,
+        var updatedListing = yield ListingService.pauseListingToggle({
+            listingId,
             pause,
             pausedUntil,
             req
         });
 
-        res.json(Item.expose(updatedItem, access));
+        res.json(Listing.expose(updatedListing, access));
     })()
     .catch(res.sendError);
 }

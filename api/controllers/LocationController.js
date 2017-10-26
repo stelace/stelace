@@ -1,4 +1,4 @@
-/* global GamificationService, Location, User, Item, IPService, MapService */
+/* global GamificationService, Listing, Location, User, IPService, MapService */
 
 /**
  * LocationController
@@ -228,12 +228,12 @@ function destroy(req, res) {
 
             return [
                 location,
-                Item.find({ ownerId: req.user.id })
+                Listing.find({ ownerId: req.user.id })
             ];
         })
-        .spread((location, items) => {
-            if (items.length) {
-                return removeLocationFromItems(id, items);
+        .spread((location, listings) => {
+            if (listings.length) {
+                return removeLocationFromListings(id, listings);
             } else {
                 return;
             }
@@ -246,15 +246,15 @@ function destroy(req, res) {
 
 
 
-    function removeLocationFromItems(id, items) {
+    function removeLocationFromListings(id, listings) {
         return Promise
-            .resolve(items)
-            .each(item => {
-                if (! item.locations || ! item.locations.length) {
+            .resolve(listings)
+            .each(listing => {
+                if (! listing.locations || ! listing.locations.length) {
                     return;
                 }
 
-                return Item.updateOne(item.id, { locations: _.without(item.locations, id) });
+                return Listing.updateOne(listing.id, { locations: _.without(listing.locations, id) });
             });
     }
 }

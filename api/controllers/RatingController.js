@@ -23,7 +23,7 @@ async function find(req, res) {
     let {
         bookingId,
         targetId,
-        populateItems,
+        populateListings,
     } = req.allParams();
 
     if (bookingId) {
@@ -37,7 +37,7 @@ async function find(req, res) {
         const ratings = await RatingService.findRatings({
             bookingId,
             targetId,
-            populateItems,
+            populateListings,
             user: req.user,
             access: 'others',
         });

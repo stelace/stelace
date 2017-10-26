@@ -1,4 +1,4 @@
-/* global Assessment, Booking, Cancellation, Conversation, Item, Location, Message, ToolsService, User */
+/* global Assessment, Booking, Cancellation, Conversation, Listing, Location, Message, ToolsService, User */
 
 /**
  * MessageController
@@ -42,7 +42,7 @@ function findOne(req, res) {
 function create(req, res) {
     var filteredAttrs = [
         "conversationId",
-        "itemId",
+        "listingId",
         "senderId",
         "receiverId",
         "startDate",
@@ -194,11 +194,11 @@ function conversationMeta(req, res) {
 }
 
 function getConversations(req, res) {
-    // return all conversations for a given item.id and/or user.id (but not conversation's messages)
+    // return all conversations for a given listing.id and/or user.id (but not conversation's messages)
     var userId         = req.param("userId");
     var shouldPopulate = req.param("populate");
     var filteredAttrs  = [
-        "itemId",
+        "listingId",
         "senderId",
         "receiverId",
         "userId", // senderId or receiverId (only)
@@ -207,7 +207,7 @@ function getConversations(req, res) {
     var findAttrs = _.pick(req.allParams(), filteredAttrs);
     var access    = "self";
 
-    if (! findAttrs.itemId
+    if (! findAttrs.listingId
      && ! findAttrs.senderId
      && ! findAttrs.receiverId
      && ! findAttrs.userId
@@ -264,24 +264,24 @@ function getConversations(req, res) {
                     }
                     return memo;
                 }, []));
-                var itemsIds   = _.uniq(_.pluck(conversations, "itemId"));
+                var listingsIds   = _.uniq(_.pluck(conversations, "listingId"));
                 var bookingIds = _.uniq(_.pluck(conversations, "bookingId"));
 
                 return [
                     Assessment.find({ id: assessmentsIds }),
-                    Item.getItemsOrSnapshots(itemsIds),
+                    Listing.getListingsOrSnapshots(listingsIds),
                     Booking.find({ id: bookingIds })
                 ];
             })
-            .spread((assessments, items, bookings) => {
+            .spread((assessments, listings, bookings) => {
                 var indexedAssessments = _.indexBy(assessments, "id");
-                var indexedItems       = _.indexBy(items, "id");
+                var indexedListings    = _.indexBy(listings, "id");
                 var indexedBookings    = _.indexBy(bookings, "id");
 
                 _.forEach(conversations, conversation => {
                     var inputAssessment;
                     var outputAssessment;
-                    var item;
+                    var listing;
                     var booking;
                     var error;
 
@@ -305,15 +305,15 @@ function getConversations(req, res) {
                         }
                         conversation.outputAssessment = outputAssessment;
                     }
-                    if (conversation.itemId) {
-                        item = indexedItems[conversation.itemId];
-                        if (! item) {
-                            error = new Error("missing item");
+                    if (conversation.listingId) {
+                        listing = indexedListings[conversation.listingId];
+                        if (! listing) {
+                            error = new Error("missing listing");
                             error.conversationId = conversation.id;
-                            error.itemId = conversation.itemId;
+                            error.listingId = conversation.listingId;
                             throw error;
                         }
-                        conversation.item = item;
+                        conversation.listing = listing;
                     }
                     if (conversation.bookingId) {
                         booking = indexedBookings[conversation.bookingId];
@@ -339,13 +339,13 @@ function getConversations(req, res) {
 }
 
 function getPublicMessages(req, res) {
-    var itemId = req.param("itemId");
+    var listingId = req.param("listingId");
     var access = "others";
 
     return Promise
         .resolve()
         .then(() => {
-            return Conversation.find({ itemId: itemId });
+            return Conversation.find({ listingId: listingId });
         })
         .then(conversations => {
             var conversationIds = _.pluck(conversations, "id");

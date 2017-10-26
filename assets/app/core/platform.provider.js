@@ -23,10 +23,10 @@
             service.setTitle                  = setTitle;
             service.setPageStatus             = setPageStatus;
             service.getSpriteSvgUrl           = getSpriteSvgUrl;
-            service.getDefaultItemImageUrl    = getDefaultItemImageUrl;
+            service.getDefaultListingImageUrl = getDefaultListingImageUrl;
             service.getDefaultProfileImageUrl = getDefaultProfileImageUrl;
             service.getBaseUrl                = getBaseUrl;
-            service.getItemShareUrl           = getItemShareUrl;
+            service.getListingShareUrl        = getListingShareUrl;
             service.getShareUrl               = getShareUrl;
             service.setMetaTags               = setMetaTags;
             service.unsetMetaTags             = unsetMetaTags;
@@ -63,7 +63,7 @@
                 return "/assets/build/icons/sprite.svg#" + iconName;
             }
 
-            function getDefaultItemImageUrl() {
+            function getDefaultListingImageUrl() {
                 return "/assets/img/app/default/default-item.png";
             }
 
@@ -82,34 +82,34 @@
             }
 
             /**
-             * Get item share url with given utmTags
-             * @param {string}  itemSlug                   - E.g. "Videoprojecteur-BenQ-1080ST--Full-HD-2"
+             * Get listing share url with given utmTags
+             * @param {string}  listingSlug                   - E.g. "Videoprojecteur-BenQ-1080ST--Full-HD-2"
              * @param {object}  [utmTags]
              * @param {string}  [utmTags.utmSource]
              * @param {string}  [utmTags.utmMedium]
              * @param {string}  [utmTags.utmCampaign]
              * @param {string}  [utmTags.utmContent]
-             * @return {string} itemShareUrl
+             * @return {string} listingShareUrl
              */
-            function getItemShareUrl(itemSlug, utmTags) {
+            function getListingShareUrl(listingSlug, utmTags) {
                 var devEnv = _.includes(["dev", "preprod"], getEnvironment());
-                var itemShareUrl;
+                var listingShareUrl;
 
-                if (devEnv || ! itemSlug) {
-                    itemShareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
+                if (devEnv || ! listingSlug) {
+                    listingShareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
                 } else {
-                    itemShareUrl = getBaseUrl() + "/item/" + itemSlug;
+                    listingShareUrl = getBaseUrl() + "/listing/" + listingSlug;
                 }
 
                 if (! _.isEmpty(utmTags) && ! devEnv) {
-                    itemShareUrl = urlService.setUtmTags(itemShareUrl, utmTags);
+                    listingShareUrl = urlService.setUtmTags(listingShareUrl, utmTags);
                 }
 
                 if (devEnv) { // avoid false utm being tracked by prod
-                    console.log("tagged item url: ", urlService.setUtmTags(getBaseUrl() + "/item/" + itemSlug, utmTags));
+                    console.log("tagged listing url: ", urlService.setUtmTags(getBaseUrl() + "/listing/" + listingSlug, utmTags));
                 }
 
-                return itemShareUrl;
+                return listingShareUrl;
             }
 
             /**

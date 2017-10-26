@@ -23,9 +23,9 @@
 
 
 
-        function findListingCategory(item, categories) {
+        function findListingCategory(listing, categories) {
             listingCategories   = (categories && _.indexBy(categories, "id")) || listingCategories;
-            var listingCategory = _findListingCategoryById(item.listingCategoryId);
+            var listingCategory = _findListingCategoryById(listing.listingCategoryId);
             var listingParentCategoryName;
 
             if (listingCategory && listingCategory.parentId) {

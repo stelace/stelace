@@ -122,12 +122,12 @@ function destroy(req, res) {
             ListingXTag.destroy({ tagId: tagId })
         ]);
 
-        var itemsIds = _.pluck(tagUse.listingTags, "itemId");
-        ElasticsearchService.shouldSyncItems(itemsIds);
+        var listingsIds = _.pluck(tagUse.listingTags, "listingId");
+        ElasticsearchService.shouldSyncListings(listingsIds);
 
         return res.json({
             nbUsers: tagUse.userTags.length,
-            nbItems: tagUse.listingTags.length
+            nbListings: tagUse.listingTags.length
         });
     })()
     .catch(res.sendError);

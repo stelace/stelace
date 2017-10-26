@@ -1,5 +1,5 @@
 /*
-    global Booking, Item, odoo, OdooApiService, OdooService, PricingService,
+    global Booking, Listing, odoo, OdooApiService, OdooService, PricingService,
     Transaction, TransactionService, User
 */
 
@@ -41,12 +41,12 @@ function syncTransactionsWithOdoo(args) {
         var transactions        = results.transactions;
         var transactionManagers = results.transactionManagers;
         var bookings            = results.bookings;
-        var items               = results.items;
+        var listings            = results.listings;
         var users               = results.users;
 
         var indexedBookings = _.indexBy(bookings, "id");
         var indexedUsers    = _.indexBy(users, "id");
-        var indexedItems    = _.indexBy(items, "id");
+        var indexedListings = _.indexBy(listings, "id");
 
         return yield Promise.each(transactions, transaction => {
             return Promise.coroutine(function* () {
@@ -78,14 +78,14 @@ function syncTransactionsWithOdoo(args) {
                 }
 
                 if (transaction.action === "transfer") {
-                    var item   = indexedItems[booking.itemId];
+                    var listing   = indexedListings[booking.listingId];
                     var owner  = indexedUsers[booking.ownerId];
                     var taker  = indexedUsers[booking.takerId];
 
-                    if (! item) {
-                        error = new Error("Missing item");
+                    if (! listing) {
+                        error = new Error("Missing listing");
                         error.bookingId = booking.id;
-                        error.itemId    = booking.itemId;
+                        error.listingId = booking.listingId;
                         throw error;
                     }
                     if (! owner) {
@@ -104,7 +104,7 @@ function syncTransactionsWithOdoo(args) {
                     var takerInvoiceFields = getInvoiceFields(booking, "taker", transactionManager);
                     if (canGenerateInvoice(takerInvoiceFields)) {
                         yield generateInvoiceFromRole({
-                            item: item,
+                            listing: listing,
                             booking: booking,
                             user: taker,
                             invoiceFields: takerInvoiceFields,
@@ -116,7 +116,7 @@ function syncTransactionsWithOdoo(args) {
                     var ownerInvoiceFields = getInvoiceFields(booking, "owner", transactionManager);
                     if (canGenerateInvoice(ownerInvoiceFields)) {
                         yield generateInvoiceFromRole({
-                            item: item,
+                            listing: listing,
                             booking: booking,
                             user: owner,
                             invoiceFields: ownerInvoiceFields,
@@ -151,14 +151,14 @@ function syncTransactionsWithOdoo(args) {
  * @return {object[]} res.transactions
  * @return {object[]} res.bookings
  * @return {object[]} res.users
- * @return {object[]} res.items
+ * @return {object[]} res.listings
  * @return {object[]} res.transactionManagers
  */
 function getTransactionsData(startDate, endDate) {
     return Promise.coroutine(function* () {
         var findAttrs = {
             action: ["transfer", "payout"],
-            label: "payment" // other labels are handled out of this process (like dispute or item damage)
+            label: "payment" // other labels are handled out of this process (like dispute or listing damage)
         };
 
         var periodAttrs = {};
@@ -179,7 +179,7 @@ function getTransactionsData(startDate, endDate) {
         var bookingsIds = _.pluck(transactions, "bookingId");
         var bookings    = yield Booking.find({ id: bookingsIds });
 
-        var itemsIds = _.pluck(bookings, "itemId");
+        var listingsIds = _.pluck(bookings, "listingId");
         var usersIds = _.reduce(bookings, (memo, booking) => {
             memo = memo.concat([booking.ownerId, booking.takerId]);
             return memo;
@@ -188,7 +188,7 @@ function getTransactionsData(startDate, endDate) {
 
         var results = yield Promise.props({
             users: User.find({ id: usersIds }),
-            items: Item.getItemsOrSnapshots(itemsIds),
+            listings: Listing.getListingsOrSnapshots(listingsIds),
             transactionManagers: TransactionService.getBookingTransactionsManagers(bookingsIds)
         });
 
@@ -196,7 +196,7 @@ function getTransactionsData(startDate, endDate) {
             transactions: transactions,
             bookings: bookings,
             users: results.users,
-            items: results.items,
+            listings: results.listings,
             transactionManagers: results.transactionManagers
         };
     })();
@@ -336,17 +336,17 @@ function escapeString(str) {
     });
 }
 
-function getOwnerFeesInvoiceLineName(item) {
-    var escapedItemName = escapeString(item.name);
+function getOwnerFeesInvoiceLineName(listing) {
+    var escapedListingName = escapeString(listing.name);
 
-    var name = `Frais de paiement - ${escapedItemName}`;
+    var name = `Frais de paiement - ${escapedListingName}`;
     return name;
 }
 
-function getTakerFeesInvoiceLineName(item) {
-    var escapedItemName = escapeString(item.name);
+function getTakerFeesInvoiceLineName(listing) {
+    var escapedListingName = escapeString(listing.name);
 
-    var name = `Frais de réservation - ${escapedItemName}`;
+    var name = `Frais de réservation - ${escapedListingName}`;
     return name;
 }
 
@@ -438,7 +438,7 @@ function createPayout(payout) {
 /**
  * generate invoice from role
  * @param  {object} args
- * @param  {object} args.item
+ * @param  {object} args.listing
  * @param  {object} args.booking
  * @param  {object} args.user
  * @param  {object} args.invoiceFields
@@ -447,7 +447,7 @@ function createPayout(payout) {
  * @return {object} booking
  */
 function generateInvoiceFromRole(args) {
-    var item               = args.item;
+    var listing               = args.listing;
     var booking            = args.booking;
     var user               = args.user;
     var invoiceFields      = args.invoiceFields;
@@ -472,7 +472,7 @@ function generateInvoiceFromRole(args) {
 
         user = yield User.syncOdooUser(user, { updateLocation: true });
         invoiceId = yield createInvoice(booking, user.odooId, role, {
-            item: item,
+            listing: listing,
             invoiceDate: transfer.mgpCreatedDate,
             invoiceFields: invoiceFields,
             comment: comment
@@ -493,7 +493,7 @@ function generateInvoiceFromRole(args) {
  * @param  {number} userOdooId
  * @param  {string} role - must be "owner" or "taker"
  * @param  {object} args
- * @param  {object} args.item
+ * @param  {object} args.listing
  * @param  {string} args.invoiceDate
  * @param  {object} args.invoiceFields
  * @param  {string} [args.comment]
@@ -501,7 +501,7 @@ function generateInvoiceFromRole(args) {
  */
 function createInvoice(booking, userOdooId, role, args) {
     args = args || {};
-    var item          = args.item;
+    var listing          = args.listing;
     var invoiceDate   = args.invoiceDate;
     var invoiceFields = args.invoiceFields;
     var comment       = args.comment;
@@ -535,7 +535,7 @@ function createInvoice(booking, userOdooId, role, args) {
                 accountId: odooConfig.ids.accounts.serviceProvision,
                 discount: 0,
                 name: invoiceName,
-                customDescription: getOwnerFeesInvoiceLineName(item),
+                customDescription: getOwnerFeesInvoiceLineName(listing),
                 productId: getFeesProductId(booking, "payment"),
                 productPrice: invoiceFields.ownerFees,
                 taxIds: [odooConfig.ids.accountTaxes.collectedSaleVAT20]
@@ -546,7 +546,7 @@ function createInvoice(booking, userOdooId, role, args) {
                 accountId: odooConfig.ids.accounts.serviceProvision,
                 discount: 0,
                 name: invoiceName,
-                customDescription: getTakerFeesInvoiceLineName(item),
+                customDescription: getTakerFeesInvoiceLineName(listing),
                 productId: getFeesProductId(booking, "booking"),
                 productPrice: invoiceFields.takerFees,
                 taxIds: [odooConfig.ids.accountTaxes.collectedSaleVAT20]

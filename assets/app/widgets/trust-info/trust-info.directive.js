@@ -2,9 +2,9 @@
 
     angular
         .module("app.widgets")
-        .directive("stelaceTrustInfo", stelaceTrustInfo);
+        .directive("sipTrustInfo", sipTrustInfo);
 
-    function stelaceTrustInfo(StelaceConfig) {
+    function sipTrustInfo(StelaceConfig) {
         return {
             restrict: "EA",
             scope: {

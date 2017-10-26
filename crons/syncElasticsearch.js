@@ -30,7 +30,7 @@ Sails.load({
     logger.info("Start cron");
 
     try {
-        await ElasticsearchService.syncItems();
+        await ElasticsearchService.syncListings();
     } catch (err) {
         logger.error({ err });
     } finally {

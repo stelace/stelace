@@ -1,9 +1,9 @@
-/* global BootstrapService, Item, LoggerService, ItemService */
+/* global BootstrapService, Listing, LoggerService, ListingService */
 
 const Sails  = require('sails');
 const moment = require('moment');
 
-const cronTaskName = "itemPause";
+const cronTaskName = "listingPause";
 
 global._       = require('lodash');
 global.Promise = require('bluebird');
@@ -31,46 +31,46 @@ Sails.load({
     const startTime = moment();
 
     let info = {
-        itemsPausedBefore: 0,
-        itemsActivated: 0
+        listingsPausedBefore: 0,
+        listingsActivated: 0
     };
 
     logger.info("Start cron");
 
     return Promise.coroutine(function* () {
-        const pausedItems = yield Item.find({
+        const pausedListings = yield Listing.find({
             locked: true,
             pausedUntil: { "!": null },
-            // item locked without pauseUntil date is not paused but locked
+            // listing locked without pauseUntil date is not paused but locked
         });
-        let itemsToActivate = [];
+        let listingsToActivate = [];
 
-        _.forEach(pausedItems, item => {
-            if (! (moment(item.pausedUntil).isValid() && moment().isAfter(item.pausedUntil, "day"))) {
+        _.forEach(pausedListings, listing => {
+            if (! (moment(listing.pausedUntil).isValid() && moment().isAfter(listing.pausedUntil, "day"))) {
                 return;
             }
 
-            itemsToActivate.push(ItemService.pauseItemToggle({
-                itemId: item.id,
+            listingsToActivate.push(ListingService.pauseListingToggle({
+                listingId: listing.id,
                 pause: false,
                 req: {
                     logger,
-                    user: { id: item.ownerId }
+                    user: { id: listing.ownerId }
                 }
             }));
         });
 
-        info.itemsPausedBefore = pausedItems.length;
-        info.itemsActivated = itemsToActivate.length;
+        info.listingsPausedBefore = pausedListings.length;
+        info.listingsActivated = listingsToActivate.length;
 
-        return Promise.all(itemsToActivate);
+        return Promise.all(listingsToActivate);
     })()
     .catch(err => {
         logger.error({ err: err });
     })
     .finally(() => {
         const duration = moment().diff(startTime);
-        logger.info(`End cron: Reactivate ${info.itemsActivated} items out of ${info.itemsPausedBefore} in ${duration}ms.`);
+        logger.info(`End cron: Reactivate ${info.listingsActivated} listings out of ${info.listingsPausedBefore} in ${duration}ms.`);
         sails.lowerSafe();
     });
 

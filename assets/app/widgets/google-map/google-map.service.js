@@ -225,7 +225,7 @@
         function fitMap(mapDimensions, center, closestLocations) {
             var closeNeighboorhood   = 2400; // Above 40 minutes, ignore longer journeys for map fitting
             var zoomBounds           = mapDimensions.zoomBounds || [this.config.options.minZoom, this.config.options.maxZoom];
-            var closest              = closestLocations || {}; // closestLocations is defined for item-view (can be {}). owners have no toId
+            var closest              = closestLocations || {}; // closestLocations is defined for listing-view (can be {}). owners have no toId
             var service              = this;
             var bounds               = new google.maps.LatLngBounds();
             var mapCenter;
@@ -236,15 +236,15 @@
                     return;
 
                 // Skip some markers for fitting
-                // If provided, only consider shortestJourneys for fitting map, or not too far itemLocations (in closeNeighboorhood)
+                // If provided, only consider shortestJourneys for fitting map, or not too far listingLocations (in closeNeighboorhood)
                 } else if (closest.fromId && marker.type === "myLocation" && closest.fromId !== marker.myLocation.id) {
                     return;
-                } else if (closest.toId && marker.type === "itemLocation" && closest.toId !== marker.itemLocation.id
+                } else if (closest.toId && marker.type === "listingLocation" && closest.toId !== marker.listingLocation.id
                  && marker.smallestDuration > closeNeighboorhood) {
-                    // keep all itemLocations for owners (they have a toId)
+                    // keep all listingLocations for owners (they have a toId)
                     return;
                 }
-                // Also skip deactivated myLocations for owner in item-view
+                // Also skip deactivated myLocations for owner in listing-view
                 if (closest.fromId && ! closest.toId && marker.type === "myLocation") {
                     return;
                 }
@@ -264,13 +264,13 @@
             }
 
             if (! _.find(this.config.markers, function (marker) {
-                return marker.type && marker.type.indexOf("item");
+                return marker.type && marker.type.indexOf("listing");
             })) {
-                // Do not zoom in more than 11 if no item marker and user has location(s)
+                // Do not zoom in more than 11 if no listing marker and user has location(s)
                 zoomBounds[1] = 11;
             }
 
-            // Do not dezoom more than 10 to display all itemLocations to users without locations in item-view (can be owner)
+            // Do not dezoom more than 10 to display all listingLocations to users without locations in listing-view (can be owner)
             if (closestLocations && (! closest.fromId || ! closest.toId)) {
                 zoomBounds[0] = 10;
             }
@@ -278,7 +278,7 @@
             var zoomLevel = _getBoundsZoomLevel(bounds, mapDimensions) || this.config.map.zoom;
 
             if (closestLocations) {
-                zoomLevel--; // In item-view only, ensure that one location marker at least is always visible, since map is centered on item in item-view
+                zoomLevel--; // In listing-view only, ensure that one location marker at least is always visible, since map is centered on listing in listing-view
             }
             if (zoomBounds && zoomBounds.length && zoomBounds.length === 2) {
                 zoomLevel = Math.max(zoomLevel, zoomBounds[0]);

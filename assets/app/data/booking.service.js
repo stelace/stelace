@@ -6,7 +6,7 @@
         .module("app.data")
         .factory("BookingService", BookingService);
 
-    function BookingService($q, Restangular, Booking, cache, ItemService, time) {
+    function BookingService($q, Restangular, Booking, cache, ListingService, time) {
         var service = Restangular.all("booking");
         service.getMine                               = getMine;
 
@@ -137,10 +137,10 @@
             var endDate          = args.endDate;
             var availablePeriods = args.availablePeriods || [];
             var quantity         = args.quantity || 1;
-            var item             = args.item;
+            var listing          = args.listing;
             var listingType      = args.listingType;
 
-            var maxQuantity = ItemService.getMaxQuantity(item, listingType);
+            var maxQuantity = ListingService.getMaxQuantity(listing, listingType);
 
             if (!availablePeriods.length) {
                 return quantity <= maxQuantity;
@@ -177,7 +177,7 @@
                     return true;
                 }
 
-                // check if the new booking dates exceed item quantity
+                // check if the new booking dates exceed listing quantity
                 if (step.newPeriod === 'start') {
                     processingPeriod = true;
                     if (startQuantity + quantity > maxQuantity) {

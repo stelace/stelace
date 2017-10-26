@@ -8,7 +8,7 @@
         return {
             restrict: "EA",
             scope: {
-                item: "=",
+                listing: "=",
                 onDelete: "="
             },
             templateUrl: "/assets/app/widgets/item/my-listing-card.html",

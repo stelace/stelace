@@ -1,5 +1,5 @@
 /* global
-    Booking, CancellationService, Item, GamificationService, MonitoringService, TokenService,
+    Booking, CancellationService, GamificationService, Listing, MonitoringService, TokenService,
     TransactionService, User
 */
 
@@ -148,18 +148,18 @@ function getBooking(req, res) {
 
         var result = yield Promise.props({
             users: User.find({ id: usersIds }),
-            item: Item.findOne({ id: booking.itemId }),
+            listing: Listing.findOne({ id: booking.listingId }),
             hashAssessments: Booking.getAssessments([booking])
         });
 
         var users              = result.users;
-        var item               = result.item;
+        var listing            = result.listing;
         var bookingAssessments = result.hashAssessments[booking.id];
 
         var indexedUsers = _.indexBy(users, "id");
 
         booking                  = Booking.expose(booking, access);
-        booking.item             = Item.expose(item, access);
+        booking.listing          = Listing.expose(listing, access);
         booking.owner            = User.expose(indexedUsers[booking.ownerId], userAccess);
         booking.taker            = User.expose(indexedUsers[booking.takerId], userAccess);
         booking.inputAssessment  = bookingAssessments.inputAssessment;

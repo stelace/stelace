@@ -82,7 +82,7 @@
                 label: "Déposer une annonce",
                 color: "purple",
                 icon: "clipboard-pencil",
-                sref: "itemCreate"
+                sref: "listingCreate"
             },
             {
                 label: "Rechercher",
@@ -106,7 +106,7 @@
                 label: "Mes annonces",
                 color: "purple",
                 icon: "tag",
-                sref: "myItems"
+                sref: "myListings"
             },
             // {
             //     label: "Mes locations",

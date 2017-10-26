@@ -1,5 +1,5 @@
 /* global
-    Assessment, Booking, BootstrapService, Conversation, EmailHelperService, EmailTemplateService, Item, LoggerService, Media,
+    Assessment, Booking, BootstrapService, Conversation, EmailHelperService, EmailTemplateService, Listing, LoggerService, Media,
     MonitoringService, Rating, SmsService, TimeService, ToolsService, User
 */
 
@@ -298,26 +298,26 @@ Sails.load({
 
                 var takersIds = _.map(bookings, booking => booking.takerId);
                 var ownerIds  = _.map(bookings, booking => booking.ownerId);
-                var itemsIds  = _.pluck(bookings, "itemId");
+                var listingsIds  = _.pluck(bookings, "listingId");
 
                 return [
                     bookings,
                     User.find({ id: takersIds }),
                     User.find({ id: ownerIds }),
-                    Item.find({ id: itemsIds }),
+                    Listing.find({ id: listingsIds }),
                     Conversation.find({ bookingId: _.pluck(bookings, "id") }),
                 ];
             })
-            .spread((bookings, takers, owners, items, conversations) => {
+            .spread((bookings, takers, owners, listings, conversations) => {
                 var indexedTakers        = _.indexBy(takers, "id");
                 var indexedOwners        = _.indexBy(owners, "id");
-                var indexedItems         = _.indexBy(items, "id");
+                var indexedListings      = _.indexBy(listings, "id");
                 var indexedConversations = _.indexBy(conversations, "bookingId");
 
                 var result = _.reduce(bookings, (memo, booking) => {
                     var taker        = indexedTakers[booking.takerId];
                     var owner        = indexedOwners[booking.ownerId];
-                    var item         = indexedItems[booking.itemId];
+                    var listing         = indexedListings[booking.listingId];
                     var conversation = indexedConversations[booking.id];
 
                     var error;
@@ -333,10 +333,10 @@ Sails.load({
                         error.ownerId   = booking.ownerId;
                         logger.error({ err: error });
                     }
-                    if (! item) {
-                        error = new NotFoundError("Item not found");
+                    if (! listing) {
+                        error = new NotFoundError("Listing not found");
                         error.bookingId = booking.id;
-                        error.itemId    = booking.itemId;
+                        error.listingId    = booking.listingId;
                         logger.error({ err: error });
                     }
                     if (! conversation) {
@@ -348,11 +348,11 @@ Sails.load({
                     if (! error) {
                         var obj = {
                             booking,
-                            item,
+                            listing,
                             taker,
                             owner,
                             conversation,
-                            mediaId: item.mediasIds[0]
+                            mediaId: listing.mediasIds[0]
                         };
 
                         memo.push(obj);
@@ -417,7 +417,7 @@ Sails.load({
                             booking: booking,
                             owner: owner,
                             bookingId: booking.id,
-                            itemId: booking.itemId
+                            listingId: booking.listingId
                         };
 
                         memo.push(obj);
@@ -428,23 +428,23 @@ Sails.load({
 
                 return [
                     result,
-                    Item.find({ id: _.pluck(result, "itemId") }),
+                    Listing.find({ id: _.pluck(result, "listingId") }),
                     Conversation.find({ bookingId: _.pluck(result, "bookingId") })
                 ];
             })
-            .spread((result, items, conversations) => {
-                var indexedItems         = _.indexBy(items, "id");
+            .spread((result, listings, conversations) => {
+                var indexedListings         = _.indexBy(listings, "id");
                 var indexedConversations = _.indexBy(conversations, "bookingId");
 
                 result = _.reduce(result, (memo, obj) => {
-                    var item         = indexedItems[obj.booking.itemId];
+                    var listing         = indexedListings[obj.booking.listingId];
                     var conversation = indexedConversations[obj.booking.id];
 
                     var error;
-                    if (! item) {
-                        error = new NotFoundError("Item not found");
+                    if (! listing) {
+                        error = new NotFoundError("Listing not found");
                         error.bookingId = obj.booking.id;
-                        error.itemId    = obj.booking.itemId;
+                        error.listingId    = obj.booking.listingId;
                         logger.error({ err: error });
                     }
                     if (! conversation) {
@@ -454,9 +454,9 @@ Sails.load({
                     }
 
                     if (! error) {
-                        obj.item         = item;
+                        obj.listing         = listing;
                         obj.conversation = conversation;
-                        obj.mediaId      = item.mediasIds[0];
+                        obj.mediaId      = listing.mediasIds[0];
 
                         memo.push(obj);
                     }
@@ -497,7 +497,7 @@ Sails.load({
                         conversation: hashAssessments[assessment.id].conversation,
                         takerId: Assessment.getRealTakerId(assessment),
                         giverId: Assessment.getRealGiverId(assessment),
-                        itemId: assessment.itemId
+                        listingId: assessment.listingId
                     };
                 }, []);
 
@@ -521,18 +521,18 @@ Sails.load({
                     result,
                     User.find({ id: _.pluck(result, "takerId") }),
                     User.find({ id: _.pluck(result, "giverId") }),
-                    Item.find({ id: _.pluck(result, "itemId") })
+                    Listing.find({ id: _.pluck(result, "listingId") })
                 ];
             })
-            .spread((result, takers, givers, items) => {
+            .spread((result, takers, givers, listings) => {
                 var indexedTakers = _.indexBy(takers, "id");
                 var indexedGivers = _.indexBy(givers, "id");
-                var indexedItems  = _.indexBy(items, "id");
+                var indexedListings  = _.indexBy(listings, "id");
 
                 result = _.reduce(result, (memo, obj) => {
                     var taker = indexedTakers[obj.takerId];
                     var giver = indexedGivers[obj.giverId];
-                    var item  = indexedItems[obj.itemId];
+                    var listing  = indexedListings[obj.listingId];
 
                     var error;
                     if (! taker) {
@@ -547,18 +547,18 @@ Sails.load({
                         error.giverId      = obj.giverId;
                         logger.error({ err: error });
                     }
-                    if (! item) {
-                        error = new NotFoundError("Item not found");
+                    if (! listing) {
+                        error = new NotFoundError("Listing not found");
                         error.assessmentId = obj.assessment.id;
-                        error.itemId       = obj.itemId;
+                        error.listingId       = obj.listingId;
                         logger.error({ err: error });
                     }
 
                     if (! error) {
                         obj.taker   = taker;
                         obj.giver   = giver;
-                        obj.item    = item;
-                        obj.mediaId = item.mediasIds[0];
+                        obj.listing    = listing;
+                        obj.mediaId = listing.mediasIds[0];
 
                         memo.push(obj);
                     }
@@ -599,7 +599,7 @@ Sails.load({
                         conversation: hashAssessments[assessment.id].conversation,
                         takerId: Assessment.getRealTakerId(assessment),
                         giverId: Assessment.getRealGiverId(assessment),
-                        itemId: assessment.itemId
+                        listingId: assessment.listingId
                     };
                 }, []);
 
@@ -623,18 +623,18 @@ Sails.load({
                     result,
                     User.find({ id: _.pluck(result, "takerId") }),
                     User.find({ id: _.pluck(result, "giverId") }),
-                    Item.find({ id: _.pluck(result, "itemId") })
+                    Listing.find({ id: _.pluck(result, "listingId") })
                 ];
             })
-            .spread((result, takers, givers, items) => {
+            .spread((result, takers, givers, listings) => {
                 var indexedTakers = _.indexBy(takers, "id");
                 var indexedGivers = _.indexBy(givers, "id");
-                var indexedItems  = _.indexBy(items, "id");
+                var indexedListings  = _.indexBy(listings, "id");
 
                 result = _.reduce(result, (memo, obj) => {
                     var taker = indexedTakers[obj.takerId];
                     var giver = indexedGivers[obj.giverId];
-                    var item  = indexedItems[obj.itemId];
+                    var listing  = indexedListings[obj.listingId];
 
                     var error;
                     if (! taker) {
@@ -649,18 +649,18 @@ Sails.load({
                         error.giverId      = obj.giverId;
                         logger.error({ err: error });
                     }
-                    if (! item) {
-                        error = new NotFoundError("Item not found");
+                    if (! listing) {
+                        error = new NotFoundError("Listing not found");
                         error.assessmentId = obj.assessment.id;
-                        error.itemId       = obj.itemId;
+                        error.listingId       = obj.listingId;
                         logger.error({ err: error });
                     }
 
                     if (! error) {
                         obj.taker   = taker;
                         obj.giver   = giver;
-                        obj.item    = item;
-                        obj.mediaId = item.mediasIds[0];
+                        obj.listing    = listing;
+                        obj.mediaId = listing.mediasIds[0];
 
                         memo.push(obj);
                     }
@@ -763,23 +763,23 @@ Sails.load({
                 return [
                     result,
                     Rating.find({ id: _.pluck(assessments, "id") }),
-                    Item.find({ id: _.pluck(assessments, "itemId") })
+                    Listing.find({ id: _.pluck(assessments, "listingId") })
                 ];
             })
-            .spread((result, ratings, items) => {
+            .spread((result, ratings, listings) => {
                 var indexedRatings = _.groupBy(ratings, "assessmentId");
-                var indexedItems   = _.indexBy(items, "id");
+                var indexedListings   = _.indexBy(listings, "id");
 
                 result = _.reduce(result, (memo, obj) => {
                     var assessment = obj.assessment;
-                    var item       = indexedItems[assessment.itemId];
+                    var listing       = indexedListings[assessment.listingId];
                     var ratings    = indexedRatings[assessment.id] || [];
 
                     var error;
-                    if (! item) {
-                        error = new NotFoundError("Item not found");
+                    if (! listing) {
+                        error = new NotFoundError("Listing not found");
                         error.assessmentId = assessment.id;
-                        error.itemId       = assessment.itemId;
+                        error.listingId       = assessment.listingId;
                         logger.error({ err: error });
                     }
 
@@ -802,10 +802,10 @@ Sails.load({
                         _.forEach(noRatersIds, userId => {
                             var newObj = _.clone(obj);
 
-                            newObj.item     = item;
+                            newObj.listing     = listing;
                             newObj.userId   = userId;
                             newObj.targetId = _.find(mustRatersId, id => id !== userId);
-                            newObj.mediaId  = item.mediasIds[0];
+                            newObj.mediaId  = listing.mediasIds[0];
 
                             memo.push(newObj);
                         });
@@ -867,7 +867,7 @@ Sails.load({
      * send email bookings to accept
      * @param {object} args
      * @param {object} args.booking
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} args.taker
      * @param {object} args.owner
      * @param {object} args.conversation
@@ -875,7 +875,7 @@ Sails.load({
      */
     function sendEmailBookingsToAccept(args) {
         var booking      = args.booking;
-        var item         = args.item;
+        var listing         = args.listing;
         var taker        = args.taker;
         var owner        = args.owner;
         var conversation = args.conversation;
@@ -883,8 +883,8 @@ Sails.load({
 
         return EmailTemplateService.sendEmailTemplate('booking-to-accept-owner', {
             user: owner,
-            item: item,
-            itemMedias: [media],
+            listing: listing,
+            listingMedias: [media],
             taker: taker,
             booking: booking,
             conversation: conversation
@@ -895,7 +895,7 @@ Sails.load({
      * send sms bookings to accept
      * @param {object} args
      * @param {object} args.booking
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} args.taker
      * @param {object} args.giver
      * @param {object} args.conversation
@@ -903,7 +903,7 @@ Sails.load({
      */
     function sendSmsBookingsToAccept(args) {
         var booking      = args.booking;
-        var item         = args.item;
+        var listing         = args.listing;
         var giver        = args.giver;
         var conversation = args.conversation;
 
@@ -912,13 +912,13 @@ Sails.load({
         }
 
         var conversationUrl = `${appDomain}/inbox/${conversation.id}`;
-        var itemShortName   = ToolsService.shrinkString(item.name, 32, 4);
+        var listingShortName   = ToolsService.shrinkString(listing.name, 32, 4);
         var priceResult     = EmailHelperService.getPriceAfterRebateAndFees(booking);
         var ownerNetIncome  = _.get(priceResult, "ownerNetIncome", 0);
 
         var isOwner = (booking.ownerId === giver.id);
 
-        var text = `Sharinplace: plus que quelques heures pour accepter la réservation de "${itemShortName}"`;
+        var text = `Sharinplace: plus que quelques heures pour accepter la réservation de "${listingShortName}"`;
         if (isOwner && ownerNetIncome) {
             text += ` en échange de ${priceResult.ownerNetIncomeStr}`;
 
@@ -940,21 +940,21 @@ Sails.load({
      * @param {object} args
      * @param {object} args.booking
      * @param {object} args.owner
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} args.conversation
      * @param {object} [args.media]
      */
     function sendEmailOwnersWithoutBankAccount(args) {
         var booking      = args.booking;
         var owner        = args.owner;
-        var item         = args.item;
+        var listing         = args.listing;
         var conversation = args.conversation;
         var media        = args.media;
 
         return EmailTemplateService.sendEmailTemplate('missing-bank-account-owner', {
             user: owner,
-            item: item,
-            itemMedias: [media],
+            listing: listing,
+            listingMedias: [media],
             booking: booking,
             conversation: conversation
         });
@@ -969,21 +969,21 @@ Sails.load({
      * @param {object} args.dueDate
      * @param {object} args.taker
      * @param {object} args.giver
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} [args.media]
      */
     function sendEmailUpcomingAssessmentsGiver(args) {
         var conversation = args.conversation;
         var taker        = args.taker;
         var giver        = args.giver;
-        var item         = args.item;
+        var listing         = args.listing;
         var dueDate      = args.dueDate;
         var media        = args.media;
 
         return EmailTemplateService.sendEmailTemplate('upcoming-assessment-giver', {
             user: giver,
-            item: item,
-            itemMedias: [media],
+            listing: listing,
+            listingMedias: [media],
             taker: taker,
             conversation: conversation,
             dueDate: dueDate
@@ -999,7 +999,7 @@ Sails.load({
      * @param {object} args.dueDate
      * @param {object} args.taker
      * @param {object} args.giver
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} [args.media]
      */
     function sendEmailUpcomingAssessmentsTaker(args) {
@@ -1007,14 +1007,14 @@ Sails.load({
         var assessment   = args.assessment;
         var taker        = args.taker;
         var giver        = args.giver;
-        var item         = args.item;
+        var listing         = args.listing;
         var dueDate      = args.dueDate;
         var media        = args.media;
 
         return EmailTemplateService.sendEmailTemplate('upcoming-assessment-taker', {
             user: taker,
-            item: item,
-            itemMedias: [media],
+            listing: listing,
+            listingMedias: [media],
             giver: giver,
             conversation: conversation,
             assessment: assessment,
@@ -1031,7 +1031,7 @@ Sails.load({
      * @param {object} args.conversation
      * @param {object} args.taker
      * @param {object} args.giver
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} args.dueDate
      * @param {object} [args.media]
      */
@@ -1040,14 +1040,14 @@ Sails.load({
         var booking      = args.booking;
         var taker        = args.taker;
         var giver        = args.giver;
-        var item         = args.item;
+        var listing         = args.listing;
         var dueDate      = args.dueDate;
         var media        = args.media;
 
         return EmailTemplateService.sendEmailTemplate('late-unsigned-assessment-giver', {
             user: giver,
-            item: item,
-            itemMedias: [media],
+            listing: listing,
+            listingMedias: [media],
             taker: taker,
             booking: booking,
             conversation: conversation,
@@ -1063,7 +1063,7 @@ Sails.load({
      * @param {object} args.conversation
      * @param {object} args.taker
      * @param {object} args.giver
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} args.dueDate
      * @param {object} [args.media]
      */
@@ -1072,7 +1072,7 @@ Sails.load({
         var assessment   = args.assessment;
         var booking      = args.booking;
         var giver        = args.giver;
-        var item         = args.item;
+        var listing         = args.listing;
 
         // not signing end assessment is not critical
         if (assessment.endBookingId) {
@@ -1086,11 +1086,11 @@ Sails.load({
         var isOwner = (booking.ownerId === giver.id);
 
         var conversationUrl = `${appDomain}/inbox/${conversation.id}`;
-        var itemShortName   = ToolsService.shrinkString(item.name, 32, 4);
+        var listingShortName   = ToolsService.shrinkString(listing.name, 32, 4);
         var priceResult     = EmailHelperService.getPriceAfterRebateAndFees(booking);
         var ownerNetIncome  = _.get(priceResult, "ownerNetIncome", 0);
 
-        var text = `Sharinplace: état des lieux en attente de votre signature "${itemShortName}"`;
+        var text = `Sharinplace: état des lieux en attente de votre signature "${listingShortName}"`;
         if (isOwner && ownerNetIncome) {
             text += ` pour recevoir vos ${priceResult.ownerNetIncomeStr}`;
         }
@@ -1108,22 +1108,22 @@ Sails.load({
      * @param {object} args
      * @param {object} args.assessment
      * @param {object} args.conversation
-     * @param {object} args.item
+     * @param {object} args.listing
      * @param {object} args.user
      * @param {object} args.target
      * @param {object} [args.media]
      */
     function sendEmailNoRatings(args) {
         var conversation = args.conversation;
-        var item         = args.item;
+        var listing         = args.listing;
         var user         = args.user;
         var target       = args.target;
         var media        = args.media;
 
         return EmailTemplateService.sendEmailTemplate('missing-rating', {
             user: user,
-            item: item,
-            itemMedias: [media],
+            listing: listing,
+            listingMedias: [media],
             targetUser: target,
             conversation: conversation
         });

@@ -34,15 +34,15 @@
         <div id="friend-referral__listing-board" class="item-wall grid-block small-up-2 s-medium-up-3">
             <div
                 class="grid-block item-wall__item-wrapper"
-                data-item="::item"
+                data-listing="::listing"
                 data-display-duration="false"
-                ng-repeat="item in ::vm.items | limitTo: 3"
+                ng-repeat="listing in ::vm.listings | limitTo: 3"
                 sip-item-card>
             </div>
         </div>
         <div class="text-center">
             <a id="friend-add-item-button" class="add-item-button button button--highlight text--semibold"
-                ui-sref="itemCreate">
+                ui-sref="listingCreate">
                 Déposer votre propre annonce
             </a>
         </div>

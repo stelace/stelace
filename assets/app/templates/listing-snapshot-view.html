@@ -5,17 +5,17 @@
             <div class="small-12 medium-8 item__summary flex-container">
                 <div class="owner__summary hide-for-small-only">
                     <a class="profile__image profile__thumb"
-                        ui-sref="user({ id: vm.item.owner.id })">
-                        <sip-img ng-src="{{vm.item.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                        ui-sref="user({ id: vm.listing.owner.id })">
+                        <sip-img ng-src="{{vm.listing.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
                     </a>
                     <p class="text-center no-margin-bottom text--light"
-                        ui-sref="user({ id: vm.item.owner.id })">
-                        {{vm.item.owner.fullname}}
+                        ui-sref="user({ id: vm.listing.owner.id })">
+                        {{vm.listing.owner.fullname}}
                         <span
-                            ng-if="vm.item.owner.nbRatings && vm.item.owner.ratingScore"
-                            data-user-score="{{::vm.item.owner.ratingScore}}"
-                            data-user-ratings="{{::vm.item.owner.nbRatings}}"
-                            data-name="{{::vm.item.owner.fullname}}"
+                            ng-if="vm.listing.owner.nbRatings && vm.listing.owner.ratingScore"
+                            data-user-score="{{::vm.listing.owner.ratingScore}}"
+                            data-user-ratings="{{::vm.listing.owner.nbRatings}}"
+                            data-name="{{::vm.listing.owner.fullname}}"
                             data-sip-rating-stars>
                         </span>
                     </p>
@@ -24,17 +24,17 @@
                     <h1 id="item-name"
                         class="user-generated"
                         itemprop="name">
-                        {{::vm.item.name}} <span ng-if="vm.item.name">{{vm.item.soldDate ? "a trouvé un nouveau propriétaire" : "n'est plus disponible"}}&nbsp;</span>
+                        {{::vm.listing.name}} <span ng-if="vm.listing.name">{{vm.listing.soldDate ? "a trouvé un nouveau propriétaire" : "n'est plus disponible"}}&nbsp;</span>
                     </h1>
                     <div>
                         <span class="bigger"
-                            ng-if="vm.item.nbRatings && vm.item.ratingScore"
-                            data-user-score="{{::vm.item.owner.ratingScore}}"
-                            data-user-ratings="{{::vm.item.owner.nbRatings}}"
-                            data-item-score="{{::vm.item.ratingScore}}"
-                            data-item-ratings="{{::vm.item.nbRatings}}"
-                            data-name="{{vm.item.owner.fullname}}"
-                            data-count="{{::vm.item.nbRatings}}"
+                            ng-if="vm.listing.nbRatings && vm.listing.ratingScore"
+                            data-user-score="{{::vm.listing.owner.ratingScore}}"
+                            data-user-ratings="{{::vm.listing.owner.nbRatings}}"
+                            data-listing-score="{{::vm.listing.ratingScore}}"
+                            data-listing-ratings="{{::vm.listing.nbRatings}}"
+                            data-name="{{vm.listing.owner.fullname}}"
+                            data-count="{{::vm.listing.nbRatings}}"
                             data-sip-rating-stars>
                         </span>
                     </div>
@@ -42,10 +42,10 @@
             </div>
             <div id="small-gallery" class="medium-4 item__summary-img-medium flex-container flex--center">
                 <div>
-                    <sip-img class="cursor-pointer" ng-src="{{vm.item.url + '?size=800x600&displayType=cover'}}" type="background" data-index="0" ng-click="vm.openImgSmallGallery($event)"></sip-img>
+                    <sip-img class="cursor-pointer" ng-src="{{vm.listing.url + '?size=800x600&displayType=cover'}}" type="background" data-index="0" ng-click="vm.openImgSmallGallery($event)"></sip-img>
                 </div>
                 <div ng-if="vm.nbPictures > 2">
-                    <sip-img class="cursor-pointer" ng-src="{{vm.item.medias[1].url + '?size=400x300&displayType=cover'}}" type="background" data-index="1" ng-click="vm.openImgSmallGallery($event)"></sip-img>
+                    <sip-img class="cursor-pointer" ng-src="{{vm.listing.medias[1].url + '?size=400x300&displayType=cover'}}" type="background" data-index="1" ng-click="vm.openImgSmallGallery($event)"></sip-img>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
         itemscope
         itemtype="http://schema.org/Product"
         itemref="item-name owner-stats similar-items">
-        <meta itemprop="image" content="{{vm.item.url}}">
+        <meta itemprop="image" content="{{vm.listing.url}}">
         <div class="small-12 desktop-8">
             <h2>Informations sur l'objet</h2>
             <div class="margin-bottom-plus text--vsmall">
@@ -106,24 +106,24 @@
             <div class="text-justify">
                 <p
                     itemprop="description">
-                    <strong ng-if="vm.item.stateComment || vm.item.bookingPreferences">
+                    <strong ng-if="vm.listing.stateComment || vm.listing.bookingPreferences">
                         Description<br>
                     </strong>
-                    {{vm.item.description}}
+                    {{vm.listing.description}}
                 </p>
-                <p ng-if="vm.item.accessories.length">
+                <p ng-if="vm.listing.accessories.length">
                     <strong>Accessoires</strong><br>
                     <!-- TODO : ng-repeat -->
-                    {{vm.item.accessories}}
+                    {{vm.listing.accessories}}
                 </p>
-                <p ng-if="vm.item.stateComment">
+                <p ng-if="vm.listing.stateComment">
                     <strong>État de l'objet</strong><br>
-                    {{vm.item.stateComment}}
+                    {{vm.listing.stateComment}}
                 </p>
-                <p ng-if="vm.item.deposit">
+                <p ng-if="vm.listing.deposit">
                     <strong>Dépôt de garantie</strong>
                     <br>
-                    {{vm.item.deposit}}€
+                    {{vm.listing.deposit}}€
                     <!-- Tooltip auto right placement is buggy here -->
                     &nbsp;
                     <span class="badge tooltip-badge"
@@ -133,10 +133,10 @@
                         ?
                     </span>
                 </p>
-                <p ng-if="vm.item.instructionsMedias && vm.item.instructionsMedias.length">
+                <p ng-if="vm.listing.instructionsMedias && vm.listing.instructionsMedias.length">
                     <strong>Informations complémentaires</strong>
                     <br>
-                    <span ng-repeat="media in vm.item.instructionsMedias track by media.id">
+                    <span ng-repeat="media in vm.listing.instructionsMedias track by media.id">
                         <a class="link--blue-underline"
                             ng-href="{{media.url}}"
                             target="_blank">
@@ -144,16 +144,16 @@
                         </a><br>
                     </span>
                 </p>
-                <p ng-if="vm.item.bookingPreferences">
+                <p ng-if="vm.listing.bookingPreferences">
                     <strong>Indications pour la réservation</strong><br>
-                    {{vm.item.bookingPreferences}}
+                    {{vm.listing.bookingPreferences}}
                 </p>
             </div>
             <div id="pics-grid" class="item__pics-grid flex-container aspect-ratio">
                 <div class="small-8">
                     <div class="item__image-container">
-                        <img ng-src="{{vm.item.url + '?size=800x600&displayType=cover'}}"
-                        alt="{{ vm.item.name }}"
+                        <img ng-src="{{vm.listing.url + '?size=800x600&displayType=cover'}}"
+                        alt="{{ vm.listing.name }}"
                         title="Cliquez pour agrandir"
                         class="item__image"
                         data-index="0"
@@ -162,8 +162,8 @@
                 </div>
                 <div class="flex-container flex--column small-4" ng-if="vm.nbPictures > 1">
                     <div class="item__image-container">
-                        <img ng-src="{{vm.item.medias[1].url + '?size=400x300&displayType=cover'}}"
-                            alt="{{ vm.item.name }} - 2"
+                        <img ng-src="{{vm.listing.medias[1].url + '?size=400x300&displayType=cover'}}"
+                            alt="{{ vm.listing.name }} - 2"
                             title="Cliquez pour agrandir"
                             class="item__image"
                             data-index="1"
@@ -171,8 +171,8 @@
                     </div>
                     <div class="item__image-container">
                         <img ng-if="vm.nbPictures > 2"
-                            ng-src="{{vm.item.medias[2].url + '?size=400x300&displayType=cover'}}"
-                            alt="{{ vm.item.name }} - 3"
+                            ng-src="{{vm.listing.medias[2].url + '?size=400x300&displayType=cover'}}"
+                            alt="{{ vm.listing.name }} - 3"
                             title="Cliquez pour agrandir"
                             data-index="2"
                             ng-click="vm.openImgGallery($event)">
@@ -209,22 +209,22 @@
 <div id="owner-stats" class="item__contact">
     <div class="fluid-content space">
         <div class="small-12 desktop-8">
-            <h2>Informations sur le propriétaire, {{vm.item.owner.fullname}}</h2>
+            <h2>Informations sur le propriétaire, {{vm.listing.owner.fullname}}</h2>
             <div class="owner__profile flex-container">
                 <div>
                     <a class="profile__image profile__thumb"
-                        ui-sref="user({ id: vm.item.owner.id })">
-                        <sip-img ng-src="{{vm.item.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                        ui-sref="user({ id: vm.listing.owner.id })">
+                        <sip-img ng-src="{{vm.listing.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
                     </a>
                 </div>
                 <div class="flex-item--grow">
-                    <p class="user-generated">{{vm.item.owner.description}}</p>
+                    <p class="user-generated">{{vm.listing.owner.description}}</p>
                     <div class="flex-container condensed-info text--small">
                         <div class="medium-6 flex-container flex--column">
                             <div>{{vm.ownerMainLocation.city}}{{vm.ownerMainLocation.region ? ', ' + vm.ownerMainLocation.region : ''}}</div>
-                            <div ng-switch="vm.item.owner.id">
+                            <div ng-switch="vm.listing.owner.id">
                                 <span ng-switch-when="1">Compte officiel Sharinplace</span>
-                                <span ng-switch-default>Membre depuis {{vm.item.owner.seniority}}</span>
+                                <span ng-switch-default>Membre depuis {{vm.listing.owner.seniority}}</span>
                             </div>
                         </div>
                         <div class="medium-6 flex-container flex--column" ng-if="vm.ownerMessageStats.answerRateString">
@@ -253,64 +253,64 @@
                             Confiance et vérification du profil
                         </p>
                         <div
-                            ng-if="::vm.item.owner"
-                            data-user="::vm.item.owner"
+                            ng-if="::vm.listing.owner"
+                            data-user="::vm.listing.owner"
                             data-sip-trust-info>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Item Ratings -->
-        <!-- vm.itemRatings.length should be equal to vm.item.nbRatings -->
+        <!-- Listing Ratings -->
+        <!-- vm.listingRatings.length should be equal to vm.listing.nbRatings -->
         <div class="small-12 desktop-8 padding-bottom item__comments"
-            ng-if="::vm.itemRatings.length">
+            ng-if="::vm.listingRatings.length">
             <div>
                 <h2 class="no-margin-bottom">
-                    <span ng-show="::vm.itemNbReviews">
-                        Évaluation<span ng-show="::vm.itemRatings.length > 1">s</span> de
+                    <span ng-show="::vm.listingNbReviews">
+                        Évaluation<span ng-show="::vm.listingRatings.length > 1">s</span> de
                     </span>
-                    <span ng-show="::(! vm.itemNbReviews)">
+                    <span ng-show="::(! vm.listingNbReviews)">
                         Avis sur
                     </span>
                     l'objet
                 </h2>
                 <span class="bigger"
-                    ng-if="::vm.item.nbRatings"
-                    data-user-score="{{::vm.item.owner.ratingScore}}"
-                    data-user-ratings="{{::vm.item.owner.nbRatings}}"
-                    data-item-score="{{::vm.item.ratingScore}}"
-                    data-item-ratings="{{::vm.item.nbRatings}}"
-                    data-name="{{vm.item.owner.fullname}}"
-                    data-count="{{::vm.item.nbRatings}}"
+                    ng-if="::vm.listing.nbRatings"
+                    data-user-score="{{::vm.listing.owner.ratingScore}}"
+                    data-user-ratings="{{::vm.listing.owner.nbRatings}}"
+                    data-listing-score="{{::vm.listing.ratingScore}}"
+                    data-listing-ratings="{{::vm.listing.nbRatings}}"
+                    data-name="{{vm.listing.owner.fullname}}"
+                    data-count="{{::vm.listing.nbRatings}}"
                     data-sip-rating-stars></span>
             </div>
             <div class="text--light text--small margin-bottom-plus"
-                ng-if="::(vm.item.nbRatings && vm.itemAvgRating)"
+                ng-if="::(vm.listing.nbRatings && vm.listingAvgRating)"
                 itemprop="aggregateRating"
                 itemscope
                 itemtype="http://schema.org/AggregateRating">
                 <span itemprop="reviewCount">
-                    {{::vm.item.nbRatings}}
+                    {{::vm.listing.nbRatings}}
                 </span>
-                évaluation<span ng-show="::vm.item.nbRatings > 1">s</span> de cet objet
-                dont {{::vm.itemNbReviews}} avec commentaire<span ng-show="::vm.itemNbReviews > 1">s</span>
+                évaluation<span ng-show="::vm.listing.nbRatings > 1">s</span> de cet objet
+                dont {{::vm.listingNbReviews}} avec commentaire<span ng-show="::vm.listingNbReviews > 1">s</span>
                 <br>
                 Note moyenne pour cet objet&nbsp;:
-                <span itemprop="ratingValue">{{vm.itemAvgRating}}</span>/5
+                <span itemprop="ratingValue">{{vm.listingAvgRating}}</span>/5
             </div>
-            <div ng-repeat="rating in ::vm.itemRatings">
+            <div ng-repeat="rating in ::vm.listingRatings">
                 <!-- Only show itemFirstRatings depending on itemNbReviews, using $index -->
                 <div class="margin-bottom-plus text-center"
-                    ng-if="::(vm.itemNbReviews && ($index === vm.itemNbReviews))"
-                    ng-hide="vm.itemFirstRatings && $index >= vm.itemFirstRatings">
+                    ng-if="::(vm.listingNbReviews && ($index === vm.listingNbReviews))"
+                    ng-hide="vm.listingFirstRatings && $index >= vm.listingFirstRatings">
                     <h3 class="no-margin-bottom">
-                        Autre<span ng-show="::(vm.itemRatings.length - vm.itemNbReviews) > 1">s</span>
-                        évaluation<span ng-show="::(vm.itemRatings.length - vm.itemNbReviews) > 1">s</span> de l'objet
+                        Autre<span ng-show="::(vm.listingRatings.length - vm.listingNbReviews) > 1">s</span>
+                        évaluation<span ng-show="::(vm.listingRatings.length - vm.listingNbReviews) > 1">s</span> de l'objet
                     </h3>
                 </div>
                 <div class="text-center text--small single-rating"
-                    ng-hide="vm.itemFirstRatings && $index >= vm.itemFirstRatings"
+                    ng-hide="vm.listingFirstRatings && $index >= vm.listingFirstRatings"
                     data-rating="::rating"
                     data-last="::$last"
                     data-is-current="true"
@@ -318,42 +318,42 @@
                 </div>
             </div>
             <div class="margin-top-plus text-center"
-                ng-if="vm.itemFirstRatings < vm.itemRatings.length">
+                ng-if="vm.listingFirstRatings < vm.listingRatings.length">
                 <span class="link--blue-underline text--small text--semibold cursor-pointer"
-                    ng-click="vm.itemFirstRatings = vm.itemFirstRatings + 3;">
+                    ng-click="vm.listingFirstRatings = vm.listingFirstRatings + 3;">
                     Voir d'autres avis
                 </span>
             </div>
         </div>
-        <!-- Other Items Ratings -->
+        <!-- Other Listings Ratings -->
         <div class="small-12 desktop-8 item__comments"
-            ng-class="::{'margin-top-plus': vm.itemRatings.length}"
-            ng-if="::vm.otherItemsRatings.length">
+            ng-class="::{'margin-top-plus': vm.listingRatings.length}"
+            ng-if="::vm.otherListingsRatings.length">
             <h3>
-                <span ng-show="::vm.itemRatings.length">Autres évaluations</span>
-                <span ng-hide="::vm.itemRatings.length">Évaluations</span>
-                reçues par {{::(vm.item.owner.firstname || vm.item.owner.fullname)}}
+                <span ng-show="::vm.listingRatings.length">Autres évaluations</span>
+                <span ng-hide="::vm.listingRatings.length">Évaluations</span>
+                reçues par {{::(vm.listing.owner.firstname || vm.listing.owner.fullname)}}
             </h3>
             <!-- Limit potential duplicate content across owner's items with filter -->
-            <div ng-repeat="rating in vm.otherItemsRatings | limitTo: (vm.othersFirstRatings + 10) track by rating.id">
-                <!-- Only show othersFirstRatings depending on otherItemsNbReviews, using $index -->
+            <div ng-repeat="rating in vm.otherListingsRatings | limitTo: (vm.othersFirstRatings + 10) track by rating.id">
+                <!-- Only show othersFirstRatings depending on otherListingsNbReviews, using $index -->
                 <div class="margin-bottom-plus text-center"
-                    ng-if="::(vm.otherItemsNbReviews && ($index === vm.otherItemsNbReviews))"
+                    ng-if="::(vm.otherListingsNbReviews && ($index === vm.otherListingsNbReviews))"
                     ng-hide="vm.othersFirstRatings && $index >= vm.othersFirstRatings">
                     <h3 class="no-margin-bottom">
-                        Autre<span ng-show="::(vm.otherItemsRatings.length - vm.otherItemsNbReviews) > 1">s</span>
-                        évaluation<span ng-show="::(vm.otherItemsRatings.length - vm.otherItemsNbReviews) > 1">s</span>
+                        Autre<span ng-show="::(vm.otherListingsRatings.length - vm.otherListingsNbReviews) > 1">s</span>
+                        évaluation<span ng-show="::(vm.otherListingsRatings.length - vm.otherListingsNbReviews) > 1">s</span>
                     </h3>
                 </div>
                 <div class="text-center text--small single-rating"
                     ng-hide="vm.othersFirstRatings && $index >= vm.othersFirstRatings"
                     data-rating="::rating"
-                    data-last="::($index === vm.otherItemsRatings.length - 1)"
+                    data-last="::($index === vm.otherListingsRatings.length - 1)"
                     data-sip-rating>
                 </div>
             </div>
             <div class="margin-top-plus text-center"
-                ng-if="vm.othersFirstRatings < vm.otherItemsRatings.length">
+                ng-if="vm.othersFirstRatings < vm.otherListingsRatings.length">
                 <span class="link--blue-underline text--small text--semibold cursor-pointer"
                     ng-click="vm.othersFirstRatings = vm.othersFirstRatings + 3;">
                     En voir plus
@@ -364,30 +364,30 @@
 </div>
 <div id="similar-items" class="item__others">
     <div class="fluid-content space">
-        <h3 ng-if="vm.similarItems.length">
+        <h3 ng-if="vm.similarListings.length">
             Autres objets qui pourraient vous intéresser
         </h3>
         <div id="similar-items-list" class="item-wall grid-block small-up-1 desktop-up-3"
-            ng-if="vm.similarItems.length">
+            ng-if="vm.similarListings.length">
         <!-- Referencing several times the same product was not recommended until recently -->
         <!-- See http://stackoverflow.com/questions/12869478/should-schema-rich-snippet-use-for-product-listing-too -->
         <!-- But seems ok now, see https://developers.google.com/structured-data/policies#multiple_entities_on_the_same_page -->
             <div class="grid-block item-wall__item-wrapper"
-                data-display-duration="{{vm.similarItemsShowDuration}}"
-                data-item="item"
+                data-display-duration="{{vm.similarListingsShowDuration}}"
+                data-listing="listing"
                 data-locname="{{vm.searchFromLocations[0].city || vm.searchFromLocations[0].name}}"
-                ng-repeat="item in vm.similarItems"
+                ng-repeat="listing in vm.similarListings"
                 itemprop="isSimilarTo"
                 itemscope
                 itemtype="http://schema.org/Product"
                 data-sip-item-card>
             </div>
         </div>
-        <h3 ng-if="vm.item.completeTags.length">
+        <h3 ng-if="vm.listing.completeTags.length">
             Recherche d'objets à louer par mot-clé
         </h3>
         <a class="item-tag"
-            ng-repeat="tag in vm.item.completeTags"
+            ng-repeat="tag in vm.listing.completeTags"
             ui-sref="searchWithQuery({query: tag.nameURLSafe})">
             {{tag.name}}&nbsp;
         </a>

@@ -14,7 +14,7 @@
                                 $window,
                                 authenticationModal,
                                 cache,
-                                ItemService,
+                                ListingService,
                                 ListingTypeService,
                                 // LocationService,
                                 map,
@@ -30,7 +30,7 @@
 
         var mqSmall        = $window.matchMedia("(max-width: 639px)");
         var currentUser;
-        var items;
+        var listings;
 
         var vm = this;
 
@@ -73,19 +73,19 @@
 
             $q.all({
                 currentUser: UserService.getCurrentUser(),
-                items: ItemService.cleanGetList({ landing: true }),
+                listings: ListingService.cleanGetList({ landing: true }),
                 listingTypes: ListingTypeService.cleanGetList()
             })
             .then(function (results) {
                 currentUser = tools.clearRestangular(results.currentUser);
-                items       = vm.isSmall ? _.sample(results.items, 6) : results.items;
+                listings       = vm.isSmall ? _.sample(results.listings, 6) : results.listings;
                 vm.listingTypes = results.listingTypes;
 
-                ItemService.populate(items, {
+                ListingService.populate(listings, {
                     listingTypes: vm.listingTypes
                 });
 
-                vm.items     = items;
+                vm.listings     = listings;
 
                 return uiGmapGoogleMapApi;
             })
@@ -125,7 +125,7 @@
                         searchConfig.activeLocations = [];
                     }
 
-                    return ItemService.setSearchConfig(searchConfig, currentUser);
+                    return ListingService.setSearchConfig(searchConfig, currentUser);
                 })
                 .then(function () {
                     var stateParams = {

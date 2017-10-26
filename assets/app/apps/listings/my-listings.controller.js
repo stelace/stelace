@@ -3,10 +3,10 @@
 (function () {
 
     angular
-        .module("app.items")
-        .controller("MyItemsController", MyItemsController);
+        .module("app.listings")
+        .controller("MyListingsController", MyListingsController);
 
-    function MyItemsController($http,
+    function MyListingsController($http,
                                 $location,
                                 $q,
                                 $rootScope,
@@ -21,7 +21,7 @@
                                 diacritics,
                                 ezfb,
                                 ListingCategoryService,
-                                ItemService,
+                                ListingService,
                                 ListingTypeService,
                                 LocationService,
                                 loggerToServer,
@@ -39,29 +39,29 @@
                                 UserService,
                                 usSpinnerService) {
         var listeners               = [];
-        var itemValidationFields    = ["title", "category", "description", "media", "price", "sellingPrice", "deposit"];
+        var listingValidationFields    = ["title", "category", "description", "media", "price", "sellingPrice", "deposit"];
         var initialDefaultDeposit   = 50; // EUR
         var nbDaysPricing           = 7;
         var breakpointDays          = [3, 7, 14, 28];
         var lastBreakpointDay       = _.last(breakpointDays);
-        var itemId                  = parseInt($stateParams.id, 10);
+        var listingId                  = parseInt($stateParams.id, 10);
         var tags                    = [];  // save tag bindings until search
         var mediaSelectionInitiated = false;
-        var savingItem              = false;
-        var itemNameChanged         = false;
+        var savingListing              = false;
+        var listingNameChanged         = false;
         // var ratioDayOneSellingPrice = 25;
-        var item;
-        var myItems;
+        var listing;
+        var myListings;
         // var brands;
         var listingCategories;
-        var itemPricing;
+        var listingPricing;
         var stepProgressDone;
         var myLocations;
         var isAdmin;
         var currentUser;
-        var newItemTmp;
-        var anonymousItemTmp;
-        var debouncedSaveItem;
+        var newListingTmp;
+        var anonymousListingTmp;
+        var debouncedSaveListing;
         var debouncedPriceRecommendation;
         var refreshLocations;
         var mediasSelector;
@@ -76,11 +76,11 @@
 
         vm.isActivePriceRecommendation = StelaceConfig.isFeatureActive('PRICE_RECOMMENDATION');
         vm.showTags             = false;
-        vm.viewCreate           = ($state.current.name === "itemCreate");
-        vm.myItemsView          = ($state.current.name === "myItems");
-        vm.showItemEditor       = !! itemId;
+        vm.viewCreate           = ($state.current.name === "listingCreate");
+        vm.myListingsView          = ($state.current.name === "myListings");
+        vm.showListingEditor       = !! listingId;
         vm.listingType          = $stateParams.t;
-        vm.itemId               = itemId;
+        vm.listingId               = listingId;
         vm.showSocialLogin      = authentication.isSocialLoginAllowed();
         vm.useSocialLogin       = false;
         vm.isAuthenticated      = false;
@@ -89,15 +89,15 @@
         vm.defaultDayOnePrice   = 0;
         vm.defaultDeposit       = initialDefaultDeposit;
         vm.maxDeposit           = 600; // EUR
-        vm.itemBookingPrices    = _.map(breakpointDays, function (day) { return { day: day }; });
-        vm.myItemsEditor        = {};
+        vm.listingBookingPrices    = _.map(breakpointDays, function (day) { return { day: day }; });
+        vm.myListingsEditor        = {};
         vm.tags                 = [];
-        vm.myItems              = [];
-        vm.selectedShareItem    = null;
+        vm.myListings              = [];
+        vm.selectedShareListing    = null;
         // vm.brands            = [];
         vm.listingCategoriesLvl1 = [];
         vm.listingCategoriesLvl2 = [];
-        vm.itemTags             = [];
+        vm.listingTags             = [];
         vm.configMedias         = [];
         vm.isMoveModeAllowed    = false;
         vm.mediaMode            = "edit";
@@ -143,12 +143,12 @@
         vm.socialLogin                    = socialLogin;
         vm.selectListingCategoryLvl2         = selectListingCategoryLvl2;
         vm.categoryChanged                = categoryChanged;
-        vm.saveItem                       = saveItem;
+        vm.saveListing                       = saveListing;
         // vm.updateBrandList             = updateBrandList;
         vm.showStep2                      = showStep2;
         vm.showStep3AndUpdatePrice        = showStep3AndUpdatePrice;
         vm.updateDeposit                  = updateDeposit;
-        vm.onDeleteItem                   = onDeleteItem;
+        vm.onDeleteListing                   = onDeleteListing;
         vm.tagTransform                   = tagTransform;
         vm.getTags                        = getTags;
         vm.lostPasswordModal              = lostPasswordModal;
@@ -160,9 +160,9 @@
         vm.prevMedia                      = prevMedia;
         vm.nextMedia                      = nextMedia;
         vm.changeMediaMode                = changeMediaMode;
-        vm.facebookShareMyItem            = facebookShareMyItem;
+        vm.facebookShareMyListing            = facebookShareMyListing;
         vm.fixCustomPricing               = fixCustomPricing;
-        vm.toggleItemListingTimeProperty  = toggleItemListingTimeProperty;
+        vm.toggleListingListingTimeProperty  = toggleListingListingTimeProperty;
 
         activate();
 
@@ -174,9 +174,9 @@
                     currentUser = isAuthenticated ? currentUser : null;
 
                     if (! vm.isAuthenticated && ! vm.viewCreate) {
-                        return $state.go("itemCreate");
+                        return $state.go("listingCreate");
                     } else if (! vm.isAuthenticated) {
-                        vm.myItems = [];
+                        vm.myListings = [];
                     }
 
                     return _fetchUserInfo();
@@ -210,7 +210,7 @@
             debouncedPriceRecommendation = tools.debounceAction(getPriceRecommendation, 1000).process;
 
             if (vm.viewCreate) {
-                StelaceEvent.sendEvent("Item creation view")
+                StelaceEvent.sendEvent("Listing creation view")
                     .then(function (stelaceEvent) {
                         stlEvent = stelaceEvent;
                     });
@@ -232,17 +232,17 @@
                 currentUser: UserService.getCurrentUser(),
                 // brands: BrandService.getList(),
                 listingCategories: ListingCategoryService.cleanGetList(),
-                itemPricing: pricing.getPricing(),
+                listingPricing: pricing.getPricing(),
                 tags: vm.activeTags ? TagService.cleanGetList() : [],
                 listingTypes: ListingTypeService.cleanGetList(),
-                newItemTmp: ItemService.getNewItemTmp(null)
+                newListingTmp: ListingService.getNewListingTmp(null)
             }).then(function (results) {
                 // brands                = results.brands;
                 // vm.brands             = brands;
                 currentUser           = results.currentUser;
                 listingCategories     = results.listingCategories;
                 myLocations           = tools.clearRestangular(results.myLocations);
-                itemPricing           = results.itemPricing;
+                listingPricing           = results.listingPricing;
                 tags                  = _.sortBy(results.tags, function (tag) {
                     return - (tag.timesSearched + tag.timesAdded);
                 }); // return most used and most searched tags first
@@ -262,7 +262,7 @@
 
                 return _fetchUserInfo();
             }).then(function () {
-                var urlCanonical = platform.getBaseUrl() + "/item/new";
+                var urlCanonical = platform.getBaseUrl() + "/listing/new";
                 var imgUrl       = platform.getBaseUrl() + "/assets/img/app/background/Janet_Ramsden_Attribution_Bokeh_Gift_Small.jpg";
                 var title        = "";
                 var description  = "Pour prolonger l'esprit de Noël, Sharinplace reverse à des associations 10% du montant des ventes"
@@ -274,7 +274,7 @@
                     "og:description": description
                 };
 
-                // Meta description and title are set in items.route
+                // Meta description and title are set in listings.route
 
                 og["og:image"]            = imgUrl;
                 og["og:image:secure_url"] = imgUrl;
@@ -299,41 +299,41 @@
                 .then(function (user) {
                     currentUser  = user;
                     userPromises = {
-                        newItemTmp: ItemService.getNewItemTmp(currentUser || null)
+                        newListingTmp: ListingService.getNewListingTmp(currentUser || null)
                     };
 
                     if (currentUser) {
                         _.assign(userPromises, {
                             myLocations: LocationService.getMine(),
-                            myItems: ItemService.getMyItems(),
+                            myListings: ListingService.getMyListings(),
                             myImage: MediaService.getMyImage(),
                             isAdmin: UserService.isAdmin(),
-                            anonymousItemTmp: ItemService.getNewItemTmp(null)
+                            anonymousListingTmp: ListingService.getNewListingTmp(null)
                         });
                     }
 
                     return $q.all(userPromises);
                 })
                 .then(function (results) {
-                    newItemTmp       = results.newItemTmp;
-                    myItems          = _.sortBy(results.myItems || [], function (item) {
-                        return - (item.updatedDate);
+                    newListingTmp       = results.newListingTmp;
+                    myListings          = _.sortBy(results.myListings || [], function (listing) {
+                        return - (listing.updatedDate);
                     });
                     myLocations      = results.myLocations;
                     isAdmin          = results.isAdmin;
-                    anonymousItemTmp = results.anonymousItemTmp;
+                    anonymousListingTmp = results.anonymousListingTmp;
 
 
                     var shouldRecycleAnonymousItmTmp = currentUser
-                        && (! newItemTmp || (newItemTmp && ! (newItemTmp.name && newItemTmp.listingCategoryId)));
+                        && (! newListingTmp || (newListingTmp && ! (newListingTmp.name && newListingTmp.listingCategoryId)));
                     // Keep work of anonymous user who has just authenticated
-                    // Old user draft automatic locations or prices alone do not count for much if item name is missing
+                    // Old user draft automatic locations or prices alone do not count for much if listing name is missing
                     if (shouldRecycleAnonymousItmTmp) {
-                        newItemTmp = anonymousItemTmp;
-                        ItemService.setNewItemTmp(null, null); // Avoid to pass input data to another future user
+                        newListingTmp = anonymousListingTmp;
+                        ListingService.setNewListingTmp(null, null); // Avoid to pass input data to another future user
                     }
 
-                    debouncedSaveItem = _getDebouncedSaveItem();
+                    debouncedSaveListing = _getDebouncedSaveListing();
 
                     if (currentUser) {
                         currentUser.fullname = currentUser.getFullname();
@@ -342,30 +342,30 @@
                         vm.noImage           = (results.myImage.url === platform.getDefaultProfileImageUrl());
                         vm.existingPhone     = currentUser.phoneCheck;
 
-                        if (itemId) {
-                            var index = _.findIndex(myItems, function (item) {
-                                return item.id === itemId;
+                        if (listingId) {
+                            var index = _.findIndex(myListings, function (listing) {
+                                return listing.id === listingId;
                             });
                             if (index === -1) {
-                                $state.go("itemCreate");
+                                $state.go("listingCreate");
                                 return;
                             }
-                            item = myItems[index];
-                        } else if (! vm.viewCreate && myItems.length === 0) { // myItems
-                            return $state.go("itemCreate");
+                            listing = myListings[index];
+                        } else if (! vm.viewCreate && myListings.length === 0) { // myListings
+                            return $state.go("listingCreate");
                         }
 
-                        _.forEach(myItems, function (item) {
-                            item.slug        = ItemService.getItemSlug(item);
-                            item.ownerRating = { // expected format for item-card's rating-stars
+                        _.forEach(myListings, function (listing) {
+                            listing.slug        = ListingService.getListingSlug(listing);
+                            listing.ownerRating = { // expected format for item-card's rating-stars
                                 ratingScore: currentUser.ratingScore,
                                 nbRatings: currentUser.nbRatings
                             };
                         });
 
-                        vm.myItems = _.cloneDeep(myItems);
+                        vm.myListings = _.cloneDeep(myListings);
 
-                        ItemService.populate(vm.myItems, {
+                        ListingService.populate(vm.myListings, {
                             // brands: brands,
                             listingCategories: listingCategories,
                             locations: myLocations,
@@ -373,74 +373,74 @@
                             listingTypes: vm.listingTypes
                         });
 
-                        vm.selectedShareItem = vm.myItems.length ? vm.myItems[0] : null;
+                        vm.selectedShareListing = vm.myListings.length ? vm.myListings[0] : null;
 
                         if (vm.activeTags) {
                             vm.showTags         = isAdmin;
                         }
                     }
 
-                    if (! savingItem) {
-                        _initItem();
+                    if (! savingListing) {
+                        _initListing();
                     }
                 });
         }
 
-        function _initItem() {
-            if (! item && ! newItemTmp) { // new item from scratch
-                vm.item                     = {};
-                vm.itemMedias               = [];
+        function _initListing() {
+            if (! listing && ! newListingTmp) { // new listing from scratch
+                vm.listing                     = {};
+                vm.listingMedias            = [];
                 vm.stepProgress             = 0;
                 vm.step2                    = false;
                 vm.step3                    = false;
-                vm.saveItemBtnDisabled      = false;
+                vm.saveListingBtnDisabled      = false;
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
                 vm.mediasMaxNbReached       = false;
-                vm.item.listingTypesIds     = [];
+                vm.listing.listingTypesIds     = [];
                 stepProgressDone            = {};
 
-                vm.itemFullValidation       = true;
-                vm.itemValidationFields     = {};
-                _.forEach(itemValidationFields, function (field) {
-                    vm.itemValidationFields[field] = false;
+                vm.listingFullValidation       = true;
+                vm.listingValidationFields     = {};
+                _.forEach(listingValidationFields, function (field) {
+                    vm.listingValidationFields[field] = false;
                 });
 
                 if (currentUser) {
-                    vm.item.listLocations = _.map(myLocations, function (location) {
+                    vm.listing.listLocations = _.map(myLocations, function (location) {
                         var l = _.clone(location);
                         l.checked = true;
                         return l;
                     });
                 }
 
-                vm.itemTags = [];
-            } else if (! item && newItemTmp) { // when using local storage
-                vm.item                     = _.cloneDeep(newItemTmp);
-                vm.itemMedias               = [];
+                vm.listingTags = [];
+            } else if (! listing && newListingTmp) { // when using local storage
+                vm.listing                     = _.cloneDeep(newListingTmp);
+                vm.listingMedias               = [];
                 vm.stepProgress             = 0;
                 vm.step2                    = false;
                 vm.step3                    = false;
-                vm.saveItemBtnDisabled      = false;
+                vm.saveListingBtnDisabled      = false;
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
-                vm.item.listingTypesIds     = vm.item.listingTypesIds || [];
+                vm.listing.listingTypesIds     = vm.listing.listingTypesIds || [];
                 stepProgressDone            = {};
                 vm.mediasMaxNbReached       = false;
 
-                vm.itemFullValidation       = true;
-                vm.itemValidationFields     = {};
-                _.forEach(itemValidationFields, function (field) {
-                    vm.itemValidationFields[field] = false;
+                vm.listingFullValidation       = true;
+                vm.listingValidationFields     = {};
+                _.forEach(listingValidationFields, function (field) {
+                    vm.listingValidationFields[field] = false;
                 });
 
                 if (currentUser
-                    && (! vm.item.listLocations || ! vm.item.listLocations.length)
+                    && (! vm.listing.listLocations || ! vm.listing.listLocations.length)
                 ) {
-                    // Possibly no location yet if using old anonymous ItemTmp
-                    vm.item.listLocations = _.map(myLocations, function (location) {
+                    // Possibly no location yet if using old anonymous ListingTmp
+                    vm.listing.listLocations = _.map(myLocations, function (location) {
                         var l = _.clone(location);
                         l.checked = true;
                         return l;
@@ -453,16 +453,16 @@
                 setDefaultPrices();
                 showStep2();
 
-                platform.debugDev("step 3 init newItemTmp", vm.item)
+                platform.debugDev("step 3 init newListingTmp", vm.listing)
 
-                if (_.isFinite(vm.item.sellingPrice)) {
+                if (_.isFinite(vm.listing.sellingPrice)) {
                     platform.debugDev("step 3 from new init")
                     showStep3AndUpdatePrice();
                 }
-            } else { // existing item and user
-                vm.item = _.cloneDeep(item);
+            } else { // existing listing and user
+                vm.listing = _.cloneDeep(listing);
 
-                ItemService.populate(vm.item, {
+                ListingService.populate(vm.listing, {
                     // brands: brands,
                     listingCategories: listingCategories,
                     locations: myLocations,
@@ -470,11 +470,11 @@
                     listingTypes: vm.listingTypes
                 });
 
-                vm.itemMedias               = vm.item.medias;
+                vm.listingMedias               = vm.listing.medias;
                 vm.stepProgress             = 100;
                 vm.step2                    = true;
                 vm.step3                    = true;
-                vm.saveItemBtnDisabled      = !! item.soldDate;
+                vm.saveListingBtnDisabled      = !! listing.soldDate;
                 vm.validPrice               = true;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
@@ -486,25 +486,25 @@
 
                 setDefaultPrices();
 
-                _.forEach(vm.itemMedias, function (media) {
+                _.forEach(vm.listingMedias, function (media) {
                     media.url += "?size=450x300";
                 });
 
-                var itemLocations = item.locations;
-                vm.item.listLocations = _.map(myLocations, function (location) {
+                var listingLocations = listing.locations;
+                vm.listing.listLocations = _.map(myLocations, function (location) {
                     var l = _.clone(location);
-                    var found = _.find(itemLocations, function (loc) {
+                    var found = _.find(listingLocations, function (loc) {
                         return loc === location.id;
                     });
                     l.checked = !! found;
                     return l;
                 });
 
-                vm.selectedShareItem = vm.item;
+                vm.selectedShareListing = vm.listing;
             }
 
-            mediasSelector = ItemService.getMediasSelector({
-                medias: vm.itemMedias
+            mediasSelector = ListingService.getMediasSelector({
+                medias: vm.listingMedias
             });
             vm.configMedias      = mediasSelector.getConfigMedias();
             vm.isMoveModeAllowed = mediasSelector.isMoveModeAllowed();
@@ -513,36 +513,36 @@
             _computeListingTypesProperties();
             _initPrice();
 
-            listeners.push($scope.$watch("vm.item.name", _.debounce(_nameChanged, vm.isActivePriceRecommendation ? 1500 : 0)));
-            listeners.push($scope.$watch("vm.item.sellingPrice", _.throttle(_sellingPriceChanged, 2000)));
+            listeners.push($scope.$watch("vm.listing.name", _.debounce(_nameChanged, vm.isActivePriceRecommendation ? 1500 : 0)));
+            listeners.push($scope.$watch("vm.listing.sellingPrice", _.throttle(_sellingPriceChanged, 2000)));
         }
 
         function saveLocal(field) {
-            if (vm.viewCreate && debouncedSaveItem) {
-                debouncedSaveItem(field);
+            if (vm.viewCreate && debouncedSaveListing) {
+                debouncedSaveListing(field);
             }
         }
 
-        function _getDebouncedSaveItem() {
+        function _getDebouncedSaveListing() {
             return _.debounce(function (field) {
-                var newItem = _.cloneDeep(vm.item);
+                var newListing = _.cloneDeep(vm.listing);
 
                 if (vm.showListingCategories) {
                     if (vm.selectedListingCategoryLvl2) {
-                        newItem.listingCategoryId = vm.selectedListingCategoryLvl2.id;
+                        newListing.listingCategoryId = vm.selectedListingCategoryLvl2.id;
                     } else if (vm.selectedListingCategoryLvl1) {
-                        newItem.listingCategoryId = vm.selectedListingCategoryLvl1.id;
+                        newListing.listingCategoryId = vm.selectedListingCategoryLvl1.id;
                     }
                 }
 
                 if (vm.activeTags) {
-                    TagService.deduplicateTagsByInsensitiveName(vm.itemTags, tags);
-                    newItem.tags = _.pluck(vm.itemTags, "id");
+                    TagService.deduplicateTagsByInsensitiveName(vm.listingTags, tags);
+                    newListing.tags = _.pluck(vm.listingTags, "id");
                 }
 
                 _updateUxEventData(field);
 
-                return ItemService.setNewItemTmp(currentUser || null, newItem);
+                return ListingService.setNewListingTmp(currentUser || null, newListing);
             }, 1000);
         }
 
@@ -553,7 +553,7 @@
 
             var hashTags = _.indexBy(tags, "id");
 
-            vm.itemTags = _.reduce(vm.item.tags, function (memo, tagId) {
+            vm.listingTags = _.reduce(vm.listing.tags, function (memo, tagId) {
                 var tag = hashTags[tagId];
                 if (tag) {
                     memo.push(tag);
@@ -567,16 +567,16 @@
                 return;
             }
 
-            if (vm.item.listingCategoryId) {
-                var cat = _.find(listingCategories, function (itemCat) {
-                    return itemCat.id === vm.item.listingCategoryId;
+            if (vm.listing.listingCategoryId) {
+                var cat = _.find(listingCategories, function (listingCat) {
+                    return listingCat.id === vm.listing.listingCategoryId;
                 });
                 if (! cat.parentId) {
                     vm.selectedListingCategoryLvl1 = cat;
                 } else {
                     vm.selectedListingCategoryLvl2 = cat;
-                    vm.selectedListingCategoryLvl1 = _.find(listingCategories, function (itemCat) {
-                        return itemCat.id === cat.parentId;
+                    vm.selectedListingCategoryLvl1 = _.find(listingCategories, function (listingCat) {
+                        return listingCat.id === cat.parentId;
                     });
                 }
                 selectListingCategoryLvl2();
@@ -637,10 +637,10 @@
         }
 
         function _nameChanged(newName, oldName) {
-            itemNameChanged = itemNameChanged || newName !== oldName;
-            platform.debugDev("_nameChanged:", itemNameChanged, newName, "<=", oldName)
+            listingNameChanged = listingNameChanged || newName !== oldName;
+            platform.debugDev("_nameChanged:", listingNameChanged, newName, "<=", oldName)
 
-            if (! itemNameChanged
+            if (! listingNameChanged
                 || ! newName
             ) {
                 return;
@@ -651,11 +651,11 @@
         }
 
         function showStep2() {
-            if (! vm.item || ! vm.item.name) {
+            if (! vm.listing || ! vm.listing.name) {
                 return;
             }
             // No listingType
-            if (vm.showListingTypes && !_.keys(vm.item.listingTypesIds).length) {
+            if (vm.showListingTypes && !_.keys(vm.listing.listingTypesIds).length) {
                 return;
             }
 
@@ -670,22 +670,22 @@
             platform.debugDev("show step 2");
             vm.step2 = true;
 
-            if (! stepProgressDone.itemName) {
+            if (! stepProgressDone.listingName) {
                 vm.stepProgress += 25;
-                stepProgressDone.itemName = true;
+                stepProgressDone.listingName = true;
             }
         }
 
         function getPriceRecommendation() {
             var lettersRegex = /[a-zA-Z]{2,}/; // at least 2 letters
-            var nameTooShort = ! vm.item.name || ! lettersRegex.test(diacritics.remove(vm.item.name));
+            var nameTooShort = ! vm.listing.name || ! lettersRegex.test(diacritics.remove(vm.listing.name));
             var start = moment();
 
-            platform.debugDev("call recommendation, itemNameChanged:", !! itemNameChanged);
+            platform.debugDev("call recommendation, listingNameChanged:", !! listingNameChanged);
 
-            // useless to get recommandation for same existing item name
+            // useless to get recommandation for same existing listing name
             if (nameTooShort
-                || ! itemNameChanged
+                || ! listingNameChanged
             ) {
                 platform.debugDev("Abort recommendation, name too short:", nameTooShort);
                 return;
@@ -694,7 +694,7 @@
             usSpinnerService.spin("price-recommendation-spinner");
             vm.recommendedPrices.status = "pending";
 
-            return ItemService.getRecommendedPrices(vm.item.name)
+            return ListingService.getRecommendedPrices(vm.listing.name)
             // return $q.when({ // testing
             //       "price": 15,
             //       "dayOnePrice": 3.9,
@@ -718,8 +718,8 @@
 
                     platform.debugDev(vm.pricingSlider, vm.pricingSliderOverlayLeft, vm.pricingSliderOverlayRight)
 
-                    if (typeof vm.item.sellingPrice === "undefined") {
-                        vm.item.sellingPrice = vm.recommendedPrices.price;
+                    if (typeof vm.listing.sellingPrice === "undefined") {
+                        vm.listing.sellingPrice = vm.recommendedPrices.price;
                         platform.debugDev("step 3 from price reco");
                         showStep3AndUpdatePrice();
                     }
@@ -737,7 +737,7 @@
                     }
 
                     _updateUxEventData();
-                    itemNameChanged = false;
+                    listingNameChanged = false;
                 });
 
             function stopRecommendationSpinner(delay) {
@@ -788,8 +788,8 @@
         }
 
         function showStep3AndUpdatePrice() {
-            if (! vm.item
-                || typeof vm.item.sellingPrice === "undefined"
+            if (! vm.listing
+                || typeof vm.listing.sellingPrice === "undefined"
             ) {
                 return;
             }
@@ -797,9 +797,9 @@
 
             vm.step3 = true;
 
-            if (! stepProgressDone.itemPrice) {
+            if (! stepProgressDone.listingPrice) {
                 vm.stepProgress += 25;
-                stepProgressDone.itemPrice = true;
+                stepProgressDone.listingPrice = true;
             }
 
             setDefaultPrices();
@@ -807,26 +807,26 @@
         }
 
         function _initPrice() {
-            if (vm.item.sellingPrice) {
+            if (vm.listing.sellingPrice) {
                 $timeout(function () {
                     // let ng-model selling price trickle down to slider
-                    vm.pricingSlider.options.ceil = getPricingSliderCeil(vm.item.sellingPrice);
+                    vm.pricingSlider.options.ceil = getPricingSliderCeil(vm.listing.sellingPrice);
                     // $scope.$broadcast('rzSliderForceRender');
                 });
             }
 
-            if (! vm.item.customPricingConfig) {
+            if (! vm.listing.customPricingConfig) {
                 return;
             }
 
             var customPrices = pricing.getPrice({
-                config: vm.item.customPricingConfig,
-                nbDays: _.last(vm.itemBookingPrices).day,
+                config: vm.listing.customPricingConfig,
+                nbDays: _.last(vm.listingBookingPrices).day,
                 custom: true,
                 array: true
             });
 
-            _.forEach(vm.itemBookingPrices, function (booking) {
+            _.forEach(vm.listingBookingPrices, function (booking) {
                 var customPrice = customPrices[booking.day - 1];
                 if (booking.defaultPrice !== customPrice) {
                     booking.price = customPrice;
@@ -852,11 +852,11 @@
                         var prices = pricing.getPrice({
                             dayOne: dayOnePrice,
                             nbDays: lastBreakpointDay,
-                            config: vm.item.id ? vm.item.pricing.config : itemPricing.config,
+                            config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
                             array: true
                         });
 
-                        _.forEach(vm.itemBookingPrices, function (booking) {
+                        _.forEach(vm.listingBookingPrices, function (booking) {
                             booking.defaultPrice = prices[booking.day - 1];
                         });
 
@@ -870,14 +870,14 @@
             vm.defaultDeposit     = 0;
             getDayOnePrice(); // for view
 
-            _.forEach(vm.itemBookingPrices, function (booking) {
+            _.forEach(vm.listingBookingPrices, function (booking) {
                 booking.defaultPrice = 0;
             });
         }
 
         function updateDeposit() {
-            if (vm.item.deposit && vm.item.deposit > vm.maxDeposit) {
-                vm.item.deposit = vm.maxDeposit;
+            if (vm.listing.deposit && vm.listing.deposit > vm.maxDeposit) {
+                vm.listing.deposit = vm.maxDeposit;
                 vm.showDepositWarning = true;
             } else {
                 vm.showDepositWarning = false;
@@ -888,41 +888,41 @@
             authentication.socialLogin(provider);
         }
 
-        function saveItem() {
-            var updatingItem;
+        function saveListing() {
+            var updatingListing;
 
-            savingItem       = true;
+            savingListing       = true;
             // refresh after promptModal only if no current locations
-            refreshLocations = !! vm.item.listLocations;
+            refreshLocations = !! vm.listing.listLocations;
 
-            if (! vm.item.name) {
+            if (! vm.listing.name) {
                 return toastr.info("Veuillez renseigner un titre pour votre annonce. Un titre clair et précis (marque, modèle...) attirera l'attention des membres.",
                     "Titre requis", {
                         timeOut: 0,
                         closeButton: true
                 });
             }
-            if (isNaN(parseFloat(vm.item.sellingPrice))) {
+            if (isNaN(parseFloat(vm.listing.sellingPrice))) {
                 return toastr.info("Veuillez renseigner la valeur de l'objet.",
                     "Prix manquant", {
                         timeOut: 0,
                         closeButton: true
                 });
             }
-            if (! vm.item.description) {
+            if (! vm.listing.description) {
                 return toastr.info("Veuillez renseigner une description. Ceci encouragera les autres membres à vous contacter.",
                     "Description requise", {
                         timeOut: 0,
                         closeButton: true
                 });
             }
-            if (!vm.item.listingTypesIds.length) {
+            if (!vm.listing.listingTypesIds.length) {
                 return toastr.info("Veuillez renseigner un type d'annonce (location, vente…)", "Type d'annonce manquant", {
                     timeOut: 0,
                     closeButton: true
                 });
             }
-            if (vm.itemMedias.length === 0) {
+            if (vm.listingMedias.length === 0) {
                 return toastr.info("Et si vous ajoutiez une image pour mettre toutes les chances de votre côté\xa0?", "Photographie manquante", {
                     timeOut: 0,
                     closeButton: true
@@ -943,14 +943,14 @@
 
             vm.useSocialLogin      = false;
 
-            vm.saveItemBtnDisabled = true;
+            vm.saveListingBtnDisabled = true;
             usSpinnerService.spin('save-item-spinner');
 
             $q.when(true)
                 .then(function () {
-                    if (vm.isAuthenticated && item) {
-                        updatingItem = true;
-                        return _updateItem();
+                    if (vm.isAuthenticated && listing) {
+                        updatingListing = true;
+                        return _updateListing();
                     } else if (vm.isAuthenticated) {
                         return true;
                     } else if (vm.createAccount) {
@@ -960,13 +960,13 @@
                     }
                 })
                 .then(function (isAuthenticated) {
-                    return ! updatingItem && afterAuthentication(isAuthenticated);
+                    return ! updatingListing && afterAuthentication(isAuthenticated);
                 })
                 .catch(afterAuthenticationErrorHandler)
                 .finally(function () {
                     usSpinnerService.stop('save-item-spinner');
-                    vm.saveItemBtnDisabled = false;
-                    savingItem             = false;
+                    vm.saveListingBtnDisabled = false;
+                    savingListing             = false;
                 });
         }
 
@@ -996,8 +996,8 @@
                     myLocations = locations;
 
                     // New user can't select specific locations yet
-                    if (! vm.item.listLocations || ! vm.item.listLocations.length) {
-                        vm.item.listLocations = _.map(myLocations, function (location) {
+                    if (! vm.listing.listLocations || ! vm.listing.listLocations.length) {
+                        vm.listing.listLocations = _.map(myLocations, function (location) {
                             var l = _.clone(location);
                             l.checked = true;
                             return l;
@@ -1005,13 +1005,13 @@
                     }
 
                     if (locations && locations.length) {
-                        return _createItem();
+                        return _createListing();
                     } else {
                         toastr.warning("Nous ne pouvons malheureusement pas enregistrer votre objet sans localisation.", "Adresse ou ville requise");
                         return false;
                     }
 
-                    // return _createItem();
+                    // return _createListing();
                 })
                 .catch(afterAuthenticationErrorHandler);
         }
@@ -1057,7 +1057,7 @@
 
                     attrs.customPricingConfig = customPricing;
 
-                    attrs.locations = _.reduce(vm.item.listLocations, function (memo, location) {
+                    attrs.locations = _.reduce(vm.listing.listLocations, function (memo, location) {
                         if (location.checked) {
                             memo.push(location.id);
                         }
@@ -1074,8 +1074,8 @@
                 });
         }
 
-        function _createItem() {
-            var createAttrs = _.pick(vm.item, [
+        function _createListing() {
+            var createAttrs = _.pick(vm.listing, [
                 "name",
                 "reference",
                 "description",
@@ -1084,12 +1084,12 @@
                 "acceptFree",
                 "listingTypesIds"
             ]);
-            createAttrs.mode = vm.item.mode;
+            createAttrs.mode = vm.listing.mode;
 
-            vm.itemMedias           = mediasSelector.getMedias();
+            vm.listingMedias           = mediasSelector.getMedias();
             var indexedConfigMedias = _.indexBy(vm.configMedias, "id");
-            var uploadMediasManager = ItemService.getUploadMediasManager({
-                medias: vm.itemMedias,
+            var uploadMediasManager = ListingService.getUploadMediasManager({
+                medias: vm.listingMedias,
                 notify: function (totalProgress, configProgress) {
                     vm.totalMediaUpload = totalProgress;
 
@@ -1101,10 +1101,10 @@
                 }
             });
 
-            var validationFields = _.filter(itemValidationFields, function (field) {
-                return vm.itemValidationFields[field];
+            var validationFields = _.filter(listingValidationFields, function (field) {
+                return vm.listingValidationFields[field];
             });
-            if (vm.itemFullValidation) {
+            if (vm.listingFullValidation) {
                 createAttrs.validation = true;
                 createAttrs.validationFields = ["All"]; // easier to read for backoffice than full list
             } else {
@@ -1117,24 +1117,24 @@
             }
 
             var mediasIds = [];
-            var createdItem;
+            var createdListing;
 
             return $q.when(createAttrs)
                 .then(_setSaveAttrs)
                 .then(function () {
-                    TagService.deduplicateTagsByInsensitiveName(vm.itemTags, tags);
+                    TagService.deduplicateTagsByInsensitiveName(vm.listingTags, tags);
 
                     return _createNewTags();
                 })
                 .then(function () {
-                    createAttrs.tags = _.pluck(vm.itemTags, "id");
-                    return ItemService.post(createAttrs);
+                    createAttrs.tags = _.pluck(vm.listingTags, "id");
+                    return ListingService.post(createAttrs);
                 })
-                .then(function (newItem) {
-                    createdItem = newItem;
+                .then(function (newListing) {
+                    createdListing = newListing;
 
                     // useful because other functions use it below
-                    ItemService.populate(createdItem, {
+                    ListingService.populate(createdListing, {
                         listingTypes: vm.listingTypes
                     });
 
@@ -1143,8 +1143,8 @@
 
                     uploadMediasManager.start();
 
-                    return ItemService
-                        .uploadMedias(createdItem.id, vm.itemMedias, [], function (mediaId, progress) {
+                    return ListingService
+                        .uploadMedias(createdListing.id, vm.listingMedias, [], function (mediaId, progress) {
                             uploadMediasManager.updateProgress(mediaId, progress);
                         })
                         .then(function (result) {
@@ -1160,14 +1160,14 @@
                             }
                             if (result.change) {
                                 mediasIds = _.union(mediasIds, result.mediasIds);
-                                return createdItem.updateMedias(result.mediasIds);
+                                return createdListing.updateMedias(result.mediasIds);
                             }
                         });
                 })
                 .then(function () {
-                    return ItemService.getMyItems(true);
+                    return ListingService.getMyListings(true);
                 })
-                .then(function (myItems) {
+                .then(function (myListings) {
                     if (vm.createAccount && ! vm.useSocialLogin) {
                         toastr.success("Veuillez confirmer votre adresse " + vm.email + " en cliquant sur le lien que nous venons de vous envoyer par email.", "Vérification de votre adresse", {
                             timeOut: 0,
@@ -1175,9 +1175,9 @@
                         });
                     }
 
-                    vm.myItems = _.cloneDeep(myItems);
+                    vm.myListings = _.cloneDeep(myListings);
 
-                    ItemService.populate(vm.myItems, {
+                    ListingService.populate(vm.myListings, {
                         // brands: brands,
                         listingCategories: listingCategories,
                         locations: myLocations,
@@ -1185,41 +1185,41 @@
                         listingTypes: vm.listingTypes
                     });
 
-                    ItemService.setNewItemTmp(null, null);
-                    ItemService.setNewItemTmp(currentUser, null);
+                    ListingService.setNewListingTmp(null, null);
+                    ListingService.setNewListingTmp(currentUser, null);
 
-                    newItemTmp       = null;
+                    newListingTmp       = null;
                     vm.createAccount = false;
 
-                    _initItem(); // reset form content if viewCreate (no itemId in URL)
+                    _initListing(); // reset form content if viewCreate (no listingId in URL)
                     $rootScope.$emit("refreshStickySidebarPosition");
-                    _resetMyItemsEditorState();
+                    _resetMyListingsEditorState();
 
                     toastr.success((createAttrs.validation ? "Votre annonce sera publiée très prochainement après validation." : "Votre annonce a bien été publiée."),
                         "Bravo, objet ajouté\xa0!"
                     );
 
-                    // default item creation: no medias
+                    // default listing creation: no medias
                     // so if none, do not perform update media
                     if (mediasIds.length) {
-                        return createdItem.updateMedias(mediasIds);
+                        return createdListing.updateMedias(mediasIds);
                     } else {
                         return true;
                     }
                 })
                 .finally(function () {
                     // Always send Google Analytics since user is engaged
-                    var gaLabel = 'itemId: ' + createdItem.id;
-                    ga('send', 'event', 'Items', 'Create', gaLabel);
+                    var gaLabel = 'listingId: ' + createdListing.id;
+                    ga('send', 'event', 'Listings', 'Create', gaLabel);
                     // Facebook event
                     var fbEventParams = {
-                        content_name: createdItem.name,
-                        content_ids: [createdItem.id],
-                        sip_offer_types: ItemService.getFbOfferTypes(createdItem)
+                        content_name: createdListing.name,
+                        content_ids: [createdListing.id],
+                        sip_offer_types: ListingService.getFbOfferTypes(createdListing)
                     };
 
-                    var fbRentingDayOnePrice = ItemService.getFbRentingDayOnePrice(createdItem);
-                    var fbSellingPrice       = ItemService.getFbSellingPrice(createdItem);
+                    var fbRentingDayOnePrice = ListingService.getFbRentingDayOnePrice(createdListing);
+                    var fbSellingPrice       = ListingService.getFbSellingPrice(createdListing);
                     if (typeof fbRentingDayOnePrice === "number") {
                         fbEventParams.sip_renting_day_one_price = fbRentingDayOnePrice;
                     }
@@ -1227,24 +1227,24 @@
                         fbEventParams.sip_selling_price = fbSellingPrice;
                     }
 
-                    fbq('trackCustom', 'AddItem', fbEventParams);
+                    fbq('trackCustom', 'AddListing', fbEventParams);
 
                     // Stelace event
                     var stelaceData = { nbPictures: mediasIds.length };
                     _addPriceRecommendationInfoToEventData(stelaceData);
-                    StelaceEvent.sendEvent("Item creation", {
-                        itemId: createdItem.id,
+                    StelaceEvent.sendEvent("Listing creation", {
+                        listingId: createdListing.id,
                         type: "click",
                         data: stelaceData
                     });
                 });
         }
 
-        function _updateItem() {
-            vm.itemMedias           = mediasSelector.getMedias();
+        function _updateListing() {
+            vm.listingMedias           = mediasSelector.getMedias();
             var indexedConfigMedias = _.indexBy(vm.configMedias, "id");
-            var uploadMediasManager = ItemService.getUploadMediasManager({
-                medias: vm.itemMedias,
+            var uploadMediasManager = ListingService.getUploadMediasManager({
+                medias: vm.listingMedias,
                 notify: function (totalProgress, configProgress) {
                     vm.totalMediaUpload = totalProgress;
 
@@ -1256,18 +1256,18 @@
                 }
             });
 
-            return $q.when(vm.item)
+            return $q.when(vm.listing)
             .then(_setSaveAttrs)
             .then(function () {
-                    Restangular.restangularizeElement(null, vm.item, "item");
+                    Restangular.restangularizeElement(null, vm.listing, "listing");
 
-                    TagService.deduplicateTagsByInsensitiveName(vm.itemTags, tags);
+                    TagService.deduplicateTagsByInsensitiveName(vm.listingTags, tags);
 
                     return _createNewTags();
                 })
                 .then(function () {
-                    vm.item.tags = _.pluck(vm.itemTags, "id");
-                    return vm.item.put();
+                    vm.listing.tags = _.pluck(vm.listingTags, "id");
+                    return vm.listing.put();
                 })
                 .then(function () {
                     vm.totalMediaUpload     = 0;
@@ -1275,8 +1275,8 @@
 
                     uploadMediasManager.start();
 
-                    return ItemService
-                        .uploadMedias(vm.item.id, vm.itemMedias, item.medias, function (mediaId, progress) {
+                    return ListingService
+                        .uploadMedias(vm.listing.id, vm.listingMedias, listing.medias, function (mediaId, progress) {
                             uploadMediasManager.updateProgress(mediaId, progress);
                         })
                         .then(function (result) {
@@ -1291,21 +1291,21 @@
                                 toastr.warning("Nous sommes désolés, veuillez réessayer d'ajouter les images manquantes un peu plus tard.", "Image(s) non enregistrée(s)");
                             }
                             if (result.change) {
-                                return vm.item.updateMedias(result.mediasIds);
+                                return vm.listing.updateMedias(result.mediasIds);
                             }
                         });
                 })
                 .then(function () {
-                    return ItemService.getMyItems(true);
+                    return ListingService.getMyListings(true);
                 })
-                .then(function (myItems) {
-                    item = _.find(myItems, function (i) {
-                        return item.id === i.id;
+                .then(function (myListings) {
+                    listing = _.find(myListings, function (i) {
+                        return listing.id === i.id;
                     });
 
-                    vm.myItems = _.cloneDeep(myItems);
+                    vm.myListings = _.cloneDeep(myListings);
 
-                    ItemService.populate(vm.myItems, {
+                    ListingService.populate(vm.myListings, {
                         // brands: brands,
                         listingCategories: listingCategories,
                         locations: myLocations,
@@ -1313,13 +1313,13 @@
                         listingTypes: vm.listingTypes
                     });
 
-                    _initItem();
+                    _initListing();
                     toastr.success("Objet modifié");
                 });
         }
 
         function _createNewTags() {
-            var newTags = _.filter(vm.itemTags, function (tag) {
+            var newTags = _.filter(vm.listingTags, function (tag) {
                 return tag.isNew;
             });
 
@@ -1344,11 +1344,11 @@
             });
         }
 
-        function onDeleteItem(itemId) {
-            var index = _.findIndex(vm.myItems, function (item) {
-                return item.id === itemId;
+        function onDeleteListing(listingId) {
+            var index = _.findIndex(vm.myListings, function (listing) {
+                return listing.id === listingId;
             });
-            vm.myItems.splice(index, 1);
+            vm.myListings.splice(index, 1);
         }
 
         function tagTransform(tag) {
@@ -1449,9 +1449,9 @@
                 });
         }
 
-        function _resetMyItemsEditorState() {
-            vm.myItemsEditor.$setPristine();
-            vm.myItemsEditor.$setUntouched();
+        function _resetMyListingsEditorState() {
+            vm.myListingsEditor.$setPristine();
+            vm.myListingsEditor.$setUntouched();
         }
 
         function touchMedia(/* mediaId */) {
@@ -1463,7 +1463,7 @@
                 .select(mediaId, file)
                 .then(function () {
                     vm.isMoveModeAllowed = mediasSelector.isMoveModeAllowed();
-                    vm.itemMedias        = mediasSelector.getMedias();
+                    vm.listingMedias        = mediasSelector.getMedias();
                     _updateUxEventData("picture");
                 });
         }
@@ -1471,7 +1471,7 @@
         function removeMedia(mediaId) {
             mediasSelector.remove(mediaId);
             vm.isMoveModeAllowed = mediasSelector.isMoveModeAllowed();
-            vm.itemMedias        = mediasSelector.getMedias();
+            vm.listingMedias        = mediasSelector.getMedias();
         }
 
         function prevMedia(mediaId) {
@@ -1511,7 +1511,7 @@
                     lastPrice = breakpoint.price;
                 });
 
-                _.forEach(vm.itemBookingPrices, function (bookingPrice, index) {
+                _.forEach(vm.listingBookingPrices, function (bookingPrice, index) {
                     // difference of index because bookingPrices doesn't include dayOne price
                     var correctPrice = customPricing.breakpoints[index + 1].price;
 
@@ -1539,7 +1539,7 @@
             var formField;
 
             _.forEach(fields, function (field) {
-                formField = vm.myItemsEditor["item" + tools.toStartCase(field)];
+                formField = vm.myListingsEditor["listing" + tools.toStartCase(field)];
 
                 if (formField && formField.$touched && formField.$invalid) {
                     stlEventData.completed[field] = "failed";
@@ -1575,8 +1575,8 @@
             }
         }
 
-        function facebookShareMyItem() {
-            if (! vm.selectedShareItem || ! vm.selectedShareItem.slug) {
+        function facebookShareMyListing() {
+            if (! vm.selectedShareListing || ! vm.selectedShareListing.slug) {
                 return;
             }
 
@@ -1588,19 +1588,19 @@
                 utmCampaign: "item-share-owner",
                 utmContent: "picture"
             };
-            var itemUrl     = platform.getItemShareUrl(vm.selectedShareItem.slug, shareUtmTags);
+            var listingUrl     = platform.getListingShareUrl(vm.selectedShareListing.slug, shareUtmTags);
             var description = "Ajouté(e) par " + vm.displayName + " en (presque) un éclair. "
                 + "Empruntez ou achetez l'objet de vos rêves en toute sécurité ou, comme " + vm.displayName + ", créez vos propres annonces sur Sharinplace.";
             var stlEventData = {
-                tagsIds: vm.selectedShareItem.tags,
-                origin: itemId ? "editItem" : "myItems",
+                tagsIds: vm.selectedShareListing.tags,
+                origin: listingId ? "editListing" : "myListings",
                 isOwner: true
             };
             var stlEvent;
 
-            StelaceEvent.sendEvent("Item social share", {
+            StelaceEvent.sendEvent("Listing social share", {
                 type: "click",
-                itemId: vm.selectedShareItem.id,
+                listingId: vm.selectedShareListing.id,
                 data: stlEventData
             })
             .then(function (stelaceEvent) {
@@ -1608,7 +1608,7 @@
 
                 ezfb.ui({
                     method: "share",
-                    href: itemUrl,
+                    href: listingUrl,
                     // Parameters not documented
                     // See http://stackoverflow.com/questions/23781698/fb-ui-share-set-the-title-message-and-image#answer-33924247
                     description: description,
@@ -1632,7 +1632,7 @@
             var defaultPrices = pricing.getPrice({
                 dayOne: dayOnePrice,
                 nbDays: lastBreakpointDay,
-                config: vm.item.id ? vm.item.pricing.config : itemPricing.config,
+                config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
                 array: true
             });
             var customPricing = {
@@ -1646,7 +1646,7 @@
             });
 
             _.forEach(breakpointDays, function (breakpointDay) {
-                var bookingPrice = _.find(vm.itemBookingPrices, function (bookingPrice) {
+                var bookingPrice = _.find(vm.listingBookingPrices, function (bookingPrice) {
                     return bookingPrice.day === breakpointDay;
                 });
                 var custom = (typeof bookingPrice.price !== "undefined" && bookingPrice.price !== null);
@@ -1666,11 +1666,11 @@
         }
 
         function getSellingPrice() {
-            if (typeof vm.item.sellingPrice === "undefined") {
+            if (typeof vm.listing.sellingPrice === "undefined") {
                 return;
             }
 
-            var sellingPrice = parseFloat(vm.item.sellingPrice);
+            var sellingPrice = parseFloat(vm.listing.sellingPrice);
 
             if (isNaN(sellingPrice)) {
                 return;
@@ -1680,11 +1680,11 @@
         }
 
         function getDayOnePrice(defaultDayOnePrice) {
-            if (typeof vm.item.dayOnePrice === "undefined") {
+            if (typeof vm.listing.dayOnePrice === "undefined") {
                 return defaultDayOnePrice;
             }
 
-            var dayOnePrice = parseFloat(vm.item.dayOnePrice);
+            var dayOnePrice = parseFloat(vm.listing.dayOnePrice);
 
             if (isNaN(dayOnePrice)) {
                 return defaultDayOnePrice;
@@ -1710,11 +1710,11 @@
 
             var deposit;
 
-            if (typeof vm.item.deposit === "undefined") {
+            if (typeof vm.listing.deposit === "undefined") {
                 return defaultDeposit;
             }
 
-            deposit = parseFloat(vm.item.deposit);
+            deposit = parseFloat(vm.listing.deposit);
 
             if (! isNaN(deposit)) {
                 return deposit;
@@ -1727,30 +1727,30 @@
             return tools.clampNumber(dayOnePrice * vm.factorDeposit, initialDefaultDeposit, vm.maxDeposit);
         }
 
-        function toggleItemListingTimeProperty(propertyName) {
+        function toggleListingListingTimeProperty(propertyName) {
             vm.listingTypesProperties.TIME = vm.listingTypesProperties.TIME || {};
             vm.listingTypesProperties.TIME[propertyName] = !vm.listingTypesProperties.TIME[propertyName];
 
-            vm.item.listingTypesIds = [];
+            vm.listing.listingTypesIds = [];
 
             if (vm.listingTypesProperties.TIME.NONE) {
-                vm.item.listingTypesIds.push(vm.timeNoneListingType.id);
+                vm.listing.listingTypesIds.push(vm.timeNoneListingType.id);
             }
             if (vm.listingTypesProperties.TIME.TIME_FLEXIBLE) {
-                vm.item.listingTypesIds.push(vm.timeFlexibleListingType.id);
+                vm.listing.listingTypesIds.push(vm.timeFlexibleListingType.id);
             }
         }
 
         function _computeListingTypesProperties() {
-            // not a created item
-            if (!vm.item.id) {
+            // not a created listing
+            if (!vm.listing.id) {
                 // TODO: take the url filter into account
                 _.forEach(vm.listingTypes, function (listingType) {
-                    vm.item.listingTypesIds.push(listingType.id);
+                    vm.listing.listingTypesIds.push(listingType.id);
                 })
             }
 
-            vm.listingTypesProperties = ItemService.getListingTypesProperties(vm.item, vm.listingTypes);
+            vm.listingTypesProperties = ListingService.getListingTypesProperties(vm.listing, vm.listingTypes);
         }
     }
 

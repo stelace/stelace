@@ -1,6 +1,6 @@
 /*
     global Assessment, AssessmentGamificationService, AssessmentService, Booking, Conversation,
-    EmailTemplateService, Item, ListingHistoryService, SmsTemplateService, User
+    EmailTemplateService, Listing, ListingHistoryService, SmsTemplateService, User
  */
 
 module.exports = {
@@ -37,14 +37,14 @@ async function findAssessments(conversationId, userId) {
 
     var error;
 
-    if (! conversation.itemId) {
-        error = new Error("Conversation must have an itemId");
+    if (! conversation.listingId) {
+        error = new Error("Conversation must have an listingId");
         error.conversationId = conversation.id;
         throw error;
     }
 
-    const listingHistories = await ListingHistoryService.getListingHistories([conversation.itemId]);
-    const listingHistory = listingHistories[conversation.itemId];
+    const listingHistories = await ListingHistoryService.getListingHistories([conversation.listingId]);
+    const listingHistory = listingHistories[conversation.listingId];
 
     var inputAssessment;
     var outputAssessment;
@@ -138,16 +138,16 @@ function createAssessment(args) {
         }
 
         if (typeof beforeAssessment === "undefined") {
-            beforeAssessment = yield Assessment.getLastSigned(booking.itemId);
-        } else if (beforeAssessment.itemId !== booking.itemId) {
-            throw new BadRequestError("the before assessment and booking don't match on item id");
+            beforeAssessment = yield Assessment.getLastSigned(booking.listingId);
+        } else if (beforeAssessment.listingId !== booking.listingId) {
+            throw new BadRequestError("the before assessment and booking don't match on listing id");
         }
 
         if (beforeAssessment && ! stateFields) {
             _.assign(createAttrs, Assessment.getPrefilledStateFields(beforeAssessment));
         }
 
-        createAttrs.itemId   = booking.itemId;
+        createAttrs.listingId   = booking.listingId;
         createAttrs.ownerId  = booking.ownerId;
         createAttrs.takerId  = booking.takerId;
 
@@ -192,7 +192,7 @@ function updateAssessment(assessmentId, updateAttrs, userId) {
         if (! assessment) {
             throw new NotFoundError();
         }
-        // the user that can edit assessment is the one that gives the item
+        // the user that can edit assessment is the one that gives the listing
         if (Assessment.getRealGiverId(assessment) !== userId) {
             throw new ForbiddenError();
         }
@@ -220,7 +220,7 @@ async function signAssessment(assessmentId, signToken, userId, logger, req) {
     if (! assessment) {
         throw new NotFoundError();
     }
-    // the user that can sign assessment is the one that gives the item
+    // the user that can sign assessment is the one that gives the listing
     if (Assessment.getRealGiverId(assessment) !== userId) {
         throw new ForbiddenError();
     }
@@ -287,7 +287,7 @@ async function signAssessment(assessmentId, signToken, userId, logger, req) {
 function createOutputAssessment(assessment, startBooking) {
     return Promise.coroutine(function* () {
         var outputAssessment = yield Assessment.findOne({
-            itemId: assessment.itemId,
+            listingId: assessment.listingId,
             takerId: assessment.takerId,
             ownerId: assessment.ownerId,
             endBookingId: assessment.startBookingId
@@ -360,7 +360,7 @@ function _sendAssessmentEmailsSms(data) {
             .resolve()
             .then(() => {
                 return [
-                    Item.findOne({ id: assessment.itemId }),
+                    Listing.findOne({ id: assessment.listingId }),
                     assessment.startBookingId ? Booking.findOne({ id: assessment.startBookingId }) : null,
                     assessment.endBookingId ? Booking.findOne({ id: assessment.endBookingId }) : null,
                     User.findOne({ id: assessment.ownerId }),
@@ -368,16 +368,16 @@ function _sendAssessmentEmailsSms(data) {
                     getConversation(assessment)
                 ];
             })
-            .spread((item, startBooking, endBooking, owner, taker, conversation) => {
-                if (! item
+            .spread((listing, startBooking, endBooking, owner, taker, conversation) => {
+                if (! listing
                     || ! owner
                     || ! taker
                     || (assessment.startBookingId && ! startBooking)
                     || (assessment.endBookingId && ! endBooking)
                 ) {
                     var error = new Error("Booking accept missing references");
-                    if (! item) {
-                        error.itemId = assessment.itemId;
+                    if (! listing) {
+                        error.listingId = assessment.listingId;
                     }
                     if (! owner) {
                         error.ownerId = assessment.ownerId;
@@ -401,7 +401,7 @@ function _sendAssessmentEmailsSms(data) {
                 var data = {};
                 data.assessment    = assessment;
                 data.newAssessment = newAssessment;
-                data.item          = item;
+                data.listing          = listing;
                 data.startBooking  = startBooking;
                 data.endBooking    = endBooking;
                 data.owner         = owner;
@@ -428,7 +428,7 @@ function _sendAssessmentEmailsSms(data) {
         var logger        = data.logger;
         var assessment    = data.assessment;
         var newAssessment = data.newAssessment;
-        var item          = data.item;
+        var listing          = data.listing;
         var startBooking  = data.startBooking;
         var endBooking    = data.endBooking;
         var owner         = data.owner;
@@ -438,7 +438,7 @@ function _sendAssessmentEmailsSms(data) {
         return Promise
             .resolve()
             .then(() => {
-                // send booking-checkout emails to taker and owner if startBookingId, or item-return emails to owner and taker if endBookingId
+                // send booking-checkout emails to taker and owner if startBookingId, or listing-return emails to owner and taker if endBookingId
                 if (assessment.startBookingId) {
                     if (! newAssessment && ! Booking.isNoTime(startBooking)) {
                         throw new BadRequestError("newAssessment missing");
@@ -451,8 +451,8 @@ function _sendAssessmentEmailsSms(data) {
                     ]);
                 } else if (assessment.endBookingId) {
                     return Promise.all([
-                        sendEmailItemReturnToTaker(),
-                        sendEmailItemReturnToOwner()
+                        sendEmailListingReturnToTaker(),
+                        sendEmailListingReturnToOwner()
                     ]);
                 }
             });
@@ -463,7 +463,7 @@ function _sendAssessmentEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('booking-checkout-taker', {
                     user: taker,
-                    item: item,
+                    listing: listing,
                     booking: startBooking,
                     owner: owner,
                     assessment: assessment,
@@ -479,7 +479,7 @@ function _sendAssessmentEmailsSms(data) {
             return EmailTemplateService
                 .sendEmailTemplate('booking-checkout-owner', {
                     user: owner,
-                    item: item,
+                    listing: listing,
                     booking: startBooking,
                     taker: taker,
                     assessment: assessment,
@@ -510,11 +510,11 @@ function _sendAssessmentEmailsSms(data) {
                 });
         }
 
-        function sendEmailItemReturnToTaker() {
+        function sendEmailListingReturnToTaker() {
             return EmailTemplateService
-                .sendEmailTemplate('item-return-taker', {
+                .sendEmailTemplate('listing-return-taker', {
                     user: taker,
-                    item: item,
+                    listing: listing,
                     booking: endBooking,
                     owner: owner,
                     assessment: assessment,
@@ -525,11 +525,11 @@ function _sendAssessmentEmailsSms(data) {
                 });
         }
 
-        function sendEmailItemReturnToOwner() {
+        function sendEmailListingReturnToOwner() {
             return EmailTemplateService
-                .sendEmailTemplate('item-return-owner', {
+                .sendEmailTemplate('listing-return-owner', {
                     user: owner,
-                    item: item,
+                    listing: listing,
                     booking: endBooking,
                     taker: taker,
                     assessment: assessment,

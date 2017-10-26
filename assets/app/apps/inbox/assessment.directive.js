@@ -14,7 +14,7 @@
                 booking: "=",
                 bankAccountMissing: "=", // to show appropriate warnings to owner
                 interlocutor: "=",
-                item: "=",
+                listing: "=",
                 ratings: "=", // only for final assessment
                 onSave: "=",
                 showForm: "="

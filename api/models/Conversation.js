@@ -9,7 +9,7 @@ module.exports = {
 
     attributes: {
         newContentDate: "string", // only updated if new content if conversation (not for read status changes)
-        itemId: {
+        listingId: {
             type: "integer",
             index: true,
             required: true
@@ -85,7 +85,7 @@ function getAccessFields(access) {
     var accessFields = {
         self: [
             "id",
-            "itemId",
+            "listingId",
             "bookingId",
             "inputAssessmentId",
             "outputAssessmentId",
@@ -105,7 +105,7 @@ function getAccessFields(access) {
         ],
         others: [
             "id",
-            "itemId",
+            "listingId",
             "bookingId",
             "senderId",
             "receiverId",

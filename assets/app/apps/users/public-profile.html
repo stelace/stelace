@@ -2,7 +2,7 @@
     <div class="header-space"></div>
     <div id="user-profile-container" class="fluid-content">
         <div id="user__introduction"
-            ng-class="{ 'pull-bottom': vm.itemsOnly }">
+            ng-class="{ 'pull-bottom': vm.listingsOnly }">
             <h1>
                 <span ng-hide="vm.isCurrentUser && ! vm.showPublicLayout">
                     Bienvenue sur ma page<span ng-if="::vm.user.displayName">, je suis</span>
@@ -19,7 +19,7 @@
         </div>
         <div class="flex-container small-vertical desktop-horizontal">
             <div id="user__content" class="desktop-8"
-                ng-class="{ 'user__content--items-only': vm.itemsOnly }">
+                ng-class="{ 'user__content--items-only': vm.listingsOnly }">
                 <div id="user__game-stats" class="user__content-section margin-bottom-plus"
                     ng-if="vm.isCurrentUser || vm.hasMedal">
                     <div class="user__awards text-center"
@@ -222,10 +222,10 @@
                     </div>
                 </div>
                 <div class="margin-top-plus user__content-section user__items"
-                    ng-if="::vm.items.length">
+                    ng-if="::vm.listings.length">
                     <h2>
-                        <span ng-show="::vm.items.length === 1">Mon annonce</span>
-                        <span ng-show="::vm.items.length > 1">Mes annonces</span>
+                        <span ng-show="::vm.listings.length === 1">Mon annonce</span>
+                        <span ng-show="::vm.listings.length > 1">Mes annonces</span>
                     </h2>
                     <div id="user-items"
                         class="item-wall grid-block small-up-1 medium-up-2"
@@ -233,8 +233,8 @@
                         itemtype="http://schema.org/ItemList">
                         <div
                             class="grid-block item-wall__item-wrapper"
-                            data-item="::item"
-                            ng-repeat="item in ::vm.items"
+                            data-listing="::listing"
+                            ng-repeat="listing in ::vm.listings"
                             itemprop="itemListElement"
                             itemscope
                             itemtype="http://schema.org/Product"

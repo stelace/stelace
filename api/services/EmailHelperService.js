@@ -11,8 +11,8 @@ module.exports = {
     setUtmTags: setUtmTags,
     getFirstname: getFirstname,
     getUserName: getUserName,
-    getItemMediaUrl: getItemMediaUrl,
-    getItemDescription: getItemDescription,
+    getListingMediaUrl: getListingMediaUrl,
+    getListingDescription: getListingDescription,
     shrinkString: shrinkString,
     formatDate: formatDate,
     getAssessmentLevel: getAssessmentLevel,
@@ -140,20 +140,20 @@ function getUserName() {
     return User.getName.apply(null, arguments);
 }
 
-function getItemMediaUrl(medias, noDefault) {
+function getListingMediaUrl(medias, noDefault) {
     if (! medias || ! medias.length) {
         if (noDefault) {
             return;
         }
 
-        return AppUrlService.getUrl("defaultItemImage");
+        return AppUrlService.getUrl("defaultListingImage");
     }
 
     return AppUrlService.getUrl("media", [medias[0], { size: "450x300" }]);
 }
 
-function getItemDescription(item) {
-    return item.description ? ToolsService.shrinkString(item.description, 200) : null;
+function getListingDescription(listing) {
+    return listing.description ? ToolsService.shrinkString(listing.description, 200) : null;
 }
 
 function shrinkString() {

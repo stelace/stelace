@@ -99,15 +99,15 @@ async function sign(req, res) {
 }
 
 async function last(req, res) {
-    var itemId = req.param('itemId');
+    var listingId = req.param('listingId');
     var access = 'others';
 
-    if (! itemId) {
+    if (! listingId) {
         return res.badRequest();
     }
 
     try {
-        const assessment = await Assessment.getLastSigned(itemId);
+        const assessment = await Assessment.getLastSigned(listingId);
 
         if (Assessment.isAccessSelf(assessment, req.user)) {
             access = 'self';

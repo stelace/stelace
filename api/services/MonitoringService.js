@@ -1,4 +1,4 @@
-/* global Assessment, Booking, Conversation, Item, Link, MathService, PricingService, ToolsService, User */
+/* global Assessment, Booking, Conversation, Listing, Link, MathService, PricingService, ToolsService, User */
 
 module.exports = {
 
@@ -8,7 +8,7 @@ module.exports = {
     getAssessmentsDueDates: getAssessmentsDueDates,
     getUnsignedAssessments: getUnsignedAssessments,
     getUsers: getUsers,
-    getItems: getItems,
+    getListings: getListings,
     getRevenue: getRevenue,
     getLinks: getLinks
 
@@ -40,7 +40,7 @@ function getIncompleteBookings(args) {
             bookings: bookings,
             assessmentsHash: assessmentsHash,
             users: extraInfo.users,
-            items: extraInfo.items
+            listings: extraInfo.listings
         }, access);
     })();
 
@@ -83,11 +83,11 @@ function getIncompleteBookings(args) {
         }, []);
         usersIds = _.uniq(usersIds);
 
-        var itemsIds = _.pluck(bookings, "itemId");
+        var listingsIds = _.pluck(bookings, "listingId");
 
         return Promise.props({
             users: User.find({ id: usersIds }),
-            items: Item.find({ id: itemsIds })
+            listings: Listing.find({ id: listingsIds })
         });
     }
 
@@ -95,13 +95,13 @@ function getIncompleteBookings(args) {
         var bookings        = args.bookings;
         var assessmentsHash = args.assessmentsHash;
         var users           = args.users;
-        var items           = args.items;
+        var listings           = args.listings;
 
         var result = {};
 
         result.bookings = Booking.exposeAll(bookings, access);
         result.users    = User.exposeAll(users, "others"); // restrict user data access
-        result.items    = Item.exposeAll(items, access);
+        result.listings    = Listing.exposeAll(listings, access);
 
         result.assessmentsHash = _.reduce(assessmentsHash, (memo, hash, bookingId) => {
             memo[bookingId] = {
@@ -318,13 +318,13 @@ function getUsers(args) {
 }
 
 /**
- * get items
+ * get listings
  * @param  {object}  args
  * @param  {string}  [args.fromDate]
  * @param  {string}  [args.toDate]
  * @param  {boolean} [args.validated]
  */
-function getItems(args) {
+function getListings(args) {
     args = args || {};
 
     return Promise
@@ -341,7 +341,7 @@ function getItems(args) {
                 findAttrs.createdDate = periodAttrs;
             }
 
-            return Item.find(findAttrs);
+            return Listing.find(findAttrs);
         });
 }
 

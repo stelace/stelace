@@ -44,8 +44,8 @@
 # Synchronize elasticsearch at 4:00 AM
 0 4 * * * cd /path/to/project && /usr/local/bin/node crons/syncElasticsearch.js >> cron.log 2>&1
 
-# Update items pause state at 0:15 AM
-15 0 * * * cd /path/to/project && /usr/local/bin/node crons/itemPause.js >> cron.log 2>&1
+# Update listings pause state at 0:15 AM
+15 0 * * * cd /path/to/project && /usr/local/bin/node crons/listingPause.js >> cron.log 2>&1
 
-# Update items stats at 0:30 AM
-30 0 * * * cd /path/to/project && /usr/local/bin/node crons/itemStats.js >> cron.log 2>&1
+# Update listings stats at 0:30 AM
+30 0 * * * cd /path/to/project && /usr/local/bin/node crons/listingStats.js >> cron.log 2>&1

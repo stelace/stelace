@@ -4,11 +4,11 @@
         .module("app.landings")
         .controller("App404Controller", App404Controller);
 
-    function App404Controller($location, $q, $state, ItemService, platform, toastr, UserService) {
+    function App404Controller($location, $q, $state, ListingService, platform, toastr, UserService) {
 
         var url404       = $location.url();
-        var itemStateUrl = _.get($state.get("item"), "urlWithoutParams", "item");
-        var itemId;
+        var listingStateUrl = _.get($state.get("listing"), "urlWithoutParams", "listing");
+        var listingId;
 
         var vm = this;
 
@@ -17,23 +17,23 @@
 
 
         function activate() {
-            if (_.contains(url404, itemStateUrl)) {
-                itemId = _.last(url404.split(/[-/]+/)); // split / or - or /-
+            if (_.contains(url404, listingStateUrl)) {
+                listingId = _.last(url404.split(/[-/]+/)); // split / or - or /-
 
-                if (itemId && ! isNaN(itemId)) {
+                if (listingId && ! isNaN(listingId)) {
                     $q.all({
-                        item: ItemService.get(itemId),
+                        listing: ListingService.get(listingId),
                         currentUser: UserService.getCurrentUser()
                     })
                     .then(function (results) {
-                        var item    = results.item;
-                        var ownerId = item && item.ownerId;
+                        var listing    = results.listing;
+                        var ownerId = listing && listing.ownerId;
                         var userId  = results.currentUser && results.currentUser.id;
 
-                        if (ownerId === userId && _.isEmpty(item.locations)) {
+                        if (ownerId === userId && _.isEmpty(listing.locations)) {
                             toastr.info("Votre annonce ne peut pas être publiée sans localisation. "
                                 + "<a href=\"/location\">Cliquez ici pour ajouter un lieu à votre compte</a> ou "
-                                + "<a href=\"/my-items/" + item.id + "\">ici pour modifier votre annonce</a>. "
+                                + "<a href=\"/my-listings/" + listing.id + "\">ici pour modifier votre annonce</a>. "
                                 + "Votre adresse complète n'apparaîtra jamais publiquement.",
                                 "Lieu de disponibilité requis", {
                                     timeOut: 0,
@@ -46,12 +46,12 @@
                 }
             }
 
-            return ItemService.cleanGetList({ landing: true })
+            return ListingService.cleanGetList({ landing: true })
                 .then(function (results) {
-                    var nbItems = results.length;
-                    if (nbItems) {
-                        var item = results[Math.floor(Math.random() * (nbItems))];
-                        vm.randomItem = item;
+                    var nbListings = results.length;
+                    if (nbListings) {
+                        var listing = results[Math.floor(Math.random() * (nbListings))];
+                        vm.randomListing = listing;
                     }
                 })
                 .finally(function () {

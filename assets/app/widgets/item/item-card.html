@@ -1,6 +1,6 @@
 <!-- For public item-cards, do not forget to define product itemscope and itemtype on directive element, with optional itemprop -->
 <a class="item-wall__item-container"
-    ui-sref="item({ slug: vm.item.nameURLSafe + '-' + vm.item.id})"
+    ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id})"
     itemprop="url">
     <!-- For use of mainEntity see http://www.seoskeptic.com/how-to-use-schema-org-v2-0s-mainentityofpage-property/ -->
     <div class="item-wall__item flex-container item-wall__item--highlight">
@@ -8,27 +8,27 @@
             <div class="ar-content">
                 <img class="img--cover-vertical"
                     alt="{{::vm.imageAlt}}"
-                    ng-src="{{::vm.item.urlPlaceholder}}"
-                    data-lazy-img="{{::vm.item.url + '?size=450x300'}}"
+                    ng-src="{{::vm.listing.urlPlaceholder}}"
+                    data-lazy-img="{{::vm.listing.url + '?size=450x300'}}"
                     itemprop="image">
             </div>
             <!-- <div class="item-wall__owner profile__image"
                 ng-hide="vm.hideOwnerImage">
-                <sip-img class="webkit-render-fix" ng-src="{{::vm.item.ownerMedia.url + '?size=128x128'}}" alt="Photo du propriétaire" rounded="true"></sip-img>
+                <sip-img class="webkit-render-fix" ng-src="{{::vm.listing.ownerMedia.url + '?size=128x128'}}" alt="Photo du propriétaire" rounded="true"></sip-img>
             </div> -->
         </div>
         <div class="item-wall__description flex-item--grow-auto flex-container"
             ng-switch="displayDuration">
             <h3 class="no-margin item-name ellipsis flex-item--grow"
                 itemprop="name">
-                {{::vm.item.name}}
+                {{::vm.listing.name}}
             </h3>
             <div itemprop="offers"
                 itemscope
                 itemtype="http://schema.org/Offer">
                 <div class="item-wall__price">
                     <span class="item-wall__selling-icon-container"
-                        ng-show="vm.item.listingTypesProperties.TIME.NONE && !vm.item.listingTypesProperties.TIME.TIME_FLEXIBLE"
+                        ng-show="vm.listing.listingTypesProperties.TIME.NONE && !vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE"
                         data-tooltip-placement="auto left"
                         data-tooltip-trigger="mouseenter"
                         uib-tooltip="{{::vm.sellableTooltip}}"
@@ -37,14 +37,14 @@
                             <use xlink:href="{{::vm.sellableIconUrl}}"/>
                         </svg>
                     </span>
-                    <span ng-switch="vm.item.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                    <span ng-switch="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
                         <span ng-switch-when="true">
                             <span class="item-wall__booking-modes"
                                 ng-if="vm.bookingDescription">
                                 <span class="text--semibold item-wall__selling-price"
-                                    ng-show="vm.item.listingTypesProperties.TIME.NONE">
+                                    ng-show="vm.listing.listingTypesProperties.TIME.NONE">
                                     <span class="item-wall__selling-icon-container"
-                                        ng-show="vm.item.listingTypesProperties.TIME.NONE"
+                                        ng-show="vm.listing.listingTypesProperties.TIME.NONE"
                                         data-tooltip-placement="auto left"
                                         data-tooltip-trigger="mouseenter"
                                         uib-tooltip="{{::vm.sellableTooltip}}"
@@ -59,24 +59,24 @@
                                     ou
                                 </span>
                             </span>
-                            <span itemprop="price">{{::vm.item.dayOnePrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>/j
+                            <span itemprop="price">{{::vm.listing.dayOnePrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>/j
                         </span>
                         <span ng-switch-default>
-                            <span ng-hide="vm.item.sellingPrice === 0">
-                                <span itemprop="price">{{::vm.item.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
+                            <span ng-hide="vm.listing.sellingPrice === 0">
+                                <span itemprop="price">{{::vm.listing.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
                             </span>
-                            <span ng-show="vm.item.sellingPrice === 0">
+                            <span ng-show="vm.listing.sellingPrice === 0">
                                 {{ ::vm.bookingDescription }}
                             </span>
                         </span>
                     </span>
                 </div>
                 <div class="item-wall__rating small"
-                    ng-if="::vm.item.nbRatings"
-                    data-user-score="{{::vm.item.ownerRating.ratingScore}}"
-                    data-user-ratings="{{::vm.item.ownerRating.nbRatings}}"
-                    data-item-score="{{::vm.item.ratingScore}}"
-                    data-item-ratings="{{::vm.item.nbRatings}}"
+                    ng-if="::vm.listing.nbRatings"
+                    data-user-score="{{::vm.listing.ownerRating.ratingScore}}"
+                    data-user-ratings="{{::vm.listing.ownerRating.nbRatings}}"
+                    data-listing-score="{{::vm.listing.ratingScore}}"
+                    data-listing-ratings="{{::vm.listing.nbRatings}}"
                     data-append-to-body="true"
                     data-sip-rating-stars>
                 </div>

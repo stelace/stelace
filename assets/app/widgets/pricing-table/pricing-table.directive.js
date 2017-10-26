@@ -4,12 +4,12 @@
         .module("app.widgets")
         .directive("sipPricingTable", sipPricingTable);
 
-    function sipPricingTable(BookingService, ItemService, pricing, tools) {
+    function sipPricingTable(BookingService, ListingService, pricing, tools) {
         var priceResult;
 
         /**
-         * {object}  booking - if provided, it autofills variables (only need item)
-         * {object}  item
+         * {object}  booking - if provided, it autofills variables (only need listing)
+         * {object}  listing
          * {number}  maxBookingDuration
          * {object}  data - to get data from internal to external
          *
@@ -23,7 +23,7 @@
             scope: {
                 booking: "=?",
                 listingType: "=?",
-                item: "=",
+                listing: "=",
                 bookingParams: "=?",
                 data: "=?"
             },
@@ -34,8 +34,8 @@
         function link(scope) {
             init();
 
-            // if item is changed, recompute all data (all params depend on item)
-            scope.$watch("item", function (newValue, oldValue) {
+            // if listing is changed, recompute all data (all params depend on listing)
+            scope.$watch("listing", function (newValue, oldValue) {
                 // do not init twice
                 if (newValue === oldValue) {
                     return;
@@ -95,11 +95,11 @@
                 }
 
                 scope.noTime = isNoTime();
-                populateItem();
+                populateListing();
                 setBookingParams();
             }
 
-            function populateItem() {
+            function populateListing() {
                 if (scope.noTime) {
                     return;
                 }
@@ -114,7 +114,7 @@
                     nbDays = listingType.config.bookingTime.maxDuration || 100;
                 }
 
-                ItemService.populate(scope.item, {
+                ListingService.populate(scope.listing, {
                     nbDaysPricing: nbDays
                 });
             }
@@ -146,7 +146,7 @@
                 if (scope.booking) {
                     scope.dayOnePrice = scope.booking.timeUnitPrice;
                 } else {
-                    scope.dayOnePrice = scope.item.prices[0];
+                    scope.dayOnePrice = scope.listing.prices[0];
                 }
 
                 scope.nbTimeUnits          = getBookingDuration();
@@ -188,17 +188,17 @@
 
             function getFullPrice() {
                 if (! scope.noTime) {
-                    return scope.nbTimeUnits * scope.item.prices[0];
+                    return scope.nbTimeUnits * scope.listing.prices[0];
                 } else {
-                    return scope.item.sellingPrice;
+                    return scope.listing.sellingPrice;
                 }
             }
 
             function getRealPrice() {
                 if (! scope.noTime) {
-                    return scope.item.prices[scope.nbTimeUnits - 1];
+                    return scope.listing.prices[scope.nbTimeUnits - 1];
                 } else {
-                    return scope.item.sellingPrice;
+                    return scope.listing.sellingPrice;
                 }
             }
 

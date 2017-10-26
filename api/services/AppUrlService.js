@@ -18,16 +18,16 @@ var urlTypes = {
     profile: getProfileUrl,
     userProfile: getUserProfileUrl,
     friendProfile: getFriendProfileUrl,
-    itemSearch: getItemSearchUrl,
-    myItems: getMyItemsUrl,
+    listingSearch: getListingSearchUrl,
+    myListings: getMyListingsUrl,
     invite: getInviteUrl,
-    itemNew: getItemNewUrl,
-    item: getItemUrl,
+    listingNew: getListingNewUrl,
+    listing: getListingUrl,
     conversation: getConversationUrl,
     bookmarkUnsubscribe: getBookmarkUnsubscribeUrl,
     recoveryPassword: getRecoveryPasswordUrl,
     emailCheck: getEmailCheckUrl,
-    defaultItemImage: getDefaultItemImageUrl,
+    defaultListingImage: getDefaultListingImageUrl,
     media: getMediaUrl,
 
     help: getHelpUrl,
@@ -113,7 +113,7 @@ function getFriendProfileUrl(user, source) {
     return str;
 }
 
-function getItemSearchUrl(params) {
+function getListingSearchUrl(params) {
     var str = `/s`;
 
     if (typeof params === "object") {
@@ -123,20 +123,20 @@ function getItemSearchUrl(params) {
     return str;
 }
 
-function getMyItemsUrl() {
-    return `/my-items`;
+function getMyListingsUrl() {
+    return `/my-listings`;
 }
 
 function getInviteUrl() {
     return `/invite`;
 }
 
-function getItemNewUrl() {
-    return `/item/new`;
+function getListingNewUrl() {
+    return `/listing/new`;
 }
 
-function getItemUrl(item) {
-    return `/item/${item.nameURLSafe}-${item.id}`;
+function getListingUrl(listing) {
+    return `/listing/${listing.nameURLSafe}-${listing.id}`;
 }
 
 function getConversationUrl(conversation) {
@@ -161,8 +161,8 @@ function getEmailCheckUrl(token, firstCheck) {
     return str;
 }
 
-function getDefaultItemImageUrl() {
-    return Media.getDefaultItemImageUrl();
+function getDefaultListingImageUrl() {
+    return Media.getDefaultListingImageUrl();
 }
 
 function getMediaUrl(media, args) {

@@ -12,7 +12,7 @@
                 data-translate-values="{ service_name: SERVICE_NAME }"
                 ></h2>
             <a class="order-3 button button--big red"
-                ui-sref="itemCreate"
+                ui-sref="listingCreate"
                 data-translate="navigation.new_listing"></a>
         </div>
         <div class="search-bar">
@@ -63,10 +63,10 @@
                 itemtype="http://schema.org/ItemList">
                 <div
                     class="grid-block item-wall__item-wrapper"
-                    data-item="item"
+                    data-listing="listing"
                     data-display-duration="false"
                     data-position="{{ $index + 1 }}"
-                    ng-repeat="item in vm.items track by item.id"
+                    ng-repeat="listing in vm.listings track by listing.id"
                     itemprop="itemListElement"
                     itemscope
                     itemtype="http://schema.org/Product"
@@ -79,7 +79,7 @@
                 <span data-translate="prompt.new_listing_minute"></span>
             </h3>
             <a id="samples-add-item-button" class="add-item-button button button--highlight"
-                ui-sref="itemCreate">
+                ui-sref="listingCreate">
                 <svg class="icon--inline icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>
                 </svg>

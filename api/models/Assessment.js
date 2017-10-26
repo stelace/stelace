@@ -1,4 +1,4 @@
-/* global Conversation, GeneratorService, Item, ListingHistoryService, ModelSnapshot, User */
+/* global Conversation, GeneratorService, Listing, ListingHistoryService, ModelSnapshot, User */
 
 /**
 * Assessment.js
@@ -12,14 +12,13 @@ module.exports = {
     attributes: {
         workingLevel: "string",     // not required because we want to generate an empty assessment
         cleanlinessLevel: "string", // not required because we want to generate an empty assessment
-        itemAccessories: "array",
         comment: "text",
         commentDiff: "text",
-        itemId: {
+        listingId: {
             type: "integer",
             index: true
         },
-        itemSnapshotId: {
+        listingSnapshotId: {
             type: "integer",
             index: true
         },
@@ -65,9 +64,7 @@ module.exports = {
 
     getAccessFields: getAccessFields,
     get: get,
-    // beforeValidate: beforeValidate,
     postBeforeCreate: postBeforeCreate,
-    // isValidItemAccessories: isValidItemAccessories,
     isAccessSelf: isAccessSelf,
     getLastSigned: getLastSigned,
     getBookingState: getBookingState,
@@ -94,11 +91,10 @@ function getAccessFields(access) {
             "id",
             "workingLevel",
             "cleanlinessLevel",
-            "itemAccessories",
             "comment",
             "commentDiff",
-            "itemId",
-            "itemSnapshotId",
+            "listingId",
+            "listingSnapshotId",
             "startBookingId",
             "endBookingId",
             "ownerId",
@@ -112,11 +108,10 @@ function getAccessFields(access) {
             "id",
             "workingLevel",
             "cleanlinessLevel",
-            "itemAccessories",
             "comment",
             "commentDiff",
-            "itemId",
-            "itemSnapshotId",
+            "listingId",
+            "listingSnapshotId",
             "signedDate",
             "cancellationId"
         ]
@@ -128,7 +123,6 @@ function getAccessFields(access) {
 var beforeAssessmentFields = [
     "workingLevel",
     "cleanlinessLevel",
-    "itemAccessories",
     "comment",
     "commentDiff"
 ];
@@ -141,27 +135,9 @@ function get(prop) {
     }
 }
 
-// function beforeValidate(values, next) {
-//     if (! values.itemAccessories) {
-//         next();
-//         return;
-//     }
-
-//     if (Assessment.isValidItemAccessories(values.itemAccessories)) {
-//         next();
-//     } else {
-//         next({ error: "item accessories bad format" });
-//     }
-// }
-
 function postBeforeCreate(values) {
     values.signToken = values.signToken || GeneratorService.getFunnyString();
 }
-
-// function isValidItemAccessories(itemAccessories) {
-//     return µ.checkArray(itemAccessories, "string", { maxLength: Item.get("maxLengthAccessoryName") })
-//         && itemAccessories.length <= Item.get("maxNbAccessories");
-// }
 
 function isAccessSelf(assessment, user) {
     var selfFields = [
@@ -172,26 +148,26 @@ function isAccessSelf(assessment, user) {
     return _.contains(_.pick(assessment, selfFields), user.id);
 }
 
-function getLastSigned(itemIdOrIds) {
+function getLastSigned(listingIdOrIds) {
     return Promise.coroutine(function* () {
         var onlyOne;
-        var itemsIds;
+        var listingsIds;
 
-        if (_.isArray(itemIdOrIds)) {
-            itemsIds = _.uniq(itemIdOrIds);
+        if (_.isArray(listingIdOrIds)) {
+            listingsIds = _.uniq(listingIdOrIds);
             onlyOne = false;
         } else {
-            itemsIds = [itemIdOrIds];
+            listingsIds = [listingIdOrIds];
             onlyOne = true;
         }
 
-        const listingHistories = yield ListingHistoryService.getListingHistories(itemsIds);
+        const listingHistories = yield ListingHistoryService.getListingHistories(listingsIds);
 
         if (onlyOne) {
-            return listingHistories[itemIdOrIds].getLastSignedAssessment();
+            return listingHistories[listingIdOrIds].getLastSignedAssessment();
         } else {
-            return _.reduce(listingHistories, (memo, listingHistory, itemId) => {
-                memo[itemId] = listingHistory.getLastSignedAssessment();
+            return _.reduce(listingHistories, (memo, listingHistory, listingId) => {
+                memo[listingId] = listingHistory.getLastSignedAssessment();
                 return memo;
             }, {});
         }
@@ -246,17 +222,17 @@ function getSnapshots(assessment) {
         var results;
 
         results = yield Promise.props({
-            item: Item.findOne({ id: assessment.itemId }),
+            listing: Listing.findOne({ id: assessment.listingId }),
             users: User.find({ id: usersIds })
         });
 
-        var item  = results.item;
+        var listing  = results.listing;
         var users = results.users;
 
         var owner = _.find(users, { id: assessment.ownerId });
         var taker = _.find(users, { id: assessment.takerId });
 
-        if (! item
+        if (! listing
             || ! owner
             || ! taker
         ) {
@@ -264,7 +240,7 @@ function getSnapshots(assessment) {
         }
 
         results = yield Promise.props({
-            itemSnapshot: ModelSnapshot.getSnapshot("item", item),
+            listingSnapshot: ModelSnapshot.getSnapshot("listing", listing),
             ownerSnapshot: ModelSnapshot.getSnapshot("user", owner),
             takerSnapshot: ModelSnapshot.getSnapshot("user", taker),
             ownerLocSnapshot: Location.getMainLocationSnapshot(owner.id),
@@ -272,7 +248,7 @@ function getSnapshots(assessment) {
         });
 
         return {
-            itemSnapshot: results.itemSnapshot,
+            listingSnapshot: results.listingSnapshot,
             ownerSnapshot: results.ownerSnapshot,
             takerSnapshot: results.takerSnapshot,
             ownerMainLocationSnapshot: results.ownerLocSnapshot,
@@ -283,7 +259,7 @@ function getSnapshots(assessment) {
 
 function getSnapshotsIds(snapshots) {
     return {
-        itemSnapshotId: snapshots.itemSnapshot.id,
+        listingSnapshotId: snapshots.listingSnapshot.id,
         ownerSnapshotId: snapshots.ownerSnapshot.id,
         takerSnapshotId: snapshots.takerSnapshot.id,
         ownerMainLocationSnapshotId: snapshots.ownerMainLocationSnapshot ? snapshots.ownerMainLocationSnapshot.id : null,

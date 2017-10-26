@@ -2,9 +2,9 @@
 
     angular
         .module("app.data")
-        .factory("Item", Item);
+        .factory("Listing", Listing);
 
-    function Item($q) {
+    function Listing($q) {
         var service = {};
         service.mixInto      = mixInto;
         service.updateMedias = updateMedias;
@@ -19,7 +19,7 @@
         }
 
         function updateMedias(mediasIds) {
-            var item = this;
+            var listing = this;
 
             return $q.when()
                 .then(function () {
@@ -29,23 +29,23 @@
 
                     var params = {
                         mediasIds: mediasIds,
-                        mediaType: 'item'
+                        mediaType: 'listing'
                     };
 
-                    return item.customPUT(params, "medias")
+                    return listing.customPUT(params, "medias")
                         .then(function () {
-                            item.mediasIds = mediasIds;
-                            return true; // expected in itemCreate view
+                            listing.mediasIds = mediasIds;
+                            return true; // expected in listingCreate view
                         });
                 });
         }
 
         function pause(pausedUntil) {
-            var item = this;
+            var listing = this;
 
             return $q.when()
                 .then(function () {
-                    return item.customPUT({ pausedUntil: pausedUntil }, "pause");
+                    return listing.customPUT({ pausedUntil: pausedUntil }, "pause");
                 });
         }
     }

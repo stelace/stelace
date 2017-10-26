@@ -16,7 +16,6 @@
                                 authenticationModal,
                                 cache,
                                 ezfb,
-                                ItemService,
                                 loggerToServer,
                                 MediaService,
                                 platform,

@@ -2,7 +2,7 @@
     <div class="header-space"></div>
 
     <form class="form--control" name="paymentForm"
-        ng-show="vm.item"
+        ng-show="vm.listing"
         novalidate>
     <div class="booking__payment">
         <div class="fluid-content flex-container small-vertical desktop-horizontal">
@@ -185,11 +185,11 @@
                     data-bound-id="booking-confirm"
                     data-sip-sticky-sidebar>
                     <div class="booking-summary__title">
-                        <h1 class="ellipsis">{{::vm.booking.itemSnapshot.name}}</h1>
+                        <h1 class="ellipsis">{{::vm.booking.listingSnapshot.name}}</h1>
                     </div>
                     <div>
                         <div class="booking-summary__picture">
-                            <sip-img ng-src="{{vm.item.url + '?size=800x600'}}" type="background"></sip-img>
+                            <sip-img ng-src="{{vm.listing.url + '?size=800x600'}}" type="background"></sip-img>
                         </div>
                         <div class="booking-summary__content">
                             <div ng-if="vm.showBookingDuration">
@@ -203,19 +203,19 @@
                                 </div>
                                 <hr>
                             </div>
-                            <div class="margin-bottom" ng-if="vm.itemLocations.length">
-                                {{::vm.item.owner.fullname}} a indiqué préférer un rendez-vous
-                                <span ng-if="vm.itemLocations.length > 1">aux lieux suivants</span>
-                                <span ng-if="vm.itemLocations.length <= 1">au lieu suivant</span>&nbsp;:
+                            <div class="margin-bottom" ng-if="vm.listingLocations.length">
+                                {{::vm.listing.owner.fullname}} a indiqué préférer un rendez-vous
+                                <span ng-if="vm.listingLocations.length > 1">aux lieux suivants</span>
+                                <span ng-if="vm.listingLocations.length <= 1">au lieu suivant</span>&nbsp;:
                             </div>
-                            <div class="margin-bottom-plus booking-summary__locations" ng-if="vm.itemLocations.length">
-                                <span ng-repeat="loc in vm.itemLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
+                            <div class="margin-bottom-plus booking-summary__locations" ng-if="vm.listingLocations.length">
+                                <span ng-repeat="loc in vm.listingLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
                             </div>
                             <div class="booking-summary__price">
                                 <div data-sip-pricing-table
-                                    ng-if="vm.booking && vm.item"
+                                    ng-if="vm.booking && vm.listing"
                                     booking="vm.booking"
-                                    item="vm.item">
+                                    listing="vm.listing">
                                 </div>
                             </div>
                             <div class="margin-top margin-bottom"
@@ -232,7 +232,7 @@
         <div class="fluid-content">
             <div class="small-12 desktop-8">
                 <h2>Réservez en toute confiance</h2>
-                <label>Présentez-vous à {{::vm.item.owner.fullname}} ou apportez des précisions&nbsp;:</label>
+                <label>Présentez-vous à {{::vm.listing.owner.fullname}} ou apportez des précisions&nbsp;:</label>
                 <textarea name="privateContent"
                     rows="5"
                     ng-maxlength="2000"
@@ -259,7 +259,7 @@
             <div class="small-12 desktop-8" ng-if="! vm.existingPhone && vm.isSmsActive">
                 <h2>Facilitez-vous la vie</h2>
                 <p>
-                    Si votre demande est acceptée, nous pourrons vous prévenir gratuitement par SMS et cela facilitera vos échanges avec {{vm.item.owner.firstname || vm.item.owner.fullname}}. Votre numéro ne lui sera communiqué qu'en cas d'acceptation.
+                    Si votre demande est acceptée, nous pourrons vous prévenir gratuitement par SMS et cela facilitera vos échanges avec {{vm.listing.owner.firstname || vm.listing.owner.fullname}}. Votre numéro ne lui sera communiqué qu'en cas d'acceptation.
                 </p>
                 <data-sip-prompt-phone
                     ng-class="{'prompt-highlight': vm.promptPhoneHighlight}"
@@ -313,5 +313,5 @@
     </div>
     </form>
 
-    <div ng-include="'/assets/app/layout/footer.html'" ng-show="vm.item"></div>
+    <div ng-include="'/assets/app/layout/footer.html'" ng-show="vm.listing"></div>
 </div>

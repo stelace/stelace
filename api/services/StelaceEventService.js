@@ -15,7 +15,7 @@ module.exports = {
     skipSaving: skipSaving,
     extractParamsFromReq: extractParamsFromReq,
     extractParamsFromUrl: extractParamsFromUrl,
-    extractItemId: extractItemId,
+    extractListingId: extractListingId,
     extractBookingId: extractBookingId,
     extractFromData: extractFromData,
     extractUtmTags: extractUtmTags,
@@ -33,7 +33,7 @@ var querystring = require('querystring');
 var toSnakeCase = require('to-snake-case');
 var UrlPattern  = require('url-pattern');
 
-var itemIdPatterns;
+var listingIdPatterns;
 var bookingIdPatterns;
 
 var sessionField = "sessionHash";
@@ -170,14 +170,14 @@ function extractParamsFromReq(req) {
 function extractParamsFromUrl(url) {
     var parsedUrl = Url.parse(url || "");
 
-    var itemId    = extractItemId(url, parsedUrl);
+    var listingId    = extractListingId(url, parsedUrl);
     var bookingId = extractBookingId(url, parsedUrl);
     var utmTags   = extractUtmTags(url, parsedUrl);
 
     var params = _.extend({}, utmTags);
 
-    if (itemId) {
-        params.itemId = itemId;
+    if (listingId) {
+        params.listingId = listingId;
     }
     if (bookingId) {
         params.bookingId = bookingId;
@@ -186,7 +186,7 @@ function extractParamsFromUrl(url) {
     return params;
 }
 
-function extractItemId(url, parsedUrl) {
+function extractListingId(url, parsedUrl) {
     parsedUrl = parsedUrl || Url.parse(url || "");
     var pathname = parsedUrl.pathname;
 
@@ -194,16 +194,16 @@ function extractItemId(url, parsedUrl) {
         return;
     }
 
-    var itemViewField    = "/item/:slug";
-    var myItemsViewField = "/my-items/:id";
+    var listingViewField    = "/listing/:slug";
+    var myListingsViewField = "/my-listings/:id";
 
     var fields = [
-        itemViewField,
-        myItemsViewField
+        listingViewField,
+        myListingsViewField
     ];
 
-    if (! itemIdPatterns) {
-        itemIdPatterns = _.reduce(fields, (memo, field) => {
+    if (! listingIdPatterns) {
+        listingIdPatterns = _.reduce(fields, (memo, field) => {
             memo[field] = new UrlPattern(field);
             return memo;
         }, {});
@@ -214,12 +214,12 @@ function extractItemId(url, parsedUrl) {
             return memo;
         }
 
-        var tokens = itemIdPatterns[field].match(pathname);
+        var tokens = listingIdPatterns[field].match(pathname);
 
         if (tokens) {
-            if (field === itemViewField) {
-                return getItemIdByItemView(tokens);
-            } else if (field === myItemsViewField) {
+            if (field === listingViewField) {
+                return getListingIdByListingView(tokens);
+            } else if (field === myListingsViewField) {
                 return getSimpleId(tokens);
             }
         }
@@ -228,7 +228,7 @@ function extractItemId(url, parsedUrl) {
     }, null);
 }
 
-function getItemIdByItemView(tokens) {
+function getListingIdByListingView(tokens) {
     var slugId = _.last(tokens.slug.split("-"));
     slugId = parseInt(slugId, 10);
     if (! slugId || isNaN(slugId)) {
@@ -319,7 +319,7 @@ function extractFromData(args) {
         "loginAsUserId",
         "defaultUserId",
         "defaultLoginAsUserId",
-        "itemId",
+        "listingId",
         "tagsIds",
         "bookingId",
         "searchId",
@@ -363,7 +363,7 @@ function isFromGoogleCpc(refererUrl, srcUrl) {
  * @param  {number}   [args.loginAsUserId]
  * @param  {number}   [args.defaultUserId]
  * @param  {number}   [args.defaultLoginAsUserId]
- * @param  {number}   [args.itemId]
+ * @param  {number}   [args.listingId]
  * @param  {number[]} [args.tagsIds]
  * @param  {number}   [args.bookingId]
  * @param  {number}   [args.searchId]
@@ -399,7 +399,7 @@ function createEvent(args) {
     var label           = args.label;
     var userId          = args.userId || reqVars.userId || args.defaultUserId;
     var targetUserId    = args.targetUserId;
-    var itemId          = args.itemId;
+    var listingId          = args.listingId;
     var tagsIds         = args.tagsIds;
     var bookingId       = args.bookingId;
     var searchId        = args.searchId;
@@ -457,8 +457,8 @@ function createEvent(args) {
         utmSource = "google";
     }
 
-    if (! itemId) {
-        itemId = srcUrlParams.itemId;
+    if (! listingId) {
+        listingId = srcUrlParams.listingId;
     }
     if (! bookingId) {
         bookingId = srcUrlParams.bookingId;
@@ -643,7 +643,7 @@ function createEvent(args) {
             sessionId: sessionId,
             userId: userId,
             targetUserId: targetUserId,
-            itemId: itemId,
+            listingId: listingId,
             tagsIds: tagsIds,
             bookingId: bookingId,
             searchId: searchId,

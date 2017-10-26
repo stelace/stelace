@@ -1,9 +1,9 @@
-/* global Booking, Item, LoggerService, Rating, TimeService, User */
+/* global Booking, Listing, LoggerService, Rating, TimeService, User */
 
 /**
 * Rating.js
 *
-* @description :: Ratings between users in various transactions consist in a simple weighted coefficient (0/1/2) and optional comments (on owner and item)
+* @description :: Ratings between users in various transactions consist in a simple weighted coefficient (0/1/2) and optional comments (on owner and listing)
 * @docs        :: http://sailsjs.org/#!documentation/models
 */
 
@@ -18,11 +18,11 @@ module.exports = {
             type: "text",
             maxLength: 2000
         },
-        itemComment: {
+        listingComment: {
             type: "text",
             maxLength: 2000
         },
-        itemId: { // when itemComment, makes matching easier on item page (not necessary to get booking)
+        listingId: { // when listingComment, makes matching easier on listing page (not necessary to get booking)
             type: "integer",
             index: true
         },
@@ -74,8 +74,8 @@ function getAccessFields(access) {
             "id",
             "score",
             "comment",
-            "itemComment",
-            "itemId",
+            "listingComment",
+            "listingId",
             "userId",
             "userType",
             "targetId",
@@ -89,8 +89,8 @@ function getAccessFields(access) {
             "id",
             "score",
             "comment",
-            "itemComment",
-            "itemId",
+            "listingComment",
+            "listingId",
             "userId",
             "userType",
             "targetId",
@@ -120,12 +120,12 @@ function afterCreate(newRating, next) {
             throw new Error("Wrong target type");
         }
 
-        // update User and Item with new rating
-        // User and Item update after rating update is done in RatingService since it can't be done with afterUpdate
+        // update User and Listing with new rating
+        // User and Listing update after rating update is done in RatingService since it can't be done with afterUpdate
         yield propagateRatingChange(newRating, newRating.score, true);
     })()
     .catch(err => {
-        logger.error({ err: err }, "update target user and item nbRatings after rating creation");
+        logger.error({ err: err }, "update target user and listing nbRatings after rating creation");
     })
     .asCallback(next);
 }
@@ -149,39 +149,39 @@ function propagateRatingChange(rating, scoreDiff, isNewRating) {
 
         var results = yield Promise.props({
             targetUser: User.findOne({ id: rating.targetId }),
-            item: Item.findOne({ id: rating.itemId })
+            listing: Listing.findOne({ id: rating.listingId })
         });
 
         var targetUser = results.targetUser;
-        var item       = results.item;
+        var listing       = results.listing;
 
-        if (! targetUser || ! item) {
-            var error = new Error("Rating propagation fail: target user or item is not found");
+        if (! targetUser || ! listing) {
+            var error = new Error("Rating propagation fail: target user or listing is not found");
             error.ratingId     = rating.id;
             error.targetUserId = rating.targetId;
-            error.itemId       = rating.itemId;
+            error.listingId       = rating.listingId;
             throw error;
         }
 
         // Scores are saved in models for simplicity and less requests but this implies some corruption risks.
         // Acceptable for search results or other agregated info. Ratings are requested anyway for detailed info.
-        // Use UpdateUserAndItemRatings script to check periodically
+        // Use UpdateUserAndListingRatings script to check periodically
         var userUpdateAttrs = {
             ratingScore: targetUser.ratingScore + scoreDiff
         };
-        var itemUpdateAttrs = {
-            ratingScore: item.ratingScore + scoreDiff
+        var listingUpdateAttrs = {
+            ratingScore: listing.ratingScore + scoreDiff
         };
 
         if (isNewRating) {
             userUpdateAttrs.nbRatings = targetUser.nbRatings + 1;
-            itemUpdateAttrs.nbRatings = item.nbRatings + 1;
+            listingUpdateAttrs.nbRatings = listing.nbRatings + 1;
         }
 
         yield Promise.props({
             targetUser: User.updateOne(targetUser.id, userUpdateAttrs),
-            // Increment item.nbRatings only when appriopriate (no item rating per se. item is associated with owner)
-            item: item.ownerId === targetUser.id ? Item.updateOne(item.id, itemUpdateAttrs) : null
+            // Increment listing.nbRatings only when appriopriate (no listing rating per se. listing is associated with owner)
+            listing: listing.ownerId === targetUser.id ? Listing.updateOne(listing.id, listingUpdateAttrs) : null
         });
     })();
 }
@@ -243,7 +243,7 @@ function getDefaultVisibleDate(booking) {
 }
 
 function isCompleteRating(rating) {
-    return rating.score && (rating.comment || rating.itemComment);
+    return rating.score && (rating.comment || rating.listingComment);
 }
 
 // the comments of ratings are hidden if visible date isn't passed
@@ -251,7 +251,7 @@ function hideCommentsWhenNotVisible(ratings, now) {
     return _.map(ratings, rating => {
         if (rating.visibleDate > now) {
             rating.comment     = null;
-            rating.itemComment = null;
+            rating.listingComment = null;
         }
 
         return rating;

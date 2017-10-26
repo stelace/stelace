@@ -11,7 +11,7 @@
                                         $stateParams,
                                         authenticationModal,
                                         cache,
-                                        ItemService,
+                                        ListingService,
                                         ListingTypeService,
                                         loggerToServer,
                                         MediaService,
@@ -25,10 +25,10 @@
                                         UserService) {
 
         var source = $stateParams.s || null;
-        var items;
+        var listings;
         var referrer;
         var referrerId;
-        var referrerItems;
+        var referrerListings;
         var canonicalUrl;
 
         var vm = this;
@@ -71,43 +71,43 @@
             }
 
             return $q.all({
-                items: ItemService.getList({ landing: true }),
+                listings: ListingService.getList({ landing: true }),
                 referrer: UserService.get(referrerId).catch(_handleRedirect),
-                referrerItems: ItemService.getList({ ownerId: referrerId }),
+                referrerListings: ListingService.getList({ ownerId: referrerId }),
                 listingTypes: ListingTypeService.cleanGetList()
             })
             .then(function (results) {
-                items         = results.items;
+                listings         = results.listings;
                 referrer      = results.referrer;
-                referrerItems = results.referrerItems.plain ? results.referrerItems.plain() : results.referrerItems;
+                referrerListings = results.referrerListings.plain ? results.referrerListings.plain() : results.referrerListings;
                 vm.listingTypes = results.listingTypes;
 
-                storage.setItem("referralInfo", {
+                storage.setListing("referralInfo", {
                     referrerId: referrerId,
                     date: new Date().toISOString(),
                     source: source
                 });
 
-                // Show a referrer's item if a good one is available
-                referrerItems = _(referrerItems)
-                    .filter(function (item) {
-                        // Only use referrer items with media and deduplicate with search results
-                        return item.medias && item.medias.length && ! _.find(items, "id", item.id);
+                // Show a referrer's listing if a good one is available
+                referrerListings = _(referrerListings)
+                    .filter(function (listing) {
+                        // Only use referrer listings with media and deduplicate with search results
+                        return listing.medias && listing.medias.length && ! _.find(listings, "id", listing.id);
                     })
-                    .sortBy(function (item) { // ascending order
-                        return item.nbRatings || 0;
+                    .sortBy(function (listing) { // ascending order
+                        return listing.nbRatings || 0;
                     })
                     .value();
 
-                if (referrerItems.length) {
-                    items.unshift(_.last(referrerItems));
+                if (referrerListings.length) {
+                    listings.unshift(_.last(referrerListings));
                 }
 
-                ItemService.populate(items, {
+                ListingService.populate(listings, {
                     listingTypes: vm.listingTypes
                 });
-                _.forEach(items, function (item) {
-                    item.vLocations = item.locations;
+                _.forEach(listings, function (listing) {
+                    listing.vLocations = listing.locations;
                 });
 
                 referrer.fullname = User.getFullname.call(referrer);
@@ -117,7 +117,7 @@
                 }
 
                 vm.referrer = referrer;
-                vm.items    = items;
+                vm.listings = listings;
 
                 StelaceEvent.sendEvent("Friend referral view");
 

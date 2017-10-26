@@ -1,5 +1,5 @@
 /* global
-    Booking, BookingPaymentService, BookingService, Cancellation, Conversation, Item, MathService, User
+    Booking, BookingPaymentService, BookingService, Cancellation, Conversation, Listing, MathService, User
 */
 
 module.exports = {
@@ -103,7 +103,7 @@ function cancelBooking(booking, transactionManager, args) {
         }
 
         var createAttrs = {
-            itemId: booking.itemId,
+            listingId: booking.listingId,
             reasonType: args.reasonType,
             reason: args.reason,
             ownerId: booking.ownerId,
@@ -115,7 +115,7 @@ function cancelBooking(booking, transactionManager, args) {
 
         // replenish stock only if the booking is paid
         if (doReplenishStock && booking.paidDate) {
-            yield Booking.updateItemQuantity(booking, { actionType: 'add' });
+            yield Booking.updateListingQuantity(booking, { actionType: 'add' });
         }
 
         booking = yield Booking.updateOne(booking.id, {
@@ -271,8 +271,8 @@ async function cancelOtherBookings(booking, logger) {
     // do not cancel any bookings if there is no availability issues
     if (AVAILABILITY === 'NONE') return;
 
-    const item = await Item.findOne({ id: booking.itemId });
-    if (!item) {
+    const listing = await Listing.findOne({ id: booking.listingId });
+    if (!listing) {
         throw new NotFoundError();
     }
 
@@ -282,8 +282,8 @@ async function cancelOtherBookings(booking, logger) {
     // cancel not paid bookings whose quantity is greater than remaining quantity
     if (TIME === 'NONE') {
         otherBookings = await Booking.find({
-            itemId: booking.itemId,
-            quantity: { '>': item.quantity },
+            listingId: booking.listingId,
+            quantity: { '>': listing.quantity },
             id: { '!': booking.id },
             paidDate: null,
             cancellationId: null,
@@ -291,13 +291,13 @@ async function cancelOtherBookings(booking, logger) {
     // time does matter (like renting)
     // cancel pending bookings whose quantity exceeds the max quantity during the booking period
     } else if (TIME === 'TIME_FLEXIBLE') {
-        const pendingBookings = await Booking.getPendingBookings(booking.itemId, {
+        const pendingBookings = await Booking.getPendingBookings(booking.listingId, {
             refBooking: booking,
             intersection: true,
         });
 
         const today = moment().format('YYYY-MM-DD');
-        const futureBookings = await Item.getFutureBookings(booking.itemId, today);
+        const futureBookings = await Listing.getFutureBookings(booking.listingId, today);
 
         // in some configuration, the current booking is not yet considered as future, so add it manually
         const refBookingInFuture = !!_.find(futureBookings, futureBooking => {
@@ -310,7 +310,7 @@ async function cancelOtherBookings(booking, logger) {
         _.forEach(pendingBookings, pendingBooking => {
             const availableResult = BookingService.getAvailabilityPeriods(futureBookings, {
                 newBooking: pendingBooking,
-                maxQuantity: item.quantity,
+                maxQuantity: listing.quantity,
             });
 
             if (!availableResult.isAvailable) {

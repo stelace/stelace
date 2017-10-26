@@ -8,8 +8,8 @@
         return {
             restrict: "EA",
             scope: {
-                item: "=",
-                isMyItem: "=",
+                listing: "=",
+                isMyListing: "=",
                 onDelete: "=",
                 displayDuration: "@",
                 locname: "@",
@@ -24,9 +24,9 @@
 
         // function link(scope, element/*, attrs */) {
         //     // Add target (new tab) attribute in search only
-        //     if (scope.target === "true" && scope.item) {
+        //     if (scope.target === "true" && scope.listing) {
         //         var cardLinkElement = angular.element(element.children()[0]);
-        //         var targetName = 'sip-item_' + scope.item.id;
+        //         var targetName = 'sip-item_' + scope.listing.id;
         //         cardLinkElement.attr("target", targetName);
         //     }
         // }

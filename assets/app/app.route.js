@@ -76,8 +76,8 @@
                 .then(function (isAuthenticated) {
                     if (isAuthenticated && toState.name === "login") {
                         $state.go("account");
-                    } else if (! isAuthenticated && (toState.name === "myItems" || toState.name === "editItem")) {
-                        $state.go("itemCreate");
+                    } else if (! isAuthenticated && (toState.name === "myListings" || toState.name === "editListing")) {
+                        $state.go("listingCreate");
                     } else if (! isAuthenticated && ! toState.noAuthNeeded) {
                         var originalURL = $urlMatcherFactory.compile(toState.url).format(toParams);
                         var redirectToRegisterView = (/[?&]register=true/).test(originalURL);

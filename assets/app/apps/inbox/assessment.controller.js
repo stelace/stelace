@@ -92,9 +92,9 @@
             _setSignInfo();
             _setRatings();
 
-            // prefill empty assessment with item info
+            // prefill empty assessment with listing info
             if (! vm.assessment.comment) {
-                vm.assessment.comment = vm.item.stateComment;
+                vm.assessment.comment = vm.listing.stateComment;
             }
 
             $q.all({
@@ -102,7 +102,7 @@
             }).then(function (results) {
                 currentUser = results.currentUser;
 
-                vm.isOwner = (vm.item.ownerId === currentUser.id);
+                vm.isOwner = (vm.listing.ownerId === currentUser.id);
 
                 if (!BookingService.isNoTime(vm.booking)) {
                     var booking = Restangular.restangularizeElement(null, vm.booking, "booking");

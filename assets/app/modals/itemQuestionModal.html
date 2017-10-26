@@ -4,9 +4,9 @@
     <div class="small-12 s-medium-4 helper">
         <div class="fluid-width">
             <div class="profile__image profile__thumb">
-                <sip-img ng-src="{{vm.item.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
+                <sip-img ng-src="{{vm.listing.ownerMedia.url + '?size=128x128'}}" type="background"></sip-img>
             </div>
-            <p class="text--semibold margin-bottom text-center">Envoyez un message à {{vm.item.owner.fullname }}</p>
+            <p class="text--semibold margin-bottom text-center">Envoyez un message à {{vm.listing.owner.fullname }}</p>
             <p class="text--small text-justify margin-bottom">
                 Donnez quelques informations pour l'inciter à vous répondre.
             </p>
@@ -141,7 +141,7 @@
                 <!-- Do not show form-warning when invalid-maxlength -->
                 <div class="form-warning text--semibold"
                     uib-collapse="! itemQuestionForm.privateContent.$touched || ! itemQuestionForm.privateContent.$invalid || itemQuestionForm.privateContent.$error.maxlength">
-                    Veuillez rédiger un message privé destiné à {{vm.item.owner.fullname}} avant d'envoyer votre demande.
+                    Veuillez rédiger un message privé destiné à {{vm.listing.owner.fullname}} avant d'envoyer votre demande.
                 </div>
             </div>
             <div ng-show="vm.editPublicQuestion && ! vm.conversation">
@@ -156,8 +156,8 @@
             </div>
             <button class="button center"
                 type="submit"
-                ng-class="{ disabled: (vm.disableBookingButton && ! vm.itemNotBookable) || itemQuestionForm.privateContent.$invalid || itemQuestionForm.publicContent.$invalid}"
-                ng-disabled="(vm.disableBookingButton && ! vm.itemNotBookable) || itemQuestionForm.privateContent.$invalid || itemQuestionForm.publicContent.$invalid"
+                ng-class="{ disabled: (vm.disableBookingButton && ! vm.listingNotBookable) || itemQuestionForm.privateContent.$invalid || itemQuestionForm.publicContent.$invalid}"
+                ng-disabled="(vm.disableBookingButton && ! vm.listingNotBookable) || itemQuestionForm.privateContent.$invalid || itemQuestionForm.publicContent.$invalid"
                 ng-click="onOk()">
                 Envoyer un message
             </button>

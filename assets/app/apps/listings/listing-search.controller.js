@@ -3,10 +3,10 @@
 (function () {
 
     angular
-        .module("app.items")
-        .controller("ItemSearchController", ItemSearchController);
+        .module("app.listings")
+        .controller("ListingSearchController", ListingSearchController);
 
-    function ItemSearchController($document,
+    function ListingSearchController($document,
                                     $location,
                                     $q,
                                     $rootScope,
@@ -22,7 +22,7 @@
                                     diacritics,
                                     GoogleMap,
                                     ListingCategoryService,
-                                    ItemService,
+                                    ListingService,
                                     ListingTypeService,
                                     LocationService,
                                     map,
@@ -70,7 +70,7 @@
         vm.showMap               = StelaceConfig.isFeatureActive('MAP');
         vm.searched              = false;
         vm.searchQuery           = {};
-        vm.items                 = [];
+        vm.listings                 = [];
         vm.showAddLocationButton = false;
         vm.backgroundOverlay     = true;
         // vm.showSearchButton      = false;
@@ -86,9 +86,9 @@
         vm.searchFiltersConfig     = {};
 
         vm.showPagination = false;
-        vm.nbTotalItems   = 0;
+        vm.nbTotalListings   = 0;
         vm.currentPage    = 1;
-        vm.nbItemsPerPage = 23; // Multiple of 2, 3 & 4 (item columns) minus 1 to keep space for dummy item-card cta
+        vm.nbListingsPerPage = 23; // Multiple of 2, 3 & 4 (listing columns) minus 1 to keep space for dummy item-card cta
         vm.paginationLinks = {
             first: "◀◀",
             previous: "◀",
@@ -304,7 +304,7 @@
                 });
                 vm.gmap = googleMap.getConfig();
 
-                vm.itemBox = {
+                vm.listingBox = {
                     id: _.unique("marker_"),
                     show: false,
                     windowOptions: {
@@ -319,7 +319,7 @@
                 };
 
                 _populateMapMyLocations();
-                _populateMapItems(vm.items, vm.fromLocations);
+                _populateMapListings(vm.listings, vm.fromLocations);
             }).then(function () {
                 return _setSEOPaginationLinks();
             }).then(function () {
@@ -339,10 +339,10 @@
             var urlParams = {};
 
             if ($stateParams.query) {
-                urlParams.query = ItemService.decodeUrlQuery($stateParams.query);
+                urlParams.query = ListingService.decodeUrlQuery($stateParams.query);
             }
             if ($stateParams.q) {
-                urlParams.fullQuery = ItemService.decodeUrlFullQuery($stateParams.q);
+                urlParams.fullQuery = ListingService.decodeUrlFullQuery($stateParams.q);
             }
             if ($stateParams.l) {
                 urlParams.location = $stateParams.l;
@@ -508,7 +508,7 @@
                     });
 
                     searchParams.page  = vm.currentPage;
-                    searchParams.limit = vm.nbItemsPerPage;
+                    searchParams.limit = vm.nbListingsPerPage;
                     searchParams.query = $rootScope.searchParams.query;
 
                     if ($rootScope.searchParams.listingTypeId) {
@@ -527,11 +527,11 @@
                         searchParams.queryMode = 'default';
                     }
 
-                    platform.debugDev("item search", searchParams);
+                    platform.debugDev("listing search", searchParams);
 
                     return $q.all({
                         isAuthenticated: authentication.isAuthenticated(),
-                        searchResults: ItemService.search({ type: "search", searchQuery: searchParams }),
+                        searchResults: ListingService.search({ type: "search", searchQuery: searchParams }),
                         startSearchDate: new Date(),
                     });
                 })
@@ -554,7 +554,7 @@
                 .then(function (results) {
                     var isAuthenticated = results.isAuthenticated;
                     var searchResults   = results.searchResults;
-                    var items           = searchResults.items;
+                    var listings           = searchResults.listings;
 
                     // prevent old requests to be displayed if they take longer than recent ones
                     if (searchResults.timestamp !== searchTimestamp) {
@@ -593,15 +593,15 @@
                         }
                     }
 
-                    ItemService.populate(items, {
+                    ListingService.populate(listings, {
                         nbDaysPricing: nbDaysPricing,
                         listingTypes: vm.listingTypes,
                     });
 
                     vm.fromLocations = fromLocations;
-                    _populateMapItems(items, fromLocations);
+                    _populateMapListings(listings, fromLocations);
 
-                    vm.items    = items;
+                    vm.listings    = listings;
                     vm.searched = true;
 
                     // sync the URL
@@ -635,9 +635,9 @@
 
                     // stateParams.free = (vm.onlyFree ? "true" : null);
 
-                    vm.nbTotalItems = searchResults.count;
+                    vm.nbTotalListings = searchResults.count;
 
-                    if (searchResults.count <= vm.nbItemsPerPage) {
+                    if (searchResults.count <= vm.nbListingsPerPage) {
                         vm.showPagination = false;
                     } else {
                         vm.showPagination = true;
@@ -647,8 +647,8 @@
 
                     if (urlQuery) {
                         stateName = "searchWithQuery";
-                        stateParams.query = ItemService.encodeUrlQuery(urlQuery);
-                        stateParams.q = ItemService.encodeUrlFullQuery(urlQuery);
+                        stateParams.query = ListingService.encodeUrlQuery(urlQuery);
+                        stateParams.q = ListingService.encodeUrlFullQuery(urlQuery);
                     } else {
                         stateName = "search";
                     }
@@ -664,7 +664,7 @@
                     _setSEOPaginationLinks();
                     _setSEOTags();
 
-                    _showItemCardCta();
+                    _showListingCardCta();
 
                     // Breadcrumbs
                     vm.firstLocation = vm.queryLocation || fromLocations[0] || urlLocation || {};
@@ -675,7 +675,7 @@
 
                     // Facebook event. No use to track these details in GA
                     var fbEventParams = {
-                        content_ids: _.pluck(items, "id"),
+                        content_ids: _.pluck(listings, "id"),
                         search_string: $rootScope.searchParams.query,
                         content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory)
                     };
@@ -752,7 +752,7 @@
             _.forEach(ids, function (id) {
                 googleMap.markerHighlight(id);
             });
-            if (! _.contains(ids, vm.itemBox.originatorId)) {
+            if (! _.contains(ids, vm.listingBox.originatorId)) {
                 _closeDetailBox();
             }
         }
@@ -771,9 +771,9 @@
                 return;
             }
 
-            if (vm.itemBox.show) {
-                vm.itemBox.show = false;
-                googleMap.showMarker(vm.itemBox.originatorId);
+            if (vm.listingBox.show) {
+                vm.listingBox.show = false;
+                googleMap.showMarker(vm.listingBox.originatorId);
             }
             if (map) {
                 $scope.$digest(); // needed since Google Maps event happen outside of angular
@@ -794,7 +794,7 @@
             }
 
             // Closed opened detailBox before opening or toggling new detailBox
-            // detailBox : "itemBox"
+            // detailBox : "Box"
             if (oneWay !== "close" && vm[detailBox].show) {
                 vm[detailBox].show = false;
                 googleMap.showMarker(vm[detailBox].originatorId);
@@ -808,13 +808,13 @@
                 vm[detailBox].show          = false;
                 vm[detailBox].originatorId  = markerId;
                 vm[detailBox].data          = {};
-                if (detailBox === "itemBox") {
-                    vm[detailBox].data.item                     = triggerMarker.data;
+                if (detailBox === "listingBox") {
+                    vm[detailBox].data.listing                  = triggerMarker.data;
                     vm[detailBox].data.location                 = triggerMarker.toLocation;
-                    vm[detailBox].data.locationsString          = _.pluck(vm[detailBox].data.item.populatedLocations, "city").join(", ");
+                    vm[detailBox].data.locationsString          = _.pluck(vm[detailBox].data.listing.populatedLocations, "city").join(", ");
                     vm[detailBox].data.locationsString          = vm[detailBox].data.locationsString.length > 35
                         ? vm[detailBox].data.locationsString.substr(0, 35) + "..." : vm[detailBox].data.locationsString;
-                    vm[detailBox].data.closestLocationShortName = LocationService.getShortName(vm[detailBox].data.item.loc)
+                    vm[detailBox].data.closestLocationShortName = LocationService.getShortName(vm[detailBox].data.listing.loc)
                         || vm.queryLocation.city || vm.queryLocation.name;
                 }
 
@@ -822,43 +822,43 @@
                     vm[detailBox].show = true;
                 });
 
-                if (detailBox === "itemBox") {
-                    StelaceEvent.sendEvent("Item search map itemBox opening");
+                if (detailBox === "listingBox") {
+                    StelaceEvent.sendEvent("Listing search map listingBox opening");
                 }
 
                 googleMap.toggleMarker(markerId);
             }
         }
 
-        function _populateMapItems(items, fromLocations) {
+        function _populateMapListings(listings, fromLocations) {
             if (! googleMap) {
                 return;
             }
             var newMarkers = [];
 
-            // unset all item markers
-            _.forEach(_.filter(vm.gmap.markers, { type: "item" }), function (oldMarker) {
+            // unset all listing markers
+            _.forEach(_.filter(vm.gmap.markers, { type: "listing" }), function (oldMarker) {
                 googleMap.removeMarker(oldMarker.id);
             });
 
-            _.forEach(items, function (item, index) {
+            _.forEach(listings, function (listing, index) {
                 var shortestJourney;
                 var shortestLocation;
 
                 var markerId = _.uniqueId("marker_");
                 var marker   = {};
 
-                if (item.journeysDurations) {
-                    shortestJourney  = item.journeysDurations[0]; // sorted by server (ItemController, MapService)
+                if (listing.journeysDurations) {
+                    shortestJourney  = listing.journeysDurations[0]; // sorted by server (ListingController, MapService)
                     shortestLocation = _.find(fromLocations, function (location, index) {
                         return shortestJourney.index === index;
                     });
 
-                    item.loc                = shortestLocation;
-                    item.toLoc              = shortestJourney.toLocation;
-                    item.populatedLocations = _.pluck(_.uniq(item.journeysDurations, "toLocation.city"), "toLocation"); // keeps sorted order
-                    shortestLocation.index  = item.journeysDurations[0].index;
-                    item.minDurationString  = time.getDurationString(shortestJourney.durationSeconds);
+                    listing.loc                = shortestLocation;
+                    listing.toLoc              = shortestJourney.toLocation;
+                    listing.populatedLocations = _.pluck(_.uniq(listing.journeysDurations, "toLocation.city"), "toLocation"); // keeps sorted order
+                    shortestLocation.index  = listing.journeysDurations[0].index;
+                    listing.minDurationString  = time.getDurationString(shortestJourney.durationSeconds);
 
                     marker.toLocation    = shortestJourney.toLocation;
 
@@ -867,22 +867,22 @@
                         latitude: marker.toLocation.latitude
                     };
                 } else {
-                    item.loc          = item.completeLocations[0];
-                    item.toLoc        = item.completeLocations[0];
-                    marker.toLocation = item.completeLocations[0];
+                    listing.loc          = listing.completeLocations[0];
+                    listing.toLoc        = listing.completeLocations[0];
+                    marker.toLocation = listing.completeLocations[0];
 
                     marker.coords        = {
-                        longitude: item.completeLocations[0].longitude,
-                        latitude: item.completeLocations[0].latitude
+                        longitude: listing.completeLocations[0].longitude,
+                        latitude: listing.completeLocations[0].latitude
                     };
-                    item.populatedLocations = item.completeLocations;
+                    listing.populatedLocations = listing.completeLocations;
                 }
 
-                item.markersId = [markerId];
+                listing.markersId = [markerId];
 
-                marker.type          = "item";
-                marker.data          = item;
-                marker.media         = item.url;
+                marker.type          = "listing";
+                marker.data          = listing;
+                marker.media         = listing.url;
                 marker.id            = markerId;
                 marker.show          = true;
 
@@ -898,15 +898,15 @@
                     // Options for plain old markers
                     // marker.options    =  {
                     //     animation: google.maps.Animation.DROP,
-                    //     title: item.name,
+                    //     title: listing.name,
                     //     zIndex: 100000 - markerId
                     // };
                     // marker.icon       = "https://maps.gstatic.com/mapfiles/transparent.png";
                 }
                 newMarkers.push(marker);
 
-                // Display all items locations
-                // _displayOtherLocationsMarkers(item, marker);
+                // Display all listings locations
+                // _displayOtherLocationsMarkers(listing, marker);
 
             });
 
@@ -914,25 +914,25 @@
             googleMap.setMarkers(newMarkers);
             _fitMap();
 
-            // function _displayOtherLocationsMarkers(item, firstMarker) {
+            // function _displayOtherLocationsMarkers(listing, firstMarker) {
             //     // first marker is already created
-            //     var otherLocations = _.reject(item.populatedLocations, function (location) {
+            //     var otherLocations = _.reject(listing.populatedLocations, function (location) {
             //         return location.id === firstMarker.toLocation.id;
             //     });
 
             //     _.forEach(otherLocations, function (location, index) {
             //         var markerId = _.uniqueId("marker_");
             //         var marker   = {};
-            //         item.markersId.push(markerId);
+            //         listing.markersId.push(markerId);
 
             //         marker.toLocation    = location;
             //         marker.coords        = {
             //             longitude: location.longitude,
             //             latitude: location.latitude
             //         };
-            //         marker.type          = "item";
-            //         marker.data          = item;
-            //         marker.media         = item.url;
+            //         marker.type          = "listing";
+            //         marker.data          = listing;
+            //         marker.media         = listing.url;
             //         marker.id            = markerId;
             //         marker.show          = true;
 
@@ -1028,7 +1028,7 @@
          * @return {object} [res.queryLocation]
          */
         function _loadSearchConfig() {
-            return ItemService.getSearchConfig(currentUser)
+            return ListingService.getSearchConfig(currentUser)
                 .then(function (searchConfig) {
                     if (! searchConfig) {
                         return;
@@ -1108,7 +1108,7 @@
             //     searchConfig.listingCategoryId = vm.searchQuery.selectedListingCategory;
             // }
 
-            return ItemService.setSearchConfig(searchConfig, currentUser);
+            return ListingService.setSearchConfig(searchConfig, currentUser);
         }
 
         function _startSpinners(delay) {
@@ -1153,7 +1153,7 @@
                 if (query) {
                     title =  query + " - " + title;
                     metaDesc = "Location / Vente" + query + " entre particuliers et matériel à partager";
-                    url += "/" + ItemService.encodeUrlQuery(query);
+                    url += "/" + ListingService.encodeUrlQuery(query);
                 } else {
                     metaDesc = "Recherche d'objets à louer ou à vendre entre particuliers";
                 }
@@ -1189,7 +1189,7 @@
                 metaDesc += " Page " + vm.currentPage;
             }
             // if it is the last page
-            if (vm.nbTotalItems <= vm.currentPage * vm.nbItemsPerPage) {
+            if (vm.nbTotalListings <= vm.currentPage * vm.nbListingsPerPage) {
                 paginationLinks.next = null;
             } else {
                 paginationLinks.next = _getPaginationLink(absUrl, vm.currentPage + 1);
@@ -1263,7 +1263,7 @@
                                     break;
 
                                 case vm.paginationLinks.last:
-                                    link.href = _getPaginationLink(absUrl, Math.ceil(vm.nbTotalItems / vm.nbItemsPerPage));
+                                    link.href = _getPaginationLink(absUrl, Math.ceil(vm.nbTotalListings / vm.nbListingsPerPage));
                                     break;
 
                                 default:
@@ -1293,21 +1293,21 @@
             });
         }
 
-        function _showItemCardCta() {
-            var nbItemsVisible = Math.min(vm.nbItemsPerPage, vm.nbTotalItems);
-            // Display item-card item creation CTA when empty space is available
-            // I.e. when nbItemsVisible is not multiple of 4 (columns) on largest screens
-            // Or when nbItemsVisible is odd, on small display (2 columns)
-            // That's why nbItemsPerPage is set to a multiple of 2, 3 and 4, minus 1.
+        function _showListingCardCta() {
+            var nbListingsVisible = Math.min(vm.nbListingsPerPage, vm.nbTotalListings);
+            // Display item-card listing creation CTA when empty space is available
+            // I.e. when nbListingsVisible is not multiple of 4 (columns) on largest screens
+            // Or when nbListingsVisible is odd, on small display (2 columns)
+            // That's why nbListingsPerPage is set to a multiple of 2, 3 and 4, minus 1.
 
             if (vm.isXLarge) {
-                vm.showItemCardCta = (nbItemsVisible % 4) > 0;
+                vm.showListingCardCta = (nbListingsVisible % 4) > 0;
             } else if (vm.isDesktop || (! vm.isSmall && ! vm.isSMedium)) {
                 // Desktop or Between small and s-medium: 3 columns
-                vm.showItemCardCta = (nbItemsVisible % 3) > 0;
+                vm.showListingCardCta = (nbListingsVisible % 3) > 0;
             } else {
                 // Small screen or s-medium below desktop (map): 2 columns
-                vm.showItemCardCta = (nbItemsVisible % 2) > 0;
+                vm.showListingCardCta = (nbListingsVisible % 2) > 0;
             }
         }
 
@@ -1317,7 +1317,7 @@
             vm.isDesktop = mqDesktop.matches;
             vm.isXLarge  = mqXLarge.matches;
 
-            _showItemCardCta();
+            _showListingCardCta();
         }
 
         function uxEvent(target, type) {

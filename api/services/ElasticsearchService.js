@@ -1,14 +1,14 @@
-/* global Item, ListingCategory, ListingXTag, LoggerService, StelaceConfigService, Tag */
+/* global Listing, ListingCategory, ListingXTag, LoggerService, StelaceConfigService, Tag */
 
 module.exports = {
 
-    syncItems: syncItems,
+    syncListings: syncListings,
 
-    searchItems: searchItems,
-    getSimilarItems: getSimilarItems,
-    getItem: getItem,
+    searchListings: searchListings,
+    getSimilarListings: getSimilarListings,
+    getListing: getListing,
 
-    shouldSyncItems: shouldSyncItems,
+    shouldSyncListings: shouldSyncListings,
 
     getClient: getClient,
 
@@ -16,7 +16,7 @@ module.exports = {
 
 const elasticsearch = require('elasticsearch');
 
-const ITEM_FIELDS = [
+const LISTING_FIELDS = [
     'id',
     'name',
     'description',
@@ -27,8 +27,8 @@ const ITEM_FIELDS = [
     'listingCategoryId',
 ];
 
-let itemsIdsToSync = [];
-let syncItemsTriggered = false;
+let listingsIdsToSync = [];
+let syncListingsTriggered = false;
 
 // https://www.elastic.co/guide/en/elasticsearch/guide/2.x/bulk.html#_how_big_is_too_big
 let maxDocPerBulk = 1000; // bulk can't be too big
@@ -81,16 +81,16 @@ function getClient() {
     return esClient;
 }
 
-async function syncItems() {
+async function syncListings() {
     const client = getClient();
 
     const [
-        items,
+        listings,
         listingCategories,
         tags,
         listingsXTags,
     ] = await Promise.all([
-        Item.find({ validated: true }),
+        Listing.find({ validated: true }),
         ListingCategory.find(),
         Tag.find(),
         ListingXTag.find(),
@@ -100,8 +100,8 @@ async function syncItems() {
     const indexedTags = _.indexBy(tags, 'id');
     const indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'listingId');
 
-    const normalizedItems = _.map(items, item => {
-        return normalizeItem(item, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
+    const normalizedListings = _.map(listings, listing => {
+        return normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
     });
 
     const indexExists = await client.indices.exists({
@@ -119,15 +119,15 @@ async function syncItems() {
     });
 
     await createCustomFrenchAnalyzer();
-    await createTypeItemMapping();
+    await createTypeListingMapping();
 
     let body = [];
 
-    for (let i = 0, l = normalizedItems.length; i < l; i++) {
-        const item = normalizedItems[i];
+    for (let i = 0, l = normalizedListings.length; i < l; i++) {
+        const listing = normalizedListings[i];
 
-        body.push({ update: { _index: 'catalog', _type: 'item', _id: item.id } });
-        body.push({ doc: _.omit(item, 'id'), doc_as_upsert: true });
+        body.push({ update: { _index: 'catalog', _type: 'listing', _id: listing.id } });
+        body.push({ doc: _.omit(listing, 'id'), doc_as_upsert: true });
 
         if (i !== 0 && i % maxDocPerBulk === 0) {
             await client.bulk({ body });
@@ -216,14 +216,14 @@ async function createCustomFrenchAnalyzer() {
     });
 }
 
-async function createTypeItemMapping() {
+async function createTypeListingMapping() {
     const client = getClient();
 
     await client.indices.putMapping({
         index: 'catalog',
-        type: 'item',
+        type: 'listing',
         body: {
-            item: {
+            listing: {
                 properties: {
                     name: {
                         type: 'text',
@@ -291,7 +291,7 @@ async function createTypeItemMapping() {
     });
 }
 
-async function searchItems(query, {
+async function searchListings(query, {
     attributes = false,
     miniShouldMatch = '2<90%',
 } = {}) {
@@ -320,20 +320,20 @@ async function searchItems(query, {
 
     return await client.search({
         index: 'catalog',
-        type: 'item',
+        type: 'listing',
         body: body,
     });
 }
 
-async function getSimilarItems({ itemsIds = [], texts = [] }, { attributes = false }) {
+async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes = false }) {
     const client = getClient();
 
     const like = [];
-    _.forEach(itemsIds, itemId => {
+    _.forEach(listingsIds, listingId => {
         like.push({
             _index: 'catalog',
-            _type: 'item',
-            _id: itemId,
+            _type: 'listing',
+            _id: listingId,
         });
     });
     _.forEach(texts, text => {
@@ -362,39 +362,39 @@ async function getSimilarItems({ itemsIds = [], texts = [] }, { attributes = fal
 
     return await client.search({
         index: 'catalog',
-        type: 'item',
+        type: 'listing',
         body,
     });
 }
 
-async function getItem(itemId) {
+async function getListing(listingId) {
     const client = getClient();
 
     return await client.get({
         index: 'catalog',
-        type: 'item',
-        id: itemId,
+        type: 'listing',
+        id: listingId,
     });
 }
 
-function normalizeItem(item, { indexedCategories, indexedTags, indexedListingsXTagsByListingId }) {
-    const transformedItem = _.pick(item, ITEM_FIELDS);
+function normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId }) {
+    const transformedListing = _.pick(listing, LISTING_FIELDS);
 
-    transformedItem.mediasIds = transformedItem.mediasIds || [];
-    transformedItem.instructionsMediasIds = transformedItem.instructionsMediasIds || [];
-    transformedItem.locations = transformedItem.locations || [];
-    transformedItem.listingCategoryLabel = getCategoryLabel(item, { indexedCategories });
-    transformedItem.tags = getTags(item, { indexedTags, indexedListingsXTagsByListingId });
+    transformedListing.mediasIds = transformedListing.mediasIds || [];
+    transformedListing.instructionsMediasIds = transformedListing.instructionsMediasIds || [];
+    transformedListing.locations = transformedListing.locations || [];
+    transformedListing.listingCategoryLabel = getCategoryLabel(listing, { indexedCategories });
+    transformedListing.tags = getTags(listing, { indexedTags, indexedListingsXTagsByListingId });
 
-    return transformedItem;
+    return transformedListing;
 }
 
-function getCategoryLabel(item, { indexedCategories }) {
-    if (! item.listingCategoryId) {
+function getCategoryLabel(listing, { indexedCategories }) {
+    if (! listing.listingCategoryId) {
         return null;
     }
 
-    const childCategory = indexedCategories[item.listingCategoryId];
+    const childCategory = indexedCategories[listing.listingCategoryId];
     if (! childCategory) {
         return null;
     }
@@ -415,8 +415,8 @@ function getCategoryLabel(item, { indexedCategories }) {
     return label;
 }
 
-function getTags(item, { indexedTags, indexedListingsXTagsByListingId }) {
-    const listingsXTags = indexedListingsXTagsByListingId[item.id];
+function getTags(listing, { indexedTags, indexedListingsXTagsByListingId }) {
+    const listingsXTags = indexedListingsXTagsByListingId[listing.id];
 
     if (! listingsXTags || ! listingsXTags.length) {
         return [];
@@ -424,8 +424,8 @@ function getTags(item, { indexedTags, indexedListingsXTagsByListingId }) {
 
     const tags = [];
 
-    _.forEach(listingsXTags, itemXTag => {
-        const tag = indexedTags[itemXTag.tagId];
+    _.forEach(listingsXTags, listingXTag => {
+        const tag = indexedTags[listingXTag.tagId];
         if (tag) {
             tags.push(tag.name);
         }
@@ -434,33 +434,33 @@ function getTags(item, { indexedTags, indexedListingsXTagsByListingId }) {
     return tags;
 }
 
-function shouldSyncItems(itemsIds) {
-    itemsIdsToSync = itemsIdsToSync.concat(itemsIds || []);
+function shouldSyncListings(listingsIds) {
+    listingsIdsToSync = listingsIdsToSync.concat(listingsIds || []);
 
-    // sync items after debouncing some short time
-    if (itemsIdsToSync.length && ! syncItemsTriggered) {
-        syncItemsTriggered = true;
+    // sync listings after debouncing some short time
+    if (listingsIdsToSync.length && ! syncListingsTriggered) {
+        syncListingsTriggered = true;
 
-        setTimeout(() => triggerSyncItems(), 500);
+        setTimeout(() => triggerSyncListings(), 500);
     }
 }
 
-async function triggerSyncItems() {
-    let itemsIds = itemsIdsToSync;
-    itemsIdsToSync = [];
+async function triggerSyncListings() {
+    let listingsIds = listingsIdsToSync;
+    listingsIdsToSync = [];
 
     const client = getClient();
 
     try {
-        itemsIds = _.compact(_.uniq(itemsIds));
+        listingsIds = _.compact(_.uniq(listingsIds));
 
         const [
-            items,
+            listings,
             listingCategories,
             tags,
             listingsXTags,
         ] = await Promise.all([
-            Item.find({ id: itemsIds }),
+            Listing.find({ id: listingsIds }),
             ListingCategory.find(),
             Tag.find(),
             ListingXTag.find(),
@@ -478,25 +478,25 @@ async function triggerSyncItems() {
         }
         if (activeTags) {
             indexedTags = _.indexBy(tags, 'id');
-            indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'itemId');
+            indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'listingId');
         }
 
 
-        const indexedItems = _.indexBy(items, 'id');
+        const indexedListings = _.indexBy(listings, 'id');
 
         let body = [];
 
-        for (let i = 0, l = itemsIds.length; i < l; i++) {
-            const itemId = itemsIds[i];
-            const item = indexedItems[itemId];
+        for (let i = 0, l = listingsIds.length; i < l; i++) {
+            const listingId = listingsIds[i];
+            const listing = indexedListings[listingId];
 
-            // if the item is not found or is not validated, remove it from Elastic search
-            if (! item || ! item.validated) {
-                body.push({ delete: { _index: 'catalog', _type: 'item', _id: itemId } });
+            // if the listing is not found or is not validated, remove it from Elastic search
+            if (! listing || ! listing.validated) {
+                body.push({ delete: { _index: 'catalog', _type: 'listing', _id: listingId } });
             } else {
-                const normalizedItem = normalizeItem(item, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
-                body.push({ update: { _index: 'catalog', _type: 'item', _id: normalizedItem.id } });
-                body.push({ doc: _.omit(normalizedItem, 'id'), doc_as_upsert: true });
+                const normalizedListing = normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
+                body.push({ update: { _index: 'catalog', _type: 'listing', _id: normalizedListing.id } });
+                body.push({ doc: _.omit(normalizedListing, 'id'), doc_as_upsert: true });
             }
 
             if (i !== 0 && i % maxDocPerBulk === 0) {
@@ -511,10 +511,10 @@ async function triggerSyncItems() {
     } catch (e) {
         // do nothing
     } finally {
-        if (itemsIdsToSync.length) {
-            triggerSyncItems();
+        if (listingsIdsToSync.length) {
+            triggerSyncListings();
         } else {
-            syncItemsTriggered = false;
+            syncListingsTriggered = false;
         }
     }
 }

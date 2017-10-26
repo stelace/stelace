@@ -1,5 +1,5 @@
 /* global
-    Assessment, Booking, Conversation, Item, TimeService
+    Assessment, Booking, Conversation, Listing, TimeService
 */
 
 /**
@@ -12,11 +12,11 @@
 module.exports = {
 
     attributes: {
-        itemId: {
+        listingId: {
             type: "integer",
             index: true
         },
-        itemSnapshotId: { // TODO: to rename into 'itemSnapshot'
+        listingSnapshotId: {
             type: "integer",
             index: true
         },
@@ -98,8 +98,8 @@ module.exports = {
     getLaunchDate: getLaunchDate,
     getDueDate: getDueDate,
     updateBookingEndState: updateBookingEndState,
-    canItemQuantityEvolve: canItemQuantityEvolve,
-    updateItemQuantity: updateItemQuantity,
+    canListingQuantityEvolve: canListingQuantityEvolve,
+    updateListingQuantity: updateListingQuantity,
 
     getLast: getLast,
     isComplete: isComplete,
@@ -116,8 +116,8 @@ function getAccessFields(access) {
     var accessFields = {
         self: [
             "id",
-            "itemId",
-            "itemSnapshotId",
+            "listingId",
+            "listingSnapshotId",
             "listingTypeId",
             "listingType",
             "parentId",
@@ -144,8 +144,8 @@ function getAccessFields(access) {
         ],
         owner: [
             "id",
-            "itemId",
-            "itemSnapshotId",
+            "listingId",
+            "listingSnapshotId",
             "listingTypeId",
             "listingType",
             "parentId",
@@ -174,7 +174,7 @@ function getAccessFields(access) {
         ],
         others: [
             "id",
-            "itemId",
+            "listingId",
             "listingTypeId",
             "listingType",
             "parentId",
@@ -340,56 +340,56 @@ function updateBookingEndState(booking, now) {
     })();
 }
 
-function canItemQuantityEvolve(booking) {
+function canListingQuantityEvolve(booking) {
     const { TIME, AVAILABILITY } = booking.listingType.properties;
-    // item quantity change if there is no time but there is a stock
+    // listing quantity change if there is no time but there is a stock
     return TIME === 'NONE' && AVAILABILITY !== 'NONE';
 }
 
 /**
- * After some booking operations, item quantity can evolve
+ * After some booking operations, listing quantity can evolve
  * like decrease stock after payment
  * or increase stock after booking rejection
  * @param {Object} booking
  * @param {String} actionType - possible values: ['add', 'remove']
  */
-async function updateItemQuantity(booking, { actionType }) {
+async function updateListingQuantity(booking, { actionType }) {
     if (!_.includes(['add', 'remove'], actionType)) {
         throw new Error('Incorrect action type');
     }
 
-    if (!canItemQuantityEvolve(booking)) return;
+    if (!canListingQuantityEvolve(booking)) return;
 
-    const item = await Item.findOne({ id: booking.itemId });
-    if (!item) {
+    const listing = await Listing.findOne({ id: booking.listingId });
+    if (!listing) {
         throw new NotFoundError();
     }
 
     const updateAttrs = {};
     if (actionType === 'add') {
-        updateAttrs.quantity = item.quantity + booking.quantity;
+        updateAttrs.quantity = listing.quantity + booking.quantity;
     } else if (actionType === 'remove') {
-        updateAttrs.quantity = Math.max(item.quantity - booking.quantity, 0);
+        updateAttrs.quantity = Math.max(listing.quantity - booking.quantity, 0);
     }
 
-    await Item.updateOne({ id: booking.itemId }, updateAttrs);
+    await Listing.updateOne({ id: booking.listingId }, updateAttrs);
 }
 
-function getLast(itemIdOrIds) {
+function getLast(listingIdOrIds) {
     var onlyOne;
-    var itemIds;
+    var listingIds;
 
-    if (_.isArray(itemIdOrIds)) {
-        itemIds = _.uniq(itemIdOrIds);
+    if (_.isArray(listingIdOrIds)) {
+        listingIds = _.uniq(listingIdOrIds);
         onlyOne = false;
     } else {
-        itemIds = itemIdOrIds;
+        listingIds = listingIdOrIds;
         onlyOne = true;
     }
 
     return Promise.coroutine(function* () {
         var findAttrs = {
-            itemId: itemIds,
+            listingId: listingIds,
             cancellationId: null,
             paidDate: { '!': null },
             acceptedDate: { '!': null }
@@ -404,18 +404,18 @@ function getLast(itemIdOrIds) {
                 .find(findAttrs)
                 .sort({ startDate: -1 });
 
-            var hashItems = _.reduce(itemIds, function (memo, itemId) {
-                memo[itemId] = null;
+            var hashListings = _.reduce(listingIds, function (memo, listingId) {
+                memo[listingId] = null;
                 return memo;
             }, {});
 
             _.forEach(bookings, function (booking) {
-                if (! hashItems[booking.itemId]) {
-                    hashItems[booking.itemId] = booking;
+                if (! hashListings[booking.listingId]) {
+                    hashListings[booking.listingId] = booking;
                 }
             });
 
-            return hashItems;
+            return hashListings;
         }
     })();
 }
@@ -479,19 +479,19 @@ function getBookingRef(bookingId) {
 
 /**
  * Get bookings that are not paid or not validated
- * @param  {number}  itemId
+ * @param  {number}  listingId
  * @param  {object}  [args]
  * @param  {object}  [args.refBooking] - if provided, get pending bookings except this one
  * @param  {boolean} [args.intersection = false] - if true (refBooking needed), get only bookings that overlap the refBooking period
  * @return {object[]} bookings
  */
-function getPendingBookings(itemId, args) {
+function getPendingBookings(listingId, args) {
     var refBooking   = args.refBooking;
     var intersection = args.intersection || false;
 
     return Promise.coroutine(function* () {
         var findAttrs = {
-            itemId: itemId
+            listingId: listingId
         };
 
         if (refBooking) {

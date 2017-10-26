@@ -57,8 +57,8 @@
             }
 
             if (redirectURL) {
-                if ((/^\/my-items/).test(redirectURL)) {
-                    vm.redirectTarget = "myItems";
+                if ((/^\/my-listings/).test(redirectURL)) {
+                    vm.redirectTarget = "myListings";
                 }
             }
 

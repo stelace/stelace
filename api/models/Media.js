@@ -45,18 +45,18 @@ module.exports = {
     deleteCustomSizeFiles: deleteCustomSizeFiles,
     destroyMedia: destroyMedia,
     getUrl: getUrl,
-    getDefaultItemImageUrl: getDefaultItemImageUrl
+    getDefaultListingImageUrl: getDefaultListingImageUrl
 
 };
 
 const params = {
-    fields: ["user", "item"],
+    fields: ["user", "listing"],
     types: ["img", "pdf", "link"],
     displayTypes: ["smart", "cover", "contain", "containOriginal"],
     maxNb: {
         user: 1,
-        item: 10,
-        itemInstructions: 10,
+        listing: 10,
+        listingInstructions: 10,
         assessment: 10
     },
     imgSizes: [
@@ -267,6 +267,6 @@ function getUrl(media, { size, oldVersion = false } = {}) {
     }
 }
 
-function getDefaultItemImageUrl() {
+function getDefaultListingImageUrl() {
     return "/assets/img/app/default/default-item.png";
 }

@@ -19,8 +19,8 @@
                     <li>
                         <a class="link--blue-underline" ui-sref="search">Recherche d'objets à vendre ou louer</a>
                     </li>
-                    <li ng-if="vm.randomItem">
-                        <a class="link--blue-underline" ui-sref="item({ slug: vm.randomItem.nameURLSafe + '-' + vm.randomItem.id })" title="Cette fois, vous aurez peut-être un peu plus de chance…">Annonce suprise</a>
+                    <li ng-if="vm.randomListing">
+                        <a class="link--blue-underline" ui-sref="listing({ slug: vm.randomListing.nameURLSafe + '-' + vm.randomListing.id })" title="Cette fois, vous aurez peut-être un peu plus de chance…">Annonce suprise</a>
                     </li>
                 </ul>
             </div>

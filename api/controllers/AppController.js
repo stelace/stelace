@@ -1,4 +1,4 @@
-/* global Item, SeoSnapshotService, StelaceConfigService, StelaceEventService, Tag, Token, TokenService, ToolsService, UAService, User */
+/* global Listing, SeoSnapshotService, StelaceConfigService, StelaceEventService, Tag, Token, TokenService, ToolsService, UAService, User */
 
 /**
  * AppController
@@ -65,9 +65,9 @@ function index(req, res) {
             return res.redirect(redirectedUrl);
         }
 
-        const newItemSearchUrl = getNewItemSearchUrl(req.url);
-        if (newItemSearchUrl) {
-            return res.redirect(newItemSearchUrl);
+        const newListingSearchUrl = getNewListingSearchUrl(req.url);
+        if (newListingSearchUrl) {
+            return res.redirect(newListingSearchUrl);
         }
 
         const config = yield StelaceConfigService.getConfig();
@@ -125,21 +125,21 @@ function index(req, res) {
     async function setAuthToken({
         queryToken,
         userAgent,
-        itemId,
+        listingId,
         req,
         res,
     }) {
         let tokens;
         let token;
 
-        if (itemId) {
+        if (listingId) {
             tokens = await Token.find({
                 type: 'authToken',
                 value: queryToken,
             });
 
             token = _.find(tokens, token => {
-                return token.reference && token.reference.itemId === itemId;
+                return token.reference && token.reference.listingId === listingId;
             });
         } else {
             token = await Token.findOne({
@@ -167,7 +167,7 @@ function index(req, res) {
         const authToken = TokenService.createAuthToken(user, { userAgent });
 
         // must set an expiration date because otherwise the cookie isn't removed from some client views
-        // such as views with Google Maps (e.g. item view)
+        // such as views with Google Maps (e.g. listing view)
         res.cookie('setAuthToken', authToken, {
             expires: new Date(new Date().getTime() + 3600),
         });
@@ -221,7 +221,7 @@ function index(req, res) {
         }
     }
 
-    function getNewItemSearchUrl(url) {
+    function getNewListingSearchUrl(url) {
         if (!oldSearchPatterns) {
             oldSearchPatterns = {
                 searchWithLocation: new UrlPattern('/s/l/:location'),
@@ -327,7 +327,7 @@ function index(req, res) {
                     resolve: true
                 },
                 {
-                    pattern: "/item/new",
+                    pattern: "/listing/new",
                     resolve: true
                 },
                 {
@@ -363,7 +363,7 @@ function index(req, res) {
                     }
                 },
                 {
-                    pattern: "/item/:slug",
+                    pattern: "/listing/:slug",
                     resolve: tokens => {
                         var slugId = _.last(tokens.slug.split("-"));
                         slugId = parseInt(slugId, 10);
@@ -372,11 +372,11 @@ function index(req, res) {
                         }
 
                         return Promise.coroutine(function* () {
-                            var item = yield Item.findOne({ id: slugId });
-                            if (! item) {
+                            var listing = yield Listing.findOne({ id: slugId });
+                            if (! listing) {
                                 return;
                             } else {
-                                return `/item/${item.nameURLSafe}-${slugId}`;
+                                return `/listing/${listing.nameURLSafe}-${slugId}`;
                             }
                         })();
                     }
@@ -395,7 +395,7 @@ function index(req, res) {
                     }
                 },
                 {
-                    pattern: "/my-items",
+                    pattern: "/my-listings",
                     resolve: true
                 },
                 {

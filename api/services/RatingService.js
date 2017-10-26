@@ -1,4 +1,4 @@
-/* global Booking, GamificationService, Item, Media, Rating, User */
+/* global Booking, GamificationService, Listing, Media, Rating, User */
 
 module.exports = {
 
@@ -29,32 +29,32 @@ async function getClassifiedRatings({ bookingId, userId }) {
  * populate ratings
  * @param  {object[]} ratings
  * @param  {string}   [access = "others"]
- * @param  {boolean}  [populateItems = false]
+ * @param  {boolean}  [populateListings = false]
  * @return {object[]} populated ratings
  */
-async function populateRatings(ratings, access = 'others', populateItems = false) {
+async function populateRatings(ratings, access = 'others', populateListings = false) {
     const modelAccess = 'others';
 
     const [
         users,
-        items,
+        listings,
     ] = await Promise.all([
         User.find({ id: _.pluck(ratings, 'userId') }),
-        populateItems ? Item.find({ id: _.pluck(ratings, 'itemId') }) : [],
+        populateListings ? Listing.find({ id: _.pluck(ratings, 'listingId') }) : [],
     ]);
 
     const userMedias = await User.getMedia(users);
 
     const indexedUsers = _.indexBy(users, 'id');
-    const indexedItems = _.indexBy(items, 'id');
+    const indexedListings = _.indexBy(listings, 'id');
 
     return _.map(ratings, rating => {
         rating           = Rating.expose(rating, access);
         rating.user      = User.expose(indexedUsers[rating.userId], modelAccess);
         rating.userMedia = Media.expose(userMedias[rating.userId], modelAccess);
 
-        if (populateItems) {
-            rating.item = Item.expose(indexedItems[rating.itemId], modelAccess);
+        if (populateListings) {
+            rating.listing = Listing.expose(indexedListings[rating.listingId], modelAccess);
         }
 
         return rating;
@@ -67,7 +67,7 @@ async function populateRatings(ratings, access = 'others', populateItems = false
  * if booking provided, get all ratings related to this booking
  * @param  {Number} bookingId - bookingId or targetId must be provided
  * @param  {Number} targetId
- * @param  {Boolean} [populateItems = false]
+ * @param  {Boolean} [populateListings = false]
  * @param  {Object} [user] - must be defined if booking provided
  * @param  {String} [access]
  * @return {Object|Object[]} classifiedRatings | populated ratings
@@ -75,7 +75,7 @@ async function populateRatings(ratings, access = 'others', populateItems = false
 async function findRatings({
     bookingId,
     targetId,
-    populateItems,
+    populateListings,
     user,
     access,
 }) {
@@ -95,7 +95,7 @@ async function findRatings({
     } else if (targetId) {
         let ratings = await Rating.find({ targetId });
         ratings = Rating.hideCommentsWhenNotVisible(ratings, now);
-        ratings = await populateRatings(ratings, access, populateItems);
+        ratings = await populateRatings(ratings, access, populateListings);
         return ratings;
     } else {
         throw new ForbiddenError();
@@ -107,7 +107,7 @@ async function findRatings({
  * @param  {object} attrs
  * @param  {number} attrs.score
  * @param  {string} attrs.comment
- * @param  {string} attrs.itemComment
+ * @param  {string} attrs.listingComment
  * @param  {number} attrs.bookingId
  * @param  {object} user
  * @param  {object} [logger] - useful for gamification
@@ -125,7 +125,7 @@ async function createRating({
     const filteredAttrs = [
         'score',
         'comment',
-        'itemComment',
+        'listingComment',
         'bookingId'
     ];
 
@@ -157,7 +157,7 @@ async function createRating({
         throw new BadRequestError(`rating can't be created anymore`);
     }
 
-    createAttrs.itemId      = booking.itemId;
+    createAttrs.listingId      = booking.listingId;
     createAttrs.visibleDate = visibleDate;
 
     _.assign(createAttrs, Rating.getRoles(booking, user.id));
@@ -181,7 +181,7 @@ async function createRating({
  * @param  {object} attrs
  * @param  {number} attrs.score
  * @param  {string} attrs.comment
- * @param  {string} attrs.itemComment
+ * @param  {string} attrs.listingComment
  * @param  {object} user
  * @param  {object} [logger] - useful for gamification
  * @param  {object} [req] - useful for gamification
@@ -198,7 +198,7 @@ async function updateRating(ratingId, {
     const filteredAttrs = [
         "score",
         "comment",
-        "itemComment"
+        "listingComment"
     ];
 
     const updateAttrs = _.pick(attrs, filteredAttrs);

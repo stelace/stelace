@@ -26,7 +26,7 @@
                             {{::conv.interlocutor.displayName}}
                         </h3>
                         <div class="show-for-small-only text--semibold text--small ellipsis">
-                            {{::conv.item.name}}
+                            {{::conv.listing.name}}
                         </div>
                         <div class="show-for-small-only text--small ellipsis text--light">
                             <div class="text--semibold"
@@ -60,7 +60,7 @@
                     <div class="inbox__conversation-message show-for-medium flex-item--grow force-ellipsis">
                         <div class="text--small ellipsis">
                             <span class="text--semibold">
-                                {{::conv.item.name}}
+                                {{::conv.listing.name}}
                             </span>
                             <span class="text--light">
                                 {{::((conv.bookingDates) ? '(' + conv.bookingDates + ')' : '')}}

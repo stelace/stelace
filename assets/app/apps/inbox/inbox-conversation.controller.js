@@ -15,7 +15,7 @@
                                             $timeout,
                                             BookingService,
                                             ezfb,
-                                            ItemService,
+                                            ListingService,
                                             loggerToServer,
                                             map,
                                             MessageService,
@@ -42,7 +42,7 @@
         var debouncedSaveMessageTmp;
         var countdownInterval;
         var activated;
-        var itemShareUrl;
+        var listingShareUrl;
 
         var vm = this;
         vm.duplicateActionMessage     = null;
@@ -109,12 +109,12 @@
                     var shareUtm = {
                         utmSource: "facebook",
                         utmMedium: "social",
-                        utmCampaign: vm.isOwner ? "item-share-owner" : "item-share",
+                        utmCampaign: vm.isOwner ? "listing-share-owner" : "listing-share",
                         utmContent: "picture"
                     };
 
-                    vm.itemSlug  = ItemService.getItemSlug(vm.item);
-                    itemShareUrl = platform.getItemShareUrl(vm.itemSlug, shareUtm);
+                    vm.listingSlug  = ListingService.getListingSlug(vm.listing);
+                    listingShareUrl = platform.getListingShareUrl(vm.listingSlug, shareUtm);
 
                     _populateAssessments();
                     platform.setTitle(title);
@@ -122,7 +122,7 @@
 
                     StelaceEvent.sendEvent("Conversation view", {
                         data: {
-                            itemId: vm.item.id,
+                            listingId: vm.listing.id,
                             bookingId: vm.booking && vm.booking.id,
                             targetUserId: vm.interlocutor.id,
                             nbMessages: messages.length
@@ -227,46 +227,46 @@
                 _setCountdown();
 
                 return $q.all({
-                        item: ItemService.get(vm.conversation.itemId, { snapshot: true }), // take item snapshot if needed (deleted item)
+                        listing: ListingService.get(vm.conversation.listingId, { snapshot: true }), // take listing snapshot if needed (deleted listing)
                         isLoggedAs: UserService.isLoggedAs(currentUser)
                     })
                     .then(function (results) {
-                        var item   = results.item;
+                        var listing   = results.listing;
                         isLoggedAs = results.isLoggedAs;
 
-                        if (! item.snapshot) {
-                            return ItemService.getLocations(vm.conversation.itemId)
-                                .then(function (itemLocations) {
+                        if (! listing.snapshot) {
+                            return ListingService.getLocations(vm.conversation.listingId)
+                                .then(function (listingLocations) {
                                     return {
-                                        item: item,
-                                        itemLocations: itemLocations
+                                        listing: listing,
+                                        listingLocations: listingLocations
                                     };
                                 });
                         } else {
                             return {
-                                item: item,
-                                itemLocations: []
+                                listing: listing,
+                                listingLocations: []
                             };
                         }
                     });
             }).then(function (results) {
-                var item = results.item;
+                var listing = results.listing;
 
-                // Give appropriate item info in conversation
-                vm.itemLocations = results.itemLocations;
+                // Give appropriate listing info in conversation
+                vm.listingLocations = results.listingLocations;
 
-                item.owner.fullname = User.getFullname.call(item.owner);
+                listing.owner.fullname = User.getFullname.call(listing.owner);
 
-                _.forEach(vm.itemLocations, function (location) {
+                _.forEach(vm.listingLocations, function (location) {
                     location.displayAddress = map.getPlaceName(location);
                 });
 
-                ItemService.populate(item, {
-                    locations: results.itemLocations
+                ListingService.populate(listing, {
+                    locations: results.listingLocations
                 });
 
-                vm.item = item;
-                vm.isOwner = (item.ownerId === currentUser.id);
+                vm.listing = listing;
+                vm.isOwner = (listing.ownerId === currentUser.id);
 
                 var updateArgs = {};
                 if (vm.isSender) {
@@ -470,7 +470,7 @@
                     bookingId: booking.id,
                     receiverId: vm.interlocutor.id,
                     senderId: currentUser.id,
-                    itemId: vm.item.id,
+                    listingId: vm.listing.id,
                     agreementStatus: "agreed"
                 };
             } else {
@@ -505,13 +505,13 @@
                     var gaLabel = '{bookingId: ' + booking.id
                      + ', status: "acceptBooking"'
                      + '}';
-                    ga('send', 'event', 'Items', 'BookingValidation', gaLabel);
+                    ga('send', 'event', 'Listings', 'BookingValidation', gaLabel);
                     // Stelace event
                     StelaceEvent.sendEvent("Booking validation", {
                         type: "click",
                         data: {
-                            itemId: vm.item.id,
-                            tagsIds: vm.item.tags,
+                            listingId: vm.listing.id,
+                            tagsIds: vm.listing.tags,
                             bookingId: booking.id,
                             targetUserId: vm.interlocutor.id,
                             status: "acceptBooking"
@@ -544,7 +544,7 @@
                 bookingId: booking.id,
                 receiverId: vm.interlocutor.id,
                 senderId: currentUser.id,
-                itemId: vm.item.id,
+                listingId: vm.listing.id,
                 agreementStatus: "rejected"
             };
 
@@ -571,14 +571,14 @@
                     var gaLabel = '{bookingId: ' + booking.id
                      + ', status: "rejectBooking"'
                      + '}';
-                    ga('send', 'event', 'Items', 'BookingValidation', gaLabel);
+                    ga('send', 'event', 'Listings', 'BookingValidation', gaLabel);
 
                     // Stelace event
                     StelaceEvent.sendEvent("Booking validation", {
                         type: "click",
                         data: {
-                            itemId: vm.item.id,
-                            tagsIds: vm.item.tags,
+                            listingId: vm.listing.id,
+                            tagsIds: vm.listing.tags,
                             bookingId: booking.id,
                             targetUserId: vm.interlocutor.id,
                             status: "rejectBooking"
@@ -618,7 +618,7 @@
                 publicContent: vm.publicMessage || manualMessages.publicMessage || null,
                 startDate: vm.conversation.startDate ? moment(vm.conversation.startDate).format(formatDate) : null, // keep same dates
                 endDate: vm.conversation.endDate ? moment(vm.conversation.endDate).format(formatDate) : null,
-                itemId: vm.item.id,
+                listingId: vm.listing.id,
                 receiverId: vm.interlocutor.id,
                 senderId: currentUser.id
             };
@@ -714,23 +714,23 @@
         }
 
         function facebookShare() {
-            if (! itemShareUrl) {
+            if (! listingShareUrl) {
                 return;
             }
 
             usSpinnerService.spin("share-item-spinner");
 
             var stlEventData = {
-                tagsIds: vm.item.tags,
+                tagsIds: vm.listing.tags,
                 bookingId: vm.booking && vm.booking.id,
                 origin: "conversation",
                 isOwner: !! vm.isOwner
             };
             var stlEvent;
 
-            return StelaceEvent.sendEvent("Item social share", {
+            return StelaceEvent.sendEvent("Listing social share", {
                 type: "click",
-                itemId: vm.item.id,
+                listingId: vm.listing.id,
                 data: stlEventData
             })
             .then(function (stelaceEvent) {
@@ -738,7 +738,7 @@
 
                 ezfb.ui({
                     method: "share",
-                    href: itemShareUrl
+                    href: listingShareUrl
                 }, function (response) {
                     // In Graph API v2.8, response after effective sharing is []
                     if (response && ! response.error_code) { // error corde only for fb authorized users

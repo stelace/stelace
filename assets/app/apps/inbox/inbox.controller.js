@@ -12,7 +12,6 @@
                                 $scope,
                                 $stateParams,
                                 AssessmentService,
-                                ItemService,
                                 MessageService,
                                 StelaceEvent,
                                 tools,

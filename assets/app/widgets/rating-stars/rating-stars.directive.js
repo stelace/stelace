@@ -10,11 +10,11 @@
             scope: {
                 userScore: "@",
                 userRatings: "@",
-                itemScore: "@",
-                itemRatings: "@",
+                listingScore: "@",
+                listingRatings: "@",
                 // itemprop: "@", // along with count, affects markup
                 name: "@",
-                isMyItem: "@", // idem
+                isMyListing: "@", // idem
                 count: "@",
                 noTooltip: "@",
                 tooltipMsg: "@", // overrides default
@@ -25,22 +25,22 @@
         };
 
         function link(scope, element/*, attrs */) {
-            var itemScore      = parseInt(scope.itemScore, 10);
-            var itemRatings    = parseInt(scope.itemRatings, 10);
+            var listingScore      = parseInt(scope.listingScore, 10);
+            var listingRatings    = parseInt(scope.listingRatings, 10);
             var userScore      = parseInt(scope.userScore, 10);
             var userRatings    = parseInt(scope.userRatings, 10);
             var avgRating;
-            var itemStars, userStars;
+            var listingStars, userStars;
 
             scope.showCount = (scope.count && scope.count !== "false");
 
             // var ownerAvgRating = Math.min(userScore / ownerNbRatings, 5);
-            if (itemScore && itemRatings) {
-                itemStars  = _setStars(itemScore, itemRatings);
+            if (listingScore && listingRatings) {
+                listingStars  = _setStars(listingScore, listingRatings);
             } else if (userScore && userRatings) {
                 userStars = _setStars(userScore, userRatings);
-            } else if (userScore) { // single item rating's stars
-                itemStars = _setStars(userScore, 1);
+            } else if (userScore) { // single listing rating's stars
+                listingStars = _setStars(userScore, 1);
             }
 
             element.addClass("rating-stars");
@@ -49,9 +49,9 @@
             scope.displayAvg = scope.avgRating.toLocaleString();
             scope.nbRatings  = userRatings || 0;
 
-            if (itemStars) {
-                scope.stars = itemStars;
-                scope.type  = "item";
+            if (listingStars) {
+                scope.stars = listingStars;
+                scope.type  = "listing";
             } else if (userStars) {
                 scope.stars = userStars;
                 scope.type  = "user";
@@ -61,7 +61,7 @@
             if (! scope.noTooltip) {
                 var tooltipRole;
 
-                if (scope.isMyItem) {
+                if (scope.isMyListing) {
                     tooltipRole = "Vous\xa0avez";
                 } else {
                     tooltipRole = "Le\xa0propriétaire a";
@@ -71,7 +71,7 @@
                  || ((scope.name || tooltipRole)
                     + "\xa0reçu " + userRatings + "\xa0évaluation"
                     + (userRatings > 1 ?  "s" : "")
-                    + (itemScore ? (" dont " + itemRatings + " pour cet objet.") : ".")
+                    + (listingScore ? (" dont " + listingRatings + " pour cet objet.") : ".")
                 );
             }
 

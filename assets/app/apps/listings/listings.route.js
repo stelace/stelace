@@ -1,29 +1,29 @@
 (function () {
 
     angular
-        .module("app.items")
+        .module("app.listings")
         .config(configBlock);
 
     function configBlock($stateProvider) {
         var appsPath = "/assets/app/apps";
-        var appClassName = "items";
+        var appClassName = "items"; // TODO: change the class name after styles rework
 
-        var itemStateConfig = {
+        var listingStateConfig = {
             url: "/s",
             urlWithoutParams: "/s",
-            templateUrl: appsPath + "/items/item-search.html",
-            controller: "ItemSearchController",
+            templateUrl: appsPath + "/listings/listing-search.html",
+            controller: "ListingSearchController",
             controllerAs: "vm",
             appClassName: appClassName,
             noAuthNeeded: true
         };
 
         $stateProvider
-            .state("itemCreate", {
-                url: "/item/new?t", // listing type sell or rent
-                urlWithoutParams: "/item/new",
-                templateUrl: appsPath + "/items/my-items.html",
-                controller: "MyItemsController",
+            .state("listingCreate", {
+                url: "/listing/new?t", // listing type sell or rent
+                urlWithoutParams: "/listing/new",
+                templateUrl: appsPath + "/listings/my-listings.html",
+                controller: "MyListingsController",
                 controllerAs: "vm",
                 appClassName: "landings",
                 noAuthNeeded: true,
@@ -32,40 +32,40 @@
                 },
                 title: "Louez vos objets entre particuliers sur Sharinplace"
             })
-            .state("myItems", {
-                url: "/my-items",
-                urlWithoutParams: "/my-items",
-                templateUrl: appsPath + "/items/my-items.html",
-                controller: "MyItemsController",
+            .state("myListings", {
+                url: "/my-listings",
+                urlWithoutParams: "/my-listings",
+                templateUrl: appsPath + "/listings/my-listings.html",
+                controller: "MyListingsController",
                 controllerAs: "vm",
                 appClassName: "landings",
                 noAuthNeeded: true,
                 title: "Mes objets - Sharinplace"
             })
-            .state("editItem", {
-                url: "/my-items/:id",
-                templateUrl: appsPath + "/items/my-items.html",
-                controller: "MyItemsController",
+            .state("editListing", {
+                url: "/my-listings/:id",
+                templateUrl: appsPath + "/listings/my-listings.html",
+                controller: "MyListingsController",
                 controllerAs: "vm",
                 appClassName: "landings",
                 noAuthNeeded: true,
                 title: "Modifier une annonce - Sharinplace"
             })
-            .state("item", {
-                url: "/item/:slug",
-                urlWithoutParams: "/item",
-                templateUrl: appsPath + "/items/item-view.html",
-                controller: "ItemViewController",
+            .state("listing", {
+                url: "/listing/:slug",
+                urlWithoutParams: "/listing",
+                templateUrl: appsPath + "/listings/listing-view.html",
+                controller: "ListingViewController",
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true
             })
             .state("search", _.defaults({
                 url: "/s?page&l&qm&t&free&reset"
-            }, itemStateConfig))
+            }, listingStateConfig))
             .state("searchWithQuery", _.defaults({
                 url: "/s/:query?page&l&qm&t&free&reset&q"
-            }, itemStateConfig));
+            }, listingStateConfig));
     }
 
 })();

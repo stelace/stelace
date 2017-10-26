@@ -11,7 +11,7 @@
             "app.landings",
             "app.authentication",
             "app.inbox",
-            "app.items",
+            "app.listings",
             "app.bookings",
             "app.users",
             "app.backoffice"

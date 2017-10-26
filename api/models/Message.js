@@ -1,5 +1,5 @@
 /* global
-    Booking, Conversation, EmailTemplateService, Item, LoggerService, Message,
+    Booking, Conversation, EmailTemplateService, Listing, LoggerService, Message,
     User, SmsTemplateService, ToolsService
 */
 
@@ -86,7 +86,7 @@ function getAccessFields(access) {
 /**
  * @param {integer} userId
  * @param {object}  createAttrs
- * @param {integer} createAttrs.itemId
+ * @param {integer} createAttrs.listingId
  * @param {integer} createAttrs.conversationId
  * @param {integer} createAttrs.senderId
  * @param {integer} createAttrs.receiverId
@@ -123,16 +123,16 @@ function createMessage(userId, createAttrs, params) {
 
     return Promise.coroutine(function* () {
         var results = yield Promise.props({
-            item: Item.findOne({ id: createAttrs.itemId }),
+            listing: Listing.findOne({ id: createAttrs.listingId }),
             conversation: findExistingConversation(createAttrs),
             messages: createAttrs.conversationId ? Message.find({ conversationId: createAttrs.conversationId }) : [] // for duplicate detection (avoid email spam)
         });
 
-        var item         = results.item;
+        var listing         = results.listing;
         var conversation = results.conversation;
         var messages     = results.messages;
 
-        if (! item) {
+        if (! listing) {
             throw new NotFoundError();
         }
 
@@ -162,7 +162,7 @@ function createMessage(userId, createAttrs, params) {
 
         // empty messages are only allowed if a first real message has been sent before (possibly in previous conversations)
         // should not happen since message content is required client-side when no previous conversation
-        // WARNING: there can be empty conversations (e.g. automatically created new ones for bookings w/ repeated users and itemId)
+        // WARNING: there can be empty conversations (e.g. automatically created new ones for bookings w/ repeated users and listingId)
         if (! (params.allowEmpty || params.allowEmptyConversation)
          && ! conversation
          && ! createAttrs.privateContent
@@ -218,7 +218,7 @@ function createMessage(userId, createAttrs, params) {
             conversation: newMessageData.conversation,
             message: newMessageData.message,
             messages: messages,
-            item: item,
+            listing: listing,
             firstMessage: newMessageData.isFirstMessage
         };
 
@@ -243,13 +243,13 @@ function findExistingConversation(createAttrs) {
         }
 
         // find relevant conversations
-        // Only one conversation for given itemId and senderId-receiverId pair AND paid bookingId
+        // Only one conversation for given listingId and senderId-receiverId pair AND paid bookingId
         // Take last conversation by default (most recent booking if several booking between 2 users and createAttrs.bookingId)
         var usersIds = [createAttrs.senderId, createAttrs.receiverId];
 
         var conversations = yield Conversation
             .find({
-                itemId: createAttrs.itemId,
+                listingId: createAttrs.listingId,
                 senderId: usersIds,
                 receiverId: usersIds
             })
@@ -298,7 +298,7 @@ function createMessageWithNewConversation(args) {
     var params                      = args.params;
 
     var createConvAttrs        = _.pick(createAttrs, pickUpdateConversationAttrs);
-    createConvAttrs.itemId     = createAttrs.itemId;
+    createConvAttrs.listingId     = createAttrs.listingId;
     createConvAttrs.senderId   = createAttrs.senderId;
     createConvAttrs.receiverId = createAttrs.receiverId;
 
@@ -430,9 +430,9 @@ function _sendNewMessageEmailsAndSms(data, logger) {
     var conversation     = data.conversation;
     var message          = data.message;
     var messages         = data.messages;
-    var item             = data.item;
+    var listing             = data.listing;
     var firstMessage     = data.firstMessage;
-    var receiverIsOwner  = (item.ownerId === message.receiverId);
+    var receiverIsOwner  = (listing.ownerId === message.receiverId);
     var isBookingMessage = _skipNewMessageSms(message);
     var error;
 
@@ -460,11 +460,11 @@ function _sendNewMessageEmailsAndSms(data, logger) {
                 sender,
                 receiver,
                 booking,
-                Item.getMedias([item]).then(itemMedias => itemMedias[item.id]),
+                Listing.getMedias([listing]).then(listingMedias => listingMedias[listing.id]),
                 User.getMedia([sender]).then(senderMedia => senderMedia[sender.id])
             ];
         })
-        .spread((sender, receiver, booking, itemMedias, senderMedia) => {
+        .spread((sender, receiver, booking, listingMedias, senderMedia) => {
             var isDuplicate  = _.find(messages, function (msg) {
                 // do not send email for duplicates in same day, but confirmation SMS should be sent anyway
                 var sameDay    = moment(message.createdDate).isSame(msg.createdDate, "day");
@@ -476,8 +476,8 @@ function _sendNewMessageEmailsAndSms(data, logger) {
                 EmailTemplateService
                     .sendEmailTemplate('new-message', {
                         user: receiver,
-                        item: item,
-                        itemMedias: itemMedias,
+                        listing: listing,
+                        listingMedias: listingMedias,
                         conversation: conversation,
                         firstMessage: firstMessage,
                         message: message,

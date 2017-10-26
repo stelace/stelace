@@ -16,7 +16,7 @@
         BackofficeService,
         BookingService,
         gamification,
-        ItemService,
+        ListingService,
         platform,
         pricing,
         StelaceConfig,
@@ -47,10 +47,10 @@
         vm.loginUsers                   = [];
         vm.queryLoginUsers              = [];
 
-        vm.selectedEditItems            = [];
-        vm.editItems                    = [];
-        vm.queryEditItems               = [];
-        vm.editItemLink                 = null;
+        vm.selectedEditListings            = [];
+        vm.editListings                    = [];
+        vm.queryEditListings               = [];
+        vm.editListingLink                 = null;
 
         vm.queryGamificationUsers       = [];
         vm.selectedGamificationUsers    = [];
@@ -92,8 +92,8 @@
         vm.setAction            = setAction;
         vm.selectLoginUser      = selectLoginUser;
         vm.getLoginUsers        = getLoginUsers;
-        vm.selectEditItem       = selectEditItem;
-        vm.getEditItems         = getEditItems;
+        vm.selectEditListing       = selectEditListing;
+        vm.getEditListings         = getEditListings;
         vm.getGamificationUsers = getGamificationUsers;
         vm.destroyTag           = destroyTag;
 
@@ -162,12 +162,12 @@
             var bookings        = incompleteBookings.bookings;
             var assessmentsHash = incompleteBookings.assessmentsHash || {};
             var indexedUsers    = _.indexBy(incompleteBookings.users || [], "id");
-            var indexedItems    = _.indexBy(incompleteBookings.items || [], "id");
+            var indexedListings    = _.indexBy(incompleteBookings.listings || [], "id");
 
             return _.map(bookings, function (booking) {
                 var owner  = indexedUsers[booking.ownerId] || {};
                 var taker  = indexedUsers[booking.takerId] || {};
-                var item   = indexedItems[booking.itemId] || {};
+                var listing = indexedListings[booking.listingId] || {};
 
                 var hash             = assessmentsHash[booking.id];
                 var inputAssessment  = hash.inputAssessment;
@@ -199,8 +199,8 @@
 
                 var obj = {
                     id: booking.id,
-                    itemId: item.id,
-                    itemName: { value: tools.shrinkString(item.name, 40), title: item.name },
+                    listingId: listing.id,
+                    listingName: { value: tools.shrinkString(listing.name, 40), title: listing.name },
                     ownerId: owner.id,
                     ownerName: User.getFullname.call(owner, true),
                     takerId: taker.id,
@@ -472,39 +472,39 @@
                 });
         }
 
-        function selectEditItem(item) {
-            vm.selectedEditItems = [item];
+        function selectEditListing(listing) {
+            vm.selectedEditListings = [listing];
 
             return $q.resolve()
                 .then(function () {
-                    if (realUserId === item.ownerId) {
+                    if (realUserId === listing.ownerId) {
                         return;
                     }
 
-                    return _loginAs(item.ownerId)
+                    return _loginAs(listing.ownerId)
                         .then(function () {
-                            realUserId = item.ownerId;
+                            realUserId = listing.ownerId;
                         });
                 })
                 .then(function () {
-                    vm.editItemLink = "/my-items/" + item.id;
+                    vm.editListingLink = "/my-listings/" + listing.id;
                 })
                 .catch(function () {
-                    vm.editItemLink = null;
+                    vm.editListingLink = null;
                 });
         }
 
-        function getEditItems(query) {
-            return ItemService
-                .queryItems(query)
-                .then(function (items) {
-                    var selectedItemsIds = _.pluck(vm.selectedEditItems, "id");
+        function getEditListings(query) {
+            return ListingService
+                .queryListings(query)
+                .then(function (listings) {
+                    var selectedListingsIds = _.pluck(vm.selectedEditListings, "id");
 
-                    items = _.filter(items, function (item) {
-                        return ! _.contains(selectedItemsIds, item.id);
+                    listings = _.filter(listings, function (listing) {
+                        return ! _.contains(selectedListingsIds, listing.id);
                     });
 
-                    vm.queryEditItems = items;
+                    vm.queryEditListings = listings;
                 });
         }
 
@@ -582,7 +582,7 @@
                     vm.tagsList = _.reject(vm.tagsList, function (tag) {
                         return tag.id === vm.tagToDestroy.id;
                     });
-                    toastr.success("Tag retiré de " + results.nbUsers + " utilisateur(s) et " + results.nbItems + " objet(s)",
+                    toastr.success("Tag retiré de " + results.nbUsers + " utilisateur(s) et " + results.nbListings + " objet(s)",
                         "Tag supprimé", {
                         timeOut: 10000
                     });

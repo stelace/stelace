@@ -82,11 +82,11 @@
         <div class="booking-summary__container desktop-4 webkit-render-fix">
             <div class="booking-summary">
                 <div class="booking-summary__title">
-                    <h1 class="ellipsis">{{::vm.booking.itemSnapshot.name}}</h1>
+                    <h1 class="ellipsis">{{::vm.booking.listingSnapshot.name}}</h1>
                 </div>
                 <div>
                     <div class="booking-summary__picture">
-                        <sip-img ng-src="{{vm.item.url + '?size=800x600'}}" type="background"></sip-img>
+                        <sip-img ng-src="{{vm.listing.url + '?size=800x600'}}" type="background"></sip-img>
                     </div>
                     <div class="booking-summary__content">
                         <div ng-if="vm.showBookingDuration">
@@ -102,17 +102,17 @@
                         </div>
                         <div class="margin-bottom">
                             {{::vm.owner.fullname}} est susceptible d'être disponible
-                            <span ng-if="vm.itemLocations.length > 1">aux lieux suivants</span>
-                            <span ng-if="vm.itemLocations.length <= 1">au lieu suivant</span>&nbsp;:
+                            <span ng-if="vm.listingLocations.length > 1">aux lieux suivants</span>
+                            <span ng-if="vm.listingLocations.length <= 1">au lieu suivant</span>&nbsp;:
                         </div>
                         <div class="margin-bottom-plus booking-summary__locations">
-                            <span ng-repeat="loc in vm.itemLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
+                            <span ng-repeat="loc in vm.listingLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
                         </div>
                         <div class="booking-summary__price">
                             <div data-sip-pricing-table
-                                ng-if="vm.booking && vm.item"
+                                ng-if="vm.booking && vm.listing"
                                 booking="vm.booking"
-                                item="vm.item">
+                                listing="vm.listing">
                             </div>
                             <div class="margin-top margin-bottom"
                                 ng-if="vm.booking.deposit">

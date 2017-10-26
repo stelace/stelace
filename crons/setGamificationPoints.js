@@ -1,4 +1,4 @@
-/* global BootstrapService, GamificationService, Item, LoggerService, User */
+/* global BootstrapService, GamificationService, Listing, LoggerService, User */
 
 var Sails = require('sails');
 
@@ -34,13 +34,13 @@ Sails.load({
         .then(() => {
             return [
                 User.find(),
-                Item.find({
+                Listing.find({
                     validated: true
                 })
             ];
         })
-        .spread((users, items) => {
-            var hash = getHash(users, items);
+        .spread((users, listings) => {
+            var hash = getHash(users, listings);
 
             return Promise
                 .resolve(_.values(hash))
@@ -63,13 +63,13 @@ Sails.load({
 
 
 
-    function getHash(users, items) {
-        var indexedItems = _.groupBy(items, "ownerId");
+    function getHash(users, listings) {
+        var indexedListings = _.groupBy(listings, "ownerId");
 
         var hash = _.reduce(users, (memo, user) => {
             var info = {
                 user: user,
-                items: indexedItems[user.id] || []
+                listings: indexedListings[user.id] || []
             };
 
             memo[user.id] = info;
@@ -80,16 +80,16 @@ Sails.load({
     }
 
     function getCheckActionsParams(info) {
-        var items = info.items;
+        var listings = info.listings;
 
         var actionsIds = [
-            "FIRST_VALID_ITEM_AD",
-            "VALID_ITEM_AD"
+            "FIRST_VALID_LISTING_AD",
+            "VALID_LISTING_AD"
         ];
 
         var actionsData = {
-            FIRST_VALID_ITEM_AD: _.map(items, item => ({ item: item })),
-            VALID_ITEM_AD: _.map(items, item => ({ item: item }))
+            FIRST_VALID_LISTING_AD: _.map(listings, listing => ({ listing: listing })),
+            VALID_LISTING_AD: _.map(listings, listing => ({ listing: listing }))
         };
 
         return {

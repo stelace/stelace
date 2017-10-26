@@ -61,8 +61,8 @@ function getRentingPriceFromSellingPrice(value) {
  */
 function getDayOnePriceFromValue(value, multiplicator) {
     const absolute = Math.sqrt(value * multiplicator)
-        - 4 // shift downwards for low value items
-        // Balancing sqrt for high-value items (1 % of value > higherValueThreshold)
+        - 4 // shift downwards for low value listings
+        // Balancing sqrt for high-value listings (1 % of value > higherValueThreshold)
         + (Math.max(value, config.higherValueThreshold) - config.higherValueThreshold) / config.higherValueThreshold;
 
     return Math.round(Math.max(absolute, 1));

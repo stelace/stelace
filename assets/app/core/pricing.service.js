@@ -223,7 +223,7 @@
 
         function getPricing(pricingId) {
             pricingId = parseInt(pricingId, 10);
-            var url = apiBaseUrl + "/item/pricing" + (! isNaN(pricingId) ? "?pricingId=" + pricingId : "");
+            var url = apiBaseUrl + "/listing/pricing" + (! isNaN(pricingId) ? "?pricingId=" + pricingId : "");
 
             return $http.get(url)
                 .then(function (res) {
@@ -394,7 +394,7 @@
                 };
             }
 
-            return $http.post(apiBaseUrl + "/item/renting-price", { value: value })
+            return $http.post(apiBaseUrl + "/listing/renting-price", { value: value })
                 .then(function (res) {
                     return res.data;
                 });

@@ -33,7 +33,7 @@
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item">
-                    <a ui-sref="itemCreate"
+                    <a ui-sref="listingCreate"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
                         ng-click="offcanvas.closeMenu()">
@@ -41,7 +41,7 @@
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item">
-                    <a ui-sref="itemCreate({t: 'sell'})"
+                    <a ui-sref="listingCreate({t: 'sell'})"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
                         ng-click="offcanvas.closeMenu()">
@@ -49,7 +49,7 @@
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item">
-                    <a ui-sref="itemCreate({t: 'rent'})"
+                    <a ui-sref="listingCreate({t: 'rent'})"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
                         ng-click="offcanvas.closeMenu()">
@@ -299,11 +299,11 @@
                     </a>
                 </li>
                 <li class="header__link">
-                    <a ui-sref="itemCreate({t: 'sell'})" class="new-listing-button-1 header-event"
+                    <a ui-sref="listingCreate({t: 'sell'})" class="new-listing-button-1 header-event"
                         data-translate="prompt.post_listing_short_button_1"
                         data-translate-values="{ timeDimension: 'NONE' }">
                     </a>
-                    <a ui-sref="itemCreate({t: 'rent'})" class="new-listing-button-2 header-event"
+                    <a ui-sref="listingCreate({t: 'rent'})" class="new-listing-button-2 header-event"
                         data-translate="prompt.post_listing_short_button_2"
                         data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                     </a>
@@ -313,11 +313,11 @@
                 ng-show="! header.isAuthenticated">
                 <!-- Using ng-show to ensure links existence for ux event listener -->
                 <li>
-                    <a ui-sref="itemCreate({t: 'sell'})" class="new-listing-button-1 header-event"
+                    <a ui-sref="listingCreate({t: 'sell'})" class="new-listing-button-1 header-event"
                         data-translate="prompt.post_listing_short_button_1"
                         data-translate-values="{ timeDimension: 'NONE' }">
                     </a>
-                    <a ui-sref="itemCreate({t: 'rent'})" class="new-listing-button-2 header-event"
+                    <a ui-sref="listingCreate({t: 'rent'})" class="new-listing-button-2 header-event"
                         data-translate="prompt.post_listing_short_button_2"
                         data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                     </a>

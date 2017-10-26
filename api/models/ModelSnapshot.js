@@ -36,7 +36,7 @@ module.exports = {
 };
 
 var params = {
-    targetTypes: ["user", "item", "location"]
+    targetTypes: ["user", "listing", "location"]
 };
 
 function get(prop) {
@@ -84,7 +84,7 @@ function getComparedFields(targetType) {
             "points",
             "levelId"
         ];
-    } else if (targetType === "item") {
+    } else if (targetType === "listing") {
         comparedFields = [
             "name",
             "nameURLSafe",
@@ -104,8 +104,7 @@ function getComparedFields(targetType) {
             "validationPoints",
             "ratingScore",
             "nbRatings",
-            "automatedBookingValidation",
-            "companyItem",
+            "autoBookingAcceptation",
             "locations",
             "perimeterDurationMinutes",
             "listingTypesIds",

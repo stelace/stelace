@@ -66,9 +66,9 @@
             "FIRST_MOBILE_CONNECTION": {
                 name: "Me connecter sur mobile pour la première fois"
             },
-            "FIRST_VALID_ITEM_AD": {
+            "FIRST_VALID_LISTING_AD": {
                 name: "Créer ma première annonce validée",
-                sref: "itemCreate"
+                sref: "listingCreate"
             },
             "FIRST_BOOKING": {
                 name: "Effectuer ma première réservation",
@@ -94,9 +94,9 @@
             "CONNECTION_OF_THE_DAY": {
                 name: "Me connecter pour la première fois dans la journée"
             },
-            "VALID_ITEM_AD": {
+            "VALID_LISTING_AD": {
                 name: "Créer une annonce validée",
-                sref: "itemCreate"
+                sref: "listingCreate"
             },
             "COMPLETE_BOOKING": {
                 name: "Effectuer une transaction complète (États des lieux signés)",

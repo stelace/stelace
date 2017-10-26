@@ -23,7 +23,7 @@ module.exports = {
             type: "integer",
             index: true
         },
-        itemId: {
+        listingId: {
             type: "integer",
             index: true
         },

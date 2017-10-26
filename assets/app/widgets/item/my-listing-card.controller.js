@@ -10,7 +10,7 @@
                                 $state,
                                 $timeout,
                                 FoundationApi,
-                                ItemService,
+                                ListingService,
                                 Modal,
                                 platform,
                                 Restangular,
@@ -23,20 +23,20 @@
         var controlSpinnerTimeout;
 
         var vm              = this;
-        vm.item             = $scope.item;
+        vm.listing          = $scope.listing;
 
-        vm.controlSpinnerId = "pending-control-spinner-" + vm.item.id;
+        vm.controlSpinnerId = "pending-control-spinner-" + vm.listing.id;
 
-        vm.deleteItem       = deleteItem;
-        vm.togglePauseItem  = togglePauseItem;
+        vm.deleteListing       = deleteListing;
+        vm.togglePauseListing  = togglePauseListing;
 
         activate();
 
         function activate() {
 
             // See http://stackoverflow.com/questions/20068526/angularjs-directive-does-not-update-on-scope-variable-changes
-            $scope.$watch('item', function (newItem) {
-                vm.item = newItem;
+            $scope.$watch('listing', function (newListing) {
+                vm.listing = newListing;
                 _showPauseState()
                 _displayBookingInfo();
                 _showStats();
@@ -48,104 +48,104 @@
         }
 
         function _displayBookingInfo() {
-            vm.imageAlt = vm.item.name + " à louer sur Sharinplace"; // default
+            vm.imageAlt = vm.listing.name + " à louer sur Sharinplace"; // default
 
-            if (vm.item.listingTypesProperties.TIME.NONE && vm.item.sellingPrice) {
-                vm.bookingDescription = vm.item.sellingPrice + "€";
+            if (vm.listing.listingTypesProperties.TIME.NONE && vm.listing.sellingPrice) {
+                vm.bookingDescription = vm.listing.sellingPrice + "€";
                 vm.sellableIconUrl = platform.getSpriteSvgUrl("tag");
-                vm.sellableTooltip = "En vente à " + vm.item.sellingPrice + "€"
-                vm.imageAlt        = vm.item.name + " à vendre sur Sharinplace";
-            } else if (vm.item.listingTypesProperties.TIME.NONE) {
+                vm.sellableTooltip = "En vente à " + vm.listing.sellingPrice + "€"
+                vm.imageAlt        = vm.listing.name + " à vendre sur Sharinplace";
+            } else if (vm.listing.listingTypesProperties.TIME.NONE) {
                 vm.bookingDescription = "Don";
                 vm.sellableIconUrl = platform.getSpriteSvgUrl("euro-crossed");
                 vm.sellableTooltip = "Il s'agit d'un don du propriétaire."
-                vm.imageAlt        = vm.item.name + " à donner sur Sharinplace";
+                vm.imageAlt        = vm.listing.name + " à donner sur Sharinplace";
             }
         }
 
         function _showStats() {
             // Sanitize data
-            vm.nbContacts = vm.item.nbContacts || 0;
-            vm.nbViews = Math.max(vm.item.nbViews || 0, vm.nbContacts);
+            vm.nbContacts = vm.listing.nbContacts || 0;
+            vm.nbViews = Math.max(vm.listing.nbViews || 0, vm.nbContacts);
             vm.showStats = (vm.nbViews >= 1);
         }
 
-        function deleteItem(e) {
+        function deleteListing(e) {
             _stopEventPropagation(e);
 
-            var deleteItem = function (deletingItem) {
+            var deleteListing = function (deletingListing) {
                 deleting = true;
 
-                var resItem = Restangular.restangularizeElement(null, deletingItem, "item");
-                resItem.remove()
+                var resListing = Restangular.restangularizeElement(null, deletingListing, "listing");
+                resListing.remove()
                     .then(function () {
                         toastr.success("Annonce supprimée");
 
-                        return ItemService.getMyItems();
+                        return ListingService.getMyListings();
                     })
-                    .then(function (items) {
-                        var index = _.findIndex(items, function (item) {
-                            return item.id === resItem.id;
+                    .then(function (listings) {
+                        var index = _.findIndex(listings, function (listing) {
+                            return listing.id === resListing.id;
                         });
 
-                        items.splice(index, 1);
+                        listings.splice(index, 1);
 
                         if ($scope.onDelete) {
-                            $scope.onDelete(resItem.id);
+                            $scope.onDelete(resListing.id);
                         }
                     })
                     .finally(function () {
-                        modals.deleteItem.destroy();
+                        modals.deleteListing.destroy();
                         deleting = false;
                     });
             };
 
             var vm = {
-                item: $scope.item,
-                deleteItem: deleteItem
+                listing: $scope.listing,
+                deleteListing: deleteListing
             };
 
-            var modalId = "deleteItemConfirm-modal";
+            var modalId = "deleteListingConfirm-modal";
 
-            modals.deleteItem = new Modal({
+            modals.deleteListing = new Modal({
                 id: modalId,
                 className: "tiny dialog",
-                templateUrl: "/assets/app/modals/deleteItemConfirm.html",
+                templateUrl: "/assets/app/modals/deleteListingConfirm.html",
                 overlayClose: false,
                 contentScope: {
                     vm: vm
                 }
             });
-            modals.deleteItem.activate();
+            modals.deleteListing.activate();
 
             FoundationApi.subscribe(modalId, function (msg) {
                 if (! deleting && msg === "close") {
-                    modals.deleteItem.destroy();
+                    modals.deleteListing.destroy();
                 }
             });
         }
 
-        function togglePauseItem(e) {
+        function togglePauseListing(e) {
             _stopEventPropagation(e);
-            var resItem = Restangular.restangularizeElement(null, vm.item, "item");
+            var resListing = Restangular.restangularizeElement(null, vm.listing, "listing");
 
             // Do not spin when latency is low;
             controlSpinnerTimeout = _spinPendingControlSpinner();
-            var wasPaused = vm.item.locked;
+            var wasPaused = vm.listing.locked;
 
-            resItem.pause()
-                .then(function (item) {
-                    vm.item = item;
+            resListing.pause()
+                .then(function (listing) {
+                    vm.listing = listing;
 
                     _showPauseState();
 
-                    if (item.locked && vm.pausedUntil) {
+                    if (listing.locked && vm.pausedUntil) {
                         toastr.success(
                         "Vous pouvez réactiver votre annonce plus tôt si vous le souhaitez.",
                         "Annonce en pause jusqu'au " + vm.pausedUntil, {
                             timeOut: 15000
                         });
-                    } else if (item.locked && ! vm.pausedUntil) {
+                    } else if (listing.locked && ! vm.pausedUntil) {
                         toastr.info("Annonce désactivée");
                     } else {
                         toastr.success("Annonce réactivée\xa0!");
@@ -154,13 +154,13 @@
                     var stelaceEventData = {
                         pause: ! wasPaused
                     };
-                    if (vm.itemLocked) {
+                    if (vm.listingLocked) {
                         stelaceEventData.systemLocked = true;
                     }
 
-                    StelaceEvent.sendEvent("Item pause toggle", {
+                    StelaceEvent.sendEvent("Listing pause toggle", {
                         type: "click",
-                        itemId: vm.item.id,
+                        listingId: vm.listing.id,
                         data: stelaceEventData
                     });
                 })
@@ -172,14 +172,14 @@
         }
 
         function _showPauseState() {
-            var pauseDate = moment(vm.item.pausedUntil).isValid();
+            var pauseDate = moment(vm.listing.pausedUntil).isValid();
 
-            vm.itemPaused = vm.item.locked && pauseDate;
-            vm.itemLocked = vm.item.locked && ! pauseDate;
-            vm.pauseIcon  = platform.getSpriteSvgUrl(vm.itemPaused ? "play" : "pause");
-            vm.pauseStr   = vm.itemPaused ? "Re-publier" : "Mettre en pause";
-            vm.daysPaused = pauseDate && Math.abs(moment().diff(vm.item.pausedUntil, "d")) + 1;
-            vm.pausedUntil = pauseDate && moment(vm.item.pausedUntil).format("DD/MM/YY");
+            vm.listingPaused = vm.listing.locked && pauseDate;
+            vm.listingLocked = vm.listing.locked && ! pauseDate;
+            vm.pauseIcon  = platform.getSpriteSvgUrl(vm.listingPaused ? "play" : "pause");
+            vm.pauseStr   = vm.listingPaused ? "Re-publier" : "Mettre en pause";
+            vm.daysPaused = pauseDate && Math.abs(moment().diff(vm.listing.pausedUntil, "d")) + 1;
+            vm.pausedUntil = pauseDate && moment(vm.listing.pausedUntil).format("DD/MM/YY");
         }
 
         function _spinPendingControlSpinner() {

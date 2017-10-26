@@ -13,7 +13,7 @@
                                     authentication,
                                     cache,
                                     gamification,
-                                    ItemService,
+                                    ListingService,
                                     ListingTypeService,
                                     LocationService,
                                     map,
@@ -33,7 +33,7 @@
         var sendingCheckEmail = false;
 
         var vm = this;
-        vm.myItems                  = null;
+        vm.myListings               = null;
         vm.myLocations              = [];
         vm.showIncomeReport         = false;
         vm.incomeReportYears        = [];
@@ -98,13 +98,13 @@
 
             $q.all({
                 fetchCurrentUser: fetchCurrentUser(),
-                myItems: ItemService.getMyItems(),
+                myListings: ListingService.getMyListings(),
                 incomeReport: vm.incomeReportActive ? UserService.getIncomeReport() : {},
                 map: uiGmapGoogleMapApi,
                 listingTypes: ListingTypeService.cleanGetList()
             }).then(function (results) {
                 var incomeReport = results.incomeReport;
-                var myItems = results.myItems;
+                var myListings = results.myListings;
                 vm.listingTypes = results.listingTypes;
 
                 // use a setTimeout because the cache variable can be set after changing state
@@ -129,17 +129,17 @@
                     cache.set("isGoogleMapSDKReady", true);
                 }
 
-                _.forEach(myItems, function (item) {
-                    item.slug        = ItemService.getItemSlug(item);
-                    item.ownerRating = { // expected format for item-card's rating-stars
+                _.forEach(myListings, function (listing) {
+                    listing.slug        = ListingService.getListingSlug(listing);
+                    listing.ownerRating = { // expected format for item-card's rating-stars
                         ratingScore: vm.currentUser.ratingScore,
                         nbRatings: vm.currentUser.nbRatings
                     };
                 });
 
-                vm.myItems = _.cloneDeep(myItems);
+                vm.myListings = _.cloneDeep(myListings);
 
-                ItemService.populate(vm.myItems, {
+                ListingService.populate(vm.myListings, {
                     listingTypes: vm.listingTypes
                     // locations: vm.myLocations
                 });
@@ -341,7 +341,7 @@
                         vm.disableAddLocationButton = false;
                         vm.locationSearchQuery = null;
                         vm.locationSearchObject = null;
-                        return _addLocationToItem(newLocation);
+                        return _addLocationToListing(newLocation);
                     })
                     .catch(function (err) {
                         if (err.data) {
@@ -376,7 +376,7 @@
                     LocationService.remove(location);
                     _setMaxLocationsView();
 
-                    ItemService.clearMyItems();
+                    ListingService.clearMyListings();
                 })
                 .catch(function () {
                     toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.");
@@ -420,17 +420,17 @@
             vm.maxLocationsReached = (vm.myLocations.length >= LocationService.getMaxLocations());
         }
 
-        function _addLocationToItem(location) {
-            return ItemService.getMyItems()
-                .then(function (items) {
-                    if (items.length) {
-                        var resItems = _.map(items, function (item) {
-                            return Restangular.restangularizeElement(null, item, "item");
+        function _addLocationToListing(location) {
+            return ListingService.getMyListings()
+                .then(function (listings) {
+                    if (listings.length) {
+                        var resListings = _.map(listings, function (listing) {
+                            return Restangular.restangularizeElement(null, listing, "listing");
                         });
 
-                        return $q.all(_.map(resItems, function (item) {
-                            item.locations.push(location.id);
-                            return item.save();
+                        return $q.all(_.map(resListings, function (listing) {
+                            listing.locations.push(location.id);
+                            return listing.save();
                         }));
                     }
                 });

@@ -10,7 +10,7 @@
 module.exports = {
 
     attributes: {
-        itemId: {
+        listingId: {
             type: "integer",
             index: true,
             required: true
@@ -51,7 +51,7 @@ function getAccessFields(access) {
     var accessFields = {
         self: [
             "id",
-            "itemId",
+            "listingId",
             "userId",
             "type",
             "active",
@@ -77,13 +77,13 @@ function postBeforeCreate(values) {
     })();
 }
 
-function isBookmarked(itemId, userId) {
+function isBookmarked(listingId, userId) {
     return Promise
         .resolve()
         .then(() => {
             return Bookmark
                 .findOne({
-                    itemId: itemId,
+                    listingId: listingId,
                     userId: userId,
                     active: true
                 });

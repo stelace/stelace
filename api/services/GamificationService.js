@@ -44,7 +44,7 @@ var levels = {
         requirements: {
             points: 60,
             actions: [
-                "FIRST_VALID_ITEM_AD",
+                "FIRST_VALID_LISTING_AD",
                 "ADD_PROFILE_IMAGE"
             ]
         },
@@ -224,14 +224,14 @@ var actions = {
         check: cf.actions.checks.FIRST_MOBILE_CONNECTION,
         customApply: cf.actions.customApplies.FIRST_MOBILE_CONNECTION
     },
-    FIRST_VALID_ITEM_AD: {
-        id: "FIRST_VALID_ITEM_AD",
+    FIRST_VALID_LISTING_AD: {
+        id: "FIRST_VALID_LISTING_AD",
         points: 5,
         suggestionOrder: 2,
         actionType: "discover",
         once: true,
-        check: cf.actions.checks.FIRST_VALID_ITEM_AD,
-        customApply: cf.actions.customApplies.FIRST_VALID_ITEM_AD
+        check: cf.actions.checks.FIRST_VALID_LISTING_AD,
+        customApply: cf.actions.customApplies.FIRST_VALID_LISTING_AD
     },
     FIRST_BOOKING: {
         id: "FIRST_BOOKING",
@@ -277,13 +277,13 @@ var actions = {
         check: cf.actions.checks.CONNECTION_OF_THE_DAY,
         customApply: cf.actions.customApplies.CONNECTION_OF_THE_DAY
     },
-    VALID_ITEM_AD: {
-        id: "VALID_ITEM_AD",
+    VALID_LISTING_AD: {
+        id: "VALID_LISTING_AD",
         points: 5,
         suggestionOrder: 100,
         actionType: "explore",
-        check: cf.actions.checks.VALID_ITEM_AD,
-        customApply: cf.actions.customApplies.VALID_ITEM_AD
+        check: cf.actions.checks.VALID_LISTING_AD,
+        customApply: cf.actions.customApplies.VALID_LISTING_AD
     },
     COMPLETE_BOOKING: {
         id: "COMPLETE_BOOKING",
@@ -1324,7 +1324,7 @@ function _getConfig() {
         cf.actions.checks.FIRST_RATING = function (user, data) {
             var rating = data.rating;
 
-            return rating.comment || rating.itemComment;
+            return rating.comment || rating.listingComment;
         };
 
         cf.actions.customApplies.FIRST_RATING = function (createAttrs, user, data) {
@@ -1335,40 +1335,40 @@ function _getConfig() {
             };
         };
 
-        cf.actions.checks.FIRST_VALID_ITEM_AD = function (user, data) {
-            var item = data.item;
+        cf.actions.checks.FIRST_VALID_LISTING_AD = function (user, data) {
+            var listing = data.listing;
 
-            return item.ownerId === user.id
-                && item.validated;
+            return listing.ownerId === user.id
+                && listing.validated;
         };
 
-        cf.actions.customApplies.FIRST_VALID_ITEM_AD = function (createAttrs, user, data) {
-            var item = data.item;
+        cf.actions.customApplies.FIRST_VALID_LISTING_AD = function (createAttrs, user, data) {
+            var listing = data.listing;
 
             createAttrs.reference = {
-                itemId: item.id
+                listingId: listing.id
             };
         };
 
-        cf.actions.checks.VALID_ITEM_AD = function (user, data, userStats) {
-            var item = data.item;
+        cf.actions.checks.VALID_LISTING_AD = function (user, data, userStats) {
+            var listing = data.listing;
 
-            var alreadySet = _.find(userStats.actionsDetails.VALID_ITEM_AD, line => {
-                return line.reference && line.reference.itemId === item.id;
+            var alreadySet = _.find(userStats.actionsDetails.VALID_LISTING_AD, line => {
+                return line.reference && line.reference.listingId === listing.id;
             });
 
             return ! alreadySet
-                && item.ownerId === user.id
-                && item.validated;
+                && listing.ownerId === user.id
+                && listing.validated;
         };
 
-        cf.actions.customApplies.VALID_ITEM_AD = function (createAttrs, user, data) {
-            var item = data.item;
+        cf.actions.customApplies.VALID_LISTING_AD = function (createAttrs, user, data) {
+            var listing = data.listing;
 
-            createAttrs.points = item.validationPoints || createAttrs.points;
+            createAttrs.points = listing.validationPoints || createAttrs.points;
 
             createAttrs.reference = {
-                itemId: item.id
+                listingId: listing.id
             };
         };
 

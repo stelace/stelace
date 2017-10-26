@@ -1,22 +1,22 @@
-<a class="item-thumbnail" ui-sref="item(::{ slug: parameter.data.item.nameURLSafe + '-' + parameter.data.item.id })">
+<a class="item-thumbnail" ui-sref="listing(::{ slug: parameter.data.listing.nameURLSafe + '-' + parameter.data.listing.id })">
     <div class="fluid-width">
         <div class="item-thumbnail__image-container">
             <div class="ar-content">
-                <img class="img--cover-vertical" ng-src="{{::parameter.data.item.url + '?size=450x300'}}"  alt="{{::parameter.data.item.name + ' à louer sur Sharinplace'}}">
+                <img class="img--cover-vertical" ng-src="{{::parameter.data.listing.url + '?size=450x300'}}"  alt="{{::parameter.data.listing.name + ' à louer sur Sharinplace'}}">
             </div>
             <div class="item-thumbnail__price">
-                <span>{{::parameter.data.item.dayOnePrice}}<sup>€</sup></span>
+                <span>{{::parameter.data.listing.dayOnePrice}}<sup>€</sup></span>
             </div>
             <div class="item-thumbnail__owner profile__image">
-                <sip-img class="webkit-render-fix" ng-src="{{::parameter.data.item.ownerMedia.url + '?size=128x128'}}" alt="Photo du propriétaire" rounded="true"></sip-img>
+                <sip-img class="webkit-render-fix" ng-src="{{::parameter.data.listing.ownerMedia.url + '?size=128x128'}}" alt="Photo du propriétaire" rounded="true"></sip-img>
             </div>
         </div>
         <!-- TODO : align distance display with item-card rework (no duration if item is in same city as user's closest location) -->
         <!-- Might need to create a controller for infobox, or rework duration string from the ground -->
         <div class="item-thumbnail__description flex-item--grow text-center">
-            <h3 class="item-name ellipsis">{{::parameter.data.item.name}}</h3>
+            <h3 class="item-name ellipsis">{{::parameter.data.listing.name}}</h3>
             <div class="ellipsis">
-                À <span class="text--semibold">{{parameter.data.item.minDurationString}}</span> de
+                À <span class="text--semibold">{{parameter.data.listing.minDurationString}}</span> de
             </div>
             <div class="location-name ellipsis">
                 {{parameter.data.closestLocationShortName}}

@@ -33,12 +33,12 @@
                 <hr>
             </div>
             <div class="text-center text--small"
-                ng-switch-when="FIRST_VALID_ITEM_AD">
+                ng-switch-when="FIRST_VALID_LISTING_AD">
                 <hr>
                 <a class="progress-popover__link tag link--blue-underline text--semibold "
                     title="Vendez ou louez en quelques clics"
                     ng-click="header.openProgressPopover = false"
-                    ui-sref="itemCreate">
+                    ui-sref="listingCreate">
                         <div class="margin-bottom">
                             Créer ma première annonce
                         </div>
@@ -66,10 +66,10 @@
                         Parrainer un ami
                     </a>
             </div>
-            <div ng-switch-when="VALID_ITEM_AD">
+            <div ng-switch-when="VALID_LISTING_AD">
                 -&nbsp;<a class="progress-popover__link link--blue-underline text--semibold"
                     ng-click="header.openProgressPopover = false"
-                    ui-sref="itemCreate" >
+                    ui-sref="listingCreate" >
                         Créer une nouvelle annonce
                     </a>
             </div>

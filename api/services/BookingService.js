@@ -1,5 +1,5 @@
 /*
-    global Booking, ContractService, Item, ListingTypeService, ModelSnapshot, PricingService, User
+    global Booking, ContractService, Listing, ListingTypeService, ModelSnapshot, PricingService, User
  */
 
 module.exports = {
@@ -14,7 +14,7 @@ var moment = require('moment');
 /**
  * Create booking based on user input
  * @param  {Object} user
- * @param  {Number} itemId
+ * @param  {Number} listingId
  * @param  {String} [startDate]
  * @param  {Number} [nbTimeUnits]
  * @param  {Number} listingTypeId
@@ -23,13 +23,13 @@ var moment = require('moment');
  */
 async function createBooking({
     user,
-    itemId,
+    listingId,
     startDate,
     nbTimeUnits,
     listingTypeId,
     quantity = 1,
 }) {
-    if (! itemId
+    if (! listingId
         || !listingTypeId
     ) {
         throw new BadRequestError();
@@ -38,19 +38,19 @@ async function createBooking({
     const now = moment().toISOString();
 
     const [
-        item,
+        listing,
         listingTypes,
     ] = await Promise.all([
-        Item.findOne({ id: itemId }),
+        Listing.findOne({ id: listingId }),
         ListingTypeService.getListingTypes(),
     ]);
 
-    if (! item) {
+    if (! listing) {
         throw new NotFoundError();
     }
 
     checkBasic({
-        item,
+        listing,
         user,
         listingTypeId,
     });
@@ -61,10 +61,10 @@ async function createBooking({
     }
 
     let bookingAttrs = {
-        itemId: item.id,
-        ownerId: item.ownerId,
+        listingId: listing.id,
+        ownerId: listing.ownerId,
         takerId: user.id,
-        autoAcceptation: item.automatedBookingValidation, // TODO: to rename
+        autoAcceptation: listing.autoBookingAcceptation,
         contractId: ContractService.getContractId(),
         listingTypeId: listingType.id,
         listingType: listingType,
@@ -72,7 +72,7 @@ async function createBooking({
 
     bookingAttrs = await setBookingTimePeriods({
         bookingAttrs,
-        item,
+        listing,
         listingType,
         startDate,
         nbTimeUnits,
@@ -80,7 +80,7 @@ async function createBooking({
 
     bookingAttrs = await setBookingAvailability({
         bookingAttrs,
-        item,
+        listing,
         listingType,
         startDate,
         endDate: bookingAttrs.endDate,
@@ -90,7 +90,7 @@ async function createBooking({
 
     bookingAttrs = await setBookingPrices({
         bookingAttrs,
-        item,
+        listing,
         listingType,
         user,
         nbTimeUnits,
@@ -98,43 +98,43 @@ async function createBooking({
         now,
     });
 
-    const itemSnapshot = await ModelSnapshot.getSnapshot('item', item);
-    bookingAttrs.itemSnapshotId = itemSnapshot.id;
+    const listingSnapshot = await ModelSnapshot.getSnapshot('listing', listing);
+    bookingAttrs.listingSnapshotId = listingSnapshot.id;
 
     const booking = await Booking.create(bookingAttrs);
     return booking;
 }
 
 function checkBasic({
-    item,
+    listing,
     user,
     listingTypeId,
 }) {
-    if (item.ownerId === user.id) {
-        throw new ForbiddenError("owner cannot book its own item");
+    if (listing.ownerId === user.id) {
+        throw new ForbiddenError("owner cannot book its own listing");
     }
-    if (!item.listingTypesIds.length) {
-        throw new Error('item has no listing types');
+    if (!listing.listingTypesIds.length) {
+        throw new Error('listing has no listing types');
     }
-    if (!listingTypeId || !_.includes(item.listingTypesIds, listingTypeId)) {
+    if (!listingTypeId || !_.includes(listing.listingTypesIds, listingTypeId)) {
         throw new BadRequestError('incorrect listing type');
     }
-    if (!item.quantity) {
+    if (!listing.quantity) {
         throw new BadRequestError('not enough quantity');
     }
-    if (!item.validated) { // admin validation needed
+    if (!listing.validated) { // admin validation needed
         throw new BadRequestError();
     }
 
-    const bookable = Item.isBookable(item);
+    const bookable = Listing.isBookable(listing);
     if (! bookable) {
-        throw new BadRequestError("item not bookable");
+        throw new BadRequestError("listing not bookable");
     }
 }
 
 async function setBookingTimePeriods({
     bookingAttrs,
-    item,
+    listing,
     listingType,
     startDate,
     nbTimeUnits,
@@ -155,7 +155,6 @@ async function setBookingTimePeriods({
             config: listingType.config.bookingTime,
         });
 
-        console.log(validDates)
         if (!validDates.result) {
             throw new BadRequestError('Invalid dates');
         }
@@ -171,11 +170,11 @@ async function setBookingTimePeriods({
             endDate,
             nbTimeUnits,
             timeUnit,
-            deposit: item.deposit,
-            timeUnitPrice: item.dayOnePrice,
+            deposit: listing.deposit,
+            timeUnitPrice: listing.dayOnePrice,
             currency: 'EUR', // TODO: allow to set other currencies
-            pricingId: item.pricingId,
-            customPricingConfig: item.customPricingConfig,
+            pricingId: listing.pricingId,
+            customPricingConfig: listing.customPricingConfig,
         });
     }
 
@@ -184,7 +183,7 @@ async function setBookingTimePeriods({
 
 async function setBookingAvailability({
     bookingAttrs,
-    item,
+    listing,
     listingType,
     startDate,
     endDate,
@@ -193,7 +192,7 @@ async function setBookingAvailability({
 }) {
     const { TIME, AVAILABILITY } = listingType.properties;
 
-    const maxQuantity = Item.getMaxQuantity(item, listingType);
+    const maxQuantity = Listing.getMaxQuantity(listing, listingType);
 
     if (AVAILABILITY === 'NONE') {
         bookingAttrs.quantity = 1;
@@ -203,7 +202,7 @@ async function setBookingAvailability({
         }
 
         if (TIME === 'TIME_FLEXIBLE') {
-            const futureBookings = await Item.getFutureBookings(item.id, now);
+            const futureBookings = await Listing.getFutureBookings(listing.id, now);
 
             const availability = getAvailabilityPeriods(futureBookings, {
                 newBooking: {
@@ -227,14 +226,14 @@ async function setBookingAvailability({
 
 async function setBookingPrices({
     bookingAttrs,
-    item,
+    listing,
     listingType,
     user,
     nbTimeUnits,
     quantity,
     now,
 }) {
-    const owner = await User.findOne({ id: item.ownerId });
+    const owner = await User.findOne({ id: listing.ownerId });
     if (!owner) {
         throw new NotFoundError('Owner not found');
     }
@@ -258,7 +257,7 @@ async function setBookingPrices({
         discountValue,
     } = await getOwnerPriceValue({
         listingType,
-        item,
+        listing,
         nbTimeUnits,
         quantity,
     });
@@ -302,24 +301,24 @@ async function getFeesValues({ owner, taker, pricing, now }) {
     };
 }
 
-async function getOwnerPriceValue({ listingType, item, nbTimeUnits, quantity = 1 }) {
+async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity = 1 }) {
     let ownerPrice;
     let discountValue;
     let freeValue;
 
     if (listingType.properties.TIME === 'TIME_FLEXIBLE') {
         const prices = PricingService.getPrice({
-            config: item.customPricingConfig || PricingService.getPricing(item.pricingId).config,
-            dayOne: item.dayOnePrice,
+            config: listing.customPricingConfig || PricingService.getPricing(listing.pricingId).config,
+            dayOne: listing.dayOnePrice,
             nbDays: nbTimeUnits,
-            custom: !! item.customPricingConfig,
+            custom: !! listing.customPricingConfig,
             array: true
         });
         ownerPrice    = prices[nbTimeUnits - 1];
         discountValue = 0;
         freeValue     = 0;
     } else {
-        ownerPrice    = item.sellingPrice;
+        ownerPrice    = listing.sellingPrice;
         freeValue     = 0;
         discountValue = 0;
     }

@@ -90,7 +90,7 @@ module.exports.policies = {
         sendFriendEmails: ["isAuthenticated", "getUserInfo"]
     },
 
-    ItemController: {
+    ListingController: {
         find: ["isAuthenticatedOptional"],
         findOne: ["isAuthenticatedOptional"],
         getLocations: true,
@@ -98,7 +98,7 @@ module.exports.policies = {
         search: ["isAuthenticatedOptional", "getUserInfo"],
         getRecommendedPrices: ["isAuthenticatedOptional"],
         getRentingPriceFromSellingPrice: true,
-        pauseItemToggle: ["isAuthenticated"]
+        pauseListingToggle: ["isAuthenticated"]
     },
 
     ListingCategoryController: {

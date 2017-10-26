@@ -38,15 +38,15 @@
                 });
         }
 
-        function getPublicMessages(itemId) {
-            return service.customGETLIST("item", { itemId: itemId })
+        function getPublicMessages(listingId) {
+            return service.customGETLIST("listing", { listingId: listingId })
                 .then(function (messages) {
                     return messages.plain();
                 });
         }
 
         function getConversations(args) {
-            args = args || {}; // bookingId and/or itemId and/or senderId and/or receiverId (use "userId" for (receiver or sender) only)
+            args = args || {}; // bookingId and/or listingId and/or senderId and/or receiverId (use "userId" for (receiver or sender) only)
             return service.customGETLIST("get-conversations", args)
                 .then(function (conversations) {
                     return conversations.plain();

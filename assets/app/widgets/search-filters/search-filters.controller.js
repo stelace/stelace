@@ -9,7 +9,7 @@
                                     $rootScope,
                                     $scope,
                                     $state,
-                                    ItemService,
+                                    ListingService,
                                     ListingTypeService,
                                     LocationService,
                                     platform,
@@ -23,7 +23,7 @@
         var fetchedListingTypes = false;
 
         var vm = this;
-        vm.queryModes = ItemService.getSearchFilters("queryModes");
+        vm.queryModes = ListingService.getSearchFilters("queryModes");
         vm.timeProperties = {
             NONE: true,
             TIME_FLEXIBLE: true,
@@ -152,7 +152,7 @@
 
                     vm.config.showAdvancedSearch = false;
 
-                    if (ItemService.isSearchState($state)) {
+                    if (ListingService.isSearchState($state)) {
                         $rootScope.$emit("triggerSearch");
                     } else {
                         $state.go("searchWithQuery", vm.params);
@@ -203,7 +203,7 @@
      * @return {object} [res.queryLocation]
      */
     function _loadSearchConfig() {
-        return ItemService.getSearchConfig(currentUser)
+        return ListingService.getSearchConfig(currentUser)
             .then(function (searchConfig) {
                 if (! searchConfig) {
                     return;
@@ -248,7 +248,7 @@
             searchConfig.queryMode = vm.params.queryMode;
         }
 
-        return ItemService.setSearchConfig(searchConfig, currentUser);
+        return ListingService.setSearchConfig(searchConfig, currentUser);
     }
 
     }

@@ -1,4 +1,4 @@
-/* global Assessment, Booking, BootstrapService, GamificationService, Item, LoggerService, Rating, User */
+/* global Assessment, Booking, BootstrapService, GamificationService, Listing, LoggerService, Rating, User */
 
 var Sails = require('sails');
 
@@ -29,14 +29,14 @@ Sails.load({
         .then(() => {
             return [
                 User.find(),
-                Item.find(),
+                Listing.find(),
                 Booking.find(),
                 Assessment.find(),
                 Rating.find()
             ];
         })
-        .spread((users, items, bookings, assessments, ratings) => {
-            var hash = getHash(users, items, bookings, assessments, ratings);
+        .spread((users, listings, bookings, assessments, ratings) => {
+            var hash = getHash(users, listings, bookings, assessments, ratings);
 
             return Promise
                 .resolve(_.values(hash))
@@ -65,8 +65,8 @@ Sails.load({
 
 
 
-    function getHash(users, items, bookings, assessments, ratings) {
-        var indexedItems            = _.groupBy(items, "ownerId");
+    function getHash(users, listings, bookings, assessments, ratings) {
+        var indexedListings         = _.groupBy(listings, "ownerId");
         var indexedBookingsAsTaker  = _.groupBy(bookings, "takerId");
         var indexedBookingsAsOwner  = _.groupBy(bookings, "ownerId");
         var indexedRatings          = _.groupBy(ratings, "userId");
@@ -92,7 +92,7 @@ Sails.load({
         var hash = _.reduce(users, (memo, user) => {
             var info = {
                 user: user,
-                items: indexedItems[user.id] || [],
+                listings: indexedListings[user.id] || [],
                 bookingsAsTaker: indexedBookingsAsTaker[user.id] || [],
                 bookingsAsOwner: indexedBookingsAsOwner[user.id] || [],
                 assessments: indexedAssessments[user.id] || [],
@@ -107,7 +107,7 @@ Sails.load({
     }
 
     function getCheckActionsParams(info) {
-        var items            = info.items;
+        var listings            = info.listings;
         var bookingsAsTaker  = info.bookingsAsTaker;
         var bookingsAsOwner  = info.bookingsAsOwner;
         var ratings          = info.ratings;
@@ -122,9 +122,9 @@ Sails.load({
             "ADD_PROFILE_IMAGE",
             "FIRST_LOCATIONS_NB_2",
 
-            // item
-            "FIRST_VALID_ITEM_AD",
-            "VALID_ITEM_AD",
+            // listing
+            "FIRST_VALID_LISTING_AD",
+            "VALID_LISTING_AD",
 
             // rating
             "FIRST_RATING",
@@ -137,8 +137,8 @@ Sails.load({
         ];
 
         var actionsData = {
-            FIRST_VALID_ITEM_AD: _.map(items, item => ({ item: item })),
-            VALID_ITEM_AD: _.map(items, item => ({ item: item })),
+            FIRST_VALID_LISTING_AD: _.map(listings, listing => ({ listing: listing })),
+            VALID_LISTING_AD: _.map(listings, listing => ({ listing: listing })),
             FIRST_RATING: _.map(ratings, rating => ({ rating: rating })),
             FIRST_BOOKING: _.map(bookingsAsTaker, booking => ({ booking: booking })),
             FIRST_RENTING_OUT: _.map(bookingsAsOwner, booking => ({ booking: booking })),

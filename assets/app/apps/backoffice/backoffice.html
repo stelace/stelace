@@ -27,19 +27,19 @@
                 <ui-select
                     class="text-left"
                     multiple
-                    ng-model="vm.selectedEditItems"
-                    on-select="vm.selectEditItem($item, $model)">
+                    ng-model="vm.selectedEditListings"
+                    on-select="vm.selectEditListing($item, $model)">
                     <ui-select-match placeholder="Recherche d'un objet">{{$item.label}}</ui-select-match>
                     <ui-select-choices
-                        refresh="vm.getEditItems($select.search)"
+                        refresh="vm.getEditListings($select.search)"
                         refresh-delay="300"
-                        repeat="item in vm.queryEditItems | filter: $select.search | limitTo: 30">
-                        {{item.label}}
+                        repeat="listing in vm.queryEditListings | filter: $select.search | limitTo: 30">
+                        {{listing.label}}
                     </ui-select-choices>
                 </ui-select>
                 <a class="button"
-                    ng-if="vm.editItemLink"
-                    ng-href="{{vm.editItemLink}}"
+                    ng-if="vm.editListingLink"
+                    ng-href="{{vm.editListingLink}}"
                     target="_blank">
                     Éditer l'objet
                 </a>
@@ -77,13 +77,13 @@
                         </th>
                     </tr>
                     <tr class="monitoring-line" ng-repeat="booking in vm.incompleteBookings">
-                        <td class="monitoring-cell">{{booking.id}} / {{booking.itemId}}</td>
+                        <td class="monitoring-cell">{{booking.id}} / {{booking.listingId}}</td>
                         <td class="monitoring-cell"
                             title="{{booking.ownerName}} / {{booking.takerName}}">
                             {{booking.ownerId}} / {{booking.takerId}}
                         </td>
-                        <td class="monitoring-cell" title="{{booking.itemName.title}}">
-                            {{booking.itemName.value}}
+                        <td class="monitoring-cell" title="{{booking.listingName.title}}">
+                            {{booking.listingName.value}}
                         </td>
                         <td class="monitoring-cell" ng-if="booking.isNoTime">
                             Pas de dates
@@ -158,7 +158,7 @@
                 <strong>Informations concernant la réservation n°{{vm.bookingIdToCancel}}</strong>
             </div>
             <div>
-                <u>Objet</u>&nbsp;: {{vm.bookingToCancel.item.name}}
+                <u>Objet</u>&nbsp;: {{vm.bookingToCancel.listing.name}}
             </div>
             <div ng-if="! vm.bookingToCancel.isNoTime">
                 <u>Dates de réservation</u>&nbsp;: Du {{vm.bookingToCancel.startDateDisplay}} au {{vm.bookingToCancel.endDateDisplay}} ({{vm.bookingToCancel.durationDays}}j)

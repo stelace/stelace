@@ -1,7 +1,7 @@
 (function () {
 
     angular
-        .module("app.items", [
+        .module("app.listings", [
             "app.core",
             "app.data"
         ]);

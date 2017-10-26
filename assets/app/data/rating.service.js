@@ -33,7 +33,7 @@
         }
 
         /**
-         * @param {Object} Containing targetId and optional populateItems boolean
+         * @param {Object} Containing targetId and optional populateListings boolean
          */
         function getTargetUserRatings(args) {
             return service.customGET("", args)

@@ -1,4 +1,4 @@
-/* global Media, MediaService, Item, User */
+/* global Listing, Media, MediaService, User */
 
 /**
  * MediaController
@@ -340,7 +340,7 @@ function get(req, res) {
                     });
             })
             .then(() => {
-                if (media.field !== "item") {
+                if (media.field !== "listing") {
                     return filepath;
                 }
                 if (isOriginal && µ.existsSync(originalWithLogoPath)) {
@@ -592,14 +592,14 @@ async function upload(req, res) {
             if (req.user.id !== targetId) {
                 throw new ForbiddenError();
             }
-        } else if (field === 'item') {
-            const item = await Item.findOne({ id: targetId });
-            if (!item) {
-                const error = new NotFoundError('Item not found');
-                error.itemId = targetId;
+        } else if (field === 'listing') {
+            const listing = await Listing.findOne({ id: targetId });
+            if (!listing) {
+                const error = new NotFoundError('Listing not found');
+                error.listingId = targetId;
                 throw error;
             }
-            if (item.ownerId !== req.user.id) {
+            if (listing.ownerId !== req.user.id) {
                 throw new ForbiddenError();
             }
         }

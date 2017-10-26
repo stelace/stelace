@@ -17,9 +17,9 @@
             <span itemprop="datePublished" content="{{::isoDate}}">{{::displayMonth}}</span>
             <br>
             <a class="text--light text--italic"
-                ng-if="::(rating.item && ! isCurrent)"
-                ui-sref="item(::{ slug: rating.item.nameURLSafe + '-' + rating.item.id })">
-                {{::rating.item.name}}
+                ng-if="::(rating.listing && ! isCurrent)"
+                ui-sref="listing(::{ slug: rating.listing.nameURLSafe + '-' + rating.listing.id })">
+                {{::rating.listing.name}}
             </a>
         </div>
         <div class="text-center"
@@ -39,20 +39,20 @@
             {{::rating.comment}}
         </div>
         <div class="margin-top"
-            ng-if="::(rating.itemComment && rating.item)">
+            ng-if="::(rating.listingComment && rating.listing)">
             <div class="margin-bottom text--light user-generated">
-                À propos de "{{::rating.item.name}}"&nbsp;:
+                À propos de "{{::rating.listing.name}}"&nbsp;:
             </div>
             <div class="no-margin-bottom user-generated"
                 ng-if="::!rating.comment"
                 itemprop="reviewBody">
-                {{::rating.itemComment}}
+                {{::rating.listingComment}}
             </div>
             <!-- No better solution than using name (or description as in schema.org doc) so far to extend reviewBody -->
             <div class="no-margin-bottom user-generated"
                 ng-if="::rating.comment"
                 itemprop="name">
-                {{::rating.itemComment}}
+                {{::rating.listingComment}}
             </div>
         </div>
     </div>
@@ -65,9 +65,9 @@
             {{::displayMonth}}
             <br>
             <a class="text--light text--italic"
-                ng-if="::(rating.item && ! isCurrent)"
-                ui-sref="item(::{ slug: rating.item.nameURLSafe + '-' + rating.item.id })">
-                {{::rating.item.name}}
+                ng-if="::(rating.listing && ! isCurrent)"
+                ui-sref="listing(::{ slug: rating.listing.nameURLSafe + '-' + rating.listing.id })">
+                {{::rating.listing.name}}
             </a>
         </div>
         <div class="text-center">
@@ -82,12 +82,12 @@
             {{::rating.comment}}
         </div>
         <div class="margin-top"
-            ng-if="::(rating.itemComment && rating.item)">
+            ng-if="::(rating.listingComment && rating.listing)">
             <div class="margin-bottom text--light user-generated">
-                À propos de "{{::rating.item.name}}"&nbsp;:
+                À propos de "{{::rating.listing.name}}"&nbsp;:
             </div>
             <div class="no-margin-bottom user-generated">
-                {{::rating.itemComment}}
+                {{::rating.listingComment}}
             </div>
         </div>
     </div>

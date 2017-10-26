@@ -117,10 +117,10 @@
             Article 1&nbsp;: Objet du contrat
         </h2>
         <p>
-            Ce contrat a pour objet la location du bien suivant&nbsp;: {{item.name}}
+            Ce contrat a pour objet la location du bien suivant&nbsp;: {{listing.name}}
         </p>
         <p>
-            Décrit par le <em>Propriétaire</em> comme suit&nbsp;: <span class="user-generated">{{#if item.description}}{{item.description}}{{else}}Non renseigné{{/if}}</span>
+            Décrit par le <em>Propriétaire</em> comme suit&nbsp;: <span class="user-generated">{{#if listing.description}}{{listing.description}}{{else}}Non renseigné{{/if}}</span>
         </p>
         <p>
             Les droits de l’<em>Emprunteur</em> générés par cette location sont personnels et incessibles.
@@ -224,7 +224,7 @@
             État initial de l’objet&nbsp;:
         </p>
         <p>
-            <span class="contract__assessment-subtitle">Description de l’objet&nbsp;:</span> <span class="user-generated">{{item.description}}</span><br>
+            <span class="contract__assessment-subtitle">Description de l’objet&nbsp;:</span> <span class="user-generated">{{listing.description}}</span><br>
             <br>
             <span class="contract__assessment-subtitle">État de fonctionnement&nbsp;:</span> {{initialAssessment.workingLevelString}}<br>
             <span class="contract__assessment-subtitle">État de propreté&nbsp;:</span> {{initialAssessment.cleanlinessLevelString}}<br>

@@ -76,7 +76,7 @@
 
                     FoundationApi.publish(modalId, "close");
                     toastr.success("<a href='/s?reset=tag'>Cherchez des objets</a> à emprunter près de vos <a href='/location'>lieux favoris</a> "
-                        + "ou <a href='/my-items'>déposez des annonces</a> dans votre compte pour louer vos propres objets.",
+                        + "ou <a href='/my-listings'>déposez des annonces</a> dans votre compte pour louer vos propres objets.",
                         "Bienvenue !", {
                             timeOut: 20000,
                             extendedTimeOut: 20000,

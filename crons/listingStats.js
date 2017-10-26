@@ -1,10 +1,10 @@
-/* global BootstrapService, Booking, Conversation, Item, LoggerService, StelaceEvent */
+/* global BootstrapService, Booking, Conversation, Listing, LoggerService, StelaceEvent */
 
 const Sails  = require('sails');
 const moment = require('moment');
 const yargs  = require('yargs');
 
-const cronTaskName = "itemStats";
+const cronTaskName = "listingStats";
 
 global._       = require('lodash');
 global.Promise = require('bluebird');
@@ -42,7 +42,7 @@ Sails.load({
     };
 
     let info = {
-        itemsUpdated: 0,
+        listingsUpdated: 0,
         views: 0,
         conversations: 0,
         bookings: 0
@@ -56,63 +56,63 @@ Sails.load({
 
     return Promise.coroutine(function* () {
         const views = yield StelaceEvent.find({
-            label: "Item view",
+            label: "Listing view",
             createdDate: dateConstraints,
-            itemId: { "!": null }
+            listingId: { "!": null }
         });
         const groupedViews = _(views)
             .uniq("sessionId")
-            .groupBy("itemId")
+            .groupBy("listingId")
             .value();
 
         const conversations = yield Conversation.find({
             createdDate: dateConstraints
         });
-        const groupedConversations = _.groupBy(conversations, "itemId");
+        const groupedConversations = _.groupBy(conversations, "listingId");
 
         const bookings = yield Booking.find({
             paidDate: dateConstraints
         });
-        const groupedBookings = _.groupBy(bookings, "itemId");
+        const groupedBookings = _.groupBy(bookings, "listingId");
 
-        const itemIds = _(groupedViews)
+        const listingIds = _(groupedViews)
             .keys()
             .union(_.keys(groupedConversations))
             .value();
-        const items   = yield Item.find({ id: itemIds });
+        const listings   = yield Listing.find({ id: listingIds });
 
-        const indexedItems = _.indexBy(items, "id");
-        let itemUpdates = [];
+        const indexedListings = _.indexBy(listings, "id");
+        let listingUpdates = [];
 
-        _.forEach(indexedItems, (item, itemId) => {
-            const itemViews = ((groupedViews[itemId] && groupedViews[itemId].length) || 0) * 1;
-            const itemConversations = ((groupedConversations[itemId] && groupedConversations[itemId].length) || 0) * 1;
-            const itemBookings = ((groupedBookings[itemId] && groupedBookings[itemId].length) || 0) * 1;
+        _.forEach(indexedListings, (listing, listingId) => {
+            const listingViews = ((groupedViews[listingId] && groupedViews[listingId].length) || 0) * 1;
+            const listingConversations = ((groupedConversations[listingId] && groupedConversations[listingId].length) || 0) * 1;
+            const listingBookings = ((groupedBookings[listingId] && groupedBookings[listingId].length) || 0) * 1;
 
-            const nbViews = (indexedItems[itemId].nbViews || 0) + itemViews;
-            const nbBookings = (indexedItems[itemId].nbBookings || 0) * 1 + itemBookings;
-            const nbContacts = (indexedItems[itemId].nbContacts || 0) * 1 + itemConversations;
+            const nbViews = (indexedListings[listingId].nbViews || 0) + listingViews;
+            const nbBookings = (indexedListings[listingId].nbBookings || 0) * 1 + listingBookings;
+            const nbContacts = (indexedListings[listingId].nbContacts || 0) * 1 + listingConversations;
 
-            itemUpdates.push(Item.updateOne(itemId, {
+            listingUpdates.push(Listing.updateOne(listingId, {
                 nbViews,
                 nbContacts,
                 nbBookings
             }));
         });
 
-        info.itemsUpdated = itemUpdates.length;
+        info.listingsUpdated = listingUpdates.length;
         info.views = views.length;
         info.conversations = conversations.length;
         info.bookings = bookings.length;
 
-        return Promise.all(itemUpdates);
+        return Promise.all(listingUpdates);
     })()
     .catch(err => {
         logger.error({ err: err });
     })
     .finally(() => {
         const duration = moment().diff(startTime);
-        logger.info(`End cron: ${info.itemsUpdated} items with ${info.views} views, ${info.conversations} conversations and ${info.bookings} bookings, in ${duration}ms.`);
+        logger.info(`End cron: ${info.listingsUpdated} listings with ${info.views} views, ${info.conversations} conversations and ${info.bookings} bookings, in ${duration}ms.`);
         setTimeout(sails.lowerSafe, pastDays * 10); // let close MySQL connection after updates
     });
 

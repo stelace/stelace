@@ -57,7 +57,7 @@
                 label: label,
                 srcUrl: $location.absUrl(),
                 targetUrl: args.targetUrl,
-                itemId: args.itemId,
+                listingId: args.listingId,
                 targetUserId: args.targetUserId,
                 type: args.type,
                 resetUser: args.resetUser,

@@ -1,5 +1,5 @@
 /* global
-    ElasticsearchService, Item, ListingCategory,
+    ElasticsearchService, Listing, ListingCategory,
     MapService, Media, PricingService, SearchEvent,
     StelaceConfigService, StelaceEventService, UAService, User
 */
@@ -7,18 +7,18 @@
 module.exports = {
 
     normalizeSearchQuery,
-    getItemsFromQuery,
+    getListingsFromQuery,
 
     createEvent,
 
-    getItemsRelevance,
-    getSimilarItems,
+    getListingsRelevance,
+    getSimilarListings,
 
     getQueryHash,
     isWrongPageParams,
-    getItemsByPagination,
-    getItemsFromCache,
-    setItemsToCache,
+    getListingsByPagination,
+    getListingsFromCache,
+    setListingsToCache,
 
 };
 
@@ -37,7 +37,7 @@ const SEARCH_QUERY_DEFAULTS = {
     sorting: 'creationDate',
 };
 const SEARCH_CONFIG = {
-    nearItemsDurationInSeconds: 2 * 3600, // 2 hours
+    nearListingsDurationInSeconds: 2 * 3600, // 2 hours
     meanDistanceMetersPerHour: 60 * 1000, // 60km
 };
 const queryModes = [
@@ -46,58 +46,58 @@ const queryModes = [
     'distance',
 ];
 
-async function getItemsFromQuery(searchQuery, type) {
+async function getListingsFromQuery(searchQuery, type) {
     const {
         listingCategoryId,
         query,
         queryMode,
         locations,
-        similarToItemsIds,
+        similarToListingsIds,
     } = searchQuery;
 
     const categoryActive = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
 
     const listingCategoriesIds = listingCategoryId && categoryActive ? await getMatchedListingCategoriesIds(listingCategoryId) : null;
 
-    let items = await fetchPublishedItems(searchQuery, { listingCategoriesIds });
+    let listings = await fetchPublishedListings(searchQuery, { listingCategoriesIds });
 
-    let hashLocations = await getItemsLocations(items);
+    let hashLocations = await getListingsLocations(listings);
     let hashJourneys;
-    items = removeEmptyLocationItems(items, hashLocations);
+    listings = removeEmptyLocationListings(listings, hashLocations);
 
-    // console.log('published and no empty location items', items.length);
+    // console.log('published and no empty location listings', listings.length);
 
-    let itemsRelevanceMeta;
-    let itemsRelevance;
+    let listingsRelevanceMeta;
+    let listingsRelevance;
 
     if (type === 'similar') {
-        if (!similarToItemsIds || !similarToItemsIds.length) {
-            throw new Error('Missing similar to items ids');
+        if (!similarToListingsIds || !similarToListingsIds.length) {
+            throw new Error('Missing similar to listings ids');
         }
 
-        const similarItems = await getSimilarItems({ itemsIds: similarToItemsIds });
-        items = mergePublishedAndQueryItems(items, similarItems);
+        const similarListings = await getSimilarListings({ listingsIds: similarToListingsIds });
+        listings = mergePublishedAndQueryListings(listings, similarListings);
     } else if (query) {
-        itemsRelevance = await getItemsRelevance(query);
-        // console.log('relevant items', itemsRelevance.length);
-        itemsRelevanceMeta = getItemsRelevanceMeta(itemsRelevance);
-        items = mergePublishedAndQueryItems(items, itemsRelevance);
-        // console.log('merged published and relevant items', items.length);
+        listingsRelevance = await getListingsRelevance(query);
+        // console.log('relevant listings', listingsRelevance.length);
+        listingsRelevanceMeta = getListingsRelevanceMeta(listingsRelevance);
+        listings = mergePublishedAndQueryListings(listings, listingsRelevance);
+        // console.log('merged published and relevant listings', listings.length);
     }
 
     const hasLocations = locations && locations.length;
     const displayLocation = hasLocations && queryMode !== 'relevance';
     if (displayLocation) {
-        // remove items that are too far from given source locations
+        // remove listings that are too far from given source locations
         const {
-            nearItemsDurationInSeconds,
+            nearListingsDurationInSeconds,
             meanDistanceMetersPerHour,
         } = SEARCH_CONFIG;
-        const distanceLimit = Math.round(nearItemsDurationInSeconds / 3600 * meanDistanceMetersPerHour);
-        items = filterItemsWithinDistance(locations, items, hashLocations, distanceLimit);
-        // console.log('near items', items.length);
+        const distanceLimit = Math.round(nearListingsDurationInSeconds / 3600 * meanDistanceMetersPerHour);
+        listings = filterListingsWithinDistance(locations, listings, hashLocations, distanceLimit);
+        // console.log('near listings', listings.length);
 
-        hashLocations = refreshHashLocations(hashLocations, _.pluck(items, 'id'));
+        hashLocations = refreshHashLocations(hashLocations, _.pluck(listings, 'id'));
         hashJourneys = await getJourneysDuration(locations, hashLocations);
     }
 
@@ -105,14 +105,14 @@ async function getItemsFromQuery(searchQuery, type) {
 
     // perform a sort only if query or source locations are provided
     if (query || hasLocations) {
-        combinedMetrics = combineMetrics({ items, hashJourneys, itemsRelevance });
+        combinedMetrics = combineMetrics({ listings, hashJourneys, listingsRelevance });
         if (query) {
-            combinedMetrics = removeIrrelevantResults(combinedMetrics, itemsRelevanceMeta);
+            combinedMetrics = removeIrrelevantResults(combinedMetrics, listingsRelevanceMeta);
         }
 
         if (queryMode === 'default') {
             if (query && hasLocations) {
-                combinedMetrics = sortByMixRelevanceDistance(combinedMetrics, itemsRelevanceMeta);
+                combinedMetrics = sortByMixRelevanceDistance(combinedMetrics, listingsRelevanceMeta);
             } else if (query) {
                 combinedMetrics = sortByRelevance(combinedMetrics);
             } else if (hasLocations) {
@@ -128,20 +128,20 @@ async function getItemsFromQuery(searchQuery, type) {
             }
         }
 
-        items = convertCombineMetricsToItems(combinedMetrics, items);
+        listings = convertCombineMetricsToListings(combinedMetrics, listings);
     }
 
     const {
         owners,
-        itemsMedias,
+        listingsMedias,
         ownersMedias,
-    } = await getItemsExtraInfo({ items, getMedia: false });
+    } = await getListingsExtraInfo({ listings, getMedia: false });
         // set getMedia to true when using owner media in search results
 
-    items = getExposedItems({
-        items,
+    listings = getExposedListings({
+        listings,
         owners,
-        itemsMedias,
+        listingsMedias,
         ownersMedias,
         displayDuration: displayLocation,
         fromLocations: locations,
@@ -149,7 +149,7 @@ async function getItemsFromQuery(searchQuery, type) {
         hashJourneys,
     });
 
-    return items;
+    return listings;
 }
 
 async function getMatchedListingCategoriesIds(listingCategoryId) {
@@ -157,7 +157,7 @@ async function getMatchedListingCategoriesIds(listingCategoryId) {
     return _.pluck(listingCategories, 'id');
 }
 
-async function fetchPublishedItems(searchQuery, { listingCategoriesIds }) {
+async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
     const {
         listingTypeId,
         // onlyFree,
@@ -188,14 +188,14 @@ async function fetchPublishedItems(searchQuery, { listingCategoriesIds }) {
 
     findAttrs.soldDate = null;
 
-    let items = await Item.find(findAttrs);
+    let listings = await Listing.find(findAttrs);
 
     if (!listingTypeId) {
-        return items;
+        return listings;
     }
 
-    items = _.filter(items, item => {
-        return _.reduce(item.listingTypesIds, (memo, id) => {
+    listings = _.filter(listings, listing => {
+        return _.reduce(listing.listingTypesIds, (memo, id) => {
             if (listingTypeId === id) {
                 return true;
             }
@@ -203,28 +203,28 @@ async function fetchPublishedItems(searchQuery, { listingCategoriesIds }) {
         }, false);
     });
 
-    return items;
+    return listings;
 }
 
 /**
- * Get items by relevance
+ * Get listings by relevance
  * @param  {string}   query
  * @param  {boolean}  getSimilar
  * @return {object[]} results
- * @return {number}   results.id - item id
+ * @return {number}   results.id - listing id
  * @return {float}    results.score - relevance score
  */
-async function getItemsRelevance(query) {
+async function getListingsRelevance(query) {
     const params = { attributes: [] };
 
-    const res = await ElasticsearchService.searchItems(query, params);
+    const res = await ElasticsearchService.searchListings(query, params);
     return formatElasticsearchResults(res);
 }
 
-async function getSimilarItems({ itemsIds, texts }) {
+async function getSimilarListings({ listingsIds, texts }) {
     const params = { attributes: [] };
 
-    const res = await ElasticsearchService.getSimilarItems({ itemsIds, texts }, params);
+    const res = await ElasticsearchService.getSimilarListings({ listingsIds, texts }, params);
     return formatElasticsearchResults(res);
 }
 
@@ -242,63 +242,63 @@ function formatElasticsearchResults(res) {
     });
 }
 
-function getItemsRelevanceMeta(itemsRelevance) {
-    const itemsRelevanceMeta = {
+function getListingsRelevanceMeta(listingsRelevance) {
+    const listingsRelevanceMeta = {
         maxScore: 0,
         minScore: 0,
         nbResults: 0,
     };
 
-    if (itemsRelevance.length) {
-        itemsRelevanceMeta.maxScore = _.first(itemsRelevance).score;
-        itemsRelevanceMeta.minScore = _.last(itemsRelevance).score;
-        itemsRelevanceMeta.nbResults = itemsRelevance.length;
+    if (listingsRelevance.length) {
+        listingsRelevanceMeta.maxScore = _.first(listingsRelevance).score;
+        listingsRelevanceMeta.minScore = _.last(listingsRelevance).score;
+        listingsRelevanceMeta.nbResults = listingsRelevance.length;
     }
 
-    return itemsRelevanceMeta;
+    return listingsRelevanceMeta;
 }
 
-function mergePublishedAndQueryItems(items, queryItems) {
-    const itemsIds = _.pluck(items, 'id');
-    const queryItemsIds = _.map(queryItems, value => value.id);
+function mergePublishedAndQueryListings(listings, queryListings) {
+    const listingsIds = _.pluck(listings, 'id');
+    const queryListingsIds = _.map(queryListings, value => value.id);
 
-    const mergedIds = _.intersection(itemsIds, queryItemsIds);
+    const mergedIds = _.intersection(listingsIds, queryListingsIds);
     const indexedMergedIds = _.indexBy(mergedIds);
 
-    return _.reduce(items, (memo, item) => {
-        if (indexedMergedIds[item.id]) {
-            memo.push(item);
+    return _.reduce(listings, (memo, listing) => {
+        if (indexedMergedIds[listing.id]) {
+            memo.push(listing);
         }
         return memo;
     }, []);
 }
 
 /**
- * Get items locations indexed by item id
- * @param  {object[]} items
+ * Get listings locations indexed by listing id
+ * @param  {object[]} listings
  * @return {object}   hashLocations
  */
-async function getItemsLocations(items) {
+async function getListingsLocations(listings) {
 
-    const itemsLocations = await _getItemsLocations(items);
+    const listingsLocations = await _getListingsLocations(listings);
 
     const hashLocations = {};
 
-    const indexedItemsLocations = _.indexBy(itemsLocations, 'id');
-    _.forEach(items, item => {
-        hashLocations[item.id] = _.map(item.locations, locationId => indexedItemsLocations[locationId]);
+    const indexedListingsLocations = _.indexBy(listingsLocations, 'id');
+    _.forEach(listings, listing => {
+        hashLocations[listing.id] = _.map(listing.locations, locationId => indexedListingsLocations[locationId]);
     });
 
     return hashLocations;
 }
 
-async function _getItemsLocations(items) {
-    if (!items.length) {
+async function _getListingsLocations(listings) {
+    if (!listings.length) {
         return [];
     }
 
-    let locationIds = _.reduce(items, (memo, item) => {
-        memo = memo.concat(item.locations || []);
+    let locationIds = _.reduce(listings, (memo, listing) => {
+        memo = memo.concat(listing.locations || []);
         return memo;
     }, []);
     locationIds = _.uniq(locationIds);
@@ -307,54 +307,54 @@ async function _getItemsLocations(items) {
 }
 
 /**
- * Remove items that have no locations
- * @param  {object[]} items
+ * Remove listings that have no locations
+ * @param  {object[]} listings
  * @param  {object} hashLocations
- * @return {object[]} items that have locations
+ * @return {object[]} listings that have locations
  */
-function removeEmptyLocationItems(items, hashLocations) {
-    return _.filter(items, item => {
-        const locations = hashLocations[item.id];
+function removeEmptyLocationListings(listings, hashLocations) {
+    return _.filter(listings, listing => {
+        const locations = hashLocations[listing.id];
         return locations && locations.length;
     });
 }
 
 /**
- * Remove key from hashLocations that isn't present in list itemsIds
+ * Remove key from hashLocations that isn't present in list listingsIds
  * @param  {object}   hashLocations [description]
- * @param  {number[]} itemsIds
+ * @param  {number[]} listingsIds
  * @return {object}   refreshed hash locations
  */
-function refreshHashLocations(hashLocations, itemsIds) {
-    return _.pick(hashLocations, itemsIds);
+function refreshHashLocations(hashLocations, listingsIds) {
+    return _.pick(hashLocations, listingsIds);
 }
 
 /**
  * Combine all metrics before applying a sort
- * @param  {object[]} items
+ * @param  {object[]} listings
  * @param  {object}   hashJourneys
- * @param  {object[]} itemsRelevance
- * @return {object[]} res - combined metrics items
- * @return {number}   res.id - item id
+ * @param  {object[]} listingsRelevance
+ * @return {object[]} res - combined metrics listings
+ * @return {number}   res.id - listing id
  * @return {number}   res.duration
  * @return {float}    res.score
  */
-function combineMetrics({ items, hashJourneys, itemsRelevance }) {
-    const indexedItemsRelevance = itemsRelevance ? _.indexBy(itemsRelevance, 'id') : null;
+function combineMetrics({ listings, hashJourneys, listingsRelevance }) {
+    const indexedListingsRelevance = listingsRelevance ? _.indexBy(listingsRelevance, 'id') : null;
     const longDuration = 8 * 3600; // 8 hours
 
-    return _.map(items, item => {
+    return _.map(listings, listing => {
         const obj = {
-            id: item.id,
+            id: listing.id,
         };
 
-        if (indexedItemsRelevance) {
-            const relevance = indexedItemsRelevance[item.id];
+        if (indexedListingsRelevance) {
+            const relevance = indexedListingsRelevance[listing.id];
             obj.score = relevance ? relevance.score : 0;
         }
 
         if (hashJourneys) {
-            const journeys = hashJourneys[item.id];
+            const journeys = hashJourneys[listing.id];
             if (journeys && journeys.length) {
                 obj.duration = _.first(journeys).durationSeconds;
             } else {
@@ -366,20 +366,20 @@ function combineMetrics({ items, hashJourneys, itemsRelevance }) {
     });
 }
 
-function removeIrrelevantResults(combinedMetrics, itemsRelevanceMeta) {
+function removeIrrelevantResults(combinedMetrics, listingsRelevanceMeta) {
     if (!combinedMetrics.length) {
         return combinedMetrics;
     }
 
-    const minLimit = itemsRelevanceMeta.maxScore / 10;
+    const minLimit = listingsRelevanceMeta.maxScore / 10;
     return _.filter(combinedMetrics, metrics => metrics.score >= minLimit);
 }
 
-function convertCombineMetricsToItems(combinedMetrics, items) {
-    const indexedItems = _.indexBy(items, 'id');
+function convertCombineMetricsToListings(combinedMetrics, listings) {
+    const indexedListings = _.indexBy(listings, 'id');
 
     return _.map(combinedMetrics, metrics => {
-        return indexedItems[metrics.id];
+        return indexedListings[metrics.id];
     });
 }
 
@@ -387,8 +387,8 @@ function sortByRelevance(combinedMetrics) {
     return _.sortBy(combinedMetrics, metrics => - metrics.score);
 }
 
-function sortByMixRelevanceDistance(combinedMetrics, itemsRelevanceMeta) {
-    const relevanceGroups = clusterByRelevance(combinedMetrics, itemsRelevanceMeta);
+function sortByMixRelevanceDistance(combinedMetrics, listingsRelevanceMeta) {
+    const relevanceGroups = clusterByRelevance(combinedMetrics, listingsRelevanceMeta);
 
     return _.reduce(relevanceGroups, (memo, group) => {
         memo = memo.concat(sortByDistance(group));
@@ -396,10 +396,10 @@ function sortByMixRelevanceDistance(combinedMetrics, itemsRelevanceMeta) {
     }, []);
 }
 
-function clusterByRelevance(combinedMetrics, itemsRelevanceMeta) {
+function clusterByRelevance(combinedMetrics, listingsRelevanceMeta) {
     let groups = [];
 
-    const { maxScore } = itemsRelevanceMeta;
+    const { maxScore } = listingsRelevanceMeta;
     let tmpMetrics = combinedMetrics;
 
     const separateGroups = (limit) => {
@@ -430,38 +430,38 @@ function sortByDistance(combinedMetrics) {
 }
 
 /**
- * Get journeys durations from hash locations, indexed by item id
+ * Get journeys durations from hash locations, indexed by listing id
  * @param  {object[]} fromLocations - user locations
  * @param  {object} hashLocations
  * @return {object} hashJourneys
  */
 async function getJourneysDuration(fromLocations, hashLocations) {
-    const itemsIds = _.keys(hashLocations);
+    const listingsIds = _.keys(hashLocations);
     const hashJourneys = {};
 
-    await Promise.map(itemsIds, async (itemId) => {
-        // this item has no locations
-        if (!hashLocations[itemId].length) {
+    await Promise.map(listingsIds, async (listingId) => {
+        // this listing has no locations
+        if (!hashLocations[listingId].length) {
             return;
         }
 
-        const journeys = await MapService.getOsrmJourneys(fromLocations, hashLocations[itemId]);
+        const journeys = await MapService.getOsrmJourneys(fromLocations, hashLocations[listingId]);
         // sort by shortest duration first
-        hashJourneys[itemId] = _.sortBy(journeys, journey => journey.durationSeconds);
+        hashJourneys[listingId] = _.sortBy(journeys, journey => journey.durationSeconds);
     });
 
     return hashJourneys;
 }
 
 /**
- * Get extra info related to search results items
- * @param  {object[]} items - search results
+ * Get extra info related to search results listings
+ * @param  {object[]} listings - search results
  * @param  {boolean}  [getMedia] - whether ownerMedia should be retrieved
  * @return {object} extraInfo
  */
-async function getItemsExtraInfo({ items, getMedia }) {
-    const ownersIds  = _.pluck(items, 'ownerId');
-    let infoPromises = [Item.getMedias(items)];
+async function getListingsExtraInfo({ listings, getMedia }) {
+    const ownersIds  = _.pluck(listings, 'ownerId');
+    let infoPromises = [Listing.getMedias(listings)];
     let owners;
 
     if (getMedia) {
@@ -472,33 +472,33 @@ async function getItemsExtraInfo({ items, getMedia }) {
     }
 
     const [
-        itemsMedias,
+        listingsMedias,
         ownersMedias,
     ] = await Promise.all(infoPromises);
 
     return {
         owners,
-        itemsMedias,
+        listingsMedias,
         ownersMedias,
     };
 }
 
 /**
- * Expose items with only filtered fields
- * @param  {object[]} items
+ * Expose listings with only filtered fields
+ * @param  {object[]} listings
  * @param  {object[]} owners
- * @param  {object}   itemsMedias
+ * @param  {object}   listingsMedias
  * @param  {object}   ownersMedias
  * @param  {boolean}  displayDuration
  * @param  {object}   fromLocations
  * @param  {object}   hashLocations
  * @param  {object}   hashJourneys
- * @return {object[]} exposed items
+ * @return {object[]} exposed listings
  */
-function getExposedItems({
-    items,
+function getExposedListings({
+    listings,
     owners,
-    itemsMedias,
+    listingsMedias,
     ownersMedias,
     displayDuration,
     fromLocations,
@@ -506,43 +506,43 @@ function getExposedItems({
     hashJourneys,
 }) {
     let journeysDurations;
-    const pricingHash = getPricingHash(items);
+    const pricingHash = getPricingHash(listings);
     const indexedOwners = _.indexBy(owners, 'id');
 
     if (displayDuration) {
         journeysDurations = convertOsrmDurations(fromLocations, hashJourneys, hashLocations);
     }
 
-    const exposedItems = _.map(items, item => {
-        item             = Item.expose(item, 'others');
-        item.medias      = Media.exposeAll(itemsMedias[item.id], 'others');
-        item.ownerRating = _.pick(indexedOwners[item.ownerId], ['nbRatings', 'ratingScore']);
-        item.pricing     = pricingHash[item.pricingId];
-        item.completeLocations = _.map(hashLocations[item.id], location => {
+    const exposedListings = _.map(listings, listing => {
+        listing             = Listing.expose(listing, 'others');
+        listing.medias      = Media.exposeAll(listingsMedias[listing.id], 'others');
+        listing.ownerRating = _.pick(indexedOwners[listing.ownerId], ['nbRatings', 'ratingScore']);
+        listing.pricing     = pricingHash[listing.pricingId];
+        listing.completeLocations = _.map(hashLocations[listing.id], location => {
             return Location.expose(location, 'others');
         });
 
         if (ownersMedias && ! _.isEmpty(ownersMedias)) {
-            item.ownerMedia  = Media.expose(ownersMedias[item.ownerId], 'others');
+            listing.ownerMedia  = Media.expose(ownersMedias[listing.ownerId], 'others');
         }
 
         if (displayDuration) {
-            item.journeysDurations = journeysDurations[item.id];
+            listing.journeysDurations = journeysDurations[listing.id];
         }
 
-        return item;
+        return listing;
     });
 
-    return exposedItems;
+    return exposedListings;
 }
 
 function convertOsrmDurations(fromLocations, hashJourneys, hashLocations) {
-    return _.reduce(_.keys(hashJourneys), (memo, itemId) => {
-        memo[itemId] = _.map(hashJourneys[itemId], journey => {
+    return _.reduce(_.keys(hashJourneys), (memo, listingId) => {
+        memo[listingId] = _.map(hashJourneys[listingId], journey => {
             return {
                 index: journey.fromIndex,
                 fromLocation: fromLocations[journey.fromIndex],
-                toLocation: Location.expose(hashLocations[itemId][journey.toIndex], "others"),
+                toLocation: Location.expose(hashLocations[listingId][journey.toIndex], "others"),
                 durationSeconds: journey.durationSeconds
             };
         });
@@ -551,8 +551,8 @@ function convertOsrmDurations(fromLocations, hashJourneys, hashLocations) {
     }, {});
 }
 
-function getPricingHash(items) {
-    const pricingIds = _.uniq(_.pluck(items, 'pricingId'));
+function getPricingHash(listings) {
+    const pricingIds = _.uniq(_.pluck(listings, 'pricingId'));
 
     return _.reduce(pricingIds, (memo, pricingId) => {
         const pricing = memo[pricingId];
@@ -564,17 +564,17 @@ function getPricingHash(items) {
 }
 
 /**
- * Only get items that are within a distance range
+ * Only get listings that are within a distance range
  * @param  {object[]} fromLocations - user locations
- * @param  {object[]} items
+ * @param  {object[]} listings
  * @param  {object}   hashLocations
  * @param  {number}   withinDistanceLimitMeters - distance limit
- * @return {object[]} filtered items
+ * @return {object[]} filtered listings
  */
-function filterItemsWithinDistance(fromLocations, items, hashLocations, withinDistanceLimitMeters) {
-    return _.reduce(items, (memo, item) => {
-        // security in case items has no locations
-        var toLocations = hashLocations[item.id];
+function filterListingsWithinDistance(fromLocations, listings, hashLocations, withinDistanceLimitMeters) {
+    return _.reduce(listings, (memo, listing) => {
+        // security in case listings has no locations
+        var toLocations = hashLocations[listing.id];
         if (! toLocations || ! toLocations.length) {
             return memo;
         }
@@ -589,27 +589,27 @@ function filterItemsWithinDistance(fromLocations, items, hashLocations, withinDi
             return memo;
         }, []);
 
-        // if any item locations are near one of fromLocations, it's ok
+        // if any listing locations are near one of fromLocations, it's ok
         if (nearLocations.length) {
-            memo.push(item);
+            memo.push(listing);
         }
 
         return memo;
     }, []);
 }
 
-function getItemsFromCache(cacheKey) {
-    const items = searchCache.get(cacheKey);
+function getListingsFromCache(cacheKey) {
+    const listings = searchCache.get(cacheKey);
 
-    if (items) {
-        searchCache.set(cacheKey, items); // refresh TTL
+    if (listings) {
+        searchCache.set(cacheKey, listings); // refresh TTL
     }
 
-    return items;
+    return listings;
 }
 
-function setItemsToCache(cacheKey, items) {
-    searchCache.set(cacheKey, items);
+function setListingsToCache(cacheKey, listings) {
+    searchCache.set(cacheKey, listings);
 }
 
 /**
@@ -625,8 +625,8 @@ function setItemsToCache(cacheKey, items) {
  * @param {float}    params.locations.latitude
  * @param {float}    params.locations.longitude
  * @param {string}   [params.sorting]
- * @param {number[]} [params.withoutIds] - filter out items with this ids (useful for similar items)
- * @param {number[]} [params.similarToItemsIds]
+ * @param {number[]} [params.withoutIds] - filter out listings with this ids (useful for similar listings)
+ * @param {number[]} [params.similarToListingsIds]
  * @param {number}   [params.page]
  * @param {number}   [params.limit]
  * @param {number}   [params.timestamp] - useful to prevent requests racing from client-side
@@ -642,7 +642,7 @@ function normalizeSearchQuery(params) {
         'locations',
         'sorting',
         'withoutIds',
-        'similarToItemsIds',
+        'similarToListingsIds',
         'page',
         'limit',
         'timestamp',
@@ -674,7 +674,7 @@ function normalizeSearchQuery(params) {
                 break;
 
             case 'withoutIds':
-            case 'similarToItemsIds':
+            case 'similarToListingsIds':
                 isValid = µ.checkArray(value, 'id');
                 break;
 
@@ -795,14 +795,14 @@ function getQueryHash(searchQuery) {
     return str.length + '-' + CryptoJS.MD5(str).toString();
 }
 
-function isWrongPageParams(items, page, limit) {
+function isWrongPageParams(listings, page, limit) {
     if (page === 1) {
         return false;
     }
 
-    return (items.length <= (page - 1) * limit);
+    return (listings.length <= (page - 1) * limit);
 }
 
-function getItemsByPagination(items, page, limit) {
-    return items.slice((page - 1) * limit, page * limit);
+function getListingsByPagination(listings, page, limit) {
+    return listings.slice((page - 1) * limit, page * limit);
 }

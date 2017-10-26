@@ -322,7 +322,7 @@
             </div>
 
             <div class="margin-bottom-plus"
-                ng-if="vm.myItems.length">
+                ng-if="vm.myListings.length">
                 <h2 class="text-center margin-bottom-plus">
                     Mes annonces
                 </h2>
@@ -330,9 +330,9 @@
                     class="item-wall force-compact-item-card grid-block small-vertical text-left">
                     <div
                         class="grid-block item-wall__item-wrapper"
-                        data-item="item"
-                        ng-repeat="item in vm.myItems | orderBy : '-createdDate'"
-                        ng-hide="vm.itemId && vm.itemId === item.id"
+                        data-listing="listing"
+                        ng-repeat="listing in vm.myListings | orderBy : '-createdDate'"
+                        ng-hide="vm.listingId && vm.listingId === listing.id"
                         data-sip-my-listing-card>
                     </div>
                 </div>
@@ -347,13 +347,13 @@
                 data-sip-sticky-sidebar>
                 <div>
                     <h2 class="text-center"
-                        ng-hide="vm.myItems.length">
+                        ng-hide="vm.myListings.length">
                         Publions votre première annonce
                     </h2>
                     <!-- item-card like CTA -->
                     <div class="item-wall padded-sides item-wall__item-wrapper">
                         <a class="item-wall__item-container"
-                            ui-sref="itemCreate"
+                            ui-sref="listingCreate"
                             ng-click="vm.uxEvent('Account item card CTA', 'click')">
                             <div class="item-wall__item flex-container item-wall__item--highlight">
                                 <div class="item-wall__image-container">
@@ -372,8 +372,8 @@
                                         <span class="item-wall__rating small"
                                             data-user-score="10"
                                             data-user-ratings="2"
-                                            data-item-score="10"
-                                            data-item-ratings="2"
+                                            data-listing-score="10"
+                                            data-listing-ratings="2"
                                             data-count="false"
                                             data-tooltip-msg="Créez de belles annonces et participez à l'aventure Sharinplace..."
                                             data-append-to-body="true"
@@ -384,9 +384,9 @@
                         </a>
                     </div>
                     <a class="button brightblue button--highlight"
-                        ng-if="vm.myItems.length"
-                        ui-sref="myItems">
-                        Voir vos annonces ({{vm.myItems.length}})
+                        ng-if="vm.myListings.length"
+                        ui-sref="myListings">
+                        Voir vos annonces ({{vm.myListings.length}})
                     </a>
                 </div>
             </div>

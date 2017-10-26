@@ -16,7 +16,7 @@
                                 cache,
                                 FoundationApi,
                                 gamification,
-                                ItemService,
+                                ListingService,
                                 LocationService,
                                 loggerToServer,
                                 MediaService,
@@ -181,13 +181,13 @@
             platform.debugDev("Search from header", $rootScope.searchParams);
 
             if ($rootScope.searchParams.query) {
-                $rootScope.searchParams.fullQuery = ItemService.encodeUrlFullQuery($rootScope.searchParams.query);
+                $rootScope.searchParams.fullQuery = ListingService.encodeUrlFullQuery($rootScope.searchParams.query);
                 $rootScope.searchParams.q = $rootScope.searchParams.fullQuery;
             }
 
             $rootScope.searchFiltersConfig.showAdvancedSearch = false;
 
-            if (ItemService.isSearchState($state)) {
+            if (ListingService.isSearchState($state)) {
                 $rootScope.$emit("triggerSearch", { newQuery: true });
             } else {
                 $state.go("searchWithQuery", $rootScope.searchParams);
@@ -382,7 +382,7 @@
                     // Highlight only one of these in popover
                     var firstHighlightActionIndex = _.findIndex(nextActions, function (action) {
                         return (action.id === "A_FRIEND_REGISTERED"
-                            || action.id === "FIRST_VALID_ITEM_AD"
+                            || action.id === "FIRST_VALID_LISTING_AD"
                         );
                     });
                     if (firstHighlightActionIndex > -1) {

@@ -16,7 +16,7 @@
                                     CardService,
                                     finance,
                                     ListingCategoryService,
-                                    ItemService,
+                                    ListingService,
                                     mangopay,
                                     map,
                                     MediaService,
@@ -117,7 +117,7 @@
                 cardId                 = results.cardId;
 
                 if (currentUser.id !== results.booking.takerId) {
-                    $state.go("item", { slug: results.booking.itemId });
+                    $state.go("listing", { slug: results.booking.listingId });
                     return $q.reject("User is not taker");
                 }
 
@@ -190,14 +190,14 @@
 
                 return $q.all({
                     conversations: MessageService.getConversations({
-                        itemId: vm.booking.itemId,
+                        listingId: vm.booking.listingId,
                         senderId: currentUser.id
                     }),
-                    item: ItemService.get(vm.booking.itemId).catch(redirectToNotFoundItem),
-                    itemLocations: ItemService.getLocations(vm.booking.itemId).catch(function () { return []; })
+                    listing: ListingService.get(vm.booking.listingId).catch(redirectToNotFoundListing),
+                    listingLocations: ListingService.getLocations(vm.booking.listingId).catch(function () { return []; })
                 });
             }).then(function (results) {
-                var item = results.item;
+                var listing = results.listing;
 
                 if (results.conversations.length) {
                     // pick conversation created last
@@ -206,8 +206,8 @@
                     });
                     vm.conversation = conversations[0];
                 }
-                ItemService.populate(item, {
-                    locations: results.itemLocations,
+                ListingService.populate(listing, {
+                    locations: results.listingLocations,
                     nbDaysPricing: Math.max(nbDaysPricing, vm.booking.nbTimeUnits)
                 });
                 vm.bookingDuration  = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
@@ -216,30 +216,30 @@
 
                 // Google Analytics event
                 var gaLabel = 'bookingId: ' + vm.booking.id;
-                ga('send', 'event', 'Items', 'PaymentView', gaLabel);
+                ga('send', 'event', 'Listings', 'PaymentView', gaLabel);
 
                 // Stelace event
                 if (stelaceEventObj && stelaceEventObj.stelaceEvent) {
                     stelaceEventObj.stelaceEvent.update({
                         data: {
-                            itemId: item.id,
-                            tagsIds: item.tags,
+                            listingId: listing.id,
+                            tagsIds: listing.tags,
                             bookingId: vm.booking.id
                         }
                     });
                 }
 
-                item.owner.fullname = User.getFullname.call(item.owner);
-                vm.item             = item;
+                listing.owner.fullname = User.getFullname.call(listing.owner);
+                vm.listing             = listing;
 
-                vm.itemLocations = item.vLocations;
+                vm.listingLocations = listing.vLocations;
 
-                _.forEach(vm.itemLocations, function (location) {
+                _.forEach(vm.listingLocations, function (location) {
                     location.displayAddress = map.getPlaceName(location);
                 });
 
-                vm.listingCategoryName = ListingCategoryService.findListingCategory(item/*,listingCategories*/); // can be empty if item-view was by-passed
-                vm.notCategoryTags     = ListingCategoryService.notCategoryTags(item.completeTags, vm.listingCategoryName);
+                vm.listingCategoryName = ListingCategoryService.findListingCategory(listing/*,listingCategories*/); // can be empty if listing-view was by-passed
+                vm.notCategoryTags     = ListingCategoryService.notCategoryTags(listing.completeTags, vm.listingCategoryName);
 
                 // $timeout(function () {
                 //     vm.hideSummary = false; // for collapse
@@ -252,9 +252,9 @@
             });
         }
 
-        function redirectToNotFoundItem(err) {
+        function redirectToNotFoundListing(err) {
             if (err.status === 404) {
-                $state.go("item", { slug: vm.booking.itemId });
+                $state.go("listing", { slug: vm.booking.listingId });
                 return $q.reject("stop");
             }
         }
@@ -383,12 +383,12 @@
 
             // Register all payment attemps in Google Analytics
             var gaLabel = 'bookingId: ' + vm.booking.id;
-            ga('send', 'event', 'Items', 'PaymentAttempt', gaLabel);
+            ga('send', 'event', 'Listings', 'PaymentAttempt', gaLabel);
 
             // Facebook event
             var fbEventParams = {
-                content_ids: [vm.item.id],
-                content_name: vm.item.name,
+                content_ids: [vm.listing.id],
+                content_name: vm.listing.name,
                 content_category: ListingCategoryService.getCategoriesString(vm.listingCategoryName, vm.notCategoryTags[0]),
                 stl_transaction_type: BookingService.getFbTransactionType(vm.booking)
             };
@@ -398,8 +398,8 @@
             StelaceEvent.sendEvent("Booking payment attempt", {
                 type: "click",
                 data: {
-                    itemId: vm.item.id,
-                    tagsIds: vm.item.tags,
+                    listingId: vm.listing.id,
+                    tagsIds: vm.listing.tags,
                     targetUserId: vm.booking.ownerId,
                     bookingId: vm.booking.id
                 }
@@ -408,15 +408,15 @@
             if (! vm.conversation && ! vm.privateContent) {
                 return toastr.info("Vous devriez écrire quelques mots au propriétaire afin qu'il accepte votre demande.", "Un petit mot...");
             } else if (! vm.privateContent && ! vm.booking.acceptedDate) {
-                // Automatic message if needed when user has already booked this item before, or engaged a conversation with owner
+                // Automatic message if needed when user has already booked this listing before, or engaged a conversation with owner
                 // But don't create automatic message if already accepted by owner...
                 if (BookingService.isNoTime(vm.booking)) {
                     vm.privateContent = "Bonjour, je viens d'effectuer un paiement "
-                     + "pour acheter votre " + vm.item.name + ".\n\nAcceptez-vous ma réservation?";
+                     + "pour acheter votre " + vm.listing.name + ".\n\nAcceptez-vous ma réservation?";
                 } else {
                     vm.privateContent = "Bonjour, je viens d'effectuer un "
                      + (vm.booking.takerPrice ? "paiement " : "dépôt de garantie ")
-                     + "pour réserver votre " + vm.item.name + " du "
+                     + "pour réserver votre " + vm.listing.name + " du "
                      + vm.startDate + " au " + vm.endDate + ".\n\nAcceptez-vous ma réservation?";
                 }
             }

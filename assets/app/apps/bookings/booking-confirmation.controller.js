@@ -16,7 +16,7 @@
                                         BookingService,
                                         gamification,
                                         ListingCategoryService,
-                                        ItemService,
+                                        ListingService,
                                         map,
                                         MediaService,
                                         MessageService,
@@ -61,7 +61,7 @@
                 bookingPaymentMessages = results.bookingPaymentMessages || {};
 
                 if (vm.currentUser.id !== vm.booking.takerId) {
-                    $state.go("item", { id: vm.booking.itemId });
+                    $state.go("listing", { id: vm.booking.listingId });
                     return $q.reject("User is not taker");
                 }
 
@@ -71,20 +71,20 @@
 
                 return $q.all({
                     conversations: MessageService.getConversations({
-                        itemId: vm.booking.itemId,
+                        listingId: vm.booking.listingId,
                         senderId: vm.currentUser.id,
                         receiverId: vm.booking.ownerId,
                         bookingId: vm.booking.id
                     }),
-                    item: ItemService.get(vm.booking.itemId),
+                    listing: ListingService.get(vm.booking.listingId),
                     listingCategories: ListingCategoryService.cleanGetList(),
-                    itemLocations: ItemService.getLocations(vm.booking.itemId),
+                    listingLocations: ListingService.getLocations(vm.booking.listingId),
                     cardId: tools.getLocalData("cardId", vm.currentUser.id)
                 });
             })
             .then(function (results) {
                 var conversations  = results.conversations;
-                var item           = results.item;
+                var listing           = results.listing;
                 var listingCategories = results.listingCategories;
                 cardId             = results.cardId;
 
@@ -99,20 +99,20 @@
                     vm.conversation = conversations[0];
                 }
 
-                ItemService.populate(item, {
-                    locations: results.itemLocations
+                ListingService.populate(listing, {
+                    locations: results.listingLocations
                 });
 
-                vm.owner = item.owner;
+                vm.owner = listing.owner;
                 vm.owner.fullname = User.getFullname.call(vm.owner);
 
-                vm.itemLocations = item.vLocations;
+                vm.listingLocations = listing.vLocations;
 
-                _.forEach(vm.itemLocations, function (location) {
+                _.forEach(vm.listingLocations, function (location) {
                     location.displayAddress = map.getPlaceName(location);
                 });
 
-                vm.item            = item;
+                vm.listing            = listing;
                 vm.bookingDuration = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
 
                 if (vm.booking.startDate && vm.booking.endDate) {
@@ -123,8 +123,8 @@
                     vm.showBookingDuration = false;
                 }
 
-                vm.listingCategoryName = ListingCategoryService.findListingCategory(item, listingCategories);
-                vm.notCategoryTags     = ListingCategoryService.notCategoryTags(item.completeTags, vm.listingCategoryName);
+                vm.listingCategoryName = ListingCategoryService.findListingCategory(listing, listingCategories);
+                vm.notCategoryTags     = ListingCategoryService.notCategoryTags(listing.completeTags, vm.listingCategoryName);
 
                 var locationSearch = $location.search();
 
@@ -213,13 +213,13 @@
 
                 // Only register successful payments in Google Analytics
                 var gaLabel = 'bookingId: ' + vm.booking.id;
-                ga('send', 'event', 'Items', 'Payment', gaLabel, vm.booking.ownerPrice);
+                ga('send', 'event', 'Listings', 'Payment', gaLabel, vm.booking.ownerPrice);
                 // Facebook event
                 var fbEventParams = {
                     value: vm.booking.ownerPrice,
                     currency: "EUR",
-                    content_name: vm.item.name,
-                    content_ids: [vm.item.id],
+                    content_name: vm.listing.name,
+                    content_ids: [vm.listing.id],
                     content_category: ListingCategoryService.getCategoriesString(vm.listingCategoryName, vm.notCategoryTags[0]),
                     stl_transaction_type: BookingService.getFbTransactionType(vm.booking)
                 };
@@ -228,8 +228,8 @@
                 StelaceEvent.sendEvent("Booking payment", {
                     type: "click",
                     data: {
-                        itemId: vm.item.id,
-                        tagsIds: vm.item.tags,
+                        listingId: vm.listing.id,
+                        tagsIds: vm.listing.tags,
                         targetUserId: vm.booking.ownerId,
                         bookingId: vm.booking.id
                     }
@@ -246,7 +246,7 @@
                     return;
                 } else {
                     return MessageService.getConversations({
-                        itemId: vm.booking.itemId,
+                        listingId: vm.booking.listingId,
                         senderId: vm.currentUser.id,
                         receiver: vm.booking.ownerId,
                         bookingId: vm.booking.id

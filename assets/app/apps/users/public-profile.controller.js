@@ -14,7 +14,7 @@
                                 $stateParams,
                                 $window,
                                 gamification,
-                                ItemService,
+                                ListingService,
                                 ListingTypeService,
                                 // LocationService,
                                 loggerToServer,
@@ -33,7 +33,7 @@
         // var currentMedia;
         var user;
         var currentUser;
-        var userItems;
+        var userListings;
         var ratings;
         // var myLocations;
 
@@ -44,7 +44,7 @@
         vm.medalsLabels     = gamification.getMedalsLabels();
         vm.showGamification = StelaceConfig.isFeatureActive('GAMIFICATION');
         vm.hideMissions = true;
-        vm.itemsOnly    = !! $stateParams.itemsonly; // special layout for potential screenshots
+        vm.listingsOnly     = !! $stateParams.listingsonly; // special layout for potential screenshots
         // vm.imageToUpload      = true;
 
         // vm.uploadImage       = uploadImage;
@@ -110,37 +110,37 @@
         function _populateView() {
             return $q.all({
                 user: UserService.get(userId).catch(_redirectTo404),
-                userRatings: RatingService.getTargetUserRatings({ targetId: userId, populateItems: true }),
-                userItems: ItemService.cleanGetList({ ownerId: userId }),
+                userRatings: RatingService.getTargetUserRatings({ targetId: userId, populateListings: true }),
+                userListings: ListingService.cleanGetList({ ownerId: userId }),
                 currentUser: _fetchCurrentUser(),
                 listingTypes: ListingTypeService.cleanGetList()
                 // myImage: MediaService.getMyImage(),
-                // myItems: ItemService.getMyItems()
+                // myListings: ListingService.getMyListings()
             }).then(function (results) {
                 user        = tools.clearRestangular(results.user);
-                userItems   = results.userItems;
+                userListings   = results.userListings;
                 ratings     = results.userRatings;
                 currentUser = results.currentUser;
                 vm.listingTypes = results.listingTypes;
                 // vm.imageSrc           = results.myImage.url;
-                // vm.myItems            = results.myItems;
+                // vm.myListings         = results.myListings;
                 // oldMedia              = results.myImage;
                 var userAvgRating = user.nbRatings && Math.min(user.ratingScore / user.nbRatings, 5);
 
-                // Populate items
-                userItems = _.filter(userItems, "validated");
-                ItemService.populate(userItems, {
+                // Populate listings
+                userListings = _.filter(userListings, "validated");
+                ListingService.populate(userListings, {
                     listingTypes: vm.listingTypes
                 });
-                // Populate locations manually since it is more convenient here with full locations already populated in each item.
-                _.forEach(userItems, function (item) {
-                    item.vLocations  = item.locations;
-                    item.ownerRating = { // expected format for item-card's rating-stars
+                // Populate locations manually since it is more convenient here with full locations already populated in each listing.
+                _.forEach(userListings, function (listing) {
+                    listing.vLocations  = listing.locations;
+                    listing.ownerRating = { // expected format for item-card's rating-stars
                         ratingScore: user.ratingScore,
                         nbRatings: user.nbRatings
                     };
                 });
-                userItems = _.sortByOrder(userItems, ["updatedDate"], ["desc"]);
+                userListings = _.sortByOrder(userListings, ["updatedDate"], ["desc"]);
 
                 // Populate user
                 user.fullname    = user.getFullname();
@@ -158,7 +158,7 @@
                     } else {
                         rating.userMedia = { url: platform.getDefaultProfileImageUrl() };
                     }
-                    rating.isReview = !! (rating.comment || rating.itemComment);
+                    rating.isReview = !! (rating.comment || rating.listingComment);
                 });
                 ratings = _.sortByOrder(ratings, ["isReview", "createdDate"], ["desc", "desc"]);
                 ratings = _.pairs(_.groupBy(ratings, function (rating) {
@@ -176,7 +176,7 @@
                 vm.ratingTrust   = userAvgRating && userAvgRating >= 4;
                 vm.userAvgRating = (Math.round(userAvgRating * 10) / 10).toLocaleString();
                 vm.user          = user;
-                vm.items         = userItems;
+                vm.listings      = userListings;
 
                 return _refreshGamificationInfo();
             }).then(function () {
@@ -291,7 +291,7 @@
                 description: description
             };
 
-            if (! vm.ratings.length && ! vm.items.length) {
+            if (! vm.ratings.length && ! vm.listings.length) {
                 metaTags.robots = "noindex";
             }
 

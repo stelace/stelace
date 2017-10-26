@@ -13,7 +13,7 @@
                 booking: "=",
                 countdown: "=",
                 interlocutor: "=",
-                item: "=",
+                listing: "=",
                 isTaker: "=",
                 isOwner: "=",
                 onAccept: "=",

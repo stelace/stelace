@@ -440,7 +440,7 @@
         function _setFees() {
             var priceResult = pricing.getPriceAfterRebateAndFees({ booking: vm.booking });
 
-            vm.itemBasePrice   = priceResult.ownerPriceAfterRebate;
+            vm.listingBasePrice = priceResult.ownerPriceAfterRebate;
             vm.ownerNetIncome  = priceResult.ownerNetIncome;
             vm.ownerFeesString = vm.booking.ownerFees ? vm.booking.ownerFees + "€" : "Offerts";
             vm.takerFeesString = vm.booking.takerFees ? vm.booking.takerFees + "€" : "Offerts";

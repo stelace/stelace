@@ -19,8 +19,8 @@
 
 
 
-        function getLast(itemId) {
-            return service.customGET("last", { itemId: itemId })
+        function getLast(listingId) {
+            return service.customGET("last", { listingId: listingId })
                 .then(function (res) {
                     return res && res.id ? res : null;
                 });

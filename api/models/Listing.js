@@ -1,10 +1,10 @@
 /* global
-        Booking, Brand, ElasticsearchService, Item, ListingCategory, ListingXTag, Location, Media, ModelSnapshot, Tag,
+        Booking, Brand, ElasticsearchService, Listing, ListingCategory, ListingXTag, Location, Media, ModelSnapshot, Tag,
         ToolsService
 */
 
 /**
-* Item.js
+* Listing.js
 *
 * @description :: TODO: You might write a short summary of how this model works and what it represents here.
 * @docs        :: http://sailsjs.org/#!documentation/models
@@ -47,7 +47,6 @@ module.exports = {
             type: "text",
             maxLength: 1000
         },
-        accessories: "array",
         bookingStartDate: "string", // TODO: to remove
         bookingEndDate: "string", // TODO: to remove
         brandId: {
@@ -90,13 +89,9 @@ module.exports = {
             type: "integer",
             defaultsTo: 0
         },
-        automatedBookingValidation: { // TODO: to remove
-            type: "boolean",
-            defaultsTo: false
-        },
-        companyItem: { // TODO: to remove
-            type: "boolean",
-            defaultsTo: false
+        autoBookingAcceptation: {
+            type: 'boolean',
+            defaultsTo: false,
         },
         locations: "array",
         perimeterDurationMinutes: "integer", // TODO: to remove
@@ -152,10 +147,7 @@ module.exports = {
     },
 
     getAccessFields: getAccessFields,
-    get: get,
-    beforeValidate: beforeValidate,
     postBeforeCreate: postBeforeCreate,
-    postBeforeUpdate: postBeforeUpdate,
     afterCreate: afterCreate,
     afterUpdate: afterUpdate,
     afterDestroy: afterDestroy,
@@ -167,14 +159,9 @@ module.exports = {
     getMedias: getMedias,
     getInstructionsMedias: getInstructionsMedias,
     getTags: getTags,
-    getItemsOrSnapshots: getItemsOrSnapshots,
+    getListingsOrSnapshots: getListingsOrSnapshots,
     getListingTypesProperties: getListingTypesProperties,
     getMaxQuantity: getMaxQuantity,
-};
-
-var params = {
-    maxNbAccessories: 10,
-    maxLengthAccessoryName: 255
 };
 
 function getAccessFields(access) {
@@ -256,65 +243,31 @@ function getAccessFields(access) {
 
     return accessFields[access];
 }
-
-function get(prop) {
-    if (prop) {
-        return params[prop];
-    } else {
-        return params;
-    }
-}
-
-function beforeValidate(values, next) {
-    if (! values.accessories) {
-        next();
-        return;
-    }
-
-    if (µ.checkArray(values.accessories, "string", { maxLength: Item.get("maxLengthAccessoryName") })
-        && values.accessories.length <= Item.get("maxNbAccessories")
-    ) {
-        next();
-    } else {
-        next(new BadRequestError("item accessories bad format"));
-    }
-}
-
 function postBeforeCreate(values) {
     if (values.name) {
         values.nameURLSafe = ToolsService.getURLStringSafe(values.name);
     }
-
-    if (_.isArray(values.accessories) && ! values.accessories.length) {
-        values.accessories = null;
-    }
 }
 
-function postBeforeUpdate(values) {
-    if (_.isArray(values.accessories) && ! values.accessories.length) {
-        values.accessories = null;
-    }
-}
-
-function afterCreate(item, next) {
-    ElasticsearchService.shouldSyncItems([item.id]);
+function afterCreate(listing, next) {
+    ElasticsearchService.shouldSyncListings([listing.id]);
     next();
 }
 
-function afterUpdate(item, next) {
-    ElasticsearchService.shouldSyncItems([item.id]);
+function afterUpdate(listing, next) {
+    ElasticsearchService.shouldSyncListings([listing.id]);
     next();
 }
 
-function afterDestroy(items, next) {
-    items = _.isArray(items) ? items : [items];
-    var itemsIds = _.pluck(items, 'id');
-    ElasticsearchService.shouldSyncItems(itemsIds);
+function afterDestroy(listings, next) {
+    listings = _.isArray(listings) ? listings : [listings];
+    var listingsIds = _.pluck(listings, 'id');
+    ElasticsearchService.shouldSyncListings(listingsIds);
     next();
 }
 
-function isBookable(item) {
-    if (item.broken || item.locked) {
+function isBookable(listing) {
+    if (listing.broken || listing.locked) {
         return false;
     }
 
@@ -322,8 +275,8 @@ function isBookable(item) {
 }
 
 /**
- * get bookings from items that are paid and accepted
- * @param  {number[]} itemsIds
+ * get bookings from listings that are paid and accepted
+ * @param  {number[]} listingsIds
  * @param  {object} [args]
  * @param  {string} [args.minStartDate] - filter bookings that start after that date included
  * @param  {string} [args.maxStartDate] - filter bookings that start before that date not included
@@ -331,7 +284,7 @@ function isBookable(item) {
  * @param  {string} [args.maxEndDate]   - filter bookings that end before that date not included
  * @return {Promise<object[]>} - bookings
  */
-function getBookings(itemsIds, args) {
+function getBookings(listingsIds, args) {
     args = args || {};
 
     return Promise.coroutine(function* () {
@@ -347,7 +300,7 @@ function getBookings(itemsIds, args) {
             findAttrs.endDate = endPeriod;
         }
 
-        findAttrs.itemId         = itemsIds;
+        findAttrs.listingId         = listingsIds;
         findAttrs.cancellationId = null;
         findAttrs.paidDate       = { '!': null };
         findAttrs.acceptedDate   = { '!': null };
@@ -358,44 +311,44 @@ function getBookings(itemsIds, args) {
     })();
 }
 
-function getFutureBookings(itemIdOrIds, refDate) {
+function getFutureBookings(listingIdOrIds, refDate) {
     return Promise.coroutine(function* () {
         var onlyOne;
-        var itemsIds;
+        var listingsIds;
 
-        if (_.isArray(itemIdOrIds)) {
-            itemsIds = _.uniq(itemIdOrIds);
+        if (_.isArray(listingIdOrIds)) {
+            listingsIds = _.uniq(listingIdOrIds);
             onlyOne = false;
         } else {
-            itemsIds = [itemIdOrIds];
+            listingsIds = [listingIdOrIds];
             onlyOne = true;
         }
 
         // get bookings that end after the ref date
-        var bookings = yield getBookings(itemsIds, { minEndDate: refDate });
+        var bookings = yield getBookings(listingsIds, { minEndDate: refDate });
 
-        var hashBookings = _.groupBy(bookings, "itemId");
+        var hashBookings = _.groupBy(bookings, "listingId");
 
-        hashBookings = _.reduce(itemsIds, function (memo, itemId) {
-            memo[itemId] = hashBookings[itemId] || [];
+        hashBookings = _.reduce(listingsIds, function (memo, listingId) {
+            memo[listingId] = hashBookings[listingId] || [];
             return memo;
         }, {});
 
         if (onlyOne) {
-            return hashBookings[itemIdOrIds];
+            return hashBookings[listingIdOrIds];
         } else {
             return hashBookings;
         }
     })();
 }
 
-function updateTags(item, tagIds) {
+function updateTags(listing, tagIds) {
     return Promise.coroutine(function* () {
         if (! µ.checkArray(tagIds, "id")) {
             throw new BadRequestError();
         }
 
-        var listingXTags = yield ListingXTag.find({ listingId: item.id });
+        var listingXTags = yield ListingXTag.find({ listingId: listing.id });
 
         var oldTagIds     = _.pluck(listingXTags, "tagId");
         var addedTagIds   = _.difference(tagIds, oldTagIds);
@@ -404,21 +357,21 @@ function updateTags(item, tagIds) {
         if (addedTagIds.length) {
             yield Promise.each(addedTagIds, tagId => {
                 return ListingXTag.create({
-                    listingId: item.id,
+                    listingId: listing.id,
                     tagId: tagId
                 });
             });
         }
         if (removedTagIds.length) {
             yield ListingXTag.destroy({
-                listingId: item.id,
+                listingId: listing.id,
                 tagId: removedTagIds
             });
         }
 
-        ElasticsearchService.shouldSyncItems([item.id]);
+        ElasticsearchService.shouldSyncListings([listing.id]);
 
-        return item;
+        return listing;
     })();
 }
 
@@ -442,15 +395,15 @@ function isValidReferences(args) {
 }
 
 /**
- * get medias from items
- * @param  {object[]} items
+ * get medias from listings
+ * @param  {object[]} listings
  * @return {object}   hashMedias
- * @return {object[]} hashMedias[itemId] - item medias
+ * @return {object[]} hashMedias[listingId] - listing medias
  */
-function getMedias(items) {
+function getMedias(listings) {
     return Promise.coroutine(function* () {
-        var mediasIds = _.reduce(items, function (memo, item) {
-            memo = memo.concat(item.mediasIds || []);
+        var mediasIds = _.reduce(listings, function (memo, listing) {
+            memo = memo.concat(listing.mediasIds || []);
             return memo;
         }, []);
         mediasIds = _.uniq(mediasIds);
@@ -458,9 +411,9 @@ function getMedias(items) {
         var medias = yield Media.find({ id: mediasIds });
         var indexedMedias = _.indexBy(medias, "id");
 
-        return _.reduce(items, function (memo, item) {
-            if (! memo[item.id]) { // in case there are duplicate items in items array
-                memo[item.id] = _.reduce(item.mediasIds || [], function (memo2, mediaId) {
+        return _.reduce(listings, function (memo, listing) {
+            if (! memo[listing.id]) { // in case there are duplicate listings in listings array
+                memo[listing.id] = _.reduce(listing.mediasIds || [], function (memo2, mediaId) {
                     var media = indexedMedias[mediaId];
                     if (media) {
                         memo2.push(media);
@@ -475,15 +428,15 @@ function getMedias(items) {
 }
 
 /**
- * get instructions medias from items
- * @param  {object[]} items
+ * get instructions medias from listings
+ * @param  {object[]} listings
  * @return {object}   hashMedias
- * @return {object[]} hashMedias[itemId] - item instructions medias
+ * @return {object[]} hashMedias[listingId] - listing instructions medias
  */
-function getInstructionsMedias(items) {
+function getInstructionsMedias(listings) {
     return Promise.coroutine(function* () {
-        var mediasIds = _.reduce(items, function (memo, item) {
-            memo = memo.concat(item.instructionsMediasIds || []);
+        var mediasIds = _.reduce(listings, function (memo, listing) {
+            memo = memo.concat(listing.instructionsMediasIds || []);
             return memo;
         }, []);
         mediasIds = _.uniq(mediasIds);
@@ -491,9 +444,9 @@ function getInstructionsMedias(items) {
         var medias = yield Media.find({ id: mediasIds });
         var indexedMedias = _.indexBy(medias, "id");
 
-        return _.reduce(items, function (memo, item) {
-            if (! memo[item.id]) {
-                memo[item.id] = _.reduce(item.instructionsMediasIds || [], function (memo2, mediaId) {
+        return _.reduce(listings, function (memo, listing) {
+            if (! memo[listing.id]) {
+                memo[listing.id] = _.reduce(listing.instructionsMediasIds || [], function (memo2, mediaId) {
                     var media = indexedMedias[mediaId];
                     if (media) {
                         memo2.push(media);
@@ -507,19 +460,19 @@ function getInstructionsMedias(items) {
     })();
 }
 
-function getTags(itemOrItems, completeObj) {
-    var items;
+function getTags(listingOrListings, completeObj) {
+    var listings;
 
-    if (_.isArray(itemOrItems)) {
-        items = itemOrItems;
+    if (_.isArray(listingOrListings)) {
+        listings = listingOrListings;
     } else {
-        items = [itemOrItems];
+        listings = [listingOrListings];
     }
 
     return Promise
         .resolve()
         .then(() => {
-            return ListingXTag.find({ listingId: _.pluck(items, "id") });
+            return ListingXTag.find({ listingId: _.pluck(listings, "id") });
         })
         .then(listingXTags => {
             var getTags = () => {
@@ -540,82 +493,82 @@ function getTags(itemOrItems, completeObj) {
         .spread((listingXTags, tags) => {
             var hashTags = _.indexBy(tags, "id");
 
-            var hashListingXTags = _.reduce(listingXTags, function (memo, itemXTag) {
-                if (memo[itemXTag.listingId]) {
-                    memo[itemXTag.listingId].push(itemXTag.tagId);
+            var hashListingXTags = _.reduce(listingXTags, function (memo, listingXTag) {
+                if (memo[listingXTag.listingId]) {
+                    memo[listingXTag.listingId].push(listingXTag.tagId);
                 } else {
-                    memo[itemXTag.listingId] = [itemXTag.tagId];
+                    memo[listingXTag.listingId] = [listingXTag.tagId];
                 }
                 return memo;
             }, {});
 
 
-            _.forEach(items, function (item) {
-                if (hashListingXTags[item.id]) {
-                    item.tags = hashListingXTags[item.id];
+            _.forEach(listings, function (listing) {
+                if (hashListingXTags[listing.id]) {
+                    listing.tags = hashListingXTags[listing.id];
                 } else {
-                    item.tags = [];
+                    listing.tags = [];
                 }
 
                 if (completeObj) {
-                    item.completeTags = _.map(item.tags, function (tagId) {
+                    listing.completeTags = _.map(listing.tags, function (tagId) {
                         return hashTags[tagId];
                     });
                 }
             });
 
-            return itemOrItems;
+            return listingOrListings;
         });
 }
 
-function getItemsOrSnapshots(itemIdOritemsIds) {
-    var itemsIds;
+function getListingsOrSnapshots(listingIdOrListingsIds) {
+    var listingsIds;
     var onlyOne;
 
-    if (_.isArray(itemIdOritemsIds)) {
-        itemsIds = _.uniq(itemIdOritemsIds);
+    if (_.isArray(listingIdOrListingsIds)) {
+        listingsIds = _.uniq(listingIdOrListingsIds);
         onlyOne  = false;
     } else {
-        itemsIds = [itemIdOritemsIds];
+        listingsIds = [listingIdOrListingsIds];
         onlyOne  = true;
     }
 
-    itemsIds = _.map(itemsIds, function (itemId) {
-        return parseInt(itemId, 10);
+    listingsIds = _.map(listingsIds, function (listingId) {
+        return parseInt(listingId, 10);
     });
 
     return Promise.coroutine(function* () {
-        var items = yield Item.find({ id: itemsIds });
+        var listings = yield Listing.find({ id: listingsIds });
 
-        var foundItemsIds    = _.pluck(items, "id");
-        var notFoundItemsIds = _.difference(itemsIds, foundItemsIds);
+        var foundListingsIds    = _.pluck(listings, "id");
+        var notFoundListingsIds = _.difference(listingsIds, foundListingsIds);
 
-        // no need to get snapshots if all items are found
-        if (itemsIds.length === foundItemsIds.length) {
+        // no need to get snapshots if all listings are found
+        if (listingsIds.length === foundListingsIds.length) {
             if (onlyOne) {
-                return items[0];
+                return listings[0];
             } else {
-                return items;
+                return listings;
             }
         }
 
-        var itemsSnapshots = yield getSnapshots(notFoundItemsIds);
-        items = items.concat(itemsSnapshots);
+        var listingsSnapshots = yield getSnapshots(notFoundListingsIds);
+        listings = listings.concat(listingsSnapshots);
 
         if (onlyOne) {
-            return items[0];
+            return listings[0];
         } else {
-            return items;
+            return listings;
         }
     })();
 }
 
-function getSnapshots(itemsIds) {
+function getSnapshots(listingsIds) {
     return Promise.coroutine(function* () {
         var snapshots = yield ModelSnapshot
             .find({
-                targetType: "item",
-                targetId: itemsIds
+                targetType: "listing",
+                targetId: listingsIds
             })
             .sort({ createdDate: -1 });
 
@@ -625,8 +578,8 @@ function getSnapshots(itemsIds) {
 
         var groupSnapshots = _.groupBy(snapshots, "id");
 
-        return _.reduce(itemsIds, (memo, itemId) => {
-            var snapshots = groupSnapshots[itemId];
+        return _.reduce(listingsIds, (memo, listingId) => {
+            var snapshots = groupSnapshots[listingId];
 
             // only keep the most recent snapshot
             if (snapshots && snapshots.length) {
@@ -638,8 +591,8 @@ function getSnapshots(itemsIds) {
     })();
 }
 
-function getListingTypesProperties(item, listingTypes) {
-    return _.reduce(item.listingTypesIds, (memo, listingTypeId) => {
+function getListingTypesProperties(listing, listingTypes) {
+    return _.reduce(listing.listingTypesIds, (memo, listingTypeId) => {
         const listingType = _.find(listingTypes, l => l.id === listingTypeId);
         if (listingType) {
             _.forEach(listingType.properties, (property, key) => {
@@ -651,13 +604,13 @@ function getListingTypesProperties(item, listingTypes) {
     }, {});
 }
 
-function getMaxQuantity(item, listingType) {
+function getMaxQuantity(listing, listingType) {
     const { AVAILABILITY } = listingType.properties;
 
     let maxQuantity;
 
     if (AVAILABILITY === 'STOCK') {
-        maxQuantity = item.quantity;
+        maxQuantity = listing.quantity;
     } else if (AVAILABILITY === 'UNIQUE') {
         maxQuantity = 1;
     } else { // AVAILABILITY === 'NONE'

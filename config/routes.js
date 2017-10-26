@@ -103,16 +103,16 @@ module.exports.routes = {
     'get /api/gamification/stats': "GamificationController.getStats",
     'put /api/gamification/progressView': "GamificationController.updateProgressView",
 
-    // ItemController
-    'get /api/item/query': "ItemController.query",
-    'get /api/item/my': "ItemController.my",
-    'put /api/item/:id/medias': "ItemController.updateMedias",
-    'post /api/item/search': 'ItemController.search',
-    'get /api/item/:id/locations': "ItemController.getLocations",
-    'get /api/item/pricing': "ItemController.getPricing",
-    'get /api/item/price-recommendation': "ItemController.getRecommendedPrices",
-    'post /api/item/renting-price': "ItemController.getRentingPriceFromSellingPrice",
-    'put /api/item/:id/pause': "ItemController.pauseItemToggle",
+    // ListingController
+    'get /api/listing/query': "ListingController.query",
+    'get /api/listing/my': "ListingController.my",
+    'put /api/listing/:id/medias': "ListingController.updateMedias",
+    'post /api/listing/search': 'ListingController.search',
+    'get /api/listing/:id/locations': "ListingController.getLocations",
+    'get /api/listing/pricing': "ListingController.getPricing",
+    'get /api/listing/price-recommendation': "ListingController.getRecommendedPrices",
+    'post /api/listing/renting-price': "ListingController.getRentingPriceFromSellingPrice",
+    'put /api/listing/:id/pause': "ListingController.pauseListingToggle",
 
     // LinkController
     'post /api/link/referredBy': "LinkController.createReferredBy",
@@ -137,7 +137,7 @@ module.exports.routes = {
     'get /api/message/conversation': "MessageController.conversation",
     'get /api/message/conversation-meta': "MessageController.conversationMeta",
     'get /api/message/get-conversations': "MessageController.getConversations",
-    'get /api/message/item': "MessageController.getPublicMessages",
+    'get /api/message/listing': "MessageController.getPublicMessages",
     'put /api/message/:id/mark-read': "MessageController.markAsRead",
     'put /api/message/:id/update-meta': "MessageController.updateMeta",
 

@@ -10,7 +10,7 @@
 
         $stateProvider
             .state("user", {
-                url: "/user/:id?itemsonly",
+                url: "/user/:id?listingsonly",
                 templateUrl: appsPath + "/users/public-profile.html",
                 controller: "PublicProfileController",
                 controllerAs: "vm",

@@ -1,4 +1,4 @@
-/* global Booking, Item, Rating */
+/* global Booking, Listing, Rating */
 
 module.exports = {
 
@@ -7,8 +7,8 @@ module.exports = {
 
 };
 
-async function getListingHistories(itemsIds) {
-    const bookings = await Item.getBookings(itemsIds);
+async function getListingHistories(listingsIds) {
+    const bookings = await Listing.getBookings(listingsIds);
     const bookingsIds = _.pluck(bookings, 'id');
 
     const [
@@ -19,12 +19,12 @@ async function getListingHistories(itemsIds) {
         Rating.find({ bookingId: bookingsIds }),
     ]);
 
-    const groupBookings = _.groupBy(bookings, 'itemId');
+    const groupBookings = _.groupBy(bookings, 'listingId');
     const groupRatings = _.groupBy(ratings, 'bookingId');
 
-    return _.reduce(itemsIds, (memo, itemId) => {
-        const itemBookings = groupBookings[itemId] || [];
-        memo[itemId] = new ListingHistory(itemBookings, {
+    return _.reduce(listingsIds, (memo, listingId) => {
+        const listingBookings = groupBookings[listingId] || [];
+        memo[listingId] = new ListingHistory(listingBookings, {
             hashBookings,
             groupRatings,
         });
@@ -66,7 +66,7 @@ function ListingHistory(bookings, { hashBookings, groupRatings }) {
 }
 
 /**
- * get the list of assessments of the item journey
+ * get the list of assessments of the listing history
  * @param  {boolean}  [signed = false]
  * @return {object[]} assessments
  */

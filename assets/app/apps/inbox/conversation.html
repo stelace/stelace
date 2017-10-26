@@ -31,7 +31,7 @@
                             ng-required="! vm.promptPublic"
                             sip-textarea-auto-adjust>
                         </textarea>
-                        <label class="margin-bottom text-justify" ng-if="vm.promptPublic">Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.item.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:</label>
+                        <label class="margin-bottom text-justify" ng-if="vm.promptPublic">Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.listing.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:</label>
                         <textarea name="publicMessage"
                             rows="5"
                             ng-if="vm.promptPublic"
@@ -55,13 +55,13 @@
                 </div>
 
                 <sip-cta-box
-                    ng-if="vm.showDuplicateActionMessage && ! vm.item.snapshot"
+                    ng-if="vm.showDuplicateActionMessage && ! vm.listing.snapshot"
                     message="vm.duplicateActionMessage"
                     conversation="vm.conversation"
                     booking="vm.duplicateActionMessage.booking"
                     countdown="vm.countdown"
                     interlocutor="vm.interlocutor"
-                    item="vm.item"
+                    listing="vm.listing"
                     is-taker="vm.duplicateActionMessage.isTaker"
                     is-owner="vm.duplicateActionMessage.isOwner"
                     on-accept="vm.acceptBooking"
@@ -103,13 +103,13 @@
                                 <div class="flex-container f-share-card">
                                     <div class="f-share-card__image-container">
                                         <div class="ar-content">
-                                            <img ng-src="{{vm.item.url + '?size=400x300'}}" alt=" {{ vm.item.name }}"
+                                            <img ng-src="{{vm.listing.url + '?size=400x300'}}" alt=" {{ vm.listing.name }}"
                                                 class="f-share-card__image img--cover-vertical">
                                         </div>
                                     </div>
                                     <div class="f-share-card__content flex-item--grow flex-container flex--column flex--space-between">
                                         <div class="text--semibold ellipsis">
-                                            {{ vm.item.name }}
+                                            {{ vm.listing.name }}
                                         </div>
                                         <div class="text--small ellipsis">
                                             A emprunter sur Sharinplace
@@ -147,7 +147,7 @@
                         previous-assessment="vm.assessmentOutput.previousAssessment"
                         assessment="vm.assessmentOutput.assessment"
                         booking="vm.booking"
-                        item="vm.item"
+                        listing="vm.listing"
                         interlocutor="vm.interlocutor"
                         ratings="vm.assessmentOutput.ratings"
                         show-form="vm.assessmentOutput.showForm">
@@ -160,7 +160,7 @@
                         assessment="vm.assessmentInput.assessment"
                         booking="vm.booking"
                         bank-account-missing="vm.bankAccountMissing"
-                        item="vm.item"
+                        listing="vm.listing"
                         interlocutor="vm.interlocutor"
                         ratings="vm.assessmentInput.ratings"
                         show-form="vm.assessmentInput.showForm">
@@ -177,7 +177,7 @@
                         booking="message.booking"
                         countdown="vm.countdown"
                         interlocutor="vm.interlocutor"
-                        item="vm.item"
+                        listing="vm.listing"
                         is-taker="message.isTaker"
                         is-owner="message.isOwner"
                         on-accept="vm.acceptBooking"
@@ -263,33 +263,33 @@
                         </div>
                     </div>
                     <div class="conversation__item"
-                        ng-if="vm.item">
+                        ng-if="vm.listing">
                         <div class="plain-card__divider">
                             <!-- TODO: request owner identity in controller -->
                             <h3 class="ellipsis">
-                                {{vm.isOwner ? "Votre objet" : (vm.item.ownerId === 1 ? "Objet Sharinplace" : "Objet de " + (vm.interlocutor.firstname || vm.interlocutor.fullname))}}
+                                {{vm.isOwner ? "Votre objet" : (vm.listing.ownerId === 1 ? "Objet Sharinplace" : "Objet de " + (vm.interlocutor.firstname || vm.interlocutor.fullname))}}
                             </h3>
                         </div>
                         <div class="card-section flex-container desktop-vertical">
                             <div class="item-image small-4 s-medium-3 desktop-12">
                                 <div class="ar-content"
-                                    ui-sref="item(::{ slug: vm.itemSlug })">
-                                    <sip-img ng-src="{{vm.item.url + '?size=400x300'}}" type="background"></sip-img>
+                                    ui-sref="listing(::{ slug: vm.listingSlug })">
+                                    <sip-img ng-src="{{vm.listing.url + '?size=400x300'}}" type="background"></sip-img>
                                 </div>
                             </div>
                             <div class="text--small padded-sides padding-top padding-bottom">
                                 <h3 class="item-name"
-                                    ui-sref="item(::{ slug: vm.itemSlug })">
-                                    {{::vm.item.name}}
+                                    ui-sref="listing(::{ slug: vm.listingSlug })">
+                                    {{::vm.listing.name}}
                                 </h3>
-                                <div ng-if="vm.item.owner && vm.itemLocations.length">
+                                <div ng-if="vm.listing.owner && vm.listingLocations.length">
                                     <div class="margin-top margin-bottom">
-                                        {{ vm.isTaker ? (vm.item.owner.firstname || vm.item.owner.fullname) + " est susceptible d'être disponible" : "Vous avez indiqué que cet objet pouvait être disponible" }}
-                                        <span ng-if="vm.itemLocations.length > 1">aux lieux suivants&nbsp;:</span>
-                                        <span ng-if="vm.itemLocations.length <= 1">au lieu suivant&nbsp;:</span>
+                                        {{ vm.isTaker ? (vm.listing.owner.firstname || vm.listing.owner.fullname) + " est susceptible d'être disponible" : "Vous avez indiqué que cet objet pouvait être disponible" }}
+                                        <span ng-if="vm.listingLocations.length > 1">aux lieux suivants&nbsp;:</span>
+                                        <span ng-if="vm.listingLocations.length <= 1">au lieu suivant&nbsp;:</span>
                                     </div>
                                     <div class="margin-bottom-plus booking-summary__locations">
-                                        <span ng-repeat="loc in vm.itemLocations">{{::(loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : ""))}}<br></span>
+                                        <span ng-repeat="loc in vm.listingLocations">{{::(loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : ""))}}<br></span>
                                     </div>
                                 </div>
                             </div>
@@ -297,7 +297,7 @@
                     </div>
                 </div>
                 <div class="conversation__helper-wrapper">
-                    <div ng-if="vm.interlocutor.id === vm.item.ownerId">
+                    <div ng-if="vm.interlocutor.id === vm.listing.ownerId">
                         <h3>Sécurisez vos emprunts</h3>
                         <p class="text--small">
                             N'effectuez jamais de réservation ou de dépôt de garantie avec d'autres membres en dehors du site Web Sharinplace.
@@ -306,7 +306,7 @@
                             En ne passant pas par Sharinplace, vous perdriez accès à notre service de paiement sécurisé, à notre politique d'annulation avantageuse et à notre assistance.
                         </p>
                     </div>
-                    <div ng-if="vm.interlocutor.id !== vm.item.ownerId">
+                    <div ng-if="vm.interlocutor.id !== vm.listing.ownerId">
                         <h3>Garantissez vos paiements</h3>
                         <p class="text--small">
                             N'effectuez jamais de transactions en dehors du site Web Sharinplace.
