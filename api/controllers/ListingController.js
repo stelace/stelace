@@ -197,8 +197,6 @@ async function create(req, res) {
         "stateComment",
         "bookingPreferences",
         "accessories",
-        "bookingStartDate",
-        "bookingEndDate",
         "brandId",
         "listingCategoryId",
         "validation",
@@ -305,8 +303,6 @@ async function update(req, res) {
         "stateComment",
         "bookingPreferences",
         "accessories",
-        "bookingStartDate",
-        "bookingEndDate",
         "brandId",
         "listingCategoryId",
         "locations",
@@ -367,7 +363,6 @@ async function update(req, res) {
         if (! validReferences
             || ! validLocations
             || ! validTags
-            || listing.soldDate
         ) {
             throw new BadRequestError();
         }

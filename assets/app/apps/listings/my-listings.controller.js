@@ -388,17 +388,17 @@
 
         function _initListing() {
             if (! listing && ! newListingTmp) { // new listing from scratch
-                vm.listing                     = {};
+                vm.listing                  = {};
                 vm.listingMedias            = [];
                 vm.stepProgress             = 0;
                 vm.step2                    = false;
                 vm.step3                    = false;
-                vm.saveListingBtnDisabled      = false;
+                vm.saveListingBtnDisabled   = false;
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
                 vm.mediasMaxNbReached       = false;
-                vm.listing.listingTypesIds     = [];
+                vm.listing.listingTypesIds  = [];
                 stepProgressDone            = {};
 
                 vm.listingFullValidation       = true;
@@ -417,16 +417,16 @@
 
                 vm.listingTags = [];
             } else if (! listing && newListingTmp) { // when using local storage
-                vm.listing                     = _.cloneDeep(newListingTmp);
-                vm.listingMedias               = [];
+                vm.listing                  = _.cloneDeep(newListingTmp);
+                vm.listingMedias            = [];
                 vm.stepProgress             = 0;
                 vm.step2                    = false;
                 vm.step3                    = false;
-                vm.saveListingBtnDisabled      = false;
+                vm.saveListingBtnDisabled   = false;
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
-                vm.listing.listingTypesIds     = vm.listing.listingTypesIds || [];
+                vm.listing.listingTypesIds  = vm.listing.listingTypesIds || [];
                 stepProgressDone            = {};
                 vm.mediasMaxNbReached       = false;
 
@@ -470,11 +470,11 @@
                     listingTypes: vm.listingTypes
                 });
 
-                vm.listingMedias               = vm.listing.medias;
+                vm.listingMedias            = vm.listing.medias;
                 vm.stepProgress             = 100;
                 vm.step2                    = true;
                 vm.step3                    = true;
-                vm.saveListingBtnDisabled      = !! listing.soldDate;
+                vm.saveListingBtnDisabled   = !listing.quantity;
                 vm.validPrice               = true;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;

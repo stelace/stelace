@@ -1,4 +1,4 @@
-/* global BootstrapService, Listing, ListingType */
+/* global BootstrapService, ListingType */
 
 const Sails = require('sails');
 
@@ -93,19 +93,19 @@ Sails.load({
             // do nothing
         }
 
-        const listings = await Listing.find({ listingTypesIds: null });
-        await Promise.map(listings, listing => {
-            const updateAttrs = {
-                listingTypesIds: [],
-            };
-            if (listing.rentable) {
-                updateAttrs.listingTypesIds.push(indexedListingTypes['RENTING'].id);
-            }
-            if (listing.sellable) {
-                updateAttrs.listingTypesIds.push(indexedListingTypes['SELLING'].id);
-            }
-            return Listing.updateOne(listing.id, updateAttrs);
-        });
+        // const listings = await Listing.find({ listingTypesIds: null });
+        // await Promise.map(listings, listing => {
+        //     const updateAttrs = {
+        //         listingTypesIds: [],
+        //     };
+        //     if (listing.rentable) {
+        //         updateAttrs.listingTypesIds.push(indexedListingTypes['RENTING'].id);
+        //     }
+        //     if (listing.sellable) {
+        //         updateAttrs.listingTypesIds.push(indexedListingTypes['SELLING'].id);
+        //     }
+        //     return Listing.updateOne(listing.id, updateAttrs);
+        // });
     } catch (err) {
         console.log(err);
 

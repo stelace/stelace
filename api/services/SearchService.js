@@ -186,7 +186,7 @@ async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
         findAttrs.sort = { id: -1 };
     }
 
-    findAttrs.soldDate = null;
+    findAttrs.quantity = { '>': 0 };
 
     let listings = await Listing.find(findAttrs);
 

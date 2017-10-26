@@ -24,7 +24,7 @@
                     <h1 id="item-name"
                         class="user-generated"
                         itemprop="name">
-                        {{::vm.listing.name}} <span ng-if="vm.listing.name">{{vm.listing.soldDate ? "a trouvé un nouveau propriétaire" : "n'est plus disponible"}}&nbsp;</span>
+                        {{::vm.listing.name}} <span ng-if="vm.listing.name">{{!vm.listing.quantity ? "a trouvé un nouveau propriétaire" : "n'est plus disponible"}}&nbsp;</span>
                     </h1>
                     <div>
                         <span class="bigger"

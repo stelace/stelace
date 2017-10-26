@@ -47,8 +47,6 @@ module.exports = {
             type: "text",
             maxLength: 1000
         },
-        bookingStartDate: "string", // TODO: to remove
-        bookingEndDate: "string", // TODO: to remove
         brandId: {
             type: "integer",
             index: true
@@ -94,7 +92,6 @@ module.exports = {
             defaultsTo: false,
         },
         locations: "array",
-        perimeterDurationMinutes: "integer", // TODO: to remove
         broken: {
             type: "boolean",
             defaultsTo: false
@@ -105,24 +102,14 @@ module.exports = {
         },
         publishedDate: 'string',
         pausedUntil: "string",
-        ownerRecallDate: "string", // TODO: to remove
         listingTypesIds: {
             type: 'array',
             defaultsTo: [],
-        },
-        rentable: { // TODO: to remove
-            type: "boolean",
-            defaultsTo: true
-        },
-        sellable: { // TODO: to remove
-            type: "boolean",
-            defaultsTo: false
         },
         quantity: {
             type: 'integer',
             defaultsTo: 1,
         },
-        soldDate: "string",
         sellingPrice: {
             type: "float"
         },
@@ -194,7 +181,6 @@ function getAccessFields(access) {
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
-            "soldDate",
             "dayOnePrice",
             "sellingPrice",
             "pricingId",
@@ -228,7 +214,6 @@ function getAccessFields(access) {
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
-            "soldDate",
             "dayOnePrice",
             "sellingPrice",
             "pricingId",
