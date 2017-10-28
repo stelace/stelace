@@ -15,13 +15,9 @@
                                 authentication,
                                 authenticationModal,
                                 cache,
-                                // FeedbackService,
                                 FoundationApi,
                                 gamification,
                                 MediaService,
-                                // Modal,
-                                // toastr,
-                                // tools,
                                 referral,
                                 StelaceConfig,
                                 StelaceEvent,
@@ -33,8 +29,6 @@
         var header    = angular.element($document[0].getElementById("header-container"));
         var offcanvas = $document[0].getElementById("offcanvas-menu");
         var content   = offcanvas.children[0];
-        // var feedbackModal;
-        // var creatingFeedback;
 
         var vm = this;
         vm.isAuthenticated  = false;
@@ -47,13 +41,10 @@
         vm.newMessagesCount = 0;
         vm.showGamification = StelaceConfig.isFeatureActive('GAMIFICATION');
         vm.showReferral     = StelaceConfig.isFeatureActive('REFERRAL');
-        // vm.feedbackMessage = "";
 
         vm.authenticate      = authenticate;
         vm.closeMenu         = closeMenu;
         vm.logout            = logout;
-        // vm.showFeedbackModal = showFeedbackModal;
-        // vm.createFeedback    = createFeedback;
 
         var memberLinks = [];
 
@@ -212,9 +203,6 @@
                     listener();
                 });
                 document.off("touchmove wheel", _lockBodyScroll);
-                // if (feedbackModal) {
-                //     feedbackModal.destroy();
-                // }
                 offcanvas = null;
                 document  = null;
                 root      = null;
@@ -266,39 +254,6 @@
                 e.stopPropagation();
             }
         }
-
-        // function showFeedbackModal() {
-        //     if (! feedbackModal) {
-        //         feedbackModal = new Modal({
-        //             id: "feedback-modal",
-        //             className: "dialog large",
-        //             templateUrl: "/assets/app/modals/feedback.html",
-        //             contentScope: {
-        //                 vm: vm
-        //             }
-        //         });
-        //     }
-        //     feedbackModal.activate();
-        // }
-
-        // function createFeedback() {
-        //     if (! vm.feedbackMessage || creatingFeedback) {
-        //         return;
-        //     }
-
-        //     creatingFeedback = true;
-
-        //     FeedbackService.post({
-        //         message: vm.feedbackMessage
-        //     }).then(function () {
-        //         vm.feedbackMessage = "";
-        //         feedbackModal.destroy();
-        //         feedbackModal = null;
-        //         toastr.success("Merci d'avoir donné votre avis!");
-        //     }).finally(function () {
-        //         creatingFeedback = false;
-        //     });
-        // }
     }
 
 })();
