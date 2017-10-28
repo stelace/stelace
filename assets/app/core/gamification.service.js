@@ -56,8 +56,7 @@
                 sref: "invite"
             },
             "EXTERNAL_REVIEW": {
-                name: "Donner mon avis sur un autre site (ex: Avis Google, Facebook...)",
-                href: "https://www.google.fr/search?q=Sharinplace"
+                name: "Donner mon avis sur un autre site (ex: Avis Google, Facebook...)"
             },
             "FEEDBACK": {
                 name: "Envoyer mes idées ou suggestions à l'équipe Sharinplace",

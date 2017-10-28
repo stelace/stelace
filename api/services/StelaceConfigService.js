@@ -16,7 +16,7 @@ module.exports = {
 };
 
 const defaultConfig = sails.config.stelace.defaultConfig || {
-    siteName: null,
+    SERVICE_NAME: null,
 };
 const defaultFeatures = sails.config.stelace.defaultFeatures || {
     GAMIFICATION: true,

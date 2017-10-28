@@ -1229,12 +1229,7 @@
         }
 
         function _checkAuth(customGreeting) {
-            var authModalOptions = {
-                greeting: customGreeting || ("Connectez-vous en quelques secondes pour réserver \"" + vm.listing.name + "\"."),
-                preventSubscriptionRedirect: true
-            };
-
-            return authenticationModal.process("register", authModalOptions)
+            return authenticationModal.process("register")
                 .then(function (isAuthenticated) {
                     // promise resolved to true or false only
                     if (isAuthenticated === false && ! customGreeting) {

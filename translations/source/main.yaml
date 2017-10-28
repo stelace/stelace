@@ -12,8 +12,92 @@ stelace:
         fr: "Lanceur de marketplaces intelligentes"
 service:
     meta_description:
-        en: "{service_name} runs on {provider_name}."
-        fr: "{service_name} est une communauté propulsé par {provider_name}"
+        en: "{SERVICE_NAME} runs on {provider_name}."
+        fr: "{SERVICE_NAME} est une communauté propulsé par {provider_name}"
+authentication:
+    log_in_button:
+        en: "Log In"
+        fr: "Connexion"
+    sign_up_button:
+        en: "Sign Up"
+        fr: "Inscription"
+    lost_password_button:
+        en: "Forgot password?"
+        fr: "Mot de passe oublié"
+    lost_password_message:
+        en: "Please enter the email address associated with your account. We’ll email you a link to reset your password."
+        fr: "Veuillez renseigner votre adresse email afin de redéfinir votre mot de passe."
+    lost_password_email_sent:
+        en: "A password reset link has just been sent to you."
+        fr: "Un email contenant un lien de redéfinition de mot de passe vient de vous être envoyé."
+    log_in_required_message:
+        en: "Please connect to {SERVICE_NAME} to continue."
+        fr: "Veuillez renseigner vos identifiants {SERVICE_NAME} pour continuer."
+    no_account_message:
+        en: "Don’t have an account?"
+        fr: "Vous n’avez pas de compte ?"
+    existing_account_message:
+        en: "Already have an account?"
+        fr: "Déjà inscrit(e) ?"
+    sign_up_greeting:
+        en: "Create your {SERVICE_NAME} account in no time."
+        fr: "Créez votre compte {SERVICE_NAME} en quelques secondes."
+    terms_optin:
+        en: "I agree to the Terms of Service applicable on {SERVICE_NAME}."
+        fr: "J’accepte les conditions d’utilisation de {SERVICE_NAME}."
+    or_social_auth_separator:
+        en: "Or"
+        fr: "Ou"
+        context: "Separator between standard (email) authentication and social authentication (such as Facebook)"
+    social_auth_button:
+        en: "Continue {network_name, select,
+            Google{with Google}
+            Facebook{with Facebook}
+            other{}
+        }"
+        fr: "Se connecter {network_name, select,
+            Google{avec Google}
+            Facebook{avec Facebook}
+            other{}
+        }"
+    placeholder:
+        email:
+            en: "Email Address"
+            fr: "Adresse e-mail"
+        password:
+            en: "Password"
+            fr: "Mot de passe"
+        create_password:
+            en: "Create a password"
+            fr: "Choisissez votre mot de passe"
+            context: "Password placeholder showed when user is signing up."
+    email_checked:
+        en: "Your email address is now verified."
+        fr: "Votre adresse email a bien été validée."
+    password_reset:
+        message:
+            en: "Please enter your new password."
+            fr: "Veuillez indiquer votre nouveau mot de passe."
+        already_reset:
+            en: "You’ve already reset your password with this link."
+            fr: "Ce lien de redéfinition de mot de passe a déjà été utilisé."
+        link_expired:
+            en: "This reset link has expired."
+            fr: "Ce lien de redéfinition de mot de passe n'est plus valable."
+        success:
+            en: "You can now log in with your new password."
+            fr: "Vous pouvez désormais vous connecter avec votre nouveau mot de passe."
+    error:
+        missing:
+            en: "Please fill in your credentials."
+            fr: "Veuillez renseigner vos identifiants."
+        incorrect:
+            en: "Please check your email address/password."
+            fr: "Votre email/mot de passe est erroné."
+        cancelled_social_auth:
+            en: "Authentication cancelled. No account has been created."
+            fr: "Connexion annulée. Votre profil n’a pas été créé."
+            context: "User has just refused to complete social authentication she started."
 listing:
     overview_title:
         en: "Overview"
@@ -78,8 +162,8 @@ listing:
             en: "Online validation & signature"
             fr: "Validation et signature en ligne"
         service_assistance:
-            en: "{service_name} assistance"
-            fr: "Assistance {service_name}"
+            en: "{SERVICE_NAME} assistance"
+            fr: "Assistance {SERVICE_NAME}"
     time:
         from_day_label:
             en: "From"
@@ -132,8 +216,8 @@ user:
         en: "{level} user"
         fr: "Membre {level}"
     service_admin_account:
-        en: "{service_name}’s account"
-        fr: "Compte officiel {service_name}"
+        en: "{SERVICE_NAME}’s account"
+        fr: "Compte officiel {SERVICE_NAME}"
     join_month:
         en: "Joined in {month_year}"
         fr: "Membre depuis {month_year}"
@@ -155,8 +239,8 @@ user:
 landing:
     homepage:
         title:
-            en: "Welcome to {service_name}"
-            fr: "Bienvenue sur {service_name}"
+            en: "Welcome to {SERVICE_NAME}"
+            fr: "Bienvenue sur {SERVICE_NAME}"
             context: "Default website title"
         title__user_label:
             en: "Title of your website"
@@ -165,8 +249,8 @@ landing:
             en: "As shown in Web browser and search engine results such as Google."
             fr: "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google."
         header:
-            en: "Welcome to {service_name}"
-            fr: "Bienvenue sur {service_name}"
+            en: "Welcome to {SERVICE_NAME}"
+            fr: "Bienvenue sur {SERVICE_NAME}"
             context: "Default homepage header (H1)"
         header__user_label:
             en: "Main header of your homepage"
@@ -230,13 +314,14 @@ navigation:
     back_top_of_page:
         en: "Back to top"
         fr: "Retour en haut de page"
+    back:
+        en: "Back"
+        fr: "Retour"
+        context: "Back to previous view button"
     menu:
         en: "Menu"
         fr: "Menu"
         context: "Navigation menu label"
-    login:
-        en: "Log In"
-        fr: "Connexion"
 prompt:
     new_listing_minute:
         en: "Create your first listing in a minute."
@@ -256,6 +341,14 @@ prompt:
             other{Nouvelle annonce}
         }"
     post_listing_short_button_2: *POST_LISTING_SHORT_BUTTON
+    continue_button:
+        en: "Continue"
+        fr: "Continuer"
+        context: "Used in any context where a process is pending user action."
+    save_button:
+        en: "Save"
+        fr: "Enregistrer"
+        context: "General purpose button to save new content or setting."
     search:
         query_placeholder:
             en: "You’re looking for…"
@@ -308,3 +401,13 @@ social:
 greeting:
     en: "Hello"
     fr: "Bonjour"
+error:
+    unknown_happened_title:
+        en: "An error has happened."
+        fr: "Une erreur s'est produite."
+    unknown_happened_message:
+        en: "We’re sorry about this and will do our best to fix the issue. Please retry later."
+        fr: "Nous sommes désolés et cherchons à résoudre le problème. Nous vous invitons à réessayer plus tard."
+    invalid_link:
+        en: "This link is invalid"
+        fr: "Ce lien est invalide"

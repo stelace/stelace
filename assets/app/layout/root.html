@@ -322,12 +322,19 @@
                         data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                     </a>
                 </li>
-                <li id="desktop-main-header__auth"
+                <li id="desktop-main-header__log-in"
                     class="anchor-like cursor-pointer header-event"
                     tabindex="0"
                     data-sip-action-key
                     ng-click="header.authenticate('login')"
-                    data-translate="navigation.login">
+                    data-translate="authentication.log_in_button">
+                </li>
+                <li id="desktop-main-header__sign-up"
+                    class="anchor-like cursor-pointer header-event"
+                    tabindex="0"
+                    data-sip-action-key
+                    ng-click="header.authenticate('register')"
+                    data-translate="authentication.sign_up_button">
                 </li>
             </ul>
         </header>

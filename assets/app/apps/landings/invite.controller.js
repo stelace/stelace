@@ -177,16 +177,13 @@
         }
 
         function login() {
-            var authModalOptions = {
-                greeting: "Connectez-vous pour parrainer vos amis et obtenir des récompenses."
-            };
             return UserService.getCurrentUser()
                 .then(function (currentUser) {
                     if (currentUser) {
                         return _populateView();
                     }
 
-                    return authenticationModal.process("login", authModalOptions)
+                    return authenticationModal.process("login")
                         .then(function (isAuth) {
                             if (isAuth) {
                                 return toastr.success("Vous progresserez sur Sharinplace à chaque inscription ou échange d'un de vos filleuls.",
@@ -204,16 +201,13 @@
         }
 
         function register() {
-            var authModalOptions = {
-                greeting: "Inscrivez-vous pour profiter de nos objets en libre-service ou pour vendre et louer vos propres objets sur Sharinplace."
-            };
             return UserService.getCurrentUser()
                 .then(function (currentUser) {
                     if (currentUser) {
                         return _populateView();
                     }
 
-                    return authenticationModal.process("register", authModalOptions)
+                    return authenticationModal.process("register")
                         .then(function (isAuth) {
                            if (isAuth) {
                                return toastr.success("Vous progresserez sur Sharinplace à chaque inscription ou échange d'un de vos filleuls.",

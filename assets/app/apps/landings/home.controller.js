@@ -12,7 +12,6 @@
                                 $state,
                                 $timeout,
                                 $window,
-                                authenticationModal,
                                 cache,
                                 ListingService,
                                 ListingTypeService,

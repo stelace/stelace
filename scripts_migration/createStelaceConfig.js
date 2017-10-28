@@ -27,7 +27,7 @@ Sails.load({
 
         const attrs = {
             config: {
-                siteName: null,
+                SERVICE_NAME: null,
             },
             features: {
                 GAMIFICATION: true,

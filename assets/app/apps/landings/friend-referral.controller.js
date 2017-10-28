@@ -167,11 +167,6 @@
         }
 
         function register() {
-            var authModalOptions = {
-                greeting: "Inscrivez-vous pour profiter de nos objets en libre-service grâce à " + (vm.referrer.displayName || "ce parrainage")
-                    + " ou pour vendre et louer vos propres objets sur Sharinplace."
-            };
-
             return UserService.getCurrentUser()
                 .then(function (currentUser) {
                     if (currentUser && currentUser.id === vm.referrer.id) {
@@ -186,7 +181,7 @@
                         });
                     }
 
-                    return authenticationModal.process("register", authModalOptions)
+                    return authenticationModal.process("register")
                         .then(function (isAuth) {
                             if (isAuth) {
                                 // the redirection after registration and the creation of referral

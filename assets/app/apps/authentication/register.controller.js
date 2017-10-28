@@ -102,9 +102,6 @@
             ) {
                 return _setFormAnimationError("empty");
             }
-            if (! tools.isEmail(vm.email)) {
-                return _setFormAnimationError("bad email");
-            }
 
             return authentication
                 .register(vm.email, vm.password)
@@ -160,7 +157,6 @@
 
                         _redirectURL();
 
-                        // Allows to display sidebar to authenticated users
                         $rootScope.$emit("isAuthenticated", true);
                     })
                     .catch(function (/* err */) {

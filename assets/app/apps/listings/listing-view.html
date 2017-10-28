@@ -164,7 +164,7 @@
                                             </div>
                                             <div class="book__trust-label"
                                                 data-translate="listing.trust_helper.service_assistance"
-                                                data-translate-values="{ service_name: SERVICE_NAME }">
+                                                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                                             </div>
                                         </div>
                                     </div>
@@ -521,7 +521,7 @@
                                     <div ng-switch="vm.listing.owner.id">
                                         <span ng-switch-when="1"
                                             data-translate="user.service_admin_account"
-                                            data-translate-values="{ service_name: SERVICE_NAME }">
+                                            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                                         </span>
                                         <span ng-switch-default
                                             data-translate="user.join_month"

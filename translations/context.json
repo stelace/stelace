@@ -3,6 +3,15 @@
         "powered_by": "Platform provider’s branding",
         "name": "Unlocalized provider’s name should be “Stelace”."
     },
+    "authentication": {
+        "or_social_auth_separator": "Separator between standard (email) authentication and social authentication (such as Facebook)",
+        "placeholder": {
+            "create_password": "Password placeholder showed when user is signing up."
+        },
+        "error": {
+            "cancelled_social_auth": "User has just refused to complete social authentication she started."
+        }
+    },
     "listing": {
         "comments": "Comments or questions & answers about current listing."
     },
@@ -23,7 +32,12 @@
     },
     "navigation": {
         "search": "Action required to find listings",
+        "back": "Back to previous view button",
         "menu": "Navigation menu label"
+    },
+    "prompt": {
+        "continue_button": "Used in any context where a process is pending user action.",
+        "save_button": "General purpose button to save new content or setting."
     },
     "ratings": {
         "user_ratings_title": "General introduction to ratings, without count",

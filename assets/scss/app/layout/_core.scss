@@ -1565,19 +1565,6 @@ body .popover {
     display: inline-block;
 }
 
-#feedback-modal {
-    .close-button {
-        top: 0.25rem;
-        right: 0.25rem;
-        color: #FFF;
-        font-size: 1.5rem;
-    }
-    textarea {
-        min-height: 10rem;
-        width: 100%;
-    }
-}
-
 #deleteListingConfirm-modal {
     .button {
         margin: 1rem 0.5rem;
@@ -1600,7 +1587,6 @@ body .popover {
     // overriding authentication.scss
     .signin-form {
         background-color: rgba(255, 255, 255, 1);
-        padding: 0.5rem 1rem;
         width: 90%;
         margin: 0.5rem auto;
         border-radius: 0.5 * $global-radius;

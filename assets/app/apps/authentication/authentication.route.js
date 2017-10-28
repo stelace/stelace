@@ -17,10 +17,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                metaTags: {
-                    description: "Trouvez l'objet qui vous plaît près de chez vous, ou louez vos propres objets à d'autres particuliers en toute sécurité sur Sharinplace."
-                },
-                title: "Inscription ou connexion à Sharinplace"
+                title: "authentication.sign_up_greeting"
             })
             .state("login", {
                 url: "/login?redirect&error",
@@ -30,10 +27,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                metaTags: {
-                    description: "Connectez-vous pour acheter ou louer les objets qui vous plaisent près de chez vous, ou vendez et louez vos propres objets à d'autres particuliers en un éclair sur Sharinplace."
-                },
-                title:  "Connexion ou inscription à Sharinplace"
+                title: "authentication.log_in_button"
             })
             .state("socialAuth", {
                 url: "/social-auth",
@@ -49,10 +43,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                metaTags: {
-                    description: "Vous avez oublié votre mot de passe Sharinplace? Créez un nouveau mot de passe en quelques secondes."
-                },
-                title: "Mot de passe oublié - Sharinplace"
+                title: "authentication.lost_password_button"
             })
             .state("recoveryPassword", {
                 url: "/recovery-password/:tokenId/:tokenValue",
@@ -64,7 +55,7 @@
                 metaTags: {
                     robots: "noindex"
                 },
-                title: "Mot de passe oublié - Sharinplace"
+                title: "authentication.lost_password_button"
             })
             .state("emailCheck", {
                 url: "/email-check",

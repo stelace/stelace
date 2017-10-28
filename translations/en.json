@@ -5,7 +5,38 @@
         "smart_marketplace": "Smart marketplace launcher"
     },
     "service": {
-        "meta_description": "{service_name} runs on {provider_name}."
+        "meta_description": "{SERVICE_NAME} runs on {provider_name}."
+    },
+    "authentication": {
+        "log_in_button": "Log In",
+        "sign_up_button": "Sign Up",
+        "lost_password_button": "Forgot password?",
+        "lost_password_message": "Please enter the email address associated with your account. We’ll email you a link to reset your password.",
+        "lost_password_email_sent": "A password reset link has just been sent to you.",
+        "log_in_required_message": "Please connect to {SERVICE_NAME} to continue.",
+        "no_account_message": "Don’t have an account?",
+        "existing_account_message": "Already have an account?",
+        "sign_up_greeting": "Create your {SERVICE_NAME} account in no time.",
+        "terms_optin": "I agree to the Terms of Service applicable on {SERVICE_NAME}.",
+        "or_social_auth_separator": "Or",
+        "social_auth_button": "Continue {network_name, select, Google{with Google} Facebook{with Facebook} other{} }",
+        "placeholder": {
+            "email": "Email Address",
+            "password": "Password",
+            "create_password": "Create a password"
+        },
+        "email_checked": "Your email address is now verified.",
+        "password_reset": {
+            "message": "Please enter your new password.",
+            "already_reset": "You’ve already reset your password with this link.",
+            "link_expired": "This reset link has expired.",
+            "success": "You can now log in with your new password."
+        },
+        "error": {
+            "missing": "Please fill in your credentials.",
+            "incorrect": "Please check your email address/password.",
+            "cancelled_social_auth": "Authentication cancelled. No account has been created."
+        }
     },
     "listing": {
         "overview_title": "Overview",
@@ -29,7 +60,7 @@
         "trust_helper": {
             "payments": "Secured payment {payment_gateway, select, stripe{with Stripe} mangopay{with Mangopay} other{}}",
             "online_validation": "Online validation & signature",
-            "service_assistance": "{service_name} assistance"
+            "service_assistance": "{SERVICE_NAME} assistance"
         },
         "time": {
             "from_day_label": "From",
@@ -49,7 +80,7 @@
     },
     "user": {
         "is_level": "{level} user",
-        "service_admin_account": "{service_name}’s account",
+        "service_admin_account": "{SERVICE_NAME}’s account",
         "join_month": "Joined in {month_year}",
         "email_label": "Email address",
         "verified_email_label": "Verified",
@@ -59,10 +90,10 @@
     },
     "landing": {
         "homepage": {
-            "title": "Welcome to {service_name}",
+            "title": "Welcome to {SERVICE_NAME}",
             "title__user_label": "Title of your website",
             "title__user_helper": "As shown in Web browser and search engine results such as Google.",
-            "header": "Welcome to {service_name}",
+            "header": "Welcome to {SERVICE_NAME}",
             "header__user_label": "Main header of your homepage",
             "header__user_helper": "Try to describe your activity precisely to improve your SEO.",
             "subheader": "Your community",
@@ -90,14 +121,16 @@
         "terms": "Terms",
         "search": "Search",
         "back_top_of_page": "Back to top",
-        "menu": "Menu",
-        "login": "Log In"
+        "back": "Back",
+        "menu": "Menu"
     },
     "prompt": {
         "new_listing_minute": "Create your first listing in a minute.",
         "post_my_listing_button": "Post my listing",
         "post_listing_short_button_1": "Let’s sell",
         "post_listing_short_button_2": "Let’s rent",
+        "continue_button": "Continue",
+        "save_button": "Save",
         "search": {
             "query_placeholder": "You’re looking for…",
             "near_location_placeholder": "Near…"
@@ -121,5 +154,10 @@
     "social": {
         "join_us": "Join us"
     },
-    "greeting": "Hello"
+    "greeting": "Hello",
+    "error": {
+        "unknown_happened_title": "An error has happened.",
+        "unknown_happened_message": "We’re sorry about this and will do our best to fix the issue. Please retry later.",
+        "invalid_link": "This link is invalid"
+    }
 }

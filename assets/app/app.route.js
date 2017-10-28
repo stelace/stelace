@@ -59,9 +59,6 @@
             });
         }
 
-        // TODO: use config
-        $rootScope.SERVICE_NAME = "Stelace";
-
         $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
             log.debug("$stateChangeStart :", {
                 event: event,

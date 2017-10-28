@@ -1,68 +1,76 @@
 <div class="signin-form-container flex-container flex--center">
-  <form name="registerForm" class="signin-form" novalidate ng-class="{ 'gentle-shake': vm.formAnimationError }">
-      <div class="grid-content">
-        <div class="logo-container">
-          <svg class="logo">
-            <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
-          </svg>
-        </div>
-        <p class="sign__text text-center" ng-switch="vm.redirectTarget">
-            <span ng-switch-when="myListings">Créez-vous un compte Sharinplace en quelques secondes pour créer vos annonces et louer vos objets entre particuliers en&nbsp;toute&nbsp;sécurité&nbsp;:</span>
-            <span ng-switch-default>Créez-vous un compte Sharinplace en quelques secondes pour commencer à partager&nbsp;:</span>
-        </p>
-      </div>
-      <div class="grid-content">
-        <input type="email"
-               name="login-email"
-               placeholder="Email"
-               spellcheck="false"
-               ng-model="vm.email"
-               required>
-        </div>
-      <div class="grid-content">
-        <input type="password"
-               placeholder="Mot de passe"
-               ng-model="vm.password"
-               ng-minlength="6"
-               required>
-        </div>
-        <div class="sign__text sign__error" ng-if="vm.errorType" ng-switch="vm.errorType">
-            <div ng-switch-when="empty">
-                Veuillez renseigner votre adresse email et votre mot de passe.
+    <form name="registerForm" class="signin-form" novalidate ng-class="{ 'gentle-shake': vm.formAnimationError }">
+        <div>
+            <div class="logo-container">
+            <svg class="logo">
+                <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
+            </svg>
             </div>
-            <div ng-switch-when="bad email">
-                Veuillez renseigner une adresse email valide.
+            <p class="sign__text text-center"
+                data-translate="authentication.sign_up_greeting"
+                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
+            </p>
+        </div>
+        <div>
+            <input type="email"
+                name="login-email"
+                data-translate-attr="{ placeholder: 'authentication.placeholder.email' }"
+                spellcheck="false"
+                ng-model="vm.email"
+                required>
+            <input type="password"
+                data-translate-attr="{ placeholder: 'authentication.placeholder.create_password' }"
+                ng-model="vm.password"
+                ng-minlength="6"
+                required>
+        </div>
+        <div class="sign__text sign__error"
+            ng-if="vm.errorType"
+            ng-switch="vm.errorType">
+            <div ng-switch-when="empty"
+                data-translate="authentication.error.missing">
             </div>
-            <div ng-switch-when="other">
-                Une erreur est survenue. Veuillez réessayer plus tard.
+            <div ng-switch-when="other"
+                data-translate="error.unknown_happened_title">
             </div>
         </div>
-        <p class="text--vsmall text--dark text-center margin-top margin-bottom">
-            En créant un compte, vous acceptez les <a ui-sref="terms">Conditions Générales d'Utilisation et de Services</a> de Sharinplace.
+        <p class="text--vsmall text--dark text-center margin-top margin-bottom"
+            data-translate="authentication.terms_optin"
+            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME}">
         </p>
         <button class="button sip-button center"
-                ng-disabled="registerForm.$invalid"
-                ng-class="{disabled: registerForm.$invalid}"
-                ng-click="vm.register()">
-            S'enregistrer
+            ng-disabled="registerForm.$invalid"
+            ng-class="{disabled: registerForm.$invalid}"
+            ng-click="vm.register()"
+            data-translate="authentication.sign_up_button">
         </button>
-        <div class="grid-block shrink vertical" ng-if="vm.showSocialLogin">
+        <div class="flex-container flex--shrink flex--vertical">
             <div class="social-signin-container">
-                <p class="no-margin-bottom sign__text">Ou&nbsp;:</p>
+                <p class="no-margin-bottom sign__text"
+                    data-translate="authentication.or_social_auth_separator"></p>
                 <span class="social-signin fb cursor-pointer" ng-click="vm.socialLogin('facebook')">
                     <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#face"/>
                     </svg>
-                    &nbsp;Se connecter avec Facebook
+                    &nbsp;
+                    <span data-translate="authentication.social_auth_button"
+                    data-translate-values="{ network_name: 'Facebook'}"></span>
                 </span>
                 <span class="social-signin gpl cursor-pointer" ng-click="vm.socialLogin('google')">
                     <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#g-pl"/>
                     </svg>
-                    &nbsp;Se connecter avec Google
+                    &nbsp;
+                    <span data-translate="authentication.social_auth_button"
+                    data-translate-values="{ network_name: 'Google'}"></span>
                 </span>
             </div>
         </div>
-        <p class="sign__text margin-top-plus margin-bottom">Déjà inscrit sur Sharinplace ? <a class="link--blue-underline" ui-sref="login">Connectez-vous ici.</a></p>
-  </form>
+        <p class="sign__text margin-top-plus margin-bottom">
+            <span data-translate="authentication.existing_account_message"></span>
+            <a class="link--blue-underline"
+                ui-sref="login"
+                data-translate="authentication.log_in_button"></a>
+        </p>
+    </form>
 </div>

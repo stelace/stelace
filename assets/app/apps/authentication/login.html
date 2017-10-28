@@ -1,71 +1,78 @@
 <div class="signin-form-container flex-container flex--center">
     <form name="loginForm" novalidate class="signin-form" ng-class="{ 'gentle-shake': vm.formAnimationError }">
-        <div class="grid-content">
+        <div>
             <div class="logo-container">
                 <svg class="logo">
                     <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
                 </svg>
             </div>
-            <p class="sign__text text-center" ng-switch="vm.redirectTarget">
-                <span ng-switch-when="myListings">Connectez-vous à votre compte Sharinplace pour créer vos annonces et vendre ou louer vos objets en&nbsp;toute&nbsp;simplicité&nbsp;:</span>
-                <span ng-switch-default>Connectez-vous à votre compte Sharinplace pour vendre ou louer vos objets et partager en toute simplicité&nbsp;:</span>
+            <p class="sign__text text-center"
+                data-translate="authentication.log_in_required_message"
+                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
             </p>
         </div>
-        <div class="grid-content">
+        <div>
             <input type="email"
                 name="login-email"
-                placeholder="Email"
+                data-translate-attr="{ placeholder: 'authentication.placeholder.email' }"
                 spellcheck="false"
                 ng-model="vm.email"
                 required>
-        </div>
-        <div class="grid-content">
             <input type="password"
-                placeholder="Mot de passe"
+                data-translate-attr="{ placeholder: 'authentication.placeholder.password' }"
                 ng-model="vm.password"
                 required>
         </div>
         <div class="sign__text sign__error" ng-if="vm.errorType" ng-switch="vm.errorType">
-            <div ng-switch-when="empty">
-                Veuillez renseigner votre adresse email et votre mot de passe.
+            <div ng-switch-when="empty"
+                data-translate="authentication.error.missing">
             </div>
-            <div ng-switch-when="bad email">
-                Veuillez renseigner une adresse email valide.
-            </div>
-            <div ng-switch-when="other">
-                Votre email/mot de passe est erroné.
+            <div ng-switch-when="other"
+                data-translate="authentication.error.incorrect">
             </div>
         </div>
         <button
             class="button sip-button center"
             ng-disabled="loginForm.$invalid"
             ng-class="{disabled: loginForm.$invalid}"
-            ng-click="vm.login()">
-            Se connecter
+            ng-click="vm.login()"
+            data-translate="authentication.log_in_button">
         </button>
 
-        <p class="sign__text margin-bottom">Pas encore inscrit ?
-            <a class="link--blue-underline" ui-sref="register">S'inscrire ici en deux clics.</a>
-            <!-- ou : -->
+        <p class="sign__text margin-bottom">
+            <span data-translate="authentication.no_account_message"></span>
+            <span class="link--blue-underline"
+                ui-sref="register"
+                data-translate="authentication.sign_up_button"></span>
         </p>
-        <div class="grid-block shrink vertical" ng-if="vm.showSocialLogin">
+        <div class="flex-container flex--shrink flex--vertical" ng-if="vm.showSocialLogin">
             <div class="social-signin-container">
+                <p class="no-margin-bottom sign__text"
+                    data-translate="authentication.or_social_auth_separator"></p>
                 <span class="social-signin fb cursor-pointer" ng-click="vm.socialLogin('facebook')">
                     <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#face"/>
                     </svg>
-                    &nbsp;Se connecter avec Facebook
+                    &nbsp;
+                    <span data-translate="authentication.social_auth_button"
+                    data-translate-values="{ network_name: 'Facebook'}"></span>
                 </span>
                 <span class="social-signin gpl cursor-pointer" ng-click="vm.socialLogin('google')">
                     <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#g-pl"/>
                     </svg>
-                    &nbsp;Se connecter avec Google
+                    &nbsp;
+                    <span data-translate="authentication.social_auth_button"
+                    data-translate-values="{ network_name: 'Google'}"></span>
                 </span>
             </div>
         </div>
 
-        <p class="sign__text margin-top-plus margin-bottom">Mot de passe oublié ? <a class="link--blue-underline" ui-sref="lostPassword">Cliquez ici.</a></p>
+        <p class="sign__text margin-top-plus margin-bottom">
+            <a class="link--blue-underline"
+                ui-sref="lostPassword"
+                data-translate="authentication.lost_password_button"></a>
+        </p>
 
     </form>
 </div>

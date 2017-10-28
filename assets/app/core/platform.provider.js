@@ -38,6 +38,7 @@
             service.unsetCanonicalLink        = unsetCanonicalLink;
             service.getFacebookAppId          = getFacebookAppId;
             service.getDataFromServer         = getDataFromServer;
+            service.showErrorMessage          = showErrorMessage;
 
             return service;
 
@@ -317,6 +318,16 @@
                 }
             }
 
+            function showErrorMessage() {
+                var $translate = $injector.get("$translate");
+                var toastr = $injector.get("toastr");
+
+                return $translate(["error.unknown_happened_title", "error.unknown_happened_message"])
+                    .then(function (translations) {
+                        toastr.warning(translations["error.unknown_happened_message"], translations["error.unknown_happened_title"]);
+                    });
+            }
+
             function _setElements(elements, elementType, container) {
                 var frag = document.createDocumentFragment();
 
@@ -341,7 +352,7 @@
                 // Handling asynchronous translation from route.js files in an ugly way for now
                 // presume that strings without any space are not keys
                 if (typeof key === "string" && key.indexOf(" ") <= 0) {
-                    return $translate([key], { service_name: $rootScope.SERVICE_NAME }); // key is a translation key
+                    return $translate([key], { SERVICE_NAME: $rootScope.config.SERVICE_NAME }); // key is a translation key
                 }
 
                 mockedTranslation[key] = key; // not a real key

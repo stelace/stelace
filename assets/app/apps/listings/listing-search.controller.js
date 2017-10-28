@@ -16,7 +16,6 @@
                                     $stateParams,
                                     $window,
                                     authentication,
-                                    authenticationModal,
                                     // BrandService,
                                     cache,
                                     diacritics,

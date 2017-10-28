@@ -9,14 +9,14 @@
                                 $state,
                                 $stateParams,
                                 $timeout,
+                                $translate,
                                 $location,
                                 authentication,
                                 platform,
                                 cache,
                                 crossTabCommunication,
                                 StelaceEvent,
-                                toastr,
-                                tools) {
+                                toastr) {
         var listeners = [];
 
         var vm = this;
@@ -51,9 +51,10 @@
             }
 
             if ($stateParams.error === "access_denied") {
-                toastr.warning("Merci de réessayer.", "Oups, la connexion a échoué");
+                platform.showErrorMessage();
             } else if ($stateParams.error === "user_denied") {
-                toastr.warning("Les informations que vous communiquez participent à compléter votre profil.", "Vous avez refusé la connexion");
+                $translate("authentication.error.cancelled_social_auth")
+                    .then(toastr.info);
             }
 
             if (redirectURL) {
@@ -113,9 +114,6 @@
             ) {
                 return _setFormAnimationError("empty");
             }
-            if (! tools.isEmail(vm.email)) {
-                return _setFormAnimationError("bad email");
-            }
 
             authentication
                 .login(vm.email, vm.password)
@@ -135,7 +133,6 @@
 
                     _redirectURL();
 
-                    // Allows to display sidebar to authenticated users
                     $rootScope.$emit("isAuthenticated", true);
                 });
         }

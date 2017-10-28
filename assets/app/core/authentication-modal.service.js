@@ -40,11 +40,7 @@
             sendRecover: sendRecover,
             socialLogin: socialLogin,
             action: action,
-            displayLoginError: false,
-            defaultGreeting: {
-                register: "Créez-vous un compte Sharinplace en quelques secondes pour commencer à partager.",
-                login: "Connectez-vous pour acheter, vendre, louer et partager des objets en toute simplicité."
-            }
+            displayLoginError: false
         };
         var modalId = "authenticationModal";
         var modal   = new Modal({

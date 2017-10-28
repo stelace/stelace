@@ -4,7 +4,7 @@
         .module("app.authentication")
         .controller("EmailCheckController", EmailCheckController);
 
-    function EmailCheckController($location, $state, authentication, toastr) {
+    function EmailCheckController($location, $state, $translate, authentication, platform, toastr) {
         var searchParams = $location.search();
         var email        = searchParams.e;
         var tokenId      = searchParams.i;
@@ -26,18 +26,21 @@
                 params.tokenValue = tokenValue;
                 params.firstTime  = (firstTime === "1");
             } else {
-                toastr.warning("Le lien est incorrect");
-                _redirectToHome();
-                return;
+                return $translate("error.invalid_link")
+                    .then(function (message) {
+                        toastr.warning(message);
+                        _redirectToHome();
+                    });
             }
 
             authentication.emailCheck(params)
                 .then(function () {
-                    toastr.success("Votre adresse email a été validée !");
+                    $translate("authentication.email_checked")
+                    .then(function (message) {
+                        toastr.success(message);
+                    });
                 })
-                .catch(function () {
-                    toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.");
-                })
+                .catch(platform.showErrorMessage)
                 .finally(function () {
                     _redirectToHome();
                 });

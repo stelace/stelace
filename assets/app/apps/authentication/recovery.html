@@ -1,30 +1,33 @@
 <!-- Password Recovery via email -->
-
 <div class="signin-form-container flex-container flex--center">
     <form name="recoveryForm" novalidate class="signin-form">
 
-        <div class="grid-content">
-            <div class="logo-container">
-                <svg class="logo">
-                    <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
-                </svg>
-            </div>
+        <div class="logo-container">
+            <svg class="logo">
+                <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
+            </svg>
         </div>
 
-        <div class="grid-content sign__text" ng-if="vm.display.error">
-            <p ng-if="vm.errors.tokenUsed">Oups, il semble que vous ayez déjà utilisé ce lien pour modifier votre mot de passe.</p>
-            <p ng-if="vm.errors.tokenExpired">Pour des raisons de sécurité, ce lien a malheureusement expiré au bout d'une heure. Vous pouvez demander à nouveau demander de <a class="link--blue-underline" ui-sref="register">modifier votre mot de passe ici.</a> </p>
-            <p ng-if="vm.errors.other">Ce lien n'est malheureusement plus valable.</p>
+        <div ng-if="vm.display.error">
+            <p class="sign__text"
+                ng-if="vm.errors.tokenUsed"
+                data-translate="authentication.password_reset.already_reset"></p>
+            <p class="sign__text"
+                ng-if="vm.errors.tokenExpired"
+                data-translate="authentication.password_reset.link_expired"></p>
+            <p class="sign__text"
+                ng-if="vm.errors.other"
+                data-translate="authentication.password_reset.link_expired"></p>
         </div>
-        <p class="sign__text"
-            ng-if="! vm.display.error && ! vm.display.success">
-            Veuillez indiquer votre nouveau mot de passe&nbsp;:
-        </p>
 
         <div ng-if="vm.display.form">
-            <div class="grid-content">
+            <p class="sign__text"
+                ng-if="! vm.display.error && ! vm.display.success"
+                data-translate="authentication.password_reset.message">
+            </p>
+            <div>
                 <input type="password"
-                    placeholder="Mon nouveau mot de passe"
+                    data-translate-attr="{ placeholder: 'authentication.placeholder.create_password' }"
                     ng-model="vm.newPassword"
                     ng-minlength="6"
                     required>
@@ -34,8 +37,8 @@
                     class="button sip-button spinner-button--center"
                     ng-disabled="recoveryForm.$invalid"
                     ng-class="{disabled: recoveryForm.$invalid}"
-                    ng-click="vm.save(vm.newPassword)">
-                    Enregistrer
+                    ng-click="vm.save(vm.newPassword)"
+                    data-translate="prompt.save_button">
                 </button>
                 <span class="spinner-container">
                     <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-password-spinner"></span>
@@ -43,22 +46,21 @@
             </div>
         </div>
 
-        <div class="grid-content sign__text" ng-if="vm.display.success">
-            <p>
-                Vous pouvez désormais vous connecter avec votre nouveau mot de passe.
-            </p>
+        <div ng-if="vm.display.success">
+            <p class="sign__text"
+                data-translate="authentication.password_reset.success"></p>
         </div>
 
         <p class="sign__text">
             <a class="link--blue-underline"
                 ui-sref="login"
-                ng-if="vm.display.success">
-                Me connecter
+                ng-if="vm.display.success"
+                data-translate="authentication.log_in_button">
             </a>
             <a class="link--blue-underline"
                 ui-sref="login"
-                ng-if="vm.display.error">
-                Retour
+                ng-hide="vm.display.success || vm.display.form"
+                data-translate="navigation.back">
             </a>
         </p>
 

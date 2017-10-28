@@ -4,7 +4,7 @@
         .module("app.authentication")
         .controller("LostPasswordController", LostPasswordController);
 
-    function LostPasswordController(authentication, StelaceEvent, toastr, tools) {
+    function LostPasswordController($translate, authentication, StelaceEvent, toastr, tools) {
         var debouncedAction = tools.debounceAction(_send);
 
         var vm = this;
@@ -27,8 +27,9 @@
             return authentication
                 .lostPassword(email)
                 .then(function () {
-                    toastr.success("Un email vient de vous être envoyé");
-                });
+                    return $translate("authentication.lost_password_email_sent");
+                })
+                .then(toastr.success);
         }
     }
 

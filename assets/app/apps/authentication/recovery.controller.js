@@ -6,7 +6,6 @@
 
     function RecoveryController($stateParams,
                                     authentication,
-                                    toastr,
                                     tools,
                                     usSpinnerService) {
         var tokenId         = $stateParams.tokenId;
@@ -53,7 +52,6 @@
                     vm.newPassword = null;
                     vm.display.form = false;
                     vm.display.success = true;
-                    toastr.success("Votre nouveau mot de passe a été enregistré");
                 })
                 .catch(function (err) {
                     _displayError(err);
