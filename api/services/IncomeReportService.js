@@ -1,4 +1,4 @@
-/* global Assessment, Booking, MathService, ModelSnapshot, PhantomService, TimeService, Transaction, User */
+/* global Assessment, Booking, Location, MathService, ModelSnapshot, PhantomService, TimeService, Transaction, User */
 
 module.exports = {
 

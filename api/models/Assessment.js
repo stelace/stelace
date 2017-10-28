@@ -1,4 +1,4 @@
-/* global Conversation, GeneratorService, Listing, ListingHistoryService, ModelSnapshot, User */
+/* global Conversation, GeneratorService, Listing, ListingHistoryService, Location, ModelSnapshot, User */
 
 /**
 * Assessment.js

@@ -1,5 +1,5 @@
 /* global
-    Booking, EmailTemplateService, GamificationEvent, Link, Reward,
+    Booking, EmailTemplateService, GamificationEvent, Link, Location, Reward,
     StelaceConfigService, StelaceEventService, UAService, User
 */
 

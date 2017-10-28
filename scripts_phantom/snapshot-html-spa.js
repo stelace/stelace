@@ -1,3 +1,5 @@
+/* global document */
+
 var webpage = require('webpage');
 var system  = require('system');
 

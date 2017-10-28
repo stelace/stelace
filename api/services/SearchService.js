@@ -1,5 +1,5 @@
 /* global
-    ElasticsearchService, Listing, ListingCategory,
+    ElasticsearchService, Listing, ListingCategory, Location,
     MapService, Media, PricingService, SearchEvent,
     StelaceConfigService, StelaceEventService, UAService, User
 */

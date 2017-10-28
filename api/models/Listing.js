@@ -1,5 +1,5 @@
 /* global
-        Booking, Brand, ElasticsearchService, Listing, ListingCategory, ListingXTag, Location, Media, ModelSnapshot, Tag,
+        Booking, Brand, ElasticsearchService, Listing, ListingCategory, ListingXTag, Media, ModelSnapshot, Tag,
         ToolsService
 */
 

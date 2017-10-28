@@ -1,0 +1,6 @@
+bower_components/**
+build/**
+js/vendor/**
+vendors/**
+app/widgets/bootstrap/**
+app/widgets/google-places/**

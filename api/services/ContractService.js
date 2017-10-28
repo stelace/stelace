@@ -1,4 +1,4 @@
-/* global Assessment, Listing, ModelSnapshot, PhantomService, PricingService, ToolsService, User */
+/* global Assessment, Listing, Location, ModelSnapshot, PhantomService, PricingService, ToolsService, User */
 
 module.exports = {
 

@@ -1,5 +1,5 @@
 /* global
-    GamificationService, GeneratorService, Link, mangopay, Media, OdooService,
+    GamificationService, GeneratorService, Link, Location, mangopay, Media, OdooService,
     User, TimeService, Token, ToolsService, UserXTag
 */
 

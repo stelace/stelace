@@ -1,4 +1,4 @@
-/* global Assessment, Booking, BootstrapService, EmailTemplateService, Listing, LoggerService, MonitoringService */
+/* global Assessment, Booking, BootstrapService, EmailTemplateService, Listing, Location, LoggerService, MonitoringService */
 
 var Sails  = require('sails');
 var moment = require('moment');

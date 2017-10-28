@@ -1,6 +1,6 @@
 /* global
     EmailTemplateService, GamificationService, GeneratorService,
-    IncomeReportService, Media, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User
+    IncomeReportService, Location, Media, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User
 */
 
 /**
