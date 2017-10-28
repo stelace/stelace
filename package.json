@@ -96,9 +96,9 @@
     "debug": "node debug app.js",
     "patch:foundation": "patch -N assets/bower_components/foundation-apps/dist/js/foundation-apps.js < foundation-patch.txt",
     "html-validate": "node html-validate.js",
-    "lint": "npm run lint:server && npm run lint:client",
+    "lint": "npm run lint:server & npm run lint:client",
     "lint:server": "eslint .",
-    "lint:client": "eslint assets",
+    "lint:client": "cd assets && eslint .",
     "clean:emailTests": "rm emailTests/*.html",
     "translate": "node scripts/buildTranslations.js"
   },

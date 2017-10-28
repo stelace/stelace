@@ -260,7 +260,6 @@
         function createBankAccount() {
             var editingCurrentUser = Restangular.copy(vm.currentUser);
 
-            console.log(vm.currentRequest)
             if (vm.currentRequest) { // debounce
                 return;
             }

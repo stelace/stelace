@@ -102,12 +102,11 @@
                 }
 
                 if (! _.isEmpty(utmTags) && ! devEnv) {
+                    // avoid false utm being tracked by prod
                     listingShareUrl = urlService.setUtmTags(listingShareUrl, utmTags);
                 }
 
-                if (devEnv) { // avoid false utm being tracked by prod
-                    console.log("tagged listing url: ", urlService.setUtmTags(getBaseUrl() + "/listing/" + listingSlug, utmTags));
-                }
+                debugDev("tagged listing url: ", urlService.setUtmTags(getBaseUrl() + "/listing/" + listingSlug, utmTags));
 
                 return listingShareUrl;
             }
@@ -133,12 +132,11 @@
                 }
 
                 if (! _.isEmpty(utmTags) && ! devEnv) {
+                    // avoid false utm being tracked by prod
                     shareUrl = urlService.setUtmTags(shareUrl, utmTags);
                 }
 
-                if (devEnv) { // avoid false utm being tracked by prod
-                    console.log("tagged share url: ", urlService.setUtmTags(getBaseUrl() + urlPath, utmTags));
-                }
+                debugDev("tagged share url: ", urlService.setUtmTags(getBaseUrl() + urlPath, utmTags));
 
                 return shareUrl;
             }
@@ -370,20 +368,18 @@
         function debugDev() {
             var userAgent = window.navigator.userAgent;
             var isIOS = (/(iPhone|iPod|iPad).+AppleWebKit/i).test(userAgent);
+            var devEnv = _.includes(["dev", "preprod"], getEnvironment());
 
-            if (isIOS || userAgent.indexOf('Trident/') >= 0) {
+            if (! devEnv || isIOS || userAgent.indexOf('Trident/') >= 0) {
                 return; // avoid type bugs
             }
 
-            var devEnv = _.includes(["dev", "preprod"], getEnvironment());
             var err    = new Error("Debug error");
             var args   = Array.prototype.slice.call(arguments);
 
             args.push(err.stack && err.stack.split("\n").slice(2, 5).join("\n <= "));
 
-            if (devEnv) {
-                console.info.apply(null, args);
-            }
+            console.info.apply(null, args); // eslint-disable-line no-console
         }
 
         function getFacebookAppId() {
