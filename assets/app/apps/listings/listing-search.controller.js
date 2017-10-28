@@ -466,7 +466,7 @@
                         vm.validLocation = false;
                         queryLocationSource = "default";
 
-                        if (ipLocation) {
+                        if (ipLocation && ipLocation.latitude && ipLocation.longitude) {
                             ipDefaultLocation = _.assign({}, ipLocation, { source: "ip", name: "Position" });
                             return ipDefaultLocation;
                         } else {
