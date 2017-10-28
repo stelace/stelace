@@ -838,9 +838,9 @@
         }
 
         function getMaxQuantity(listing, listingType) {
-            const AVAILABILITY = listingType.properties.AVAILABILITY;
+            var AVAILABILITY = listingType.properties.AVAILABILITY;
 
-            let maxQuantity;
+            var maxQuantity;
 
             if (AVAILABILITY === 'STOCK') {
                 maxQuantity = listing.quantity;

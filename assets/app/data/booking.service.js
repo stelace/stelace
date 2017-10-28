@@ -164,7 +164,7 @@
                 newPeriod: 'end'
             });
 
-            tmpAvailablePeriods = _.sortBy(tmpAvailablePeriods, step => step.date);
+            tmpAvailablePeriods = _.sortBy(tmpAvailablePeriods, function (step) { return step.date });
 
             var processingPeriod = false;
             var startQuantity = 0;
