@@ -1,4 +1,4 @@
-/* global ListingType */
+/* global ApiService, ListingType */
 
 module.exports = {
 
@@ -9,9 +9,12 @@ module.exports = {
 
 async function find(req, res) {
     const access = 'self';
+    const attrs = req.allParams();
 
     try {
-        const listingTypes = await ListingType.find();
+        const pagination = ApiService.parsePagination(attrs);
+
+        const listingTypes = await ListingType.find().paginate(pagination);
         res.json(ListingType.exposeAll(listingTypes, access));
     } catch (err) {
         res.sendError(err);

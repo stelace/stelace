@@ -1,4 +1,4 @@
-/* global Booking */
+/* global ApiService, Booking */
 
 module.exports = {
 
@@ -9,9 +9,12 @@ module.exports = {
 
 async function find(req, res) {
     const access = 'self';
+    const attrs = req.allParams();
 
     try {
-        const bookings = await Booking.find();
+        const pagination = ApiService.parsePagination(attrs);
+
+        const bookings = await Booking.find().paginate(pagination);
         res.json(Booking.exposeAll(bookings, access));
     } catch (err) {
         res.sendError(err);

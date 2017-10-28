@@ -1,4 +1,4 @@
-/* global Listing */
+/* global ApiService, Listing, Media */
 
 module.exports = {
 
@@ -9,10 +9,25 @@ module.exports = {
 
 async function find(req, res) {
     const access = 'self';
+    const attrs = req.allParams();
 
     try {
-        const listings = await Listing.find();
-        res.json(Listing.exposeAll(listings, access));
+        const fields = ApiService.parseFields(attrs);
+        const pagination = ApiService.parsePagination(attrs);
+        const populateMedia = _.includes(fields, 'media');
+
+        let listings = await Listing.find().paginate(pagination);
+        const hashMedias = populateMedia ? await Listing.getMedias(listings) : {};
+
+        listings = _.map(listings, listing => {
+            const exposedListing = Listing.expose(listing, access);
+            if (populateMedia) {
+                exposedListing.medias = Media.exposeAll(hashMedias[listing.id], access);
+            }
+            return exposedListing;
+        });
+
+        res.json(listings);
     } catch (err) {
         res.sendError(err);
     }
