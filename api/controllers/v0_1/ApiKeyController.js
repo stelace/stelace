@@ -1,4 +1,4 @@
-/* global ApiKey */
+/* global ApiKey, Webhook */
 
 module.exports = {
 
@@ -30,7 +30,13 @@ async function destroy(req, res) {
     }
 
     try {
-        await ApiKey.destroy({ key });
+        const apiKey = await ApiKey.findOne({ key });
+
+        if (apiKey) {
+            await Webhook.destroy({ apiKeyId: apiKey.id });
+            await ApiKey.destroy({ key });
+        }
+
         res.ok();
     } catch (err) {
         res.sendError(err);

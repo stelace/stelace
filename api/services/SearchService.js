@@ -750,10 +750,10 @@ async function createEvent({
 
     if (type === "search") {
         stelaceEvent = await StelaceEventService.createEvent({
-            label: 'Search event',
+            label: 'Search',
             req: req,
             res: res,
-            type: 'null', // string on purpose
+            type: 'ui',
             searchId: searchEvent.id,
         });
     }

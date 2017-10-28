@@ -269,6 +269,17 @@ async function create(req, res) {
         let listing = await Listing.create(createAttrs);
         listing = await Listing.updateTags(listing, createAttrs.tags);
 
+        await StelaceEventService.createEvent({
+            req: req,
+            res: res,
+            label: 'listing.created',
+            type: 'core',
+            listingId: listing.id,
+            data: {
+                nbPictures: listing.mediasIds.length,
+            },
+        });
+
         res.json(Listing.expose(listing, access));
     } catch (err) {
         res.sendError(err);
@@ -453,8 +464,9 @@ function destroy(req, res) {
         return StelaceEventService.createEvent({
             req: req,
             res: res,
-            label: "Listing destroy",
-            data: { listingId: listingId }
+            label: "listing.deleted",
+            data: { listingId: listingId },
+            type: 'core',
         });
     }
 }
@@ -720,7 +732,8 @@ function pauseListingToggle(req, res) {
             listingId,
             pause,
             pausedUntil,
-            req
+            req,
+            res,
         });
 
         res.json(Listing.expose(updatedListing, access));

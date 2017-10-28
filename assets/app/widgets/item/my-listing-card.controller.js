@@ -150,19 +150,6 @@
                     } else {
                         toastr.success("Annonce réactivée\xa0!");
                     }
-
-                    var stelaceEventData = {
-                        pause: ! wasPaused
-                    };
-                    if (vm.listingLocked) {
-                        stelaceEventData.systemLocked = true;
-                    }
-
-                    StelaceEvent.sendEvent("Listing pause toggle", {
-                        type: "click",
-                        listingId: vm.listing.id,
-                        data: stelaceEventData
-                    });
                 })
                 .finally(function () {
                     vm.controlPending = false;

@@ -235,6 +235,16 @@ async function accept(req, res) {
 
         booking = await Booking.updateOne(booking.id, { acceptedDate: now });
 
+        await StelaceEventService.createEvent({
+            req: req,
+            res: res,
+            label: 'booking.accepted',
+            type: 'core',
+            bookingId: booking.id,
+            targetUserId: booking.takerId,
+            listingId: booking.listingId,
+        });
+
         BookingGamificationService.afterBookingPaidAndAccepted(booking, req.logger, req);
 
         res.json(Booking.expose(booking, access));
@@ -288,6 +298,16 @@ function cancel(req, res) {
         booking = yield CancellationService.cancelBooking(booking, null, {
             reasonType: reasonType,
             trigger: trigger,
+        });
+
+        yield StelaceEventService.createEvent({
+            req: req,
+            res: res,
+            label: 'booking.rejected',
+            type: 'core',
+            bookingId: booking.id,
+            targetUserId: booking.takerId,
+            listingId: booking.listingId,
         });
 
         yield Booking.updateListingQuantity(booking, { actionType: 'add' });
@@ -380,7 +400,8 @@ function payment(req, res) {
                     booking: booking,
                     operation: operation,
                     logger: req.logger,
-                    req: req
+                    req: req,
+                    res: res,
                 };
 
                 return _paymentEndProcess(data)
@@ -563,7 +584,8 @@ function payment(req, res) {
                         operation: operation,
                         preauthorization: preauthorization,
                         logger: logger,
-                        req: req
+                        req: req,
+                        res: res,
                     };
 
                     return _paymentProcessAfterPreauth(data)
@@ -663,7 +685,8 @@ function paymentSecure(req, res) {
                         operation: operation,
                         preauthorization: preauthorization,
                         logger: req.logger,
-                        req: req
+                        req: req,
+                        res: res,
                     };
 
                     return _paymentProcessAfterPreauth(data);
@@ -700,6 +723,7 @@ function paymentSecure(req, res) {
  * - listing
  * - taker
  * - req
+ * - res
  */
 // preauthorization can be performed by two ways (secure mode or not)
 function _paymentProcessAfterPreauth(data) {
@@ -708,6 +732,7 @@ function _paymentProcessAfterPreauth(data) {
     var operation        = data.operation;
     var logger           = data.logger;
     var req              = data.req;
+    var res              = data.res;
     var card;
 
     return Promise
@@ -775,7 +800,8 @@ function _paymentProcessAfterPreauth(data) {
                 preauthorization: preauthorization,
                 operation: operation,
                 logger: logger,
-                req: req
+                req: req,
+                res: res,
             });
         });
 }
@@ -785,10 +811,11 @@ function _paymentProcessAfterPreauth(data) {
  * - *booking
  * - *operation
  * - *logger
- - - listing
-    * - taker
-    * - req
-    */
+ * - listing
+ * - taker
+ * - req
+ * - res
+ */
 // set booking payment state when all previous steps go well
 function _paymentEndProcess(data) {
     var booking   = data.booking;
@@ -797,6 +824,7 @@ function _paymentEndProcess(data) {
     var listing   = data.listing;
     var taker     = data.taker;
     var req       = data.req;
+    var res       = data.res;
 
     var updateAttrs = {};
     var now = moment().toISOString();
@@ -840,6 +868,17 @@ function _paymentEndProcess(data) {
         .then(b => {
             booking = b;
 
+            return StelaceEventService.createEvent({
+                req: req,
+                res: res,
+                label: 'booking.paid',
+                type: 'core',
+                bookingId: booking.id,
+                targetUserId: booking.ownerId,
+                listingId: booking.listingId,
+            });
+        })
+        .then(() => {
             BookingGamificationService.afterBookingPaidAndAccepted(booking, logger, req);
 
             return Conversation

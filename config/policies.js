@@ -182,23 +182,23 @@ module.exports.policies = {
     },
 
     'v0_1/BookingController': {
-        find: ['isApiAuthenticated'],
-        findOne: ['isApiAuthenticated'],
+        '*': ['isApiAuthenticated'],
     },
 
     'v0_1/ListingController': {
-        find: ['isApiAuthenticated'],
-        findOne: ['isApiAuthenticated'],
+        '*': ['isApiAuthenticated'],
     },
 
     'v0_1/ListingTypeController': {
-        find: ['isApiAuthenticated'],
-        findOne: ['isApiAuthenticated'],
+        '*': ['isApiAuthenticated'],
     },
 
     'v0_1/UserController': {
-        find: ['isApiAuthenticated'],
-        findOne: ['isApiAuthenticated'],
+        '*': ['isApiAuthenticated'],
+    },
+
+    'v0_1/WebhookController': {
+        '*': ['isApiAuthenticated'],
     },
 
 

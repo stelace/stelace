@@ -66,9 +66,38 @@ module.exports = {
         version: "string"
     },
 
-    postBeforeCreate: postBeforeCreate
+    getAccessFields,
+    postBeforeCreate: postBeforeCreate,
 
 };
+
+function getAccessFields(access) {
+    const accessFields = {
+        api: [
+            'id',
+            'label',
+            'userId',
+            'targetUserId',
+            'listingId',
+            'tagsIds',
+            'bookingId',
+            'type',
+            'refererUrl',
+            'srcUrl',
+            'targetUrl',
+            'country',
+            'region',
+            'city',
+            'userAgent',
+            'os',
+            'browser',
+            'data',
+            'createdDate',
+        ],
+    };
+
+    return accessFields[access];
+}
 
 function postBeforeCreate(values) {
     return Promise.coroutine(function* () {

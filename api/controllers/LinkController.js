@@ -1,4 +1,4 @@
-/* global EmailTemplateService, GamificationService, GamificationEvent, Link, Media, StelaceConfigService, User */
+/* global EmailTemplateService, GamificationService, GamificationEvent, Link, Media, StelaceConfigService, StelaceEventService, User */
 
 /**
  * LinkController
@@ -111,6 +111,16 @@ function createReferredBy(req, res) {
                                 return;
                             }
                         }
+                    })
+                    .then(link => {
+                        return StelaceEventService.createEvent({
+                            req,
+                            res,
+                            label: 'friend_referral.succeeded',
+                            type: 'core',
+                            targetUserId: link.fromUserId,
+                        })
+                        .then(() => link);
                     })
                     .then(link => {
                         if (link) {

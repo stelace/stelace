@@ -506,17 +506,6 @@
                      + ', status: "acceptBooking"'
                      + '}';
                     ga('send', 'event', 'Listings', 'BookingValidation', gaLabel);
-                    // Stelace event
-                    StelaceEvent.sendEvent("Booking validation", {
-                        type: "click",
-                        data: {
-                            listingId: vm.listing.id,
-                            tagsIds: vm.listing.tags,
-                            bookingId: booking.id,
-                            targetUserId: vm.interlocutor.id,
-                            status: "acceptBooking"
-                        }
-                    });
 
                     return _populateConversation()
                         .then(function () {
@@ -572,18 +561,6 @@
                      + ', status: "rejectBooking"'
                      + '}';
                     ga('send', 'event', 'Listings', 'BookingValidation', gaLabel);
-
-                    // Stelace event
-                    StelaceEvent.sendEvent("Booking validation", {
-                        type: "click",
-                        data: {
-                            listingId: vm.listing.id,
-                            tagsIds: vm.listing.tags,
-                            bookingId: booking.id,
-                            targetUserId: vm.interlocutor.id,
-                            status: "rejectBooking"
-                        }
-                    });
 
                     return _populateConversation()
                         .catch(function (err) {

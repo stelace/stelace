@@ -44,7 +44,7 @@ function destroy(req, res) {
 function mangopay(req, res) {
     var filename = "Mangopay_Contrat_Fr_v2.pdf";
     var filepath = path.join(__dirname, "../assets/terms", filename);
-    return _serveFile(req, res, filepath, filename, "View mangopay term");
+    return _serveFile(req, res, filepath, filename, "Mangopay term view");
 }
 
 function _serveFile(req, res, filepath, filename, eventLabel) {

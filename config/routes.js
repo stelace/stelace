@@ -188,6 +188,11 @@ module.exports.routes = {
     'get /api/v0.1/users': 'v0_1/UserController.find',
     'get /api/v0.1/users/:id': 'v0_1/UserController.findOne',
 
+    'get /api/v0.1/webhooks': 'v0_1/WebhookController.find',
+    'post /api/v0.1/webhooks': 'v0_1/WebhookController.create',
+    'delete /api/v0.1/webhooks/:id': 'v0_1/WebhookController.destroy',
+
+
 
     ////////////////
     // App routes //

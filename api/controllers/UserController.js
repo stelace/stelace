@@ -790,7 +790,8 @@ function unsubscribeLink(req, res) {
             req: req,
             res: res,
             defaultUserId: userId,
-            label: "Unsubscribe newsletter"
+            label: "newsletter.unsubscribed",
+            type: 'core',
         });
     }
 }
@@ -898,7 +899,7 @@ function getIncomeReportPdf(req, res) {
         var config = {
             req: req,
             res: res,
-            label: "Tax declaration",
+            label: "Tax statement view",
             defaultUserId: userId,
             data: { year: year }
         };

@@ -43,8 +43,9 @@ function logout(req, res) {
         yield StelaceEventService.createEvent({
             req: req,
             res: res,
-            label: "Logout",
-            resetUser: true
+            label: "user.logged_out",
+            resetUser: true,
+            type: 'core',
         });
 
         // TODO: revoke token
@@ -117,6 +118,14 @@ function callback(req, res) {
                 });
 
                 _updateGamificationWhenLoggedIn(user, userAgent, req.logger, req);
+
+                yield StelaceEventService.createEvent({
+                    req: req,
+                    res: res,
+                    label: 'user.logged_in',
+                    defaultUserId: user.id,
+                    type: 'core',
+                });
 
                 User
                     .updateOne(user.id, { lastConnectionDate: moment().toISOString() })

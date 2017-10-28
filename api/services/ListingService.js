@@ -1,5 +1,5 @@
 /*
-    global Listing
+    global Listing, StelaceEventService
 */
 
 module.exports = {
@@ -18,7 +18,7 @@ var moment = require('moment');
  * @param  {object} options.req
  * @return {Promise<object>} listing
  */
-function pauseListingToggle({ listingId, pause, pausedUntil, req }) {
+function pauseListingToggle({ listingId, pause, pausedUntil, req, res }) {
     if (! listingId) {
         throw new BadRequestError("listingId expected");
     }
@@ -49,6 +49,22 @@ function pauseListingToggle({ listingId, pause, pausedUntil, req }) {
         };
 
         var updatedListing = yield Listing.updateOne(listing.id, updateAttrs);
+
+        const listingLocked = listing.locked && ! listing.pausedUntil;
+        let data;
+
+        if (listingLocked) {
+            data = { systemLocked: true };
+        }
+
+        yield StelaceEventService.createEvent({
+            req: req,
+            res: res,
+            label: pauseState ? 'listing.paused' : 'listing.unpaused',
+            type: 'core',
+            listingId: listing.id,
+            data,
+        });
 
         return updatedListing;
     })();

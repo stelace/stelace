@@ -1,4 +1,4 @@
-/* global AppUrlService, IPService, TokenService, ToolsService, StelaceConfigService, StelaceEvent, StelaceSession, UAService, UrlService */
+/* global AppUrlService, IPService, TokenService, ToolsService, StelaceConfigService, StelaceEvent, StelaceSession, UAService, UrlService, Webhook */
 
 module.exports = {
 
@@ -32,6 +32,9 @@ var Url         = require('url');
 var querystring = require('querystring');
 var toSnakeCase = require('to-snake-case');
 var UrlPattern  = require('url-pattern');
+const request = require('request');
+
+Promise.promisifyAll(request, { multiArgs: true });
 
 var listingIdPatterns;
 var bookingIdPatterns;
@@ -564,6 +567,8 @@ function createEvent(args) {
 
         var stelaceEvent = yield _createEvent(stelaceSession.id);
 
+        triggerWebhooks(stelaceEvent);
+
         return {
             stelaceSession: stelaceSession,
             stelaceEvent: stelaceEvent
@@ -672,6 +677,34 @@ function createEvent(args) {
             resetUser: resetUser,
             version: version
         });
+    }
+
+    async function triggerWebhooks(stelaceEvent) {
+        if (stelaceEvent.type !== 'core') {
+            return;
+        }
+
+        try {
+            const webhooks = await Webhook.find();
+            const webhooksUrls = _.pluck(webhooks, 'url');
+
+            await Promise.map(webhooksUrls, url => {
+                const options = {
+                    url,
+                    headers: {
+                        'x-webhook-source': 'stelace',
+                    },
+                    body: {
+                        events: [StelaceEvent.expose(stelaceEvent, 'api')],
+                    },
+                    json: true
+                }
+
+                return request.postAsync(url, options);
+            });
+        } catch (err) {
+            // do nothing
+        }
     }
 }
 
@@ -786,7 +819,7 @@ function getType(label) {
     var lastWord = _.last(label.split(" ")).toLowerCase();
 
     if (lastWord === "click") {
-        return "click";
+        return "ui";
     } else if (lastWord === "view") {
         return "view";
     } else {

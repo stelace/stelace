@@ -45,7 +45,6 @@
                         toastr.success("Votre compte a été crédité d'un cadeau Sharinplace supplémentaire.", "Bravo, parrainage pris en compte\xa0!", {
                             timeOut: 10000
                         });
-                        StelaceEvent.sendEvent("Friend referral success");
                     }
                 })
                 .catch(function (err) {

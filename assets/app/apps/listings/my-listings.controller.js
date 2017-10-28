@@ -1228,15 +1228,6 @@
                     }
 
                     fbq('trackCustom', 'AddListing', fbEventParams);
-
-                    // Stelace event
-                    var stelaceData = { nbPictures: mediasIds.length };
-                    _addPriceRecommendationInfoToEventData(stelaceData);
-                    StelaceEvent.sendEvent("Listing creation", {
-                        listingId: createdListing.id,
-                        type: "click",
-                        data: stelaceData
-                    });
                 });
         }
 

@@ -1,4 +1,4 @@
-/* global EmailTemplateService, Passport, User */
+/* global EmailTemplateService, Passport, StelaceEventService, User */
 
 /**
  * Local Authentication Protocol
@@ -70,6 +70,14 @@ exports.register = function (req, res, next) {
                     }
                 }
             });
+
+        yield StelaceEventService.createEvent({
+            req: req,
+            res: res,
+            label: 'user.created',
+            type: 'core',
+            targetUserId: user.id,
+        });
 
         var token = yield User.createCheckEmailToken(user, user.email);
 

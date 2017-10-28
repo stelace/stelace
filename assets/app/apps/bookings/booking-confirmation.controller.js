@@ -224,16 +224,6 @@
                     stl_transaction_type: BookingService.getFbTransactionType(vm.booking)
                 };
                 fbq('track', 'Purchase', fbEventParams);
-                // Stelace event
-                StelaceEvent.sendEvent("Booking payment", {
-                    type: "click",
-                    data: {
-                        listingId: vm.listing.id,
-                        tagsIds: vm.listing.tags,
-                        targetUserId: vm.booking.ownerId,
-                        bookingId: vm.booking.id
-                    }
-                });
 
                 if (bookingPaymentMessages) {
                     vm.privateContent = bookingPaymentMessages.privateContent;

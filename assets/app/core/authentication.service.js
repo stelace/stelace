@@ -224,7 +224,6 @@
 
             return $http.post(apiBaseUrl + "/auth/local/register", data)
                 .then(function (res) {
-                    StelaceEvent.sendEvent("Account creation");
                     return res;
                 });
         }

@@ -179,9 +179,10 @@ function index(req, res) {
         const config = {
             req: req,
             res: res,
-            label: 'Login',
+            label: 'user.logged_in',
             defaultUserId: user.id,
-            data: data
+            data: data,
+            type: 'core',
         };
 
         StelaceEventService.createEvent(config);

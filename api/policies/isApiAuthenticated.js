@@ -13,6 +13,8 @@ module.exports = async function (req, res, next) {
             return res.status(401).send();
         }
 
+        req.apiKey = apiKey;
+
         const createAttrs = {
             key,
             url: req.url,

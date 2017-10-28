@@ -1,4 +1,4 @@
-/* global EmailTemplateService, Media, Passport, StelaceConfigService, User */
+/* global EmailTemplateService, Media, Passport, StelaceConfigService, StelaceEventService, User */
 
 var fs       = require('fs');
 var path     = require('path');
@@ -180,6 +180,15 @@ passport.connect = function (req, query, profile, next) {
                 }
 
                 return downloadProfileImage(user, query, profile);
+            })
+            .then(user => {
+                return StelaceEventService.createEvent({
+                    req: req,
+                    label: 'user.created',
+                    type: 'core',
+                    targetUserId: user.id,
+                })
+                .then(() => user);
             });
     }
 
