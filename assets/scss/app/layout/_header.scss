@@ -8,18 +8,6 @@ $header-height: 3rem;
     right: 0;
     z-index: 1000;
 
-    // @media #{$mq-from-tablet} {
-    //     .home & { // transparent header not fixed
-    //         position: relative;
-    //         left: auto;
-    //         right: auto;
-    //     }
-    // }
-
-    // .authentication & {
-    //     display: none;
-    // }
-
     height: 0;
     &.stelace-header-container--expand-search {
         height: 100%;
@@ -278,37 +266,6 @@ $header-height: 3rem;
             display: none;
         }
     }
-
-    /*.home &, */.authentication & {
-        &.show-for-medium {
-            background: none;
-            border: 0;
-            color: #FFF;
-            .logo-container, .company-logo {
-                @media #{$mq-from-desktop} {
-                    width: 14rem;
-                }
-            }
-            .company-logo {
-                color: #FFF;
-            }
-        }
-
-        .public-links a, .member-links a:not(.link--blue-underline), .anchor-like {
-            color: #FFF;
-            &:hover, &:focus {
-                &:not(.add-item-button):not(.link--blue-underline) {
-                color: #DDD;
-                }
-            }
-        }
-    }
-
-    // .authentication & {
-    //     &.show-for-medium {
-    //         top: 0.5rem;
-    //     }
-    // }
 }
 
 #offcanvas-menu.is-active ~ .stelace-header-container {
