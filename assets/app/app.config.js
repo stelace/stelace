@@ -22,15 +22,8 @@
                             uiSelectConfig,
                             usSpinnerConfigProvider) {
 
-        var state = {};
-
-        if (window.dataFromServer) {
-            state.features = window.dataFromServer.features || {};
-            state.config = window.dataFromServer.config || {};
-        }
-
         var reducers = window.Redux.combineReducers(window.reducers || {});
-        $ngReduxProvider.createStoreWith(reducers, null, null, state);
+        $ngReduxProvider.createStoreWith(reducers, null, null, _populateState({}));
 
         if (platformProvider.getEnvironment() === "prod") {
             $compileProvider.debugInfoEnabled(false);
@@ -167,7 +160,7 @@
         });
     }
 
-    function runBlock(cache, uiGmapGoogleMapApi, tools, cookie) {
+    function runBlock($ngRedux, cache, uiGmapGoogleMapApi, tools, cookie) {
         // auth token
         var authTokenField = "setAuthToken";
 
@@ -229,6 +222,23 @@
                 }
             });
         }
+
+        // Force $ngRedux.subscribe in rootScope with dispatch
+        var overwriteState = _populateState({});
+
+        $ngRedux.dispatch(window.actions.ConfigActions.setConfig(overwriteState.config));
+        $ngRedux.dispatch(window.actions.FeaturesActions.setFeatures(overwriteState.features));
+    }
+
+    function _populateState(emptyState) {
+        var state = emptyState || {};
+
+        if (window.dataFromServer) {
+            state.features = window.dataFromServer.features || {};
+            state.config = window.dataFromServer.config || {};
+        }
+
+        return state;
     }
 
 })();

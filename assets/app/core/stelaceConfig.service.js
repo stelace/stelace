@@ -4,7 +4,7 @@
         .module("app.core")
         .factory("StelaceConfig", StelaceConfig);
 
-    function StelaceConfig($ngRedux, $http, apiBaseUrl) {
+    function StelaceConfig($ngRedux, $http, $rootScope, apiBaseUrl) {
         var service = {};
         service.getConfig       = getConfig;
         service.getListFeatures = getListFeatures;
@@ -20,7 +20,10 @@
 
 
         function activate() {
-
+            $ngRedux.subscribe(function () {
+                $rootScope.config = getConfig();
+                $rootScope.features = getListFeatures();
+            });
         }
 
         function getConfig() {
