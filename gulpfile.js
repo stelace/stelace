@@ -414,7 +414,7 @@ gulp.task('watch:translations:cache', function () {
 
 /** Sass **/
 const sassStream = ({ destFolder, base, isProd = false }) => {
-    let destOptions;
+    let destOptions = {};
 
     if (base) {
         destOptions.base = base;
