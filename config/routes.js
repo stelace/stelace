@@ -185,9 +185,6 @@ module.exports.routes = {
     'get /api/v0.1/listing-types': 'v0_1/ListingTypeController.find',
     'get /api/v0.1/listing-types/:id': 'v0_1/ListingTypeController.findOne',
 
-    'get /api/v0.1/searches': 'v0_1/SearchController.find',
-    'get /api/v0.1/searches/:id': 'v0_1/SearchController.findOne',
-
     'get /api/v0.1/users': 'v0_1/UserController.find',
     'get /api/v0.1/users/:id': 'v0_1/UserController.findOne',
 

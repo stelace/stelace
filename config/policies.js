@@ -196,11 +196,6 @@ module.exports.policies = {
         findOne: ['isApiAuthenticated'],
     },
 
-    'v0_1/SearchController': {
-        find: ['isApiAuthenticated'],
-        findOne: ['isApiAuthenticated'],
-    },
-
     'v0_1/UserController': {
         find: ['isApiAuthenticated'],
         findOne: ['isApiAuthenticated'],
