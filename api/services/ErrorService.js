@@ -27,8 +27,21 @@ function convertErrorToObj(error, isProd) {
         obj.stack = error.stack.split("\n");
     }
 
+    var omittedFields = [
+        "name",
+        "message",
+        "stack",
+        "rawStack",
+        "details",
+        "reason",
+        "_e",
+        "model",
+        "invalidAttributes",
+        "originalError",
+    ];
+
     _.forEach(_.keys(error), function (attr) {
-        if (! _.contains(["name", "message", "stack"], attr)) {
+        if (! _.contains(omittedFields, attr)) {
             obj[attr] = error[attr];
         }
     });
