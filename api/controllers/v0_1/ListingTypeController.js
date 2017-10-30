@@ -1,4 +1,4 @@
-/* global ApiService, ListingType */
+/* global ApiService, Listing, ListingType */
 
 module.exports = {
 

@@ -193,6 +193,10 @@ module.exports.policies = {
         '*': ['isApiAuthenticated'],
     },
 
+    'v0_1/StatsController': {
+        '*': ['isApiAuthenticated'],
+    },
+
     'v0_1/UserController': {
         '*': ['isApiAuthenticated'],
     },

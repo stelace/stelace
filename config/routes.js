@@ -187,6 +187,10 @@ module.exports.routes = {
     'get /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.find', cors: apiCors },
     'get /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.findOne', cors: apiCors },
 
+    'get /api/v0.1/stats/users_registered': { target: 'v0_1/StatsController.userRegistered', cors: apiCors },
+    'get /api/v0.1/stats/listings_published': { target: 'v0_1/StatsController.listingPublished', cors: apiCors },
+    'get /api/v0.1/stats/bookings_paid': { target: 'v0_1/StatsController.bookingPaid', cors: apiCors },
+
     'get /api/v0.1/users': { target: 'v0_1/UserController.find', cors: apiCors },
     'get /api/v0.1/users/:id': { target: 'v0_1/UserController.findOne', cors: apiCors },
 
