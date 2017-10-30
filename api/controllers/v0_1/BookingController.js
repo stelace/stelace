@@ -14,8 +14,21 @@ async function find(req, res) {
     try {
         const pagination = ApiService.parsePagination(attrs);
 
-        const bookings = await Booking.find().paginate(pagination);
-        res.json(Booking.exposeAll(bookings, access));
+        const [
+            bookings,
+            countBookings,
+        ] = await Promise.all([
+            Booking.find().paginate(pagination),
+            Booking.count(),
+        ]);
+
+        const returnedObj = ApiService.getPaginationMeta({
+            totalResults: countBookings,
+            limit: pagination.limit,
+        });
+        returnedObj.results = Booking.exposeAll(bookings, access);
+
+        res.json(returnedObj);
     } catch (err) {
         res.sendError(err);
     }

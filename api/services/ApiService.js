@@ -2,6 +2,7 @@ module.exports = {
 
     parseFields,
     parsePagination,
+    getPaginationMeta,
 
 };
 
@@ -38,4 +39,16 @@ function parsePagination(attrs) {
     }
 
     return pagination;
+}
+
+function getPaginationMeta({ totalResults, limit }) {
+    let totalPages = Math.floor(totalResults / limit);
+    if (totalResults % limit !== 0) {
+        totalPages += 1;
+    }
+
+    return {
+        totalResults,
+        totalPages,
+    };
 }

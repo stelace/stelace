@@ -14,8 +14,21 @@ async function find(req, res) {
     try {
         const pagination = ApiService.parsePagination(attrs);
 
-        const listingTypes = await ListingType.find().paginate(pagination);
-        res.json(ListingType.exposeAll(listingTypes, access));
+        const [
+            listingTypes,
+            countListingTypes,
+        ] = await Promise.all([
+            ListingType.find().paginate(pagination),
+            ListingType.count(),
+        ]);
+
+        const returnedObj = ApiService.getPaginationMeta({
+            totalResults: countListingTypes,
+            limit: pagination.limit,
+        });
+        returnedObj.results = Listing.exposeAll(listingTypes, access);
+
+        res.json(returnedObj);
     } catch (err) {
         res.sendError(err);
     }

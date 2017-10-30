@@ -16,7 +16,14 @@ async function find(req, res) {
         const pagination = ApiService.parsePagination(attrs);
         const populateMedia = _.includes(fields, 'media');
 
-        let listings = await Listing.find().paginate(pagination);
+        let [
+            listings,
+            countListings,
+        ] = await Promise.all([
+            Listing.find().paginate(pagination),
+            Listing.count(),
+        ]);
+
         const hashMedias = populateMedia ? await Listing.getMedias(listings) : {};
 
         listings = _.map(listings, listing => {
@@ -27,7 +34,13 @@ async function find(req, res) {
             return exposedListing;
         });
 
-        res.json(listings);
+        const returnedObj = ApiService.getPaginationMeta({
+            totalResults: countListings,
+            limit: pagination.limit,
+        });
+        returnedObj.results = listings;
+
+        res.json(returnedObj);
     } catch (err) {
         res.sendError(err);
     }
