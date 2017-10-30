@@ -11,8 +11,9 @@
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.http.html
  */
 
-var path = require('path');
-var fs   = require('fs');
+var path  = require('path');
+var fs    = require('fs');
+var proxy = require('http-proxy-middleware');
 
 module.exports.http = {
 
@@ -51,7 +52,7 @@ module.exports.http = {
             'basicAuth',
             // 'poweredBy',     // don't display it in headers because of security issues
             // 'secureResponseHeader', // disable because nginx takes care of it
-            '$custom',
+            '$custom', // sails customMiddleware using app object
             'router',
             'www',
             'favicon',
@@ -180,8 +181,17 @@ module.exports.http = {
 
     },
 
-    customMiddleware: function (/* app */) {
-        // use express app
+    customMiddleware: function (app) {
+        if (sails.config.stelace.dashboardUrl) {
+            app.use('/dashboard', proxy({
+                target: sails.config.stelace.dashboardUrl,
+                changeOrigin: false,
+            }));
+            app.use('/stelace', proxy({
+                target: sails.config.stelace.dashboardUrl,
+                changeOrigin: false,
+            }));
+        }
     },
 
     /***************************************************************************

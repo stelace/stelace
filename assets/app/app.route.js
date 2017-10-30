@@ -5,32 +5,33 @@
         .config(configBlock)
         .run(runBlock);
 
-    function configBlock($urlRouterProvider) {
+    function configBlock($urlRouterProvider, platformProvider) {
         // if unmatched route, then display 404 view
         $urlRouterProvider.otherwise(function ($injector) {
             var $state = $injector.get("$state");
             var $location = $injector.get("$location");
 
             var url = $location.url();
-            var blogRegex = /^\/blog.*$/gi;
+            var isProd = platformProvider.getEnvironment() === "prod";
 
-            var goTo404 = function () {
-                $state.go("404", null, { location: false });
-            };
+            var blogRegex = /^\/blog([?/].*)?$/gi;
+            var dashboardRegex = /^\/dashboard([?/].*)?$/gi;
+            var stelaceRegex = /^\/stelace([?/].*)?$/gi;
 
-            var hasBlog = function () {
-                var port = $location.port();
-                return port === 80 || port === 443;
-            };
+            var isBlogUrl = blogRegex.test(url);
+            var isDashboardUrl = dashboardRegex.test(url) || stelaceRegex.test(url);
 
-            if (blogRegex.test(url)) {
-                if (! hasBlog()) {
-                    goTo404();
-                } else {
+            var exitAngular = (isBlogUrl && isProd) || isDashboardUrl;
+            // don’t go to external blog url in dev, but allow dashboard debugging
+
+            if (exitAngular) {
                     window.location.href = url;
-                }
             } else {
                 goTo404();
+            }
+
+            function goTo404() {
+                $state.go("404", null, { location: false });
             }
         });
     }

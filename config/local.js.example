@@ -33,6 +33,9 @@ module.exports = {
         defaultConfig: {
             siteName: null,
         },
+
+        // Stelace SaaS or custom dashboard base url
+        dashboardUrl: '' // http://localhost:8080 if served at http://localhost:8080/dashboard
     },
 
 
