@@ -62,7 +62,7 @@ function create(req, res) {
             ];
         })
         .spread((listingCategory, parentCategory) => {
-            if (! listingCategory) {
+            if (listingCategory) {
                 throw new BadRequestError("category already exists");
             }
             if (parentId && ! parentCategory) {
@@ -74,7 +74,7 @@ function create(req, res) {
                 parentId: parentId
             };
 
-            return ListingCategory.ListingCategory(createAttrs);
+            return ListingCategory.create(createAttrs);
         })
         .then(listingCategory => {
             res.json(ListingCategory.expose(listingCategory, access));
