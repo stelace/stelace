@@ -23,7 +23,7 @@
         }
     }
 
-    h3.interlocutor-name, h3.item-name {
+    h3.interlocutor-name, h3.listing-name {
         margin-bottom: 0;
         font-size: 1.125rem;
     }
@@ -250,11 +250,11 @@
             }
         }
 
-        .conversation__item {
+        .conversation__listing {
             .card-section {
                 padding: 0;
             }
-            .item-image {
+            .listing-image {
                 @include aspect-ratio(3, 2);
                 // @media #{$mq-from-desktop} {
                 //     height: 10rem;

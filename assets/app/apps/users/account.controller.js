@@ -131,7 +131,7 @@
 
                 _.forEach(myListings, function (listing) {
                     listing.slug        = ListingService.getListingSlug(listing);
-                    listing.ownerRating = { // expected format for item-card's rating-stars
+                    listing.ownerRating = { // expected format for listing-card's rating-stars
                         ratingScore: vm.currentUser.ratingScore,
                         nbRatings: vm.currentUser.nbRatings
                     };

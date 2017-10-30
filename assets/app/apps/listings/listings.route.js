@@ -6,7 +6,7 @@
 
     function configBlock($stateProvider) {
         var appsPath = "/assets/app/apps";
-        var appClassName = "items"; // TODO: change the class name after styles rework
+        var appClassName = "listings";
 
         var listingStateConfig = {
             url: "/s",

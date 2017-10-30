@@ -357,7 +357,7 @@
 
                         _.forEach(myListings, function (listing) {
                             listing.slug        = ListingService.getListingSlug(listing);
-                            listing.ownerRating = { // expected format for item-card's rating-stars
+                            listing.ownerRating = { // expected format for listing-card's rating-stars
                                 ratingScore: currentUser.ratingScore,
                                 nbRatings: currentUser.nbRatings
                             };
@@ -944,7 +944,7 @@
             vm.useSocialLogin      = false;
 
             vm.saveListingBtnDisabled = true;
-            usSpinnerService.spin('save-item-spinner');
+            usSpinnerService.spin('save-listing-spinner');
 
             $q.when(true)
                 .then(function () {
@@ -964,7 +964,7 @@
                 })
                 .catch(afterAuthenticationErrorHandler)
                 .finally(function () {
-                    usSpinnerService.stop('save-item-spinner');
+                    usSpinnerService.stop('save-listing-spinner');
                     vm.saveListingBtnDisabled = false;
                     savingListing             = false;
                 });
@@ -1571,12 +1571,12 @@
                 return;
             }
 
-            usSpinnerService.spin("share-item-spinner");
+            usSpinnerService.spin("share-listing-spinner");
 
             var shareUtmTags = {
                 utmSource: "facebook",
                 utmMedium: "social",
-                utmCampaign: "item-share-owner",
+                utmCampaign: "listing-share-owner",
                 utmContent: "picture"
             };
             var listingUrl     = platform.getListingShareUrl(vm.selectedShareListing.slug, shareUtmTags);
@@ -1615,7 +1615,7 @@
                 });
             })
             .finally(function () {
-                usSpinnerService.stop("share-item-spinner");
+                usSpinnerService.stop("share-listing-spinner");
             });
         }
 

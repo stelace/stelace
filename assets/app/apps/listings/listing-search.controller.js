@@ -87,7 +87,7 @@
         vm.showPagination = false;
         vm.nbTotalListings   = 0;
         vm.currentPage    = 1;
-        vm.nbListingsPerPage = 23; // Multiple of 2, 3 & 4 (listing columns) minus 1 to keep space for dummy item-card cta
+        vm.nbListingsPerPage = 23; // Multiple of 2, 3 & 4 (listing columns) minus 1 to keep space for dummy listing-card cta
         vm.paginationLinks = {
             first: "◀◀",
             previous: "◀",
@@ -307,7 +307,7 @@
                     id: _.unique("marker_"),
                     show: false,
                     windowOptions: {
-                        boxClass: "InfoBox item-preview-marker",
+                        boxClass: "InfoBox listing-preview-marker",
                         closeBoxURL: "",
                         disableAutoPan: false,
                         maxWidth: 150,
@@ -887,7 +887,7 @@
 
                 if (googleMap) {
                     marker.windowOptions = {
-                        boxClass: "InfoBox item-marker",
+                        boxClass: "InfoBox listing-marker",
                         closeBoxURL: "",
                         disableAutoPan: true,
                         maxWidth: 45,
@@ -937,7 +937,7 @@
 
             //         if (googleMap) {
             //             marker.windowOptions = {
-            //                 boxClass: "InfoBox item-marker",
+            //                 boxClass: "InfoBox listing-marker",
             //                 closeBoxURL: "",
             //                 disableAutoPan: true,
             //                 maxWidth: 45,
@@ -1294,7 +1294,7 @@
 
         function _showListingCardCta() {
             var nbListingsVisible = Math.min(vm.nbListingsPerPage, vm.nbTotalListings);
-            // Display item-card listing creation CTA when empty space is available
+            // Display listing-card listing creation CTA when empty space is available
             // I.e. when nbListingsVisible is not multiple of 4 (columns) on largest screens
             // Or when nbListingsVisible is odd, on small display (2 columns)
             // That's why nbListingsPerPage is set to a multiple of 2, 3 and 4, minus 1.

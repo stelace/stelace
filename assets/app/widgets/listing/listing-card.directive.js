@@ -2,9 +2,9 @@
 
     angular
         .module("app.widgets")
-        .directive("sipItemCard", sipItemCard);
+        .directive("stelaceListingCard", stelaceListingCard);
 
-    function sipItemCard() {
+    function stelaceListingCard() {
         return {
             restrict: "EA",
             scope: {
@@ -16,8 +16,8 @@
                 // target: "@",
                 position: "@"
             },
-            templateUrl: "/assets/app/widgets/item/item-card.html",
-            controller: "ItemCardController",
+            templateUrl: "/assets/app/widgets/listing/listing-card.html",
+            controller: "ListingCardController",
             controllerAs: "vm"
             // link: link
         };
@@ -26,7 +26,7 @@
         //     // Add target (new tab) attribute in search only
         //     if (scope.target === "true" && scope.listing) {
         //         var cardLinkElement = angular.element(element.children()[0]);
-        //         var targetName = 'sip-item_' + scope.listing.id;
+        //         var targetName = 'stelace-listing_' + scope.listing.id;
         //         cardLinkElement.attr("target", targetName);
         //     }
         // }

@@ -221,24 +221,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="margin-top-plus user__content-section user__items"
+                <div class="margin-top-plus user__content-section user__listings"
                     ng-if="::vm.listings.length">
                     <h2>
                         <span ng-show="::vm.listings.length === 1">Mon annonce</span>
                         <span ng-show="::vm.listings.length > 1">Mes annonces</span>
                     </h2>
                     <div id="user-items"
-                        class="item-wall grid-block small-up-1 medium-up-2"
+                        class="listing-grid grid-block small-up-1 medium-up-2"
                         itemscope
                         itemtype="http://schema.org/ItemList">
                         <div
-                            class="grid-block item-wall__item-wrapper"
+                            class="grid-block listing-grid__listing-wrapper"
                             data-listing="::listing"
                             ng-repeat="listing in ::vm.listings"
                             itemprop="itemListElement"
                             itemscope
                             itemtype="http://schema.org/Product"
-                            data-sip-item-card>
+                            data-stelace-listing-card>
                         </div>
                     </div>
                 </div>

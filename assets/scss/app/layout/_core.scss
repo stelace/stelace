@@ -414,7 +414,7 @@ button, .button, .select-file {
     }
 }
 
-.add-item-button {
+.add-listing-button {
     @extend %button;
     @include button-style(
         $background: $platform-color-red,
@@ -517,16 +517,6 @@ strong {
 
 .icon {
     transition: fill 0.3s;
-    &.icon--highlight {
-        display: block;
-        width: 6rem;
-        height: 6rem;
-        @media #{$mq-mobile} {
-            width: 5rem;
-            height: 5rem;
-        }
-        margin: 0 auto 0.5rem;
-    }
     &.success {
         fill: $success-color;
         color: $success-color;
@@ -1560,19 +1550,9 @@ body .popover {
     }
 }
 
-.item-validation__fields .item-validation__switch-label {
-    width: 10rem;
-    display: inline-block;
-}
-
 #deleteListingConfirm-modal {
     .button {
         margin: 1rem 0.5rem;
-    }
-}
-#registerListingConfirm-modal {
-    .switch {
-        vertical-align: bottom;
     }
 }
 

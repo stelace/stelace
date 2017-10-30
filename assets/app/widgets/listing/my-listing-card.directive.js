@@ -2,16 +2,16 @@
 
     angular
         .module("app.widgets")
-        .directive("sipMyListingCard", sipMyListingCard);
+        .directive("stelaceMyListingCard", stelaceMyListingCard);
 
-    function sipMyListingCard() {
+    function stelaceMyListingCard() {
         return {
             restrict: "EA",
             scope: {
                 listing: "=",
                 onDelete: "="
             },
-            templateUrl: "/assets/app/widgets/item/my-listing-card.html",
+            templateUrl: "/assets/app/widgets/listing/my-listing-card.html",
             controller: "MyListingCardController",
             controllerAs: "vm"
         };

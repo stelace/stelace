@@ -695,7 +695,7 @@
                 return;
             }
 
-            usSpinnerService.spin("share-item-spinner");
+            usSpinnerService.spin("share-listing-spinner");
 
             var stlEventData = {
                 tagsIds: vm.listing.tags,
@@ -726,7 +726,7 @@
                 });
             })
             .finally(function () {
-                usSpinnerService.stop("share-item-spinner");
+                usSpinnerService.stop("share-listing-spinner");
             });
         }
     }

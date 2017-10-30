@@ -1,15 +1,15 @@
-<div class="items item-search"
+<div class="listings listing-search"
     itemscope
     itemtype="http://schema.org/SearchResultsPage">
     <div class="header-space"></div>
-    <div id="map-search" class="s-medium-grid-block">
-        <div id="search-content" class="{{vm.showMap ? 's-medium-7' : 's-medium-12'}}" data-lazy-img-container>
-            <div class="search__query {{vm.showMap ? 's-medium-7' : 's-medium-12'}} text-center"
+    <div class="s-medium-grid-block listing-search__view">
+        <div id="listing-search-content" class="{{vm.showMap ? 's-medium-7' : 's-medium-12'}} listing-search__content" data-lazy-img-container>
+            <div class="listing-search__query {{vm.showMap ? 's-medium-7' : 's-medium-12'}} text-center"
                 ng-class="{ 'search-query--fixed': vm.fixedLocationSearch }"
                 uib-collapse="! vm.isGoogleMapSDKReady">
                 <div class="flex-container"
                     ng-class="{ 'flex--space-between': vm.fixedLocationSearch, 'flex--center': !vm.fixedLocationSearch }">
-                    <div class="input__inner-icon-container search__location-input-container">
+                    <div class="input__inner-icon-container listing-search__location-input-container">
                         <span class="input__inner-icon icon-left"
                             ng-hide="vm.showAddLocationButton">
                             <svg class="icon">
@@ -30,7 +30,7 @@
                             </svg>
                         </span>
                         <!-- PhantomJS doens't work after the rendering of this element -->
-                        <input id="search__search-bar-location-input" class="no-margin-bottom"
+                        <input class="no-margin-bottom listing-search__location-input"
                             type="text"
                             ng-if="vm.isGoogleMapSDKReady && ! vm.isPhantom"
                             ng-model="vm.searchLocationInput"
@@ -52,16 +52,16 @@
                     </div>
                 </div>
             </div>
-            <div class="search__results">
-                <div ng-show="vm.showSearchOverlay" class="search__results-overlay"></div>
+            <div class="listing-search__results">
+                <div ng-show="vm.showSearchOverlay" class="listing-search__results-overlay"></div>
                 <!-- For use of mainEntity see http://www.seoskeptic.com/how-to-use-schema-org-v2-0s-mainentityofpage-property/ -->
-                <div id="search__results-items" class="item-wall grid-block small-up-2 medium-up-3 {{ vm.showMap ? 's-medium-up-2 desktop-up-3 xlarge-up-4' : 's-medium-up-3 desktop-up-4 xlarge-up-6' }} "
+                <div id="search-results-items" class="listing-grid grid-block small-up-2 medium-up-3 {{ vm.showMap ? 's-medium-up-2 desktop-up-3 xlarge-up-4' : 's-medium-up-3 desktop-up-4 xlarge-up-6' }} listing-search__results-items"
                     ng-show="vm.listings.length"
                     itemprop="mainEntity"
                     itemscope
                     itemtype="http://schema.org/ItemList">
                     <div
-                        class="grid-block item-wall__item-wrapper"
+                        class="grid-block listing-grid__listing-wrapper"
                         data-display-duration="true"
                         data-listing="listing"
                         data-position="{{ (vm.currentPage - 1) * vm.nbListingsPerPage + $index + 1 }}"
@@ -71,26 +71,26 @@
                         itemprop="itemListElement"
                         itemscope
                         itemtype="http://schema.org/Product"
-                        sip-item-card>
+                        stelace-listing-card>
                     </div>
-                    <!-- item-card like CTA -->
-                    <div class="grid-block item-wall__item-wrapper"
+                    <!-- listing-card like CTA -->
+                    <div class="grid-block listing-grid__listing-wrapper"
                         ng-show="vm.showListingCardCta">
-                        <a class="item-wall__item-container"
+                        <a class="listing-grid__listing-container"
                             ui-sref="listingCreate"
                             ng-click="vm.uxEvent('Search item card CTA', 'click')">
-                            <div class="item-wall__item flex-container item-wall__item--highlight">
-                                <div class="item-wall__image-container">
+                            <div class="listing-grid__listing flex-container listing-grid__listing--highlight">
+                                <div class="listing-grid__image-container">
                                     <div class="ar-content">
                                         <img class="img--cover" src="/assets/img/app/default/search-item-image-cta.png"  alt="Louez vos objets sur Sharinplace">
                                     </div>
                                 </div>
-                                <div class="item-wall__description flex-item--grow-auto">
-                                    <h3 class="no-margin item-name ellipsis">
+                                <div class="listing-grid__description flex-item--grow-auto">
+                                    <h3 class="no-margin listing-name ellipsis">
                                         Vendez et louez votre matériel
                                     </h3>
-                                    <div class="item-wall__meta">
-                                        <span class="item-wall__rating small"
+                                    <div class="listing-grid__meta">
+                                        <span class="listing-grid__rating small"
                                             data-user-score="10"
                                             data-user-ratings="2"
                                             data-listing-score="10"
@@ -121,24 +121,7 @@
                         last-text="{{vm.paginationLinks.last}}">
                     </uib-pagination>
                 </div>
-                <div class="search__results-cta margin-top-plus padding-bottom text-center" ng-show="vm.searched">
-                    <p class="text--small"
-                        ng-show="! vm.listings.length">
-                        Aucun résultat pour l'instant
-                    </p>
-                    <a class="link--underline"
-                        ui-sref="listingCreate"
-                        ng-click="vm.uxEvent('Search item text CTA', 'click')">
-                        <p class="text--semibold padded-sides margin-bottom">
-                            <span ng-show="! vm.listings.length">{{ vm.breadcrumbQuery ? vm.breadcrumbQuery + " : " : "" }}Faites partie des premiers à déposer vos annonces en quelques secondes&nbsp;!</span>
-                            <span ng-show="vm.listings.length">Mettez vos objets en vente ou en location en quelques secondes&nbsp;!</span>
-                        </p>
-                        <svg class="icon icon--highlight grey">
-                            <use xlink:href="/assets/build/icons/sprite.svg#tag-circled"/>
-                        </svg>
-                    </a>
-                </div>
-                <div class="search__breadcrumb text--vsmall text-center"
+                <div class="listing-search__breadcrumb text--vsmall text-center"
                     ng-if="vm.listings.length"
                     itemprop="breadcrumb">
                     <hr class="margin-top">
@@ -183,7 +166,8 @@
                 </span>
             </div>
         </div>
-        <div class="s-medium-grid-block {{vm.showMap ? 's-medium-5' : ''}} search-map">
+        <div class="s-medium-grid-block listing-search__map-wrapper"
+            ng-class="{ 's-medium-5': vm.showMap }">
             <div id="map-container" class="map-container" ng-show="vm.showMap">
                 <div class="map-overlay"
                     ng-class="{background: vm.backgroundOverlay}"
@@ -202,7 +186,7 @@
                     events="vm.gmap.events"
                     options="vm.gmap.options">
                     <!-- <ui-gmap-markers models="vm.gmap.markers" coords="'self'" options="'options'" icon="'icon'"></ui-gmap-markers> -->
-                    <!-- See item-view for explanation -->
+                    <!-- See listing-view for explanation -->
                     <ui-gmap-window
                         ng-repeat="marker in vm.gmap.markers"
                         ng-if="marker.type === 'searchLocation'"

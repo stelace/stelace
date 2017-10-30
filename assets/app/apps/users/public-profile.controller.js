@@ -135,7 +135,7 @@
                 // Populate locations manually since it is more convenient here with full locations already populated in each listing.
                 _.forEach(userListings, function (listing) {
                     listing.vLocations  = listing.locations;
-                    listing.ownerRating = { // expected format for item-card's rating-stars
+                    listing.ownerRating = { // expected format for listing-card's rating-stars
                         ratingScore: user.ratingScore,
                         nbRatings: user.nbRatings
                     };

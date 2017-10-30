@@ -1,4 +1,4 @@
-.item-wall {
+.listing-grid {
     width: 100%;
     -webkit-transform: translate3d(0,0,0); // force display of positionned elements during scroll
     padding-bottom: 1rem;
@@ -8,7 +8,7 @@
         color: rgb(85, 90, 95);
         font-weight: 600;
     }
-    .item-wall__item--highlight {
+    .listing-grid__listing--highlight {
         box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.075);
         &:focus, &:hover, &:active {
             box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.15); // pass from 6px to 5px because of Chrome remove border-radius bug
@@ -21,35 +21,35 @@
         }
         // Forget transitions on box-shadow for better performance (mobiles...)
     }
-    h3.item-name {
+    h3.listing-name {
         font-size: 1rem;
         font-weight: 600;
         padding: 0;
     }
 }
-.grid-block.item-wall__item-wrapper {
+.grid-block.listing-grid__listing-wrapper {
     overflow: hidden;
     padding: 0; // IE 10/11 adds padding before wrapping, even with border-box
     // See https://github.com/philipwalton/flexbugs/issues/3
 }
-.item-wall__item-container {
+.listing-grid__listing-container {
     display: block;
     width: 100%;
     padding: 0.25rem; // just enough for some box-shadow
 }
-.item-wall__item {
+.listing-grid__listing {
     position: relative;
 }
 
-$bigger-item-card-breakpoint: 481px;
-$item-card-image-container-small-width: 9rem;
-.item-wall__image-container {
+$bigger-listing-card-breakpoint: 481px;
+$listing-card-image-container-small-width: 9rem;
+.listing-grid__image-container {
     @include aspect-ratio(16, 9);
-    min-width: $item-card-image-container-small-width;
+    min-width: $listing-card-image-container-small-width;
     z-index: 1; // Above description
     text-align: center; // for alt attribute
 }
-.item-wall__price {
+.listing-grid__price {
     padding: 0.25rem 0 0 0.25rem;
     color: rgba($platform-color-darkblue, 0.6);
     font-size: 1rem;
@@ -59,7 +59,7 @@ $item-card-image-container-small-width: 9rem;
     sup {
         font-size: 0.875rem;
     }
-    .item-wall__selling-icon-container {
+    .listing-grid__selling-icon-container {
         margin-left: -0.25rem;
         margin-right: -0.25rem;
         .icon {
@@ -67,12 +67,12 @@ $item-card-image-container-small-width: 9rem;
         }
    }
 }
-.item-wall__booking-modes {
+.listing-grid__booking-modes {
     padding-left: 0.25rem;
     font-size: 0.875rem;
     color: rgb(85, 90, 95);
 }
-.item-wall__selling-icon-container {
+.listing-grid__selling-icon-container {
     margin-left: 0.25rem;
     .icon {
         width: 1rem;
@@ -81,11 +81,11 @@ $item-card-image-container-small-width: 9rem;
         fill: rgba($platform-color-darkblue, 0.6);
    }
 }
-.item-wall__selling-price {
+.listing-grid__selling-price {
     color: rgba($platform-color-darkblue, 0.6);
     font-size: 1rem;
 }
-.item-wall__description {
+.listing-grid__description {
     min-width: 0; // Allow flex item to shrink below its minimum intrinsic width
     // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
 
@@ -96,17 +96,17 @@ $item-card-image-container-small-width: 9rem;
         margin-bottom: 0;
     }
 }
-.item-wall__place {
+.listing-grid__place {
     position: absolute;
     bottom: 4rem;
     left: 0.5rem;
     right: 0.5rem;
     text-align: center;
 }
-.item-wall__rating.rating-stars {
+.listing-grid__rating.rating-stars {
     margin-right: 0.75rem; // for stats
     &.small svg {
-        @media (min-width: $bigger-item-card-breakpoint) {
+        @media (min-width: $bigger-listing-card-breakpoint) {
             width: 1.125rem;
             height: 1.125rem;
         }
@@ -117,24 +117,24 @@ $item-card-image-container-small-width: 9rem;
     }
 }
 
-// Standard item card (search)
-.item-wall .item-wall__item-container:not(.item-wall__my-listing-card) {
-    .item-wall__item {
+// Standard listing card (search)
+.listing-grid .listing-grid__listing-container:not(.listing-grid__my-listing-card) {
+    .listing-grid__listing {
         flex-direction: column;
         border-radius: 2 * $global-radius;
         overflow: hidden;
     }
-    .item-wall__image-container {
+    .listing-grid__image-container {
         @include aspect-ratio(3, 2);
     }
-    .item-wall__rating {
+    .listing-grid__rating {
         position: absolute;
         top: -1.5rem;
         left: 0.5rem;
         z-index: 1;
         width: auto;
     }
-    .item-wall__price {
+    .listing-grid__price {
         @media screen and (max-width: 360px) {
             display: none;
         }
@@ -142,9 +142,9 @@ $item-card-image-container-small-width: 9rem;
 }
 
 // my-lising-card
-.item-wall__my-listing-card .item-wall__description {
+.listing-grid__my-listing-card .listing-grid__description {
     // IE11 fix, flex-shrink:1 on element is not enough...
-    max-width: calc(100% - #{$item-card-image-container-small-width});
+    max-width: calc(100% - #{$listing-card-image-container-small-width});
 }
 .my-listing-card__control {
     position: relative;
@@ -216,7 +216,7 @@ $item-card-image-container-small-width: 9rem;
     left: 0;
     color: #FFF;
     font-weight: 600;
-    z-index: 1; // above next sibbling .item-wall__image
+    z-index: 1; // above next sibbling .listing-grid__image
     .icon {
         position: relative;
         width: 100%;
@@ -225,7 +225,7 @@ $item-card-image-container-small-width: 9rem;
         fill: currentColor;
         margin-bottom: 0.5rem;
     }
-    & + .item-wall__image {
+    & + .listing-grid__image {
         filter: blur(2px);
     }
 }

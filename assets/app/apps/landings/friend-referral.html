@@ -19,7 +19,7 @@
             Le shopping existe aussi entre particuliers&nbsp;!
         </h2>
         <div class="text-center">
-            <a id="friend-search-item-button" class="button button--highlight text--semibold no-margin-top margin-bottom"
+            <a id="friend-search-listing-button" class="button button--highlight text--semibold no-margin-top margin-bottom"
                 ui-sref="search">
                 Chercher du matériel
             </a>
@@ -31,17 +31,17 @@
         <p class="text-center">
             Inspirez-vous des nombreux objets déjà en ligne.
         </p>
-        <div id="friend-referral__listing-board" class="item-wall grid-block small-up-2 s-medium-up-3">
+        <div id="friend-referral__listing-board" class="listing-grid grid-block small-up-2 s-medium-up-3">
             <div
-                class="grid-block item-wall__item-wrapper"
+                class="grid-block listing-grid__listing-wrapper"
                 data-listing="::listing"
                 data-display-duration="false"
                 ng-repeat="listing in ::vm.listings | limitTo: 3"
-                sip-item-card>
+                stelace-listing-card>
             </div>
         </div>
         <div class="text-center">
-            <a id="friend-add-item-button" class="add-item-button button button--highlight text--semibold"
+            <a id="friend-add-listing-button" class="add-listing-button button button--highlight text--semibold"
                 ui-sref="listingCreate">
                 Déposer votre propre annonce
             </a>

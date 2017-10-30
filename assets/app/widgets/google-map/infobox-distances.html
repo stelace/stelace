@@ -1,9 +1,9 @@
 <div ng-click="parameter.parent.vm.toggleDetailBox(parameter.parent.vm.listingBox.originatorId, 'listingBox', 'close', $event);" ng-switch="parameter.parent.vm.isOwner">
     <!-- Must apply only close on click event to allow opening -->
-    <div class="item__image">
+    <div class="stelace-listing__image">
         <sip-img ng-src="{{parameter.parent.vm.listing.url + '?size=800x600'}}" type="background"></sip-img>
     </div>
-    <div class="item__journeys" ng-switch-default>
+    <div class="stelace-listing__journeys" ng-switch-default>
         <div class="text--semibold text-center" ng-if="parameter.data.journeys">
             Depuis vos lieux favoris&nbsp;:
         </div>
@@ -60,7 +60,7 @@
             :&nbsp;bientôt disponible&nbsp;!
         </div>
     </div>
-    <div class="item__locations text-center" ng-switch-when="true">
+    <div class="stelace-listing__locations text-center" ng-switch-when="true">
         <div class="text--semibold margin-bottom">
             Vous avez indiqué que votre objet était disponible à&nbsp;:
         </div>

@@ -327,13 +327,13 @@
                     Mes annonces
                 </h2>
                 <div id="my-items-list"
-                    class="item-wall force-compact-item-card grid-block small-vertical text-left">
+                    class="listing-grid grid-block small-vertical text-left">
                     <div
-                        class="grid-block item-wall__item-wrapper"
+                        class="grid-block listing-grid__listing-wrapper"
                         data-listing="listing"
                         ng-repeat="listing in vm.myListings | orderBy : '-createdDate'"
                         ng-hide="vm.listingId && vm.listingId === listing.id"
-                        data-sip-my-listing-card>
+                        data-stelace-my-listing-card>
                     </div>
                 </div>
             </div>
@@ -350,26 +350,26 @@
                         ng-hide="vm.myListings.length">
                         Publions votre première annonce
                     </h2>
-                    <!-- item-card like CTA -->
-                    <div class="item-wall padded-sides item-wall__item-wrapper">
-                        <a class="item-wall__item-container"
+                    <!-- listing-card like CTA -->
+                    <div class="listing-grid padded-sides listing-grid__listing-wrapper">
+                        <a class="listing-grid__listing-container"
                             ui-sref="listingCreate"
                             ng-click="vm.uxEvent('Account item card CTA', 'click')">
-                            <div class="item-wall__item flex-container item-wall__item--highlight">
-                                <div class="item-wall__image-container">
+                            <div class="listing-grid__listing flex-container listing-grid__listing--highlight">
+                                <div class="listing-grid__image-container">
                                     <div class="ar-content">
-                                        <img class="img--cover" src="/assets/img/app/default/search-item-image-cta.png"  alt="Louez vos objets sur Sharinplace">
+                                        <img class="img--cover" src="/assets/img/app/default/search-listing-image-cta.png"  alt="Louez vos objets sur Sharinplace">
                                     </div>
                                 </div>
-                                <div class="item-wall__description flex-item--grow-auto hide-for-small-only">
-                                    <h3 class="no-margin item-name ellipsis">
+                                <div class="listing-grid__description flex-item--grow-auto hide-for-small-only">
+                                    <h3 class="no-margin listing-name ellipsis">
                                         Vendez et louez votre matériel
                                     </h3>
-                                    <p class="ellipsis item-wall__place">
+                                    <p class="ellipsis listing-grid__place">
                                         Déposez gratuitement vos annonces.
                                     </p>
-                                    <div class="item-wall__meta">
-                                        <span class="item-wall__rating small"
+                                    <div class="listing-grid__meta">
+                                        <span class="listing-grid__rating small"
                                             data-user-score="10"
                                             data-user-ratings="2"
                                             data-listing-score="10"

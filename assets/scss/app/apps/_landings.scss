@@ -69,36 +69,9 @@
         }
     }
 
-    .item-wall {
+    .listing_grid {
         max-width: 100rem;
         margin: auto;
-    }
-
-
-    .samples-panel {
-        margin: 0 auto;
-        padding: 2rem 0;
-        background-color: rgb(240, 240, 245);
-
-        h2 {
-            margin-top: 0;
-            font-weight: 600;
-            font-size: 1.5rem;
-            @media #{$mq-tablet} {
-                font-size: 1.75rem;
-            }
-            @media #{$mq-from-desktop} {
-                font-size: 2rem;
-            }
-        }
-
-        .samples-panel__subtitle {
-            font-size: 1rem;
-            @media #{$mq-from-tablet} {
-                font-size: 1.25rem;
-            }
-            font-weight: 600;
-        }
     }
 
     h3 {
@@ -134,6 +107,11 @@
             }
         }
     }
+}
+.home__listing-board {
+    margin: 0 auto;
+    padding: 2rem 0;
+    background-color: rgb(240, 240, 245);
 }
 
 .app404 {

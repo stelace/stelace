@@ -202,7 +202,7 @@
                     listener();
                 });
                 if (questionModal) {
-                    FoundationApi.unsubscribe("item-question-modal"); // Avoid fade-in animation during destruction
+                    FoundationApi.unsubscribe("listing-question-modal"); // Avoid fade-in animation during destruction
                     questionModal.destroy();
                 }
                 // cleaning up DOM references
@@ -418,7 +418,7 @@
                         authenticated: new google.maps.Size(-75, -200) // idem
                     },
                     windowOptions: {
-                        boxClass: "InfoBox item-details-marker",
+                        boxClass: "InfoBox listing-details-marker",
                         closeBoxURL: "",
                         disableAutoPan: false,
                         maxWidth: 150,
@@ -961,7 +961,7 @@
                 return;
             }
 
-            var imgs = $document[0].getElementById("pics-grid").querySelectorAll(".item__image");
+            var imgs = $document[0].getElementById("pics-grid").querySelectorAll(".stl-listing__image");
             _.forEach(imgs, function (img) {
                 var index = parseInt(img.getAttribute("data-index"), 10);
                 if (! isNaN(index)) {
@@ -1119,9 +1119,9 @@
 
             if (! questionModal) {
                 questionModal = new Modal({
-                    id: "item-question-modal",
+                    id: "listing-question-modal",
                     className: "large fluid-helper-modal",
-                    templateUrl: "/assets/app/modals/itemQuestionModal.html",
+                    templateUrl: "/assets/app/modals/listingQuestionModal.html",
                     overlayClose: true,
                     contentScope: {
                         vm: vm,
@@ -1131,7 +1131,7 @@
                         }
                     }
                 });
-                FoundationApi.subscribe("item-question-modal", function (msg) {
+                FoundationApi.subscribe("listing-question-modal", function (msg) {
                     if (msg === "close" || msg === "hide") {
                         doc.removeClass(lockScrollClass);
                         vm.questionModalOpened = false;

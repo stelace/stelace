@@ -1,6 +1,6 @@
-#item-editor {
-    $item-editor-padding: 1rem;
-    padding: $item-editor-padding;
+.stelace-listing-editor {
+    $stelace-listing-editor-padding: 1rem;
+    padding: $stelace-listing-editor-padding;
 
     input {
         display: inline-block;
@@ -17,7 +17,7 @@
         }
     }
 
-    label:not([for*="item-price-"]) {
+    label:not([for*="listing-price-"]) {
         font-weight: 600;
     }
 
@@ -28,7 +28,7 @@
         margin: 0.5rem 0.75rem 1rem 0;
     }
 
-    .item__pricing-slider-container {
+    .stelace-listing__pricing-slider-container {
         position: relative;
         margin: auto;
         max-width: 30rem;
@@ -41,23 +41,23 @@
         }
     }
 
-    .item__pricing-table {
+    .stelace-listing__pricing-table {
         width: 100%;
         label {
             margin: 0;
         }
     }
-    .item_pricing-table-head {
+    .stelace-listing__pricing-table-head {
         line-height: 2;
     }
-    .item__pricing-table-row--first {
+    .stelace-listing__pricing-table-row--first {
         line-height: 1.6;
     }
-    .item__pricing-table-column {
+    .stelace-listing__pricing-table-column {
         width: 33%;
         font-weight: 600;
     }
-    .item__pricing-table-input {
+    .stelace-listing__pricing-table-input {
         text-align: center;
         width: 30%;
         padding: 0 0.2rem 0.1rem;
@@ -65,12 +65,12 @@
         height: auto;
     }
 
-    .item__main-price-input {
+    .stelace-listing__main-price-input {
         width: 15rem;
         max-width: 100%;
     }
 
-    .item-editor__media {
+    .stelace-listing-editor__media {
         float: left;
         margin-right: 1rem;
         .text-control-bar {
@@ -82,7 +82,7 @@
             font-size: 0.875rem;
         }
     }
-    .item-editor__media .img-container {
+    .stelace-listing-editor__media .img-container {
         height: 5rem;
         width: 7.5rem;
         border-radius: 0.5 * $global-radius;
@@ -96,11 +96,11 @@
         margin-top: 1rem;
     }
 
-    .item-editor__instructions {
+    .stelace-listing-editor__instructions {
         margin-top: 1rem;
     }
 
-    .item-editor__description {
+    .stelace-listing-editor__description {
         margin-bottom: 1rem;
     }
 
@@ -113,22 +113,18 @@
         vertical-align: middle;
     }
 
-    .item-editor__tags.ui-select-container {
+    .stelace-listing-editor__tags.ui-select-container {
         padding: 0.2rem 0.2rem 0;
         margin: 0.1rem 0;
     }
 
-    .item__locations {
+    .stelace-listing__locations {
         overflow: hidden;
         .location-tag {
             @media #{$mq-mobile} {
                 max-width: 6rem; //instead of 9rem
             }
         }
-    }
-
-    .item-validation__fields.grid-block {
-        margin-left: 1rem;
     }
 
     .signin-form-container {
@@ -159,32 +155,8 @@
     }
 
     .spinner-button-container.save-button-container {
-        margin: 0 (-$item-editor-padding); // to show spinner as much as possible despite overflow: hidden
-        padding: 0 $item-editor-padding;
-    }
-
-    // Sticky sidebar
-    .item-editor__import-screenshot-container {
-        @include aspect-ratio(16, 9);
-        max-width: 250px;
-        margin: 0.5rem auto;
-    }
-    .item-editor__import-screenshot-label {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1.5rem;
-        text-align: center;
-
-        &.background-color {
-            background-color: $platform-color-blue;
-            color: #FFF;
-        }
-    }
-
-    #item-editor__import-url {
-        font-size: 0.875rem;
+        margin: 0 (-$stelace-listing-editor-padding); // to show spinner as much as possible despite overflow: hidden
+        padding: 0 $stelace-listing-editor-padding;
     }
 }
 

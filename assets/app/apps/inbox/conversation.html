@@ -127,7 +127,7 @@
                                         &nbsp;Partagez sur Facebook
                                     </span>
                                     <span class="spinner-container">
-                                        <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-item-spinner"></span>
+                                        <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-listing-spinner"></span>
                                     </span>
                                 </div>
                             </div>
@@ -262,7 +262,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="conversation__item"
+                    <div class="conversation__listing"
                         ng-if="vm.listing">
                         <div class="plain-card__divider">
                             <!-- TODO: request owner identity in controller -->
@@ -271,14 +271,14 @@
                             </h3>
                         </div>
                         <div class="card-section flex-container desktop-vertical">
-                            <div class="item-image small-4 s-medium-3 desktop-12">
+                            <div class="listing-image small-4 s-medium-3 desktop-12">
                                 <div class="ar-content"
                                     ui-sref="listing(::{ slug: vm.listingSlug })">
                                     <sip-img ng-src="{{vm.listing.url + '?size=400x300'}}" type="background"></sip-img>
                                 </div>
                             </div>
                             <div class="text--small padded-sides padding-top padding-bottom">
-                                <h3 class="item-name"
+                                <h3 class="listing-name"
                                     ui-sref="listing(::{ slug: vm.listingSlug })">
                                     {{::vm.listing.name}}
                                 </h3>

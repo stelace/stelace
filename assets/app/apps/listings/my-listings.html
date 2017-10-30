@@ -1,4 +1,4 @@
-<div class="items my-items"
+<div class="listings my-listings"
     ng-switch="vm.viewCreate">
     <div class="header-space"></div>
     <a id="stelace-hero-item"
@@ -14,7 +14,7 @@
             <div class="stelace-hero__subtitle">
                 Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
             </div>
-            <div class="my-items__cta"
+            <div class="my-listings__cta"
                 uib-collapse="vm.viewCreate">
                 <svg class="icon--inline icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>
@@ -30,7 +30,7 @@
             Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
         </div>
     </div>
-    <div id="item-editor" class="fluid-content sticky-helper__flex-container">
+    <div class="stelace-listing-editor fluid-content sticky-helper__flex-container">
         <div class="small-12 desktop-8">
             <h2 class="text-center"
                 ng-if="vm.listingId">
@@ -176,11 +176,11 @@
                     </select>
                     <br>-->
                     <p class="no-margin-bottom">
-                        <label for="item-name">
+                        <label for="listing-name">
                             Titre de votre annonce*&nbsp;:<br>
                         </label>
                     </p>
-                    <input id="item-name"
+                    <input id="listing-name"
                         class="text-input"
                         name="listingName"
                         type="text"
@@ -203,12 +203,12 @@
                 <div class="step-2"
                     uib-collapse="! vm.step2">
                     <p class="no-margin-bottom">
-                        <label for="item-price">
+                        <label for="listing-price">
                             Valeur*&nbsp;:
                             <br>
                         </label>
                     </p>
-                    <div class="margin-bottom-plus item__pricing-slider-container" ng-if="vm.isActivePriceRecommendation">
+                    <div class="margin-bottom-plus stelace-listing__pricing-slider-container" ng-if="vm.isActivePriceRecommendation">
                         <div class="rzslider-container">
                             <rzslider
                                 data-rz-slider-model="vm.listing.sellingPrice"
@@ -246,7 +246,7 @@
                         </div>
                     </div>
                     <div uib-collapse="vm.listing.sellingPrice === 0">
-                        <input id="item-selling-price" class="item__main-price-input no-margin-bottom"
+                        <input id="listing-selling-price" class="stelace-listing__main-price-input no-margin-bottom"
                         name="listingSellingprice"
                         type="number"
                         ng-model="vm.listing.sellingPrice"
@@ -302,11 +302,11 @@
                     <hr class="small-offset-3 small-6">
 
                     <div>
-                        <label for="item-description">
+                        <label for="listing-description">
                             Description de votre {{vm.listing.name}}*&nbsp;:
                         </label>
-                        <textarea id="item-description" name="listingDescription"
-                            class="item-editor__description"
+                        <textarea id="listing-description" name="listingDescription"
+                            class="stelace-listing-editor__description"
                             rows="5"
                             ng-model="vm.listing.description"
                             ng-maxlength="3000"
@@ -320,14 +320,14 @@
                             Veuillez renseigner une description de votre {{vm.listing.name}}.
                         </div>
 
-                        <div class="item-rentable-price margin-bottom-plus"
+                        <div class="listing-rentable-price margin-bottom-plus"
                             uib-collapse="! vm.listingTypesProperties.TIME.TIME_FLEXIBLE || ! vm.validPrice">
                             <p class="no-margin-bottom">
-                                <label for="item-price">
+                                <label for="listing-price">
                                     Prix de la première journée de location&nbsp;:<br>
                                 </label>
                             </p>
-                            <input id="item-price" class="item__main-price-input no-margin-bottom"
+                            <input id="listing-price" class="stelace-listing__main-price-input no-margin-bottom"
                                 name="listingPrice"
                                 type="number"
                                 ng-model="vm.listing.dayOnePrice"
@@ -371,24 +371,24 @@
                             </span>
                             </p>
                             <div data-uib-collapse="! vm.showRentingPricingDetails">
-                                <table class="item__pricing-table text-center margin-bottom-plus">
-                                    <thead class="item_pricing-table-head">
+                                <table class="stelace-listing__pricing-table text-center margin-bottom-plus">
+                                    <thead class="stelace-listing__pricing-table-head">
                                         <tr>
-                                            <td class="item__pricing-table-column">Exemple de durée</td>
-                                            <td class="item__pricing-table-column">Prix total en €</td>
+                                            <td class="stelace-listing__pricing-table-column">Exemple de durée</td>
+                                            <td class="stelace-listing__pricing-table-column">Prix total en €</td>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- <tr class="item__pricing-table-row--first">
+                                        <!-- <tr class="stelace-listing__pricing-table-row--first">
                                             <td>1&nbsp;jour</td>
                                             <td>{{ vm.listing.dayOnePrice || vm.defaultDayOnePrice }}</td>
                                         </tr> -->
                                         <tr ng-repeat="bookingPrice in vm.listingBookingPrices track by bookingPrice.day">
-                                            <td><label for="item-price-{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>
+                                            <td><label for="listing-price-{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>
                                             <td>
-                                                <input id="item-price-{{bookingPrice.day}}"
+                                                <input id="listing-price-{{bookingPrice.day}}"
                                                     type="number"
-                                                    class="item__pricing-table-input"
+                                                    class="stelace-listing__pricing-table-input"
                                                     ng-model="bookingPrice.price"
                                                     placeholder="{{bookingPrice.defaultPrice}}"
                                                     ng-blur="vm.fixCustomPricing()"
@@ -407,7 +407,7 @@
                             <input id="listing-deposit"
                                 name="listingDeposit"
                                 type="number"
-                                class="item__main-price-input no-margin-bottom"
+                                class="stelace-listing__main-price-input no-margin-bottom"
                                 ng-model="vm.listing.deposit"
                                 ng-model-options="{ updateOn: 'default', debounce: {'default': 500} }"
                                 ng-change="vm.updateDeposit(); vm.saveLocal('deposit')"
@@ -429,14 +429,14 @@
                                 </span>
                             </p> -->
 
-                            <!-- <label for="item-state"  class="margin-top-plus no-margin-bottom">
+                            <!-- <label for="listing-state"  class="margin-top-plus no-margin-bottom">
                                 État et accessoires fournis&nbsp;:
                             </label>
                             <div class="text--small text--light">
                                 Gagnez du temps: ces informations seront automatiquement reportées sur votre contrat de location électronique.
                             </div>
-                            <textarea id="item-state" name="listingState"
-                                class="item-editor__description no-margin-bottom"
+                            <textarea id="listing-state" name="listingState"
+                                class="stelace-listing-editor__description no-margin-bottom"
                                 rows="3"
                                 ng-model="vm.listing.stateComment"
                                 ng-maxlength="1000"
@@ -446,11 +446,11 @@
                                 data-sip-textarea-auto-adjust>
                             </textarea> -->
 
-                            <!-- <label for="item-booking-preferences" class="margin-top-plus">
+                            <!-- <label for="listing-booking-preferences" class="margin-top-plus">
                                 Préférences de réservation&nbsp;:
                             </label>
-                            <textarea id="item-booking-preferences" name="listingBookingPreferences"
-                                class="item-editor__description"
+                            <textarea id="listing-booking-preferences" name="listingBookingPreferences"
+                                class="stelace-listing-editor__description"
                                 rows="3"
                                 ng-maxlength="1000"
                                 ng-change="vm.saveLocal('booking-preferences')"
@@ -464,15 +464,15 @@
 
                     <div class="margin-bottom-plus"
                         ng-if="vm.showTags">
-                        <label for="item-tags">
+                        <label for="listing-tags">
                             Mots-clés (Niveau avancé)&nbsp;:
                         </label>
                         <!-- ng-if because the input doesn't all the available if hidden by ng-show and doesn't render again when shown -->
                         <ui-select
-                            class="text-left margin-top item-editor__tags"
+                            class="text-left margin-top stelace-listing-editor__tags"
                             tagging="vm.tagTransform"
                             tagging-tokens="ENTER|,"
-                            input-id="item-tags"
+                            input-id="listing-tags"
                             multiple
                             ng-model="vm.listingTags"
                             ng-change="vm.saveLocal('tags')"
@@ -493,13 +493,13 @@
                         <div ng-if="vm.listing.listLocations.length === 0">
                             <p>Aucun lieu favori n'est actuellement renseigné.</p>
                         </div>
-                        <div class="item__locations flex-container small-up-2">
+                        <div class="stelace-listing__locations flex-container small-up-2">
                             <div ng-repeat="loc in vm.listing.listLocations track by loc.id">
                                 <span class="small switch switch--success">
-                                    <input id="item__locations-{{loc.id}}" type="checkbox"
+                                    <input id="stelace-listing__locations-{{loc.id}}" type="checkbox"
                                         ng-model="loc.checked"
                                         tabindex="-1">
-                                    <label for="item__locations-{{loc.id}}"></label>
+                                    <label for="stelace-listing__locations-{{loc.id}}"></label>
                                 </span>
                                 <span class="location-tag ellipsis cursor-pointer"
                                     ng-class="{ disabled: ! loc.checked }"
@@ -516,77 +516,6 @@
                             </p>
                         </div>
                     </div>
-                    <!-- <div ng-if="vm.viewCreate">
-                        <p class="margin-bottom">
-                            J'accepte que Sharinplace améliore gratuitement mon annonce pour la rendre plus attractive&nbsp;:
-                            <span class="small switch switch--success vertical-middle">
-                                <input id="switch-item-validation" type="checkbox"
-                                    ng-model="vm.listingFullValidation">
-                                <label for="switch-item-validation"></label>
-                            </span>
-                            {{vm.listingFullValidation ? "Oui, avec plaisir" : "Non merci"}}&nbsp;!<br>
-                        </p>
-                    </div>
-                    <div ng-if="vm.viewCreate">
-                        <p class="margin-bottom">
-                            J'accepte que Sharinplace améliore gratuitement mon annonce pour la rendre plus attractive&nbsp;:
-                            <span class="small switch switch--success vertical-middle">
-                                <input id="switch-item-validation" type="checkbox"
-                                    ng-model="vm.listingFullValidation">
-                                <label for="switch-item-validation"></label>
-                            </span>
-                            {{vm.listingFullValidation ? "Oui, avec plaisir" : "Non merci"}}&nbsp;!<br>
-                        </p>
-                        <div uib-collapse="vm.listingFullValidation">
-                            <p>
-                                Je peux marquer en vert les parties de mon annonce pour lesquelles je souhaite quelques améliorations&nbsp;:
-                            </p>
-                            <div class="item-validation__fields grid-block small-up-1 medium-up-2">
-                                <div>
-                                    <span class="item-validation__switch-label">Titre de l'annonce&nbsp;</span>
-                                    <span class="small switch switch--success vertical-middle">
-                                        <input id="switch-item-validation-title" type="checkbox" ng-model="vm.listingValidationFields.title">
-                                        <label for="switch-item-validation-title"></label>
-                                    </span>
-                                </div>
-                                <div>
-                                    <span class="item-validation__switch-label">Catégorie de l'objet&nbsp;</span>
-                                    <span class="small switch switch--success vertical-middle">
-                                        <input id="switch-item-validation-category" type="checkbox" ng-model="vm.listingValidationFields.category">
-                                        <label for="switch-item-validation-category"></label>
-                                    </span>
-                                </div>
-                                <div>
-                                    <span class="item-validation__switch-label">Description&nbsp;</span>
-                                    <span class="small switch switch--success vertical-middle">
-                                        <input id="switch-item-validation-description" type="checkbox" ng-model="vm.listingValidationFields.description">
-                                        <label for="switch-item-validation-description"></label>
-                                    </span>
-                                </div>
-                                <div>
-                                    <span class="item-validation__switch-label">Photographie&nbsp;</span>
-                                    <span class="small switch switch--success vertical-middle">
-                                        <input id="switch-item-validation-media" type="checkbox" ng-model="vm.listingValidationFields.media">
-                                        <label for="switch-item-validation-media"></label>
-                                    </span>
-                                </div>
-                                <div>
-                                    <span class="item-validation__switch-label">Prix&nbsp;</span>
-                                    <span class="small switch switch--success vertical-middle">
-                                        <input id="switch-item-validation-price" type="checkbox" ng-model="vm.listingValidationFields.price">
-                                        <label for="switch-item-validation-price"></label>
-                                    </span>
-                                </div>
-                                <div>
-                                    <span class="item-validation__switch-label">Caution&nbsp;</span>
-                                    <span class="small switch switch--success vertical-middle">
-                                        <input id="switch-item-validation-deposit" type="checkbox" ng-model="vm.listingValidationFields.deposit">
-                                        <label for="switch-item-validation-deposit"></label>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
                     <div ng-if="! vm.isAuthenticated">
                         <hr>
                         <p class="margin-bottom">
@@ -701,7 +630,7 @@
                             Enregistrer mon annonce
                         </button>
                         <span class="spinner-container">
-                            <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-item-spinner"></span>
+                            <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-listing-spinner"></span>
                         </span>
                     </div>
                     <div class="text--small text-center margin-top margin-bottom"
@@ -729,21 +658,21 @@
                     Mes <span ng-show="vm.listingId">autres</span> annonces
                 </h2>
                 <div id="my-items-list"
-                    class="item-wall force-compact-item-card grid-block small-vertical">
+                    class="listing-grid grid-block small-vertical">
                     <div
-                        class="grid-block item-wall__item-wrapper"
+                        class="grid-block listing-grid__listing-wrapper"
                         data-listing="listing"
                         data-on-delete="vm.onDeleteListing"
                         ng-repeat="listing in vm.myListings | orderBy : '-createdDate'"
                         ng-hide="vm.listingId && vm.listingId === listing.id"
-                        data-sip-my-listing-card>
+                        data-stelace-my-listing-card>
                     </div>
                 </div>
             </div>
         </div>
         <div id="helper-column" class="sticky-helper__column desktop-4">
             <div class="image-white-cta sticky-helper__card"
-                ng-class="{ 'item-editor__sticky-share': ! vm.viewCreate && vm.myListings.length }"
+                ng-class="{ 'stelace-listing-editor__sticky-share': ! vm.viewCreate && vm.myListings.length }"
                 ng-if="vm.stickyOffset"
                 ng-switch="! (vm.viewCreate || ! vm.myListings.length)"
                 data-bound-id="helper-column"
@@ -754,10 +683,10 @@
                         Vos offres peuvent intéresser vos amis&nbsp;!
                     </h2>
                     <div>
-                        <label for="share-my-item-select" class="text--small">
+                        <label for="share-my-listing-select" class="text--small">
                             Choisissez votre plus belle annonce&nbsp;:
                         </label>
-                        <select id="share-my-item-select" class="text--small"
+                        <select id="share-my-listing-select" class="text--small"
                             ng-model="vm.selectedShareListing"
                             ng-options="listing.name for listing in vm.myListings track by listing.id">
                             <!-- <option ng-repeat="listing in vm.myListings" value="{{listing.id}}">{{listing.name}}</option> -->
@@ -794,7 +723,7 @@
                                 &nbsp;Partagez sur Facebook
                             </span>
                             <span class="spinner-container">
-                                <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-item-spinner"></span>
+                                <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-listing-spinner"></span>
                             </span>
                         </div>
                     </div>

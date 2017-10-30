@@ -2,9 +2,9 @@
 
     angular
         .module("app.widgets")
-        .controller("ItemCardController", ItemCardController);
+        .controller("ListingCardController", ListingCardController);
 
-    function ItemCardController($scope,
+    function ListingCardController($scope,
                                 $state,
                                 LocationService,
                                 platform) {

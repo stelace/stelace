@@ -1,4 +1,4 @@
-<div class="items item-view">
+<div class="listings listing-view">
     <div id="top" class="header-space"></div>
 
     <div ng-if="vm.displaySnapshotView">
@@ -8,11 +8,11 @@
     <div ng-if="! vm.displaySnapshotView">
         <div ng-if="vm.showMap && ! vm.mqMobileTablet" ng-include="'/assets/app/templates/listing-view-map.html'"></div>
 
-        <section class="item__content-container">
-        <header class="item__essential">
+        <section class="stelace-listing__content-container">
+        <header class="stelace-listing__essential">
             <div class="fluid-content">
                 <div class="flex-container flex--wrap">
-                    <div class="small-12 medium-8 item__summary flex-container">
+                    <div class="small-12 medium-8 stelace-listing__summary flex-container">
                         <div class="owner__summary hide-for-small-only">
                             <a class="profile__image profile__thumb"
                                 ui-sref="user({ id: vm.listing.owner.id })">
@@ -31,7 +31,7 @@
                             </p>
                         </div>
                         <div class="flex-item--grow flex-container flex--column small-only-text-center">
-                            <h1 id="item-name"
+                            <h1 id="listing-name"
                                 class="user-generated"
                                 itemprop="name">
                                 {{::vm.listing.name}}
@@ -48,7 +48,7 @@
                                     data-sip-rating-stars>
                                 </span>
                             </div>
-                            <div id="item-locations" class="margin-bottom text--light text--small">
+                            <div id="listing-locations" class="margin-bottom text--light text--small">
                                 <svg class="icon icon--inline light-grey">
                                     <use xlink:href="/assets/build/icons/sprite.svg#location"></use>
                                 </svg>
@@ -81,7 +81,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="small-gallery" class="medium-4 item__summary-img-medium hide-for-desktop flex-container flex--center">
+                    <div id="small-gallery" class="medium-4 stelace-listing__summary-img-medium hide-for-desktop flex-container flex--center">
                         <div>
                             <sip-img class="cursor-pointer" ng-src="{{vm.listing.url + '?size=800x600&displayType=cover'}}" type="background" data-index="0" ng-click="vm.openImgSmallGallery($event)"></sip-img>
                         </div>
@@ -89,12 +89,12 @@
                             <sip-img class="cursor-pointer" ng-src="{{vm.listing.medias[1].url + '?size=400x300&displayType=cover'}}" type="background" data-index="1" ng-click="vm.openImgSmallGallery($event)"></sip-img>
                         </div>
                     </div>
-                    <div class="small-12 medium-8 desktop-4 item__book-container">
-                        <div id="item-book-medium" class="item__book"
+                    <div class="small-12 medium-8 desktop-4 stelace-listing__book-container">
+                        <div id="listing-book-medium" class="stelace-listing__book"
                             itemprop="offers"
                             itemscope
                             itemtype="http://schema.org/Offer"
-                            itemref="item-locations"
+                            itemref="listing-locations"
                             data-overlay-id="book__prices-overlay"
                             data-bound-id="owner-stats"
                             data-offset="{{ ! vm.showMap && ! vm.vm.mqMobileTablet ? 0 : null }}"
@@ -247,7 +247,7 @@
                                     </div>
                                     <!-- Not using ng-switch-default or ng-if to prevent both buttons from displaying at the same time -->
                                     <div class="center padding-bottom">
-                                        <button id="item-book-button" class="button brightblue margin-bottom"
+                                        <button id="listing-book-button" class="button brightblue margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
                                             ng-click="vm.bookListing(false)"
@@ -256,7 +256,7 @@
                                             data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                                         </button>
-                                        <button id="item-purchase-button" class="button red margin-bottom"
+                                        <button id="listing-purchase-button" class="button red margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
                                             ng-click="vm.bookListing(true)"
@@ -271,12 +271,12 @@
                                         data-translate="listing.charge_if_owner_accepts"
                                         data-translate-values="{ owner: vm.listing.owner.firstname || vm.listing.owner.fullname }">
                                     </div>
-                                    <button id="item-book-sticky-button"
+                                    <button id="listing-book-sticky-button"
                                         class="button brightblue button--highlight sticky-button"
                                         ng-hide="vm.disableBookingButton"
                                         ng-click="vm.stickyButtonBookListing()"
                                         ng-switch-when="false"
-                                        data-sip-sticky-button="item-book-button">
+                                        data-sip-sticky-button="listing-book-button">
                                         <span data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE ? 'TIME_FLEXIBLE' : 'NONE' }"></span>
                                     </button>
@@ -299,7 +299,7 @@
                 </div>
             </div>
         </header>
-        <div class="item__description">
+        <div class="stelace-listing__description">
             <!-- Not using ListingPage on Product itemscope (schema v2) since we lose google SERP product price in this case... -->
             <!-- itemscope
             itemtype="http://schema.org/ListingPage"> -->
@@ -307,10 +307,10 @@
                 itemprop="mainEntity"
                 itemscope
                 itemtype="http://schema.org/Product"
-                itemref="item-name item-book-medium owner-stats similar-items">
+                itemref="listing-name listing-book-medium owner-stats similar-items">
                 <meta itemprop="image" content="{{vm.listing.url}}">
                 <div class="small-12 desktop-8">
-                    <div class="item__context-info"
+                    <div class="stelace-listing__context-info"
                         ng-if="vm.listing.listingTypesProperties.TIME.NONE && vm.listing.sellingPrice">
                         <h3>
                             <span data-translate="listing.buy_now.title">
@@ -350,7 +350,7 @@
                         data-sip-ux-event
                         data-ux-event-name="Listing view breadcrumb click">
                         <!-- See http://stackoverflow.com/questions/10120096/how-to-implement-schema-org-markup-for-a-breadcrumb#answer-25706256 -->
-                        <span id="item-root-breadcrumb"
+                        <span id="listing-root-breadcrumb"
                             itemscope
                             itemtype="http://data-vocabulary.org/Breadcrumb">
                             <a class="link--blue-underline" href="/"
@@ -368,7 +368,7 @@
                                 <span itemprop="title">{{::vm.breadcrumbCategory}}</span>
                             </a> ›
                         </span>
-                        <span id="item-tag-breadcrumb"
+                        <span id="listing-tag-breadcrumb"
                             ng-if="vm.breadcrumbQuery"
                             itemscope
                             itemtype="http://data-vocabulary.org/Breadcrumb">
@@ -377,7 +377,7 @@
                                 <span itemprop="title">{{::vm.breadcrumbQuery}}</span>
                             </a> ›
                         </span>
-                        <span id="item-city-breadcrumb"
+                        <span id="listing-city-breadcrumb"
                             itemscope
                             itemtype="http://data-vocabulary.org/Breadcrumb">
                             <a class="link--blue-underline" ng-href="{{vm.breadcrumbCityLink}}"
@@ -436,27 +436,27 @@
                             {{vm.listing.bookingPreferences}}
                         </p>
                     </div>
-                    <div id="pics-grid" class="item__pics-grid flex-container aspect-ratio">
+                    <div id="pics-grid" class="stelace-listing__pics-grid flex-container aspect-ratio">
                         <div class="small-8">
-                            <div class="item__image-container">
+                            <div class="stelace-listing__image-container">
                                 <img ng-src="{{vm.listing.url + '?size=800x600&displayType=cover'}}"
                                 alt="{{ vm.listing.name }}"
                                 title="Cliquez pour agrandir"
-                                class="item__image"
+                                class="stelace-listing__image"
                                 data-index="0"
                                 ng-click="vm.openImgGallery($event)">
                             </div>
                         </div>
                         <div class="flex-container flex--column small-4" ng-if="vm.nbPictures > 1">
-                            <div class="item__image-container">
+                            <div class="stelace-listing__image-container">
                                 <img ng-src="{{vm.listing.medias[1].url + '?size=400x300&displayType=cover'}}"
                                     alt="{{ vm.listing.name }} - 2"
                                     title="Cliquez pour agrandir"
-                                    class="item__image"
+                                    class="stelace-listing__image"
                                     data-index="1"
                                     ng-click="vm.openImgGallery($event)">
                             </div>
-                            <div class="item__image-container">
+                            <div class="stelace-listing__image-container">
                                 <img ng-if="vm.nbPictures > 2"
                                     ng-src="{{vm.listing.medias[2].url + '?size=400x300&displayType=cover'}}"
                                     alt="{{ vm.listing.name }} - 3"
@@ -466,7 +466,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="item__questions" ng-if="vm.displayQuestions">
+                    <div class="stelace-listing__questions" ng-if="vm.displayQuestions">
                         <h3 data-translate="listing.comments"></h3>
                         <div ng-repeat="question in vm.questions">
                             <div class="flex-container">
@@ -491,7 +491,7 @@
                         </div>
                     </div>
                     <div id="send-owner-question-description"
-                        class="item__ask-question link--blue-underline cursor-pointer"
+                        class="stelace-listing__ask-question link--blue-underline cursor-pointer"
                         ng-if="! vm.isOwner"
                         ng-click="vm.openQuestionModal('owner')">
                         <p class="no-margin-bottom text--semibold"
@@ -501,7 +501,7 @@
                 </div>
             </div>
         </div>
-        <div id="owner-stats" class="item__contact">
+        <div id="owner-stats" class="stelace-listing__contact">
             <div class="fluid-content space">
                 <div class="small-12 desktop-8">
                     <h2 data-translate="listing.owner_info_title"
@@ -571,7 +571,7 @@
                 </div>
                 <!-- Listing Ratings -->
                 <!-- vm.listingRatings.length should be equal to vm.listing.nbRatings -->
-                <div class="small-12 desktop-8 padding-bottom item__comments"
+                <div class="small-12 desktop-8 padding-bottom stelace-listing__comments"
                     ng-if="::vm.listingRatings.length">
                     <div>
                         <h2 class="no-margin-bottom"
@@ -626,7 +626,7 @@
                     </div>
                 </div>
                 <!-- Other Listings Ratings -->
-                <div class="small-12 desktop-8 item__comments"
+                <div class="small-12 desktop-8 stelace-listing__comments"
                     ng-class="::{'margin-top-plus': vm.listingRatings.length}"
                     ng-if="::vm.otherListingsRatings.length">
                     <h3>
@@ -670,19 +670,19 @@
                     data-translate="navigation.back_top_of_page"></a>
             </p>
         </div>
-        <div id="similar-items" class="item__others" ng-if="vm.similarListings.length && vm.showTags">
+        <div id="similar-items" class="stelace-listing__others" ng-if="vm.similarListings.length && vm.showTags">
             <div class="fluid-content space">
                 <h3 ng-show="vm.similarListings.length"
                     data-translate="listing.similar_title">
                 </h3>
-                <div id="similar-items-list" class="item-wall grid-block small-up-2 medium-up-3"
+                <div id="similar-items-list" class="listing-grid grid-block small-up-2 medium-up-3"
                     ng-if="vm.similarListings.length"
-                    data-sip-ux-event=".item-wall__item-container"
+                    data-sip-ux-event=".listing-grid__listing-container"
                     data-ux-event-name="Similar item click">
                 <!-- Referencing several times the same product was not recommended until recently -->
                 <!-- See http://stackoverflow.com/questions/12869478/should-schema-rich-snippet-use-for-product-listing-too -->
                 <!-- But seems ok now, see https://developers.google.com/structured-data/policies#multiple_entities_on_the_same_page -->
-                    <div class="grid-block item-wall__item-wrapper"
+                    <div class="grid-block listing-grid__listing-wrapper"
                         data-display-duration="{{vm.similarListingsShowDuration}}"
                         data-listing="listing"
                         data-locname="{{vm.searchFromLocations[0].city || vm.searchFromLocations[0].name}}"
@@ -690,14 +690,14 @@
                         itemprop="isSimilarTo"
                         itemscope
                         itemtype="http://schema.org/Product"
-                        data-sip-item-card>
+                        data-stelace-listing-card>
                     </div>
                 </div>
                 <div ng-if="vm.showTags">
                     <h3 ng-show="vm.listing.completeTags.length"
                         data-translate="listing.keywords_title">
                     </h3>
-                    <a class="item-tag"
+                    <a class="listing-tag"
                         ng-repeat="tag in vm.listing.completeTags"
                         ng-if="tag.priorityScore"
                         ui-sref="searchWithQuery({query: tag.nameURLSafe})"

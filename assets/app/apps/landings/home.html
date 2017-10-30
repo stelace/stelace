@@ -56,13 +56,13 @@
             </form>
         </div>
     </div>
-    <div class="samples-panel">
+    <div class="home__listing-board">
         <div class="padding-bottom">
-            <div id="home-listings" class="home__listing-board item-wall grid-block small-up-2 medium-up-3 desktop-up-6 padded-sides"
+            <div id="home-listings" class="listing-grid grid-block small-up-2 medium-up-3 desktop-up-6 padded-sides"
                 itemscope
                 itemtype="http://schema.org/ItemList">
                 <div
-                    class="grid-block item-wall__item-wrapper"
+                    class="grid-block listing-grid__listing-wrapper"
                     data-listing="listing"
                     data-display-duration="false"
                     data-position="{{ $index + 1 }}"
@@ -70,7 +70,7 @@
                     itemprop="itemListElement"
                     itemscope
                     itemtype="http://schema.org/Product"
-                    sip-item-card>
+                    stelace-listing-card>
                 </div>
             </div>
         </div>
@@ -78,7 +78,7 @@
             <h3 class="text-center text--semibold margin-bottom">
                 <span data-translate="prompt.new_listing_minute"></span>
             </h3>
-            <a id="samples-add-item-button" class="add-item-button button button--highlight"
+            <a id="samples-add-listing-button" class="add-listing-button button button--highlight"
                 ui-sref="listingCreate">
                 <svg class="icon--inline icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>

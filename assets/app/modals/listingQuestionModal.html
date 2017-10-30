@@ -1,6 +1,6 @@
 <!-- Fix: Fluid-height is needed on iPhone (iOS8 Chrome/Safari) to enable scrone inside modal -->
 <div class="fluid-height flex-container flex--wrap flex--align-stretch">
-    <a zf-close="item-question-modal" class="close-button">×</a>
+    <a zf-close="listing-question-modal" class="close-button">×</a>
     <div class="small-12 s-medium-4 helper">
         <div class="fluid-width">
             <div class="profile__image profile__thumb">
@@ -129,8 +129,8 @@
                     </div> -->
                 </div>
                 <p class="text-center" ng-show="vm.showIncorrectDates">Les dates sont incorrectes.</p>
-                <label for="item-question-private-content">Votre message privé&nbsp;:</label>
-                <textarea id="item-question-private-content" name="privateContent"
+                <label for="listing-question-private-content">Votre message privé&nbsp;:</label>
+                <textarea id="listing-question-private-content" name="privateContent"
                     rows="5"
                     ng-model="vm.privateContent"
                     ng-maxlength="2000"
@@ -145,8 +145,8 @@
                 </div>
             </div>
             <div ng-show="vm.editPublicQuestion && ! vm.conversation">
-                <label for="item-question-public-content">Vos questions sur l'objet (message public)&nbsp;:</label>
-                <textarea id="item-question-public-content" name="publicContent"
+                <label for="listing-question-public-content">Vos questions sur l'objet (message public)&nbsp;:</label>
+                <textarea id="listing-question-public-content" name="publicContent"
                 rows="5"
                 ng-model="vm.publicContent"
                 ng-maxlength="2000"

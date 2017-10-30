@@ -1,8 +1,8 @@
 <section>
-<header class="item__essential">
+<header class="stelace-listing__essential">
     <div class="fluid-content">
         <div class="flex-container flex--wrap">
-            <div class="small-12 medium-8 item__summary flex-container">
+            <div class="small-12 medium-8 stelace-listing__summary flex-container">
                 <div class="owner__summary hide-for-small-only">
                     <a class="profile__image profile__thumb"
                         ui-sref="user({ id: vm.listing.owner.id })">
@@ -21,7 +21,7 @@
                     </p>
                 </div>
                 <div class="flex-item--grow flex-container flex--column small-only-text-center">
-                    <h1 id="item-name"
+                    <h1 id="listing-name"
                         class="user-generated"
                         itemprop="name">
                         {{::vm.listing.name}} <span ng-if="vm.listing.name">{{!vm.listing.quantity ? "a trouvé un nouveau propriétaire" : "n'est plus disponible"}}&nbsp;</span>
@@ -40,7 +40,7 @@
                     </div>
                 </div>
             </div>
-            <div id="small-gallery" class="medium-4 item__summary-img-medium flex-container flex--center">
+            <div id="small-gallery" class="medium-4 stelace-listing__summary-img-medium flex-container flex--center">
                 <div>
                     <sip-img class="cursor-pointer" ng-src="{{vm.listing.url + '?size=800x600&displayType=cover'}}" type="background" data-index="0" ng-click="vm.openImgSmallGallery($event)"></sip-img>
                 </div>
@@ -51,20 +51,20 @@
         </div>
     </div>
 </header>
-<div class="item__description">
+<div class="stelace-listing__description">
     <!-- Not using ItemPage and itemprop="mainEntity" on Product itemscope (schema v2) since we lose google SERP product price in this case... -->
     <!-- itemscope
     itemtype="http://schema.org/ItemPage"> -->
     <div class="fluid-content space"
         itemscope
         itemtype="http://schema.org/Product"
-        itemref="item-name owner-stats similar-items">
+        itemref="listing-name owner-stats similar-items">
         <meta itemprop="image" content="{{vm.listing.url}}">
         <div class="small-12 desktop-8">
             <h2>Informations sur l'objet</h2>
             <div class="margin-bottom-plus text--vsmall">
                 <!-- See http://stackoverflow.com/questions/10120096/how-to-implement-schema-org-markup-for-a-breadcrumb#answer-25706256 -->
-                <span id="item-root-breadcrumb"
+                <span id="listing-root-breadcrumb"
                     itemscope
                     itemtype="http://data-vocabulary.org/Breadcrumb">
                     <a class="link--blue-underline" href="/" title="Accueil"
@@ -82,7 +82,7 @@
                         <span itemprop="title">{{::vm.breadcrumbCategory}}</span>
                     </a> ›
                 </span>
-                <span id="item-tag-breadcrumb"
+                <span id="listing-tag-breadcrumb"
                     ng-if="vm.breadcrumbQuery"
                     itemscope
                     itemtype="http://data-vocabulary.org/Breadcrumb">
@@ -92,7 +92,7 @@
                         <span itemprop="title">{{::vm.breadcrumbQuery}}</span>
                     </a> ›
                 </span>
-                <span id="item-city-breadcrumb"
+                <span id="listing-city-breadcrumb"
                     itemscope
                     itemtype="http://data-vocabulary.org/Breadcrumb">
                     <!-- get nearest big city via a service -->
@@ -149,27 +149,27 @@
                     {{vm.listing.bookingPreferences}}
                 </p>
             </div>
-            <div id="pics-grid" class="item__pics-grid flex-container aspect-ratio">
+            <div id="pics-grid" class="stelace-listing__pics-grid flex-container aspect-ratio">
                 <div class="small-8">
-                    <div class="item__image-container">
+                    <div class="stelace-listing__image-container">
                         <img ng-src="{{vm.listing.url + '?size=800x600&displayType=cover'}}"
                         alt="{{ vm.listing.name }}"
                         title="Cliquez pour agrandir"
-                        class="item__image"
+                        class="stelace-listing__image"
                         data-index="0"
                         ng-click="vm.openImgGallery($event)">
                     </div>
                 </div>
                 <div class="flex-container flex--column small-4" ng-if="vm.nbPictures > 1">
-                    <div class="item__image-container">
+                    <div class="stelace-listing__image-container">
                         <img ng-src="{{vm.listing.medias[1].url + '?size=400x300&displayType=cover'}}"
                             alt="{{ vm.listing.name }} - 2"
                             title="Cliquez pour agrandir"
-                            class="item__image"
+                            class="stelace-listing__image"
                             data-index="1"
                             ng-click="vm.openImgGallery($event)">
                     </div>
-                    <div class="item__image-container">
+                    <div class="stelace-listing__image-container">
                         <img ng-if="vm.nbPictures > 2"
                             ng-src="{{vm.listing.medias[2].url + '?size=400x300&displayType=cover'}}"
                             alt="{{ vm.listing.name }} - 3"
@@ -179,7 +179,7 @@
                     </div>
                 </div>
             </div>
-            <div class="item__questions" ng-if="vm.displayQuestions">
+            <div class="stelace-listing__questions" ng-if="vm.displayQuestions">
                 <h3>Questions/réponses</h3>
                 <div ng-repeat="question in vm.questions">
                     <div class="flex-container">
@@ -206,7 +206,7 @@
         </div>
     </div>
 </div>
-<div id="owner-stats" class="item__contact">
+<div id="owner-stats" class="stelace-listing__contact">
     <div class="fluid-content space">
         <div class="small-12 desktop-8">
             <h2>Informations sur le propriétaire, {{vm.listing.owner.fullname}}</h2>
@@ -263,7 +263,7 @@
         </div>
         <!-- Listing Ratings -->
         <!-- vm.listingRatings.length should be equal to vm.listing.nbRatings -->
-        <div class="small-12 desktop-8 padding-bottom item__comments"
+        <div class="small-12 desktop-8 padding-bottom stelace-listing__comments"
             ng-if="::vm.listingRatings.length">
             <div>
                 <h2 class="no-margin-bottom">
@@ -326,7 +326,7 @@
             </div>
         </div>
         <!-- Other Listings Ratings -->
-        <div class="small-12 desktop-8 item__comments"
+        <div class="small-12 desktop-8 stelace-listing__comments"
             ng-class="::{'margin-top-plus': vm.listingRatings.length}"
             ng-if="::vm.otherListingsRatings.length">
             <h3>
@@ -362,17 +362,17 @@
         </div>
     </div>
 </div>
-<div id="similar-items" class="item__others">
+<div id="similar-items" class="stelace-listing__others">
     <div class="fluid-content space">
         <h3 ng-if="vm.similarListings.length">
             Autres objets qui pourraient vous intéresser
         </h3>
-        <div id="similar-items-list" class="item-wall grid-block small-up-1 desktop-up-3"
+        <div id="similar-items-list" class="listing-grid grid-block small-up-1 desktop-up-3"
             ng-if="vm.similarListings.length">
         <!-- Referencing several times the same product was not recommended until recently -->
         <!-- See http://stackoverflow.com/questions/12869478/should-schema-rich-snippet-use-for-product-listing-too -->
         <!-- But seems ok now, see https://developers.google.com/structured-data/policies#multiple_entities_on_the_same_page -->
-            <div class="grid-block item-wall__item-wrapper"
+            <div class="grid-block listing-grid__listing-wrapper"
                 data-display-duration="{{vm.similarListingsShowDuration}}"
                 data-listing="listing"
                 data-locname="{{vm.searchFromLocations[0].city || vm.searchFromLocations[0].name}}"
@@ -380,13 +380,13 @@
                 itemprop="isSimilarTo"
                 itemscope
                 itemtype="http://schema.org/Product"
-                data-sip-item-card>
+                data-stelace-listing-card>
             </div>
         </div>
         <h3 ng-if="vm.listing.completeTags.length">
             Recherche d'objets à louer par mot-clé
         </h3>
-        <a class="item-tag"
+        <a class="listing-tag"
             ng-repeat="tag in vm.listing.completeTags"
             ui-sref="searchWithQuery({query: tag.nameURLSafe})">
             {{tag.name}}&nbsp;

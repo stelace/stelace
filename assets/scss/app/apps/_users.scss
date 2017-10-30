@@ -49,7 +49,7 @@
         @media #{$mq-from-desktop} {
             min-height: 35rem; // enough height for sitcky sidebar
         }
-        &.user__content--items-only .user__content-section:not(.user__items) {
+        &.user__content--items-only .user__content-section:not(.user__listings) {
             display: none;
         }
     }

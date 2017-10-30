@@ -1,12 +1,12 @@
 @import "../base/all";
 
-body.items {
+body.listings {
     background-color: rgb(240, 240, 245);
 }
 
-.items {
+.listings {
 
-    &.item-search .location-tag {
+    &.listing-search .location-tag {
         width: 7rem;
         @media #{$mq-from-tablet} {
             width: 9rem;
@@ -49,7 +49,7 @@ body.items {
     $infobox-triangle-size: 6px; // equal to half of pseudo-element width. Equal to pseudo-element visible height but to half of its real height.
     $infobox-big-triangle-size: 10px;
 
-    // distance-marker, mylocation-marker and item-details-marker specific to item view
+    // distance-marker, mylocation-marker and listing-details-marker specific to listing view
     .InfoBox.distance-marker {
         $infobox-height: 32px;
         height: $infobox-height;
@@ -104,7 +104,7 @@ body.items {
         }
     }
 
-    .InfoBox.item-details-marker {
+    .InfoBox.listing-details-marker {
         $infobox-height: 210px;
         height: $infobox-height;
         width: 150px;
@@ -134,14 +134,14 @@ body.items {
             }
         }
 
-        .item__image {
+        .stelace-listing__image {
             width: 60px;
             height: 45px;
             margin: 0 auto 0;
         }
-        .item__journeys, .item__locations {
+        .stelace-listing__journeys, .stelace-listing__locations {
             position: relative;
-            height: $infobox-height - 2 * $infobox-big-triangle-size - 45px - 10px; // item__image (45) and padding (2*5)
+            height: $infobox-height - 2 * $infobox-big-triangle-size - 45px - 10px; // stelace-listing__image (45) and padding (2*5)
             > div {
                 padding-top: 3px;
                 &:last-child {
@@ -150,16 +150,16 @@ body.items {
                 }
             }
         }
-        .item__journeys .flex-container .icon {
+        .stelace-listing__journeys .flex-container .icon {
             margin-left: 5px;
         }
-        .item__locations {
+        .stelace-listing__locations {
             padding-top: 3px;
         }
 
     }
 
-    .InfoBox.item-marker {
+    .InfoBox.listing-marker {
         $infobox-height: 45px;
         height: $infobox-height;
         width: $infobox-height;
@@ -185,14 +185,13 @@ body.items {
         }
     }
 
-    .InfoBox.item-preview-marker {
+    .InfoBox.listing-preview-marker {
         $infobox-height: 230px;
         $infobox-width: 150px;
         height: $infobox-height;
         width: $infobox-width;
 
-        // markup very simial to item-wall items but hard to factorize here
-        > a.item-thumbnail {
+        > a.listing-thumbnail {
             display: block;
             height: $infobox-height - 2 * $infobox-big-triangle-size;
             position: relative;
@@ -203,19 +202,19 @@ body.items {
             color: rgb(85, 90, 95);
         }
 
-        h3.item-name {
+        h3.listing-name {
             font-size: 12px;
             font-weight: 600;
             padding: 0;
             margin: 0 0 2px;
         }
 
-        .item-thumbnail__image-container {
+        .listing-thumbnail__image-container {
             @include aspect-ratio(3, 2);
             // height: $infobox-width * 2 / 3;
         }
 
-        .item-thumbnail__price {
+        .listing-thumbnail__price {
             position: absolute;
             top: 50%;
             left: 100%;
@@ -231,7 +230,7 @@ body.items {
             }
         }
 
-        .item-thumbnail__owner {
+        .listing-thumbnail__owner {
             height: 32px;
             width: 32px;
             position: absolute;
@@ -241,13 +240,13 @@ body.items {
             border: 2px solid #FFF;
         }
 
-        .item-thumbnail__description {
+        .listing-thumbnail__description {
             height: $infobox-height - 2 * $infobox-big-triangle-size - 5px - $infobox-width * 2 / 3; //(- padding - picture)
             position: relative;
             padding: 18px 0 0;
         }
 
-        .item-thumbnail__places{
+        .listing-thumbnail__places{
             max-height: 36px;
             margin: 2px 0 0;
             position: absolute;
@@ -340,7 +339,7 @@ body.items {
 
 $search__query-padding: 0.5rem;
 $search__search-bar-height: 3.5rem;
-.search__query {
+.listing-search__query {
     width: 100%; // limit width with size-XX classes
     padding: $search__query-padding;
     background: #FFF;
@@ -354,7 +353,7 @@ $search__search-bar-height: 3.5rem;
         left: 0;
         z-index: 1;
 
-        & ~ .search__results {
+        & ~ .listing-search__results {
             padding: ($search__search-bar-height + $search__query-padding) 0 0;
         }
     }
@@ -367,23 +366,6 @@ $search__search-bar-height: 3.5rem;
         }
     }
 }
-.search__search-bar {
-}
-.search__location-input-container {
-    flex: 0 1 25rem;
-    input, input:hover, input:focus {
-        border: none;
-        border-radius: 0;
-    }
-    input {
-        border-bottom: 1px solid rgba($platform-color-blue, 0.5);
-        transition: all 0.3s ease;
-    }
-    input:hover, input:focus {
-        border-bottom: 2px solid rgba($platform-color-blue, 0.8);
-    }
-}
-
 
 .search__advanced-search {
     background: #FFF;
@@ -448,29 +430,7 @@ $search__search-bar-height: 3.5rem;
 }
 
 
-.item-search {
-    #map-search {
-        @media #{$mq-from-s-medium} {
-            height: 100vh;
-            // workaround for iOS calc(100vh - 3rem). See http://stackoverflow.com/questions/21224411/css-calc-viewport-units-workaround
-            box-sizing: border-box; // foundation html default anyway
-            padding-top: $header-height;
-            margin-top: - $header-height;
-
-            // position: absolute;
-            // top: $header-height;
-            // bottom: 0; // not using bottom because of offcanvas's tranform local positionning issue
-            // left: 0;
-            // right: 0;
-        }
-    }
-
-    .search-map {
-        @media #{$mq-s-small} {
-            display: none!important;
-        }
-    }
-
+.listing-search {
     .map-overlay {
         z-index: 3;
         position: absolute;
@@ -481,40 +441,6 @@ $search__search-bar-height: 3.5rem;
         &.background {
             background-color: rgba(#FFF, 0.5);
         }
-    }
-
-    #search-content {
-        // similar to foundation grid-content without grid nesting unneccessary styles
-        overflow: hidden;
-        overflow-y: auto;
-        background-color: rgb(240, 240, 245);
-        border-right: 1px solid #DDD;
-    }
-
-    .search__results {
-        position: relative; // for spinner
-        min-height: calc(100vh - 2 * #{$search__query-padding} - #{$header-height} - #{$search__search-bar-height});
-        background-color: rgb(240, 240, 245);
-        .search__results-cta:focus, .search__results-cta:hover, .search__results-cta:active {
-            .icon--highlight {
-                fill: $platform-color-red;
-            }
-        }
-    }
-    .search__results-overlay {
-        position: absolute;
-        z-index: 3;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(#FFF, 0.5);
-    }
-    #search__results-items {
-        padding-bottom: 0; // override
-    }
-    .search__results-cta a {
-        color: inherit;
     }
 
     .pagination-container {
@@ -553,15 +479,70 @@ $search__search-bar-height: 3.5rem;
             }
         }
     }
+}
+.listing-search__view {
+    @media #{$mq-from-s-medium} {
+        height: 100vh;
+        // workaround for iOS calc(100vh - 3rem). See http://stackoverflow.com/questions/21224411/css-calc-viewport-units-workaround
+        box-sizing: border-box; // foundation html default anyway
+        padding-top: $header-height;
+        margin-top: - $header-height;
 
-    .search__breadcrumb {
-        padding: 0 0 1rem;
-        background-color: rgb(240, 240, 245);
+        // position: absolute;
+        // top: $header-height;
+        // bottom: 0; // not using bottom because of offcanvas's tranform local positionning issue
+        // left: 0;
+        // right: 0;
     }
 }
+.listing-search__map-wrapper {
+    @media #{$mq-s-small} {
+        display: none!important;
+    }
+}
+.listing-search__content {
+    overflow-y: auto;
+    overflow: hidden;
+    border-right: 1px solid #DDD;
+}
+.listing-search__location-input-container {
+    flex: 0 1 25rem;
+    input, input:hover, input:focus {
+        border: none;
+        border-radius: 0;
+    }
+    input {
+        border-bottom: 1px solid rgba($platform-color-blue, 0.5);
+        transition: all 0.3s ease;
+    }
+    input:hover, input:focus {
+        border-bottom: 2px solid rgba($platform-color-blue, 0.8);
+    }
+}
+.listing-search__results {
+    position: relative; // for spinner
+    min-height: calc(100vh - 2 * #{$search__query-padding} - #{$header-height} - #{$search__search-bar-height});
+    background-color: rgb(240, 240, 245);
+}
+.listing-search__results-overlay {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(#FFF, 0.5);
+}
+.listing-search__results-items {
+    padding-bottom: 0; // override
+}
+.listing-search__breadcrumb {
+    padding: 0 0 1rem;
+    background-color: rgb(240, 240, 245);
+}
 
-.item-view {
-    $item__book-width: 20rem;
+.listing-view {
+    $stelace-listing__book-width: 20rem;
 
     h1 {
         margin-top: 0;
@@ -618,7 +599,7 @@ $search__search-bar-height: 3.5rem;
     }
 
 
-    .item__map{
+    .stelace-listing__map{
         height: 15rem;
         @media #{$mq-tablet} {
             height: 25rem;
@@ -635,7 +616,7 @@ $search__search-bar-height: 3.5rem;
         background-color: rgb(240, 240, 245);
     }
 
-    .item__essential {
+    .stelace-listing__essential {
         position: relative;
         padding: 0.5rem 1rem;
         background-color: #FFF;
@@ -643,7 +624,7 @@ $search__search-bar-height: 3.5rem;
         border-top: none;
         box-shadow: 0 -8px 4px -4px rgba(0, 0, 0, 0.25);
     }
-    .item__summary {
+    .stelace-listing__summary {
         padding: 0 1rem;
         .giver-thumbnail {
             display: inline-block;
@@ -667,7 +648,7 @@ $search__search-bar-height: 3.5rem;
             margin-right: auto;
         }
     }
-    .item__summary-img-medium {
+    .stelace-listing__summary-img-medium {
         height: 4rem;
         width: 13rem; // for small screens
         > div {
@@ -679,13 +660,13 @@ $search__search-bar-height: 3.5rem;
             margin: 0.5rem auto;
         }
     }
-    .item__book-container {
+    .stelace-listing__book-container {
         @media #{$mq-until-tablet} {
             margin: 0.5rem auto;
         }
-        max-width: $item__book-width;
+        max-width: $stelace-listing__book-width;
     }
-    .item__book {
+    .stelace-listing__book {
         // padding: 0.5rem 1rem;
         border: 1px solid #DDD;
         box-sizing: content-box;
@@ -694,7 +675,7 @@ $search__search-bar-height: 3.5rem;
             position: absolute;
             z-index: 10;
             top: -28rem;
-            width: $item__book-width;
+            width: $stelace-listing__book-width;
             margin-left: 1.5rem;
         }
         @media #{$mq-from-large} {
@@ -715,7 +696,7 @@ $search__search-bar-height: 3.5rem;
         .book__pics {
             position: relative; // prices-overlay positionning
             width: 100%;
-            height: 3/5 * $item__book-width;
+            height: 3/5 * $stelace-listing__book-width;
             background-color: #FFF;
             @media #{$mq-until-tablet} {
                 order: 1; // last
@@ -826,14 +807,14 @@ $search__search-bar-height: 3.5rem;
             }
         }
 
-        #item-book-button {
+        #listing-book-button {
             &.disabled {
                 background-color: #DDD;
             }
         }
     }
 
-    .item__context-info {
+    .stelace-listing__context-info {
         background-color: #FFF;
         border-radius: 0.5 * $global-radius;
         padding: 1rem;
@@ -846,7 +827,7 @@ $search__search-bar-height: 3.5rem;
     }
 
 
-    .item__description {
+    .stelace-listing__description {
         min-height: 15rem;
         background-color: rgb(240, 240, 245);
         p {
@@ -854,9 +835,9 @@ $search__search-bar-height: 3.5rem;
             word-wrap: break-word;
         }
     }
-    .item__pics-grid {
+    .stelace-listing__pics-grid {
         min-height: 10rem;
-        .item__image-container {
+        .stelace-listing__image-container {
             overflow: hidden;
             padding: 0.375rem;
             img {
@@ -872,7 +853,7 @@ $search__search-bar-height: 3.5rem;
         }
     }
 
-    .item__questions {
+    .stelace-listing__questions {
         padding-top: 2rem;
 
         > div {
@@ -896,7 +877,7 @@ $search__search-bar-height: 3.5rem;
             margin-bottom: auto;
         }
     }
-    .item__ask-question {
+    .stelace-listing__ask-question {
         padding-top: 0.5rem;
         margin-top: 0.5rem;
         p {
@@ -910,7 +891,7 @@ $search__search-bar-height: 3.5rem;
     }
 
 
-    .item__contact{
+    .stelace-listing__contact{
         min-height: 10rem;
         background-color: #FFF;
         border: 1px solid #DDD;
@@ -921,7 +902,7 @@ $search__search-bar-height: 3.5rem;
     .user__awards {
         margin-top: 1rem;
     }
-    .item__comments {
+    .stelace-listing__comments {
         h2, h3 {
             display: inline-block;
             margin-bottom: 1rem;
@@ -930,11 +911,11 @@ $search__search-bar-height: 3.5rem;
     }
 
 
-    .item__others {
+    .stelace-listing__others {
         min-height: 10rem;
         background-color: rgb(240, 240, 245);
     }
-    .item-tag {
+    .listing-tag {
         display: inline-block;
         background-color: rgb(230, 230, 235);
         color: #666;
@@ -948,7 +929,7 @@ $search__search-bar-height: 3.5rem;
             color: #FFF;
         }
     }
-    .item-wall {
+    .listing-grid {
         margin-top: 1rem;
         @media #{$mq-until-tablet} {
             max-width: 40rem;
@@ -957,7 +938,7 @@ $search__search-bar-height: 3.5rem;
 
 }
 
-.my-items {
+.my-listings {
     h1 {
         font-size: 2rem;
     }
@@ -974,11 +955,11 @@ $search__search-bar-height: 3.5rem;
         background: linear-gradient(170deg, $platform-color-blue 10%, $platform-color-brightblue 70%);
     }
     .stelace-hero:focus, .stelace-hero:hover {
-        .my-items__cta .icon {
+        .my-listings__cta .icon {
             transform: scale(1.2);
         }
     }
-    .my-items__cta {
+    .my-listings__cta {
         padding: 0.5rem;
         .icon {
             height: 3rem;
