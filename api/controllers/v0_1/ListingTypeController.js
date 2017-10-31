@@ -1,4 +1,4 @@
-/* global ApiService, Listing, ListingType */
+/* global ApiService, ListingType */
 
 module.exports = {
 
@@ -26,7 +26,7 @@ async function find(req, res) {
             totalResults: countListingTypes,
             limit: pagination.limit,
         });
-        returnedObj.results = Listing.exposeAll(listingTypes, access);
+        returnedObj.results = ListingType.exposeAll(listingTypes, access);
 
         res.json(returnedObj);
     } catch (err) {
