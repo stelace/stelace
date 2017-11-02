@@ -242,28 +242,52 @@ landing:
             en: "Welcome to {SERVICE_NAME}"
             fr: "Bienvenue sur {SERVICE_NAME}"
             context: "Default website title"
-        title__user_label:
+        title__EDITOR_LABEL:
             en: "Title of your website"
             fr: "Titre de votre site"
-        title__user_helper:
+        title__EDITOR_HELPER:
             en: "As shown in Web browser and search engine results such as Google."
             fr: "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google."
         header:
             en: "Welcome to {SERVICE_NAME}"
             fr: "Bienvenue sur {SERVICE_NAME}"
             context: "Default homepage header (H1)"
-        header__user_label:
+        header__EDITOR_LABEL:
             en: "Main header of your homepage"
             fr: "En-tête principal de votre page d’accueil"
-        header__user_helper:
+        header__EDITOR_HELPER:
             en: "Try to describe your activity precisely to improve your SEO."
             fr: "Essayez de décrire votre activité précisément pour améliorer votre référencement."
         subheader:
             en: "Your community"
             fr: "Votre communauté"
-        subheader__user_label:
+        subheader__EDITOR_LABEL:
             en: "Subheader of your website"
             fr: "En-tête secondaire"
+        main_cta:
+            en: "New listing"
+            fr: "Publiez votre annonce"
+        main_cta__EDITOR_LABEL:
+            en: "Homepage call-to-action (new listing)"
+            fr: "Action principale proposée (création d’annonce)"
+        content_cta_header:
+            en: "Create your first listing in a minute."
+            fr: "Enregistrez votre première annonce en quelques instants."
+        content_cta_header__EDITOR_LABEL:
+            en: "Home content prompt header"
+            fr: "En-tête incitatif dans le contenu"
+        content_cta_button:
+            en: "Post my listing"
+            fr: "Je crée mon annonce"
+        content_cta_button__EDITOR_LABEL:
+            en: "Home content call-to-action"
+            fr: "Bouton de conversion dans le contenu"
+        main_text_content:
+            en: ""
+            fr: ""
+        main_text_content__EDITOR_LABEL:
+            en: "Main content of your homepage"
+            fr: "Contenu principal de votre page d’accueil"
     help:
         header:
             en: "Help center"
@@ -287,10 +311,16 @@ landing:
         header:
             en: "Contact us"
             fr: "Contactez-nous"
+        header__EDITOR_LABEL:
+            en: "Contact page title"
+            fr: "Titre de la page Contact"
         content:
             en: ""
             fr: ""
             context: *LANDING_CONTENT_PLACEHOLDER_CONTEXT
+        content__EDITOR_LABEL:
+            en: "Contact page text"
+            fr: "Contenu de la page Contact"
 navigation:
     home:
         en: "Home"
@@ -301,6 +331,9 @@ navigation:
     new_listing:
         en: "New listing"
         fr: "Publiez votre annonce"
+    new_listing__EDITOR_LABEL:
+        en: "New listing link"
+        fr: "Lien de publication d’annonce"
     contact_us:
         en: "Contact us"
         fr: "Contactez-nous"
@@ -323,12 +356,6 @@ navigation:
         fr: "Menu"
         context: "Navigation menu label"
 prompt:
-    new_listing_minute:
-        en: "Create your first listing in a minute."
-        fr: "Enregistrez votre première annonce en quelques instants."
-    post_my_listing_button:
-        en: "Post my listing"
-        fr: "Je crée mon annonce"
     post_listing_short_button_1: &POST_LISTING_SHORT_BUTTON
         en: "{timeDimension, select,
             TIME_FLEXIBLE{New listing}

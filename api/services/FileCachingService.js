@@ -25,8 +25,7 @@ function Cache(args) {
     this.data         = {};
     this.dataChanged  = false;
     this.loaded       = false;
-
-    setInterval(() => {
+    this.scheduled    = setInterval(() => {
         this.saveToFile()
             .catch(() => { /* do nothing */ });
     }, this.saveInterval);
@@ -98,4 +97,8 @@ Cache.prototype.saveToFile = function () {
 
         _this.dataChanged = false;
     })();
+};
+
+Cache.prototype.free = function () {
+    clearInterval(this.scheduled);
 };

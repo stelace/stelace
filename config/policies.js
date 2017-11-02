@@ -185,6 +185,10 @@ module.exports.policies = {
         '*': ['isApiAuthenticated'],
     },
 
+    'v0_1/ContentEntriesController': {
+        '*': true,
+    },
+
     'v0_1/ListingController': {
         '*': ['isApiAuthenticated'],
     },

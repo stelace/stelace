@@ -91,13 +91,21 @@
     "landing": {
         "homepage": {
             "title": "Welcome to {SERVICE_NAME}",
-            "title__user_label": "Title of your website",
-            "title__user_helper": "As shown in Web browser and search engine results such as Google.",
+            "title__EDITOR_LABEL": "Title of your website",
+            "title__EDITOR_HELPER": "As shown in Web browser and search engine results such as Google.",
             "header": "Welcome to {SERVICE_NAME}",
-            "header__user_label": "Main header of your homepage",
-            "header__user_helper": "Try to describe your activity precisely to improve your SEO.",
+            "header__EDITOR_LABEL": "Main header of your homepage",
+            "header__EDITOR_HELPER": "Try to describe your activity precisely to improve your SEO.",
             "subheader": "Your community",
-            "subheader__user_label": "Subheader of your website"
+            "subheader__EDITOR_LABEL": "Subheader of your website",
+            "main_cta": "New listing",
+            "main_cta__EDITOR_LABEL": "Homepage call-to-action (new listing)",
+            "content_cta_header": "Create your first listing in a minute.",
+            "content_cta_header__EDITOR_LABEL": "Home content prompt header",
+            "content_cta_button": "Post my listing",
+            "content_cta_button__EDITOR_LABEL": "Home content call-to-action",
+            "main_text_content": "",
+            "main_text_content__EDITOR_LABEL": "Main content of your homepage"
         },
         "help": {
             "header": "Help center",
@@ -110,13 +118,16 @@
         },
         "contact": {
             "header": "Contact us",
-            "content": ""
+            "header__EDITOR_LABEL": "Contact page title",
+            "content": "",
+            "content__EDITOR_LABEL": "Contact page text"
         }
     },
     "navigation": {
         "home": "Home",
         "faq": "FAQ",
         "new_listing": "New listing",
+        "new_listing__EDITOR_LABEL": "New listing link",
         "contact_us": "Contact us",
         "terms": "Terms",
         "search": "Search",
@@ -125,8 +136,6 @@
         "menu": "Menu"
     },
     "prompt": {
-        "new_listing_minute": "Create your first listing in a minute.",
-        "post_my_listing_button": "Post my listing",
         "post_listing_short_button_1": "Let’s sell",
         "post_listing_short_button_2": "Let’s rent",
         "continue_button": "Continue",

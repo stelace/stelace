@@ -91,13 +91,21 @@
     "landing": {
         "homepage": {
             "title": "Bienvenue sur {SERVICE_NAME}",
-            "title__user_label": "Titre de votre site",
-            "title__user_helper": "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.",
+            "title__EDITOR_LABEL": "Titre de votre site",
+            "title__EDITOR_HELPER": "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.",
             "header": "Bienvenue sur {SERVICE_NAME}",
-            "header__user_label": "En-tête principal de votre page d’accueil",
-            "header__user_helper": "Essayez de décrire votre activité précisément pour améliorer votre référencement.",
+            "header__EDITOR_LABEL": "En-tête principal de votre page d’accueil",
+            "header__EDITOR_HELPER": "Essayez de décrire votre activité précisément pour améliorer votre référencement.",
             "subheader": "Votre communauté",
-            "subheader__user_label": "En-tête secondaire"
+            "subheader__EDITOR_LABEL": "En-tête secondaire",
+            "main_cta": "Publiez votre annonce",
+            "main_cta__EDITOR_LABEL": "Action principale proposée (création d’annonce)",
+            "content_cta_header": "Enregistrez votre première annonce en quelques instants.",
+            "content_cta_header__EDITOR_LABEL": "En-tête incitatif dans le contenu",
+            "content_cta_button": "Je crée mon annonce",
+            "content_cta_button__EDITOR_LABEL": "Bouton de conversion dans le contenu",
+            "main_text_content": "",
+            "main_text_content__EDITOR_LABEL": "Contenu principal de votre page d’accueil"
         },
         "help": {
             "header": "Centre d’aide",
@@ -110,13 +118,16 @@
         },
         "contact": {
             "header": "Contactez-nous",
-            "content": ""
+            "header__EDITOR_LABEL": "Titre de la page Contact",
+            "content": "",
+            "content__EDITOR_LABEL": "Contenu de la page Contact"
         }
     },
     "navigation": {
         "home": "Accueil",
         "faq": "Comment ça marche ?",
         "new_listing": "Publiez votre annonce",
+        "new_listing__EDITOR_LABEL": "Lien de publication d’annonce",
         "contact_us": "Contactez-nous",
         "terms": "Conditions Générales",
         "search": "Rechercher",
@@ -125,8 +136,6 @@
         "menu": "Menu"
     },
     "prompt": {
-        "new_listing_minute": "Enregistrez votre première annonce en quelques instants.",
-        "post_my_listing_button": "Je crée mon annonce",
         "post_listing_short_button_1": "Je vends",
         "post_listing_short_button_2": "Je loue",
         "continue_button": "Continuer",
