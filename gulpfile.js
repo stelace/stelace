@@ -44,7 +44,7 @@ var jsConfig = {
         "assets/bower_components/photoswipe/dist/photoswipe-ui-default.js",
         "assets/bower_components/spin.js/spin.js",
         "assets/bower_components/viewport-units-buggyfill/viewport-units-buggyfill.js",
-        "assets/vendors/redux-3.7.2.js",
+        "assets/vendors/redux-3.7.2.min.js",
         "assets/bower_components/angular/angular.js",
         "assets/bower_components/angular-i18n/angular-locale_fr-fr.js",
         "assets/bower_components/restangular/dist/restangular.js",
@@ -67,7 +67,10 @@ var jsConfig = {
         "assets/bower_components/angular-toastr/dist/angular-toastr.tpls.js",
         "assets/bower_components/angularjs-slider/dist/rzslider.js",
         "assets/bower_components/angular-lazy-img/release/angular-lazy-img.js",
-        "assets/bower_components/ng-redux/dist/ng-redux.js",
+
+        // use a custom version where production message build is removed (do not use the minified version of bower because it breaks the workflow)
+        "assets/vendors/ng-redux-3.5.2.js",
+        // "assets/bower_components/ng-redux/dist/ng-redux.js",
 
         // Translations (cookie is a dependency for local storage)
         "assets/bower_components/messageformat/messageformat.js",
