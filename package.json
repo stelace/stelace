@@ -3,7 +3,18 @@
   "private": true,
   "version": "0.0.1",
   "description": "Smart marketplace launcher",
-  "keywords": [],
+  "keywords": ["marketplace", "API", "platform", "entrepreneur"],
+  "homepage": "https://stelace.com",
+  "license": "GPL-3.0",
+  "author": "Stelace Team",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stelace/stelace"
+  },
+  "engines" : {
+    "node" : ">=8.4"
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions",
@@ -102,12 +113,5 @@
     "lint:client": "cd assets && eslint .",
     "clean:emailTests": "rm emailTests/*.html",
     "translate": "node scripts/buildTranslations.js"
-  },
-  "main": "app.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/stelace/stelace"
-  },
-  "author": "Stelace Team",
-  "license": "GPL-3.0"
+  }
 }
