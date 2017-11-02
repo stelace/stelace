@@ -65,7 +65,7 @@
             }
 
             function getDefaultListingImageUrl() {
-                return "/assets/img/app/default/default-item.png";
+                return "/assets/img/app/default/default-listing.png";
             }
 
             function getDefaultProfileImageUrl() {
