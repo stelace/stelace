@@ -113,6 +113,8 @@ function createReferredBy(req, res) {
                         }
                     })
                     .then(link => {
+                        if (!link) return;
+
                         return StelaceEventService.createEvent({
                             req,
                             res,
