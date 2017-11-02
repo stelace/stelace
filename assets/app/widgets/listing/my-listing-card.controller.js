@@ -131,7 +131,6 @@
 
             // Do not spin when latency is low;
             controlSpinnerTimeout = _spinPendingControlSpinner();
-            var wasPaused = vm.listing.locked;
 
             resListing.pause()
                 .then(function (listing) {
