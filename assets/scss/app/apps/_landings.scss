@@ -1,74 +1,6 @@
 @import "../base/all";
 
 .home {
-    .home-hero__wrapper {
-        position: relative;
-    }
-
-    .home-hero__content {
-        padding: 2rem 1rem 1rem;
-        margin: 4rem 0;
-
-        h2 {
-            margin-top: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #FFF;
-            text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-            @media #{$mq-from-desktop} {
-                font-size: 1.75rem;
-            }
-        }
-        h1 {
-            margin-top: 0;
-            font-size: 2rem;
-            font-weight: 600;
-            color: #FFF;
-            text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-            @media #{$mq-from-tablet} {
-                font-size: 2.5rem;
-            }
-            @media #{$mq-from-desktop} {
-                font-size: 3rem;
-            }
-        }
-    }
-
-    .search-bar {
-        $home-search-bar-height: 3.5rem;
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        height: $home-search-bar-height;
-        width: 100%;
-        background: #FFF;
-        form {
-            margin: 0 auto;
-            .inline-label {
-                max-height: $home-search-bar-height;
-                .input__inner-icon-container {
-                    flex: 1 1 auto;
-                }
-                .input__inner-icon {
-                    height: $home-search-bar-height;
-                    line-height: $home-search-bar-height
-                }
-            }
-            input, button {
-                height: $home-search-bar-height;
-                border-radius: 0;
-                border: none;
-            }
-            input {
-                border-bottom: 1px solid rgba($platform-color-brightblue, 0.5);
-                transition: all 0.3s ease;
-                &:hover, &input:focus {
-                    border-bottom: 2px solid rgba($platform-color-brightblue, 0.8);
-                }
-            }
-        }
-    }
-
     .listing_grid {
         max-width: 100rem;
         margin: auto;
@@ -81,29 +13,69 @@
         @media #{$mq-from-tablet} {
             font-size: 2rem;
         }
-        &.countdown-title {
-            padding: 0;
-            margin-top: -1rem;
-            @media #{$mq-from-tablet} {
-                font-size: 1.75rem;
-            }
+    }
+}
+.home-hero__wrapper {
+    position: relative;
+}
+.home-hero__content {
+    padding: 2rem 1rem 1rem;
+    margin: 4rem 0;
+
+    h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #FFF;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+        @media #{$mq-from-desktop} {
+            font-size: 1.75rem;
         }
     }
-
-    .featured {
-        padding-bottom: 1rem;
-        background-color: rgb(133, 130, 133);
+    h1 {
+        margin-top: 0;
+        font-size: 2rem;
+        font-weight: 600;
         color: #FFF;
-        h3 {
-            padding-bottom: 0;
-            color: #FFF;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+        @media #{$mq-from-tablet} {
+            font-size: 2.5rem;
         }
-        a {
-            color: #FFF;
+        @media #{$mq-from-desktop} {
+            font-size: 3rem;
         }
-        .fluid-content {
-            @media #{$mq-from-large} {
-                width: 70rem; // override
+    }
+}
+.home__search-bar {
+    $home-search-bar-height: 3.5rem;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: $home-search-bar-height;
+    width: 100%;
+    background: #FFF;
+    form {
+        margin: 0 auto;
+        .inline-label {
+            max-height: $home-search-bar-height;
+            .input__inner-icon-container {
+                flex: 1 1 auto;
+            }
+            .input__inner-icon {
+                height: $home-search-bar-height;
+                line-height: $home-search-bar-height
+            }
+        }
+        input, button {
+            height: $home-search-bar-height;
+            border-radius: 0;
+            border: none;
+        }
+        input {
+            border-bottom: 1px solid rgba($platform-color-brightblue, 0.5);
+            transition: all 0.3s ease;
+            &:hover, &input:focus {
+                border-bottom: 2px solid rgba($platform-color-brightblue, 0.8);
             }
         }
     }
