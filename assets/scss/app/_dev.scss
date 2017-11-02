@@ -1,6 +1,6 @@
 [data-env="dev"].dev-highlight-translations {
     [data-translate] {
-        border: 2px solid $platform-color-green;
+        outline: 2px solid $platform-color-green;
     }
     [data-translate-attr]::placeholder {
         text-decoration: underline;
