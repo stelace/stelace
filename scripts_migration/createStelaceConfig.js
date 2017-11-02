@@ -27,7 +27,7 @@ Sails.load({
 
         const attrs = {
             config: {
-                SERVICE_NAME: null,
+                SERVICE_NAME: 'Stelace',
             },
             features: {
                 GAMIFICATION: true,
