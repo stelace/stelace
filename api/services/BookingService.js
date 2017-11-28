@@ -1,5 +1,5 @@
 /*
-    global Booking, ContractService, Listing, ListingTypeService, ModelSnapshot, PricingService, User
+    global Booking, ContractService, Listing, ListingAvailability, ListingTypeService, ModelSnapshot, PricingService, User
  */
 
 module.exports = {
@@ -191,6 +191,7 @@ async function setBookingAvailability({
     now,
 }) {
     const { TIME, AVAILABILITY } = listingType.properties;
+    const { timeAvailability } = listingType.config;
 
     const maxQuantity = Listing.getMaxQuantity(listing, listingType);
 
@@ -204,7 +205,14 @@ async function setBookingAvailability({
         if (TIME === 'TIME_FLEXIBLE') {
             const futureBookings = await Listing.getFutureBookings(listing.id, now);
 
-            const availability = getAvailabilityPeriods(futureBookings, {
+            let listingAvailabilities;
+            if (timeAvailability === 'AVAILABLE' || timeAvailability === 'UNAVAILABLE') {
+                listingAvailabilities = await ListingAvailability.find({ listingId: listing.id });
+            }
+
+            const availability = getAvailabilityPeriods({
+                futureBookings,
+                listingAvailabilities,
                 newBooking: {
                     startDate,
                     endDate,
@@ -336,11 +344,15 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
  * @param  {Object} futureBookings[i].startDate
  * @param  {Object} futureBookings[i].endDate
  * @param  {Object} futureBookings[i].quantity
- * @param  {Object[]} options.newBooking
- * @param  {String} options.newBooking.startDate
- * @param  {String} options.newBooking.endDate
- * @param  {Number} options.newBooking.quantity
- * @param  {Number} [options.maxQuantity] - if not defined, treat it as no limit
+ * @param  {Object[]} listingAvailabilities
+ * @param  {Object} listingAvailabilities[i].startDate
+ * @param  {Object} listingAvailabilities[i].endDate
+ * @param  {Object} listingAvailabilities[i].quantity
+ * @param  {Object[]} newBooking
+ * @param  {String} newBooking.startDate
+ * @param  {String} newBooking.endDate
+ * @param  {Number} newBooking.quantity
+ * @param  {Number} [maxQuantity] - if not defined, treat it as no limit
  *
  * @return {Object} res
  * @return {Boolean} res.isAvailable
@@ -349,8 +361,8 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
  * @return {Number} res.availablePeriods[i].quantity
  * @return {String} [res.availablePeriods[i].newPeriod]
  */
-function getAvailabilityPeriods(futureBookings, { newBooking, maxQuantity } = {}) {
-    if (!futureBookings.length) {
+function getAvailabilityPeriods({ futureBookings = [], listingAvailabilities = [], newBooking, maxQuantity } = {}) {
+    if (!futureBookings.length && !listingAvailabilities.length) {
         return {
             isAvailable: true,
             availablePeriods: [],
@@ -368,6 +380,21 @@ function getAvailabilityPeriods(futureBookings, { newBooking, maxQuantity } = {}
         dateSteps.push({
             date: booking.endDate,
             delta: -booking.quantity,
+        });
+    });
+
+    _.forEach(listingAvailabilities, listingAvailability => {
+        const startSign = listingAvailability.available ? -1 : 1; // if available, one extra place so -1
+        const endSign = -1 * startSign;
+
+        dateSteps.push({
+            date: listingAvailability.startDate,
+            delta: startSign * listingAvailability.quantity,
+        });
+
+        dateSteps.push({
+            date: listingAvailability.endDate,
+            delta: endSign * listingAvailability.quantity,
         });
     });
 

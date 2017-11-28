@@ -1,5 +1,5 @@
 /* global
-    BookingService, Bookmark, Listing, ListingService, ListingTypeService, Location, Media, ModelSnapshot,
+    BookingService, Bookmark, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, ModelSnapshot,
     PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceEventService, Tag, TokenService, ToolsService, User
 */
 
@@ -179,7 +179,12 @@ async function findOne(req, res) {
         listing.medias             = Media.exposeAll(listingMedias, access);
         listing.instructionsMedias = Media.exposeAll(listingInstructionsMedias, access);
 
-        const availableResult = BookingService.getAvailabilityPeriods(futureBookings);
+        let listingAvailabilities = await ListingAvailability.find({ listingId: listing.id });
+
+        const availableResult = BookingService.getAvailabilityPeriods({
+            futureBookings,
+            listingAvailabilities,
+        });
         listing.availablePeriods = availableResult.availablePeriods;
 
         res.json(listing);

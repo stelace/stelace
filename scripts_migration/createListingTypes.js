@@ -36,6 +36,7 @@ Sails.load({
                         DYNAMIC_PRICING: 'NONE',
                     },
                     config: {
+                        timeAvailability: 'AVAILABLE',
                         pricing: {
                             ownerFeesPercent: 5,
                             takerFeesPercent: 15,
@@ -65,6 +66,7 @@ Sails.load({
                         DYNAMIC_PRICING: 'NONE',
                     },
                     config: {
+                        timeAvailability: 'UNAVAILABLE',
                         pricing: {
                             ownerFeesPercent: 7,
                             takerFeesPercent: 0,
