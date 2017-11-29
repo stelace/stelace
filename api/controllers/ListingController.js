@@ -1,6 +1,6 @@
 /* global
     BookingService, Bookmark, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, ModelSnapshot,
-    PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceEventService, Tag, TokenService, ToolsService, User
+    PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceEventService, Tag, TimeService, TokenService, ToolsService, User
 */
 
 /**
@@ -26,7 +26,10 @@ module.exports = {
     getPricing: getPricing,
     getRecommendedPrices: getRecommendedPrices,
     getRentingPriceFromSellingPrice: getRentingPriceFromSellingPrice,
-    pauseListingToggle: pauseListingToggle
+    pauseListingToggle: pauseListingToggle,
+    getListingAvailability,
+    createListingAvailability,
+    removeListingAvailability,
 
 };
 
@@ -236,6 +239,23 @@ async function create(req, res) {
         if (!validListingTypesIds) {
             return res.badRequest();
         }
+
+        // TODO: uncomment it when listing quantity equals to 0 is correctly managed
+        // let listingType;
+        // if (createAttrs.listingTypesIds.length === 1) {
+        //     listingType = await ListingTypeService.getListingType(createAttrs.listingTypesIds[0]);
+        //     if (!listingType) {
+        //         return res.notFound();
+        //     }
+        // }
+
+        // const { TIME } = listingType.properties;
+        // const { timeAvailability } = listingType.config;
+        // if (TIME === 'TIME_FLEXIBLE' && timeAvailability === 'UNAVAILABLE') {
+        //     createAttrs.quantity = 0;
+        // } else {
+        //     createAttrs.quantity = 1;
+        // }
 
         createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
         createAttrs.dayOnePrice  = PricingService.roundPrice(createAttrs.dayOnePrice);
@@ -447,7 +467,8 @@ function destroy(req, res) {
 
             return [
                 listing,
-                Bookmark.update({ listingId: id }, { active: false }) // disable bookmarks associated to this listing
+                Bookmark.update({ listingId: id }, { active: false }), // disable bookmarks associated to this listing
+                ListingAvailability.destroy({ listingId: id }),
             ];
         })
         .spread(listing => {
@@ -775,4 +796,116 @@ function getRentingPriceFromSellingPrice(req, res) {
             res.json(prices);
         })
         .catch(res.sendError);
+}
+
+async function getListingAvailability(req, res) {
+    const id = req.param('id');
+
+    const access = 'others';
+
+    try {
+        const listing = await Listing.findOne({ id });
+        if (!listing) {
+            throw new NotFoundError();
+        }
+
+        const listingAvailabilities = await ListingAvailability.find({ listingId: id });
+
+        res.json(ListingAvailability.exposeAll(listingAvailabilities, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function createListingAvailability(req, res) {
+    const id = req.param('id');
+    const {
+        startDate,
+        endDate,
+    } = req.allParams();
+    const quantity = 1; // TODO: take user input
+
+    const access = 'others';
+
+    if (!startDate || !TimeService.isDateString(startDate)
+     || !endDate || !TimeService.isDateString(endDate)
+     || endDate <= startDate
+    ) {
+        return res.badRequest();
+    }
+
+    try {
+        const listing = await Listing.findOne({ id });
+        if (!listing) {
+            throw new NotFoundError();
+        }
+        if (listing.ownerId !== req.user.id) {
+            throw new ForbiddenError();
+        }
+        if (listing.listingTypesIds.length !== 1) {
+            throw new ForbiddenError();
+        }
+
+        const listingType = await ListingTypeService.getListingType(listing.listingTypesIds[0]);
+        if (!listingType) {
+            throw new NotFoundError();
+        }
+
+        const { timeAvailability } = listingType.config;
+
+        if (timeAvailability === 'NONE') {
+            throw new ForbiddenError();
+        }
+
+        let available;
+        if (timeAvailability === 'AVAILABLE') {
+            available = false;
+        } else if (timeAvailability === 'UNAVAILABLE') {
+            available = true;
+        }
+
+        const listingAvailabilities = await ListingAvailability.find({ listingId: id });
+
+        if (TimeService.isIntersection(listingAvailabilities, { startDate, endDate })) {
+            const error = new BadRequestError('Listing availability conflict');
+            error.expose = true;
+            throw error;
+        }
+
+        const listingAvailability = await ListingAvailability.create({
+            listingId: id,
+            startDate,
+            endDate,
+            quantity,
+            available,
+        });
+
+        res.json(ListingAvailability.expose(listingAvailability, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function removeListingAvailability(req, res) {
+    const id = req.param('id');
+    const listingAvailabilityId = req.param('listingAvailabilityId');
+
+    try {
+        const listing = await Listing.findOne({ id });
+        if (!listing) {
+            throw new NotFoundError();
+        }
+        if (listing.ownerId !== req.user.id) {
+            throw new ForbiddenError();
+        }
+
+        await ListingAvailability.destroy({
+            id: listingAvailabilityId,
+            listingId: listing.id
+        });
+
+        res.json({ ok: true });
+    } catch (err) {
+        res.sendError(err);
+    }
 }

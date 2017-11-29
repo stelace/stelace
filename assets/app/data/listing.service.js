@@ -20,6 +20,7 @@
         pricing,
         Restangular,
         StelaceConfig,
+        time,
         tools
     ) {
         var cacheFields = {};
@@ -54,6 +55,9 @@
         service.isSearchState           = isSearchState;
         service.getListingTypesProperties = getListingTypesProperties;
         service.getMaxQuantity          = getMaxQuantity;
+        service.getListingAvailabilities = getListingAvailabilities;
+        service.createListingAvailabilities = createListingAvailabilities;
+        service.removeListingAvailabilities = removeListingAvailabilities;
 
         CleanService.clean(service);
 
@@ -851,6 +855,45 @@
             }
 
             return maxQuantity;
+        }
+
+        function getListingAvailabilities(listingId) { // sending only id avoids to wait for listing request
+            var listing = Restangular.restangularizeElement(null, { id: listingId }, "listing");  // empty listing
+
+            return listing.customGETLIST("listingAvailabilities")
+                .then(function (listingAvailabilities) {
+                    listingAvailabilities = tools.clearRestangular(listingAvailabilities);
+                    return listingAvailabilities;
+                });
+        }
+
+        function createListingAvailabilities(listingId, args) { // sending only id avoids to wait for listing request
+            var listing = Restangular.restangularizeElement(null, { id: listingId }, "listing");  // empty listing
+
+            args = args || {};
+            if (!args.startDate || !time.isDateString(args.startDate)
+             || !args.endDate || !time.isDateString(args.endDate)
+             || args.endDate <= args.startDate
+            ) {
+                throw new Error('Bad params');
+            }
+
+            return listing.customPOST(args, "listingAvailabilities")
+                .then(function (listingAvailability) {
+                    listingAvailability = tools.clearRestangular(listingAvailability);
+                    return listingAvailability;
+                });
+        }
+
+        function removeListingAvailabilities(listingId, args) { // sending only id avoids to wait for listing request
+            var listing = Restangular.restangularizeElement(null, { id: listingId }, "listing");  // empty listing
+
+            args = args || {};
+            if (!args.listingAvailabilityId) {
+                throw new Error('Missing params');
+            }
+
+            return listing.customDELETE("listingAvailabilities", { listingAvailabilityId: args.listingAvailabilityId });
         }
     }
 

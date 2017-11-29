@@ -115,6 +115,9 @@ module.exports.routes = {
     'get /api/listing/price-recommendation': "ListingController.getRecommendedPrices",
     'post /api/listing/renting-price': "ListingController.getRentingPriceFromSellingPrice",
     'put /api/listing/:id/pause': "ListingController.pauseListingToggle",
+    'get /api/listing/:id/listingAvailabilities': "ListingController.getListingAvailability",
+    'post /api/listing/:id/listingAvailabilities': "ListingController.createListingAvailability",
+    'delete /api/listing/:id/listingAvailabilities': "ListingController.removeListingAvailability",
 
     // LinkController
     'post /api/link/referredBy': "LinkController.createReferredBy",

@@ -104,6 +104,44 @@
         margin-bottom: 1rem;
     }
 
+    .stelace-listing__availability-period {
+        .text-control {
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0.25rem;
+            margin-top: -0.15rem;
+            margin-left: 1rem;
+            &:hover, &:focus, &:active {
+                .icon {
+                    fill: $platform-color-blue;
+                }
+                & + .text-control__label {
+                    color: $platform-color-blue;
+                }
+            }
+
+            &.control-pending + .text-control__label:not(.text-control__spinner) {
+                display: none;
+            }
+
+            .icon {
+                fill: rgba(140, 145, 150, 0.5)
+            }
+        }
+    }
+
+    label.stelace-listing__availability-calendar-label {
+        font-weight: normal;
+    }
+
+    .stelace-listing__availability-calendar {
+        max-width: 10rem;
+    }
+
+    .stelace-listing__availability-period-label {
+        padding: 0 0.3rem;
+    }
+
     meter {
         width: 50%;
         margin : 0 auto 0.5rem;

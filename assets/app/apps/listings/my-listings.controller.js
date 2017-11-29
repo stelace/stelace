@@ -34,10 +34,13 @@
                                 StelaceConfig,
                                 StelaceEvent,
                                 TagService,
+                                time,
                                 toastr,
                                 tools,
                                 UserService,
                                 usSpinnerService) {
+        var displayFormatDate = 'DD/MM/YYYY';
+        var formatDate = 'YYYY-MM-DD';
         var listeners               = [];
         var listingValidationFields    = ["title", "category", "description", "media", "price", "sellingPrice", "deposit"];
         var initialDefaultDeposit   = 50; // EUR
@@ -67,12 +70,30 @@
         var mediasSelector;
         var stlEvent;
         var stlEventData;
+        var startDateOpenedOnce;
+        var endDateOpenedOnce;
+        var todayDate           = new Date();
+        var dateOptions         = {
+            minDate: todayDate,
+            startingDay: 1,
+            showWeeks: false,
+            maxMode: "day",
+            initDate: todayDate // required since 1.1.2 update
+            // Bug with use of datepicker-options for inline datepickers if initDate is not set
+        };
 
         var vm = this;
+        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
+        // Accessibility issue: this fix prevents from tabing rapidly to submit button
+        // See http://stackoverflow.com/questions/25928605/in-ios8-safari-readonly-inputs-are-handled-incorrectly
+        // Also see angular-ui pull request, rejected for accesibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
+        vm.iOS                   = tools.isIOS();
+
         vm.activeTags           = StelaceConfig.isFeatureActive('TAGS');
         vm.showListingCategories = StelaceConfig.isFeatureActive('LISTING_CATEGORIES');
         vm.listingTypes         = [];
         vm.showListingTypes     = false;
+        vm.formatDate           = "dd/MM/yyyy";
 
         vm.isActivePriceRecommendation = StelaceConfig.isFeatureActive('PRICE_RECOMMENDATION');
         vm.showTags             = false;
@@ -163,6 +184,9 @@
         vm.facebookShareMyListing            = facebookShareMyListing;
         vm.fixCustomPricing               = fixCustomPricing;
         vm.toggleListingListingTimeProperty  = toggleListingListingTimeProperty;
+        vm.openDatepicker                 = openDatepicker;
+        vm.addTimeAvailability            = addTimeAvailability;
+        vm.removeListingAvailability      = removeListingAvailability;
 
         activate();
 
@@ -380,6 +404,13 @@
                         }
                     }
 
+                    if (listing) {
+                        return fetchListingAvailabilities(listing.id);
+                    } else {
+                        initListingAvailabilities();
+                    }
+                })
+                .then(function () {
                     if (! savingListing) {
                         _initListing();
                     }
@@ -511,10 +542,12 @@
             vm.mediaMode         = "edit";
 
             _computeListingTypesProperties();
+            _setUniqueListingType();
             _initPrice();
+            _computeDateConstraints(vm.editingListingAvailabilities);
 
             listeners.push($scope.$watch("vm.listing.name", _.debounce(_nameChanged, vm.isActivePriceRecommendation ? 1500 : 0)));
-            listeners.push($scope.$watch("vm.listing.sellingPrice", _.throttle(_sellingPriceChanged, 2000)));
+            listeners.push($scope.$watch("vm.listing.sellingPrice", _.throttle(_sellingPriceChanged, 300)));
         }
 
         function saveLocal(field) {
@@ -1132,7 +1165,9 @@
                 })
                 .then(function (newListing) {
                     createdListing = newListing;
-
+                    return updateListingAvailabilities(createdListing);
+                })
+                .then(function () {
                     // useful because other functions use it below
                     ListingService.populate(createdListing, {
                         listingTypes: vm.listingTypes
@@ -1261,6 +1296,9 @@
                     return vm.listing.put();
                 })
                 .then(function () {
+                    return updateListingAvailabilities(vm.listing);
+                })
+                .then(function () {
                     vm.totalMediaUpload     = 0;
                     vm.showTotalMediaUpload = true;
 
@@ -1304,6 +1342,9 @@
                         listingTypes: vm.listingTypes
                     });
 
+                    return fetchListingAvailabilities(listing.id);
+                })
+                .then(function () {
                     _initListing();
                     toastr.success("Objet modifié");
                 });
@@ -1730,6 +1771,8 @@
             if (vm.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 vm.listing.listingTypesIds.push(vm.timeFlexibleListingType.id);
             }
+
+            _setUniqueListingType();
         }
 
         function _computeListingTypesProperties() {
@@ -1738,10 +1781,201 @@
                 // TODO: take the url filter into account
                 _.forEach(vm.listingTypes, function (listingType) {
                     vm.listing.listingTypesIds.push(listingType.id);
-                })
+                });
             }
 
             vm.listingTypesProperties = ListingService.getListingTypesProperties(vm.listing, vm.listingTypes);
+        }
+
+        function _setUniqueListingType() {
+            if (vm.listing.listingTypesIds.length === 1) {
+                vm.uniqueListingType = _.find(vm.listingTypes, function (listingType) {
+                    return vm.listing.listingTypesIds[0] === listingType.id;
+                });
+            } else {
+                vm.uniqueListingType = null;
+            }
+            vm.showTimeAvailability = vm.uniqueListingType && vm.uniqueListingType.config.timeAvailability !== 'NONE';
+
+            if (vm.showTimeAvailability) {
+                vm.timeAvailabilityType = vm.uniqueListingType.config.timeAvailability;
+            }
+        }
+
+        // Ensure modal is not re-opened with ng-focus. This maybe overkill with recent (v1.1.2) ui-bootstrap udpate
+        // But this library is rather dynamic/unstable...
+        // See implemented fix: https://github.com/angular-ui/bootstrap/issues/5027#issuecomment-162546292
+        function openDatepicker(datepicker) {
+            if (datepicker.indexOf("start") >= 0 && ! startDateOpenedOnce) {
+                startDateOpenedOnce = true;
+            } else if (datepicker.indexOf("end") >= 0 && ! endDateOpenedOnce) {
+                endDateOpenedOnce = true;
+            }
+
+            if (datepicker === "start" && ! vm.startDateOpened) {
+                vm.startDateOpened = true;
+            } else if (datepicker === "end" && ! vm.endDateOpened) {
+                vm.endDateOpened = true;
+            }
+        }
+
+        function updateListingAvailabilities(listing) {
+            var oldListingAvailabilitiesIds = _.pluck(vm.listingAvailabilities, 'id');
+            var newListingAvailabilitiesIds = _.pluck(vm.editingListingAvailabilities, 'id');
+
+            var listingAvailabilitiesToAdd = _.filter(vm.editingListingAvailabilities, function (l) {
+                return !!l.fakeId;
+            });
+
+            var listingAvailabilitiesIdsToRemove = _.difference(oldListingAvailabilitiesIds, newListingAvailabilitiesIds);
+
+            var removePromises = [];
+            _.forEach(listingAvailabilitiesIdsToRemove, function (id) {
+                removePromises.push(ListingService.removeListingAvailabilities(listing.id, {
+                    listingAvailabilityId: id
+                }));
+            });
+
+            var addPromises = [];
+            _.forEach(listingAvailabilitiesToAdd, function (l) {
+                addPromises.push(ListingService.createListingAvailabilities(listing.id, {
+                    startDate: l.startDate,
+                    endDate: l.endDate
+                }));
+            });
+
+            // removing before adding because of time constraints
+            return $q.all(removePromises)
+                .then(function () {
+                    return $q.all(addPromises);
+                });
+        }
+
+        function getISODate(date) {
+            return moment(date).format(formatDate) + 'T00:00:00.000Z';
+        }
+
+        function getNextISODate(date) {
+            return moment(date).add({ d: 1 }).format(formatDate) + 'T00:00:00.000Z';
+        }
+
+        function _computeDateConstraints(listingAvailabilities) {
+            listingAvailabilities = listingAvailabilities || [];
+            var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
+
+            var _disableStartDate = function (data) {
+                var startDate = getISODate(data.date);
+
+                if (startDate < refDate) {
+                    return true;
+                }
+
+                var isWithinRange = _.reduce(listingAvailabilities, function (memo, listingAvailability) {
+                    if (listingAvailability.startDate <= startDate && startDate < listingAvailability.endDate) {
+                        return memo || true;
+                    }
+                    return memo;
+                }, false);
+
+                if (isWithinRange) {
+                    return true;
+                }
+
+                return false;
+            };
+
+            var _disableEndDate = function (data) {
+                var endDate = getISODate(data.date);
+
+                if (endDate < refDate) {
+                    return true;
+                }
+
+                var isWithinRange = _.reduce(listingAvailabilities, function (memo, listingAvailability) {
+                    if (listingAvailability.startDate <= endDate && endDate < listingAvailability.endDate) {
+                        return memo || true;
+                    }
+                    return memo;
+                }, false);
+
+                if (isWithinRange) {
+                    return true;
+                }
+
+                return false;
+            };
+
+            vm.startDateOptions = _.assign({}, dateOptions, { dateDisabled: _disableStartDate });
+            vm.endDateOptions   = _.assign({}, dateOptions, { dateDisabled: _disableEndDate });
+        }
+
+        function addTimeAvailability() {
+            if (!vm.startDate
+             || !vm.endDate
+            ) {
+                return toastr.info("Veuillez indiquer les dates de début et de fin de période.", "Dates requises");
+            }
+            if (vm.endDate < vm.startDate) {
+                return toastr.info("La date de fin doit être après la date de début.", "Dates incorrectes");
+            }
+
+            var startDate = getISODate(vm.startDate);
+            var endDate = getNextISODate(vm.endDate);
+
+            var isWithinRange = time.isIntersection(vm.editingListingAvailabilities, {
+                startDate: startDate,
+                endDate: endDate
+            });
+
+            if (isWithinRange) {
+                return toastr.info("Veuillez indiquer une période qui ne recouvre pas une autre période déjà sélectionnée", "Période incorrecte");
+            }
+
+            vm.editingListingAvailabilities.push({
+                id: _.uniqueId('listing-availability_'),
+                fakeId: true,
+                startDate: startDate,
+                endDate: endDate
+            });
+
+            _computeDateConstraints(vm.editingListingAvailabilities);
+            _processEditingListingAvailabilities();
+
+            vm.startDate = null;
+            vm.endDate = null;
+        }
+
+        function removeListingAvailability(listingAvailabilityId) {
+            vm.editingListingAvailabilities = _.filter(vm.editingListingAvailabilities, function (l) {
+                return l.id !== listingAvailabilityId;
+            });
+
+            _computeDateConstraints(vm.editingListingAvailabilities);
+        }
+
+        function _processEditingListingAvailabilities() {
+            vm.editingListingAvailabilities = _.sortBy(vm.editingListingAvailabilities, function (listingAvailability) {
+                return listingAvailability.startDate;
+            });
+
+            _.forEach(vm.editingListingAvailabilities, function (l) {
+                l.displayStartDate = moment(l.startDate).format(displayFormatDate);
+                l.displayEndDate = moment(l.endDate).add({ d: -1 }).format(displayFormatDate);
+            });
+        }
+
+        function fetchListingAvailabilities(listingId) {
+            return ListingService.getListingAvailabilities(listingId)
+                .then(function (listingAvailabilities) {
+                    initListingAvailabilities(listingAvailabilities);
+                });
+        }
+
+        function initListingAvailabilities(listingAvailabilities) {
+            listingAvailabilities = listingAvailabilities || [];
+            vm.listingAvailabilities = listingAvailabilities;
+            vm.editingListingAvailabilities = _.clone(listingAvailabilities);
+            _processEditingListingAvailabilities();
         }
     }
 

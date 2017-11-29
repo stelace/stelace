@@ -16,10 +16,26 @@ module.exports = {
         endDate: 'string',
         quantity: {
             type: 'integer',
-            default: 1,
+            defaultsTo: 1,
         },
         available: 'boolean',
     },
 
+    getAccessFields,
+
 };
 
+function getAccessFields(access) {
+    var accessFields = {
+        others: [
+            'id',
+            'listingId',
+            'startDate',
+            'endDate',
+            'quantity',
+            'available',
+        ],
+    };
+
+    return accessFields[access];
+}

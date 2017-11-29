@@ -245,7 +245,7 @@
                             </div>
                         </div>
                     </div>
-                    <div uib-collapse="vm.listing.sellingPrice === 0">
+                    <div uib-collapse="vm.listing.sellingPrice === 0 && vm.isActivePriceRecommendation">
                         <input id="listing-selling-price" class="stelace-listing__main-price-input no-margin-bottom"
                         name="listingSellingprice"
                         type="number"
@@ -323,11 +323,11 @@
                         <div class="listing-rentable-price margin-bottom-plus"
                             uib-collapse="! vm.listingTypesProperties.TIME.TIME_FLEXIBLE || ! vm.validPrice">
                             <p class="no-margin-bottom">
-                                <label for="listing-price">
+                                <label for="listing-price-day-one">
                                     Prix de la première journée de location&nbsp;:<br>
                                 </label>
                             </p>
-                            <input id="listing-price" class="stelace-listing__main-price-input no-margin-bottom"
+                            <input id="listing-price-day-one" class="stelace-listing__main-price-input no-margin-bottom"
                                 name="listingPrice"
                                 type="number"
                                 ng-model="vm.listing.dayOnePrice"
@@ -514,6 +514,102 @@
                             <p>
                                 <span ui-sref="account" class="link--blue-underline">Ajoutez des lieux favoris à votre compte</span> et activez-les sur cette page afin d'augmenter vos chances de louer votre {{vm.listing.name}}.
                             </p>
+                        </div>
+                    </div>
+                    <div uib-collapse="!vm.showTimeAvailability" class="margin-bottom-plus">
+                        <div class="margin-bottom-plus text--semibold" ng-switch="vm.timeAvailabilityType">
+                            <span ng-switch-when="AVAILABLE">
+                                Je peux définir des périodes où mon objet ne sera pas disponible&nbsp;:
+                            </span>
+                            <span ng-switch-when="UNAVAILABLE">
+                                Je peux définir des périodes où mon objet sera disponible&nbsp;:
+                            </span>
+                        </div>
+
+                        <div class="flex-container flex--space">
+                            <div>
+                                <label for="popup-start-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
+                                    data-translate="listing.time.from_day_label">
+                                </label>
+                                <div class="input__inner-icon-container stelace-listing__availability-calendar">
+                                    <input id="popup-start-date"
+                                        name="startDate"
+                                        type="text"
+                                        ng-model="vm.startDate"
+                                        ng-click="vm.openDatepicker('start')"
+                                        ng-focus="vm.openDatepicker('start')"
+                                        uib-datepicker-popup="{{vm.formatDate}}"
+                                        data-datepicker-options="vm.startDateOptions"
+                                        data-datepicker-append-to-body="false"
+                                        data-is-open="vm.startDateOpened"
+                                        data-show-button-bar="false"
+                                        placeholder="jj/mm/aaaa"
+                                        readonly
+                                        data-sip-autoblur="vm.iOS">
+                                    <div class="input__inner-icon icon-right cursor-pointer"
+                                        ng-class="{active: vm.startDateOpened}"
+                                        ng-click="vm.startDateOpened = ! vm.startDateOpened;">
+                                        <svg class="icon">
+                                            <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="popup-end-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
+                                    data-translate="listing.time.to_day_label">
+                                </label>
+                                <div class="input__inner-icon-container stelace-listing__availability-calendar">
+                                    <input id="popup-end-date"
+                                        type="text"
+                                        ng-model="vm.endDate"
+                                        ng-click="vm.openDatepicker('end')"
+                                        ng-focus="vm.openDatepicker('end')"
+                                        uib-datepicker-popup="{{vm.formatDate}}"
+                                        data-datepicker-options="vm.endDateOptions"
+                                        data-datepicker-append-to-body="false"
+                                        data-is-open="vm.endDateOpened"
+                                        data-show-button-bar="false"
+                                        placeholder="jj/mm/aaaa"
+                                        readonly
+                                        data-sip-autoblur="vm.iOS">
+                                    <div class="input__inner-icon icon-right cursor-pointer"
+                                        ng-class="{active: vm.endDateOpened}"
+                                        ng-click="vm.endDateOpened = ! vm.endDateOpened;">
+                                        <svg class="icon">
+                                            <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label>&nbsp;</label>
+                                <a class="link--blue-underline cursor-pointer" ng-click="vm.addTimeAvailability()">Ajouter</a>
+                            </div>
+                        </div>
+
+                        <div uib-collapse="!vm.editingListingAvailabilities.length">
+                            <div class="margin-bottom" ng-switch="vm.timeAvailabilityType">
+                                Liste de mes périodes&nbsp;:
+                            </div>
+
+                            <div class="flex-container flex--center stelace-listing__availability-period" ng-repeat="listingAvailability in vm.editingListingAvailabilities track by listingAvailability.id">
+                                <div class="stelace-listing__availability-period-label" data-translate="listing.time.from_day_label"></div>
+                                <div class="stelace-listing__availability-period-label">{{listingAvailability.displayStartDate}}</div>
+                                <div class="stelace-listing__availability-period-label" data-translate="listing.time.to_day_label"></div>
+                                <div class="stelace-listing__availability-period-label">{{listingAvailability.displayEndDate}}</div>
+                                <span class="text-control"
+                                    title="Supprimer"
+                                    tabindex="0"
+                                    data-sip-action-key
+                                    data-sip-autoblur
+                                    ng-click="vm.removeListingAvailability(listingAvailability.id)">
+                                    <svg class="icon icon--inline">
+                                        <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
+                                    </svg>
+                                </span>
+                                <!-- <button class="button brightblue" ng-click="vm.removeListingAvailability(listingAvailability.id)">Supprimer</button> -->
+                            </div>
                         </div>
                     </div>
                     <div ng-if="! vm.isAuthenticated">
