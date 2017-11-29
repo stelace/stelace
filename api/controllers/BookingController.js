@@ -835,7 +835,12 @@ function _paymentEndProcess(data) {
             return initMessageCache();
         })
         .then(() => {
-            if (operation === "deposit" || operation === "deposit-payment") {
+            if (operation === 'deposit-payment') {
+                updateAttrs.depositDate = now;
+                booking.depositDate = now;
+                updateAttrs.paymentDate = now;
+                booking.paymentDate = now;
+            } else if (operation === "deposit") {
                 updateAttrs.depositDate = now;
                 booking.depositDate     = now;
             } else if (operation === "payment") {
