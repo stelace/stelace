@@ -53,6 +53,8 @@ function webhook(req, res) {
         return res.badRequest();
     }
 
+    eventDate = eventDate.toISOString();
+
     var createAttrs = {
         resourceId: resourceId,
         eventDate: eventDate,
