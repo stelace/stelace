@@ -679,8 +679,9 @@
                 return;
             }
 
-            saveLocal("name");
             showStep2();
+            $rootScope.$apply();
+            saveLocal("name");
         }
 
         function showStep2() {
