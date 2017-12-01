@@ -1,5 +1,5 @@
 /* global
-    EmailTemplateService, GamificationService, GeneratorService,
+    AuthService, EmailTemplateService, GamificationService, GeneratorService,
     IncomeReportService, Location, Media, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User, UserService
 */
 
@@ -261,21 +261,13 @@ function params(req, res) {
     });
 }
 
-function getAuthMeans(req, res) {
-    return Promise
-        .resolve()
-        .then(() => {
-            return Passport.find({ user: req.user.id });
-        })
-        .then(passports => {
-            var result = _.reduce(passports, (memo, passport) => {
-                memo[passport.protocol] = true;
-                return memo;
-            }, {});
-
-            res.json(result);
-        })
-        .catch(res.sendError);
+async function getAuthMeans(req, res) {
+    try {
+        const result = await AuthService.getAuthMeans(req.user.id);
+        res.json(result);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function updateAddress(req, res) {

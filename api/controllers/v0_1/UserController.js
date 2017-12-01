@@ -4,6 +4,9 @@ module.exports = {
 
     find,
     findOne,
+    create,
+    update,
+    destroy,
 
 };
 
@@ -70,4 +73,45 @@ async function findOne(req, res) {
     } catch (err) {
         res.sendError(err);
     }
+}
+
+async function create(req, res) {
+    const attrs = req.allParams();
+    const access = 'self';
+
+    try {
+        const user = await UserService.createUser(attrs);
+        res.json(User.expose(user, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function update(req, res) {
+    const id = req.param('id');
+    const attrs = req.allParams();
+
+    const access = 'self';
+
+    try {
+        const user = await UserService.updateUser(id, attrs);
+
+        User
+            .syncOdooUser(user, {
+                updateLocation: false,
+                doNotCreateIfNone: true
+            })
+            .catch(err => {
+                req.logger.warn({ err: err }, "Odoo sync user fail");
+            });
+
+        res.json(User.expose(user, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function destroy(req, res) {
+    // TODO: manage bookings before removing it
+    res.forbidden();
 }

@@ -1,4 +1,4 @@
-/* global EmailTemplateService, Media, Passport, StelaceConfigService, StelaceEventService, User */
+/* global EmailTemplateService, ImageService, Media, Passport, StelaceConfigService, User, UserService */
 
 var fs       = require('fs');
 var path     = require('path');
@@ -6,7 +6,6 @@ var url      = require('url');
 var passport = require('passport');
 var request  = require('request');
 var uuid     = require('uuid');
-var gm       = require('gm');
 
 Promise.promisifyAll(fs);
 Promise.promisifyAll(request, { multiArgs: true });
@@ -71,155 +70,128 @@ passport.protocols = require('./protocols');
  * @param {Object}   profile
  * @param {Function} next
  */
-passport.connect = function (req, query, profile, next) {
-    var user = {};
+passport.connect = async function (req, query, profile, next) {
+    try {
+        query.provider = req.param('provider');
 
-    // Set the authentication provider.
-    query.provider = req.param("provider");
-
-    return Promise.coroutine(function* () {
         if (! query.provider || ! query.identifier) {
             throw new BadRequestError("not valid passport info");
         }
 
-        const activeSocialLogin = yield StelaceConfigService.isFeatureActive('SOCIAL_LOGIN');
+        const activeSocialLogin = await StelaceConfigService.isFeatureActive('SOCIAL_LOGIN');
         if (!activeSocialLogin) {
             throw new ForbiddenError('Social login disabled');
         }
 
-        var passport = yield Passport.findOne({
+        const passport = await Passport.findOne({
             provider: query.provider,
-            identifier: query.identifier.toString()
+            identifier: query.identifier.toString(),
         });
+
+        let user;
 
         if (! req.user) {
             if (! passport) {
                 // Scenario: A new user is attempting to sign up using a third-party
                 //           authentication provider.
                 // Action:   Create a new user and assign them a passport.
-                return yield createNewUser(user, query, profile);
+                user = await createNewUser(query, profile, req);
             } else {
                 // Scenario: An existing user is trying to log in using an already
                 //           connected passport.
                 // Action:   Get the user associated with the passport.
-                return yield useExistingPassport(passport, query);
+                user = await useExistingPassport(passport, query);
             }
         } else {
             if (! passport) {
                 // Scenario: A user is currently logged in and trying to connect a new
                 //           passport.
                 // Action:   Create and assign a new passport to the user.
-                return yield connectNewPassport(query, req);
+                user = await connectNewPassport(query, req.user);
             } else {
                 // Scenario: The user is a nutjob or spammed the back-button.
                 // Action:   Simply pass along the already established session.
-                return req.user;
+                user = req.user;
             }
         }
-    })()
-    .asCallback(next);
+
+        next(null, user);
+    } catch (err) {
+        next(err);
+    }
 
 
 
-    function createNewUser(userCreateAttrs, query, profile) {
-        userCreateAttrs = userCreateAttrs || {};
+    async function createNewUser(query, profile, req) {
+        const params = { req };
 
         // If the profile object contains a list of emails, grab the first one and
         // add it to the user.
         if (profile.emails && profile.emails.length && profile.emails[0].value) {
-            user.email = profile.emails[0].value.toLowerCase();
+            params.email = profile.emails[0].value.toLowerCase();
         }
         // If the profile object contains a username, add it to the user.
         if (profile.username) {
-            user.username = profile.username;
+            params.username = profile.username;
         }
 
         if (profile.name && profile.name.givenName) {
-            user.firstname = profile.name.givenName;
+            params.firstname = profile.name.givenName;
         }
         if (profile.name && profile.name.familyName) {
-            user.lastname = profile.name.familyName;
+            params.lastname = profile.name.familyName;
         }
 
-        return User
-            .create(userCreateAttrs)
-            .catch(err => {
-                if (err.code === "E_VALIDATION") {
-                    var error;
+        const user = await UserService.createUser(params);
 
-                    if (err.invalidAttributes.email) {
-                        error = new BadRequestError("email exists");
-                        error.expose = true;
-                    } else {
-                        error = new Error("user exists");
-                    }
+        await Passport.create({
+            provider: query.provider,
+            identifier: query.identifier,
+            user: user.id,
+        });
 
-                    throw error;
-                } else {
-                    throw err;
-                }
-            })
-            .then(user => {
-                query.user = user.id;
+        // email can be null if social login without email provided
+        if (user.email) {
+            const token = await User.createCheckEmailToken(user, user.email);
 
-                return [
-                    user,
-                    Passport.create(query),
-                    user.email ? User.createCheckEmailToken(user, user.email) : null,
-                ];
-            })
-            .spread((user, passport, token) => {
-                // email can be null if social login without email provided
-                if (user.email) {
-                    EmailTemplateService
-                        .sendEmailTemplate('app-subscription-to-confirm', {
-                            user: user,
-                            token: token
-                        })
-                        .catch(() => { /* do nothing*/ });
-                }
-
-                return downloadProfileImage(user, query, profile);
-            })
-            .then(user => {
-                return StelaceEventService.createEvent({
-                    req: req,
-                    label: 'user.created',
-                    type: 'core',
-                    targetUserId: user.id,
+            EmailTemplateService
+                .sendEmailTemplate('app-subscription-to-confirm', {
+                    user: user,
+                    token: token
                 })
-                .then(() => user);
-            });
+                .catch(() => { /* do nothing*/ });
+        }
+
+        await downloadProfileImage(user, query, profile);
+
+        return user;
     }
 
-    function useExistingPassport(passport, query) {
-        return Promise
-            .resolve()
-            .then(() => {
-                // If the tokens have changed since the last session, update them
-                if (query.hasOwnProperty("tokens") && query.tokens !== passport.tokens) {
-                    return Passport.updateOne(passport.id, { tokens: query.tokens });
-                }
+    async function useExistingPassport(passport, query) {
+        let storedPassport;
 
-                return passport;
-            })
-            .then(passport => {
-                // Fetch the user associated with the Passport
-                return User.findOne({ id: passport.user });
-            });
+        // If the tokens have changed since the last session, update them
+        if (query.hasOwnProperty("tokens") && query.tokens !== passport.tokens) {
+            storedPassport = await Passport.updateOne(passport.id, { tokens: query.tokens });
+        } else {
+            storedPassport = passport;
+        }
+
+        // Fetch the user associated with the Passport
+        const user = await User.findOne({ id: storedPassport.user });
+        return user;
     }
 
-    function connectNewPassport(query, req) {
-        query.user = req.user.id;
+    async function connectNewPassport(query, user) {
+        query.user = user.id;
 
-        return Passport
-            .create(query)
-            .then(() =>  req.user);
+        await Passport.create(query);
+        return user;
     }
 
-    function downloadProfileImage(user, query, profile) {
-        var imageSize = 300;
-        var imageUrl;
+    async function downloadProfileImage(user, query, profile) {
+        const imageSize = 300;
+        let imageUrl;
 
         if (profile.photos.length) {
             if (query.provider === "facebook") {
@@ -234,7 +206,7 @@ passport.connect = function (req, query, profile, next) {
                 if (profile._json.image && ! profile._json.image.isDefault) {
                     imageUrl = profile.photos[0].value;
 
-                    var sizeRegex = /^(.*[?&]sz=)(\d+)(.*)$/;
+                    const sizeRegex = /^(.*[?&]sz=)(\d+)(.*)$/;
                     if (sizeRegex.test(imageUrl)) {
                         imageUrl = imageUrl.replace(sizeRegex, '$1' + imageSize + '$3');
                     }
@@ -242,63 +214,43 @@ passport.connect = function (req, query, profile, next) {
             }
         }
 
-        if (imageUrl) {
-            var fileUuid = uuid.v4();
-            var filepath;
-            var extension;
+        if (!imageUrl) {
+            return user;
+        }
 
-            return getFileExtension(imageUrl)
-                .then(ext => {
-                    extension = ext;
-                    filepath  = path.join(sails.config.tmpDir, fileUuid + "." + extension);
+        const fileUuid = uuid.v4();
+        let filepath;
 
-                    return downloadImage(imageUrl, filepath);
-                })
-                .then(() => {
-                    return new Promise((resolve, reject) => {
-                        gm(filepath).size((err, size) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                resolve(size);
-                            }
-                        });
-                    });
-                })
-                .then(fileSize => {
-                    var createAttrs = {
-                        name: "Profile_image_from_" + query.provider,
-                        extension: extension,
-                        uuid: fileUuid,
-                        type: "img",
-                        userId: user.id,
-                        field: "user",
-                        targetId: user.id,
-                        width: fileSize.width,
-                        height: fileSize.height
-                    };
+        try {
+            const extension = await getFileExtension(imageUrl);
+            filepath = path.join(sails.config.tmpDir, fileUuid + "." + extension);
 
-                    return Media.create(createAttrs);
-                })
-                .then(media => {
-                    // do not compress image compared to upload file function
-                    // because pictures from social networks is compressed
-                    var destFilePath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
+            await downloadImage(imageUrl, filepath);
+            const fileSize = await ImageService.getSize(filepath);
 
-                    return [
-                        media,
-                        fs.renameAsync(filepath, destFilePath)
-                    ];
-                })
-                .spread(media => {
-                    return User.updateOne(user.id, { mediaId: media.id });
-                })
-                .catch(() => {
-                    return fs.unlinkAsync(filepath)
-                        .then(() => user)
-                        .catch(() => user);
-                });
-        } else {
+            const media = await Media.create({
+                name: "Profile_image_from_" + query.provider,
+                extension: extension,
+                uuid: fileUuid,
+                type: "img",
+                userId: user.id,
+                field: "user",
+                targetId: user.id,
+                width: fileSize.width,
+                height: fileSize.height,
+            });
+
+            // do not compress image compared to upload file function
+            // because pictures from social networks is compressed
+            const destFilePath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
+            await fs.renameAsync(filepath, destFilePath);
+
+            const updatedUser = await User.updateOne(user.id, { mediaId: media.id });
+            return updatedUser;
+        } catch (err) {
+            if (filepath) {
+                await fs.unlinkAsync(filepath).catch(() => { /* do nothing */ });
+            }
             return user;
         }
     }

@@ -1,4 +1,4 @@
-/* global EmailTemplateService, Passport, StelaceEventService, User */
+/* global AuthService, EmailTemplateService, Passport, User, UserService */
 
 /**
  * Local Authentication Protocol
@@ -22,95 +22,35 @@
  * @param {Object}   res
  * @param {Function} next
  */
-exports.register = function (req, res, next) {
+exports.register = async function (req, res, next) {
     var email    = req.param("email");
     var username = req.param("username");
     var password = req.param("password");
 
-    var createAttrs = {
-        email: email
-    };
-
-    var error;
-
-    return Promise.coroutine(function* () {
-        if (! email) {
-            throw new BadRequestError("no email");
-        }
-        if (! µ.isEmail(email)) {
-            error = new BadRequestError("invalid email");
-            error.expose = true;
-            throw error;
-        }
-        if (! password) {
-            throw new BadRequestError("no password");
-        }
-
-        if (µ.isEmail(email)) {
-            createAttrs.username = username || email.split("@")[0];
-        }
-
-        var user = yield User.findOne({ email: email });
-
-        if (user) {
-            error = new BadRequestError("email exists");
-            error.expose = true;
-            throw error;
-        }
-
-        user = yield User.create(createAttrs)
-            .catch(function (err) {
-                if (err.code === "E_VALIDATION") {
-                    if (err.invalidAttributes.email) {
-                        error = new BadRequestError("email exists");
-                        error.expose = true;
-                        throw error;
-                    } else {
-                        throw new Error("user exists");
-                    }
-                }
-            });
-
-        yield StelaceEventService.createEvent({
-            req: req,
-            res: res,
-            label: 'user.created',
-            type: 'core',
-            targetUserId: user.id,
+    try {
+        const user = UserService.createUser({
+            email,
+            username,
+            password,
+        }, {
+            passwordRequired: true,
+            req,
+            res,
         });
 
-        var token = yield User.createCheckEmailToken(user, user.email);
+        var token = await User.createCheckEmailToken(user, user.email);
 
-        return yield Passport
-            .create({
-                protocol: "local",
-                password: password,
-                user: user.id
+        EmailTemplateService
+            .sendEmailTemplate('app-subscription-to-confirm', {
+                user: user,
+                token: token
             })
-            .then(() => {
-                EmailTemplateService.sendEmailTemplate('app-subscription-to-confirm', {
-                    user: user,
-                    token: token
-                })
-                .catch(() => { /* do nothing*/ });
+            .catch(() => { /* do nothing*/ });
 
-                return user;
-            })
-            .catch(err => {
-                if (err.code === "E_VALIDATION") {
-                    throw new Error("passport invalid");
-                }
-
-                return user.destroy()
-                    .then(function () {
-                        throw err;
-                    })
-                    .catch(function (destroyErr) {
-                        throw destroyErr;
-                    });
-            });
-    })()
-    .asCallback(next);
+        next(null, user);
+    } catch (err) {
+        next(err);
+    }
 };
 
 /**
@@ -124,34 +64,16 @@ exports.register = function (req, res, next) {
  * @param {Object}   res
  * @param {Function} next
  */
-exports.connect = function (req, res, next) {
+exports.connect = async function (req, res, next) {
     var user     = req.user;
     var password = req.param("password");
 
-    return Promise
-        .resolve()
-        .then(function () {
-            return Passport.findOne({
-                protocol: "local",
-                user: user.id
-            });
-        })
-        .then(function (passport) {
-            if (! passport) {
-                return Passport
-                    .create({
-                        protocol: "local",
-                        password: password,
-                        user: user.id
-                    })
-                    .then(function (/* passport */) {
-                        return user;
-                    });
-            } else {
-                return user;
-            }
-        })
-        .asCallback(next);
+    try {
+        await AuthService.addPasswordAuth({ userId: user.id, password });
+        next(null, user);
+    } catch (err) {
+        next(err);
+    }
 };
 
 /**
@@ -166,45 +88,34 @@ exports.connect = function (req, res, next) {
  * @param {string}   password
  * @param {Function} next
  */
-exports.login = function (req, identifier, password, next) {
+exports.login = async function (req, identifier, password, next) {
     var isEmail = µ.isEmail(identifier);
 
-    return Promise
-        .resolve()
-        .then(function () {
-            if (! isEmail) {
-                throw new BadRequestError("email incorrect");
-            }
+    try {
+        if (!isEmail) {
+            throw new BadRequestError("email incorrect");
+        }
 
-            return User.findOne({ email: identifier });
-        })
-        .then(function (user) {
-            if (! user) {
-                throw new NotFoundError("user not found");
-            }
+        const user = await User.findOne({ email: identifier });
+        if (!user) {
+            throw new NotFoundError("user not found");
+        }
 
-            return [
-                user,
-                Passport.findOne({
-                    protocol: "local",
-                    user: user.id
-                })
-            ];
-        })
-        .spread(function (user, passport) {
-            if (passport) {
-                return passport
-                    .validatePassword(password)
-                    .then(function (valid) {
-                        if (! valid) {
-                            throw new BadRequestError("password incorrect");
-                        }
+        const passport = await Passport.findOne({
+            protocol: 'local',
+            user: user.id,
+        });
+        if (!passport) {
+            throw new BadRequestError("no password");
+        }
 
-                        return user;
-                    });
-            } else {
-                throw new BadRequestError("no password");
-            }
-        })
-        .asCallback(next);
+        const valid = await passport.validatePassword(password);
+        if (!valid) {
+            throw new BadRequestError("password incorrect");
+        }
+
+        next(null, user);
+    } catch (err) {
+        next(err);
+    }
 };

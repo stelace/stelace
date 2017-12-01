@@ -236,19 +236,14 @@ function get(prop) {
     }
 }
 
-function postBeforeCreate(values) {
-    if (! values.username && values.email) {
+async function postBeforeCreate(values) {
+    if (!values.username && values.email) {
         values.username = values.email.split("@")[0];
     }
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return GeneratorService.getRandomString(30);
-        })
-        .then(randomString => {
-            values.emailToken = values.emailToken || randomString;
-        });
+    if (!values.emailToken) {
+        values.emailToken = await GeneratorService.getRandomString(30);
+    }
 }
 
 function s_hasSameId(id) {

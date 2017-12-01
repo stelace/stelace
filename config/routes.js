@@ -198,6 +198,8 @@ module.exports.routes = {
 
     'get /api/v0.1/users': { target: 'v0_1/UserController.find', cors: apiCors },
     'get /api/v0.1/users/:id': { target: 'v0_1/UserController.findOne', cors: apiCors },
+    'post /api/v0.1/users': { target: 'v0_1/UserController.create', cors: apiCors },
+    'put /api/v0.1/users/:id': { target: 'v0_1/UserController.update', cors: apiCors },
 
     'get /api/v0.1/webhooks': { target: 'v0_1/WebhookController.find', cors: apiCors },
     'post /api/v0.1/webhooks': { target: 'v0_1/WebhookController.create', cors: apiCors },
