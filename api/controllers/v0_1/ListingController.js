@@ -1,9 +1,13 @@
-/* global ApiService, Listing, Media */
+/* global ApiService, Listing, ListingService, Media */
 
 module.exports = {
 
     find,
     findOne,
+    create,
+    update,
+    destroy,
+    validate,
 
 };
 
@@ -56,6 +60,58 @@ async function findOne(req, res) {
             throw new NotFoundError();
         }
 
+        res.json(Listing.expose(listing, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function create(req, res) {
+    const attrs = req.allParams();
+
+    const access = 'self';
+
+    try {
+        const listing = await ListingService.createListing(attrs, { req, res });
+        res.json(Listing.expose(listing, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function update(req, res) {
+    const id = req.param('id');
+    const attrs = req.allParams();
+
+    const access = 'self';
+
+    try {
+        const listing = await ListingService.updateListing(id, attrs);
+        res.json(Listing.expose(listing, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function destroy(req, res) {
+    const id = req.param('id');
+
+    try {
+        await ListingService.destroyListing(id, { req, res });
+
+        res.json({ id });
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function validate(req, res) {
+    const id = req.param('id');
+
+    const access = 'self';
+
+    try {
+        const listing = await ListingService.validateListing(id);
         res.json(Listing.expose(listing, access));
     } catch (err) {
         res.sendError(err);

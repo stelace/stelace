@@ -188,6 +188,10 @@ module.exports.routes = {
 
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
     'get /api/v0.1/listings/:id': { target: 'v0_1/ListingController.findOne', cors: apiCors },
+    'post /api/v0.1/listings': { target: 'v0_1/ListingController.create', cors: apiCors },
+    'put /api/v0.1/listings/:id': { target: 'v0_1/ListingController.update', cors: apiCors },
+    'put /api/v0.1/listings/:id/validate': { target: 'v0_1/ListingController.validate', cors: apiCors },
+    'delete /api/v0.1/listings/:id': { target: 'v0_1/ListingController.destroy', cors: apiCors },
 
     'get /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.find', cors: apiCors },
     'get /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.findOne', cors: apiCors },

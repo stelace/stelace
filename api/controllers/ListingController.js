@@ -1,6 +1,6 @@
 /* global
-    BookingService, Bookmark, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, ModelSnapshot,
-    PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceEventService, Tag, TimeService, TokenService, ToolsService, User
+    BookingService, Listing, ListingAvailability, ListingService, Location, Media,
+    PriceRecommendationService, PricingService, SearchEvent, SearchService, TokenService, User
 */
 
 /**
@@ -12,21 +12,21 @@
 
 module.exports = {
 
-    find: find,
-    findOne: findOne,
-    create: create,
-    update: update,
-    destroy: destroy,
+    find,
+    findOne,
+    create,
+    update,
+    destroy,
 
-    query: query,
-    my: my,
-    updateMedias: updateMedias,
-    search: search,
-    getLocations: getLocations,
-    getPricing: getPricing,
-    getRecommendedPrices: getRecommendedPrices,
-    getRentingPriceFromSellingPrice: getRentingPriceFromSellingPrice,
-    pauseListingToggle: pauseListingToggle,
+    query,
+    my,
+    updateMedias,
+    search,
+    getLocations,
+    getPricing,
+    getRecommendedPrices,
+    getRentingPriceFromSellingPrice,
+    pauseListingToggle,
     getListingAvailability,
     createListingAvailability,
     removeListingAvailability,
@@ -38,86 +38,92 @@ var NodeCache = require('node-cache');
 
 var landingCache = new NodeCache({ stdTTL: 5 * 60 }); // 5 min
 
-function find(req, res) {
-    var landing = req.param("landing");
-    var ownerId = req.param("ownerId");
-    var access = "others";
+async function find(req, res) {
+    const landing = req.param('landing');
+    const ownerId = req.param('ownerId');
+    const access = 'others';
 
     if (! landing && ! ownerId) {
         return res.forbidden();
     }
 
-    var formatDate = "YYYY-MM-DD";
-    var landingPastLimit = moment().subtract(60, "d").format(formatDate);
-    var landingListings = landingCache.get("candidates");
+    try {
+        let listings;
+        if (landing) {
+            listings = await getLandingListings();
+        } else if (ownerId) {
+            listings = await Listing.find({ ownerId });
+        }
 
-    return Promise
-        .resolve()
-        .then(() => {
-            if (landing) {
-                return landingListings || Listing.find({
-                    validated: true,
-                    locked: false,
-                    updatedDate: {
-                        ">=": landingPastLimit
-                    }
-                });
-            } else if (ownerId) {
-                return Listing.find({ ownerId: ownerId });
-            }
-        })
-        .then(listings => {
-            if (landing && ! landingListings) {
-                landingCache.set("candidates", listings);
-            }
-            if (landing) {
-                listings = _(listings)
-                    .filter(listing => listing.mediasIds.length)
-                    .uniq("ownerId")
-                    .sample(12)
-                    .value();
-            }
+        let locationsIds = _.reduce(listings, (memo, listing) => {
+            memo = memo.concat(listing.locations);
+            return memo;
+        }, []);
+        locationsIds = _.uniq(locationsIds);
 
-            var locationsIds = _.reduce(listings, function (memo, listing) {
-                memo = memo.concat(listing.locations);
-                return memo;
-            }, []);
-            locationsIds = _.uniq(locationsIds);
+        const [
+            owners,
+            locations,
+        ] = await Promise.all([
+            User.find({ id: _.pluck(listings, 'ownerId') }),
+            Location.find({ id: locationsIds }),
+        ]);
 
-            return [
-                listings,
-                User.find({ id: _.pluck(listings, "ownerId") }),
-                Location.find({ id: locationsIds })
-            ];
-        })
-        .spread((listings, owners, locations) => {
-            return [
-                listings,
-                owners,
-                locations,
-                Listing.getMedias(listings),
-                User.getMedia(owners)
-            ];
-        })
-        .spread((listings, owners, locations, listingMedias, ownerMedias) => {
-            var indexedOwners = _.indexBy(owners, "id");
+        const [
+            listingMedias,
+            ownerMedias,
+        ] = await Promise.all([
+            Listing.getMedias(listings),
+            User.getMedia(owners),
+        ]);
 
-            listings = _.map(listings, function (listing) {
-                listing            = Listing.expose(listing, access);
-                listing.medias     = Media.exposeAll(listingMedias[listing.id], access);
-                listing.owner      = User.expose(indexedOwners[listing.ownerId], access);
-                listing.ownerMedia = Media.expose(ownerMedias[listing.ownerId], access);
-                listing.locations  = _.filter(locations, function (location) {
-                    return _.contains(listing.locations, location.id);
-                });
-                listing.locations  = Location.exposeAll(listing.locations, access);
+        const indexedOwners = _.indexBy(owners, "id");
 
-                return listing;
+        listings = _.map(listings, listing => {
+            listing            = Listing.expose(listing, access);
+            listing.medias     = Media.exposeAll(listingMedias[listing.id], access);
+            listing.owner      = User.expose(indexedOwners[listing.ownerId], access);
+            listing.ownerMedia = Media.expose(ownerMedias[listing.ownerId], access);
+            listing.locations  = _.filter(locations, location => {
+                return _.contains(listing.locations, location.id);
             });
+            listing.locations  = Location.exposeAll(listing.locations, access);
 
-            res.json(listings);
-        })
-        .catch(res.sendError);
+            return listing;
+        });
+
+        res.json(listings);
+    } catch (err) {
+        res.sendError(err);
+    }
+
+
+
+    async function getLandingListings() {
+        const formatDate = 'YYYY-MM-DD';
+        const landingPastLimit = moment().subtract(60, 'd').format(formatDate);
+        const landingListings = landingCache.get('candidates');
+
+        let listings;
+        if (landingListings) {
+            listings = landingListings;
+        } else {
+            listings = await Listing.find({
+                validated: true,
+                locked: false,
+                updatedDate: { '>=': landingPastLimit },
+            });
+            landingCache.set('candidates', listings);
+        }
+
+        listings = _(listings)
+            .filter(listing => listing.mediasIds.length)
+            .uniq('ownerId')
+            .sample(12)
+            .value();
+
+        return listings;
+    }
 }
 
 async function findOne(req, res) {
@@ -197,303 +203,42 @@ async function findOne(req, res) {
 }
 
 async function create(req, res) {
-    var filteredAttrs = [
-        "name",
-        "reference",
-        "description",
-        "tags",
-        "stateComment",
-        "bookingPreferences",
-        "accessories",
-        "brandId",
-        "listingCategoryId",
-        "validation",
-        "validationFields",
-        "locations",
-        "listingTypesIds",
-        "dayOnePrice",
-        "sellingPrice",
-        "customPricingConfig",
-        "deposit",
-        "acceptFree",
-    ];
-    var createAttrs = _.pick(req.allParams(), filteredAttrs);
-    createAttrs.ownerId = req.user.id;
-    var access = "self";
+    const attrs = req.allParams();
+    attrs.ownerId = req.user.id;
 
-    if (! createAttrs.name
-        || (createAttrs.tags && ! µ.checkArray(createAttrs.tags, "id"))
-        || (createAttrs.locations && ! µ.checkArray(createAttrs.locations, "id"))
-        || typeof createAttrs.sellingPrice !== "number" || createAttrs.sellingPrice < 0
-        || typeof createAttrs.dayOnePrice !== "number" || createAttrs.dayOnePrice < 0
-        || ! PricingService.getPricing(createAttrs.pricingId)
-        || typeof createAttrs.deposit !== "number" || createAttrs.deposit < 0
-        || (!createAttrs.listingTypesIds || !µ.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
-        || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
-    ) {
-        return res.badRequest();
-    }
+    const access = 'self';
 
     try {
-        const validListingTypesIds = await ListingTypeService.isValidListingTypesIds(createAttrs.listingTypesIds);
-        if (!validListingTypesIds) {
-            return res.badRequest();
-        }
-
-        // TODO: uncomment it when listing quantity equals to 0 is correctly managed
-        // let listingType;
-        // if (createAttrs.listingTypesIds.length === 1) {
-        //     listingType = await ListingTypeService.getListingType(createAttrs.listingTypesIds[0]);
-        //     if (!listingType) {
-        //         return res.notFound();
-        //     }
-        // }
-
-        // const { TIME } = listingType.properties;
-        // const { timeAvailability } = listingType.config;
-        // if (TIME === 'TIME_FLEXIBLE' && timeAvailability === 'UNAVAILABLE') {
-        //     createAttrs.quantity = 0;
-        // } else {
-        //     createAttrs.quantity = 1;
-        // }
-
-        createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
-        createAttrs.dayOnePrice  = PricingService.roundPrice(createAttrs.dayOnePrice);
-        createAttrs.deposit      = PricingService.roundPrice(createAttrs.deposit);
-
-        var pricing = PricingService.getPricing();
-        createAttrs.pricingId = pricing.id;
-
-        const [
-            myLocations,
-            validReferences,
-            validTags,
-        ] = await Promise.all([
-            Location.find({ userId: req.user.id }),
-            Listing.isValidReferences({
-                brandId: createAttrs.brandId,
-                listingCategoryId: createAttrs.listingCategoryId,
-            }),
-            isValidTags(createAttrs.tags),
-        ]);
-
-        if (!validReferences || !validTags) {
-            throw new BadRequestError();
-        }
-
-        var hashLocations = _.indexBy(myLocations, "id");
-
-        if (createAttrs.locations) {
-            if (!isValidLocations(createAttrs.locations, hashLocations)) {
-                throw new BadRequestError();
-            }
-        } else {
-            createAttrs.locations = _.pluck(myLocations, "id");
-        }
-
-        let listing = await Listing.create(createAttrs);
-        listing = await Listing.updateTags(listing, createAttrs.tags);
-
-        await StelaceEventService.createEvent({
-            req: req,
-            res: res,
-            label: 'listing.created',
-            type: 'core',
-            listingId: listing.id,
-            data: {
-                nbPictures: listing.mediasIds.length,
-            },
-        });
-
+        const listing = await ListingService.createListing(attrs, { req, res });
         res.json(Listing.expose(listing, access));
     } catch (err) {
         res.sendError(err);
     }
-
-
-
-    async function isValidTags(tagsIds) {
-        if (!tagsIds) return true;
-
-        const tags = await Tag.find({ id: _.uniq(tagsIds) });
-        return tags.length === tagsIds.length;
-    }
-
-    function isValidLocations(locationsIds, hashLocations) {
-        return _.reduce(locationsIds, (memo, locationId) => {
-            if (!hashLocations[locationId]) {
-                memo = memo && false;
-            }
-            return memo;
-        }, true);
-    }
 }
 
 async function update(req, res) {
-    var id = req.param("id");
-    var filteredAttrs = [
-        "name",
-        "reference",
-        "description",
-        "tags",
-        "stateComment",
-        "bookingPreferences",
-        "accessories",
-        "brandId",
-        "listingCategoryId",
-        "locations",
-        "listingTypesIds",
-        "dayOnePrice",
-        "sellingPrice",
-        "customPricingConfig",
-        "deposit",
-        "acceptFree"
-    ];
-    var updateAttrs = _.pick(req.allParams(), filteredAttrs);
-    var access = "self";
+    const id = req.param('id');
+    const attrs = req.allParams();
 
-    if ((updateAttrs.tags && ! µ.checkArray(updateAttrs.tags, "id"))
-        || (updateAttrs.locations && ! µ.checkArray(updateAttrs.locations, "id"))
-        || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== "number" || updateAttrs.sellingPrice < 0))
-        || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== "number" || updateAttrs.dayOnePrice < 0))
-        || (updateAttrs.deposit && (typeof updateAttrs.deposit !== "number" || updateAttrs.deposit < 0))
-        || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
-    ) {
-        return res.badRequest();
-    }
-
-    if (typeof updateAttrs.dayOnePrice === "number") {
-        updateAttrs.dayOnePrice = PricingService.roundPrice(updateAttrs.dayOnePrice);
-    }
-    if (typeof updateAttrs.deposit === "number") {
-        updateAttrs.deposit = PricingService.roundPrice(updateAttrs.deposit);
-    }
+    const access = 'self';
 
     try {
-        const validListingTypesIds = await ListingTypeService.isValidListingTypesIds(updateAttrs.listingTypesIds);
-        if (!validListingTypesIds) {
-            return res.badRequest();
-        }
-
-        const [
-            listing,
-            validReferences,
-            validLocations,
-            validTags,
-        ] = await Promise.all([
-            Listing.findOne({ id: id }),
-            Listing.isValidReferences({
-                brandId: updateAttrs.brandId,
-                listingCategoryId: updateAttrs.listingCategoryId
-            }),
-            isValidLocations(updateAttrs.locations),
-            isValidTags(updateAttrs.tags)
-        ]);
-
-        if (! listing) {
-            throw new NotFoundError();
-        }
-        if (listing.ownerId !== req.user.id) {
-            throw new ForbiddenError();
-        }
-        if (! validReferences
-            || ! validLocations
-            || ! validTags
-        ) {
-            throw new BadRequestError();
-        }
-
-        var isListingValidated = (! listing.validation || (listing.validation && listing.validated));
-        if (typeof updateAttrs.name !== "undefined" && ! isListingValidated) {
-            updateAttrs.nameURLSafe = ToolsService.getURLStringSafe(updateAttrs.name);
-        }
-
-        let exposedListing = await Listing.updateOne(listing.id, updateAttrs);
-        exposedListing = await Listing.updateTags(exposedListing, updateAttrs.tags);
-
-        res.json(Listing.expose(exposedListing, access));
+        const listing = await ListingService.updateListing(id, attrs, { userId: req.user.id });
+        res.json(Listing.expose(listing, access));
     } catch (err) {
         res.sendError(err);
     }
-
-
-
-    async function isValidLocations(locationsIds) {
-        if (!locationsIds) return true;
-
-        const locations = await Location.find({
-            id: _.uniq(locationsIds),
-            userId: req.user.id,
-        });
-        return locations.length === locationsIds.length;
-    }
-
-    async function isValidTags(tagsIds) {
-        if (!tagsIds) return true;
-
-        const tags = await Tag.find({ id: _.uniq(tagsIds) });
-        return tags.length === tagsIds.length;
-    }
 }
 
-function destroy(req, res) {
-    var id = req.param("id");
-    var today = moment().format("YYYY-MM-DD");
+async function destroy(req, res) {
+    const id = req.param('id');
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return Listing.findOne({
-                id: id,
-                ownerId: req.user.id
-            });
-        })
-        .then(listing => {
-            if (! listing) {
-                throw new NotFoundError();
-            }
+    try {
+        await ListingService.destroyListing(id, { req, res, userId: req.user.id });
 
-            return [
-                listing,
-                Listing.getFutureBookings(listing.id, today)
-            ];
-        })
-        .spread((listing, futureBookings) => {
-            if (futureBookings.length) {
-                var error = new BadRequestError("remaining bookings");
-                error.expose = true;
-                throw error;
-            }
-
-            return [
-                listing,
-                Bookmark.update({ listingId: id }, { active: false }), // disable bookmarks associated to this listing
-                ListingAvailability.destroy({ listingId: id }),
-            ];
-        })
-        .spread(listing => {
-            // create a snapshot before destroying the listing
-            return ModelSnapshot.getSnapshot("listing", listing);
-        })
-        .then(() => sendEvent(req, res, id))
-        .then(() => {
-            return Listing.destroy({ id: id });
-        })
-        .then(() => {
-            res.json({ id: id });
-        })
-        .catch(res.sendError);
-
-
-
-    function sendEvent(req, res, listingId) {
-        return StelaceEventService.createEvent({
-            req: req,
-            res: res,
-            label: "listing.deleted",
-            data: { listingId: listingId },
-            type: 'core',
-        });
+        res.json({ id });
+    } catch (err) {
+        res.sendError(err);
     }
 }
 
@@ -545,101 +290,49 @@ function query(req, res) {
     }
 }
 
-function my(req, res) {
-    var access = "self";
+async function my(req, res) {
+    const access = "self";
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return Listing.find({ ownerId: req.user.id });
-        })
-        .then(listings => {
-            return [
-                listings,
-                Listing.getMedias(listings),
-                Listing.getInstructionsMedias(listings),
-                Listing.getTags(listings)
-            ];
-        })
-        .spread((listings, hashMedias, hashInstructionsMedias) => {
-            listings = Listing.exposeAll(listings, access);
+    try {
+        let listings = await Listing.find({ ownerId: req.user.id });
 
-            _.forEach(listings, function (listing) {
-                var medias             = hashMedias[listing.id];
-                var instructionsMedias = hashInstructionsMedias[listing.id];
+        const [
+            hashMedias,
+            hashInstructionsMedias,
+        ] = await Promise.all([
+            Listing.getMedias(listings),
+            Listing.getInstructionsMedias(listings),
+            Listing.getTags(listings),
+        ]);
 
-                listing.medias             = _.map(medias, media => Media.expose(media, access));
-                listing.pricing            = PricingService.getPricing(listing.pricingId);
-                listing.instructionsMedias = _.map(instructionsMedias, media => Media.expose(media, access));
-            });
+        listings = Listing.exposeAll(listings, access);
 
-            res.json(listings);
-        })
-        .catch(res.sendError);
+        _.forEach(listings, listing => {
+            const medias             = hashMedias[listing.id];
+            const instructionsMedias = hashInstructionsMedias[listing.id];
+
+            listing.medias             = _.map(medias, media => Media.expose(media, access));
+            listing.pricing            = PricingService.getPricing(listing.pricingId);
+            listing.instructionsMedias = _.map(instructionsMedias, media => Media.expose(media, access));
+        });
+
+        res.json(listings);
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
-function updateMedias(req, res) {
-    var id = req.param("id");
-    var mediasIds = req.param("mediasIds");
-    var mediaType = req.param("mediaType");
+async function updateMedias(req, res) {
+    const id = req.param('id');
+    const mediasIds = req.param('mediasIds');
+    const mediaType = req.param('mediaType');
 
-    if (! mediasIds || ! µ.checkArray(mediasIds, "id")) {
-        return res.badRequest();
+    try {
+        await ListingService.updateListingMedias(id, { mediasIds, mediaType }, { userId: req.user.id });
+        res.json({ id });
+    } catch (err) {
+        res.sendError(err);
     }
-    if (! _.contains(["listing", "instructions"], mediaType)) {
-        return res.badRequest();
-    }
-    if ((mediaType === "listing" && Media.get("maxNb").listing < mediasIds.length)
-        || (mediaType === "instructions" && Media.get("maxNb").listingInstructions < mediasIds.length)
-    ) {
-        return res.badRequest(new BadRequestError("cannot set too much medias"));
-    }
-
-    mediasIds = _.map(mediasIds, function (mediaId) {
-        return parseInt(mediaId, 10);
-    });
-
-    return Promise
-        .resolve()
-        .then(() => {
-            return [
-                Listing.findOne({ id: id }),
-                Media.find({ id: mediasIds })
-            ];
-        })
-        .spread((listing, medias) => {
-            var isAllOwnMedias = _.reduce(medias, function (memo, media) {
-                if (req.user.id !== media.userId) {
-                    memo = memo && false;
-                }
-                return memo;
-            }, true);
-
-            if (! listing
-                || medias.length !== mediasIds.length
-            ) {
-                throw new NotFoundError();
-            }
-            if (req.user.id !== listing.ownerId
-                || ! isAllOwnMedias
-            ) {
-                throw new ForbiddenError();
-            }
-
-            var updateAttrs = {};
-
-            if (mediaType === "listing") {
-                updateAttrs.mediasIds = mediasIds;
-            } else if (mediaType === "instructions") {
-                updateAttrs.instructionsMediasIds = mediasIds;
-            }
-
-            return Listing.updateOne(listing.id, updateAttrs);
-        })
-        .then(() => {
-            res.ok({ id: id });
-        })
-        .catch(res.sendError);
 }
 
 async function search(req, res) {
@@ -701,31 +394,22 @@ async function search(req, res) {
     .catch(res.sendError);
 }
 
-function getLocations(req, res) {
-    var id     = req.param("id");
+async function getLocations(req, res) {
+    const id = req.param('id');
 
-    var access = "others";
+    const access = 'others';
 
-    if (isNaN(id) || id <= 0) {
-        return res.badRequest();
+    try {
+        const listing = await Listing.findOne({ id });
+        if (!listing) {
+            throw new NotFoundError();
+        }
+
+        const locations = await Location.find({ id: listing.locations });
+        res.json(Location.exposeAll(locations, access));
+    } catch (err) {
+        res.sendError(err);
     }
-
-    return Promise
-        .resolve()
-        .then(() => {
-            return Listing.findOne({ id: id });
-        })
-        .then(listing => {
-            if (! listing) {
-                throw new NotFoundError();
-            }
-
-            return Location.find({ id: listing.locations });
-        })
-        .then(locations => {
-            res.json(Location.exposeAll(locations, access));
-        })
-        .catch(res.sendError);
 }
 
 function getPricing(req, res) {
@@ -747,24 +431,24 @@ function getPricing(req, res) {
     });
 }
 
-function pauseListingToggle(req, res) {
-    var listingId = req.param("id");
-    var pausedUntil = req.param("pausedUntil");
-    var pause = req.param("pause");
-    var access = "self";
+async function pauseListingToggle(req, res) {
+    const id = req.param('id');
+    const pausedUntil = req.param('pausedUntil');
+    const pause = req.param('pause');
 
-    return Promise.coroutine(function* () {
-        var updatedListing = yield ListingService.pauseListingToggle({
-            listingId,
-            pause,
-            pausedUntil,
-            req,
-            res,
-        });
+    const access = 'self';
 
-        res.json(Listing.expose(updatedListing, access));
-    })()
-    .catch(res.sendError);
+    try {
+        const listing = await ListingService.pauseListingToggle(
+            id,
+            { pausedUntil, pause },
+            { req, res, userId: req.user.id },
+        );
+
+        res.json(Listing.expose(listing, access));
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function getRecommendedPrices(req, res) {
@@ -827,58 +511,13 @@ async function createListingAvailability(req, res) {
 
     const access = 'others';
 
-    if (!startDate || !TimeService.isDateString(startDate)
-     || !endDate || !TimeService.isDateString(endDate)
-     || endDate <= startDate
-    ) {
-        return res.badRequest();
-    }
-
     try {
-        const listing = await Listing.findOne({ id });
-        if (!listing) {
-            throw new NotFoundError();
-        }
-        if (listing.ownerId !== req.user.id) {
-            throw new ForbiddenError();
-        }
-        if (listing.listingTypesIds.length !== 1) {
-            throw new ForbiddenError();
-        }
-
-        const listingType = await ListingTypeService.getListingType(listing.listingTypesIds[0]);
-        if (!listingType) {
-            throw new NotFoundError();
-        }
-
-        const { timeAvailability } = listingType.config;
-
-        if (timeAvailability === 'NONE') {
-            throw new ForbiddenError();
-        }
-
-        let available;
-        if (timeAvailability === 'AVAILABLE') {
-            available = false;
-        } else if (timeAvailability === 'UNAVAILABLE') {
-            available = true;
-        }
-
-        const listingAvailabilities = await ListingAvailability.find({ listingId: id });
-
-        if (TimeService.isIntersection(listingAvailabilities, { startDate, endDate })) {
-            const error = new BadRequestError('Listing availability conflict');
-            error.expose = true;
-            throw error;
-        }
-
-        const listingAvailability = await ListingAvailability.create({
+        const listingAvailability = await ListingService.createListingAvailability({
             listingId: id,
             startDate,
             endDate,
             quantity,
-            available,
-        });
+        }, { userId: req.user.id });
 
         res.json(ListingAvailability.expose(listingAvailability, access));
     } catch (err) {
@@ -891,18 +530,10 @@ async function removeListingAvailability(req, res) {
     const listingAvailabilityId = req.param('listingAvailabilityId');
 
     try {
-        const listing = await Listing.findOne({ id });
-        if (!listing) {
-            throw new NotFoundError();
-        }
-        if (listing.ownerId !== req.user.id) {
-            throw new ForbiddenError();
-        }
-
-        await ListingAvailability.destroy({
-            id: listingAvailabilityId,
-            listingId: listing.id
-        });
+        await ListingService.removeListingAvailability(
+            { listingId: id, listingAvailabilityId },
+            { userId: req.user.id }
+        );
 
         res.json({ ok: true });
     } catch (err) {

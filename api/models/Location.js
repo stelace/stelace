@@ -65,7 +65,8 @@ module.exports = {
     get: get,
     getAddress: getAddress,
     getBillingLocation: getBillingLocation,
-    getMainLocationSnapshot: getMainLocationSnapshot
+    getMainLocationSnapshot: getMainLocationSnapshot,
+    hasUserLocations,
 };
 
 var params = {
@@ -207,4 +208,14 @@ function getMainLocationSnapshot(userId) {
 
         return yield ModelSnapshot.getSnapshot("location", location);
     })();
+}
+
+async function hasUserLocations(locationsIds, userId) {
+    if (!locationsIds || !locationsIds.length) return true;
+
+    const locations = await Location.find({
+        id: _.uniq(locationsIds),
+        userId,
+    });
+    return locations.length === locationsIds.length;
 }

@@ -1,4 +1,4 @@
-/* global ToolsService */
+/* global Tag, ToolsService */
 
 /**
 * Tag.js
@@ -43,6 +43,7 @@ module.exports = {
     getAccessFields: getAccessFields,
     postBeforeCreate: postBeforeCreate,
     postBeforeUpdate: postBeforeUpdate,
+    existTags,
 
 };
 
@@ -74,4 +75,13 @@ function postBeforeUpdate(values) {
     if (values.name) {
         values.nameURLSafe = ToolsService.getURLStringSafe(values.name);
     }
+}
+
+async function existTags(tagsIds) {
+    if (!tagsIds || !tagsIds.length) {
+        return true;
+    }
+
+    const tags = await Tag.find({ id: _.uniq(tagsIds) });
+    return tags.length === tagsIds.length;
 }

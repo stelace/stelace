@@ -385,31 +385,29 @@ function isValidReferences(args) {
  * @return {object}   hashMedias
  * @return {object[]} hashMedias[listingId] - listing medias
  */
-function getMedias(listings) {
-    return Promise.coroutine(function* () {
-        var mediasIds = _.reduce(listings, function (memo, listing) {
-            memo = memo.concat(listing.mediasIds || []);
-            return memo;
-        }, []);
-        mediasIds = _.uniq(mediasIds);
+async function getMedias(listings) {
+    var mediasIds = _.reduce(listings, function (memo, listing) {
+        memo = memo.concat(listing.mediasIds || []);
+        return memo;
+    }, []);
+    mediasIds = _.uniq(mediasIds);
 
-        var medias = yield Media.find({ id: mediasIds });
-        var indexedMedias = _.indexBy(medias, "id");
+    var medias = await Media.find({ id: mediasIds });
+    var indexedMedias = _.indexBy(medias, "id");
 
-        return _.reduce(listings, function (memo, listing) {
-            if (! memo[listing.id]) { // in case there are duplicate listings in listings array
-                memo[listing.id] = _.reduce(listing.mediasIds || [], function (memo2, mediaId) {
-                    var media = indexedMedias[mediaId];
-                    if (media) {
-                        memo2.push(media);
-                    }
-                    return memo2;
-                }, []);
-            }
+    return _.reduce(listings, function (memo, listing) {
+        if (! memo[listing.id]) { // in case there are duplicate listings in listings array
+            memo[listing.id] = _.reduce(listing.mediasIds || [], function (memo2, mediaId) {
+                var media = indexedMedias[mediaId];
+                if (media) {
+                    memo2.push(media);
+                }
+                return memo2;
+            }, []);
+        }
 
-            return memo;
-        }, {});
-    })();
+        return memo;
+    }, {});
 }
 
 /**
@@ -418,31 +416,29 @@ function getMedias(listings) {
  * @return {object}   hashMedias
  * @return {object[]} hashMedias[listingId] - listing instructions medias
  */
-function getInstructionsMedias(listings) {
-    return Promise.coroutine(function* () {
-        var mediasIds = _.reduce(listings, function (memo, listing) {
-            memo = memo.concat(listing.instructionsMediasIds || []);
-            return memo;
-        }, []);
-        mediasIds = _.uniq(mediasIds);
+async function getInstructionsMedias(listings) {
+    var mediasIds = _.reduce(listings, function (memo, listing) {
+        memo = memo.concat(listing.instructionsMediasIds || []);
+        return memo;
+    }, []);
+    mediasIds = _.uniq(mediasIds);
 
-        var medias = yield Media.find({ id: mediasIds });
-        var indexedMedias = _.indexBy(medias, "id");
+    var medias = await Media.find({ id: mediasIds });
+    var indexedMedias = _.indexBy(medias, "id");
 
-        return _.reduce(listings, function (memo, listing) {
-            if (! memo[listing.id]) {
-                memo[listing.id] = _.reduce(listing.instructionsMediasIds || [], function (memo2, mediaId) {
-                    var media = indexedMedias[mediaId];
-                    if (media) {
-                        memo2.push(media);
-                    }
-                    return memo2;
-                }, []);
-            }
+    return _.reduce(listings, function (memo, listing) {
+        if (! memo[listing.id]) {
+            memo[listing.id] = _.reduce(listing.instructionsMediasIds || [], function (memo2, mediaId) {
+                var media = indexedMedias[mediaId];
+                if (media) {
+                    memo2.push(media);
+                }
+                return memo2;
+            }, []);
+        }
 
-            return memo;
-        }, {});
-    })();
+        return memo;
+    }, {});
 }
 
 function getTags(listingOrListings, completeObj) {
