@@ -193,6 +193,10 @@ module.exports.policies = {
         '*': ['isApiAuthenticated'],
     },
 
+    'v0_1/ListingCategoryController': {
+        '*': ['isApiAuthenticated'],
+    },
+
     'v0_1/ListingTypeController': {
         '*': ['isApiAuthenticated'],
     },

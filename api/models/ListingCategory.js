@@ -37,13 +37,20 @@ module.exports = {
 
 function getAccessFields(access) {
     var accessFields = {
+        api: [
+            "id",
+            "name",
+            "lft",
+            "rgt",
+            "parentId",
+        ],
         others: [
             "id",
             "name",
             "lft",
             "rgt",
-            "parentId"
-        ]
+            "parentId",
+        ],
     };
 
     return accessFields[access];

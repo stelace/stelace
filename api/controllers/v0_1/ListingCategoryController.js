@@ -1,11 +1,4 @@
-/* global ListingCategory, ListingCategoryService, TokenService */
-
-/**
- * ListingCategoryController
- *
- * @description :: Server-side logic for managing listingcategories
- * @help        :: See http://links.sailsjs.org/docs/controllers
- */
+/* global ListingCategory, ListingCategoryService */
 
 module.exports = {
 
@@ -18,7 +11,7 @@ module.exports = {
 };
 
 async function find(req, res) {
-    const access = 'others';
+    const access = 'api';
 
     try {
         const listingCategories = await ListingCategory.find();
@@ -30,7 +23,7 @@ async function find(req, res) {
 
 async function findOne(req, res) {
     const id = req.param('id');
-    const access = 'others';
+    const access = 'api';
 
     try {
         const listingCategory = await ListingCategory.findOne({ id });
@@ -48,11 +41,7 @@ async function create(req, res) {
     const name = req.param('name');
     const parentId = req.param('parentId');
 
-    const access = 'admin';
-
-    if (! TokenService.isRole(req, "admin")) {
-        return res.forbidden();
-    }
+    const access = 'api';
 
     try {
         const listingCategory = await ListingCategoryService.createListingCategory({ name, parentId });
@@ -66,11 +55,7 @@ async function update(req, res) {
     const id = req.param('id');
     const name = req.param('name');
 
-    const access = 'admin';
-
-    if (! TokenService.isRole(req, "admin")) {
-        return res.forbidden();
-    }
+    const access = 'api';
 
     try {
         const listingCategory = await ListingCategoryService.updateListingCategory(id, { name });
@@ -84,10 +69,6 @@ async function destroy(req, res) {
     const id = req.param('id');
     const fallbackCategoryId = req.param('fallbackCategoryId');
 
-    if (! TokenService.isRole(req, "admin")) {
-        return res.forbidden();
-    }
-
     try {
         await ListingCategoryService.removeListingCategory(id, { fallbackCategoryId });
         res.json({ id });
@@ -95,4 +76,3 @@ async function destroy(req, res) {
         res.sendError(err);
     }
 }
-
