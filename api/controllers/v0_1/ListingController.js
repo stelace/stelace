@@ -12,20 +12,39 @@ module.exports = {
 };
 
 async function find(req, res) {
-    const access = 'api';
     const attrs = req.allParams();
+    const sortFields = [
+        'id',
+        'name',
+        'description',
+        'validated',
+        'locked',
+        'sellingPrice',
+        'deposit',
+        'createdDate',
+    ];
+    const searchFields = [
+        'id',
+        'name',
+        'description',
+    ];
+
+    const access = 'api';
 
     try {
         const fields = ApiService.parseFields(attrs);
         const pagination = ApiService.parsePagination(attrs);
         const populateMedia = _.includes(fields, 'media');
 
+        const sorting = ApiService.parseSorting(attrs, sortFields);
+        const searchAttrs = ApiService.parseSearchQuery(attrs, searchFields);
+
         let [
             listings,
             countListings,
         ] = await Promise.all([
-            Listing.find().paginate(pagination),
-            Listing.count(),
+            Listing.find(searchAttrs).sort(sorting).paginate(pagination),
+            Listing.count(searchAttrs),
         ]);
 
         const hashMedias = populateMedia ? await Listing.getMedias(listings) : {};

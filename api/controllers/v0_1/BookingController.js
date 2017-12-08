@@ -8,17 +8,31 @@ module.exports = {
 };
 
 async function find(req, res) {
-    const access = 'api';
     const attrs = req.allParams();
+    const sortFields = [
+        'id',
+        'paidDate',
+        'acceptedDate',
+        'startDate',
+        'endDate',
+        'ownerPrice',
+        'takerPrice',
+        'ownerFees',
+        'takerFees',
+    ];
+
+    const access = 'api';
 
     try {
         const pagination = ApiService.parsePagination(attrs);
+
+        const sorting = ApiService.parseSorting(attrs, sortFields);
 
         const [
             bookings,
             countBookings,
         ] = await Promise.all([
-            Booking.find().paginate(pagination),
+            Booking.find().sort(sorting).paginate(pagination),
             Booking.count(),
         ]);
 

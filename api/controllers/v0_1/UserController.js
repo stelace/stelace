@@ -12,6 +12,26 @@ module.exports = {
 
 async function find(req, res) {
     const attrs = req.allParams();
+    const sortFields = [
+        'id',
+        'firstname',
+        'lastname',
+        'description',
+        'email',
+        'emailCheck',
+        'phone',
+        'phoneCheck',
+        'createdDate',
+        'lastConnectionDate',
+        'newsletter',
+    ];
+    const searchFields = [
+        'id',
+        'firstname',
+        'lastname',
+        'email',
+        'phone',
+    ];
 
     const access = 'api';
 
@@ -20,13 +40,17 @@ async function find(req, res) {
         const pagination = ApiService.parsePagination(attrs);
         const populateMedia = _.includes(fields, 'media');
 
-        const findAttrs = { destroyed: false };
+        let findAttrs = { destroyed: false };
+        const sorting = ApiService.parseSorting(attrs, sortFields);
+        const searchAttrs = ApiService.parseSearchQuery(attrs, searchFields);
+
+        findAttrs = Object.assign({}, findAttrs, searchAttrs);
 
         let [
             users,
             countUsers,
         ] = await Promise.all([
-            User.find(findAttrs).paginate(pagination),
+            User.find(findAttrs).sort(sorting).paginate(pagination),
             User.count(findAttrs),
         ]);
 

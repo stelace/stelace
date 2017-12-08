@@ -2,6 +2,8 @@ module.exports = {
 
     parseFields,
     parsePagination,
+    parseSorting,
+    parseSearchQuery,
     getPaginationMeta,
 
 };
@@ -39,6 +41,50 @@ function parsePagination(attrs) {
     }
 
     return pagination;
+}
+
+function parseSorting(attrs, sortFields) {
+    if (!attrs.sortField
+     || (sortFields && !_.includes(sortFields, attrs.sortField))
+    ) {
+        return;
+    }
+
+    let sortDirection;
+    if (!_.includes(['asc', 'desc'], attrs.sortDirection)) {
+        sortDirection = 'asc';
+    } else {
+        sortDirection = attrs.sortDirection;
+    }
+
+    const sorting = {};
+    sorting[attrs.sortField] = sortDirection === 'asc' ? 1 : -1;
+
+    return sorting;
+}
+
+function parseSearchQuery(attrs, searchFields) {
+    if (!attrs.q || !searchFields) {
+        return {};
+    }
+
+    const or = _.reduce(searchFields, (memo, field) => {
+        if (field === 'id') {
+            const parsedNb = parseInt(attrs.q, 10);
+            if (!isNaN(parsedNb)) {
+                memo.push({ [field]: parsedNb });
+            }
+        } else {
+            memo.push({ [field]: { contains: attrs.q } });
+        }
+        return memo;
+    }, []);
+
+    if (or.length) {
+        return { or };
+    } else {
+        return {};
+    }
 }
 
 function getPaginationMeta({ totalResults, limit }) {
