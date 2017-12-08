@@ -133,7 +133,7 @@ module.exports.routes = {
 
     // MediaController
     'get /api/media/get/:id/:uuid.:ext': "MediaController.get",
-    'get /api/media/get/:id/:uuid': "MediaController.getOld",
+    'get /api/media/get/:id/:uuid': "MediaController.getRedirect",
     'get /api/media/download': "MediaController.download",
     'post /api/media/upload': "MediaController.upload",
     'get /api/media/my': "MediaController.my",
@@ -195,6 +195,12 @@ module.exports.routes = {
 
     'get /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.find', cors: apiCors },
     'get /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.findOne', cors: apiCors },
+
+    'get /api/v0.1/media/get/:id/:uuid.:ext': { target: "v0_1/MediaController.get", cors: apiCors },
+    'get /api/v0.1/media/get/:id/:uuid': { target: "v0_1/MediaController.getRedirect", cors: apiCors },
+    'get /api/v0.1/media/download': { target: "v0_1/MediaController.download", cors: apiCors },
+    'post /api/v0.1/media/upload': { target: "v0_1/MediaController.upload", cors: apiCors },
+    'put /api/v0.1/media/:id': { target: "v0_1/MediaController.update", cors: apiCors },
 
     'get /api/v0.1/stats/users_registered': { target: 'v0_1/StatsController.userRegistered', cors: apiCors },
     'get /api/v0.1/stats/listings_published': { target: 'v0_1/StatsController.listingPublished', cors: apiCors },

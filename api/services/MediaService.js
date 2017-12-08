@@ -1,7 +1,11 @@
-/* global ImageService, Media */
+/* global ImageService, Listing, Media */
 
 module.exports = {
 
+    updateMedia,
+    uploadMedia,
+    getFileToServe,
+    getServeFileHeaders,
     uploadFile,
     downloadFile,
     createMediaFromFile,
@@ -21,6 +25,355 @@ Promise.promisifyAll(request, { multiArgs: true });
 const tmpDir = sails.config.tmpDir;
 const uploadDir = sails.config.uploadDir;
 const maxSizeUploadInBytes = 50000000; // 50MB
+
+/**
+ * @param {Number} mediaId
+ * @param {Object} attrs
+ * @param {String} attrs.name
+ * @param {Object} options
+ * @param {Number} options.userId - if specified, check if the listing owner id matches the provided userId
+ * @result {Object} updated media
+ */
+async function updateMedia(mediaId, { name }, { userId }) {
+    const media = await Media.findOne({ id: mediaId });
+    if (!media) {
+        throw new NotFoundError();
+    }
+    if (userId && media.userId !== userId) {
+        throw new ForbiddenError();
+    }
+
+    const updatedMedia = await Media.updateOne(media.id, { name });
+    return updatedMedia;
+}
+
+/**
+ * Upload media (static file or link)
+ * @param {Object} attrs
+ * @param {String} [attrs.field]
+ * @param {Number} [attrs.targetId]
+ * @param {String} [attrs.name]
+ * @param {String} [attrs.url] - url or req.file must be defined
+ * @param {Object} options
+ * @param {Object} [options.req]
+ * @param {Object} [options.res] - required if uploading a file (req.file defined)
+ * @param {Number} options.userId
+ * @result {Object} uploaded media
+ */
+async function uploadMedia(attrs, { req, res, userId } = {}) {
+    const {
+        field,
+        targetId,
+        name,
+        url,
+    } = attrs;
+
+    if (field && (!_.includes(Media.get('fields'), field) || !targetId)) {
+        throw new BadRequestError();
+    }
+
+    if (field && targetId) {
+        await _checkTarget({ field, targetId, userId });
+    }
+
+    let media;
+
+    if (url) {
+        media = await Media.create({
+            name: name || url,
+            uuid: Uuid.v4(),
+            type: 'link',
+            userId,
+            field,
+            targetId,
+            url,
+        });
+    } else {
+        media = await uploadFile({
+            req,
+            res,
+            field,
+            targetId,
+            logger: req.logger,
+            name,
+        });
+    }
+
+    return media;
+}
+
+async function _checkTarget({ field, targetId, userId }) {
+    if (field === 'user') {
+        if (userId !== targetId) {
+            throw new ForbiddenError();
+        }
+    } else if (field === 'listing') {
+        const listing = await Listing.findOne({ id: targetId });
+        if (!listing) {
+            const error = new NotFoundError('Listing not found');
+            error.listingId = targetId;
+            throw error;
+        }
+        if (listing.ownerId !== userId) {
+            throw new ForbiddenError();
+        }
+    }
+}
+
+/**
+ * Get the file path for the asset media (to serve static image or pdf)
+ * @param {Object} attrs
+ * @param {Number} attrs.id
+ * @param {String} [attrs.uuid] - if specified, check if the media has the provided uuid (prevent media brute-force crawl)
+ * @param {String} [attrs.size] - allowed sizes are displayed in Media.js model (e.g. format 75x50)
+ * @param {String} [attrs.displayType = 'cover']
+ * @param {String} attrs.threshold - e.g. format 10t50
+ * @result {Object} res
+ * @result {String} res.filepath - path of the physical file
+ * @result {String} res.filename - displayed name by the browser
+ * @result {Boolean} res.indexable - true if indexable by bots
+ * @result {Boolean} res.cache - true to have a cache duration
+ */
+async function getFileToServe(attrs) {
+    const {
+        mediaId,
+        uuid,
+        size,
+        displayType = 'cover',
+        threshold,
+    } = attrs;
+
+    const media = await Media.findOne({ id: mediaId });
+    if (!media || uuid && media.uuid !== uuid) {
+        throw new NotFoundError();
+    }
+
+    const filename = Media.getServeFilename(media);
+
+    // no specific processing if the media isn't an image
+    if (media.type !== 'img') {
+        return {
+            filepath: path.join(sails.config.uploadDir, Media.getStorageFilename(media)),
+            filename,
+            indexable: media.type !== 'pdf',
+            cache: false,
+        };
+    }
+
+    const filepath = await _getServedImageFilepath({ media, size, displayType, threshold });
+
+    return {
+        filepath,
+        filename,
+        indexable: true,
+        cache: true,
+    };
+}
+
+async function _getServedImageFilepath({ media, size, displayType, threshold }) {
+    if (!_.includes(Media.get('displayTypes'), displayType)) {
+        throw new BadRequestError();
+    }
+
+    const originalFilepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
+    let resizedObj;
+    let filepath;
+
+    if (!size) {
+        filepath = originalFilepath;
+    } else {
+        let imageSize = Media.getAllowedImageSize(size);
+        if (!imageSize) {
+            throw new BadRequestError();
+        }
+
+        resizedObj = await _getResizedImageFilepath({
+            media,
+            size,
+            width: imageSize.width,
+            height: imageSize.height,
+            displayType,
+            threshold,
+        });
+        filepath = resizedObj.filepath;
+    }
+
+    if (!µ.existsSync(filepath)) {
+        throw new NotFoundError();
+    }
+
+    // check if there is a logo image processing
+    if (!Media.get('serveImageWithLogo')) {
+        return filepath;
+    }
+
+    try {
+        const fileWithLogo = await _getImageWithLogo({
+            media,
+            filepath,
+            size: resizedObj.size,
+            displayType: resizedObj.displayType,
+        });
+        return fileWithLogo;
+    } catch (err) {
+        // an error when generating logo isn't important
+        return filepath;
+    }
+}
+
+/**
+ * @param {Object} media
+ * @param {String} size
+ * @param {Number} width
+ * @param {Number} height
+ * @param {String} displayType
+ * @param {String} threshold
+ * @result {Object} res
+ * @result {String} res.filepath
+ * @result {String} res.size - can be different from input one
+ * @result {String} res.displayType - can be different from input one
+ */
+async function _getResizedImageFilepath({
+    media,
+    size,
+    width,
+    height,
+    displayType,
+    threshold,
+}) {
+    const originalFilepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
+
+    let realDisplayType = displayType;
+    if (displayType === 'smart') {
+        if (!threshold) {
+            throw new BadRequestError('Threshold missing');
+        }
+
+        realDisplayType = Media.getSmartDisplayType(media, threshold);
+    }
+
+    const filepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media, { size, displayType: realDisplayType }));
+
+    // if the file exists, stop the process
+    if (µ.existsSync(filepath)) {
+        return {
+            filepath,
+            size,
+            displayType: realDisplayType,
+        };
+    }
+
+    try {
+        if (realDisplayType === 'cover') {
+            await ImageService.resizeCover(originalFilepath, filepath, { width, height });
+        } else if (realDisplayType === 'contain') {
+            await ImageService.resize(originalFilepath, filepath, { width, height });
+        } else if (realDisplayType === 'containOriginal') {
+            // do not up-scale beyond original image size
+            if (media.width <= width && media.height <= height) {
+                return {
+                    filepath: originalFilepath,
+                    size: null,
+                    displayType: null,
+                };
+            }
+
+            await ImageService.resize(originalFilepath, filepath, { width, height });
+        }
+    } catch (err) {
+        const error = new Error('Image processing');
+        error.err      = err;
+        error.media    = media.id;
+        error.filepath = filepath;
+        throw error;
+    }
+
+    return {
+        filepath,
+        size,
+        displayType: realDisplayType,
+    };
+}
+
+/**
+ * @param {Object} media
+ * @param {String} filepath
+ * @param {String} size
+ * @param {String} displayType
+ * @result {String} image with logo filepath
+ */
+async function _getImageWithLogo({ media, filepath, size, displayType }) {
+    // only put logo on listing images
+    if (media.field !== 'listing') {
+        return filepath;
+    }
+
+    const imageWithLogoFilepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media, { size, displayType, withLogo: true }));
+
+    if (µ.existsSync(imageWithLogoFilepath)) {
+        return imageWithLogoFilepath;
+    }
+
+    const imgSize = await ImageService.getSize(filepath);
+    const mediaMinSizeForLogo = Media.get('mediaMinSizeForLogo');
+
+    // check if the media have the minimum size for logo
+    if (mediaMinSizeForLogo
+     && (imgSize.width < mediaMinSizeForLogo.width || imgSize.height < mediaMinSizeForLogo.height)
+    ) {
+        return filepath;
+    }
+
+    const logoSizeName = Media.getLogoSizeName(imgSize.width);
+    const logoPath = Media.get('logoPaths')[logoSizeName];
+    if (!logoPath) {
+        throw new Error('Logo path not found');
+    }
+
+    const logoSize = await ImageService.getSize(logoPath);
+
+    const newLogoSize = Media.getLogoNewSize(imgSize, logoSize);
+    const geometry = Media.getGeometry(imgSize, newLogoSize, Media.get('logoMargin'));
+
+    // if no logo resize
+    if (newLogoSize.width === logoSize.width) {
+        await ImageService.composite(logoPath, filepath, imageWithLogoFilepath, geometry);
+    } else {
+        const tmpLogoPath = path.join(sails.config.tmpDir, Uuid.v4());
+        await ImageService.resize(logoPath, tmpLogoPath, newLogoSize);
+        await ImageService.composite(tmpLogoPath, filepath, imageWithLogoFilepath, geometry)
+            .catch(err => {
+                fs.unlinkAsync(tmpLogoPath).catch(() => { return; });
+                throw err;
+            });
+
+        fs.unlinkAsync(tmpLogoPath).catch(() => { return; });
+    }
+
+    return imageWithLogoFilepath;
+}
+
+/**
+ * @param {String} filepath
+ * @param {String} filename
+ * @param {Boolean} cache
+ * @param {Boolean} indexable
+ * @result {Object} response headers to send
+ */
+function getServeFileHeaders({ filename, indexable, cache }) {
+    const escapedFilename = encodeURIComponent(filename);
+
+    const headers = {
+        'Content-Disposition': `inline; filename="${escapedFilename}"`,
+        'Cache-Control': cache ? 'public, max-age=31536000' : 'no-cache',
+    };
+
+    if (!indexable) {
+        headers['X-Robots-Tag'] = 'noindex, nofollow';
+    }
+
+    return headers;
+}
 
 /**
  * Upload file
@@ -248,23 +601,22 @@ async function setImagePlaceholders(media) {
 /**
  * Download file
  * @param  {object} res
- * @param  {number} userId
  * @param  {number} id              - (id, uuid) or media must be defined
  * @param  {string} uuid
  * @param  {object} media
+ * @param  {number} [userId]          - if specified, only allow download if userId matches with the media userId
  * @param  {string} [exposeFilename]  - name of the file that is displayed when downloading the file
  */
 async function downloadFile({
     res,
-    userId,
     id,
     uuid,
     media,
+    userId,
     exposeFilename,
 }) {
     try {
         if (((!id || !uuid) && !media)
-         || !userId
          || !res
         ) {
             return res.badRequest();
@@ -277,7 +629,7 @@ async function downloadFile({
             }
         }
 
-        if (userId !== media.userId) {
+        if (userId && userId !== media.userId) {
             throw new ForbiddenError();
         }
 

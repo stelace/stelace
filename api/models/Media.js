@@ -35,19 +35,36 @@ module.exports = {
         alt: "string",
     },
 
-    getAccessFields: getAccessFields,
-    get: get,
-    getName: getName,
-    getExtension: getExtension,
-    getStorageFilename: getStorageFilename,
-    getTypeFromExtension: getTypeFromExtension,
-    convertContentTypeToExtension: convertContentTypeToExtension,
-    deleteCustomSizeFiles: deleteCustomSizeFiles,
-    destroyMedia: destroyMedia,
-    getUrl: getUrl,
-    getDefaultListingImageUrl: getDefaultListingImageUrl
+    getAccessFields,
+    exposeTransform,
+    get,
+
+    getName,
+    getExtension,
+    getStorageFilename,
+
+    getServeFilename,
+    getAllowedImageSize,
+    getThresholdData,
+    getSmartDisplayType,
+    getLogoSizeName,
+    getGeometry,
+    getLogoNewSize,
+
+    getTypeFromExtension,
+    convertContentTypeToExtension,
+
+    deleteCustomSizeFiles,
+    destroyMedia,
+
+    getUrl,
+    getDefaultListingImageUrl,
 
 };
+
+const fs       = require('fs');
+const path     = require('path');
+const del      = require('del');
 
 const params = {
     fields: ["user", "listing"],
@@ -100,7 +117,18 @@ const params = {
             width: 1600,
             height: 1200
         }
-    ]
+    ],
+    serveImageWithLogo: true,
+    logoPaths: {
+        small: path.join(__dirname, "../assets/img", "Sharinplace-logo-allwhite-small-shadow.png"),
+        normal: path.join(__dirname, "../assets/img", "Sharinplace-logo-allwhite-shadow.png"),
+    },
+    logoBreakpoints: {
+        small: 2400, // use the small logo for images whose width is below this value
+        normal: null,
+    },
+    mediaMinSizeForLogo: { width: 600, height: 240 },
+    logoMargin: { bottom: 10, right: 20 },
 };
 
 const extensions = {
@@ -108,14 +136,24 @@ const extensions = {
     pdf: ["pdf"]
 };
 
-const fs       = require('fs');
-const path     = require('path');
-const del      = require('del');
-
 Promise.promisifyAll(fs);
 
 function getAccessFields(access) {
     const accessFields = {
+        api: [
+            "id",
+            "name",
+            "extension",
+            "uuid",
+            "type",
+            "url",
+            "width",
+            "height",
+            "color",
+            "placeholder",
+            "alt",
+            "mediaUrl",
+        ],
         self: [
             "id",
             "name",
@@ -145,6 +183,16 @@ function getAccessFields(access) {
     };
 
     return accessFields[access];
+}
+
+function exposeTransform(element, field) {
+    switch (field) {
+        case 'mediaUrl':
+            if (element.type !== 'link') {
+                element.mediaUrl = getUrl(element);
+            }
+            break;
+    }
 }
 
 function get(prop) {
@@ -209,6 +257,156 @@ function getTypeFromExtension(extension) {
     });
 
     return fileType;
+}
+
+function getServeFilename(media) {
+    return media.name + (media.extension ? '.' + media.extension : '');
+}
+
+/**
+ * Image media can only have predefined sizes
+ * @param {String} size - e.g. format 400x300
+ * @result {Object} res
+ * @result {String} res.label - the format
+ * @result {String} res.width
+ * @result {String} res.height
+ */
+function getAllowedImageSize(size) {
+    return _.find(Media.get("imgSizes"), imgSize => {
+        return imgSize.label === size;
+    });
+}
+
+/**
+ * @param {String} threshold - e.g. format 10t5
+ * @result {Object} res
+ * @result {Number} res.width
+ * @result {Number} res.height
+ */
+function getThresholdData(threshold) {
+    if (typeof threshold !== 'string') {
+        throw new Error('Treshhold must be a string');
+    }
+
+    const split = threshold.split('t');
+    if (split.length !== 2) {
+        throw new Error('Threshold must have two parts');
+    }
+
+    const width = parseInt(split[0], 10);
+    const height = parseInt(split[1], 10);
+
+    if (isNaN(width) || isNaN(height)) {
+        throw new Error('Width and height must be numbers');
+    }
+
+    return { width, height };
+}
+
+function getSmartDisplayType(media, threshold) {
+    const { width, height } = getThresholdData(threshold);
+
+    const thresholdRatio = width / height;
+    const mediaRatio = media.width / media.height;
+
+    return (mediaRatio < thresholdRatio ? 'cover' : 'contain');
+}
+
+/**
+ * Based on the image width, return the appropriate logo name
+ * @param {Number} width
+ */
+function getLogoSizeName(width) {
+    let logoBreakpoints = Media.get('logoBreakpoints');
+    let sizeName;
+
+    _.forEach(logoBreakpoints, (breakpoint, name) => {
+        if (sizeName) {
+            return;
+        }
+
+        if (breakpoint && width <= breakpoint) {
+            sizeName = name;
+        }
+    });
+
+    if (! sizeName) {
+        sizeName = _.last(_.keys(logoBreakpoints));
+    }
+
+    return sizeName;
+}
+
+/**
+ * Get the Graphics Magick geometry to put the logo at the bottom right of the image
+ * @param {Object} imgSize
+ * @param {Number} imgSize.width
+ * @param {Number} imgSize.height
+ * @param {Object} logoSize
+ * @param {Number} logoSize.width
+ * @param {Number} logoSize.height
+ * @param {Object} logoMargin
+ * @param {Number} logoMargin.width
+ * @param {Number} logoMargin.height
+ * @result {String} geometry
+ */
+function getGeometry(imgSize, logoSize, logoMargin) {
+    const translation = {
+        x: imgSize.width - logoSize.width - logoMargin.right,
+        y: imgSize.height - logoSize.height - logoMargin.bottom
+    };
+
+    let geometry = "";
+    if (translation.x > 0) {
+        geometry += "+";
+    }
+    geometry += translation.x;
+    if (translation.y > 0) {
+        geometry += "+";
+    }
+    geometry += translation.y;
+
+    return geometry;
+}
+
+/**
+ * Adapt the logo size based on the image size
+ * @param {Object} imgSize
+ * @param {Number} imgSize.width
+ * @param {Number} imgSize.height
+ * @param {Object} logoSize
+ * @param {Number} logoSize.width
+ * @param {Number} logoSize.height
+ * @result {Object} newLogoSize
+ * @result {Number} newLogoSize.width
+ * @result {Number} newLogoSize.height
+ */
+function getLogoNewSize(imgSize, logoSize) {
+    const newLogoSize = {
+        width: logoSize.width,
+        height: logoSize.height,
+    };
+
+    let scale = 1;
+
+    if (600 <= imgSize.width && imgSize.width < 1200) {
+        scale = 0.2;
+    } else if (1200 <= imgSize) {
+        scale = 0.1;
+    }
+
+    if (scale === 1) {
+        return logoSize;
+    }
+
+    newLogoSize.width = Math.round(imgSize.width * scale);
+    newLogoSize.height = Math.round(newLogoSize.width * logoSize.height / logoSize.width);
+
+    if (logoSize.width < newLogoSize.width) {
+        return logoSize;
+    } else {
+        return newLogoSize;
+    }
 }
 
 function convertContentTypeToExtension(contentType) {

@@ -197,6 +197,10 @@ module.exports.policies = {
         '*': ['isApiAuthenticated'],
     },
 
+    'v0_1/MediaController': {
+        '*': ['isApiAuthenticated'],
+    },
+
     'v0_1/StatsController': {
         '*': ['isApiAuthenticated'],
     },

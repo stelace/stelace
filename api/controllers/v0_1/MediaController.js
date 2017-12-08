@@ -1,64 +1,31 @@
-/* global Media, MediaService, User */
-
-/**
- * MediaController
- *
- * @description :: Server-side logic for managing media
- * @help        :: See http://links.sailsjs.org/docs/controllers
- */
-
-// https://github.com/sails101/file-uploads/blob/master/api/controllers/FileController.js#L15
+/* global Media, MediaService */
 
 module.exports = {
-
-    find,
-    findOne,
-    create,
     update,
-    destroy,
-
-    my,
     get,
     getRedirect,
     download,
     upload,
-
 };
 
 const Url = require('url');
 
-function find(req, res) {
-    return res.forbidden();
-}
-
-function findOne(req, res) {
-    return res.forbidden();
-}
-
-function create(req, res) {
-    return res.forbidden();
-}
-
 async function update(req, res) {
-    var id = req.param('id');
-    var name = req.param('name');
+    const id = req.param('id');
+    const name = req.param('name');
 
-    var access = 'self';
+    const access = 'api';
 
     if (! name) {
         return res.badRequest();
     }
 
     try {
-        const media = await MediaService.updateMedia(id, { name }, { userId: req.user.id });
+        const media = await MediaService.updateMedia(id, { name });
         res.json(Media.expose(media, access));
     } catch (err) {
         res.sendError(err);
     }
-}
-
-function destroy(req, res) {
-    return res.forbidden();
 }
 
 async function get(req, res) {
@@ -107,17 +74,6 @@ async function getRedirect(req, res) {
     }
 }
 
-async function my(req, res) {
-    var access = "self";
-
-    try {
-        const hashMedias = await User.getMedia([req.user]);
-        res.json(Media.expose(hashMedias[req.user.id], access));
-    } catch (err) {
-        res.sendError(err);
-    }
-}
-
 async function download(req, res) {
     const id = req.param('id');
     const uuid = req.param('uuid');
@@ -126,7 +82,6 @@ async function download(req, res) {
         id,
         uuid,
         res,
-        userId: req.user.id,
     });
 }
 
@@ -135,12 +90,13 @@ async function upload(req, res) {
     const targetId = parseInt(req.param('targetId'), 10);
     const name     = req.param('name');
     const url      = req.param('url');
-    const access = 'self';
+    const userId   = req.param('userId');
+    const access = 'api';
 
     try {
         const media = await MediaService.uploadMedia(
             { field, targetId, name, url },
-            { req, res, userId: req.user.id },
+            { req, res, userId },
         );
 
         res.json(Media.expose(media, access));
