@@ -151,6 +151,40 @@ var uuid   = require('uuid');
 
 function getAccessFields(access) {
     var accessFields = {
+        api: [
+            "id",
+            "username",
+            "firstname",
+            "lastname",
+            "description",
+            "phone",
+            "phoneCheck",
+            "role",
+            "email",
+            "emailCheck",
+            "freeFeesDate",
+            "mediaId",
+            "tagsIds",
+            "ratingScore",
+            "nbRatings",
+            "birthday",
+            "nationality",
+            "countryOfResidence",
+            "address",
+            "registrationCompleted",
+            "firstUse",
+            "mangopayAccount", // boolean on the existence of 'mangopayUserId'
+            "wallet", // boolean on the existence of 'walletId'
+            "bankAccount", // boolean on the existence of 'bankAccountId'
+            "iban",
+            "newsletter",
+            "points",
+            "lastViewedPoints",
+            "levelId",
+            "lastViewedLevelId",
+            "createdDate",
+            "lastConnectionDate",
+        ],
         self: [
             "id",
             "username",
@@ -204,6 +238,8 @@ function getAccessFields(access) {
 }
 
 function exposeTransform(element, field, access) {
+    let exposeFullName;
+
     switch (field) {
         case "mangopayAccount":
             element.mangopayAccount = !! element.mangopayUserId;
@@ -222,8 +258,9 @@ function exposeTransform(element, field, access) {
             break;
 
         case "lastname":
+            exposeFullName = _.includes(['self', 'api'], access);
             var shortLastname = element.lastname && element.lastname.charAt(0) + ".";
-            element.lastname = (access === "self") ? element.lastname : shortLastname;
+            element.lastname = exposeFullName ? element.lastname : shortLastname;
             break;
     }
 }

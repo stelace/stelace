@@ -114,6 +114,36 @@ var moment = require('moment');
 
 function getAccessFields(access) {
     var accessFields = {
+        api: [
+            "id",
+            "listingId",
+            "listingSnapshotId",
+            "listingTypeId",
+            "listingType",
+            "parentId",
+            "paidDate",
+            "acceptedDate",
+            "autoAcceptation",
+            "ownerId",
+            "takerId",
+            "quantity",
+            "startDate",
+            "endDate",
+            "nbTimeUnits",
+            "timeUnit",
+            "timeUnitPrice",
+            "ownerPrice",
+            "priceData",
+            "takerPrice",
+            "deposit",
+            "ownerFees",
+            "takerFees",
+            "paymentDate",
+            "depositDate",
+            "paymentTransferDate",
+            "withdrawalDate",
+            "cancellationId"
+        ],
         self: [
             "id",
             "listingId",

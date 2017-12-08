@@ -8,7 +8,7 @@ module.exports = {
 };
 
 async function find(req, res) {
-    const access = 'self';
+    const access = 'api';
     const attrs = req.allParams();
 
     try {
@@ -36,7 +36,7 @@ async function find(req, res) {
 
 async function findOne(req, res) {
     const id = req.param('id');
-    const access = 'self';
+    const access = 'api';
 
     try {
         const booking = await Booking.findOne({ id });

@@ -13,7 +13,7 @@ module.exports = {
 async function find(req, res) {
     const attrs = req.allParams();
 
-    const access = 'self';
+    const access = 'api';
 
     try {
         const fields = ApiService.parseFields(attrs);
@@ -56,7 +56,7 @@ async function findOne(req, res) {
     const id = req.param('id');
     const attrs = req.allParams();
 
-    const access = 'self';
+    const access = 'api';
 
     try {
         const fields = ApiService.parseFields(attrs);
@@ -77,7 +77,7 @@ async function findOne(req, res) {
 
 async function create(req, res) {
     const attrs = req.allParams();
-    const access = 'self';
+    const access = 'api';
 
     try {
         const user = await UserService.createUser(attrs);
@@ -91,7 +91,7 @@ async function update(req, res) {
     const id = req.param('id');
     const attrs = req.allParams();
 
-    const access = 'self';
+    const access = 'api';
 
     try {
         const user = await UserService.updateUser(id, attrs);

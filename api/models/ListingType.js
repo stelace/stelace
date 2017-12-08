@@ -34,6 +34,15 @@ module.exports = {
 
 function getAccessFields(access) {
     const accessFields = {
+        api: [
+            'id',
+            'name',
+            'properties',
+            'config',
+            'active',
+            'createdDate',
+            'updatedDate',
+        ],
         self: [
             'id',
             'name',

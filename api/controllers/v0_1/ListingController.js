@@ -12,7 +12,7 @@ module.exports = {
 };
 
 async function find(req, res) {
-    const access = 'self';
+    const access = 'api';
     const attrs = req.allParams();
 
     try {
@@ -52,7 +52,7 @@ async function find(req, res) {
 
 async function findOne(req, res) {
     const id = req.param('id');
-    const access = 'self';
+    const access = 'api';
 
     try {
         const listing = await Listing.findOne({ id });
@@ -69,7 +69,7 @@ async function findOne(req, res) {
 async function create(req, res) {
     const attrs = req.allParams();
 
-    const access = 'self';
+    const access = 'api';
 
     try {
         const listing = await ListingService.createListing(attrs, { req, res });
@@ -83,7 +83,7 @@ async function update(req, res) {
     const id = req.param('id');
     const attrs = req.allParams();
 
-    const access = 'self';
+    const access = 'api';
 
     try {
         const listing = await ListingService.updateListing(id, attrs);
@@ -108,7 +108,7 @@ async function destroy(req, res) {
 async function validate(req, res) {
     const id = req.param('id');
 
-    const access = 'self';
+    const access = 'api';
 
     try {
         const listing = await ListingService.validateListing(id);
