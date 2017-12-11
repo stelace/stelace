@@ -7,6 +7,7 @@ module.exports = {
     create,
     update,
     destroy,
+    getPricing,
     validate,
 
 };
@@ -71,15 +72,26 @@ async function find(req, res) {
 
 async function findOne(req, res) {
     const id = req.param('id');
+    const attrs = req.allParams();
     const access = 'api';
 
     try {
+        const fields = ApiService.parseFields(attrs);
+        const populateMedia = _.includes(fields, 'media');
+
         const listing = await Listing.findOne({ id });
         if (!listing) {
             throw new NotFoundError();
         }
 
-        res.json(Listing.expose(listing, access));
+        const exposedListing = Listing.expose(listing, access);
+
+        if (populateMedia) {
+            const hashMedias = await Listing.getMedias([listing]);
+            exposedListing.medias = Media.exposeAll(hashMedias[listing.id], access);
+        }
+
+        res.json(exposedListing);
     } catch (err) {
         res.sendError(err);
     }
@@ -119,6 +131,17 @@ async function destroy(req, res) {
         await ListingService.destroyListing(id, { req, res });
 
         res.json({ id });
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function getPricing(req, res) {
+    const pricingId = req.param('pricingId');
+
+    try {
+        const pricing = ListingService.getPricing(pricingId);
+        res.json(pricing);
     } catch (err) {
         res.sendError(err);
     }

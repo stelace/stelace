@@ -122,7 +122,7 @@ module.exports.policies = {
 
     MediaController: {
         get: ["isAuthenticatedOptional"],
-        getOld: ["isAuthenticatedOptional"],
+        getRedirect: ["isAuthenticatedOptional"],
         my: ["gracefulDismissNoToken", "isAuthenticated", "getUserInfo"]
     },
 
@@ -203,6 +203,8 @@ module.exports.policies = {
 
     'v0_1/MediaController': {
         '*': ['isApiAuthenticated'],
+        'get': true,
+        'getRedirect': true,
     },
 
     'v0_1/StatsController': {

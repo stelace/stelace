@@ -187,6 +187,7 @@ module.exports.routes = {
     'get /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.findEditable', cors: apiCors },
 
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
+    'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },
     'get /api/v0.1/listings/:id': { target: 'v0_1/ListingController.findOne', cors: apiCors },
     'post /api/v0.1/listings': { target: 'v0_1/ListingController.create', cors: apiCors },
     'put /api/v0.1/listings/:id': { target: 'v0_1/ListingController.update', cors: apiCors },

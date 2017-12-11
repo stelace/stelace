@@ -11,6 +11,7 @@ module.exports = {
     updateListingMedias,
     pauseListingToggle,
     validateListing,
+    getPricing,
     createListingAvailability,
     removeListingAvailability,
 
@@ -260,7 +261,9 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     }
 
     let updatedListing = await Listing.updateOne(listing.id, updateAttrs);
-    updatedListing = await Listing.updateTags(updatedListing, updateAttrs.tags);
+    if (updateAttrs.tags) {
+        updatedListing = await Listing.updateTags(updatedListing, updateAttrs.tags);
+    }
 
     return updatedListing;
 }
@@ -446,6 +449,27 @@ async function validateListing(listingId) {
 
     const validatedListing = await Listing.updateOne(listingId, { validated: true });
     return validatedListing;
+}
+
+/**
+ *
+ * @param {Number} [pricingId]
+ */
+function getPricing(pricingId) {
+    const pricing = PricingService.getPricing(pricingId);
+    if (!pricing) {
+        throw new NotFoundError();
+    }
+
+    return {
+        id: pricing.id,
+        config: pricing.config,
+        ownerFeesPercent: PricingService.get('ownerFeesPercent'),
+        takerFeesPercent: PricingService.get('takerFeesPercent'),
+        ownerFeesPurchasePercent: PricingService.get('ownerFeesPurchasePercent'),
+        takerFeesPurchasePercent: PricingService.get('takerFeesPurchasePercent'),
+        maxDiscountPurchasePercent: PricingService.get('maxDiscountPurchasePercent'),
+    };
 }
 
 /**

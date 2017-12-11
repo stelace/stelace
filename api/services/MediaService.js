@@ -96,6 +96,7 @@ async function uploadMedia(attrs, { req, res, userId } = {}) {
             targetId,
             logger: req.logger,
             name,
+            userId,
         });
     }
 
@@ -383,9 +384,10 @@ function getServeFileHeaders({ filename, indexable, cache }) {
  * @param  {number} [targetId]
  * @param  {string} [name]
  * @param  {object} [logger]
- * @param  {string[]} authorizedTypes
- * @param  {string} inputFileName
- * @param  {number} maxSize - in bytes
+ * @param  {string[]} [authorizedTypes]
+ * @param  {string} [inputFileName]
+ * @param  {number} [maxSize] - in bytes
+ * @param  {number} userId
  * @return {object} created media
  */
 async function uploadFile({
@@ -398,6 +400,7 @@ async function uploadFile({
     authorizedTypes,
     inputFileName = 'media',
     maxSize = maxSizeUploadInBytes,
+    userId,
 }) {
     const uploadedFile = await uploadFromInputFile({
         req,
@@ -423,7 +426,7 @@ async function uploadFile({
         maxSize,
         field,
         targetId,
-        userId: req.user.id,
+        userId,
         logger,
     });
 

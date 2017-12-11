@@ -413,22 +413,14 @@ async function getLocations(req, res) {
 }
 
 function getPricing(req, res) {
-    var pricingId = parseInt(req.param("pricingId"), 10);
-    var pricing = PricingService.getPricing(pricingId);
+    let pricingId = parseInt(req.param('pricingId'), 10);
 
-    if (! pricing) {
-        return res.notFound();
+    try {
+        const pricing = PricingService.getPricing(pricingId);
+        res.json(pricing);
+    } catch (err) {
+        res.sendError(err);
     }
-
-    return res.json({
-        id: pricing.id,
-        config: pricing.config,
-        ownerFeesPercent: PricingService.get("ownerFeesPercent"),
-        takerFeesPercent: PricingService.get("takerFeesPercent"),
-        ownerFeesPurchasePercent: PricingService.get("ownerFeesPurchasePercent"),
-        takerFeesPurchasePercent: PricingService.get("takerFeesPurchasePercent"),
-        maxDiscountPurchasePercent: PricingService.get("maxDiscountPurchasePercent")
-    });
 }
 
 async function pauseListingToggle(req, res) {
