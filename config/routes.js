@@ -192,6 +192,7 @@ module.exports.routes = {
     'post /api/v0.1/listings': { target: 'v0_1/ListingController.create', cors: apiCors },
     'put /api/v0.1/listings/:id': { target: 'v0_1/ListingController.update', cors: apiCors },
     'put /api/v0.1/listings/:id/validate': { target: 'v0_1/ListingController.validate', cors: apiCors },
+    'put /api/v0.1/listings/:id/medias': { target: 'v0_1/ListingController.updateMedias', cors: apiCors },
     'delete /api/v0.1/listings/:id': { target: 'v0_1/ListingController.destroy', cors: apiCors },
 
     'get /api/v0.1/listing-categories': { target: 'v0_1/ListingCategoryController.find', cors: apiCors },

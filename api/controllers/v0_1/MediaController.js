@@ -87,11 +87,18 @@ async function download(req, res) {
 
 async function upload(req, res) {
     const field    = req.param('field');
-    const targetId = parseInt(req.param('targetId'), 10);
+    let targetId   = req.param('targetId');
     const name     = req.param('name');
     const url      = req.param('url');
-    const userId   = req.param('userId');
+    let userId     = req.param('userId');
     const access = 'api';
+
+    if (targetId) {
+        targetId = parseInt(targetId, 10);
+    }
+    if (userId) {
+        userId = parseInt(userId, 10);
+    }
 
     try {
         const media = await MediaService.uploadMedia(

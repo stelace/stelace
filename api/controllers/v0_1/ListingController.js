@@ -9,6 +9,7 @@ module.exports = {
     destroy,
     getPricing,
     validate,
+    updateMedias,
 
 };
 
@@ -155,6 +156,19 @@ async function validate(req, res) {
     try {
         const listing = await ListingService.validateListing(id);
         res.json(Listing.expose(listing, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function updateMedias(req, res) {
+    const id = req.param('id');
+    const mediasIds = req.param('mediasIds');
+    const mediaType = req.param('mediaType');
+
+    try {
+        await ListingService.updateListingMedias(id, { mediasIds, mediaType });
+        res.json({ id });
     } catch (err) {
         res.sendError(err);
     }
