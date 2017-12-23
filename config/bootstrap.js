@@ -19,6 +19,7 @@ module.exports.bootstrap = function (cb) {
     BootstrapService.init([
         "uncaughtException",
         "errors",
+        "waterlineRawQuery",
         "utilities",
         "useProxy",
         "mangopay",

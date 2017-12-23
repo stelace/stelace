@@ -14,6 +14,7 @@ function init(initFields, args) {
     var defaultFields = [
         "uncaughtException",
         "errors",
+        "waterlineRawQuery",
         "mangopay",
         "utilities",
         "useProxy",
@@ -35,6 +36,14 @@ function init(initFields, args) {
 
             case "errors":
                 ErrorService.init();
+                break;
+
+            case "waterlineRawQuery":
+                _.forEach(sails.models, model => {
+                    if (model.query) {
+                        model.query = Promise.promisify(model.query);
+                    }
+                });
                 break;
 
             case "mangopay":

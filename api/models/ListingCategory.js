@@ -43,6 +43,8 @@ function getAccessFields(access) {
             "lft",
             "rgt",
             "parentId",
+            "listingsCount",
+            "listingsTotalCount",
         ],
         others: [
             "id",

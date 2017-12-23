@@ -6,6 +6,8 @@ module.exports = {
     updateListingCategory,
     removeListingCategory,
 
+    assignListings,
+
 };
 
 /**
@@ -65,6 +67,13 @@ async function removeListingCategory(listingCategoryId, { fallbackCategoryId }) 
         throw new BadRequestError('Listing category is still used');
     }
 
-    await Listing.update({ listingCategoryId }, { listingCategoryId: fallbackCategoryId });
+    await assignListings(listingCategoryId, fallbackCategoryId);
     await ListingCategory.removeListingCategory(listingCategoryId);
+}
+
+async function assignListings(fromListingCategoryId, toListingCategoryId) {
+    await Listing.update(
+        { listingCategoryId: fromListingCategoryId },
+        { listingCategoryId: toListingCategoryId },
+    );
 }
