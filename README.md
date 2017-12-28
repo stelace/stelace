@@ -277,4 +277,4 @@ Using mysqldump for exporting "small" dataset is ok (< 10GB).
 - *Add yours*
 
 ## License
-Stelace is open source under the terms of the [GPLv3](LICENSE).
+Stelace is open source under the terms of the [MIT license](LICENSE).
