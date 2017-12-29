@@ -41,11 +41,19 @@ async function find(req, res) {
         const sorting = ApiService.parseSorting(attrs, sortFields);
         const searchAttrs = ApiService.parseSearchQuery(attrs, searchFields);
 
+        const fetchListings = () => {
+            if (pagination) {
+                return Listing.find(searchAttrs).sort(sorting).paginate(pagination);
+            } else {
+                return Listing.find(searchAttrs).sort(sorting);
+            }
+        };
+
         let [
             listings,
             countListings,
         ] = await Promise.all([
-            Listing.find(searchAttrs).sort(sorting).paginate(pagination),
+            fetchListings(),
             Listing.count(searchAttrs),
         ]);
 
@@ -61,7 +69,8 @@ async function find(req, res) {
 
         const returnedObj = ApiService.getPaginationMeta({
             totalResults: countListings,
-            limit: pagination.limit,
+            limit: pagination && pagination.limit,
+            allResults: !pagination,
         });
         returnedObj.results = listings;
 

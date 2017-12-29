@@ -28,17 +28,26 @@ async function find(req, res) {
 
         const sorting = ApiService.parseSorting(attrs, sortFields);
 
+        const fetchBookings = () => {
+            if (pagination) {
+                return Booking.find().sort(sorting).paginate(pagination);
+            } else {
+                return Booking.find().sort(sorting);
+            }
+        };
+
         const [
             bookings,
             countBookings,
         ] = await Promise.all([
-            Booking.find().sort(sorting).paginate(pagination),
+            fetchBookings(),
             Booking.count(),
         ]);
 
         const returnedObj = ApiService.getPaginationMeta({
             totalResults: countBookings,
-            limit: pagination.limit,
+            limit: pagination && pagination.limit,
+            allResults: !pagination,
         });
         returnedObj.results = Booking.exposeAll(bookings, access);
 

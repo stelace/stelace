@@ -20,6 +20,10 @@ function parsePagination(attrs) {
         limit: 10,
     };
 
+    if (attrs.allResults === '1') {
+        return;
+    }
+
     if (attrs.page) {
         const page = parseInt(attrs.page, 10);
 
@@ -87,7 +91,14 @@ function parseSearchQuery(attrs, searchFields) {
     }
 }
 
-function getPaginationMeta({ totalResults, limit }) {
+function getPaginationMeta({ totalResults, limit, allResults = false }) {
+    if (allResults) {
+        return {
+            totalResults,
+            totalPages: 1,
+        };
+    }
+
     let totalPages = Math.floor(totalResults / limit);
     if (totalResults % limit !== 0) {
         totalPages += 1;
