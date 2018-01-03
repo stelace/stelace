@@ -24,7 +24,7 @@ module.exports = {
         listingType: 'json',
         paidDate: 'string', // taker action, set if paymentDate and depositDate are set
         acceptedDate: 'string', // owner action, when accepting the booking
-        autoAcceptation: {
+        autoAcceptance: {
             type: 'boolean',
             defaultsTo: false,
         },
@@ -123,7 +123,7 @@ function getAccessFields(access) {
             "parentId",
             "paidDate",
             "acceptedDate",
-            "autoAcceptation",
+            "autoAcceptance",
             "ownerId",
             "takerId",
             "quantity",
@@ -153,7 +153,7 @@ function getAccessFields(access) {
             "parentId",
             "paidDate",
             "acceptedDate",
-            "autoAcceptation",
+            "autoAcceptance",
             "ownerId",
             "takerId",
             "quantity",
@@ -181,7 +181,7 @@ function getAccessFields(access) {
             "parentId",
             "paidDate",
             "acceptedDate",
-            "autoAcceptation",
+            "autoAcceptance",
             "ownerId",
             "takerId",
             "quantity",

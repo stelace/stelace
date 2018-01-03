@@ -64,7 +64,7 @@ async function createBooking({
         listingId: listing.id,
         ownerId: listing.ownerId,
         takerId: user.id,
-        autoAcceptation: listing.autoBookingAcceptation,
+        autoAcceptance: listing.autoBookingAcceptance,
         contractId: ContractService.getContractId(),
         listingTypeId: listingType.id,
         listingType: listingType,

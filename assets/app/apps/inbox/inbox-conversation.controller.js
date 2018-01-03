@@ -453,11 +453,11 @@
             intervals.push(countdownInterval);
         }
 
-        function acceptBooking(message, booking, afterAcceptation) {
+        function acceptBooking(message, booking, afterAcceptance) {
             if (! message && ! _.find(vm.messages, { senderId: vm.conversation.receiverId })) {
                 // Force user to leave a message if no answer yet
                 toastr.warning("Veuillez saisir un message.");
-                afterAcceptation("missingMessage"); // must stop spinner
+                afterAcceptance("missingMessage"); // must stop spinner
                 return;
             }
             var messageCreateAttrs;
@@ -500,7 +500,7 @@
                     }
                 })
                 .finally(function () {
-                    afterAcceptation("ok");
+                    afterAcceptance("ok");
                     // Always send Google Analytics since user is engaged
                     var gaLabel = '{bookingId: ' + booking.id
                      + ', status: "acceptBooking"'

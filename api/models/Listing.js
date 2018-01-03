@@ -87,7 +87,7 @@ module.exports = {
             type: "integer",
             defaultsTo: 0
         },
-        autoBookingAcceptation: {
+        autoBookingAcceptance: {
             type: 'boolean',
             defaultsTo: false,
         },

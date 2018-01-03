@@ -495,7 +495,7 @@ function _sendNewMessageEmailsAndSms(data, logger) {
             }
 
             // Send SMS to owner when pre-booking or firstMessage, and to giver when firstMessage
-            // SMS is already sent after booking payment or acceptation in Booking Controller
+            // SMS is already sent after booking payment or acceptance in Booking Controller
             if (message.bookingStatus === "pre-booking" || (firstMessage && receiverIsOwner)) {
                 SmsTemplateService
                     .sendSmsTemplate('new-message', {

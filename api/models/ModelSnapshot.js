@@ -102,7 +102,7 @@ function getComparedFields(targetType) {
             "validationPoints",
             "ratingScore",
             "nbRatings",
-            "autoBookingAcceptation",
+            "autoBookingAcceptance",
             "locations",
             "listingTypesIds",
             "sellingPrice",

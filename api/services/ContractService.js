@@ -236,7 +236,7 @@ function _transformData(data, userId) {
     data.booking.startDate  = moment(startDate).format(formatDate);
     data.booking.endDate    = moment(endDate).format(formatDate);
 
-    // Obfuscate contact info before booking acceptation and validation
+    // Obfuscate contact info before booking acceptance and validation
     if (! isOwner && obfuscate) {
         _obfuscateContactInfo("owner", data);
     }
