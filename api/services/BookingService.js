@@ -101,6 +101,10 @@ async function createBooking({
     const listingSnapshot = await ModelSnapshot.getSnapshot('listing', listing);
     bookingAttrs.listingSnapshotId = listingSnapshot.id;
 
+    if (bookingAttrs.autoAcceptance) {
+        bookingAttrs.acceptedDate = now;
+    }
+
     const booking = await Booking.create(bookingAttrs);
     return booking;
 }
