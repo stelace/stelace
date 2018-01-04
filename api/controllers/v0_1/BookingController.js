@@ -1,9 +1,10 @@
-/* global ApiService, Booking */
+/* global ApiService, Booking, CancellationService, TransactionService */
 
 module.exports = {
 
     find,
     findOne,
+    cancel,
 
 };
 
@@ -66,6 +67,32 @@ async function findOne(req, res) {
         if (!booking) {
             throw new NotFoundError();
         }
+
+        res.json(Booking.expose(booking, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function cancel(req, res) {
+    const id = req.param('id');
+
+    const access = 'api';
+
+    try {
+        let booking = await Booking.findOne({ id });
+        if (!booking) {
+            throw new NotFoundError();
+        }
+
+        const transactionManagers = await TransactionService.getBookingTransactionsManagers([booking.id]);
+        const transactionManager  = transactionManagers[booking.id];
+
+        booking = await CancellationService.cancelBooking(booking, transactionManager, {
+            reasonType: 'booking-cancelled',
+            trigger: 'admin',
+            cancelPayment: true,
+        });
 
         res.json(Booking.expose(booking, access));
     } catch (err) {

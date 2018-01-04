@@ -37,8 +37,10 @@ module.exports = {
 var params = {
     triggers: ["admin", "owner", "taker"],
     reasonTypes: [
+        // only set by admin
         "user-removed",
         "listing-removed",
+        "booking-cancelled",
 
         // automatically cancelled reason types
         "no-action",
@@ -57,6 +59,7 @@ var params = {
     cancelPaymentReasonTypes: [
         "user-removed",
         "listing-removed",
+        "booking-cancelled",
         "no-action",
         "no-validation",
         "no-payment",

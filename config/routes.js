@@ -183,6 +183,7 @@ module.exports.routes = {
 
     'get /api/v0.1/bookings': { target: 'v0_1/BookingController.find', cors: apiCors },
     'get /api/v0.1/bookings/:id': { target: 'v0_1/BookingController.findOne', cors: apiCors },
+    'post /api/v0.1/bookings/:id/cancel': { target: 'v0_1/BookingController.cancel', cors: apiCors },
 
     'get /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.findEditable', cors: apiCors },
 

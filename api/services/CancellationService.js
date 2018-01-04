@@ -193,6 +193,7 @@ function cancelBookingPayment(booking, transactionManager, args) {
         if (transfer) {
             error = new Error("Cancelling booking when transfer is done: cancel it manually");
             error.bookingId = booking.id;
+            error.notCancellable = true;
             throw error;
         }
 
