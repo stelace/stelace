@@ -234,7 +234,10 @@ async function destroy(req, res) {
     const id = req.param('id');
 
     try {
-        await ListingService.destroyListing(id, { req, res, userId: req.user.id });
+        await ListingService.destroyListing(id, {
+            keepCommittedBookings: true,
+            trigger: 'owner',
+        }, { req, res, userId: req.user.id });
 
         res.json({ id });
     } catch (err) {

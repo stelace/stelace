@@ -35,8 +35,11 @@ module.exports = {
 };
 
 var params = {
-    triggers: ["owner", "taker"],
+    triggers: ["admin", "owner", "taker"],
     reasonTypes: [
+        "user-removed",
+        "listing-removed",
+
         // automatically cancelled reason types
         "no-action",
         "no-validation",
@@ -52,6 +55,8 @@ var params = {
         "other"
     ],
     cancelPaymentReasonTypes: [
+        "user-removed",
+        "listing-removed",
         "no-action",
         "no-validation",
         "no-payment",
@@ -61,21 +66,31 @@ var params = {
 };
 
 function getAccessFields(access) {
-    var accessFields = {
+    const accessFields = {
+        api: [
+            'id',
+            'listingId',
+            'reasonType',
+            'reason',
+            'createdDate',
+            'ownerId',
+            'takerId',
+            'trigger'
+        ],
         self: [ // req.user.id in (ownerId || taker)
-            "id",
-            "listingId",
-            "reasonType",
-            "reason",
-            "createdDate",
-            "ownerId",
-            "takerId",
-            "trigger"
+            'id',
+            'listingId',
+            'reasonType',
+            'reason',
+            'createdDate',
+            'ownerId',
+            'takerId',
+            'trigger'
         ],
         others: [
-            "id",
-            "listingId",
-            "createdDate"
+            'id',
+            'listingId',
+            'createdDate'
         ]
     };
 

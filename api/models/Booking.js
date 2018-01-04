@@ -88,25 +88,27 @@ module.exports = {
         contractId: "string",
     },
 
-    getAccessFields: getAccessFields,
+    getAccessFields,
 
-    isValidDates: isValidDates,
+    isValidDates,
     computeEndDate,
-    getAgreementUserId: getAgreementUserId,
-    isValidationTooLate: isValidationTooLate,
-    isNoTime: isNoTime,
-    getLaunchDate: getLaunchDate,
-    getDueDate: getDueDate,
-    updateBookingEndState: updateBookingEndState,
-    canListingQuantityEvolve: canListingQuantityEvolve,
-    updateListingQuantity: updateListingQuantity,
+    getAgreementUserId,
+    isValidationTooLate,
+    isNoTime,
+    getLaunchDate,
+    getDueDate,
+    updateBookingEndState,
+    canListingQuantityEvolve,
+    updateListingQuantity,
 
-    getLast: getLast,
-    isComplete: isComplete,
-    getAssessments: getAssessments,
-    getBookingRef: getBookingRef,
-    getPendingBookings: getPendingBookings,
-    filterVisibleBookings: filterVisibleBookings,
+    getLast,
+    isComplete,
+    getAssessments,
+    getBookingRef,
+    getPendingBookings,
+    getOpenBookings,
+    filterVisibleBookings,
+    canBeCancelled,
 
 };
 
@@ -352,22 +354,22 @@ function getDueDate(booking, type) {
     return dueDate;
 }
 
-function updateBookingEndState(booking, now) {
-    return Promise.coroutine(function* () {
-        // if already done
-        if (booking.releaseDepositDate) {
-            return booking;
-        }
+async function updateBookingEndState(booking, now) {
+    // already done
+    if (booking.releaseDepositDate && booking.completedDate) {
+        return booking;
+    }
 
-        const releaseDuration = booking.listingType.config.bookingTime.releaseDateAfterEndDate;
+    const releaseDuration = booking.listingType.config.bookingTime.releaseDateAfterEndDate;
 
+    var updateAttrs = {
+        completedDate: now,
         // the deposit expires N days after the return date of the booking
-        var updateAttrs = {
-            releaseDepositDate: moment(now).add(releaseDuration).toISOString()
-        };
+        releaseDepositDate: moment(now).add(releaseDuration).toISOString(),
+    };
 
-        return yield Booking.updateOne(booking.id, updateAttrs);
-    })();
+    const updatedBooking = await Booking.updateOne(booking.id, updateAttrs);
+    return updatedBooking;
 }
 
 function canListingQuantityEvolve(booking) {
@@ -451,20 +453,24 @@ function getLast(listingIdOrIds) {
 }
 
 function isComplete(booking, inputAssessment, outputAssessment) {
-    var result;
+    const { ASSESSMENTS } = booking.listingType.properties;
 
-    result = booking.acceptedDate
+    let result = booking.acceptedDate
         && booking.paidDate
-        && ! booking.cancellationId
-        && inputAssessment && inputAssessment.signedDate;
+        && ! booking.cancellationId;
 
-    // renting booking: input and output assessments signed
-    // purchase booking: only input assessment signed
-    if (! Booking.isNoTime(booking)) {
-        result = result && (outputAssessment && outputAssessment.signedDate);
+    if (ASSESSMENTS === 'NONE') {
+        return !!result;
     }
 
-    return !! result;
+    result = result && (inputAssessment && inputAssessment.signedDate);
+    if (ASSESSMENTS === 'ONE_STEP') {
+        return !!result;
+    }
+
+    result = result && (outputAssessment && outputAssessment.signedDate);
+
+    return !!result;
 }
 
 /**
@@ -586,3 +592,73 @@ function filterVisibleBookings(bookings) {
     });
 }
 
+// get bookings that are not cancelled and not completed
+async function getOpenBookings(listings) {
+    const bookings = await Booking.find({
+        listingId: _.pluck(listings, 'id'),
+        completedDate: null,
+        cancellationId: null,
+    });
+
+    const groupBookings = _.groupBy(bookings, 'listingId');
+
+    const hashBookings = _.reduce(listings, (memo, listing) => {
+        memo[listing.id] = groupBookings[listing.id] || [];
+        return memo;
+    }, {});
+
+    return hashBookings;
+}
+
+/**
+ * Determine if bookings can be cancelled based on cancellation, assessments and listing type
+ * @param {Object[]} bookings
+ * @return {Object} res
+ * @return {Object} res.hashBookings
+ * @return {Boolean} res.hashBookings[bookingId] - true if can be cancelled
+ * @return {Boolean} res.allCancellable - true if all bookings are cancellable
+ */
+async function canBeCancelled(bookings) {
+    const hashBookings = {};
+
+    const hashAssessments = await getAssessments(bookings);
+
+    _.forEach(bookings, booking => {
+        let cancellable;
+
+        const { inputAssessment, outputAssessment } = hashAssessments[booking.id];
+        const completed = isComplete(booking, inputAssessment, outputAssessment);
+
+        // already cancelled or completed
+        if (booking.cancellationId || completed) {
+            cancellable = false;
+        // booking not accepted or not paid yet
+        } else if (! booking.acceptedDate || ! booking.paidDate) {
+            cancellable = true;
+        } else {
+            const { ASSESSMENTS } = booking.listingType.properties;
+
+            // booking is completed after payment
+            if (ASSESSMENTS === 'NONE') {
+                cancellable = false;
+            // booking is cancellable only if the input assessment isn't signed
+            } else {
+                cancellable = !(inputAssessment && inputAssessment.signedDate);
+            }
+        }
+
+        hashBookings[booking.id] = cancellable;
+    });
+
+    const allCancellable = _.reduce(hashBookings, (memo, value) => {
+        if (!value) {
+            return false;
+        }
+        return memo;
+    }, true);
+
+    return {
+        hashBookings,
+        allCancellable,
+    };
+}

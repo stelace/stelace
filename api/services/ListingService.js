@@ -1,5 +1,5 @@
 /*
-    global Bookmark, Listing, ListingAvailability, ListingTypeService, Location, Media, ModelSnapshot, PricingService,
+    global Listing, ListingAvailability, ListingTypeService, Location, Media, PricingService,
     StelaceEventService, Tag, TimeService, ToolsService
 */
 
@@ -270,12 +270,15 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
 
 /**
  * @param {Number} listingId
+ * @param {Object} params
+ * @param {String} params.trigger
+ * @param {Boolean} params.keepCommittedBookings
  * @param {Object} [options]
  * @param {Object} [options.req]
  * @param {Object} [options.res]
  * @param {Number} [options.userId] - if specified, check if the listing owner id matches the provided userId
  */
-async function destroyListing(listingId, { req, res, userId }) {
+async function destroyListing(listingId, { trigger, keepCommittedBookings } = {}, { req, res, userId }) {
     const listing = await Listing.findOne({ id: listingId });
     if (!listing) {
         throw new NotFoundError();
@@ -283,32 +286,20 @@ async function destroyListing(listingId, { req, res, userId }) {
     if (userId && listing.ownerId !== userId) {
         throw new ForbiddenError();
     }
+    if (typeof keepCommittedBookings === 'undefined') {
+        throw new BadRequestError('Missing committed booking params');
+    }
 
-    const today = moment().format('YYYY-MM-DD');
-    const futureBookings = await Listing.getFutureBookings(listing.id, today);
-
-    if (futureBookings.length) {
-        const error = new BadRequestError('remaining bookings');
+    const { allDestroyable } = await Listing.canBeDestroyed([listing], { keepCommittedBookings });
+    if (!allDestroyable) {
+        const error = new BadRequestError('listing cannot be destroyed');
+        error.listingId = listingId;
+        error.notDestroyable = true;
         error.expose = true;
         throw error;
     }
 
-    await Promise.all([
-        Bookmark.update({ listingId }, { active: false }), // disable bookmarks associated to this listing
-        ListingAvailability.destroy({ listingId }), // remove listing availabilities
-    ]);
-
-    await ModelSnapshot.getSnapshot('listing', listing); // create a snapshot before destroying the listing
-
-    await StelaceEventService.createEvent({
-        req,
-        res,
-        label: 'listing.deleted',
-        data: { listingId },
-        type: 'core',
-    });
-
-    await Listing.destroy({ id: listingId });
+    await Listing.destroyListing(listing, { trigger }, { req, res });
 }
 
 /**

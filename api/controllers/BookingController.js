@@ -233,7 +233,14 @@ async function accept(req, res) {
             await Message.createMessage(booking.ownerId, giverMessage, { logger: req.logger });
         }
 
-        booking = await Booking.updateOne(booking.id, { acceptedDate: now });
+        const updateAttrs = { acceptedDate: now };
+
+        const futureStateBooking = Object.assign({}, updateAttrs, booking); // get the booking as if it were after update
+        if (Booking.isComplete(futureStateBooking)) {
+            updateAttrs.completedDate = now;
+        }
+
+        booking = await Booking.updateOne(booking.id, updateAttrs);
 
         await StelaceEventService.createEvent({
             req: req,
@@ -851,6 +858,11 @@ function _paymentEndProcess(data) {
             if (booking.paymentDate && booking.depositDate) {
                 updateAttrs.paidDate = now;
                 booking.paidDate     = now;
+            }
+
+            if (Booking.isComplete(booking)) {
+                updateAttrs.completedDate = now;
+                booking.completedDate = now;
             }
 
             if (updateAttrs.paidDate) {

@@ -1,6 +1,6 @@
 /* global
-    GamificationService, GeneratorService, Link, Location, mangopay, Media, OdooService,
-    User, TimeService, Token, ToolsService, UserXTag
+    Booking, CancellationService, GamificationService, GeneratorService, Link, Listing, Location, mangopay, Media, OdooService, Passport,
+    User, TimeService, Token, ToolsService, TransactionService, UserXTag
 */
 
 /**
@@ -116,22 +116,24 @@ module.exports = {
         createBankAccount: s_createBankAccount
     },
 
-    getAccessFields: getAccessFields,
-    exposeTransform: exposeTransform,
-    get: get,
-    postBeforeCreate: postBeforeCreate,
-    getName: getName,
-    hasSameId: hasSameId,
-    getMedia: getMedia,
-    createCheckEmailToken: createCheckEmailToken,
-    syncOdooUser: syncOdooUser,
-    updateTags: updateTags,
-    isFreeFees: isFreeFees,
-    canApplyFreeFees: canApplyFreeFees,
-    applyFreeFees: applyFreeFees,
-    getPartnerRef: getPartnerRef,
-    getRefererInfo: getRefererInfo,
-    generateAuthToken: generateAuthToken,
+    getAccessFields,
+    exposeTransform,
+    get,
+    postBeforeCreate,
+    getName,
+    hasSameId,
+    getMedia,
+    createCheckEmailToken,
+    syncOdooUser,
+    updateTags,
+    isFreeFees,
+    canApplyFreeFees,
+    applyFreeFees,
+    getPartnerRef,
+    getRefererInfo,
+    generateAuthToken,
+    canBeDestroyed,
+    destroyUser,
 
 };
 
@@ -698,4 +700,123 @@ async function generateAuthToken(userId) {
         expirationDate: moment().add({ d: expirationDuration }).toISOString(),
     });
     return token;
+}
+
+/**
+ * Determine if users can be destroyed
+ * @param {Object[]} users
+ * @param {Object} [options]
+ * @param {Boolean} [options.keepCommittedBookings = true]
+ * @return {Object} res
+ * @return {Object} res.hashUsers
+ * @return {Boolean} res.hashUsers[userId] - true if can be destroyed
+ * @return {Boolean} res.allDestroyable - true if all users can be destroyed
+ */
+async function canBeDestroyed(users, { keepCommittedBookings = true } = {}) {
+    const usersIds = _.pluck(users, 'id');
+
+    const [
+        bookings,
+        listings,
+    ] = await Promise.all([
+        Booking.find({
+            takerId: usersIds,
+            completedDate: null,
+            cancellationId: null,
+        }),
+        Listing.find({ ownerId: usersIds }),
+    ]);
+
+    const { hashBookings } = await Booking.canBeCancelled(bookings);
+    const { hashListings } = await Listing.canBeDestroyed(listings, { keepCommittedBookings });
+
+    const groupTakerBookings = _.groupBy(bookings, 'takerId');
+    const groupListings = _.groupBy(listings, 'ownerId');
+
+    const isCommittedBooking = booking => !!(booking.paidDate && booking.acceptedDate);
+
+    const hashUsers = {};
+    _.forEach(users, user => {
+        const bookings = groupTakerBookings[user.id] || [];
+        const listings = groupListings[user.id] || [];
+
+        const bookingCancellable = _.reduce(bookings, (memo, booking) => {
+            // user cannot be destroyed if there is committed bookings
+            if (keepCommittedBookings && isCommittedBooking(booking)) {
+                return false;
+            }
+            // if booking cannot be cancelled
+            if (!hashBookings[booking.id]) {
+                return false;
+            }
+            return memo;
+        }, true);
+
+        const listingDestroyable = _.reduce(listings, (memo, listing) => {
+            if (!hashListings[listing.id]) {
+                return false;
+            }
+            return memo;
+        }, true);
+
+        // user can be destroyed if booking is cancellable and listing is destroyable
+        hashUsers[user.id] = bookingCancellable && listingDestroyable;
+    });
+
+    const allDestroyable = _.reduce(hashUsers, (memo, value) => {
+        if (!value) {
+            return false;
+        }
+        return memo;
+    }, true);
+
+    return {
+        hashUsers,
+        allDestroyable,
+    };
+}
+
+async function destroyUser(user, { trigger, reasonType = 'user-removed' }, { req, res } = {}) {
+    const [
+        bookings,
+        listings,
+    ] = await Promise.all([
+        Booking.find({
+            takerId: user.id,
+            completedDate: null,
+            cancellationId: null,
+        }),
+        Listing.find({ ownerId: user.id }),
+    ]);
+
+    const transactionManagers = await TransactionService.getBookingTransactionsManagers(_.pluck(bookings, 'id'));
+
+    await Promise.each(bookings, async (booking) => {
+        const transactionManager = transactionManagers[booking.id];
+
+        await CancellationService.cancelBooking(booking, transactionManager, {
+            reasonType,
+            trigger,
+            cancelPayment: true,
+        });
+    });
+
+    await Promise.each(listings, async (listing) => {
+        await Listing.destroyListing(listing, { trigger, reasonType }, { req, res });
+    });
+
+    await Passport.destroy({ user: user.id });
+
+    await User.updateOne(user.id, {
+        username: null,
+        firstname: null,
+        lastname: null,
+        description: null,
+        phone: null,
+        phoneCheck: false,
+        email: null,
+        emailCheck: false,
+        mediaId: null,
+        destroyed: true,
+    });
 }

@@ -5,6 +5,7 @@ module.exports = {
     findUser,
     createUser,
     updateUser,
+    destroyUser,
 
 };
 
@@ -204,4 +205,35 @@ async function updateUser(userId, attrs = {}) {
 
     const user = await User.updateOne({ id: userId }, updateAttrs);
     return user;
+}
+
+/**
+ * @param {Number} listingId
+ * @param {Object} params
+ * @param {String} params.trigger
+ * @param {Boolean} params.keepCommittedBookings
+ * @param {Object} [options]
+ * @param {Object} [options.req]
+ * @param {Object} [options.res]
+ * @param {Number} [options.userId] - if specified, check if the listing owner id matches the provided userId
+ */
+async function destroyUser(userId, { trigger, keepCommittedBookings } = {}, { req, res }) {
+    const user = await User.findOne({ id: userId });
+    if (!user) {
+        throw new NotFoundError();
+    }
+    if (typeof keepCommittedBookings === 'undefined') {
+        throw new BadRequestError('Missing committed booking params');
+    }
+
+    const { allDestroyable } = await User.canBeDestroyed([user], { keepCommittedBookings });
+    if (!allDestroyable) {
+        const error = new BadRequestError('user cannot be destroyed');
+        error.userId = userId;
+        error.notDestroyable = true;
+        error.expose = true;
+        throw error;
+    }
+
+    await User.destroyUser(user, { trigger }, { req, res });
 }

@@ -145,6 +145,16 @@ async function update(req, res) {
 }
 
 async function destroy(req, res) {
-    // TODO: manage bookings before removing it
-    res.forbidden();
+    const id = req.param('id');
+
+    try {
+        await UserService.destroyUser(id, {
+            keepCommittedBookings: false,
+            trigger: 'admin',
+        }, { req, res });
+
+        res.json({ id });
+    } catch (err) {
+        res.sendError(err);
+    }
 }

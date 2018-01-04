@@ -1,6 +1,6 @@
 /* global
-        Booking, Brand, ElasticsearchService, Listing, ListingCategory, ListingXTag, Media, ModelSnapshot, Tag,
-        ToolsService
+        Booking, Bookmark, Brand, CancellationService, ElasticsearchService, Listing, ListingAvailability, ListingCategory, ListingXTag,
+        Media, ModelSnapshot, StelaceEventService, Tag, ToolsService, TransactionService
 */
 
 /**
@@ -133,22 +133,25 @@ module.exports = {
 
     },
 
-    getAccessFields: getAccessFields,
-    postBeforeCreate: postBeforeCreate,
-    afterCreate: afterCreate,
-    afterUpdate: afterUpdate,
-    afterDestroy: afterDestroy,
-    isBookable: isBookable,
-    getBookings: getBookings,
-    getFutureBookings: getFutureBookings,
-    updateTags: updateTags,
-    isValidReferences: isValidReferences,
-    getMedias: getMedias,
-    getInstructionsMedias: getInstructionsMedias,
-    getTags: getTags,
-    getListingsOrSnapshots: getListingsOrSnapshots,
-    getListingTypesProperties: getListingTypesProperties,
-    getMaxQuantity: getMaxQuantity,
+    getAccessFields,
+    postBeforeCreate,
+    afterCreate,
+    afterUpdate,
+    afterDestroy,
+    isBookable,
+    getBookings,
+    getFutureBookings,
+    updateTags,
+    isValidReferences,
+    getMedias,
+    getInstructionsMedias,
+    getTags,
+    getListingsOrSnapshots,
+    getListingTypesProperties,
+    getMaxQuantity,
+    canBeDestroyed,
+    destroyListing,
+
 };
 
 function getAccessFields(access) {
@@ -637,4 +640,88 @@ function getMaxQuantity(listing, listingType) {
     }
 
     return maxQuantity;
+}
+
+/**
+ * Determine if listings can be destroyed, based on if associated open bookings can be cancelled or not
+ * @param {Object[]} listings
+ * @param {Object} [options]
+ * @param {Boolean} [options.keepCommittedBookings = true]
+ * @return {Object} res
+ * @return {Object} res.hashListings
+ * @return {Boolean} res.hashListings[listingId] - true if can be destroyed
+ * @return {Boolean} res.allDestroyable - true if all listings can be destroyed
+ */
+async function canBeDestroyed(listings, { keepCommittedBookings = true } = {}) {
+    const hashOpenBookings = await Booking.getOpenBookings(listings);
+
+    let allBookings = [];
+    _.forEach(hashOpenBookings, bookings => {
+        allBookings = allBookings.concat(bookings);
+    });
+
+    const isCommittedBooking = booking => !!(booking.paidDate && booking.acceptedDate);
+    const { hashBookings } = await Booking.canBeCancelled(allBookings);
+
+    const hashListings = {};
+    _.forEach(listings, listing => {
+        const bookings = hashOpenBookings[listing.id];
+
+        hashListings[listing.id] = _.reduce(bookings, (memo, booking) => {
+            // listing cannot be destroyed if there is committed bookings
+            if (keepCommittedBookings && isCommittedBooking(booking)) {
+                return false;
+            }
+            if (!hashBookings[booking.id]) {
+                return false;
+            }
+            return memo;
+        }, true);
+    });
+
+    const allDestroyable = _.reduce(hashListings, (memo, value) => {
+        if (!value) {
+            return false;
+        }
+        return memo;
+    }, true);
+
+    return {
+        hashListings,
+        allDestroyable,
+    };
+}
+
+async function destroyListing(listing, { trigger, reasonType = 'listing-removed' }, { req, res } = {}) {
+    const hashBookings = await Booking.getOpenBookings([listing]);
+    const bookings = hashBookings[listing.id];
+
+    const transactionManagers = await TransactionService.getBookingTransactionsManagers(_.pluck(bookings, 'id'));
+
+    await Promise.each(bookings, async (booking) => {
+        const transactionManager = transactionManagers[booking.id];
+
+        await CancellationService.cancelBooking(booking, transactionManager, {
+            reasonType,
+            trigger,
+            cancelPayment: true,
+        });
+    });
+
+    await Promise.all([
+        Bookmark.update({ listingId: listing.id }, { active: false }), // disable bookmarks associated to this listing
+        ListingAvailability.destroy({ listingId: listing.id }), // remove listing availabilities
+    ]);
+
+    await ModelSnapshot.getSnapshot('listing', listing); // create a snapshot before destroying the listing
+
+    await StelaceEventService.createEvent({
+        req,
+        res,
+        label: 'listing.deleted',
+        data: { listingId: listing.id },
+        type: 'core',
+    });
+
+    await Listing.destroy({ id: listing.id });
 }

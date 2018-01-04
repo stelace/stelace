@@ -244,8 +244,23 @@ function update(req, res) {
         .catch(res.sendError);
 }
 
-function destroy(req, res) {
-    return res.forbidden();
+async function destroy(req, res) {
+    const id = parseInt(req.param('id'), 10);
+
+    try {
+        if (req.user.id !== id) {
+            throw new ForbiddenError();
+        }
+
+        await UserService.destroyUser(id, {
+            keepCommittedBookings: true,
+            trigger: 'owner',
+        }, { req, res });
+
+        res.json({ id });
+    } catch (err) {
+        res.sendError(err);
+    }
 }
 
 function me(req, res) {

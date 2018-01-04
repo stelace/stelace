@@ -205,15 +205,16 @@ function updateAssessment(assessmentId, updateAttrs, userId) {
 }
 
 /**
- * sign assessment with the token
- * @param  {number} assessmentId
- * @param  {string} signToken
- * @param  {number} userId
- * @param  {object} logger
- * @param  {object} [req] - useful for gamification
- * @return {Promise<object>} signed assessment
+ * Sign assessment with token
+ * @param {Number} assessmentId
+ * @param {String} signToken
+ * @param {Object} options
+ * @param {Number} options.userId
+ * @param {Object} options.logger
+ * @param {Object} options.req
+ * @return {Object} signed assessment
  */
-async function signAssessment(assessmentId, signToken, userId, logger, req) {
+async function signAssessment(assessmentId, signToken, { userId, logger, req } = {}) {
     const now = moment().toISOString();
 
     let assessment = await Assessment.findOne({ id: assessmentId });
@@ -238,11 +239,10 @@ async function signAssessment(assessmentId, signToken, userId, logger, req) {
         throw error;
     }
 
-    let startBooking;
     let outputAssessment;
 
     if (assessment.startBookingId) {
-        startBooking = await Booking.findOne({ id: assessment.startBookingId });
+        const startBooking = await Booking.findOne({ id: assessment.startBookingId });
         if (! startBooking) {
             const error = new Error('Assessment start booking not found');
             error.assessmentId = assessment.id;
@@ -254,7 +254,20 @@ async function signAssessment(assessmentId, signToken, userId, logger, req) {
         const { ASSESSMENTS } = startBooking.listingType.properties;
         if (ASSESSMENTS === 'TWO_STEPS') {
             outputAssessment = await createOutputAssessment(assessment, startBooking);
+        // set the completed date if this is a one-step assessment
+        } else if (ASSESSMENTS === 'ONE_STEP') {
+            await Booking.update({ id: startBooking.id }, { completedDate: now });
         }
+    } else if (assessment.endBookingId) {
+        const endBooking = await Booking.findOne({ id: assessment.endBookingId });
+        if (! endBooking) {
+            var error = new Error("Assessment end booking not found");
+            error.assessmentId = assessment.id;
+            error.bookingId    = assessment.endBookingId;
+            throw error;
+        }
+
+        await Booking.updateBookingEndState(endBooking, now);
     }
 
     const data = {
@@ -264,10 +277,6 @@ async function signAssessment(assessmentId, signToken, userId, logger, req) {
     };
 
     await _sendAssessmentEmailsSms(data);
-
-    if (assessment.endBookingId) {
-        await setEndOfBooking(assessment, now);
-    }
 
     const updateAttrs = {
         signedDate: now
@@ -309,21 +318,6 @@ function createOutputAssessment(assessment, startBooking) {
         );
 
         return outputAssessment;
-    })();
-}
-
-function setEndOfBooking(assessment, now) {
-    return Promise.coroutine(function* () {
-        var endBooking = yield Booking.findOne({ id: assessment.endBookingId });
-
-        if (! endBooking) {
-            var error = new Error("Assessment end booking not found");
-            error.assessmentId = assessment.id;
-            error.bookingId    = assessment.endBookingId;
-            throw error;
-        }
-
-        return yield Booking.updateBookingEndState(endBooking, now);
     })();
 }
 

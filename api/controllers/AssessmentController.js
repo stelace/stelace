@@ -90,7 +90,11 @@ async function sign(req, res) {
     }
 
     try {
-        const assessment = await AssessmentService.signAssessment(id, signToken, req.user.id, req.logger, req);
+        const assessment = await AssessmentService.signAssessment(id, signToken, {
+            userId: req.user.id,
+            logger: req.logger,
+            req,
+        });
 
         res.json(Assessment.expose(assessment, access));
     } catch (err) {
