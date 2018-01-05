@@ -28,7 +28,7 @@ exports.register = async function (req, res, next) {
     var password = req.param("password");
 
     try {
-        const user = UserService.createUser({
+        const user = await UserService.createUser({
             email,
             username,
             password,
