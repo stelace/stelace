@@ -1244,26 +1244,28 @@
                     }
                 })
                 .finally(function () {
-                    // Always send Google Analytics since user is engaged
-                    var gaLabel = 'listingId: ' + createdListing.id;
-                    ga('send', 'event', 'Listings', 'Create', gaLabel);
-                    // Facebook event
-                    var fbEventParams = {
-                        content_name: createdListing.name,
-                        content_ids: [createdListing.id],
-                        sip_offer_types: ListingService.getFbOfferTypes(createdListing)
-                    };
+                    if (createdListing) {
+                        // Always send Google Analytics since user is engaged
+                        var gaLabel = 'listingId: ' + createdListing.id;
+                        ga('send', 'event', 'Listings', 'Create', gaLabel);
+                        // Facebook event
+                        var fbEventParams = {
+                            content_name: createdListing.name,
+                            content_ids: [createdListing.id],
+                            sip_offer_types: ListingService.getFbOfferTypes(createdListing)
+                        };
 
-                    var fbRentingDayOnePrice = ListingService.getFbRentingDayOnePrice(createdListing);
-                    var fbSellingPrice       = ListingService.getFbSellingPrice(createdListing);
-                    if (typeof fbRentingDayOnePrice === "number") {
-                        fbEventParams.sip_renting_day_one_price = fbRentingDayOnePrice;
-                    }
-                    if (typeof fbSellingPrice === "number") {
-                        fbEventParams.sip_selling_price = fbSellingPrice;
-                    }
+                        var fbRentingDayOnePrice = ListingService.getFbRentingDayOnePrice(createdListing);
+                        var fbSellingPrice       = ListingService.getFbSellingPrice(createdListing);
+                        if (typeof fbRentingDayOnePrice === "number") {
+                            fbEventParams.sip_renting_day_one_price = fbRentingDayOnePrice;
+                        }
+                        if (typeof fbSellingPrice === "number") {
+                            fbEventParams.sip_selling_price = fbSellingPrice;
+                        }
 
-                    fbq('trackCustom', 'AddListing', fbEventParams);
+                        fbq('trackCustom', 'AddListing', fbEventParams);
+                    }
                 });
         }
 
