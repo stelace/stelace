@@ -3,7 +3,6 @@
 module.exports = {
 
     getTimeGranularities,
-    getDefaultListingTypeProperties,
 
     getConfig,
 
@@ -63,20 +62,8 @@ const timeGranularities = [
     'M', // months
 ];
 
-const defaultListingTypeProperties = {
-    TIME: 'NONE',
-    ASSESSMENTS: 'NONE',
-    AVAILABILITY: 'NONE',
-    DYNAMIC_PRICING: 'NONE',
-    PLACE: 'NONE',
-};
-
 function getTimeGranularities() {
     return timeGranularities;
-}
-
-function getDefaultListingTypeProperties() {
-    return defaultListingTypeProperties;
 }
 
 async function _fetchConfig() {

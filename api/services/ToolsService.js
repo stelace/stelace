@@ -1,17 +1,22 @@
+/* global StelaceConfigService */
+
 module.exports = {
 
-    fillByCharacter: fillByCharacter,
-    getStringifiedJson: getStringifiedJson,
-    getParsedJson: getParsedJson,
-    obfuscateContactDetails: obfuscateContactDetails,
-    obfuscatePhone: obfuscatePhone,
-    obfuscateString: obfuscateString,
-    capitalizeFirstLetter: capitalizeFirstLetter,
-    toStartCase: toStartCase,
-    shrinkString: shrinkString,
-    getURLStringSafe: getURLStringSafe,
-    uniqBy: uniqBy,
-    getPeriodAttrs: getPeriodAttrs,
+    fillByCharacter,
+    getStringifiedJson,
+    getParsedJson,
+    obfuscateContactDetails,
+    obfuscatePhone,
+    obfuscateString,
+    capitalizeFirstLetter,
+    toStartCase,
+    shrinkString,
+    getURLStringSafe,
+    uniqBy,
+    getPeriodAttrs,
+    isInteger,
+    isWithinIntegerRange,
+    isDurationObject,
 
 };
 
@@ -199,4 +204,36 @@ function getPeriodAttrs(fromDate, toDate, args) {
     }
 
     return periodAttrs;
+}
+
+function isInteger(value) {
+    return typeof value === 'number' && value % 1 === 0;
+}
+
+function isWithinIntegerRange(value, { min, max }) {
+    let result = isInteger(value);
+
+    if (typeof min === 'number') {
+        result = result && value >= min;
+    }
+    if (typeof max === 'number') {
+        result = result && value <= max;
+    }
+
+    return result;
+}
+
+function isDurationObject(value, { min, max }) {
+    const timeGranularities = StelaceConfigService.getTimeGranularities();
+
+    if (typeof value !== 'object') return false;
+
+    const keys = _.keys(value);
+    if (keys.length !== 1) return false;
+
+    const unit = keys[0];
+    const number = value[unit];
+
+    return _.includes(timeGranularities, unit)
+        && isWithinIntegerRange(number, { min, max });
 }

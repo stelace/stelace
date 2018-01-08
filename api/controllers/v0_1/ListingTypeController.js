@@ -1,9 +1,12 @@
-/* global ApiService, ListingType */
+/* global ApiService, ListingType, ListingTypeService */
 
 module.exports = {
 
     find,
     findOne,
+    create,
+    update,
+    destroy,
 
 };
 
@@ -45,6 +48,44 @@ async function findOne(req, res) {
         }
 
         res.json(ListingType.expose(listingType, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function create(req, res) {
+    const attrs = req.allParams();
+    const access = 'api';
+
+    try {
+        const listingType = await ListingTypeService.create(attrs);
+
+        res.json(ListingType.expose(listingType, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function update(req, res) {
+    const id = req.param('id');
+    const attrs = req.allParams();
+    const access = 'api';
+
+    try {
+        const listingType = await ListingTypeService.updateListingId(id, attrs);
+
+        res.json(ListingType.expose(listingType, access));
+    } catch (err) {
+        res.sendError(err);
+    }
+}
+
+async function destroy(req, res) {
+    const id = req.param('id');
+
+    try {
+        await ListingTypeService.destroyListingType(id);
+        res.json({ ok: true });
     } catch (err) {
         res.sendError(err);
     }

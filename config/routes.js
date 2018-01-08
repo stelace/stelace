@@ -205,6 +205,9 @@ module.exports.routes = {
 
     'get /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.find', cors: apiCors },
     'get /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.findOne', cors: apiCors },
+    'post /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.create', cors: apiCors },
+    'put /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.update', cors: apiCors },
+    'delete /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.destroy', cors: apiCors },
 
     'get /api/v0.1/media/get/:id/:uuid.:ext': { target: "v0_1/MediaController.get", cors: apiCors },
     'get /api/v0.1/media/get/:id/:uuid': { target: "v0_1/MediaController.getRedirect", cors: apiCors },
