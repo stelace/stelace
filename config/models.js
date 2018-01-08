@@ -31,13 +31,18 @@ module.exports.models = {
         updatedDate: 'string'
     },
 
-    beforeCreate: beforeCreate,
-    beforeUpdate: beforeUpdate,
-    getAccessFields: getAccessFields,
-    expose: expose,
-    exposeAll: exposeAll,
-    exposeTransform: exposeTransform,
-    updateOne: updateOne
+    beforeCreate,
+    beforeUpdate,
+    getAccessFields,
+    expose,
+    exposeAll,
+    exposeTransform,
+    updateOne,
+    getCollection,
+    getDefinition,
+    getKnex,
+    buildQuery,
+    executeQuery,
 
 };
 
@@ -66,6 +71,10 @@ module.exports.models = {
  */
 
 var moment = require('moment');
+
+const knex = require('knex')({
+    client: 'mysql',
+});
 
 function beforeCreate(values, next) {
     var model = this;
@@ -184,4 +193,55 @@ function updateOne(queryIdOrObj, updateAttrs) {
 
         return records[0];
     })();
+}
+
+function getCollection() {
+    return this.adapter.collection;
+}
+
+function getDefinition() {
+    return this.definition;
+}
+
+function getKnex() {
+    return knex;
+}
+
+function buildQuery() {
+    const collection = this.getCollection();
+    return knex.from(collection);
+}
+
+async function executeQuery(queryObj) {
+    const queryString = await queryObj.toString();
+    const res = await this.query(queryString);
+
+    const definition = this.getDefinition();
+    const jsonFields = {};
+
+    _.forEach(definition, (value, key) => {
+        if (value === 'json'
+         || typeof value === 'object' && value.type === 'json'
+        ) {
+            jsonFields[key] = true;
+        }
+    });
+
+    if (!_.keys(jsonFields).length) {
+        return res;
+    }
+
+    _.forEach(res, line => {
+        _.forEach(jsonFields, (value, field) => {
+            if (typeof line[field] === 'string' && line[field]) {
+                try {
+                    line[field] = JSON.parse(line[field]);
+                } catch (e) {
+                    // do nothing
+                }
+            }
+        });
+    });
+
+    return res;
 }
