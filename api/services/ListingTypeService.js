@@ -1,4 +1,4 @@
-/* global ListingType, StelaceConfigService, ToolsService */
+/* global CustomFieldService, ListingType, StelaceConfigService, ToolsService */
 
 module.exports = {
 
@@ -217,6 +217,7 @@ async function isValidListingTypesIds(listingTypesIds) {
  * @param {String} [params.name]
  * @param {Object} [params.properties]
  * @param {Object} [params.config]
+ * @param {Object[]} [params.customFields]
  * @param {Boolean} [params.active]
  * @param {Object} existingListingType
  * @return {Object} res
@@ -228,6 +229,7 @@ function getComputedListingType(params, existingListingType) {
         name,
         properties,
         config,
+        customFields,
         active,
     } = params;
 
@@ -240,11 +242,13 @@ function getComputedListingType(params, existingListingType) {
         computedListingType.name = name ? name : existingListingType.name;
         computedListingType.properties = _.merge(existingListingType.properties, properties || {}, );
         computedListingType.config = _.merge(existingListingType.config, config || {});
+        computedListingType.customFields = customFields ? customFields : existingListingType.customFields;
         computedListingType.active = (typeof active !== 'undefined' ? active : existingListingType.active);
     } else {
         computedListingType.name = name;
         computedListingType.properties = _.merge(defaultProperties, properties || {});
         computedListingType.config = _.merge(defaultConfig, config || {});
+        computedListingType.customFields = customFields || [];
         computedListingType.active = (typeof active !== 'undefined' ? active : true);
     }
 
@@ -258,6 +262,9 @@ function getComputedListingType(params, existingListingType) {
     }
     if (!isValidConfig(computedListingType.config)) {
         errors.push('config');
+    }
+    if (!CustomFieldService.isValidCustomFields(computedListingType.customFields)) {
+        errors.push('customFields');
     }
     if (typeof computedListingType.active !== 'boolean') {
         errors.push('active');

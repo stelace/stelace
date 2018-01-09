@@ -15,6 +15,7 @@ module.exports = {
     uniqBy,
     getPeriodAttrs,
     isInteger,
+    isWithinNumberRange,
     isWithinIntegerRange,
     isDurationObject,
 
@@ -210,8 +211,8 @@ function isInteger(value) {
     return typeof value === 'number' && value % 1 === 0;
 }
 
-function isWithinIntegerRange(value, { min, max }) {
-    let result = isInteger(value);
+function isWithinNumberRange(value, { min, max }) {
+    let result = true;
 
     if (typeof min === 'number') {
         result = result && value >= min;
@@ -221,6 +222,10 @@ function isWithinIntegerRange(value, { min, max }) {
     }
 
     return result;
+}
+
+function isWithinIntegerRange(value, { min, max }) {
+    return isInteger(value) && isWithinNumberRange(value, { min, max });
 }
 
 function isDurationObject(value, { min, max }) {
