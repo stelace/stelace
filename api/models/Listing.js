@@ -130,6 +130,10 @@ module.exports = {
             type: "boolean",
             defaultsTo: false
         },
+        data: {
+            type: 'json',
+            defaultsTo: {},
+        },
 
     },
 
@@ -190,6 +194,7 @@ function getAccessFields(access) {
             "customPricingConfig",
             "deposit",
             "acceptFree",
+            "data",
             "createdDate",
             "updatedDate",
             "snapshot" // set when getting snapshots
@@ -228,6 +233,7 @@ function getAccessFields(access) {
             "customPricingConfig",
             "deposit",
             "acceptFree",
+            "data",
             "createdDate",
             "updatedDate",
             "snapshot" // set when getting snapshots
@@ -261,6 +267,7 @@ function getAccessFields(access) {
             "customPricingConfig",
             "deposit",
             "acceptFree",
+            "data",
             "createdDate",
             "updatedDate",
             "snapshot" // set when getting snapshots

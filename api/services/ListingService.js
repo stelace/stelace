@@ -1,5 +1,5 @@
 /*
-    global Listing, ListingAvailability, ListingTypeService, Location, Media, PricingService,
+    global CustomFieldService, Listing, ListingAvailability, ListingTypeService, Location, Media, PricingService,
     StelaceEventService, Tag, TimeService, ToolsService
 */
 
@@ -82,10 +82,22 @@ async function createListing(attrs, { req, res } = {}) {
         throw new BadRequestError();
     }
 
-    const validListingTypesIds = await ListingTypeService.isValidListingTypesIds(createAttrs.listingTypesIds);
-    if (!validListingTypesIds) {
+    const listingTypes = await ListingTypeService.filterListingTypes(createAttrs.listingTypesIds);
+    if (createAttrs.listingTypesIds.length !== listingTypes.length) {
         throw new BadRequestError();
     }
+
+    let data = createAttrs.data || {};
+    _.forEach(listingTypes, listingType => {
+        const { newData, valid } = CustomFieldService.checkData(data, listingType.customFields);
+        if (!valid) {
+            const error = new BadRequestError('Incorrect custom fields');
+            error.expose = true;
+            throw error;
+        }
+        data = newData;
+    });
+    createAttrs.data = data;
 
     // TODO: uncomment it when listing quantity equals to 0 is correctly managed
     // let listingType;
@@ -178,6 +190,7 @@ async function createListing(attrs, { req, res } = {}) {
  * @param {Number[]} [attrs.listingTypesIds]
  * @param {Object} [attrs.customPricingConfig]
  * @param {Boolean} [attrs.acceptFree]
+ * @param {Object} [attrs.data]
  * @param {Object} [options]
  * @param {Number} [options.userId] - if specified, check if the listing owner id matches the provided userId
  * @result {Object} updated listing
@@ -200,11 +213,14 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         'customPricingConfig',
         'deposit',
         'acceptFree',
+        'data',
     ];
     const updateAttrs = _.pick(attrs, filteredAttrs);
 
     if ((updateAttrs.tags && ! µ.checkArray(updateAttrs.tags, 'id'))
         || (updateAttrs.locations && ! µ.checkArray(updateAttrs.locations, 'id'))
+        || (updateAttrs.listingTypesIds && (! µ.checkArray(updateAttrs.listingTypesIds, 'id') || updateAttrs.listingTypesIds.length))
+        || (updateAttrs.data && typeof updateAttrs.data !== 'object')
         || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== 'number' || updateAttrs.sellingPrice < 0))
         || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== 'number' || updateAttrs.dayOnePrice < 0))
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
@@ -223,11 +239,6 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         updateAttrs.deposit = PricingService.roundPrice(updateAttrs.deposit);
     }
 
-    const validListingTypesIds = await ListingTypeService.isValidListingTypesIds(updateAttrs.listingTypesIds);
-    if (!validListingTypesIds) {
-        throw new BadRequestError();
-    }
-
     const listing = await Listing.findOne({ id: listingId });
     if (! listing) {
         throw new NotFoundError();
@@ -235,6 +246,27 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     if (userId && listing.ownerId !== userId) {
         throw new ForbiddenError();
     }
+
+    if (updateAttrs.listingTypesIds) {
+        const validListingTypes = await ListingTypeService.isValidListingTypesIds(updateAttrs.listingTypesIds)
+        if (!validListingTypes) {
+            throw new BadRequestError();
+        }
+    }
+
+    // check custom fields even if there is no data (in case listing types custom fields changed)
+    const listingTypes = await ListingTypeService.filterListingTypes(updateAttrs.listingTypesIds || listing.listingTypesIds);
+    let data = _.merge(listing.data || {}, updateAttrs.data || {});
+    _.forEach(listingTypes, listingType => {
+        const { newData, valid } = CustomFieldService.checkData(data, listingType.customFields);
+        if (!valid) {
+            const error = new BadRequestError('Incorrect custom fields');
+            error.expose = true;
+            throw error;
+        }
+        data = newData;
+    });
+    updateAttrs.data = data;
 
     const [
         validReferences,

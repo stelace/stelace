@@ -16,6 +16,7 @@ module.exports = {
     getListingTypes,
     getListingType,
     isValidListingTypesIds,
+    filterListingTypes,
 
     getComputedListingType,
 
@@ -179,7 +180,7 @@ async function _updateCache(types) {
     types = _constructFromDefault(types);
     allListingTypes = types;
     listingTypes = _.filter(types, type => type.active);
-    indexedListingTypes = _.indexBy(listingTypes, 'id');
+    indexedListingTypes = _.indexBy(allListingTypes, 'id');
 }
 
 async function getAllListingTypes() {
@@ -196,19 +197,32 @@ async function getListingTypes() {
 async function getListingType(listingTypeId, { onlyActive = true } = {}) {
     await _fetchTypes();
 
-    if (onlyActive) {
-        return _.find(listingTypes, listingType => listingType.id === listingTypeId);
-    } else {
-        return _.find(allListingTypes, listingType => listingType.id === listingTypeId);
-    }
+    const array = onlyActive ? listingTypes : allListingTypes;
+    return _.find(array, listingType => listingType.id === listingTypeId);
 }
 
-async function isValidListingTypesIds(listingTypesIds) {
+async function isValidListingTypesIds(listingTypesIds, { onlyActive = true } = {}) {
     await _fetchTypes();
 
     return _.reduce(listingTypesIds, (memo, listingTypeId) => {
-        return memo && !!indexedListingTypes[listingTypeId];
+        const listingType = indexedListingTypes[listingTypeId];
+        if (!listingType) return false;
+        if (onlyActive && !listingType.active) return false;
+        return memo;
     }, true);
+}
+
+async function filterListingTypes(listingTypesIds, { onlyActive = true } = {}) {
+    await _fetchTypes();
+
+    return _.reduce(listingTypesIds, (memo, listingTypeId) => {
+        const listingType = indexedListingTypes[listingTypeId];
+        if (!listingType) return memo;
+        if (onlyActive && !listingType.active) return memo;
+
+        memo.push(listingType);
+        return memo;
+    }, []);
 }
 
 /**
@@ -281,18 +295,21 @@ function getComputedListingType(params, existingListingType) {
  * @param {String} params.name
  * @param {Object} [params.properties]
  * @param {Object} [params.config]
+ * @param {Object[]} [params.customFields]
  * @param {Boolean} [params.active]
  */
 async function createListingType({
     name,
     properties,
     config,
+    customFields,
     active,
 } = {}) {
     const { computedListingType, errors } = getComputedListingType({
         name,
         properties,
         config,
+        customFields,
         active,
     });
 
@@ -315,12 +332,14 @@ async function createListingType({
  * @param {String} params.name
  * @param {Object} [params.properties]
  * @param {Object} [params.config]
+ * @param {Object[]} [params.customFields]
  * @param {Boolean} [params.active]
  */
 async function updateListingType(listingTypeId, {
     name,
     properties,
     config,
+    customFields,
     active,
 } = {}) {
     const listingType = await getListingType(listingTypeId, { onlyActive: false });
@@ -332,6 +351,7 @@ async function updateListingType(listingTypeId, {
         name,
         properties,
         config,
+        customFields,
         active,
     }, listingType);
 

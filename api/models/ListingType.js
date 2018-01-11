@@ -22,6 +22,10 @@ module.exports = {
             type: 'json',
             defaultsTo: {},
         },
+        customFields: {
+            type: 'json',
+            defaultsTo: [],
+        },
         active: {
             type: 'boolean',
             defaultsTo: true,
@@ -39,6 +43,7 @@ function getAccessFields(access) {
             'name',
             'properties',
             'config',
+            'customFields',
             'active',
             'createdDate',
             'updatedDate',
@@ -48,6 +53,7 @@ function getAccessFields(access) {
             'name',
             'properties',
             'config',
+            'customFields',
             'active',
             'createdDate',
             'updatedDate',
