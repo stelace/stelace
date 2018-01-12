@@ -15,23 +15,16 @@ async function find(req, res) {
     const attrs = req.allParams();
 
     try {
-        const pagination = ApiService.parsePagination(attrs);
+        let onlyActive = attrs.active === '1';
 
-        const [
-            listingTypes,
-            countListingTypes,
-        ] = await Promise.all([
-            ListingType.find().paginate(pagination),
-            ListingType.count(),
-        ]);
+        let listingTypes;
+        if (onlyActive) {
+            listingTypes = await ListingTypeService.getListingTypes();
+        } else {
+            listingTypes = await ListingTypeService.getAllListingTypes();
+        }
 
-        const returnedObj = ApiService.getPaginationMeta({
-            totalResults: countListingTypes,
-            limit: pagination.limit,
-        });
-        returnedObj.results = ListingType.exposeAll(listingTypes, access);
-
-        res.json(returnedObj);
+        res.json(ListingType.exposeAll(listingTypes, access));
     } catch (err) {
         res.sendError(err);
     }
