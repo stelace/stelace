@@ -1,4 +1,4 @@
-/* global ApiService, ListingType, ListingTypeService */
+/* global ListingType, ListingTypeService */
 
 module.exports = {
 
@@ -60,12 +60,12 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
-    const id = req.param('id');
+    const id = parseInt(req.param('id'), 10);
     const attrs = req.allParams();
     const access = 'api';
 
     try {
-        const listingType = await ListingTypeService.updateListingId(id, attrs);
+        const listingType = await ListingTypeService.updateListingType(id, attrs);
 
         res.json(ListingType.expose(listingType, access));
     } catch (err) {
@@ -74,7 +74,7 @@ async function update(req, res) {
 }
 
 async function destroy(req, res) {
-    const id = req.param('id');
+    const id = parseInt(req.param('id'), 10);
 
     try {
         await ListingTypeService.destroyListingType(id);
