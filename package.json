@@ -94,7 +94,7 @@
     "run-sequence": "1.1.5",
     "sails": "0.11.2",
     "sails-disk": "0.10.9",
-    "sails-mysql": "git@github.com:stelace/sails-mysql.git#4c157fbdd6f2bfc17d65e59bc601aac93edb3019",
+    "sails-mysql": "https://github.com/stelace/sails-mysql.git#4c157fbdd6f2bfc17d65e59bc601aac93edb3019",
     "should": "8.2.2",
     "sinon": "1.17.3",
     "sparkpost": "2.1.2",
