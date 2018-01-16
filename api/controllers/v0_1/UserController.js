@@ -43,8 +43,12 @@ async function find(req, res) {
         let findAttrs = { destroyed: false };
         const sorting = ApiService.parseSorting(attrs, sortFields);
         const searchAttrs = ApiService.parseSearchQuery(attrs, searchFields);
+        const ids = ApiService.parseEntityIds(attrs);
 
         findAttrs = Object.assign({}, findAttrs, searchAttrs);
+        if (ids) {
+            findAttrs = Object.assign({}, findAttrs, { id: ids });
+        }
 
         const fetchUsers = () => {
             if (pagination) {

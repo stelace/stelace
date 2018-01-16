@@ -4,6 +4,7 @@ module.exports = {
     parsePagination,
     parseSorting,
     parseSearchQuery,
+    parseEntityIds,
     getPaginationMeta,
 
 };
@@ -89,6 +90,16 @@ function parseSearchQuery(attrs, searchFields) {
     } else {
         return {};
     }
+}
+
+function parseEntityIds(attrs) {
+    if (!attrs.ids
+     || !µ.checkArray(attrs.ids, 'id')
+    ) {
+        return;
+    }
+
+    return attrs.ids.map(id => parseInt(id, 10));
 }
 
 function getPaginationMeta({ totalResults, limit, allResults = false }) {

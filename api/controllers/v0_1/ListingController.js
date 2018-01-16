@@ -39,13 +39,20 @@ async function find(req, res) {
         const populateMedia = _.includes(fields, 'media');
 
         const sorting = ApiService.parseSorting(attrs, sortFields);
+        let findAttrs = {};
         const searchAttrs = ApiService.parseSearchQuery(attrs, searchFields);
+        const ids = ApiService.parseEntityIds(attrs);
+
+        findAttrs = Object.assign({}, findAttrs, searchAttrs);
+        if (ids) {
+            findAttrs = Object.assign({}, findAttrs, { id: ids });
+        }
 
         const fetchListings = () => {
             if (pagination) {
-                return Listing.find(searchAttrs).sort(sorting).paginate(pagination);
+                return Listing.find(findAttrs).sort(sorting).paginate(pagination);
             } else {
-                return Listing.find(searchAttrs).sort(sorting);
+                return Listing.find(findAttrs).sort(sorting);
             }
         };
 
@@ -54,7 +61,7 @@ async function find(req, res) {
             countListings,
         ] = await Promise.all([
             fetchListings(),
-            Listing.count(searchAttrs),
+            Listing.count(findAttrs),
         ]);
 
         const hashMedias = populateMedia ? await Listing.getMedias(listings) : {};
