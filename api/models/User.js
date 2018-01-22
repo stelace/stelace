@@ -13,107 +13,209 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         username: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
         },
         firstname: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
         },
         lastname: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
         },
         description: {
-            type: "text",
-            maxLength: 1000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 1000,
         },
         phone: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         phoneCountryCode: {
-            type: "string",
+            type: 'string',
+            columnType: 'varchar(7)',
+            allowNull: true,
             maxLength: 7
         },
         phoneCheck: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         role: {
-            type: "string",
-            defaultsTo: "user"
+            type: 'string',
+            columnType: 'varchar(255)',
+            defaultsTo: 'user',
+            maxLength: 255,
         },
         email: {       // email is not required in case if user recreates an account later (can be set to null)
-            type: "string",
+            type: 'string',
+            columnType: 'varchar(191) CHARACTER SET utf8mb4',
+            allowNull: true,
             unique: true,
-            size: 191,
-            maxLength: 191
+            maxLength: 191,
         },
         emailToken: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         emailCheck: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
-        freeFeesDate: "string",
-        mediaId: "integer",
-        passports: {
-            collection: "Passport",
-            via: "user"
+        freeFeesDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        mediaId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
         },
         tagsIds: {
-            type: "array"
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
         },
-        lastConnectionDate: "string",
+        lastConnectionDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         ratingScore: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         nbRatings: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
-        points: "integer",
-        lastViewedPoints: "integer",
-        levelId: "string",
-        lastViewedLevelId: "string",
-        birthday: "string",
-        nationality: "string",
-        countryOfResidence: "string",
-        address: "json",
+        points: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        lastViewedPoints: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        levelId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        lastViewedLevelId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        birthday: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        nationality: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        countryOfResidence: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        address: {
+            type: 'json',
+            columnType: 'json',
+        },
         registrationCompleted: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         firstUse: {
-            type: "boolean",
-            defaultsTo: true
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: true,
         },
-        mangopayUserId: "string",
-        walletId: "string",
-        bankAccountId: "string",
-        blocked: {       // use it if the user is to be banned temporarily
-            type: "boolean",
-            defaultsTo: false
+        mangopayUserId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        walletId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        bankAccountId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        blocked: { // use it if the user is to be banned temporarily
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         destroyed: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
-        iban: "string",
+        iban: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         newsletter: { // if true, we can send newsletter
-            type: "boolean",
-            defaultsTo: true
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: true,
         },
-
-        hasSameId: s_hasSameId,
-        createMangopayUser: s_createMangopayUser,
-        createWallet: s_createWallet,
-        createBankAccount: s_createBankAccount
     },
 
     getAccessFields,
@@ -121,6 +223,9 @@ module.exports = {
     get,
     postBeforeCreate,
     getName,
+    createMangopayUser,
+    createWallet,
+    createBankAccount,
     hasSameId,
     getMedia,
     createCheckEmailToken,
@@ -287,10 +392,6 @@ async function postBeforeCreate(values) {
     }
 }
 
-function s_hasSameId(id) {
-    return User.hasSameId(this, id);
-}
-
 function hasSameId(user, id) {
     if (typeof user !== "object" || ! user.id) {
         return false;
@@ -323,9 +424,7 @@ function getName(user, notFull) {
     }
 }
 
-function s_createMangopayUser(args) {
-    var user = this;
-
+function createMangopayUser(user, args) {
     return Promise
         .resolve()
         .then(() => {
@@ -364,9 +463,7 @@ function s_createMangopayUser(args) {
         });
 }
 
-function s_createWallet() {
-    var user = this;
-
+function createWallet(user) {
     return Promise
         .resolve()
         .then(() => {
@@ -391,9 +488,7 @@ function s_createWallet() {
         });
 }
 
-function s_createBankAccount() {
-    var user = this;
-
+function createBankAccount(user) {
     return Promise
         .resolve()
         .then(() => {

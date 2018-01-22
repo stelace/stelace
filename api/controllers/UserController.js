@@ -333,7 +333,7 @@ function updatePassword(req, res) {
     var newPassword     = req.param("newPassword");
     var skipOldPassword = req.param("skipOldPassword");
 
-    var self    = req.user.hasSameId(id);
+    var self    = User.hasSameId(req.user, id);
     var isAdmin = TokenService.isRole(req, "admin");
 
     if ((! self && ! isAdmin)
@@ -379,8 +379,8 @@ function updatePassword(req, res) {
                     throw new BadRequestError();
                 }
 
-                return localPassport
-                    .validatePassword(oldPassword)
+                return Passport
+                    .validatePassword(localPassport, oldPassword)
                     .then(match => {
                         if (! match) {
                             var error = new BadRequestError("BadOldPassword");

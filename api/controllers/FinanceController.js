@@ -61,10 +61,10 @@ function createAccount(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return req.user.createMangopayUser(createAttrs);
+            return User.createMangopayUser(req.user, createAttrs);
         })
         .then(user => {
-            return user.createWallet();
+            return User.createWallet(user);
         })
         .then(user => {
             res.json(User.expose(user, access));
@@ -78,7 +78,7 @@ function createBankAccount(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return req.user.createBankAccount();
+            return User.createBankAccount(req.user);
         })
         .then(user => {
             res.json(User.expose(user, access));

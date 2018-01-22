@@ -8,17 +8,49 @@
 module.exports = {
 
     attributes: {
-        listingId: {
-            type: 'integer',
-            index: true,
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        startDate: 'string',
-        endDate: 'string',
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        listingId: {
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
+        },
+        startDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        endDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         quantity: {
-            type: 'integer',
+            type: 'number',
+            columnType: 'int',
             defaultsTo: 1,
         },
-        available: 'boolean',
+        available: {
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            required: true,
+        },
     },
 
     getAccessFields,

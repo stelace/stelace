@@ -13,39 +13,79 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         conversationId: {
-            type: "integer",
-            index: true,
-            required: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
         senderId: {
-            type: "integer",
-            index: true,
-            required: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
         receiverId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
         privateContent: {
-            type: "text",
-            maxLength: 2000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 2000,
         },
         publicContent: {
-            type: "text",
-            maxLength: 2000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 2000,
         },
         read: { // populated for future use, per message. For the moment read status of whole conversation is used for simplicity
-            type: "boolean",
+            type: 'boolean',
+            columnType: 'tinyint(1)',
             defaultsTo: false
         },
         bookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        bookingStatus: "string",
-        agreementStatus: "string",
-        answerDelay: "integer" // seconds. User stat also in Conversation (unique per conversation for the moment)
+        bookingStatus: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        agreementStatus: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        answerDelay: { // seconds. User stat also in Conversation (unique per conversation for the moment)
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
     },
 
     getAccessFields: getAccessFields,

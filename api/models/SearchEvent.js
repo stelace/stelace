@@ -8,19 +8,92 @@
 module.exports = {
 
     attributes: {
-        type: "string",
-        userId: "integer",
-        tagsIds: "array",
-        listingTypeId: "integer",
-        query: "string",
-        page: "integer",
-        limit: "integer",
-        params: "json",
-        os: "string",
-        browser: "string",
-        device: "string",
-        userAgent: "string",
-        completionDuration: "integer" // in milliseconds
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        type: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        userId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        tagsIds: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
+        },
+        listingTypeId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        query: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        page: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        limit: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        params: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        os: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        browser: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        device: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        userAgent: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        completionDuration: { // in milliseconds
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
     },
 
     getAccessFields,

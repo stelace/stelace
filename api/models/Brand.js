@@ -8,14 +8,33 @@
 module.exports = {
 
     attributes: {
-        name: {
-            type: "string",
-            maxLength: 191,
-            required: true,
-            size: 191,
-            unique: true
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        listingCategories: "array"
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        name: {
+            type: 'string',
+            columnType: 'varchar(191) CHARACTER SET utf8mb4',
+            required: true,
+            unique: true,
+            maxLength: 191,
+        },
+        listingCategories: {
+            type :'json',
+            columnType: 'json',
+            defaultsTo: [],
+        },
     },
 
     getAccessFields: getAccessFields

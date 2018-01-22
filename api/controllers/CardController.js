@@ -78,7 +78,7 @@ function create(req, res) {
             return Card.create(createAttrs);
         })
         .then(card => {
-            return card.synchronize();
+            return Card.synchronize(card);
         })
         .then(card => {
             res.json(Card.expose(card, access));

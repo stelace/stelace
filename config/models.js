@@ -1,12 +1,16 @@
 /**
- * Default model configuration
+ * Default model settings
  * (sails.config.models)
  *
- * Unless you override them, the following properties will be included
- * in each of your models.
+ * Your default, project-wide model settings. Can also be overridden on a
+ * per-model basis by setting a top-level properties in the model definition.
  *
- * For more info on Sails models, see:
- * http://sailsjs.org/#/documentation/concepts/ORM
+ * For details about all available model settings, see:
+ * https://sailsjs.com/config/models
+ *
+ * For more general background on Sails model settings, and how to configure
+ * them on a project-wide or per-model basis, see:
+ * https://sailsjs.com/docs/concepts/models-and-orm/model-settings
  */
 
 module.exports.models = {
@@ -18,18 +22,22 @@ module.exports.models = {
     *                                                                          *
     ***************************************************************************/
 
-    connection: 'MySQLServer',
+    datastore: 'MySQLServer',
+    schema: true,
 
     // migrate: "safe", // production
     migrate: "alter",
 
-    autoCreatedAt: false,
-    autoUpdatedAt: false,
-
-    attributes: {
-        createdDate: 'string',
-        updatedDate: 'string'
+    dataEncryptionKeys: {
+        default: '9mpGP84T2bIDLZ0S9ivnPB+1OK4R4c1C1rIc0Gfq/dc='
     },
+
+    cascadeOnDestroy: false,
+
+    fetchRecordsOnCreate: true,
+    fetchRecordsOnUpdate: true,
+    fetchRecordsOnDestroy: true,
+    fetchRecordsOnCreateEach: true,
 
     beforeCreate,
     beforeUpdate,

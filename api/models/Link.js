@@ -8,26 +8,57 @@
 module.exports = {
 
     attributes: {
-        fromUserId: {
-            type: "integer",
-            index: true
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        relationship: "string",
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        fromUserId: {
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
+        },
+        relationship: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
         toUserId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
         validated: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         email: {
-            type: "string",
-            index: true,
-            size: 191,
-            maxLength: 191
+            type: 'string',
+            columnType: 'varchar(191) CHARACTER SET utf8mb4',
+            // index: true,
+            maxLength: 191,
+            allowNull: true,
         },
-        source: "string"
+        source: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
     get: get

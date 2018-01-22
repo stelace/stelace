@@ -10,20 +10,43 @@
 module.exports = {
 
     attributes: {
-        name: {
-            type: "string",
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
             maxLength: 255,
-            required: true
         },
-        lft: "integer",
-        rgt: "integer",
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        name: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            required: true,
+            maxLength: 255,
+        },
+        lft: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        rgt: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
         parentId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
-
-        hasChildrenCategories: s_hasChildrenCategories,
-        getParentCategories: s_getParentCategories
     },
 
     getAccessFields: getAccessFields,
@@ -103,8 +126,8 @@ function _removeSpace(left) {
         });
 }
 
-function s_hasChildrenCategories() {
-    return this.lft + 1 !== this.rgt;
+function _hasChildrenCategories(listingCategory) {
+    return listingCategory.lft + 1 !== listingCategory.rgt;
 }
 
 function hasChildrenCategories(categoryId) {
@@ -120,7 +143,7 @@ function hasChildrenCategories(categoryId) {
                 throw error;
             }
 
-            return listingCategory.hasChildrenCategories();
+            return _hasChildrenCategories(listingCategory);
         });
 }
 
@@ -156,9 +179,7 @@ function getChildrenCategories(categoryId, includeSelf) {
         });
 }
 
-function s_getParentCategories(includeSelf) {
-    var listingCategory = this;
-
+function _getParentCategories(listingCategory, includeSelf) {
     return Promise
         .resolve()
         .then(() => {
@@ -198,7 +219,7 @@ function getParentCategories(categoryId, includeSelf) {
                 throw error;
             }
 
-            return listingCategory.getParentCategories(includeSelf);
+            return _getParentCategories(listingCategory, includeSelf);
         });
 }
 
@@ -312,7 +333,7 @@ function removeListingCategory(categoryId) {
                 error.listingCategoryId = categoryId;
                 throw error;
             }
-            if (listingCategory.hasChildrenCategories()) {
+            if (_hasChildrenCategories(listingCategory)) {
                 throw new ForbiddenError("ListingCategory cannot be removed: has children categories");
             }
 

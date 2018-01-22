@@ -10,29 +10,94 @@
 module.exports = {
 
     attributes: {
-        name: {
-            type: "string",
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
             maxLength: 255,
-            required: true
         },
-        extension: "string",
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        name: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            required: true,
+            maxLength: 255,
+        },
+        extension: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         uuid: {
-            type: "string",
-            required: true
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
         },
-        type: "string", // extensions type (img, ...)
+        type: { // extensions type (img, ...)
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        field: "string",
-        targetId: "integer",
-        url: "text", // can be longer than 255 characters
-        width: "integer",
-        height: "integer",
-        color: "string",
-        placeholder: "text", // image placeholder (gif 3x3)
-        alt: "string",
+        field: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        targetId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        url: { // can be longer than 255 characters
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+        },
+        width: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        height: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        color: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        placeholder: { // image placeholder (gif 3x3)
+            type: 'string',
+            columnType: 'longtext',
+            allowNull: true,
+        },
+        alt: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
     getAccessFields,

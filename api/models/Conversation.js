@@ -8,47 +8,108 @@
 module.exports = {
 
     attributes: {
-        newContentDate: "string", // only updated if new content if conversation (not for read status changes)
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        newContentDate: { // only updated if new content if conversation (not for read status changes)
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         listingId: {
-            type: "integer",
-            index: true,
-            required: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
         bookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         inputAssessmentId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         outputAssessmentId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         senderId: {
-            type: "integer",
-            index: true,
-            required: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
         receiverId: { // ownerId in general
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
-        startDate: "string",
-        endDate: "string",
-        bookingStatus: "string",
-        agreementStatus: "string",
-        senderRead: {
-            type: "boolean",
-            defaultsTo: true // first message is always read by sender. Do not forget to update this
+        startDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        endDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        bookingStatus: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        agreementStatus: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        senderRead: { // first message is always read by sender. Do not forget to update this
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: true,
         },
         receiverRead: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
-        privateContent: "text", // last message privateContent
-        answerDelay: "integer"
+        privateContent: { // last message privateContent
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        answerDelay: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
     },
 
     getAccessFields: getAccessFields,

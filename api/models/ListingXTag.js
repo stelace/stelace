@@ -8,14 +8,33 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         listingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
         tagId: {
-            type: "integer",
-            index: true
-        }
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
+        },
     }
 
 };

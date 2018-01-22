@@ -10,42 +10,104 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         mangopayId: {
-            type: "string",
-            index: true,
-            size: 191,
-            maxLength: 191
+            type: 'string',
+            columnType: 'varchar(191)',
+            required: true,
+            maxLength: 191,
+            // index: true,
         },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
-        expirationDate: "string", // "MMYY"
-        currency: "string",
-        provider: "string", // "CB" || "VISA" || "MASTERCARD" ...
-        type: "string", // "CB_VISA_MASTERCARD"
-        alias: "string", // card number with missing characters (ex: "356999XXXXXX0165")
-        active: "boolean",
-        validity: "string", // "UNKNOWN" || "VALID" || "INVALID"
+        expirationDate: { // "MMYY"
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        currency: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        provider: { // "CB" || "VISA" || "MASTERCARD" ...
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        type: { // "CB_VISA_MASTERCARD"
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        alias: { // card number with missing characters (ex: "356999XXXXXX0165")
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        active: {
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            allowNull: true,
+        },
+        validity: { // "UNKNOWN" || "VALID" || "INVALID"
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         forget: { // if true, do not use again this card
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
 
         /*
             hash1 and hash2 are for card number unicity
             identical card number:
             cardA.hash1 === cardB.hash1 && cardA.hash2 === cardB.hash2
-            */
-        hash1: "string",
-        hash2: "string",
-
-        synchronize: s_synchronize,
-        disable: s_disable,
-        isExpiredAt: s_isExpiredAt
+        */
+        hash1: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        hash2: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
-    getAccessFields: getAccessFields
+    getAccessFields,
+    synchronize,
+    disable,
+    isExpiredAt,
 
 };
 
@@ -69,9 +131,7 @@ function getAccessFields(access) {
     return accessFields[access];
 }
 
-function s_synchronize() {
-    var card = this;
-
+function synchronize(card) {
     return mangopay.card
         .fetch({ cardId: card.mangopayId })
         .then(c => {
@@ -89,9 +149,7 @@ function s_synchronize() {
         });
 }
 
-function s_disable() {
-    var card = this;
-
+function disable(card) {
     return mangopay.card
         .edit({
             cardId: card.mangopayId,
@@ -104,12 +162,10 @@ function s_disable() {
         });
 }
 
-function s_isExpiredAt(expiredDate) {
+function isExpiredAt(card, expiredDate) {
     if (! TimeService.isDateString(expiredDate, { onlyDate: true })) {
         throw new Error("Bad value");
     }
-
-    var card = this;
 
     var expirationYear  = parseInt("20" + card.expirationDate.substr(2, 2), 10);
     var expirationMonth = parseInt(card.expirationDate.substr(0, 2), 10);

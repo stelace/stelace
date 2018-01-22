@@ -10,20 +10,38 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         targetId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
         targetType: {
-            type: "string",
-            index: true,
-            size: 191,
-            maxLength: 191
+            type: 'string',
+            columnType: 'varchar(191)',
+            maxLength: 191,
+            // index: true,
         },
         data: {
-            type: "json",
-            defaultsTo: {}
-        }
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     get: get,

@@ -10,56 +10,133 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         fromUserId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
         },
         toUserId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
         },
-        fromWalletId: "string",
-        toWalletId: "string",
-        bankAccountId: "string",
+        fromWalletId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        toWalletId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        bankAccountId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         credit: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         debit: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         payment: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         cashing: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         preauthAmount: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         payoutAmount: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         bookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
-        resourceType: "string",
-        resourceId: "string",
-        preauthExpirationDate: "string",
-        mgpCreatedDate: "string",
-        executionDate: "string",
+        resourceType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        resourceId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        preauthExpirationDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        mgpCreatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        executionDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         cancelTransactionId: { // if set, this transaction cancels entirely or partially another one
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        action: "string",
-        label: "string"
+        action: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        label: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
     },
 
     isPreauthorizationCancellable: isPreauthorizationCancellable,

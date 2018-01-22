@@ -10,34 +10,79 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         score: {
-            type: "integer",
-            required: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
         },
         comment: { // general comment, focusing on owner
-            type: "text",
-            maxLength: 2000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 2000,
         },
         listingComment: {
-            type: "text",
-            maxLength: 2000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 2000,
         },
         listingId: { // when listingComment, makes matching easier on listing page (not necessary to get booking)
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
-        userType: "string",
-        targetId: "integer",
-        targetType: "string",
+        userType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        targetId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        targetType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         bookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        visibleDate: "string" // if now is after "visibleDate", then the rating can be visible
+        visibleDate: { // if now is after "visibleDate", then the rating can be visible
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
     getAccessFields: getAccessFields,

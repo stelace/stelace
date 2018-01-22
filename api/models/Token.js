@@ -8,22 +8,68 @@
 module.exports = {
 
     attributes: {
-        type: "string",
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        type: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         value: {
-            type: "string",
-            index: true,
-            size: 191,
-            maxLength: 191
+            type: 'string',
+            columnType: 'varchar(191)',
+            required: true,
+            maxLength: 191,
+            // index: true,
         },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
-        targetType: "string",
-        targetId: "integer",
-        reference: "json",
-        expirationDate: "string",
-        usedDate: "string"
+        targetType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        targetId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        reference: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        expirationDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        usedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     }
 
 };

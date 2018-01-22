@@ -10,30 +10,77 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         listingId: {
-            type: "integer",
-            index: true,
-            required: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
         userId: {
-            type: "integer",
-            index: true,
-            required: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
         },
-        type: "string",
+        type: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         active: {
-            type: "boolean",
-            defaultsTo: true
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: true,
         },
-        token: "string",
-        wishDate: "string", // start date of the future wished booking
-        lastBookingId: "integer", // last booking id when send push email
-        lastSentDate: "string",
+        token: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        wishDate: { // start date of the future wished booking
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        lastBookingId: { // last booking id when send push email
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        lastSentDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         count: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
-        reference: "json"
+        reference: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields: getAccessFields,

@@ -8,27 +8,52 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         transactionId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
         },
         credit: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         debit: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         payment: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
         cashing: {
-            type: "float",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'float',
+            defaultsTo: 0,
         },
-        label: "string"
+        label: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
     }
 
 };

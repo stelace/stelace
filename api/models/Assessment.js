@@ -10,56 +10,121 @@
 module.exports = {
 
     attributes: {
-        workingLevel: "string",     // not required because we want to generate an empty assessment
-        cleanlinessLevel: "string", // not required because we want to generate an empty assessment
-        comment: "text",
-        commentDiff: "text",
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        workingLevel: { // not required because we want to generate an empty assessment
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        cleanlinessLevel: { // not required because we want to generate an empty assessment
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        comment: {
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+        },
+        commentDiff: {
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+        },
         listingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         listingSnapshotId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         startBookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         endBookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         ownerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         ownerSnapshotId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         ownerMainLocationSnapshotId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         takerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         takerSnapshotId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         takerMainLocationSnapshotId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        signToken: "string",
-        signedDate: "string",
+        signToken: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        signedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         cancellationId: {
-            type: "integer",
-            index: true
-        }
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
+        },
     },
 
     getAccessFields: getAccessFields,

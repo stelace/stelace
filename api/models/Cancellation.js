@@ -8,25 +8,64 @@
 module.exports = {
 
     attributes: {
-        listingId: {
-            type: "integer",
-            index: true
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        reasonType: "string",
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        listingId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
+        },
+        reasonType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         reason: {
-            type: "text",
-            maxLength: 1000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 1000,
         },
         ownerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         takerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        trigger: "string",
-        refundDate: "string"
+        trigger: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+            // index: true,
+        },
+        refundDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
     getAccessFields: getAccessFields,

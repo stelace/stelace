@@ -8,10 +8,25 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         key: {
             type: 'string',
             unique: true,
-            size: 191,
+            columnType: 'varchar(191) CHARACTER SET utf8mb4',
             maxLength: 191,
             required: true,
         },

@@ -8,26 +8,46 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         name: {
             type: 'string',
+            columnType: 'varchar(191) CHARACTER SET utf8mb4',
+            allowNull: true,
             unique: true,
             maxLength: 191,
-            size: 191,
         },
         properties: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: {},
         },
         config: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: {},
         },
         customFields: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: [],
         },
         active: {
             type: 'boolean',
+            columnType: 'tinyint(1)',
             defaultsTo: true,
         },
     },

@@ -8,18 +8,68 @@
 module.exports = {
 
     attributes: {
-        userId: {
-            type: "integer",
-            index: true
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        type: "string",
-        triggerType: "string",
-        triggerId: "string",
-        targetType: "string",
-        targetId: "integer",
-        reference: "json",
-        usedDate: "string"
-    }
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        userId: {
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
+        },
+        type: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        triggerType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        triggerId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        targetType: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        targetId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        reference: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        usedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+    },
 
 };
 

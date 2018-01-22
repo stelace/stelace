@@ -10,60 +10,213 @@
 module.exports = {
 
     attributes: {
-        label: "string",
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        label: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
         sessionId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
         targetUserId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
         listingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
-        tagsIds: "array",
+        tagsIds: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
+        },
         bookingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
-        searchId: "integer",
+        searchId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
         loginAsUserId: { // not empty when admin logs as
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            allowNull: true,
         },
         fromExternal: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
-        type: "string", // "click" or "view" for i.e.
-        refererUrl: "string",
-        srcUrl: "string",
-        targetUrl: "string",
-        ip: "string",
-        lang: "string",
-        country: "string",
-        region: "string",
-        city: "string",
-        userAgent: "string",
-        os: "string",
-        browser: "string",
-        device: "string",
-        utmCampaign: "string",
-        utmSource: "string",
-        utmContent: "string",
-        utmMedium: "string",
-        utmTerm: "string",
-        token: "string",
-        scrollPercent: "integer",
-        data: "json",
-        resetUser: "boolean",
-        version: "string"
+        type: { // "click" or "view" for i.e.
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        refererUrl: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        srcUrl: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        targetUrl: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        ip: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        lang: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        country: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        region: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        city: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        userAgent: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        os: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        browser: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        device: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        utmCampaign: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        utmSource: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        utmContent: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        utmMedium: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        utmTerm: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        token: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        scrollPercent: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        resetUser: {
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            allowNull: true,
+        },
+        version: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
     getAccessFields,

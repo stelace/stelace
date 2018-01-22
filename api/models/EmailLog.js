@@ -8,40 +8,117 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        fromEmail: "string",
-        fromName: "string",
-        toEmail: "string",
-        toName: "string",
-        replyTo: "string",
+        fromEmail: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        fromName: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        toEmail: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        toName: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        replyTo: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
         specificTemplateName: { // templateName can be a generic template
-            type: "string",
-            size: 191,
+            type: 'string',
+            columnType: 'varchar(191)',
             maxLength: 191,
-            index: true
+            // index: true,
+            allowNull: true,
         },
-        templateName: "string",
-        subject: "string",
-        data: "json",
-        tags: "array",
-        sentDate: "string",
-        status: "string",
+        templateName: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        subject: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        tags: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
+        },
+        sentDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        status: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         mandrillMessageId: {
-            type: "string",
-            index: true,
-            size: 191,
-            maxLength: 191
+            type: 'string',
+            columnType: 'varchar(191)',
+            allowNull: true,
+            // index: true,
+            maxLength: 191,
         },
         sparkpostTransmissionId: {
-            type: "string",
-            index: true,
-            size: 191,
+            type: 'string',
+            columnType: 'varchar(191)',
+            allowNull: true,
+            // index: true,
             maxLength: 191,
         },
-        html: 'text',
+        html: {
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+        },
     }
 
 };

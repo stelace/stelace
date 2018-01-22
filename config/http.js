@@ -5,10 +5,10 @@
  * (sails.config.http)
  *
  * Configuration for the underlying HTTP server in Sails.
- * Only applies to HTTP requests (not WebSockets)
+ * (for additional recommended settings, see `config/env/production.js`)
  *
  * For more information on configuration, check out:
- * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.http.html
+ * https://sailsjs.com/config/http
  */
 
 var path  = require('path');
@@ -19,11 +19,10 @@ module.exports.http = {
 
     /****************************************************************************
     *                                                                           *
-    * Express middleware to use for every Sails request. To add custom          *
-    * middleware to the mix, add a function to the middleware config object and *
-    * add its key to the "order" array. The $custom key is reserved for         *
-    * backwards-compatibility with Sails v0.9.x apps that use the               *
-    * `customMiddleware` config option.                                         *
+    * Sails/Express middleware to run for every HTTP request.                   *
+    * (Only applies to HTTP requests -- not virtual WebSocket requests.)        *
+    *                                                                           *
+    * https://sailsjs.com/documentation/concepts/middleware                     *
     *                                                                           *
     ****************************************************************************/
 
@@ -31,13 +30,12 @@ module.exports.http = {
 
         /***************************************************************************
         *                                                                          *
-        * The order in which middleware should be run for HTTP request. (the Sails *
-        * router is invoked by the "router" middleware below.)                     *
+        * The order in which middleware should be run for HTTP requests.           *
+        * (This Sails app's routes are handled by the "router" middleware below.)  *
         *                                                                          *
         ***************************************************************************/
 
         order: [
-            'startRequestTimer',
             'redirectToHomepageForOldBrowsers',
             'cookieParser',
             // 'session',       // disable session, use token instead
@@ -46,25 +44,14 @@ module.exports.http = {
             'customLogger',
             // 'myRequestLogger',
             'bodyParser',
-            'handleBodyParserError',
             'compress',
-            'methodOverride',
             'basicAuth',
-            // 'poweredBy',     // don't display it in headers because of security issues
-            // 'secureResponseHeader', // disable because nginx takes care of it
+            'secureResponseHeader',
             '$custom', // sails customMiddleware using app object
             'router',
             'www',
             'favicon',
-            '404',
-            '500'
         ],
-
-        /****************************************************************************
-        *                                                                           *
-        * Example custom middleware; logs each request to the console.              *
-        *                                                                           *
-        ****************************************************************************/
 
         redirectToHomepageForOldBrowsers: function (req, res, next) {
             var isOldBrowser = UAService.isOldBrowser(req.headers["user-agent"]);
@@ -162,22 +149,19 @@ module.exports.http = {
             next();
         }
 
-        // myRequestLogger: function (req, res, next) {
-        //     console.log("Requested :: ", req.method, req.url);
-        //     return next();
-        // }
-
-
         /***************************************************************************
         *                                                                          *
-        * The body parser that will handle incoming multipart HTTP requests. By    *
-        * default as of v0.10, Sails uses                                          *
-        * [skipper](http://github.com/balderdashy/skipper). See                    *
-        * http://www.senchalabs.org/connect/multipart.html for other options.      *
+        * The body parser that will handle incoming multipart HTTP requests.       *
+        *                                                                          *
+        * https://sailsjs.com/config/http#?customizing-the-body-parser             *
         *                                                                          *
         ***************************************************************************/
 
-        // bodyParser: require('skipper')
+        // bodyParser: (function _configureBodyParser(){
+        //   var skipper = require('skipper');
+        //   var middlewareFn = skipper({ strict: true });
+        //   return middlewareFn;
+        // })(),
 
     },
 
@@ -205,5 +189,5 @@ module.exports.http = {
     ***************************************************************************/
 
     // cache: 31557600000
-    cache: 2592000          // 1 month
+    cache: 2592000,          // 1 month
 };

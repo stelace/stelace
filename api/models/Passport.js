@@ -22,19 +22,45 @@ var Passport = {
 
     attributes: {
 
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+
         // Required field: Protocol
         //
         // Defines the protocol to use for the passport. When employing the local
         // strategy, the protocol will be set to 'local'. When using a third-party
         // strategy, the protocol will be set to the standard used by the third-
         // party service (e.g. 'oauth', 'oauth2', 'openid').
-        protocol: { type: 'alphanumeric', required: true },
+        protocol: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
 
         // Local field: Password
         //
         // When the local strategy is employed, a password will be used as the
         // means of authentication along with either a username or an email.
-        password: { type: 'string' },
+        password: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
 
         // Provider fields: Provider, identifer and tokens
         //
@@ -47,31 +73,42 @@ var Passport = {
         // dards. When using OAuth 1.0, a `token` as well as a `tokenSecret` will
         // be issued by the provider. In the case of OAuth 2.0, an `accessToken`
         // and a `refreshToken` will be issued.
-        provider   : { type: 'alphanumericdashed' },
-        identifier : { type: 'string' },
-        tokens     : { type: 'json' },
+        provider: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        identifier: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        tokens: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
 
-        // Associations
-        //
-        // Associate every passport with one, and only one, user. This requires an
-        // adapter compatible with associations.
-        //
-        // For more information on associations in Waterline, check out:
-        // https://github.com/balderdashy/waterline
-        user: { model: 'User', required: true },
+        user: {
+            type: 'number',
+            columnType: 'int',
+            // index: true,
+            required: true,
+        },
+    },
 
-        /**
-         * Validate password used by the local strategy.
-         *
-         * @param {string}   password The password to validate
-         * @param {Function} next
-         */
-        validatePassword: function (password, next) {
-            return bcrypt
-                .compareAsync(password, this.password)
-                .asCallback(next);
-        }
-
+    /**
+     * Validate password used by the local strategy.
+     *
+     * @param {string}   password The password to validate
+     * @param {Function} next
+     */
+    validatePassword: function (passport, password, next) {
+        return bcrypt
+            .compareAsync(password, passport.password)
+            .asCallback(next);
     },
 
     /**

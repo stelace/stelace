@@ -10,34 +10,63 @@
 module.exports = {
 
     attributes: {
-        name: {
-            type: "string",
-            required: true,
-            size: 191,
-            maxLength: 191
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        nameURLSafe: "string",
-        listingCategoryIds: "array",
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        name: {
+            type: 'string',
+            columnType: 'varchar(191) CHARACTER SET utf8mb4',
+            required: true,
+            maxLength: 191,
+        },
+        nameURLSafe: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        listingCategoryIds: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
+        },
         validated: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         priorityScore: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         timesSearched: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         timesSearchedSimilar: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         timesAdded: {
-            type: "integer",
-            defaultsTo: 0
-        }
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
+        },
     },
 
     getAccessFields: getAccessFields,

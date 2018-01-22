@@ -13,128 +13,206 @@
 module.exports = {
 
     attributes: {
-        name: {
-            type: "string",
-            maxLength: 255,
-            required: true
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
         },
-        nameURLSafe: "string",
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        name: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            required: true,
+            maxLength: 255,
+        },
+        nameURLSafe: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
         ownerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            required: true,
+            // index: true,
         },
         nbViews: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         nbContacts: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         nbBookings: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         description: {
-            type: "text",
-            maxLength: 3000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 3000,
         },
         stateComment: {
-            type: "text",
-            maxLength: 1000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 1000,
         },
         bookingPreferences: {
-            type: "text",
-            maxLength: 1000
+            type: 'string',
+            columnType: 'longtext CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 1000,
         },
         brandId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        reference: "string",
+        reference: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
         listingCategoryId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         mediasIds: {
-            type: "array",
+            type: 'json',
+            columnType: 'json',
             defaultsTo: []
         },
         instructionsMediasIds: {
-            type: "array",
+            type: 'json',
+            columnType: 'json',
             defaultsTo: []
         },
         validated: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         validationPoints: {
-            type: "integer",
+            type: 'number',
+            columnType: 'int',
             defaultsTo: 5
         },
         validation: {
-            type: "boolean",
+            type: 'boolean',
+            columnType: 'tinyint(1)',
             defaultsTo: false
         },
         validationFields: {
-            type: "array"
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
         },
         ratingScore: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         nbRatings: {
-            type: "integer",
-            defaultsTo: 0
+            type: 'number',
+            columnType: 'int',
+            defaultsTo: 0,
         },
         autoBookingAcceptance: {
             type: 'boolean',
+            columnType: 'tinyint(1)',
             defaultsTo: false,
         },
-        locations: "array",
+        locations: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: [],
+        },
         broken: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         locked: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
-        publishedDate: 'string',
-        pausedUntil: "string",
+        publishedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        pausedUntil: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         listingTypesIds: {
-            type: 'array',
+            type: 'json',
+            columnType: 'json',
             defaultsTo: [],
         },
         quantity: {
-            type: 'integer',
+            type: 'number',
+            columnType: 'int',
             defaultsTo: 1,
         },
         sellingPrice: {
-            type: "float"
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
         },
         dayOnePrice: {
-            type: "float",
-            required: true
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
         },
         pricingId: {
-            type: "integer",
-            required: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
         },
-        customPricingConfig: "json",
+        customPricingConfig: { // allow null
+            type: 'json',
+            columnType: 'json',
+        },
         deposit: {
-            type: "float",
-            required: true
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
         },
         acceptFree: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
         data: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: {},
         },
-
     },
 
     getAccessFields,

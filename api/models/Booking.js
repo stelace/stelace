@@ -12,80 +12,234 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         listingId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
         listingSnapshotId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        listingTypeId: 'integer',
-        listingType: 'json',
-        paidDate: 'string', // taker action, set if paymentDate and depositDate are set
-        acceptedDate: 'string', // owner action, when accepting the booking
+        listingTypeId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        listingType: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        paidDate: { // taker action, set if paymentDate and depositDate are set
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+        },
+        acceptedDate: { // owner action, when accepting the booking
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+        },
         autoAcceptance: {
             type: 'boolean',
+            columnType: 'tinyint(1)',
             defaultsTo: false,
         },
         ownerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
         },
         takerId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            // index: true,
         },
         quantity: {
-            type: 'integer',
+            type: 'number',
+            columnType: 'int',
             defaultsTo: 1,
         },
-        startDate: "string",
-        endDate: "string",
-        nbTimeUnits: 'integer',
-        timeUnit: 'string',
-        timeUnitPrice: "float",
-        currency: 'string',
-        ownerPrice: "float", // displayed price set by owner
-        takerPrice: "float", // after rebate and fees
-        ownerFees: "float", // set the value in case the formula change
-        takerFees: "float", // set the value in case the formula change
+        startDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        endDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        nbTimeUnits: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        timeUnit: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        timeUnitPrice: {
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
+        currency: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        ownerPrice: { // displayed price set by owner
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
+        takerPrice: { // after rebate and fees
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
+        ownerFees: { // set the value in case the formula change
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
+        takerFees: { // set the value in case the formula change
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
         priceData: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: {},
         },
         options: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: {},
         },
-        pricingId: "integer",
-        customPricingConfig: "json",
-        deposit: "float",
+        pricingId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        customPricingConfig: {
+            type: 'json',
+            columnType: 'json',
+        },
+        deposit: {
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
         dates: {
             type: 'json',
+            columnType: 'json',
             defaultsTo: {},
         },
-        completedDate: 'string',
-        paymentCompleted: 'boolean',
+        completedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        paymentCompleted: {
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            allowNull: true,
+            defaultsTo: false,
+        },
 
-        paymentDate: "string", // taker action, set when preauth payment is done
-        depositDate: "string", // taker action, set when preauth deposit is done
-        releaseDepositDate: "string", // renew deposit until this date, after the deposit must be cancelled
-        paymentUsedDate: "string", // set when preauth payment is used
-        paymentTransferDate: "string", // set when the payment can be withdrawn by the owner
-        withdrawalDate: "string", // owner action, set when the withdrawal is done
+        paymentDate: { // taker action, set when preauth payment is done
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        depositDate: { // taker action, set when preauth deposit is done
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        releaseDepositDate: { // renew deposit until this date, after the deposit must be cancelled
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        paymentUsedDate: { // set when preauth payment is used
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        paymentTransferDate: { // set when the payment can be withdrawn by the owner
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        withdrawalDate: { // owner action, set when the withdrawal is done
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
 
         cancellationId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        cancellationPaymentDate: "string",
-        cancellationDepositDate: "string",
+        cancellationPaymentDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        cancellationDepositDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         stopRenewDeposit: {
-            type: "boolean",
-            defaultsTo: false
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
         },
-        contractId: "string",
+        contractId: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+        },
     },
 
     getAccessFields,

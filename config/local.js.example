@@ -61,15 +61,13 @@ module.exports = {
         migrate: "safe"
     },
 
-    connections: {
+    datastores: {
         MySQLServer: {
             adapter: 'sails-mysql',
             host: 'localhost',
             user: '',
             password: '',
             database: '',
-            charset: "utf8mb4",
-            collation: "utf8mb4_unicode_ci"
         }
     },
 
@@ -131,10 +129,6 @@ module.exports = {
     //         url: "<service_url>/webhook/mandrill"
     //     }
     // },
-
-    sharinplace: {
-        url: "http://localhost:3000"
-    },
 
     mangopay: {
         sandbox: {

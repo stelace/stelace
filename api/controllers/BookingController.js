@@ -481,7 +481,7 @@ function payment(req, res) {
                     limitDate = booking.endDate;
                 }
 
-                if (card.isExpiredAt(moment(limitDate).add(30, "d").format(formatDate))) {
+                if (Card.isExpiredAt(card, moment(limitDate).add(30, "d").format(formatDate))) {
                     error = new BadRequestError("expiration date too short");
                     error.expose = true;
                     throw error;
@@ -756,7 +756,7 @@ function _paymentProcessAfterPreauth(data) {
                     }
 
                     if (card.validity === "UNKNOWN") {
-                        return card.synchronize();
+                        return Card.synchronize(card);
                     } else {
                         return;
                     }

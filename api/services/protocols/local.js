@@ -109,7 +109,7 @@ exports.login = async function (req, identifier, password, next) {
             throw new BadRequestError("no password");
         }
 
-        const valid = await passport.validatePassword(password);
+        const valid = await Passport.validatePassword(passport, password);
         if (!valid) {
             throw new BadRequestError("password incorrect");
         }

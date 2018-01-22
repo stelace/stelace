@@ -10,53 +10,119 @@
 module.exports = {
 
     attributes: {
+        id: {
+            type: 'number',
+            columnType: 'int',
+            autoIncrement: true,
+        },
+        createdDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        updatedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+        },
         name: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         alias: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         streetNum: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         street: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         postalCode: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         city: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         department: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
         region: {
-            type: "string",
-            maxLength: 255
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
         },
-        latitude: "float",
-        longitude: "float",
-        main: {         // a user can only have one main location at a time
-            type: "boolean",
-            defaultsTo: false
+        latitude: {
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
         },
-        transportMode: "string",
+        longitude: {
+            type: 'number',
+            columnType: 'float',
+            allowNull: true,
+        },
+        main: { // a user can only have one main location at a time
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
+        },
+        transportMode: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         userId: {
-            type: "integer",
-            index: true
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+            // index: true,
         },
-        establishment: "boolean",
-        establishmentName: "string", // prevents from exposing name to others
-        provider: "string",
-        remoteId: "string", // location id from map providers (for ex: 'place_id' for google map)
+        establishment: {
+            type: 'boolean',
+            columnType: 'tinyint(1)',
+            defaultsTo: false,
+        },
+        establishmentName: { // prevents from exposing name to others
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        provider: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        remoteId: { // location id from map providers (for ex: 'place_id' for google map)
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
 
     postBeforeCreate: postBeforeCreate,
