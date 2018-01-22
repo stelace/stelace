@@ -3,8 +3,8 @@
 const Sails = require('sails');
 const moment = require('moment');
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Sails.load({
     models: {

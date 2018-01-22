@@ -43,6 +43,8 @@ module.exports = {
 
 };
 
+const Promise = require('bluebird');
+
 var params = {
     types: ["push"]    // add 'list' later
 };

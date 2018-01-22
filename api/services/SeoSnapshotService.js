@@ -1,4 +1,4 @@
-/* global PhantomService */
+/* global MicroService, PhantomService */
 
 module.exports = {
 
@@ -11,6 +11,8 @@ var fs          = require('fs');
 var path        = require('path');
 var cheerio     = require('cheerio');
 var uuid        = require('uuid');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 
@@ -46,7 +48,7 @@ SeoSnapshot.prototype.getCache = function getCache() {
                 return this.cache;
             }
 
-            if (! µ.existsSync(this.cacheFilepath)) {
+            if (! MicroService.existsSync(this.cacheFilepath)) {
                 // equivalent of shell 'touch' file
                 fs.closeSync(fs.openSync(this.cacheFilepath, "w"));
 
@@ -158,7 +160,7 @@ SeoSnapshot.prototype.serveSnapshot = function serveSnapshot(urlBody, urlPath, r
 
 
             // if the snapshot exists and the status is 202 or 404, serve it
-            if (_.contains([200, 204], snapshotData.status) && µ.existsSync(snapshotFilepath)) {
+            if (_.contains([200, 204], snapshotData.status) && MicroService.existsSync(snapshotFilepath)) {
                 return [
                     snapshotData.status,
                     snapshotFilepath

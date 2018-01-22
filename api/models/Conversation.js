@@ -60,6 +60,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 // Replicate this from message on each update (needs history with messages)
 var params = {
     // pre-booking : info with startDate and endDate

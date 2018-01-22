@@ -1,6 +1,6 @@
 /* global
     AuthService, EmailTemplateService, GamificationService, GeneratorService,
-    IncomeReportService, Location, Media, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User, UserService
+    IncomeReportService, Location, Media, MicroService, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User, UserService
 */
 
 /**
@@ -39,6 +39,8 @@ module.exports = {
 
 var moment = require('moment');
 var fs     = require('fs');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 
@@ -399,7 +401,7 @@ function updateEmail(req, res) {
     var access = "self";
 
     if (! email
-     || ! µ.isEmail(email)
+     || ! MicroService.isEmail(email)
      || req.user.email
     ) {
         return res.badRequest();
@@ -574,7 +576,7 @@ function recoveryPassword(req, res) {
 function emailNew(req, res) {
     var email = req.param("email");
 
-    if (! email || ! µ.isEmail(email)) {
+    if (! email || ! MicroService.isEmail(email)) {
         return res.badRequest();
     }
 

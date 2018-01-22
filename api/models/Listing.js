@@ -1,6 +1,6 @@
 /* global
         Booking, Bookmark, Brand, CancellationService, ElasticsearchService, Listing, ListingAvailability, ListingCategory, ListingXTag,
-        Media, ModelSnapshot, StelaceEventService, Tag, ToolsService, TransactionService
+        Media, MicroService, ModelSnapshot, StelaceEventService, Tag, ToolsService, TransactionService
 */
 
 /**
@@ -157,6 +157,9 @@ module.exports = {
     destroyListing,
 
 };
+
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -377,7 +380,7 @@ function getFutureBookings(listingIdOrIds, refDate) {
 
 function updateTags(listing, tagIds) {
     return Promise.coroutine(function* () {
-        if (! µ.checkArray(tagIds, "id")) {
+        if (! MicroService.checkArray(tagIds, "id")) {
             throw new BadRequestError();
         }
 

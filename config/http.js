@@ -1,4 +1,4 @@
-/* global LoggerService, TokenService, UAService */
+/* global LoggerService, MicroService, TokenService, UAService */
 
 /**
  * HTTP Server Settings
@@ -83,7 +83,7 @@ module.exports.http = {
         },
 
         responseEnhancement: function (req, res, next) {
-            res.sendError = µ.sendError(res);
+            res.sendError = MicroService.sendError(res);
 
             if (req.url.substr(0, 5) === "/api/") {
                 res.set("Cache-Control", "no-cache");

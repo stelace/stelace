@@ -20,6 +20,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 var odooConfig = sails.config.odoo;
 
 function getPartnerId(userId) {

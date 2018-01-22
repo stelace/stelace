@@ -7,6 +7,7 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
 var useragent = require('useragent');
 var isbot     = require('isbot');
 

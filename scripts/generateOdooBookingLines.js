@@ -3,8 +3,8 @@
 var Sails = require('sails');
 var yargs = require('yargs');
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+
+const Promise = require('bluebird');
 
 var argv = yargs
             .usage("Usage: $0 --startDate [string] --endDate [string]")

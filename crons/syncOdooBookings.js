@@ -1,13 +1,12 @@
-/* global AccountingService, BootstrapService, LoggerService */
+/* global AccountingService, BootstrapService, LoggerService, MicroService */
 
 var Sails = require('sails');
 var path  = require('path');
 var fs    = require('fs');
+const Promise = require('bluebird');
 
 var cronTaskName = "syncOdooBookings";
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 
@@ -81,7 +80,7 @@ Sails.load({
         return Promise.coroutine(function* () {
             var config = {};
 
-            if (µ.existsSync(configPath)) {
+            if (MicroService.existsSync(configPath)) {
                 var content = yield fs.readFileAsync(configPath, "utf8");
 
                 if (content) {

@@ -12,6 +12,8 @@ module.exports = {
 
 var request      = require('request');
 var NodeCache    = require('node-cache');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 

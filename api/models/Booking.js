@@ -113,6 +113,8 @@ module.exports = {
 };
 
 var moment = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function getAccessFields(access) {
     var accessFields = {

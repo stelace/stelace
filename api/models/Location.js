@@ -75,6 +75,9 @@ var params = {
     gpsCoordsDecimal: 6
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 function getAccessFields(access) {
     var accessFields = {
         self: [

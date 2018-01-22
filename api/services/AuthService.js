@@ -9,6 +9,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 /**
  * Get all authentication means for a user
  * @param {Number} userId

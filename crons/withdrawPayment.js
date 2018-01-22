@@ -4,8 +4,8 @@ var Sails = require('sails');
 
 var cronTaskName = "withdrawPayment";
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Sails.load({
     models: {

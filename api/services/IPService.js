@@ -9,6 +9,7 @@ module.exports = {
 var request   = require('request');
 var NodeCache = require('node-cache');
 var ipModule  = require('ip');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 

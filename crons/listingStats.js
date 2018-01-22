@@ -6,8 +6,8 @@ const yargs  = require('yargs');
 
 const cronTaskName = "listingStats";
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 const argv = yargs
     .usage("Usage: $0 --pastDays")

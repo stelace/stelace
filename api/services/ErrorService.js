@@ -5,6 +5,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 var BadRequestError = require('./errors/BadRequestError');
 var ForbiddenError  = require('./errors/ForbiddenError');
 var NotFoundError   = require('./errors/NotFoundError');

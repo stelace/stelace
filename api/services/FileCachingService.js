@@ -1,3 +1,5 @@
+/* global MicroService */
+
 module.exports = {
 
     getCache: getCache
@@ -5,6 +7,7 @@ module.exports = {
 };
 
 var fs = require('fs');
+const Promise = require('bluebird');
 
 var defaultSaveInterval = 300000; // 5 minutes
 
@@ -63,7 +66,7 @@ Cache.prototype.loadFromFile = function () {
             return _this.data;
         }
 
-        if (! µ.existsSync(_this.filepath)) {
+        if (! MicroService.existsSync(_this.filepath)) {
             // equivalent of shell 'touch' file
             fs.closeSync(fs.openSync(_this.filepath, "w"));
 

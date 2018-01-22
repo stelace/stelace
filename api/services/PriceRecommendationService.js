@@ -6,6 +6,8 @@ module.exports = {
 };
 
 const request = require('request');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 

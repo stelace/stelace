@@ -1,4 +1,4 @@
-/* global ImageService, Listing, Media */
+/* global ImageService, Listing, Media, MicroService */
 
 module.exports = {
 
@@ -18,6 +18,8 @@ const fs      = require('fs');
 const path    = require('path');
 const Uuid    = require('uuid');
 const request = require('request');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 Promise.promisifyAll(request, { multiArgs: true });
@@ -199,7 +201,7 @@ async function _getServedImageFilepath({ media, size, displayType, threshold }) 
         filepath = resizedObj.filepath;
     }
 
-    if (!µ.existsSync(filepath)) {
+    if (!MicroService.existsSync(filepath)) {
         throw new NotFoundError();
     }
 
@@ -256,7 +258,7 @@ async function _getResizedImageFilepath({
     const filepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media, { size, displayType: realDisplayType }));
 
     // if the file exists, stop the process
-    if (µ.existsSync(filepath)) {
+    if (MicroService.existsSync(filepath)) {
         return {
             filepath,
             size,
@@ -311,7 +313,7 @@ async function _getImageWithLogo({ media, filepath, size, displayType }) {
 
     const imageWithLogoFilepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media, { size, displayType, withLogo: true }));
 
-    if (µ.existsSync(imageWithLogoFilepath)) {
+    if (MicroService.existsSync(imageWithLogoFilepath)) {
         return imageWithLogoFilepath;
     }
 
@@ -487,9 +489,9 @@ async function createMediaFromFile({
     logger,
 }) {
     if (!size) {
-        size = await µ.getSize(filepath);
+        size = await MicroService.getSize(filepath);
     }
-    if (!µ.existsSync(filepath)) {
+    if (!MicroService.existsSync(filepath)) {
         throw new NotFoundError('File not found');
     }
 
@@ -638,7 +640,7 @@ async function downloadFile({
 
         var filePath = path.join(uploadDir, Media.getStorageFilename(media));
 
-        if (!µ.existsSync(filePath)) {
+        if (!MicroService.existsSync(filePath)) {
             const error = new NotFoundError("Media file not found");
             error.mediaId = media.id;
             error.filePath = filePath;

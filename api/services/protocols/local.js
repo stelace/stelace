@@ -1,4 +1,4 @@
-/* global AuthService, EmailTemplateService, Passport, User, UserService */
+/* global AuthService, EmailTemplateService, MicroService, Passport, User, UserService */
 
 /**
  * Local Authentication Protocol
@@ -89,7 +89,7 @@ exports.connect = async function (req, res, next) {
  * @param {Function} next
  */
 exports.login = async function (req, identifier, password, next) {
-    var isEmail = µ.isEmail(identifier);
+    var isEmail = MicroService.isEmail(identifier);
 
     try {
         if (!isEmail) {

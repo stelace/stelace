@@ -1,7 +1,7 @@
 /* global
     Assessment, AssessmentService, Booking, BookingService, BookingGamificationService,
     Cancellation, CancellationService, Card, ContractService, Conversation,
-    EmailTemplateService, FileCachingService, GeneratorService, Listing, Location, Message, mangopay,
+    EmailTemplateService, FileCachingService, GeneratorService, Listing, Location, Message, MicroService, mangopay,
     ModelSnapshot, PaymentError, SmsTemplateService, StelaceEventService, Token, TransactionService, User
 */
 
@@ -34,6 +34,8 @@ module.exports = {
 var moment    = require('moment');
 var path      = require('path');
 var fs        = require('fs');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 // TODO: use this cache to send message server-side during payment
 // Rather than relying on client-side booking-confirmation view
@@ -525,7 +527,7 @@ function payment(req, res) {
                 if (sails.config.environment === "development") {
                     // we cannot know if the device comes from the same machine as the server
                     // or another device of the network
-                    host = "http://" + µ.getPrivateIp() + ":3000";
+                    host = "http://" + MicroService.getPrivateIp() + ":3000";
                 } else {
                     host = sails.config.stelace.url;
                 }

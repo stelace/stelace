@@ -11,9 +11,6 @@
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.bootstrap.html
  */
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
-
 module.exports.bootstrap = function (cb) {
 
     BootstrapService.init([

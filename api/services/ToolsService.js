@@ -22,6 +22,7 @@ module.exports = {
 };
 
 var diacritics = require('diacritics');
+const _ = require('lodash');
 
 function fillByCharacter(stringOrNumber, length, options) {
     options = _.defaults(options || {}, {

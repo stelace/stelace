@@ -10,6 +10,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 const customFieldTypes = [
   'number',
   'boolean',

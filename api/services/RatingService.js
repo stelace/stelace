@@ -12,6 +12,7 @@ module.exports = {
 };
 
 const moment = require('moment');
+const _ = require('lodash');
 
 /**
  * get classified ratings by "my", "other"

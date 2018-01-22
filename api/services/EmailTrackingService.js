@@ -18,6 +18,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
 const moment   = require('moment');
 const useragent = require('useragent');
 const mandrill = require('mandrill-api/mandrill');

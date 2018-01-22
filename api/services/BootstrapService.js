@@ -1,4 +1,4 @@
-/* global ErrorService, MangopayService, MicroService, OdooApiService */
+/* global ErrorService, MangopayService, OdooApiService */
 
 module.exports = {
 
@@ -6,6 +6,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
 var moment                  = require('moment');
 var areIntlLocalesSupported = require('intl-locales-supported');
 var IntlPolyfill            = require('intl');
@@ -57,7 +59,6 @@ function init(initFields, args) {
                 break;
 
             case "utilities":
-                global.µ = MicroService;
                 moment.locale("fr");
                 break;
 

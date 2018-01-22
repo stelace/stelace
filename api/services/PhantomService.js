@@ -6,6 +6,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
 var fs           = require('fs');
 var path         = require('path');
 var childProcess = require('child_process');

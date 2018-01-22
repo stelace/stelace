@@ -17,6 +17,8 @@ module.exports = {
 var Url         = require('url');
 var querystring = require('querystring');
 var UrlPattern  = require('url-pattern');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 var SeoSnapshot = SeoSnapshotService.init({
     snapshotsDirPath: sails.config.snapshotsDir,

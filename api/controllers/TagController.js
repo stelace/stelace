@@ -17,6 +17,9 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 function find(req, res) {
     var access = "others";
     // TODO manage array of Ids

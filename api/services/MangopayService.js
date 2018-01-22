@@ -1,6 +1,8 @@
 var request  = require('request');
 var moment   = require('moment');
 var CryptoJS = require('crypto-js');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 

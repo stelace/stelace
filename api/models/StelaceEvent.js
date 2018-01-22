@@ -71,6 +71,8 @@ module.exports = {
 
 };
 
+const Promise = require('bluebird');
+
 function getAccessFields(access) {
     const accessFields = {
         api: [

@@ -7,6 +7,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 const general = {
     filteredFields: [
         "mainTitle",

@@ -1,9 +1,6 @@
 var chai = require('chai'); // jshint ignore:line
 var expect = chai.expect;
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
-
 var MangopayService = require('../../../api/services/MangopayService');
 var config          = require('../../../config/mangopay');
 

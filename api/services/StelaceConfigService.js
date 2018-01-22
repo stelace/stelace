@@ -14,6 +14,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 const defaultConfig = sails.config.stelace.defaultConfig || {
     SERVICE_NAME: 'Stelace',
 };

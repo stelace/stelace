@@ -1,3 +1,5 @@
+/* global MicroService */
+
 module.exports = {
 
     parseFields,
@@ -8,6 +10,8 @@ module.exports = {
     getPaginationMeta,
 
 };
+
+const _ = require('lodash');
 
 function parseFields(attrs) {
     if (!attrs.fields) return [];
@@ -94,7 +98,7 @@ function parseSearchQuery(attrs, searchFields) {
 
 function parseEntityIds(attrs) {
     if (!attrs.ids
-     || !µ.checkArray(attrs.ids, 'id')
+     || !MicroService.checkArray(attrs.ids, 'id')
     ) {
         return;
     }

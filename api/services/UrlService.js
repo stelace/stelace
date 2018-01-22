@@ -12,6 +12,7 @@ var Url         = require('url');
 var querystring = require('querystring');
 var toSnakeCase = require('to-snake-case');
 var appendQuery = require('append-query');
+const _ = require('lodash');
 
 var utmFields = [
     "utmSource",

@@ -2,7 +2,8 @@
 
 var should = require('should'); // jshint ignore:line
 
-global._ = require('lodash');
+const _ = require('lodash');
+
 global.sails = {
     config: {
         osrmUrl: "localhost"

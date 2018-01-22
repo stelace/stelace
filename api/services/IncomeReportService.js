@@ -13,6 +13,8 @@ var Handlebars = require('handlebars');
 var path       = require('path');
 var moment     = require('moment');
 var uuid       = require('uuid');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 

@@ -8,6 +8,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 async function userRegistered(req, res) {
     let { startDate, endDate } = req.allParams();
 

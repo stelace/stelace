@@ -4,9 +4,6 @@ const Sails = require('sails');
 
 const cronTaskName = "syncElasticsearch";
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
-
 Sails.load({
     models: {
         migrate: "safe"

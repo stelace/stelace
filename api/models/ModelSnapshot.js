@@ -39,6 +39,8 @@ var params = {
     targetTypes: ["user", "listing", "location"]
 };
 
+const _ = require('lodash');
+
 function get(prop) {
     if (prop) {
         return params[prop];

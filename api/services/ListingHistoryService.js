@@ -7,6 +7,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 async function getListingHistories(listingsIds) {
     const bookings = await Listing.getBookings(listingsIds);
     const bookingsIds = _.pluck(bookings, 'id');

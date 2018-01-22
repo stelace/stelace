@@ -33,6 +33,8 @@ var querystring = require('querystring');
 var toSnakeCase = require('to-snake-case');
 var UrlPattern  = require('url-pattern');
 const request = require('request');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 

@@ -1,6 +1,6 @@
 /* global
     ElasticsearchService, Listing, ListingCategory, Location,
-    MapService, Media, PricingService, SearchEvent,
+    MapService, Media, MicroService, PricingService, SearchEvent,
     StelaceConfigService, StelaceEventService, UAService, User
 */
 
@@ -27,6 +27,8 @@ var CryptoJS  = require('crypto-js');
 var useragent = require('useragent');
 var moment    = require('moment');
 var geolib    = require('geolib');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 var searchCache = new NodeCache({ stdTTL: 10 * 60 }); // 10 min
 var SearchDebounceCache = new NodeCache({ stdTTL: 60 }); // 1 min
@@ -675,7 +677,7 @@ function normalizeSearchQuery(params) {
 
             case 'withoutIds':
             case 'similarToListingsIds':
-                isValid = µ.checkArray(value, 'id');
+                isValid = MicroService.checkArray(value, 'id');
                 break;
 
             // case 'onlyFree':

@@ -11,6 +11,8 @@ module.exports = {
 };
 
 const moment = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 /**
  * cancel booking

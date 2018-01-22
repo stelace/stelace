@@ -1,5 +1,5 @@
 /* global
-    Booking, CancellationService, GamificationService, Listing, MonitoringService, TokenService,
+    Booking, CancellationService, GamificationService, Listing, MicroService, MonitoringService, TokenService,
     TransactionService, User
 */
 
@@ -24,6 +24,9 @@ module.exports = {
     cancelBooking: cancelBooking,
 
 };
+
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function find(req, res) {
     return res.forbidden();
@@ -77,7 +80,7 @@ function setAction(req, res) {
     }
 
     if (! actionId
-     || ! µ.checkArray(usersIds, "id")
+     || ! MicroService.checkArray(usersIds, "id")
     ) {
         return res.badRequest();
     }

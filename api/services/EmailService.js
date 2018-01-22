@@ -1,4 +1,4 @@
-/* global EmailHelperService, EmailLog, EmailTracking, EmailUtmService, LoggerService, UrlService, User */
+/* global EmailHelperService, EmailLog, EmailTracking, EmailUtmService, LoggerService, MicroService, UrlService, User */
 
 module.exports = {
 
@@ -12,6 +12,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
 const fs         = require('fs');
 const path       = require('path');
 const moment     = require('moment');
@@ -42,9 +44,9 @@ async function sendSimpleEmail({
     text,
     replyTo,
 }) {
-    if (!µ.isEmail(from)
-     || !µ.isEmail(to)
-     || (replyTo && !µ.isEmail(replyTo))
+    if (!MicroService.isEmail(from)
+     || !MicroService.isEmail(to)
+     || (replyTo && !MicroService.isEmail(replyTo))
     ) {
         throw new Error('Invalid fields');
     }
@@ -127,7 +129,7 @@ async function sendHtmlEmail({
     const copyEmail = sails.config.copyMail;
     const enableTracking = !debugEmail;
 
-    if (copyEmail && !µ.isEmail(copyEmail)) {
+    if (copyEmail && !MicroService.isEmail(copyEmail)) {
         throw new Error('Copy email is not a valid email');
     }
 
@@ -267,7 +269,7 @@ async function sendEmail({
     const copyEmail = sails.config.copyMail;
     const enableTracking = !debugEmail;
 
-    if (copyEmail && !µ.isEmail(copyEmail)) {
+    if (copyEmail && !MicroService.isEmail(copyEmail)) {
         throw new Error('Copy email is not a valid email');
     }
 
@@ -494,10 +496,10 @@ function getSparkpostEmailConfig({
     minifyHtml = true,
 }) {
     if (!html
-     || (!fromEmail || !µ.isEmail(fromEmail))
-     || (!toEmail || !µ.isEmail(toEmail))
-     || (replyTo && !µ.isEmail(replyTo))
-     || (debugEmail && !µ.isEmail(debugEmail))
+     || (!fromEmail || !MicroService.isEmail(fromEmail))
+     || (!toEmail || !MicroService.isEmail(toEmail))
+     || (replyTo && !MicroService.isEmail(replyTo))
+     || (debugEmail && !MicroService.isEmail(debugEmail))
     ) {
         throw new Error('Missing fields');
     }

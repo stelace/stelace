@@ -11,6 +11,8 @@ module.exports = {
 
 var fs = require('fs');
 var os = require('os');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 

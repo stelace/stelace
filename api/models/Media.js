@@ -65,6 +65,10 @@ module.exports = {
 const fs       = require('fs');
 const path     = require('path');
 const del      = require('del');
+const _ = require('lodash');
+const Promise = require('bluebird');
+
+Promise.promisifyAll(fs);
 
 const params = {
     fields: ["user", "listing"],
@@ -135,8 +139,6 @@ const extensions = {
     img: ["jpg", "jpeg", "png", "gif"],
     pdf: ["pdf"]
 };
-
-Promise.promisifyAll(fs);
 
 function getAccessFields(access) {
     const accessFields = {

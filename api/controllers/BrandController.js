@@ -1,4 +1,4 @@
-/* global Brand, ListingCategory, TokenService */
+/* global Brand, ListingCategory, MicroService, TokenService */
 
 /**
  * BrandController
@@ -16,6 +16,9 @@ module.exports = {
     destroy: destroy
 
 };
+
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function find(req, res) {
     var listingCategoryId = req.param("listingCategoryId");
@@ -132,7 +135,7 @@ function update(req, res) {
     if (! TokenService.isRole(req, "admin")) {
         return res.forbidden();
     }
-    if (! µ.checkArray(updateAttrs.listingCategories, "id")) {
+    if (! MicroService.checkArray(updateAttrs.listingCategories, "id")) {
         return res.badRequest();
     }
 

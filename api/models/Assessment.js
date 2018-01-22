@@ -85,6 +85,9 @@ var params = {
     cleanlinessLevels: ["good", "average", "bad"]
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 function getAccessFields(access) {
     var accessFields = {
         self: [ // req.user.id in (ownerId || takerId)

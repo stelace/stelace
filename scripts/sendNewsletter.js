@@ -5,8 +5,7 @@ const path       = require('path');
 const fs         = require('fs');
 const Handlebars = require('handlebars');
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const Promise = require('bluebird');
 
 Sails.load({
     models: {

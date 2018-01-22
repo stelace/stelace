@@ -7,8 +7,8 @@ var Sails = require('sails');
 
 var cronTaskName = "sendReminderEmails";
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 var moment = require('moment');
 

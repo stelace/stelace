@@ -27,6 +27,7 @@ module.exports = {
 };
 
 const moment = require('moment');
+const _ = require('lodash');
 
 let cached = false;
 let allListingTypes;

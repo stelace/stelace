@@ -2,6 +2,8 @@
 
 module.exports = getConfig;
 
+const _ = require('lodash');
+
 /**
  * get config
  * @param  {object} args

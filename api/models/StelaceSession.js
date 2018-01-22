@@ -44,6 +44,8 @@ module.exports = {
 
 };
 
+const Promise = require('bluebird');
+
 function postBeforeCreate(values) {
     return Promise.coroutine(function* () {
         values.token = yield GeneratorService.getRandomString(10);

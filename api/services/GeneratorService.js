@@ -8,6 +8,7 @@ module.exports = {
 };
 
 var crypto = require('crypto'); // eslint-disable-line
+const Promise = require('bluebird');
 
 Promise.promisifyAll(crypto);
 

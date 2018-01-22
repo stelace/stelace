@@ -19,6 +19,8 @@ module.exports = {
 
 };
 
+const Promise = require('bluebird');
+
 function find(req, res) {
     return res.forbidden();
 }

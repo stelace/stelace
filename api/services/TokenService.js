@@ -20,6 +20,8 @@ module.exports = {
 var CryptoJS = require('crypto-js');
 var jwt      = require('jsonwebtoken');
 var moment   = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function isValidBearerToken(token) {
     if (typeof token !== "string") {

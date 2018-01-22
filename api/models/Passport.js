@@ -1,5 +1,6 @@
 var bcrypt = require('bcrypt');
 var moment = require('moment');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(bcrypt);
 

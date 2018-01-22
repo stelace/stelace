@@ -29,14 +29,9 @@
     },
     "globals": {
         // vendor
-        "_": false,
         "sails": false,
-        "Promise": true,
 
         // own
-        "Utils": true,
-        "Widget": true,
-        "µ": true,
         "BadRequestError": true,
         "ForbiddenError": true,
         "NotFoundError": true

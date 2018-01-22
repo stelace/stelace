@@ -6,6 +6,9 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 function afterBookingPaidAndAccepted(booking, logger, req) {
     return Promise.coroutine(function* () {
         var users = yield getAfterBookingPaidAndAcceptedData(booking);

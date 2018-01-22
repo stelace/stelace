@@ -11,6 +11,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 async function find(req, res) {
     const attrs = req.allParams();
     const access = 'api';

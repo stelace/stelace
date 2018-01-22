@@ -8,6 +8,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
 var fs         = require('fs');
 var Handlebars = require('handlebars');
 var path       = require('path');

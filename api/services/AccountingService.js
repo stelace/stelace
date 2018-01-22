@@ -11,6 +11,8 @@ module.exports = {
 
 var diacritics = require('diacritics');
 var moment     = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 var allowedRoles = ["owner", "taker"];
 

@@ -1,5 +1,5 @@
 /*
-    global CustomFieldService, Listing, ListingAvailability, ListingTypeService, Location, Media, PricingService,
+    global CustomFieldService, Listing, ListingAvailability, ListingTypeService, Location, Media, MicroService, PricingService,
     StelaceEventService, Tag, TimeService, ToolsService
 */
 
@@ -18,6 +18,7 @@ module.exports = {
 };
 
 const moment = require('moment');
+const _ = require('lodash');
 
 /**
  * @param {Object} attrs
@@ -71,12 +72,12 @@ async function createListing(attrs, { req, res } = {}) {
 
     if (! createAttrs.name
         || !createAttrs.ownerId
-        || (createAttrs.tags && !µ.checkArray(createAttrs.tags, 'id'))
-        || (createAttrs.locations && !µ.checkArray(createAttrs.locations, 'id'))
+        || (createAttrs.tags && !MicroService.checkArray(createAttrs.tags, 'id'))
+        || (createAttrs.locations && !MicroService.checkArray(createAttrs.locations, 'id'))
         || typeof createAttrs.sellingPrice !== 'number' || createAttrs.sellingPrice < 0
         || typeof createAttrs.dayOnePrice !== 'number' || createAttrs.dayOnePrice < 0
         || typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0
-        || (!createAttrs.listingTypesIds || !µ.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
+        || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
     ) {
         throw new BadRequestError();
@@ -217,9 +218,9 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     ];
     const updateAttrs = _.pick(attrs, filteredAttrs);
 
-    if ((updateAttrs.tags && ! µ.checkArray(updateAttrs.tags, 'id'))
-        || (updateAttrs.locations && ! µ.checkArray(updateAttrs.locations, 'id'))
-        || (updateAttrs.listingTypesIds && (! µ.checkArray(updateAttrs.listingTypesIds, 'id') || updateAttrs.listingTypesIds.length))
+    if ((updateAttrs.tags && ! MicroService.checkArray(updateAttrs.tags, 'id'))
+        || (updateAttrs.locations && ! MicroService.checkArray(updateAttrs.locations, 'id'))
+        || (updateAttrs.listingTypesIds && (! MicroService.checkArray(updateAttrs.listingTypesIds, 'id') || updateAttrs.listingTypesIds.length))
         || (updateAttrs.data && typeof updateAttrs.data !== 'object')
         || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== 'number' || updateAttrs.sellingPrice < 0))
         || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== 'number' || updateAttrs.dayOnePrice < 0))
@@ -344,7 +345,7 @@ async function destroyListing(listingId, { trigger, keepCommittedBookings } = {}
  * @result {Object} updated listing
  */
 async function updateListingMedias(listingId, { mediasIds, mediaType }, { userId } = {}) {
-    if (!mediasIds || !µ.checkArray(mediasIds, 'id')) {
+    if (!mediasIds || !MicroService.checkArray(mediasIds, 'id')) {
         throw new BadRequestError();
     }
     if (!_.contains(['listing', 'instructions'], mediaType)) {

@@ -10,6 +10,7 @@ module.exports = {
 
 const querystring = require('querystring');
 const Url         = require('url');
+const _ = require('lodash');
 
 var appUrl = sails.config.stelace.url;
 var appDomain;

@@ -15,6 +15,7 @@ module.exports = {
 };
 
 const elasticsearch = require('elasticsearch');
+const _ = require('lodash');
 
 const LISTING_FIELDS = [
     'id',

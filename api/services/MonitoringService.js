@@ -14,6 +14,9 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 /**
  * get uncompleted bookings
  * @param {object} args

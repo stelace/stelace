@@ -10,6 +10,8 @@ module.exports = {
 };
 
 var nexmo = require('easynexmo');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(nexmo);
 

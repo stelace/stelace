@@ -4,6 +4,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 // <utmTags>: ["utmSource", "utmMedium", "utmCampaign", "utmContent", "utmTerm"]
 //
 // utmSource defaults to "template-name-email"

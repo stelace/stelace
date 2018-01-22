@@ -1,7 +1,7 @@
 var chai = require('chai');
 var expect = chai.expect;
 
-global._ = require('lodash');
+const _ = require('lodash');
 global.ToolsService = require('../../../api/services/ToolsService');
 
 var PricingService = require('../../../api/services/PricingService');

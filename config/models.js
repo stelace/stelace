@@ -72,6 +72,9 @@ module.exports.models = {
 
 var moment = require('moment');
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 const knex = require('knex')({
     client: 'mysql',
 });

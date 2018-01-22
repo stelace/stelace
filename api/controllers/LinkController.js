@@ -1,4 +1,4 @@
-/* global EmailTemplateService, GamificationService, GamificationEvent, Link, Media, StelaceConfigService, StelaceEventService, User */
+/* global EmailTemplateService, GamificationService, GamificationEvent, Link, Media, MicroService, StelaceConfigService, StelaceEventService, User */
 
 /**
  * LinkController
@@ -23,6 +23,8 @@ module.exports = {
 };
 
 var moment = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function find(req, res) {
     return res.forbidden();
@@ -378,7 +380,7 @@ function sendFriendEmails(req, res) {
     }
 
     emails = _(emails).uniq()
-        .filter(email => µ.isEmail(email))
+        .filter(email => MicroService.isEmail(email))
         .value();
 
     return Promise

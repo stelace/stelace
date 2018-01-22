@@ -1,5 +1,5 @@
 /* global
-    Booking, CancellationService, GamificationService, GeneratorService, Link, Listing, Location, mangopay, Media, OdooService, Passport,
+    Booking, CancellationService, GamificationService, GeneratorService, Link, Listing, Location, mangopay, Media, MicroService, OdooService, Passport,
     User, TimeService, Token, ToolsService, TransactionService, UserXTag
 */
 
@@ -150,6 +150,8 @@ var params = {
 
 var moment = require('moment');
 var uuid   = require('uuid');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -553,7 +555,7 @@ function createCheckEmailToken(user, email) {
 function updateTags(user, tagIds) {
     if (! tagIds) {
         return User.findOne({ id: user.id });
-    } else if (! µ.checkArray(tagIds, "id")) {
+    } else if (! MicroService.checkArray(tagIds, "id")) {
         throw new BadRequestError("Bad parameters");
     }
 

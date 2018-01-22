@@ -5,9 +5,7 @@ var fs    = require('fs');
 var path  = require('path');
 var yargs = require('yargs');
 var gm    = require('gm');
-
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const Promise = require('bluebird');
 
 var argv = yargs
             .usage("Usage: $0 --mediaId [num] (--cw [num] | --ccw [num])")

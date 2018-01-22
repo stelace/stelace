@@ -4,6 +4,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 var transactionTypes = {
     deposit: {
         action: "preauthorization",

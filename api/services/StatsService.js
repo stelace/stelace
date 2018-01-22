@@ -7,6 +7,7 @@ module.exports = {
 };
 
 const moment = require('moment');
+const _ = require('lodash');
 
 const defaultMaxPeriodDuration = 366 * 2; // 2 years
 

@@ -32,6 +32,7 @@ module.exports = {
 };
 
 var moment = require('moment');
+const _ = require('lodash');
 
 var noSpaceChars = {
     after: [

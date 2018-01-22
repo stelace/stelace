@@ -35,6 +35,8 @@ module.exports = {
 
 var moment    = require('moment');
 var NodeCache = require('node-cache');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 var landingCache = new NodeCache({ stdTTL: 5 * 60 }); // 5 min
 

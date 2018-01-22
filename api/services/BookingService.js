@@ -10,6 +10,7 @@ module.exports = {
 };
 
 var moment = require('moment');
+const _ = require('lodash');
 
 /**
  * Create booking based on user input

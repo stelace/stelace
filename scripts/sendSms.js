@@ -2,8 +2,7 @@
 
 var Sails = require('sails');
 
-global._       = require('lodash');
-global.Promise = require('bluebird');
+const Promise = require('bluebird');
 
 Sails.load({
     models: {

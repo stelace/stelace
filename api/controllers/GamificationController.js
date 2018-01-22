@@ -21,6 +21,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 function find(req, res) {
     return res.forbidden();
 }

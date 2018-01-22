@@ -1,5 +1,7 @@
 /* global TokenService */
 
+const _ = require('lodash');
+const Promise = require('bluebird');
 var jwt = require('jsonwebtoken');
 
 Promise.promisifyAll(jwt);

@@ -47,6 +47,8 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+
 function getAccessFields(access) {
     var accessFields = {
         others: [

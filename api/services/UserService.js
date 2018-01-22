@@ -1,4 +1,4 @@
-/* global AuthService, GeneratorService, StelaceEventService, User */
+/* global AuthService, GeneratorService, MicroService, StelaceEventService, User */
 
 module.exports = {
 
@@ -75,7 +75,7 @@ async function createUser(attrs, options = {}) {
     if (!email) {
         throw new BadRequestError('Email is required');
     }
-    if (!µ.isEmail(email)) {
+    if (!MicroService.isEmail(email)) {
         const error = new BadRequestError("Invalid email");
         error.expose = true;
         throw error;
@@ -174,7 +174,7 @@ async function updateUser(userId, attrs = {}) {
         newsletter,
     } = attrs;
 
-    if (typeof email !== 'undefined' && !µ.isEmail(email)) {
+    if (typeof email !== 'undefined' && !MicroService.isEmail(email)) {
         const error = new BadRequestError("Invalid email");
         error.expose = true;
         throw error;

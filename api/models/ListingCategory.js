@@ -35,6 +35,9 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 function getAccessFields(access) {
     var accessFields = {
         api: [

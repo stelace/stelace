@@ -10,6 +10,8 @@
 
 var jwt    = require('jsonwebtoken');
 var moment = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(jwt);
 

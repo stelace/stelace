@@ -51,6 +51,7 @@ module.exports = {
 };
 
 var CryptoJS = require('crypto-js');
+const _ = require('lodash');
 
 function getMandrillSignature(webhookKey, url, bodyParams) {
     var signedData = url;

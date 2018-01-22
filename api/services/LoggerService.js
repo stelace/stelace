@@ -1,4 +1,4 @@
-/* global ErrorService */
+/* global ErrorService, MicroService */
 
 module.exports = {
 
@@ -12,6 +12,7 @@ var path   = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment');
 var fs     = require('fs');
+const _ = require('lodash');
 
 var cleanCacheInterval = 86400000; // 1 day
 var cache = {};
@@ -131,10 +132,10 @@ function getLogger(name) {
         return cache[aggregateDate][name];
     }
 
-    if (! µ.existsSync(loggerFolderPath)) {
+    if (! MicroService.existsSync(loggerFolderPath)) {
         mkdirp.sync(loggerFolderPath, 0o770);
     }
-    if (! µ.existsSync(filepath)) {
+    if (! MicroService.existsSync(filepath)) {
         // equivalent of shell 'touch' file
         fs.closeSync(fs.openSync(filepath, "w"));
     }

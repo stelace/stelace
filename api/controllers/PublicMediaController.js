@@ -20,6 +20,7 @@ module.exports = {
 };
 
 var path = require('path');
+const Promise = require('bluebird');
 
 function find(req, res) {
     return res.forbidden();

@@ -1,5 +1,7 @@
 /* global User */
 
+const Promise = require('bluebird');
+
 module.exports = function (req, res, next) {
 
     return Promise

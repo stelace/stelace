@@ -70,6 +70,8 @@ module.exports = {
 };
 
 var moment = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 // cannot cancel after "the expiration date - 5 minutes"
 function isPreauthorizationCancellable(transaction) {

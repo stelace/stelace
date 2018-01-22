@@ -11,6 +11,7 @@ module.exports = {
 };
 
 var moment = require('moment');
+const _ = require('lodash');
 
 /**
  * Check if the provided date is an instance of Date and a valid date

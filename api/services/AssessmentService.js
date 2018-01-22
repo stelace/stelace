@@ -13,6 +13,8 @@ module.exports = {
 };
 
 const moment = require('moment');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 /**
  * find assessments from conversation (input, output, before input, before output)

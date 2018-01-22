@@ -6,6 +6,8 @@ var url      = require('url');
 var passport = require('passport');
 var request  = require('request');
 var uuid     = require('uuid');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
 Promise.promisifyAll(request, { multiArgs: true });

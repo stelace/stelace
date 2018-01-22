@@ -9,6 +9,8 @@ module.exports = {
 
 var request = require('request');
 var geolib  = require('geolib');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 

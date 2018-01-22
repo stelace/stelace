@@ -6,6 +6,9 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
+const Promise = require('bluebird');
+
 function afterAssessmentSigned(assessment, logger, req) {
     return Promise.coroutine(function* () {
         var data = yield getAfterAssessmentSignedData(assessment);
