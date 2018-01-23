@@ -120,7 +120,7 @@ module.exports.routes = {
     'get /api/location/getGeoInfo': "LocationController.getGeoInfo",
 
     // MediaController
-    'get /api/media/get/:id/:uuid.:ext': "MediaController.get",
+    'get r|/api/media/get/(\\d+)/([\\w-]+).(\\w+)|id,uuid,ext': "MediaController.get",
     'get /api/media/get/:id/:uuid': "MediaController.getRedirect",
     'get /api/media/download': "MediaController.download",
     'post /api/media/upload': "MediaController.upload",
@@ -197,7 +197,7 @@ module.exports.routes = {
     'put /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.update', cors: apiCors },
     'delete /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.destroy', cors: apiCors },
 
-    'get /api/v0.1/media/get/:id/:uuid.:ext': { target: "v0_1/MediaController.get", cors: apiCors },
+    'get r|/api/v0.1/media/get/(\\d+)/([\\w-]+).(\\w+)|id,uuid,ext': { target: "v0_1/MediaController.get", cors: apiCors },
     'get /api/v0.1/media/get/:id/:uuid': { target: "v0_1/MediaController.getRedirect", cors: apiCors },
     'get /api/v0.1/media/download': { target: "v0_1/MediaController.download", cors: apiCors },
     'post /api/v0.1/media/upload': { target: "v0_1/MediaController.upload", cors: apiCors },
