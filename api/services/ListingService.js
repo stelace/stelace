@@ -220,7 +220,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
 
     if ((updateAttrs.tags && ! MicroService.checkArray(updateAttrs.tags, 'id'))
         || (updateAttrs.locations && ! MicroService.checkArray(updateAttrs.locations, 'id'))
-        || (updateAttrs.listingTypesIds && (! MicroService.checkArray(updateAttrs.listingTypesIds, 'id') || updateAttrs.listingTypesIds.length))
+        || (updateAttrs.listingTypesIds && (! MicroService.checkArray(updateAttrs.listingTypesIds, 'id') || !updateAttrs.listingTypesIds.length))
         || (updateAttrs.data && typeof updateAttrs.data !== 'object')
         || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== 'number' || updateAttrs.sellingPrice < 0))
         || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== 'number' || updateAttrs.dayOnePrice < 0))
