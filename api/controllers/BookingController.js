@@ -1402,7 +1402,7 @@ function createContractToken(req, res) {
                         targetType: 'booking',
                         targetId: id,
                     })
-                    .sort({ createdDate: -1 })
+                    .sort('createdDate DESC')
                     .limit(1);
 
                 return token;

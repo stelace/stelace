@@ -180,17 +180,24 @@ async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
         findAttrs.id = { '!': withoutIds };
     }
 
-    if (sorting === "creationDate") {
-        findAttrs.sort = { createdDate: -1 };
-    } else if (sorting === "lastUpdate") {
-        findAttrs.sort = { updatedDate: -1 };
-    } else {
-        findAttrs.sort = { id: -1 };
-    }
-
     findAttrs.quantity = { '>': 0 };
 
-    let listings = await Listing.find(findAttrs);
+    const modelQuery = Listing.find(findAttrs);
+
+    let sortQuery;
+    if (sorting === "creationDate") {
+        sortQuery = 'createdDate DESC';
+    } else if (sorting === "lastUpdate") {
+        sortQuery = 'updatedDate DESC';
+    } else {
+        sortQuery = 'id DESC';
+    }
+
+    if (sortQuery) {
+        modelQuery.sort(sortQuery);
+    }
+
+    let listings = await modelQuery;
 
     if (!listingTypeId) {
         return listings;

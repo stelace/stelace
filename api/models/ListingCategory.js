@@ -90,7 +90,7 @@ function _createSpace(left) {
         .then(() => {
             return ListingCategory
                 .find({ rgt: { '>=': left } })
-                .sort({ lft: 1 });
+                .sort('lft ASC');
         })
         .each(listingCategory => {
             var updateAttrs = {
@@ -111,7 +111,7 @@ function _removeSpace(left) {
         .then(() => {
             return ListingCategory
                 .find({ rgt: { '>=': left } })
-                .sort({ lft: 1 });
+                .sort('lft ASC');
         })
         .each(listingCategory => {
             var updateAttrs = {
@@ -175,7 +175,7 @@ function getChildrenCategories(categoryId, includeSelf) {
 
             return ListingCategory
                 .find(findAttrs)
-                .sort({ lft: 1 });
+                .sort('lft ASC');
         });
 }
 
@@ -202,7 +202,7 @@ function _getParentCategories(listingCategory, includeSelf) {
 
             return ListingCategory
                 .find(findAttrs)
-                .sort({ lft: -1 });
+                .sort('lft ASC');
         });
 }
 

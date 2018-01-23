@@ -421,7 +421,7 @@ function getBookings(listingsIds, args) {
 
         return yield Booking
             .find(findAttrs)
-            .sort({ startDate: 1 });
+            .sort('startDate ASC');
     })();
 }
 
@@ -680,7 +680,7 @@ function getSnapshots(listingsIds) {
                 targetType: "listing",
                 targetId: listingsIds
             })
-            .sort({ createdDate: -1 });
+            .sort('createdDate DESC');
 
         snapshots = _.map(snapshots, snapshot => {
             return ModelSnapshot.exposeSnapshot(snapshot, true);

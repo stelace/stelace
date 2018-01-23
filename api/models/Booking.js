@@ -586,14 +586,14 @@ function getLast(listingIdOrIds) {
         if (onlyOne) {
             const [booking] = yield Booking
                 .find(findAttrs)
-                .sort({ startDate: -1 })
+                .sort('startDate DESC')
                 .limit(1);
 
             return booking;
         } else {
             var bookings = yield Booking
                 .find(findAttrs)
-                .sort({ startDate: -1 });
+                .sort('startDate DESC');
 
             var hashListings = _.reduce(listingIds, function (memo, listingId) {
                 memo[listingId] = null;

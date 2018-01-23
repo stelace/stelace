@@ -33,7 +33,7 @@ function find(req, res) {
 
     return Tag
         .find(findAttrs)
-        .sort({ nameURLSafe: 1 })
+        .sort('nameURLSafe ASC')
         .then(tags => {
             res.json(Tag.exposeAll(tags, access));
         })

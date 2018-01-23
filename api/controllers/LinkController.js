@@ -242,7 +242,7 @@ function getFriends(req, res) {
                         fromUserId: req.user.id,
                         relationship: "refer"
                     })
-                    .sort({ createdDate: -1 })
+                    .sort('createdDate DESC')
             ];
         })
         .spread((otherLinks, myLinks) => {
@@ -414,7 +414,7 @@ function sendFriendEmails(req, res) {
                         fromUserId: req.user.id,
                         relationship: "refer"
                     })
-                    .sort({ createdDate: 1 }),
+                    .sort('createdDate ASC'),
                 User
                     .getMedia([req.user])
             ];

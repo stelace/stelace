@@ -176,7 +176,7 @@ function getTransactionsData(startDate, endDate) {
 
         var transactions = yield Transaction
             .find(findAttrs)
-            .sort({ mgpCreatedDate: 1 });
+            .sort('mgpCreatedDate ASC');
 
         var bookingsIds = _.pluck(transactions, "bookingId");
         var bookings    = yield Booking.find({ id: bookingsIds });

@@ -419,7 +419,7 @@ function _sendAssessmentEmailsSms(data) {
                     { inputAssessmentId: assessment.id }
                 ]
             })
-            .sort({ createdDate: -1 })
+            .sort('createdDate DESC')
             .then(conversations => conversations[0]);
     }
 

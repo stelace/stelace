@@ -747,7 +747,7 @@ function getSessionInfo(sessionId, sessionParams) {
                 stelaceSession: StelaceSession.findOne({ id: sessionId }),
                 stelaceEvent: StelaceEvent
                     .find({ sessionId: sessionId })
-                    .sort({ createdDate: -1 })
+                    .sort('createdDate DESC')
                     .limit(1)
                     .then(events => events[0]),
             });

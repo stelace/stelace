@@ -40,7 +40,7 @@ function find(req, res) {
         if (! listingCategoryId) {
             return Brand
                 .find()
-                .sort({ name: 1 });
+                .sort('name ASC');
         } else {
             return Promise
                 .resolve()

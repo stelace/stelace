@@ -240,7 +240,7 @@ function getIncomeReportToken(userId, year, expirationDuration, refreshDuration)
                 type: getIncomeReportTokenName(year),
                 userId: userId
             })
-            .sort({ createdDate: -1 })
+            .sort('createdDate DESC')
             .limit(1)
             .then(tokens => tokens[0]),
         });

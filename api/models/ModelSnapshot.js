@@ -189,7 +189,7 @@ function getSnapshot(targetType, model, force) {
                     targetId: model.id,
                     targetType: targetType
                 })
-                .sort({ createdDate: -1 })
+                .sort('createdDate DESC')
                 .limit(1)
                 .then(snapshots => snapshots[0]);
         })

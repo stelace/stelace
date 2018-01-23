@@ -28,7 +28,7 @@ async function userRegistered(req, res) {
                     '<': upperEndDate,
                 },
             })
-            .sort({ createdDate: 1 });
+            .sort('createdDate ASC');
 
         const dates = _.pluck(users, 'createdDate');
 
@@ -57,7 +57,7 @@ async function listingPublished(req, res) {
                     '<': upperEndDate,
                 },
             })
-            .sort({ createdDate: 1 });
+            .sort('createdDate ASC');
 
         const dates = _.pluck(listings, 'createdDate');
 
@@ -86,7 +86,7 @@ async function bookingPaid(req, res) {
                     '<': upperEndDate,
                 },
             })
-            .sort({ paidDate: 1 });
+            .sort('paidDate ASC');
 
         const dates = _.pluck(bookings, 'paidDate');
 

@@ -91,7 +91,7 @@ function conversation(req, res) {
         .then(() => {
             return Message
                 .find({ conversationId: conversationId })
-                .sort({ createdDate: 1 });
+                .sort('createdDate ASC');
         })
         .then(messages => {
             if (! messages.length) {
@@ -232,7 +232,7 @@ function getConversations(req, res) {
         .then(() => {
             return Conversation
                 .find(findAttrs)
-                .sort({ createdDate: -1 });
+                .sort('createdDate DESC');
         })
         .then(conversations => {
             conversations = _.filter(conversations, conversation => {
@@ -358,10 +358,10 @@ function getPublicMessages(req, res) {
                     conversationId: conversationIds,
                     publicContent: { '!': null }
                 })
-                .sort({
-                    conversationId: -1,
-                    createdDate: 1
-                });
+                .sort([
+                    { conversationId: 'DESC' },
+                    { createdDate: 'ASC' },
+                ]);
         })
         .then(messages => {
             return _populateUsers(messages, access);

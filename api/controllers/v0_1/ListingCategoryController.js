@@ -21,7 +21,7 @@ async function find(req, res) {
         const fields = ApiService.parseFields(attrs);
         const populateListingsCount = _.includes(fields, 'listingsCount');
 
-        const listingCategories = await ListingCategory.find().sort({ lft: 1 });
+        const listingCategories = await ListingCategory.find().sort('lft ASC');
 
         if (populateListingsCount) {
             const sqlQuery = `

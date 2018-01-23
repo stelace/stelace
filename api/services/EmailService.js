@@ -416,7 +416,7 @@ async function getTrackingStats(emailLogs) {
                 { sparkpostTransmissionId: sparkpostTransmissionsIds },
             ],
         })
-        .sort({ eventDate: -1 });
+        .sort('eventDate DESC');
 
     const mandrillHashMap = {};
     const sparkpostHashMap = {};

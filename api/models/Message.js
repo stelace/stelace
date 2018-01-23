@@ -295,7 +295,7 @@ function findExistingConversation(createAttrs) {
                 senderId: usersIds,
                 receiverId: usersIds
             })
-            .sort({ createdDate: -1 });
+            .sort('createdDate DESC');
 
         // sort conversations by putting those who match booking first
         var sortedConversations = _.sortBy(conversations, conv => {
@@ -402,7 +402,7 @@ function createMessageWithExistingConversation(args) {
         // fetch messages again because the conversation isn't necessarily the same as the beginning
         var messages = yield Message
             .find({ conversationId: conversation.id })
-            .sort({ createdDate: 1 });
+            .sort('createdDate ASC');
 
         var isFirstMessage = ! messages.length;
 

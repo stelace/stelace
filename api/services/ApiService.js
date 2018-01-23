@@ -66,10 +66,7 @@ function parseSorting(attrs, sortFields) {
         sortDirection = attrs.sortDirection;
     }
 
-    const sorting = {};
-    sorting[attrs.sortField] = sortDirection === 'asc' ? 1 : -1;
-
-    return sorting;
+    return attrs.sortField + ' ' + sortDirection.toUpperCase();
 }
 
 function parseSearchQuery(attrs, searchFields) {
