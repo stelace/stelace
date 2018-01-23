@@ -28,7 +28,7 @@ Sails.load({
         var ownersIds = yield getOwnersIds(reportYear);
         var owners    = yield User.find({
             id: ownersIds,
-            email: { '!': null }
+            email: { '!=': null }
         });
 
         yield Promise.each(owners, owner => {

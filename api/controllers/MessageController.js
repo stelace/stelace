@@ -356,7 +356,7 @@ function getPublicMessages(req, res) {
             return Message
                 .find({
                     conversationId: conversationIds,
-                    publicContent: { '!': null }
+                    publicContent: { '!=': null }
                 })
                 .sort([
                     { conversationId: 'DESC' },

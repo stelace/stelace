@@ -383,13 +383,13 @@ Sails.load({
             .resolve()
             .then(() => {
                 return Booking.find({
-                    takerPrice: { '!': 0 },
+                    takerPrice: { '!=': 0 },
                     or: [
                         { paidDate: { '>': lastCronDate } },
                         { acceptedDate: { '>': lastCronDate } }
                     ],
-                    paidDate: { '!': null },
-                    acceptedDate: { '!': null }
+                    paidDate: { '!=': null },
+                    acceptedDate: { '!=': null }
                 });
             })
             .then(bookings => {

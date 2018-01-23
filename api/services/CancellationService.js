@@ -287,7 +287,7 @@ async function cancelOtherBookings(booking, logger) {
         otherBookings = await Booking.find({
             listingId: booking.listingId,
             quantity: { '>': listing.quantity },
-            id: { '!': booking.id },
+            id: { '!=': booking.id },
             paidDate: null,
             cancellationId: null,
         });

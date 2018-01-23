@@ -60,8 +60,8 @@ function getIncompleteBookings(args) {
         }
 
         findAttrs.or = [
-            { paidDate: { '!': null } },
-            { acceptedDate: { '!': null } }
+            { paidDate: { '!=': null } },
+            { acceptedDate: { '!=': null } }
         ];
 
         return Booking.find(findAttrs);
@@ -156,13 +156,13 @@ function getPaidBookings(args) {
             }
 
             if (! periodAttrs) {
-                findAttrs.paidDate = { '!': null };
+                findAttrs.paidDate = { '!=': null };
             }
             if (args.accepted) {
-                findAttrs.acceptedDate = { '!': null };
+                findAttrs.acceptedDate = { '!=': null };
             }
             if (args.cancelled) {
-                findAttrs.cancellationId = { '!': null };
+                findAttrs.cancellationId = { '!=': null };
             }
 
             return Booking.find(findAttrs);
@@ -362,8 +362,8 @@ function getRevenue(args) {
         .then(() => {
             return Booking.find({
                 cancellationId: null,
-                paidDate: { '!': null },
-                acceptedDate: { '!': null }
+                paidDate: { '!=': null },
+                acceptedDate: { '!=': null }
             });
         })
         .then(bookings => {

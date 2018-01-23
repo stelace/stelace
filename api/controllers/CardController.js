@@ -120,7 +120,7 @@ function my(req, res) {
     return Card
         .find({
             userId: req.user.id,
-            validity: { '!': "INVALID" },
+            validity: { '!=': "INVALID" },
             active: true,
             forget: false
         })

@@ -232,10 +232,10 @@ function getFriends(req, res) {
         .then(() => {
             return [
                 Link.find({
-                    fromUserId: { '!': req.user.id },
+                    fromUserId: { '!=': req.user.id },
                     relationship: "refer",
                     validated: true,
-                    email: { '!': null }
+                    email: { '!=': null }
                 }),
                 Link
                     .find({
@@ -402,12 +402,12 @@ function sendFriendEmails(req, res) {
         .then(() => {
             return [
                 User.find({
-                    email: { '!': null }
+                    email: { '!=': null }
                 }),
                 Link.find({
                     relationship: "refer",
                     validated: true,
-                    email: { '!': null }
+                    email: { '!=': null }
                 }),
                 Link
                     .find({

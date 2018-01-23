@@ -177,7 +177,7 @@ async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
         findAttrs.listingCategoryId = listingCategoriesIds;
     }
     if (withoutIds) {
-        findAttrs.id = { '!': withoutIds };
+        findAttrs.id = { '!=': withoutIds };
     }
 
     findAttrs.quantity = { '>': 0 };

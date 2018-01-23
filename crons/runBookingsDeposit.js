@@ -48,7 +48,7 @@ Sails.load({
     return Promise.coroutine(function* () {
         var bookings = yield Booking.find({
             cancellationDepositDate: null,
-            depositDate: { '!': null }
+            depositDate: { '!=': null }
         });
 
         if (! bookings.length) {

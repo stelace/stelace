@@ -416,8 +416,8 @@ function getBookings(listingsIds, args) {
 
         findAttrs.listingId         = listingsIds;
         findAttrs.cancellationId = null;
-        findAttrs.paidDate       = { '!': null };
-        findAttrs.acceptedDate   = { '!': null };
+        findAttrs.paidDate       = { '!=': null };
+        findAttrs.acceptedDate   = { '!=': null };
 
         return yield Booking
             .find(findAttrs)

@@ -40,7 +40,7 @@ Sails.load({
         var bookings = yield Booking.find({
             cancellationId: null,
             withdrawalDate: null,
-            paymentTransferDate: { '!': null }
+            paymentTransferDate: { '!=': null }
         });
 
         if (! bookings.length) {

@@ -579,8 +579,8 @@ function getLast(listingIdOrIds) {
         var findAttrs = {
             listingId: listingIds,
             cancellationId: null,
-            paidDate: { '!': null },
-            acceptedDate: { '!': null }
+            paidDate: { '!=': null },
+            acceptedDate: { '!=': null }
         };
 
         if (onlyOne) {
@@ -691,7 +691,7 @@ function getPendingBookings(listingId, args) {
 
         if (refBooking) {
             _.assign(findAttrs, {
-                id: { '!': refBooking.id }
+                id: { '!=': refBooking.id }
             });
 
             // there is no period for a no-time booking

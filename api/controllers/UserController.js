@@ -585,7 +585,7 @@ function emailNew(req, res) {
         .then(() => {
             return User.findOne({
                 email: email,
-                id: { '!': req.user.id }
+                id: { '!=': req.user.id }
             });
         })
         .then(user => {

@@ -37,8 +37,8 @@ Sails.load({
     return Promise.coroutine(function* () {
         var bookings = yield Booking.find({
             cancellationPaymentDate: null,
-            paymentDate: { '!': null },
-            cancellationId: { '!': null }
+            paymentDate: { '!=': null },
+            cancellationId: { '!=': null }
         });
 
         if (! bookings.length) {

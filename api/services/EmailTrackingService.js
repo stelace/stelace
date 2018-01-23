@@ -254,7 +254,7 @@ function getUsersIdsFromMandrillMessagesIds(mandrillMessagesIds) {
     return Promise.coroutine(function* () {
         var emailLogs = yield EmailLog.find({
             mandrillMessageId: mandrillMessagesIds,
-            userId: { '!': null }
+            userId: { '!=': null }
         });
 
         return _.uniq(_.pluck(emailLogs, "userId"));

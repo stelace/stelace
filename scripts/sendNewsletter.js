@@ -31,7 +31,7 @@ Sails.load({
         const users = await User.find({
             emailCheck: true,
             newsletter: true,
-            email: { '!': null },
+            email: { '!=': null },
         });
 
         nbNewslettersTotal = users.length;
