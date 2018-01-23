@@ -8,6 +8,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 async function find(req, res) {
     const attrs = req.allParams();
     const sortFields = [
@@ -65,7 +67,7 @@ async function findOne(req, res) {
     try {
         const booking = await Booking.findOne({ id });
         if (!booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         res.json(Booking.expose(booking, access));
@@ -82,7 +84,7 @@ async function cancel(req, res) {
     try {
         let booking = await Booking.findOne({ id });
         if (!booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         const transactionManagers = await TransactionService.getBookingTransactionsManagers([booking.id]);

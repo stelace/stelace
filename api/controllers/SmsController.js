@@ -22,6 +22,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -69,7 +70,7 @@ function sendVerify(req, res) {
         })
         .then(active => {
             if (!active) {
-                throw new ForbiddenError('Sms disabled');
+                throw createError(403, 'Sms disabled');
             }
         })
         .then(() => {
@@ -175,7 +176,7 @@ function checkVerify(req, res) {
         })
         .then(active => {
             if (!active) {
-                throw new ForbiddenError('Sms disabled');
+                throw createError(403, 'Sms disabled');
             }
         })
         .then(() => {

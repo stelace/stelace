@@ -19,6 +19,7 @@ module.exports = {
 
 const moment = require('moment');
 const _ = require('lodash');
+const createError = require('http-errors');
 
 /**
  * @param {Object} attrs
@@ -80,21 +81,19 @@ async function createListing(attrs, { req, res } = {}) {
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const listingTypes = await ListingTypeService.filterListingTypes(createAttrs.listingTypesIds);
     if (createAttrs.listingTypesIds.length !== listingTypes.length) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     let data = createAttrs.data || {};
     _.forEach(listingTypes, listingType => {
         const { newData, valid } = CustomFieldService.checkData(data, listingType.customFields);
         if (!valid) {
-            const error = new BadRequestError('Incorrect custom fields');
-            error.expose = true;
-            throw error;
+            throw createError(400, 'Incorrect custom fields');
         }
         data = newData;
     });
@@ -143,7 +142,7 @@ async function createListing(attrs, { req, res } = {}) {
         || !validTags
         || (createAttrs.locations && !validLocations)
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     if (!createAttrs.locations) {
@@ -227,7 +226,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
         || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     if (typeof updateAttrs.sellingPrice === "number") {
@@ -242,16 +241,16 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
 
     const listing = await Listing.findOne({ id: listingId });
     if (! listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && listing.ownerId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     if (updateAttrs.listingTypesIds) {
         const validListingTypes = await ListingTypeService.isValidListingTypesIds(updateAttrs.listingTypesIds)
         if (!validListingTypes) {
-            throw new BadRequestError();
+            throw createError(400);
         }
     }
 
@@ -261,9 +260,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     _.forEach(listingTypes, listingType => {
         const { newData, valid } = CustomFieldService.checkData(data, listingType.customFields);
         if (!valid) {
-            const error = new BadRequestError('Incorrect custom fields');
-            error.expose = true;
-            throw error;
+            throw createError(400, 'Incorrect custom fields');
         }
         data = newData;
     });
@@ -286,7 +283,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || ! validLocations
         || ! validTags
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     if (typeof updateAttrs.name !== "undefined" && !listing.validated) {
@@ -314,22 +311,21 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
 async function destroyListing(listingId, { trigger, keepCommittedBookings } = {}, { req, res, userId }) {
     const listing = await Listing.findOne({ id: listingId });
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && listing.ownerId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
     if (typeof keepCommittedBookings === 'undefined') {
-        throw new BadRequestError('Missing committed booking params');
+        throw createError(400, 'Missing committed booking params');
     }
 
     const { allDestroyable } = await Listing.canBeDestroyed([listing], { keepCommittedBookings });
     if (!allDestroyable) {
-        const error = new BadRequestError('listing cannot be destroyed');
-        error.listingId = listingId;
-        error.notDestroyable = true;
-        error.expose = true;
-        throw error;
+        throw createError('Listing cannot be destroyed', {
+            listingId,
+            notDestroyable: true,
+        });
     }
 
     await Listing.destroyListing(listing, { trigger }, { req, res });
@@ -346,15 +342,15 @@ async function destroyListing(listingId, { trigger, keepCommittedBookings } = {}
  */
 async function updateListingMedias(listingId, { mediasIds, mediaType }, { userId } = {}) {
     if (!mediasIds || !MicroService.checkArray(mediasIds, 'id')) {
-        throw new BadRequestError();
+        throw createError(400);
     }
     if (!_.contains(['listing', 'instructions'], mediaType)) {
-        throw new BadRequestError();
+        throw createError(400);
     }
     if ((mediaType === 'listing' && Media.get('maxNb').listing < mediasIds.length)
      || (mediaType === 'instructions' && Media.get('maxNb').listingInstructions < mediasIds.length)
     ) {
-        throw new BadRequestError('cannot set too much medias');
+        throw createError(400, 'Cannot set too many medias');
     }
 
     mediasIds = _.map(mediasIds, function (mediaId) {
@@ -372,10 +368,10 @@ async function updateListingMedias(listingId, { mediasIds, mediaType }, { userId
     if (! listing
      || medias.length !== mediasIds.length
     ) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && listing.ownerId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     const areUserMedias = _.reduce(medias, (memo, media) => {
@@ -386,7 +382,7 @@ async function updateListingMedias(listingId, { mediasIds, mediaType }, { userId
     }, true);
 
     if (!areUserMedias) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     const updateAttrs = {};
@@ -414,19 +410,19 @@ async function updateListingMedias(listingId, { mediasIds, mediaType }, { userId
  */
 async function pauseListingToggle(listingId, { pause, pausedUntil } = {}, { req, res, userId } = {}) {
     if (!listingId) {
-        throw new BadRequestError('listingId expected');
+        throw createError(400, 'listingId expected');
     }
     if (pausedUntil && !moment.isDate(pausedUntil)) {
-        throw new BadRequestError('Invalid date format');
+        throw createError(400, 'Invalid date format');
     }
 
     const listing = await Listing.findOne({ id: listingId });
 
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && listing.ownerId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     // Do not toggle listings locked by system
@@ -465,10 +461,10 @@ async function pauseListingToggle(listingId, { pause, pausedUntil } = {}, { req,
 async function validateListing(listingId) {
     const listing = await Listing.findOne({ id: listingId });
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (listing.validated) {
-        throw new BadRequestError('Already validated');
+        throw createError(400, 'Already validated');
     }
 
     const validatedListing = await Listing.updateOne(listingId, { validated: true });
@@ -482,7 +478,7 @@ async function validateListing(listingId) {
 function getPricing(pricingId) {
     const pricing = PricingService.getPricing(pricingId);
     if (!pricing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     return {
@@ -517,29 +513,29 @@ async function createListingAvailability(attrs, { userId } = {}) {
      || !endDate || !TimeService.isDateString(endDate)
      || endDate <= startDate
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const listing = await Listing.findOne({ id: listingId });
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && listing.ownerId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
     if (listing.listingTypesIds.length !== 1) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     const listingType = await ListingTypeService.getListingType(listing.listingTypesIds[0]);
     if (!listingType) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const { timeAvailability } = listingType.config;
 
     if (timeAvailability === 'NONE') {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     let available;
@@ -552,9 +548,7 @@ async function createListingAvailability(attrs, { userId } = {}) {
     const listingAvailabilities = await ListingAvailability.find({ listingId });
 
     if (TimeService.isIntersection(listingAvailabilities, { startDate, endDate })) {
-        const error = new BadRequestError('Listing availability conflict');
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Listing availability conflict');
     }
 
     const listingAvailability = await ListingAvailability.create({
@@ -577,10 +571,10 @@ async function createListingAvailability(attrs, { userId } = {}) {
 async function removeListingAvailability({ listingId, listingAvailabilityId }, { userId } = {}) {
     const listing = await Listing.findOne({ id: listingId });
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && listing.ownerId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     await ListingAvailability.destroy({

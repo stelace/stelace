@@ -269,6 +269,7 @@ module.exports = {
 var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -550,7 +551,7 @@ async function updateListingQuantity(booking, { actionType }) {
 
     const listing = await Listing.findOne({ id: booking.listingId });
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const updateAttrs = {};

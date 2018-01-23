@@ -24,6 +24,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -72,14 +73,14 @@ function create(req, res) {
         })
         .then(locations => {
             if (locations.length >= User.get("maxNbLocations")) {
-                throw new BadRequestError("max locations reached");
+                throw createError(400, 'Max locations reached');
             }
 
             var identicalLocation = _.find(locations, {
                 remoteId: createAttrs.remoteId
             });
             if (identicalLocation) {
-                throw new BadRequestError("identical location");
+                throw createError(400, 'Identical location');
             }
 
             // if no location, assign the first to be the main
@@ -163,10 +164,10 @@ function updateMain(req, res) {
         })
         .then(location => {
             if (! location) {
-                throw new NotFoundError();
+                throw createError(404);
             }
             if (location.userId !== req.user.id) {
-                throw new ForbiddenError();
+                throw createError(403);
             }
 
             User
@@ -220,13 +221,13 @@ function destroy(req, res) {
         })
         .spread((location) => {
             if (! location) {
-                throw new NotFoundError();
+                throw createError(404);
             }
             if (location.userId !== req.user.id) {
-                throw new ForbiddenError();
+                throw createError(403);
             }
             if (location.main) {
-                throw new BadRequestError("cannot destroy a main location");
+                throw createError(400, 'Cannot destroy a main location');
             }
 
             return [

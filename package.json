@@ -69,6 +69,7 @@
     "gulp-watch": "4.3.5",
     "handlebars": "4.0.5",
     "html-angular-validate": "0.1.7",
+    "http-errors": "1.6.2",
     "http-proxy-middleware": "0.17.4",
     "imagemin": "4.0.0",
     "intl": "1.2.5",

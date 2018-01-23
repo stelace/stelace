@@ -37,6 +37,7 @@ var moment    = require('moment');
 var NodeCache = require('node-cache');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 var landingCache = new NodeCache({ stdTTL: 5 * 60 }); // 5 min
 
@@ -146,7 +147,7 @@ async function findOne(req, res) {
         }
 
         if (!listing) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         const [
@@ -407,7 +408,7 @@ async function getLocations(req, res) {
     try {
         const listing = await Listing.findOne({ id });
         if (!listing) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         const locations = await Location.find({ id: listing.locations });
@@ -452,7 +453,7 @@ function getRecommendedPrices(req, res) {
     var query = req.param("query");
 
     if (typeof query !== "string") {
-        throw new BadRequestError("Query string expected");
+        throw createError(400, 'Query string expected');
     }
 
     return PriceRecommendationService.getRecommendedPrices(query)
@@ -461,7 +462,7 @@ function getRecommendedPrices(req, res) {
         })
         .catch(err => {
             req.logger.info({ err: err }, "Could not recommend a listing price.");
-            return res.ok();
+            return res.sendStatus(200);
         });
 }
 
@@ -469,7 +470,7 @@ function getRentingPriceFromSellingPrice(req, res) {
     var sellingPrice = req.param("value");
 
     if (! _.isFinite(sellingPrice)) {
-        throw new BadRequestError("Number expected");
+        throw createError(400, 'Number expected');
     }
 
     return PriceRecommendationService.getRentingPriceFromSellingPrice(sellingPrice)
@@ -487,7 +488,7 @@ async function getListingAvailability(req, res) {
     try {
         const listing = await Listing.findOne({ id });
         if (!listing) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         const listingAvailabilities = await ListingAvailability.find({ listingId: id });

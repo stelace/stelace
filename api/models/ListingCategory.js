@@ -60,6 +60,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -155,9 +156,7 @@ function getChildrenCategories(categoryId, includeSelf) {
         })
         .then(listingCategory => {
             if (! listingCategory) {
-                var error = new NotFoundError("ListingCategory not found");
-                error.listingCategoryId = categoryId;
-                throw error;
+                throw createError('Listing category not found', { listingCategoryId: categoryId });
             }
 
             var findAttrs;
@@ -214,9 +213,7 @@ function getParentCategories(categoryId, includeSelf) {
         })
         .then(listingCategory => {
             if (! listingCategory) {
-                var error = new NotFoundError("Listing category not found");
-                error.listingCategoryId = categoryId;
-                throw error;
+                throw createError('Listing category not found', { listingCategoryId: categoryId });
             }
 
             return _getParentCategories(listingCategory, includeSelf);
@@ -304,9 +301,7 @@ function createListingCategory(args) {
                     .findOne({ id: parentId })
                     .then(listingCategory => {
                         if (! listingCategory) {
-                            var error = new NotFoundError("Parent category not found");
-                            error.listingCategoryId = parentId;
-                            throw error;
+                            throw createError('Parent category not found', { listingCategoryId: parentId });
                         }
 
                         return _insertIntoParent({
@@ -329,12 +324,10 @@ function removeListingCategory(categoryId) {
         })
         .then(listingCategory => {
             if (! listingCategory) {
-                var error = new NotFoundError("ListingCategory not found");
-                error.listingCategoryId = categoryId;
-                throw error;
+                throw createError('Listing category not found', { listingCategoryId: categoryId });
             }
             if (_hasChildrenCategories(listingCategory)) {
-                throw new ForbiddenError("ListingCategory cannot be removed: has children categories");
+                throw createError("ListingCategory cannot be removed: has children categories");
             }
 
             return ListingCategory

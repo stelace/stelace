@@ -1,4 +1,4 @@
-/* global ErrorService, MangopayService, OdooApiService */
+/* global MangopayService, OdooApiService */
 
 module.exports = {
 
@@ -15,7 +15,6 @@ var IntlPolyfill            = require('intl');
 function init(initFields, args) {
     var defaultFields = [
         "uncaughtException",
-        "errors",
         "waterlineRawQuery",
         "mangopay",
         "utilities",
@@ -34,10 +33,6 @@ function init(initFields, args) {
                     console.log(new Date(), err);
                     console.log(err.stack);
                 });
-                break;
-
-            case "errors":
-                ErrorService.init();
                 break;
 
             case "waterlineRawQuery":

@@ -27,6 +27,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -95,7 +96,7 @@ function setAction(req, res) {
         .then(() => {
             var actions = GamificationService.getActions();
             if (! actions[actionId]) {
-                throw new BadRequestError("Gamification action doesn't exist.");
+                throw createError('Gamification action doesn\'t exist');
             }
 
             return User.find({ id: usersIds });
@@ -110,7 +111,7 @@ function setAction(req, res) {
             }, []);
 
             if (notFoundUsersId.length) {
-                throw new NotFoundError("Not found users: " + JSON.stringify(notFoundUsersId));
+                throw createError(404, 'Not found users', { usersIds: notFoundUsersId });
             }
 
             return [
@@ -128,7 +129,7 @@ function setAction(req, res) {
                     return GamificationService.setActions(user, actionsIds, null, req.logger, userStats, req);
                 });
         })
-        .then(() => res.ok())
+        .then(() => res.sendStatus(200))
         .catch(res.sendError);
 }
 
@@ -144,7 +145,7 @@ function getBooking(req, res) {
     return Promise.coroutine(function* () {
         var booking = yield Booking.findOne({ id: id });
         if (! booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         var usersIds = [booking.ownerId, booking.takerId];
@@ -185,7 +186,7 @@ function cancelBooking(req, res) {
     return Promise.coroutine(function* () {
         var booking = yield Booking.findOne({ id: id });
         if (! booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         var transactionManagers = yield TransactionService.getBookingTransactionsManagers([booking.id]);

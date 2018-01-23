@@ -1,21 +1,10 @@
 module.exports = {
 
-    init: init,
-    convertErrorToObj: convertErrorToObj
+    convertErrorToObj,
 
 };
 
 const _ = require('lodash');
-
-var BadRequestError = require('./errors/BadRequestError');
-var ForbiddenError  = require('./errors/ForbiddenError');
-var NotFoundError   = require('./errors/NotFoundError');
-
-function init() {
-    global.BadRequestError = BadRequestError;
-    global.ForbiddenError  = ForbiddenError;
-    global.NotFoundError   = NotFoundError;
-}
 
 function convertErrorToObj(error, isProd) {
     if (!(error instanceof Error)) {
@@ -40,6 +29,8 @@ function convertErrorToObj(error, isProd) {
         "model",
         "invalidAttributes",
         "originalError",
+        "expose",
+        "log",
     ];
 
     _.forEach(_.keys(error), function (attr) {

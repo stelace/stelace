@@ -15,6 +15,7 @@ var moment     = require('moment');
 var uuid       = require('uuid');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Promise.promisifyAll(fs);
 
@@ -285,7 +286,7 @@ function getReportFilepath(user, year) {
             var mainLocationSnapshot = results.mainLocationSnapshot;
 
             if (! ownerSnapshot || ! mainLocationSnapshot) {
-                throw new NotFoundError("Missing snapshots");
+                throw createError('Missing snapshots');
             }
 
             data.user = {

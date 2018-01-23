@@ -15,7 +15,6 @@ module.exports.bootstrap = async function(done) {
 
     BootstrapService.init([
         "uncaughtException",
-        "errors",
         "waterlineRawQuery",
         "utilities",
         "useProxy",

@@ -14,6 +14,7 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const createError = require('http-errors');
 
 async function find(req, res) {
     const attrs = req.allParams();
@@ -100,7 +101,7 @@ async function findOne(req, res) {
 
         const listing = await Listing.findOne({ id });
         if (!listing) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         const exposedListing = Listing.expose(listing, access);

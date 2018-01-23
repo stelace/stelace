@@ -20,6 +20,7 @@ const Uuid    = require('uuid');
 const request = require('request');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Promise.promisifyAll(fs);
 Promise.promisifyAll(request, { multiArgs: true });
@@ -39,10 +40,10 @@ const maxSizeUploadInBytes = 50000000; // 50MB
 async function updateMedia(mediaId, { name }, { userId }) {
     const media = await Media.findOne({ id: mediaId });
     if (!media) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && media.userId !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     const updatedMedia = await Media.updateOne(media.id, { name });
@@ -71,7 +72,7 @@ async function uploadMedia(attrs, { req, res, userId } = {}) {
     } = attrs;
 
     if (field && (!_.includes(Media.get('fields'), field) || !targetId)) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     if (field && targetId) {
@@ -108,17 +109,15 @@ async function uploadMedia(attrs, { req, res, userId } = {}) {
 async function _checkTarget({ field, targetId, userId }) {
     if (field === 'user') {
         if (userId !== targetId) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
     } else if (field === 'listing') {
         const listing = await Listing.findOne({ id: targetId });
         if (!listing) {
-            const error = new NotFoundError('Listing not found');
-            error.listingId = targetId;
-            throw error;
+            throw createError(404, 'Listing not found', { listingId: targetId });
         }
         if (listing.ownerId !== userId) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
     }
 }
@@ -148,7 +147,7 @@ async function getFileToServe(attrs) {
 
     const media = await Media.findOne({ id: mediaId });
     if (!media || uuid && media.uuid !== uuid) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const filename = Media.getServeFilename(media);
@@ -175,7 +174,7 @@ async function getFileToServe(attrs) {
 
 async function _getServedImageFilepath({ media, size, displayType, threshold }) {
     if (!_.includes(Media.get('displayTypes'), displayType)) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const originalFilepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
@@ -187,7 +186,7 @@ async function _getServedImageFilepath({ media, size, displayType, threshold }) 
     } else {
         let imageSize = Media.getAllowedImageSize(size);
         if (!imageSize) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         resizedObj = await _getResizedImageFilepath({
@@ -202,7 +201,7 @@ async function _getServedImageFilepath({ media, size, displayType, threshold }) 
     }
 
     if (!MicroService.existsSync(filepath)) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     // check if there is a logo image processing
@@ -249,7 +248,7 @@ async function _getResizedImageFilepath({
     let realDisplayType = displayType;
     if (displayType === 'smart') {
         if (!threshold) {
-            throw new BadRequestError('Threshold missing');
+            throw createError(400, 'Threshold missing');
         }
 
         realDisplayType = Media.getSmartDisplayType(media, threshold);
@@ -492,29 +491,26 @@ async function createMediaFromFile({
         size = await MicroService.getSize(filepath);
     }
     if (!MicroService.existsSync(filepath)) {
-        throw new NotFoundError('File not found');
+        throw createError('File not found');
     }
 
     if (!extension) {
-        throw new BadRequestError('Missing extension');
+        throw createError('Missing extension');
     }
 
     const type = Media.getTypeFromExtension(extension);
     if (!type) {
-        throw new BadRequestError('Bad media type');
+        throw createError('Bad media type');
     }
 
     if (authorizedTypes && !_.includes(authorizedTypes, type)) {
-        const error = new BadRequestError('Non authorized extension');
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Non authorized extension');
     }
     if (maxSize && maxSize < size) {
-        const error = new BadRequestError("Max size file exceeded");
-        error.size = size;
-        error.maxSize = maxSize;
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Max size file exceeded', {
+            size,
+            maxSize,
+        });
     }
 
     let dimensions = {};
@@ -630,21 +626,21 @@ async function downloadFile({
         if (!media) {
             media = await Media.findOne({ id, uuid });
             if (!media) {
-                throw new NotFoundError();
+                throw createError(404);
             }
         }
 
         if (userId && userId !== media.userId) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
 
         var filePath = path.join(uploadDir, Media.getStorageFilename(media));
 
         if (!MicroService.existsSync(filePath)) {
-            const error = new NotFoundError("Media file not found");
-            error.mediaId = media.id;
-            error.filePath = filePath;
-            throw error;
+            throw createError('Media file not found', {
+                mediaId: media.id,
+                filePath,
+            });
         }
 
         if (exposeFilename) {

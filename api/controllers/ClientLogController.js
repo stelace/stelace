@@ -25,5 +25,5 @@ function error(req, res) {
         err: error
     });
 
-    return res.ok();
+    res.sendStatus(200);
 }

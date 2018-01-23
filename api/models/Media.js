@@ -132,6 +132,7 @@ const path     = require('path');
 const del      = require('del');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Promise.promisifyAll(fs);
 
@@ -504,7 +505,7 @@ async function deleteCustomSizeFiles(mediaId) {
 async function destroyMedia(mediaId) {
     const media = await Media.findOne({ id: mediaId })
     if (!media) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const globPattern = path.join(sails.config.uploadDir, media.id + "-*");

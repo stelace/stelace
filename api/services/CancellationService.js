@@ -13,6 +13,7 @@ module.exports = {
 const moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 /**
  * cancel booking
@@ -276,7 +277,7 @@ async function cancelOtherBookings(booking, logger) {
 
     const listing = await Listing.findOne({ id: booking.listingId });
     if (!listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     let otherBookings = [];

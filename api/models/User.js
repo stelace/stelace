@@ -257,6 +257,7 @@ var moment = require('moment');
 var uuid   = require('uuid');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -651,7 +652,7 @@ function updateTags(user, tagIds) {
     if (! tagIds) {
         return User.findOne({ id: user.id });
     } else if (! MicroService.checkArray(tagIds, "id")) {
-        throw new BadRequestError("Bad parameters");
+        throw createError(400, 'Bad parameters');
     }
 
     return Promise.coroutine(function* () {
@@ -777,9 +778,7 @@ function getRefererInfo(user) {
 
         var referer = yield User.findOne({ id: link.fromUserId });
         if (! referer) {
-            var error = new NotFoundError("Referer not found");
-            error.userId = link.fromUserId;
-            throw error;
+            throw createError(404, 'Referer not found', { userId: link.fromUserId });
         }
 
         return {

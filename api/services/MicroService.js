@@ -53,19 +53,7 @@ function checkArray(arrayToTest, typeOrFunction, options) {
 
 function sendError(res) {
     return function (err) {
-        if (err === "stop" || (err instanceof Error && err.message === "stop")) {
-            return;
-        }
-
-        if (err instanceof BadRequestError) {
-            res.badRequest(err);
-        } else if (err instanceof ForbiddenError) {
-            res.forbidden(err);
-        } else if (err instanceof NotFoundError) {
-            res.notFound(err);
-        } else {
-            res.serverError(err);
-        }
+        res.serverError(err);
     };
 }
 

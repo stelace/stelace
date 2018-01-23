@@ -11,6 +11,7 @@ module.exports = {
 
 var moment = require('moment');
 const _ = require('lodash');
+const createError = require('http-errors');
 
 /**
  * Create booking based on user input
@@ -33,7 +34,7 @@ async function createBooking({
     if (! listingId
         || !listingTypeId
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const now = moment().toISOString();
@@ -47,7 +48,7 @@ async function createBooking({
     ]);
 
     if (! listing) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     checkBasic({
@@ -58,7 +59,7 @@ async function createBooking({
 
     const listingType = _.find(listingTypes, type => type.id === listingTypeId);
     if (!listingType) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     let bookingAttrs = {
@@ -116,24 +117,24 @@ function checkBasic({
     listingTypeId,
 }) {
     if (listing.ownerId === user.id) {
-        throw new ForbiddenError("owner cannot book its own listing");
+        throw createError(403, 'Owner cannot book its own listing');
     }
     if (!listing.listingTypesIds.length) {
-        throw new Error('listing has no listing types');
+        throw new Error('Listing has no listing types');
     }
     if (!listingTypeId || !_.includes(listing.listingTypesIds, listingTypeId)) {
-        throw new BadRequestError('incorrect listing type');
+        throw new Error('Incorrect listing type');
     }
     if (!listing.quantity) {
-        throw new BadRequestError('not enough quantity');
+        throw new Error('Not enough quantity');
     }
     if (!listing.validated) { // admin validation needed
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const bookable = Listing.isBookable(listing);
     if (! bookable) {
-        throw new BadRequestError("listing not bookable");
+        throw createError(400, 'Listing not bookable');
     }
 }
 
@@ -148,7 +149,7 @@ async function setBookingTimePeriods({
 
     if (TIME === 'TIME_FLEXIBLE') {
         if (!startDate || !nbTimeUnits) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         const timeUnit = listingType.config.bookingTime.timeUnit;
@@ -161,7 +162,7 @@ async function setBookingTimePeriods({
         });
 
         if (!validDates.result) {
-            throw new BadRequestError('Invalid dates');
+            throw createError(400, 'Invalid dates');
         }
 
         const endDate = Booking.computeEndDate({
@@ -204,7 +205,7 @@ async function setBookingAvailability({
         bookingAttrs.quantity = 1;
     } else {
         if (maxQuantity < quantity) {
-            throw new BadRequestError('Do not have enough quantity');
+            throw createError(400, 'Do not have enough quantity');
         }
 
         if (TIME === 'TIME_FLEXIBLE') {
@@ -227,7 +228,7 @@ async function setBookingAvailability({
             });
 
             if (!availability.isAvailable) {
-                throw new BadRequestError('Not available');
+                throw createError(400, 'Not available');
             }
         }
 
@@ -248,7 +249,7 @@ async function setBookingPrices({
 }) {
     const owner = await User.findOne({ id: listing.ownerId });
     if (!owner) {
-        throw new NotFoundError('Owner not found');
+        throw createError('Owner not found');
     }
 
     const {

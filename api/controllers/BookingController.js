@@ -36,6 +36,7 @@ var path      = require('path');
 var fs        = require('fs');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 // TODO: use this cache to send message server-side during payment
 // Rather than relying on client-side booking-confirmation view
@@ -68,7 +69,7 @@ function findOne(req, res) {
     return Promise.coroutine(function* () {
         var booking = yield Booking.findOne({ id: id });
         if (! booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         var result = yield Promise.props({
@@ -82,7 +83,7 @@ function findOne(req, res) {
         if (! listingSnapshot
             || (booking.cancellationId && ! cancellation)
         ) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         if (booking.ownerId === req.user.id) {
@@ -178,20 +179,18 @@ async function accept(req, res) {
     try {
         let booking = await Booking.findOne({ id });
         if (!booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
         // the booking cannot be accepted by the current user
         if (Booking.getAgreementUserId(booking) !== req.user.id) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
         // booking cancelled or already accepted
         if (booking.cancellationId || booking.acceptedDate) {
-            throw new BadRequestError();
+            throw createError(400);
         }
         if (Booking.isValidationTooLate(booking, now)) {
-            var error = new BadRequestError("Validation too late");
-            error.expose = true;
-            throw new BadRequestError();
+            throw createError(400, 'Validation too late');
         }
 
         const { ASSESSMENTS } = booking.listingType.properties;
@@ -284,13 +283,13 @@ function cancel(req, res) {
     return Promise.coroutine(function* () {
         var booking = yield Booking.findOne({ id: id });
         if (! booking) {
-            throw new NotFoundError();
+            throw createError(404);
         }
         if (booking.cancellationId) {
-            throw new BadRequestError("booking already cancelled");
+            throw createError(400, 'Booking already cancelled');
         }
         if ((req.user.id === booking.ownerId && reasonType !== "rejected")) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         if (giverMessage && giverMessage.privateContent && giverMessage.senderId) {
@@ -382,10 +381,10 @@ function payment(req, res) {
         })
         .spread((booking, card, transactionManager) => {
             if (! booking) {
-                throw new NotFoundError();
+                throw createError(404);
             }
             if (req.user.id !== booking.takerId) {
-                throw new ForbiddenError();
+                throw createError(403);
             }
             // if booking is already paid or cancelled
             if (booking.paidDate
@@ -394,7 +393,7 @@ function payment(req, res) {
                 || (booking.depositDate && operation === "deposit")
                 || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
             ) {
-                throw new BadRequestError();
+                throw createError(400);
             }
 
             // store booking message for emails sent before message creation in booking-confirmation view
@@ -465,13 +464,13 @@ function payment(req, res) {
             .resolve()
             .then(() => {
                 if (! card) {
-                    throw new NotFoundError();
+                    throw createError(404);
                 }
                 if (card.validity === "INVALID") {
-                    throw new BadRequestError("invalid card");
+                    throw createError(400, 'Card invalid');
                 }
                 if (! card.active) {
-                    throw new BadRequestError("inactive card");
+                    throw createError(400, 'Card inactive');
                 }
 
                 var limitDate;
@@ -482,9 +481,7 @@ function payment(req, res) {
                 }
 
                 if (Card.isExpiredAt(card, moment(limitDate).add(30, "d").format(formatDate))) {
-                    error = new BadRequestError("expiration date too short");
-                    error.expose = true;
-                    throw error;
+                    throw createError(400, 'Expiration date too short');
                 }
 
                 return [
@@ -494,7 +491,7 @@ function payment(req, res) {
             })
             .spread((owner, randomString) => {
                 if (! owner) {
-                    throw new NotFoundError();
+                    throw createError(404);
                 }
 
                 var type;
@@ -562,8 +559,6 @@ function payment(req, res) {
                 });
             })
             .then(preauthorization => {
-                var preauthError;
-
                 if (preauthorization.Status === "FAILED") {
                     PaymentError.createError({
                         req,
@@ -577,15 +572,14 @@ function payment(req, res) {
                     error.preauthorization = preauthorization;
                     req.logger.error({ err: error });
 
-                    preauthError = new BadRequestError("preauthorization fail");
-                    preauthError.resultCode = preauthorization.ResultCode;
-                    preauthError.expose = true;
-                    throw preauthError;
+                    throw createError(400, 'preauthorization fail', {
+                        resultCode: preauthorization.ResultCode,
+                    });
                 }
 
                 if (preauthorization.SecureModeNeeded) {
                     // redirection to secure mode managed in client side
-                    res.ok({ redirectURL: preauthorization.SecureModeRedirectURL });
+                    res.json({ redirectURL: preauthorization.SecureModeRedirectURL });
                 } else {
                     var data = {
                         booking: booking,
@@ -605,10 +599,9 @@ function payment(req, res) {
                             if (err.errorType === "fail") {
                                 req.logger.error({ err: err.error });
 
-                                preauthError = new BadRequestError("preauthorization fail");
-                                preauthError.resultCode = err.ResultCode;
-                                preauthError.expose = true;
-                                throw preauthError;
+                                throw createError(400, 'preauthorization fail', {
+                                    resultCode: err.ResultCode,
+                                });
                             } else {
                                 throw err;
                             }
@@ -760,7 +753,7 @@ function _paymentProcessAfterPreauth(data) {
                 .then(c => {
                     card = c;
                     if (! card) {
-                        throw new NotFoundError();
+                        throw createError(404);
                     }
 
                     if (card.validity === "UNKNOWN") {
@@ -1150,7 +1143,7 @@ function _sendBookingPendingEmailsSms(data) {
                 .limit(1);
 
             if (!assessment) {
-                throw new NotFoundError("Fail to get assessment for booking confirm emails");
+                throw new Error('Fail to get assessment for booking confirm emails');
             }
 
             const res = await _sendBookingConfirmedEmailsSms({
@@ -1416,7 +1409,7 @@ function createContractToken(req, res) {
         })
         .spread((booking, randomString, token) => {
             if (! booking) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             if (token && now < moment(token.createdDate).add(1, "h").toISOString()) {
@@ -1429,7 +1422,7 @@ function createContractToken(req, res) {
             ];
 
             if (! _.contains(allowedPeople, req.user.id)) {
-                throw new ForbiddenError();
+                throw createError(403);
             }
 
             var createAttrs = {
@@ -1458,7 +1451,7 @@ function getContract(req, res) {
     var conversation;
 
     if (! tokenValue) {
-        return sendErrorView(new ForbiddenError());
+        return sendErrorView(createError(403));
     }
 
     Promise
@@ -1487,13 +1480,13 @@ function getContract(req, res) {
             conversation = conv;
 
             if (! booking) {
-                throw new NotFoundError();
+                throw createError(404);
             }
             if (! token) {
-                throw new ForbiddenError();
+                throw createError(403);
             }
             if (token.expirationDate < moment().toISOString()) {
-                throw new ForbiddenError("token expired");
+                throw createError(403, 'Token expired');
             }
 
             return [
@@ -1548,8 +1541,8 @@ function getContract(req, res) {
             body += "L'URL du contrat a expiré. Vous allez être redirigé dans quelques instants...";
             body += getRedirectURLScript(conversationUrl);
 
-            res.ok(getHtml(body));
-        } else if (err instanceof ForbiddenError) {
+            res.send(200, getHtml(body));
+        } else if (err.status === 403) {
             body += "L'URL du contrat est incorrecte. Vous allez être redirigé dans quelques instants...";
             body += getRedirectURLScript("/");
 

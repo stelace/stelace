@@ -1,6 +1,5 @@
 /* global TokenService */
 
-const _ = require('lodash');
 const Promise = require('bluebird');
 var jwt = require('jsonwebtoken');
 
@@ -21,14 +20,6 @@ module.exports = function (req, res, next) {
             isOptional: true
         })
         .then(() => next())
-        .catch(err => {
-            if (err instanceof Error
-             && _.contains(["AuthenticationNeeded", "ForceAuthentication"], err.message)
-            ) {
-                err.expose = true;
-            }
-
-            res.sendError(err);
-        });
+        .catch(res.sendError);
 
 };

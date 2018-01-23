@@ -29,12 +29,7 @@
     },
     "globals": {
         // vendor
-        "sails": false,
-
-        // own
-        "BadRequestError": true,
-        "ForbiddenError": true,
-        "NotFoundError": true
+        "sails": false
     },
     "rules": {
         "no-console": 0,

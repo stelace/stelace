@@ -19,6 +19,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function find(req, res) {
     var listingCategoryId = req.param("listingCategoryId");
@@ -78,7 +79,7 @@ function findOne(req, res) {
         })
         .then(brand => {
             if (! brand) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             res.json(Brand.expose(brand, access));
@@ -105,10 +106,10 @@ function create(req, res) {
         })
         .spread((listingCategory, brand) => {
             if (brand) {
-                throw new BadRequestError("existing brand");
+                throw createError(400, 'Existing brand');
             }
             if (listingCategoryId && ! listingCategory) {
-                throw new BadRequestError("listing category doesn't exist");
+                throw createError(400, 'Listing category doesn\'t exist');
             }
 
             if (listingCategoryId) {
@@ -146,7 +147,7 @@ function update(req, res) {
         })
         .then(listingCategories => {
             if (listingCategories.length !== updateAttrs.listingCategories.length) {
-                throw new BadRequestError("listing categories don't all exist");
+                throw createError(400, 'Listing categories don\'t all exist');
             }
 
             return Brand.updateOne(id, updateAttrs);

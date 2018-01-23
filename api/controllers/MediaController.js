@@ -26,6 +26,7 @@ module.exports = {
 };
 
 const Url = require('url');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -94,7 +95,7 @@ async function getRedirect(req, res) {
     try {
         const media = await Media.findOne({ id, uuid });
         if (!media) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         const parsedUrl = Url.parse(req.url);

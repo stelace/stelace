@@ -53,10 +53,10 @@ Sails.load({
         })
         .then(media => {
             if (! media) {
-                throw new NotFoundError();
+                throw new Error('Not found media');
             }
             if (media.type !== "img") {
-                throw new BadRequestError("media not an image");
+                throw new Error('Media not an image');
             }
 
             var filepath    = path.join(sails.config.uploadDir, Media.getStorageFilename(media));

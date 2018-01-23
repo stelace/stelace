@@ -82,6 +82,7 @@ var moment = require('moment');
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 const knex = require('knex')({
     client: 'mysql',
@@ -182,7 +183,6 @@ function exposeTransform(/* element, field, access */) {
 
 function updateOne(queryIdOrObj, updateAttrs) {
     var model = this;
-    var error;
 
     return Promise.coroutine(function* () {
         var query = (typeof queryIdOrObj === "object" ? queryIdOrObj : { id: queryIdOrObj });
@@ -190,16 +190,16 @@ function updateOne(queryIdOrObj, updateAttrs) {
         var records = yield model.update(query, updateAttrs);
 
         if (! records.length) {
-            error = new NotFoundError("Update one - not found");
-            error.model = model.globalId;
-            error.query = queryIdOrObj;
-            throw error;
+            throw createError('Update one - not found', {
+                model: model.globalId,
+                query: queryIdOrObj,
+            });
         }
         if (records.length > 1) {
-            error = new Error("Update one - multiple instances");
-            error.model = model.globalId;
-            error.query = queryIdOrObj;
-            throw error;
+            throw createError('Update one - multiple instances', {
+                model: model.globalId,
+                query: queryIdOrObj,
+            });
         }
 
         return records[0];

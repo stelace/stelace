@@ -9,13 +9,14 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const createError = require('http-errors');
 
 async function userRegistered(req, res) {
     let { startDate, endDate } = req.allParams();
 
     try {
         if (!StatsService.isValidPeriodDates(startDate, endDate)) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         const upperEndDate = StatsService.getDayAfter(endDate);
@@ -45,7 +46,7 @@ async function listingPublished(req, res) {
 
     try {
         if (!StatsService.isValidPeriodDates(startDate, endDate)) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         const upperEndDate = StatsService.getDayAfter(endDate);
@@ -74,7 +75,7 @@ async function bookingPaid(req, res) {
 
     try {
         if (!StatsService.isValidPeriodDates(startDate, endDate)) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         const upperEndDate = StatsService.getDayAfter(endDate);

@@ -10,6 +10,7 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const createError = require('http-errors');
 
 /**
  * Get all authentication means for a user
@@ -45,7 +46,7 @@ async function addPasswordAuth(params, options = {}) {
     const { checkExistingAuth = true } = options;
 
     if (!userId || !password) {
-        throw new BadRequestError('Missing credentials');
+        throw createError(400, 'Missing credentials');
     }
 
     if (checkExistingAuth) {

@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
 
     if (! rawToken) {
         // dismiss with HTTP 204 "No Content" response
-        return res.send(204);
+        return res.sendStatus(204);
     }
 
     // isAuthenticated must check token validity

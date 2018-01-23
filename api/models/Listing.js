@@ -238,6 +238,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -459,7 +460,7 @@ function getFutureBookings(listingIdOrIds, refDate) {
 function updateTags(listing, tagIds) {
     return Promise.coroutine(function* () {
         if (! MicroService.checkArray(tagIds, "id")) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         var listingXTags = yield ListingXTag.find({ listingId: listing.id });

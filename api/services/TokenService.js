@@ -22,6 +22,7 @@ var jwt      = require('jsonwebtoken');
 var moment   = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function isValidBearerToken(token) {
     if (typeof token !== "string") {
@@ -149,7 +150,7 @@ function checkAuthToken(args) {
             return jwt.verifyAsync(token, secret)
                 .catch(err => {
                     if (_.contains(["TokenExpiredError", "JsonWebTokenError"], err.name)) {
-                        throw new ForbiddenError("ForceAuthentication");
+                        throw createError(403, 'ForceAuthentication');
                     } else {
                         throw err;
                     }
@@ -159,7 +160,7 @@ function checkAuthToken(args) {
             if (! TokenService.isValidFormatAuthToken(decodedToken)
              || ! TokenService.isValidToken(decodedToken, userAgent)
             ) {
-                throw new ForbiddenError("ForceAuthentication");
+                throw createError(403, 'ForceAuthentication');
             }
 
             if (isRefreshing) {
@@ -168,19 +169,19 @@ function checkAuthToken(args) {
                 var forceReauthDate = moment(decodedToken.loggedAt * 1000).add(authExpirationInDays, "d");
 
                 if (forceReauthDate.isBefore(now)) {
-                    var error = new ForbiddenError("ForceAuthentication");
+                    var error = createError(403, 'ForceAuthentication');
                     error.expose = true;
                     throw error;
                 }
 
                 // cannot refresh an unexpired token
                 if (new Date().getTime() < new Date(decodedToken.toRefreshAt * 1000).getTime()) {
-                    throw new ForbiddenError();
+                    throw createError(403);
                 }
             } else {
                 // must refresh an expired token
                 if (new Date(decodedToken.toRefreshAt * 1000).getTime() <= new Date().getTime()) {
-                    throw new ForbiddenError("AuthenticationNeeded");
+                    throw createError(403, 'AuthenticationNeeded');
                 }
             }
 

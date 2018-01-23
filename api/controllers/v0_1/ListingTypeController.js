@@ -10,6 +10,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 async function find(req, res) {
     const access = 'api';
     const attrs = req.allParams();
@@ -37,7 +39,7 @@ async function findOne(req, res) {
     try {
         const listingType = await ListingType.findOne({ id });
         if (!listingType) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         res.json(ListingType.expose(listingType, access));

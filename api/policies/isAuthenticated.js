@@ -1,7 +1,7 @@
 /* global TokenService */
 
-const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 var jwt = require('jsonwebtoken');
 
 Promise.promisifyAll(jwt);
@@ -13,8 +13,7 @@ module.exports = function (req, res, next) {
 
     if (! rawToken) {
         if (req.wantsJSON || req.xhr) {
-            var error = new ForbiddenError("AuthenticationNeeded");
-            error.expose = true;
+            const error = createError(403, 'AuthenticationNeeded');
             return res.sendError(error);
         } else {
             return res.redirect("/login");
@@ -27,14 +26,6 @@ module.exports = function (req, res, next) {
             token: rawToken
         })
         .then(() => next())
-        .catch(err => {
-            if (err instanceof Error
-             && _.contains(["AuthenticationNeeded", "ForceAuthentication"], err.message)
-            ) {
-                err.expose = true;
-            }
-
-            res.sendError(err);
-        });
+        .catch(res.sendError);
 
 };

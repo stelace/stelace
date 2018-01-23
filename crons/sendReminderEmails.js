@@ -9,6 +9,7 @@ var cronTaskName = "sendReminderEmails";
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 var moment = require('moment');
 
@@ -320,28 +321,33 @@ Sails.load({
                     var listing         = indexedListings[booking.listingId];
                     var conversation = indexedConversations[booking.id];
 
-                    var error;
+                    let error;
+
                     if (! taker) {
-                        error = new NotFoundError("Taker not found");
-                        error.bookingId = booking.id;
-                        error.takerId   = booking.takerId;
+                        error = createError('Taker not found', {
+                            bookingId: booking.id,
+                            takerId: booking.takerId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! owner) {
-                        error = new NotFoundError("Giver not found");
-                        error.bookingId = booking.id;
-                        error.ownerId   = booking.ownerId;
+                        error = createError('Giver not found', {
+                            bookingId: booking.id,
+                            ownerId: booking.ownerId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! listing) {
-                        error = new NotFoundError("Listing not found");
-                        error.bookingId = booking.id;
-                        error.listingId    = booking.listingId;
+                        error = createError('Listing not found', {
+                            bookingId: booking.id,
+                            listingId: booking.listingId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! conversation) {
-                        error = new NotFoundError("Conversation not found");
-                        error.bookingId = booking.id;
+                        error = createError('Conversation not found', {
+                            bookingId: booking.id,
+                        });
                         logger.error({ err: error });
                     }
 
@@ -403,12 +409,14 @@ Sails.load({
 
                 var result = _.reduce(bookings, (memo, booking) => {
                     var owner = indexedOwners[booking.ownerId];
-                    var error;
+
+                    let error;
 
                     if (! owner) {
-                        error = new NotFoundError("Owner not found");
-                        error.bookingId = booking.id;
-                        error.ownerId   = booking.ownerId;
+                        error = createError('Owner not found', {
+                            bookingId: booking.id,
+                            ownerId: booking.ownerId,
+                        });
                         logger.error({ err: error });
                     }
 
@@ -440,16 +448,19 @@ Sails.load({
                     var listing         = indexedListings[obj.booking.listingId];
                     var conversation = indexedConversations[obj.booking.id];
 
-                    var error;
+                    let error;
+
                     if (! listing) {
-                        error = new NotFoundError("Listing not found");
-                        error.bookingId = obj.booking.id;
-                        error.listingId    = obj.booking.listingId;
+                        error = createError('Listing not found', {
+                            bookingId: obj.booking.id,
+                            listingId: obj.booking.listingId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! conversation) {
-                        error = new NotFoundError("Conversation not found");
-                        error.bookingId = obj.booking.id;
+                        error = createError('Conversation not found', {
+                            bookingId: obj.booking.id,
+                        });
                         logger.error({ err: error });
                     }
 
@@ -534,23 +545,27 @@ Sails.load({
                     var giver = indexedGivers[obj.giverId];
                     var listing  = indexedListings[obj.listingId];
 
-                    var error;
+                    let error;
+
                     if (! taker) {
-                        error = new NotFoundError("Taker not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.takerId      = obj.takerId;
+                        error = createError('Taker not found', {
+                            assessmentId: obj.assessment.id,
+                            takerId: obj.takerId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! giver) {
-                        error = new NotFoundError("Giver not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.giverId      = obj.giverId;
+                        error = createError('Giver not found', {
+                            assessmentId: obj.assessment.id,
+                            giverId: obj.giverId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! listing) {
-                        error = new NotFoundError("Listing not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.listingId       = obj.listingId;
+                        error = createError('Listing not found', {
+                            assessmentId: obj.assessment.id,
+                            listingId: obj.listingId,
+                        });
                         logger.error({ err: error });
                     }
 
@@ -636,23 +651,27 @@ Sails.load({
                     var giver = indexedGivers[obj.giverId];
                     var listing  = indexedListings[obj.listingId];
 
-                    var error;
+                    let error;
+
                     if (! taker) {
-                        error = new NotFoundError("Taker not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.takerId      = obj.takerId;
+                        error = createError('Taker not found', {
+                            assessmentId: obj.assessment.id,
+                            takerId: obj.takerId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! giver) {
-                        error = new NotFoundError("Giver not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.giverId      = obj.giverId;
+                        error = createError('Giver not found', {
+                            assessmentId: obj.assessment.id,
+                            giverId: obj.giverId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! listing) {
-                        error = new NotFoundError("Listing not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.listingId       = obj.listingId;
+                        error = createError('Listing not found', {
+                            assessmentId: obj.assessment.id,
+                            listingId: obj.listingId,
+                        });
                         logger.error({ err: error });
                     }
 
@@ -728,9 +747,10 @@ Sails.load({
                     if (assessment.startBookingId) {
                         booking = indexedBookings[assessment.startBookingId];
                         if (! booking) {
-                            var error          = new NotFoundError("Booking not found");
-                            error.assessmentId = assessment.id;
-                            error.bookingId    = assessment.startBookingId;
+                            const error = createError('Booking not found', {
+                                assessmentId: assessment.id,
+                                bookingId: assessment.startBookingId,
+                            });
                             logger.error({ err: error });
                         }
 
@@ -775,11 +795,13 @@ Sails.load({
                     var listing       = indexedListings[assessment.listingId];
                     var ratings    = indexedRatings[assessment.id] || [];
 
-                    var error;
+                    let error;
+
                     if (! listing) {
-                        error = new NotFoundError("Listing not found");
-                        error.assessmentId = assessment.id;
-                        error.listingId       = assessment.listingId;
+                        error = createError('Listing not found', {
+                            assessmentId: assessment.id,
+                            listingId: assessment.listingId,
+                        });
                         logger.error({ err: error });
                     }
 
@@ -831,17 +853,20 @@ Sails.load({
                     var target = indexedTargets[obj.targetId];
                     var media  = indexedMedias[obj.mediaId];
 
-                    var error;
+                    let error;
+
                     if (! user) {
-                        error = new NotFoundError("User not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.userId       = obj.userId;
+                        error = createError('User not found', {
+                            assessmentId: obj.assessment.id,
+                            userId: obj.userId,
+                        });
                         logger.error({ err: error });
                     }
                     if (! target) {
-                        error = new NotFoundError("Target not found");
-                        error.assessmentId = obj.assessment.id;
-                        error.targetId     = obj.targetId;
+                        error = createError('Target not found', {
+                            assessmentId: obj.assessment.id,
+                            targetId: obj.targetId,
+                        });
                         logger.error({ err: error });
                     }
 

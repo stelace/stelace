@@ -21,6 +21,7 @@ module.exports = {
 };
 
 var CryptoJS = require('crypto-js');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -103,7 +104,7 @@ function destroy(req, res) {
         })
         .then(card => {
             if (! card) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             return Card.updateOne(card.id, { forget: true });

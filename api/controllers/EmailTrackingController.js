@@ -37,7 +37,7 @@ function create(req, res) {
 
 async function sparkpost(req, res) {
     if (req.method === 'HEAD') {
-        return res.ok();
+        return res.sendStatus(200);
     }
     if (req.method !== "POST" || ! req.body) {
         return res.forbidden();
@@ -76,7 +76,7 @@ async function sparkpost(req, res) {
                 });
         });
 
-        res.ok();
+        res.sendStatus(200);
     } catch(e) {
         req.logger({ err: e }, 'Sparkpost webhook events saving');
         res.serverError();
@@ -91,7 +91,7 @@ async function sparkpost(req, res) {
 
 function mandrill(req, res) {
     if (req.method === "HEAD") {
-        return res.ok();
+        return res.sendStatus(200);
     }
     if (req.method !== "POST" || ! req.body) {
         return res.forbidden();
@@ -117,7 +117,7 @@ function mandrill(req, res) {
 
         yield EmailTrackingService.saveEventsContent(mandrillMessageIds, req.logger);
 
-        res.ok();
+        res.sendStatus(200);
     })()
     .catch(res.sendError);
 }

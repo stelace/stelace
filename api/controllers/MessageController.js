@@ -28,6 +28,7 @@ module.exports = {
 var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 // Standard functions
 
@@ -95,7 +96,7 @@ function conversation(req, res) {
         })
         .then(messages => {
             if (! messages.length) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             var isSelf = _.find(messages, function (message) {
@@ -130,7 +131,7 @@ function conversationMeta(req, res) {
         })
         .then(conversation => {
             if (! conversation) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             isSender   = req.user && (req.user.id === conversation.senderId);
@@ -154,7 +155,7 @@ function conversationMeta(req, res) {
              || (conversation.receiverId && ! receiverLocations)
              || (conversation.bookingId && ! booking)
             ) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             return [

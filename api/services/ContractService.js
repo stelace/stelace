@@ -10,6 +10,7 @@ module.exports = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 var fs         = require('fs');
 var Handlebars = require('handlebars');
 var path       = require('path');
@@ -119,7 +120,7 @@ function _getData(booking) {
                     .fetch(snapshotsIds)
                     .then(snapshots => {
                         if (snapshotsIds.length !== snapshots.length) {
-                            throw new NotFoundError();
+                            throw createError(404);
                         }
 
                         return snapshots;

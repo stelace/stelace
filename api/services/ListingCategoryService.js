@@ -10,6 +10,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 /**
  * @param {String} name
  * @param {Number} [parentId] - specify the parent category if needed
@@ -25,10 +27,10 @@ async function createListingCategory({ name, parentId }) {
     ]);
 
     if (existingListingCategory) {
-        throw new BadRequestError("Category already exists");
+        throw createError(400, 'Category already exists');
     }
     if (parentId && ! parentCategory) {
-        throw new BadRequestError("Parent category does not exist");
+        throw createError(400, 'Parent category does not exist');
     }
 
     const listingCategory = await ListingCategory.createListingCategory({ name, parentId });
@@ -43,12 +45,12 @@ async function createListingCategory({ name, parentId }) {
  */
 async function updateListingCategory(listingCategoryId, { name }) {
     if (!name) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const listingCategory = await ListingCategory.updateOne(listingCategoryId, { name });
     if (!listingCategory) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     return listingCategory;
@@ -64,7 +66,7 @@ async function removeListingCategory(listingCategoryId, { fallbackCategoryId }) 
     const nbListings = await Listing.count({ listingCategoryId });
 
     if (nbListings && !fallbackCategoryId) {
-        throw new BadRequestError('Listing category is still used');
+        throw new createError(400, 'Listing category is still used');
     }
 
     await assignListings(listingCategoryId, fallbackCategoryId);

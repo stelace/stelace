@@ -8,6 +8,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 const maxNbWebhooks = 2;
 
 async function find(req, res) {
@@ -33,7 +35,7 @@ async function create(req, res) {
     try {
         const webhooks = await Webhook.find({ apiKeyId: req.apiKey.id });
         if (webhooks.length >= maxNbWebhooks) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         const webhook = await Webhook.create({
@@ -56,7 +58,7 @@ async function destroy(req, res) {
             id,
         });
 
-        res.ok();
+        res.sendStatus(200);
     } catch (err) {
         res.sendError(err);
     }

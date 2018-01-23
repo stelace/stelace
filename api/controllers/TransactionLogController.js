@@ -73,7 +73,7 @@ function webhook(req, res) {
             });
         }
     })()
-    .then(() => res.ok())
+    .then(() => res.sendStatus(200))
     .catch(err => {
         req.logger.error({ err: err }, "Mangopay webhook, fail creating TransactionLog");
         res.serverError(err);

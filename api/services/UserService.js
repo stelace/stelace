@@ -9,6 +9,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 /**
  * @param {Number} userId
  * @param {Boolean} [populateMedia = false]
@@ -22,7 +24,7 @@ async function findUser(userId, { populateMedia = false } = {}) {
         destroyed: false,
     });
     if (!user) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const result = {
@@ -73,15 +75,13 @@ async function createUser(attrs, options = {}) {
     } = options;
 
     if (!email) {
-        throw new BadRequestError('Email is required');
+        throw createError(400, 'Email is required');
     }
     if (!MicroService.isEmail(email)) {
-        const error = new BadRequestError("Invalid email");
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Invalid email');
     }
     if (passwordRequired && !password) {
-        throw new BadRequestError("Missing password");
+        throw createError(400, 'Missing password');
     }
 
     let emailUsername;
@@ -93,9 +93,7 @@ async function createUser(attrs, options = {}) {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        const error = new BadRequestError("email exists");
-        error.expose = true;
-        throw error;
+        throw createError(400, 'email exists');
     }
 
     let user;
@@ -114,9 +112,7 @@ async function createUser(attrs, options = {}) {
     } catch (err) {
         if (err.code === "E_VALIDATION") {
             if (err.invalidAttributes.email) {
-                const error = new BadRequestError("email exists");
-                error.expose = true;
-                throw error;
+                throw createError(400, 'email exists');
             } else {
                 throw new Error("user exists");
             }
@@ -175,14 +171,12 @@ async function updateUser(userId, attrs = {}) {
     } = attrs;
 
     if (typeof email !== 'undefined' && !MicroService.isEmail(email)) {
-        const error = new BadRequestError("Invalid email");
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Invalid email');
     }
 
     const foundUser = await User.findOne({ id: userId });
     if (!foundUser) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const updateAttrs = {
@@ -220,19 +214,18 @@ async function updateUser(userId, attrs = {}) {
 async function destroyUser(userId, { trigger, keepCommittedBookings } = {}, { req, res }) {
     const user = await User.findOne({ id: userId });
     if (!user) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (typeof keepCommittedBookings === 'undefined') {
-        throw new BadRequestError('Missing committed booking params');
+        throw createError(400, 'Missing committed booking params');
     }
 
     const { allDestroyable } = await User.canBeDestroyed([user], { keepCommittedBookings });
     if (!allDestroyable) {
-        const error = new BadRequestError('user cannot be destroyed');
-        error.userId = userId;
-        error.notDestroyable = true;
-        error.expose = true;
-        throw error;
+        throw createError(400, 'User cannot be destroyed', {
+            userId,
+            notDestroyable: true,
+        });
     }
 
     await User.destroyUser(user, { trigger }, { req, res });

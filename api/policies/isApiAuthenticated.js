@@ -10,7 +10,7 @@ module.exports = async function (req, res, next) {
 
         const apiKey = await ApiKey.findOne({ key });
         if (!apiKey) {
-            return res.status(401).send();
+            return res.sendStatus(401);
         }
 
         req.apiKey = apiKey;

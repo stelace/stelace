@@ -15,6 +15,7 @@ module.exports = {
 const moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 /**
  * find assessments from conversation (input, output, before input, before output)
@@ -31,10 +32,10 @@ const Promise = require('bluebird');
 async function findAssessments(conversationId, userId) {
     var conversation = await Conversation.findOne({ id: conversationId });
     if (! conversation) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (userId && ! Conversation.isPartOfConversation(conversation, userId)) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     var error;
@@ -136,13 +137,13 @@ function createAssessment(args) {
         if (! booking
             || ! _.includes(["start", "end"], type)
         ) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         if (typeof beforeAssessment === "undefined") {
             beforeAssessment = yield Assessment.getLastSigned(booking.listingId);
         } else if (beforeAssessment.listingId !== booking.listingId) {
-            throw new BadRequestError("the before assessment and booking don't match on listing id");
+            throw createError(400, 'the before assessment and booking don\'t match on listing id');
         }
 
         if (beforeAssessment && ! stateFields) {
@@ -187,19 +188,19 @@ function updateAssessment(assessmentId, updateAttrs, userId) {
         if ((updateAttrs.workingLevel && ! _.contains(Assessment.get("workingLevels"), updateAttrs.workingLevel))
             || (updateAttrs.cleanlinessLevel && ! _.contains(Assessment.get("cleanlinessLevels"), updateAttrs.cleanlinessLevel))
         ) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         var assessment = yield Assessment.findOne({ id: assessmentId });
         if (! assessment) {
-            throw new NotFoundError();
+            throw createError(404);
         }
         // the user that can edit assessment is the one that gives the listing
         if (Assessment.getRealGiverId(assessment) !== userId) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
         if (assessment.signedDate) {
-            throw new ForbiddenError("assessment signed");
+            throw createError(400, 'Assessment already signed');
         }
 
         return yield Assessment.updateOne(assessment.id, updateAttrs);
@@ -221,24 +222,22 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
 
     let assessment = await Assessment.findOne({ id: assessmentId });
     if (! assessment) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     // the user that can sign assessment is the one that gives the listing
     if (Assessment.getRealGiverId(assessment) !== userId) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
     if (! assessment.workingLevel
         || ! assessment.cleanlinessLevel
     ) {
-        throw new BadRequestError('assessment missing required fields');
+        throw createError(400, 'Assessment missing required fields');
     }
     if (assessment.signedDate) {
-        throw new BadRequestError('assessment already signed');
+        throw createError(400, 'Assessment already signed');
     }
     if (assessment.signToken !== signToken) {
-        const error = new BadRequestError('wrong token');
-        error.expose = true;
-        throw error;
+        throw createError(400, 'wrong token');
     }
 
     let outputAssessment;
@@ -342,7 +341,7 @@ function _sendAssessmentEmailsSms(data) {
             if (! assessment
                 || ! logger
             ) {
-                throw new BadRequestError("missing args");
+                throw createError('Missing args');
             }
 
             return getData(assessment, newAssessment, logger);
@@ -440,7 +439,7 @@ function _sendAssessmentEmailsSms(data) {
                 // send booking-checkout emails to taker and owner if startBookingId, or listing-return emails to owner and taker if endBookingId
                 if (assessment.startBookingId) {
                     if (! newAssessment && ! Booking.isNoTime(startBooking)) {
-                        throw new BadRequestError("newAssessment missing");
+                        throw createError('newAssessment missing');
                     }
 
                     return Promise.all([

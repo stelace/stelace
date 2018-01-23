@@ -7,7 +7,7 @@ module.exports = async function (req, res, next) {
      || !providerKey
      || key !== providerKey
     ) {
-        return res.status(401).send();
+        return res.sendStatus(401);
     }
 
     next();

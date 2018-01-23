@@ -30,7 +30,7 @@ function find(req, res) {
 
 function findOne(req, res) {
     // to fix googlebot dumb request
-    return res.ok();
+    return res.sendStatus(200);
 }
 
 function create(req, res) {
@@ -51,7 +51,7 @@ function createEvent(req, res) {
     params.res = res;
 
     if (! params.label) {
-        return res.ok();
+        return res.sendStatus(200);
     }
 
     return Promise.coroutine(function* () {
@@ -70,7 +70,7 @@ function createEvent(req, res) {
             eventToken: stelaceEvent.token
         });
     })()
-    .catch(() => res.ok());
+    .catch(() => res.sendStatus(200));
 
 
 
@@ -103,7 +103,7 @@ function updateEvent(req, res) {
     var updateAttrs = _.pick(req.allParams(), filteredAttrs);
 
     if (! token) {
-        return res.ok();
+        return res.sendStatus(200);
     }
 
     var now = moment().toISOString();
@@ -121,6 +121,6 @@ function updateEvent(req, res) {
 
         yield StelaceSession.updateOne(stelaceEvent.sessionId, { lastEventDate: now });
     })()
-    .then(() => res.ok())
-    .catch(() => res.ok());
+    .then(() => res.sendStatus(200))
+    .catch(() => res.sendStatus(200));
 }

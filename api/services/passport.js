@@ -8,6 +8,7 @@ var request  = require('request');
 var uuid     = require('uuid');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Promise.promisifyAll(fs);
 Promise.promisifyAll(request, { multiArgs: true });
@@ -77,12 +78,12 @@ passport.connect = async function (req, query, profile, next) {
         query.provider = req.param('provider');
 
         if (! query.provider || ! query.identifier) {
-            throw new BadRequestError("not valid passport info");
+            throw createError(400, 'Not valid info');
         }
 
         const activeSocialLogin = await StelaceConfigService.isFeatureActive('SOCIAL_LOGIN');
         if (!activeSocialLogin) {
-            throw new ForbiddenError('Social login disabled');
+            throw createError(403, 'Social login disabled');
         }
 
         const [passport] = await Passport
@@ -336,7 +337,7 @@ passport.callback = function (req, res, next) {
             this.protocols.local.connect(req, res, next);
         } else {
             // cannot register twice or perform actions different from (register, connect)
-            next(new BadRequestError("invalid action"));
+            next(createError(400, 'Invalid action'));
         }
     } else {
 
@@ -346,7 +347,7 @@ passport.callback = function (req, res, next) {
         // has failed.
 
         if (provider === "local" && (! req.param("identifier") || ! req.param("password"))) {
-            return next(new BadRequestError("invalid action"));
+            return next(createError(400, 'Invalid action'));
         }
 
         this.authenticate(provider, next)(req, res, req.next);

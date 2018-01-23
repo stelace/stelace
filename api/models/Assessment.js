@@ -152,6 +152,7 @@ var params = {
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -304,7 +305,7 @@ function getSnapshots(assessment) {
             || ! owner
             || ! taker
         ) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         results = yield Promise.props({

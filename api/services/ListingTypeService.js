@@ -28,6 +28,7 @@ module.exports = {
 
 const moment = require('moment');
 const _ = require('lodash');
+const createError = require('http-errors');
 
 let cached = false;
 let allListingTypes;
@@ -315,10 +316,7 @@ async function createListingType({
     });
 
     if (errors.length) {
-        const error = new BadRequestError('Bad params');
-        error.errors = errors;
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Bad params');
     }
 
     const listingType = await ListingType.create(computedListingType);
@@ -345,7 +343,7 @@ async function updateListingType(listingTypeId, {
 } = {}) {
     const listingType = await getListingType(listingTypeId, { onlyActive: false });
     if (!listingType) {
-        throw new NotFoundError();
+        throw createError(404);
     }
 
     const { computedListingType, errors } = getComputedListingType({
@@ -357,10 +355,7 @@ async function updateListingType(listingTypeId, {
     }, listingType);
 
     if (errors.length) {
-        const error = new BadRequestError('Bad params');
-        error.errors = errors;
-        error.expose = true;
-        throw error;
+        throw createError(400, 'Bad params');
     }
 
     const updatedListingType = await ListingType.updateOne(listingTypeId, computedListingType);

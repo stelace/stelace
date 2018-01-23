@@ -20,6 +20,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 async function find(req, res) {
     const conversationId = req.param('conversationId');
     const access = 'self';
@@ -45,7 +47,7 @@ async function findOne(req, res) {
     try {
         const assessment = await Assessment.findOne({ id });
         if (! assessment) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         if (Assessment.isAccessSelf(assessment, req.user)) {

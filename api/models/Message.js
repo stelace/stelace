@@ -97,6 +97,7 @@ module.exports = {
 var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -161,8 +162,6 @@ function createMessage(userId, createAttrs, params) {
     ];
     var logger = params.logger || LoggerService.getLogger("app");
 
-    var error;
-
     return Promise.coroutine(function* () {
         var results = yield Promise.props({
             listing: Listing.findOne({ id: createAttrs.listingId }),
@@ -175,7 +174,7 @@ function createMessage(userId, createAttrs, params) {
         var messages     = results.messages;
 
         if (! listing) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         var booking;
@@ -186,10 +185,10 @@ function createMessage(userId, createAttrs, params) {
             booking = yield Booking.findOne({ id: conversation.bookingId });
 
             if (! booking) {
-                error = new NotFoundError("Missing conversation booking");
-                error.conversationId = conversation.id;
-                error.bookingId      = conversation.bookingId;
-                throw error;
+                throw createError('Missing conversation booking', {
+                    conversationId: conversation.id,
+                    bookingId: conversation.bookingId,
+                });
             }
         }
 
@@ -198,7 +197,7 @@ function createMessage(userId, createAttrs, params) {
             newBooking = yield Booking.findOne({ id: createAttrs.bookingId });
 
             if (! newBooking) {
-                throw new NotFoundError();
+                throw createError(404);
             }
         }
 
@@ -210,9 +209,7 @@ function createMessage(userId, createAttrs, params) {
          && ! createAttrs.privateContent
          && ! createAttrs.publicContent
         ) {
-            error = new BadRequestError("user must write a real message to create conversation");
-            error.expose = true;
-            throw error;
+            throw createError(400, 'User must write a real message to create conversation');
         }
 
         // obfuscate all messages if the booking isn't paid and accepted
@@ -244,7 +241,7 @@ function createMessage(userId, createAttrs, params) {
             });
         } else {
             if (! Conversation.isPartOfConversation(conversation, userId)) {
-                throw new BadRequestError();
+                throw createError(400);
             }
 
             newMessageData = yield createMessageWithExistingConversation({

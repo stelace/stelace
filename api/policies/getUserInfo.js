@@ -1,6 +1,7 @@
 /* global User */
 
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 module.exports = function (req, res, next) {
 
@@ -16,7 +17,7 @@ module.exports = function (req, res, next) {
                 .findOne({ id: req.user.id })
                 .then(user => {
                     if (! user) {
-                        throw new NotFoundError("user not found");
+                        throw createError('User not found');
                     }
 
                     req.user = user;

@@ -12,6 +12,7 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const createError = require('http-errors');
 
 function parseFields(attrs) {
     if (!attrs.fields) return [];
@@ -33,7 +34,7 @@ function parsePagination(attrs) {
         const page = parseInt(attrs.page, 10);
 
         if (page < 1) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         pagination.page = page;
@@ -43,7 +44,7 @@ function parsePagination(attrs) {
         const limit = parseInt(attrs.limit, 10);
 
         if (limit < 1 || limit > 100) {
-            throw new BadRequestError();
+            throw createError(400);
         }
 
         pagination.limit = limit;

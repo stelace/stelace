@@ -12,6 +12,8 @@
  * http://passportjs.org/guide/username-password/
  */
 
+const createError = require('http-errors');
+
 /**
  * Register a new user
  *
@@ -93,12 +95,12 @@ exports.login = async function (req, identifier, password, next) {
 
     try {
         if (!isEmail) {
-            throw new BadRequestError("email incorrect");
+            throw createError(400, 'Email incorrect');
         }
 
         const user = await User.findOne({ email: identifier });
         if (!user) {
-            throw new NotFoundError("user not found");
+            throw createError(404, 'User not found');
         }
 
         const [passport] = await Passport
@@ -108,12 +110,12 @@ exports.login = async function (req, identifier, password, next) {
             })
             .limit(1);
         if (!passport) {
-            throw new BadRequestError("no password");
+            throw createError(400, 'No password');
         }
 
         const valid = await Passport.validatePassword(passport, password);
         if (!valid) {
-            throw new BadRequestError("password incorrect");
+            throw createError(400, 'Password incorrect');
         }
 
         next(null, user);

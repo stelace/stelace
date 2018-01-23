@@ -41,6 +41,7 @@ var moment = require('moment');
 var fs     = require('fs');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Promise.promisifyAll(fs);
 
@@ -251,7 +252,7 @@ async function destroy(req, res) {
 
     try {
         if (req.user.id !== id) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
 
         await UserService.destroyUser(id, {
@@ -376,16 +377,14 @@ function updatePassword(req, res) {
                 return Passport.updateOne(localPassport.id, { password: newPassword });
             } else {
                 if (typeof oldPassword !== "string") {
-                    throw new BadRequestError();
+                    throw createError(400);
                 }
 
                 return Passport
                     .validatePassword(localPassport, oldPassword)
                     .then(match => {
                         if (! match) {
-                            var error = new BadRequestError("BadOldPassword");
-                            error.expose = true;
-                            throw error;
+                            throw createError(400, 'BadOldPassword');
                         }
 
                         return Passport.updateOne(localPassport.id, { password: newPassword });
@@ -460,7 +459,7 @@ function lostPassword(req, res) {
                     return sendEmail(user, tokenValue);
                 });
         })
-        .then(() => res.ok())
+        .then(() => res.sendStatus(200))
         .catch(res.sendError);
 
 
@@ -514,7 +513,6 @@ function recoveryPassword(req, res) {
     var password   = req.param("password");
 
     var now = moment().toISOString();
-    var error;
 
     if (! tokenId
      || ! tokenValue
@@ -532,15 +530,11 @@ function recoveryPassword(req, res) {
         })
         .then(token => {
             if (! token) {
-                throw new NotFoundError();
+                throw createError(404);
             } else if (token.usedDate) {
-                error = new BadRequestError("TokenUsed");
-                error.expose = true;
-                throw error;
+                throw createError(400, 'TokenUsed');
             } else if (token.expirationDate < now) {
-                error = new BadRequestError("TokenExpired");
-                error.expose = true;
-                throw error;
+                throw createError(400, 'TokenExpired');
             }
 
             // if no password provided, only check the validity of the token
@@ -550,7 +544,7 @@ function recoveryPassword(req, res) {
                 return;
             }
         })
-        .then(() => res.ok())
+        .then(() => res.sendStatus(200))
         .catch(res.sendError);
 
 
@@ -590,7 +584,7 @@ function emailNew(req, res) {
         })
         .then(user => {
             if (user) {
-                throw new BadRequestError("existing email");
+                throw createError(400, 'Existing email');
             }
 
             return User.createCheckEmailToken(req.user, email);
@@ -606,7 +600,7 @@ function emailNew(req, res) {
                     req.logger.error({ err: err }, "send email sendCheckEmailToConfirm");
                 });
         })
-        .then(() => res.ok())
+        .then(() => res.sendStatus(200))
         .catch(res.sendError);
 }
 
@@ -638,7 +632,7 @@ function emailCheck(req, res) {
             })
             .then(user => {
                 if (! user) {
-                    throw new NotFoundError();
+                    throw createError(404);
                 }
 
                 if (! user.emailCheck) {
@@ -654,7 +648,7 @@ function emailCheck(req, res) {
                         });
                 }
             })
-            .then(() => res.ok())
+            .then(() => res.sendStatus(200))
             .catch(res.sendError);
     }
 
@@ -670,7 +664,7 @@ function emailCheck(req, res) {
             })
             .then(token => {
                 if (! token) {
-                    throw new NotFoundError();
+                    throw createError(404);
                 }
 
                 return [
@@ -680,7 +674,7 @@ function emailCheck(req, res) {
             })
             .spread((token, user) => {
                 if (! user) {
-                    throw new NotFoundError();
+                    throw createError(404);
                 }
 
                 return [
@@ -703,7 +697,7 @@ function emailCheck(req, res) {
                         });
                 }
             })
-            .then(() => res.ok())
+            .then(() => res.sendStatus(200))
             .catch(res.sendError);
     }
 }
@@ -727,7 +721,7 @@ function updateMedia(req, res) {
         .then(user => {
             GamificationService.checkActions(user, ["ADD_PROFILE_IMAGE"], null, req.logger, req);
 
-            res.ok({ id: id });
+            res.json({ id });
         })
         .catch(res.sendError);
 
@@ -742,10 +736,10 @@ function updateMedia(req, res) {
             .findOne({ id: mediaId })
             .then(media => {
                 if (! media) {
-                    throw new NotFoundError();
+                    throw createError(404);
                 }
                 if (req.user.id !== media.userId) {
-                    throw new ForbiddenError();
+                    throw createError(403);
                 }
 
                 return media;
@@ -812,7 +806,7 @@ function applyFreeFees(req, res) {
         var canApply = User.canApplyFreeFees(req.user);
 
         if (! canApply.result) {
-            throw new BadRequestError("Cannot apply no fees");
+            throw createError('Cannot apply no fees');
         }
 
         var user = yield User.applyFreeFees(req.user);
@@ -826,7 +820,7 @@ function getIncomeReport(req, res) {
     return Promise.coroutine(function* () {
         var reportActive = yield StelaceConfigService.isFeatureActive('INCOME_REPORT');
         if (!reportActive) {
-            throw new ForbiddenError('Income report disabled');
+            throw createError(403, 'Income report disabled');
         }
 
         var report = yield IncomeReportService.getReportData(req.user);
@@ -853,7 +847,7 @@ function getIncomeReportPdf(req, res) {
     var tokenValue = req.param("t");
 
     if (! tokenValue) {
-        return sendErrorView(new ForbiddenError());
+        return sendErrorView(createError(403));
     }
 
     year = parseInt(year, 10);
@@ -879,13 +873,13 @@ function getIncomeReportPdf(req, res) {
         var token = results.token;
 
         if (! user) {
-            throw new NotFoundError();
+            throw createError(404);
         }
         if (! token) {
-            throw new ForbiddenError();
+            throw createError(403);
         }
         if (token.expirationDate < moment().toISOString()) {
-            throw new ForbiddenError("token expired");
+            throw createError(403, 'Token expired');
         }
 
         var filepath = yield IncomeReportService.getReportFilepath(user, year);
@@ -931,8 +925,8 @@ function getIncomeReportPdf(req, res) {
             body += "L'URL du récapitulatif des revenus a expiré. Vous allez être redirigé dans quelques instants...";
             body += getRedirectURLScript("/home");
 
-            res.ok(getHtml(body));
-        } else if (err instanceof ForbiddenError) {
+            res.send(200, getHtml(body));
+        } else if (err.status === 403) {
             body += "L'URL du récapitulatif des revenus est incorrecte. Vous allez être redirigé dans quelques instants...";
             body += getRedirectURLScript("/");
 

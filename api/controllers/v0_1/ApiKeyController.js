@@ -16,7 +16,7 @@ async function create(req, res) {
 
     try {
         await ApiKey.create({ key });
-        res.ok();
+        res.sendStatus(200);
     } catch (err) {
         res.sendError(err);
     }
@@ -37,7 +37,7 @@ async function destroy(req, res) {
             await ApiKey.destroy({ key });
         }
 
-        res.ok();
+        res.sendStatus(200);
     } catch (err) {
         res.sendError(err);
     }

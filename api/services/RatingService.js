@@ -13,6 +13,7 @@ module.exports = {
 
 const moment = require('moment');
 const _ = require('lodash');
+const createError = require('http-errors');
 
 /**
  * get classified ratings by "my", "other"
@@ -84,7 +85,7 @@ async function findRatings({
 
     if (bookingId) {
         if (!user) { // must be logged
-            throw new ForbiddenError();
+            throw createError(403);
         }
 
         const classifiedRatings = await getClassifiedRatings({
@@ -99,7 +100,7 @@ async function findRatings({
         ratings = await populateRatings(ratings, access, populateListings);
         return ratings;
     } else {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 }
 
@@ -137,25 +138,25 @@ async function createRating({
     if (!_.includes(Rating.get('scores'), createAttrs.score)
      || !createAttrs.bookingId
     ) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     const booking = await Booking.findOne({ id: createAttrs.bookingId });
     if (!booking) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (!_.includes(Rating.getRatersIds(booking), user.id)) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
 
     let classifiedRatings = await getClassifiedRatings({ bookingId: createAttrs.bookingId, userId: user.id });
     if (classifiedRatings.my) {
-        throw new BadRequestError('existing rating'); // cannot create two ratings from the same user for one booking
+        throw createError(400, 'existing rating'); // cannot create two ratings from the same user for one booking
     }
 
     const visibleDate = Rating.getDefaultVisibleDate(booking);
     if (visibleDate < now) {
-        throw new BadRequestError(`rating can't be created anymore`);
+        throw createError(400, `rating can't be created anymore`);
     }
 
     createAttrs.listingId      = booking.listingId;
@@ -207,18 +208,18 @@ async function updateRating(ratingId, {
     var now = moment().toISOString();
 
     if (!_.includes(Rating.get('scores'), updateAttrs.score)) {
-        throw new BadRequestError();
+        throw createError(400);
     }
 
     let rating = await Rating.findOne({ id: ratingId });
     if (!rating) {
-        throw new NotFoundError();
+        throw createError(404);
     }
     if (rating.userId !== user.id) {
-        throw new ForbiddenError();
+        throw createError(403);
     }
     if (rating.visibleDate < now) {
-        throw new BadRequestError('rating cannot be updated anymore');
+        throw createError(400, 'rating cannot be updated anymore');
     }
 
     let classifiedRatings = await getClassifiedRatings({

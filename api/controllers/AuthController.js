@@ -12,6 +12,7 @@ var jwt    = require('jsonwebtoken');
 var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Promise.promisifyAll(jwt);
 
@@ -51,7 +52,7 @@ function logout(req, res) {
         });
 
         // TODO: revoke token
-        res.ok();
+        res.sendStatus(200);
     })();
 }
 
@@ -174,9 +175,7 @@ function refreshToken(req, res) {
         })
         .spread((decodedToken, user) => {
             if (! user) {
-                var error = new ForbiddenError("UserNoLongerExists");
-                error.expose = true;
-                throw error;
+                throw createError(403, 'UserNoLongerExists');
             }
 
             var userAgent = req.headers["user-agent"];
@@ -226,7 +225,7 @@ function loginAs(req, res) {
     return Promise.coroutine(function* () {
         var user = yield User.findOne({ id: userId });
         if (! user) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         var originalUser = TokenService.getOriginalUser(req);
@@ -261,11 +260,11 @@ function basicAuth(req, res) {
     if (! sails.config.basicAuth
      || auth !== sails.config.basicAuth
     ) {
-        return res.ok();
+        return res.sendStatus(200);
     }
 
     res.cookie("basicAuth", auth, { httpOnly: true });
-    res.ok();
+    res.sendStatus(200);
 }
 
 function _updateGamificationWhenLoggedIn(user, userAgent, logger, req) {

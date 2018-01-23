@@ -21,6 +21,7 @@ module.exports = {
 var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 var cf = _getConfig();
 
@@ -392,7 +393,7 @@ function checkActions(user, actionsIds, actionsData, logger, req) {
                                 } else if (typeof action.check === "function") {
                                     return action.check(user, data, userStats);
                                 } else {
-                                    throw new BadRequestError();
+                                    throw new Error('Missing action check');
                                 }
                             })
                             .then(checked => {
@@ -692,7 +693,7 @@ function _setRewards(user, model, modelType, userStats, sessionId) {
         .resolve()
         .then(() => {
             if (! _.contains(["action", "level"], modelType)) {
-                throw new BadRequestError();
+                throw new Error('Bad gamification model');
             }
 
             if (! model.rewards) {
@@ -954,7 +955,7 @@ function _getConfig() {
                         .findOne({ id: link.fromUserId })
                         .then(referer => {
                             if (! referer) {
-                                throw new NotFoundError("Referer not found");
+                                throw createError('Referer not found');
                             }
 
                             var actionsIds = ["FRIEND_BEGINNER_LEVEL_AS_REFERER"];

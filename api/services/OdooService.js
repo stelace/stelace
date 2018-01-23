@@ -26,7 +26,7 @@ var odooConfig = sails.config.odoo;
 
 function getPartnerId(userId) {
     if (! userId) {
-        return Promise.reject(new BadRequestError("missing params"));
+        return Promise.reject(new Error('Missing params'));
     }
 
     if (! OdooApiService.isEnabled()) {
@@ -70,7 +70,7 @@ function createPartner(args) {
     if (! args.name
      || ! args.userId
     ) {
-        return Promise.reject(new BadRequestError("missing params"));
+        return Promise.reject(new Error('Missing params'));
     }
 
     if (! OdooApiService.isEnabled()) {
@@ -202,7 +202,7 @@ function createInvoice(args) {
     if (! args.dueDate
      || ! args.invoiceDate
     ) {
-        return Promise.reject(new BadRequestError("missing params"));
+        return Promise.reject(new Error('Missing params'));
     }
 
     if (! OdooApiService.isEnabled()) {
@@ -302,7 +302,7 @@ function createPayment(args) {
      || ! args.partnerId
      || ! args.paymentDate
     ) {
-        return Promise.reject(new BadRequestError("missing params"));
+        return Promise.reject(new Error('Missing params'));
     }
 
     if (! OdooApiService.isEnabled()) {
@@ -352,7 +352,7 @@ function createInternalPayment(args) {
     if (! args.amount
      || ! args.paymentDate
     ) {
-        return Promise.reject(new BadRequestError("missing params"));
+        return Promise.reject(new Error('Missing params'));
     }
 
     if (! OdooApiService.isEnabled()) {

@@ -25,6 +25,7 @@ module.exports = {
 var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -63,7 +64,7 @@ function createReferredBy(req, res) {
         })
         .then(active => {
             if (!active) {
-                throw new ForbiddenError('Referral disabled');
+                throw createError(403, 'Referral disabled');
             }
         })
         .then(() => {
@@ -81,7 +82,7 @@ function createReferredBy(req, res) {
         })
         .spread((fromUser, linksAsFromUser, linksAsToUser) => {
             if (fromUserId && ! fromUser) {
-                throw new NotFoundError();
+                throw createError(404);
             }
 
             var validatedLinksAsToUser = _.filter(linksAsToUser, { validated: true });
@@ -128,9 +129,9 @@ function createReferredBy(req, res) {
                     })
                     .then(link => {
                         if (link) {
-                            res.ok({ message: "SUCCESS" });
+                            res.json({ message: "SUCCESS" });
                         } else {
-                            res.ok({ message: "NONE" });
+                            res.json({ message: "NONE" });
                         }
                     });
             }
@@ -368,7 +369,7 @@ function getReferer(req, res) {
             return _getUsers([link.fromUserId], access)
                 .then(users => {
                     if (! users.length) {
-                        throw new NotFoundError();
+                        throw createError(404);
                     }
 
                     res.json(users[0]);
@@ -396,7 +397,7 @@ function sendFriendEmails(req, res) {
         })
         .then(active => {
             if (!active) {
-                throw new ForbiddenError('Referral disabled');
+                throw createError(403, 'Referral disabled');
             }
         })
         .then(() => {
@@ -448,7 +449,7 @@ function sendFriendEmails(req, res) {
                         });
                 });
         })
-        .then(() => res.ok())
+        .then(() => res.sendStatus(200))
         .catch(res.sendError);
 
 

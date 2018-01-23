@@ -17,6 +17,8 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
+
 async function find(req, res) {
     const access = 'others';
 
@@ -35,7 +37,7 @@ async function findOne(req, res) {
     try {
         const listingCategory = await ListingCategory.findOne({ id });
         if (!listingCategory) {
-            throw new NotFoundError();
+            throw createError(404);
         }
 
         res.json(ListingCategory.expose(listingCategory, access));

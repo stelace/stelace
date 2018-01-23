@@ -21,6 +21,7 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -55,10 +56,10 @@ function create(req, res) {
         })
         .then(listing => {
             if (! listing) {
-                throw new NotFoundError;
+                throw createError(404);
             }
             if (listing.ownerId === req.user.id) {
-                throw new ForbiddenError("owner can't bookmark own listings");
+                throw createError(403, 'Owner can\'t bookmark own listings');
             }
 
             return Bookmark.findOne({
@@ -100,7 +101,7 @@ function destroy(req, res) {
             },
             { active: false }
         )
-        .then(() => res.ok({ id: id }))
+        .then(() => res.json({ id }))
         .catch(res.sendError);
 }
 
