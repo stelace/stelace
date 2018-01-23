@@ -46,7 +46,7 @@ async function get(req, res) {
 
         const headers = MediaService.getServeFileHeaders(serveResult);
 
-        res.set(headers).sendfile(serveResult.filepath);
+        res.set(headers).sendFile(serveResult.filepath);
     } catch (err) {
         res.sendError(err);
     }

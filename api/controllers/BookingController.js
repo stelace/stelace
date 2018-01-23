@@ -1516,7 +1516,7 @@ function getContract(req, res) {
 
             res
                 .set(headers)
-                .sendfile(filepath, null, function () {
+                .sendFile(filepath, null, function () {
                     fs
                         .unlinkAsync(filepath)
                         .catch(() => { return; });

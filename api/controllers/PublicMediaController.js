@@ -66,6 +66,6 @@ function _serveFile(req, res, filepath, filename, eventLabel) {
 
         return res
             .set(headers)
-            .sendfile(filepath);
+            .sendFile(filepath);
     })();
 }

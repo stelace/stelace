@@ -902,7 +902,7 @@ function getIncomeReportPdf(req, res) {
 
         res
             .set(headers)
-            .sendfile(filepath, null, () => {
+            .sendFile(filepath, null, () => {
                 fs
                     .unlinkAsync(filepath)
                     .catch(() => { return; });

@@ -184,7 +184,7 @@ SeoSnapshot.prototype.serveSnapshot = function serveSnapshot(urlBody, urlPath, r
         .spread((status, snapshotFilepath) => {
             res
                 .status(status)
-                .sendfile(snapshotFilepath);
+                .sendFile(snapshotFilepath);
         })
         .catch(res.sendError);
 };
