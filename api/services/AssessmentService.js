@@ -297,12 +297,14 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
 
 function createOutputAssessment(assessment, startBooking) {
     return Promise.coroutine(function* () {
-        var outputAssessment = yield Assessment.findOne({
-            listingId: assessment.listingId,
-            takerId: assessment.takerId,
-            ownerId: assessment.ownerId,
-            endBookingId: assessment.startBookingId
-        });
+        var [outputAssessment] = yield Assessment
+            .find({
+                listingId: assessment.listingId,
+                takerId: assessment.takerId,
+                ownerId: assessment.ownerId,
+                endBookingId: assessment.startBookingId
+            })
+            .limit(1);
 
         if (outputAssessment) {
             return outputAssessment;
@@ -411,13 +413,14 @@ function _sendAssessmentEmailsSms(data) {
 
     function getConversation(assessment) {
         return Conversation
-            .findOne({
+            .find({
                 or: [
                     { outputAssessmentId: assessment.id },
                     { inputAssessmentId: assessment.id }
                 ]
             })
-            .sort({ createdDate: -1 });
+            .sort({ createdDate: -1 })
+            .then(conversations => conversations[0]);
     }
 
     function sendEmails(data) {

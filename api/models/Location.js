@@ -257,19 +257,25 @@ function getBillingLocation(user) {
             return user.address;
         }
 
-        return yield Location.findOne({
-            userId: user.id,
-            main: true
-        });
+        const [location] = yield Location
+            .find({
+                userId: user.id,
+                main: true,
+            })
+            .limit(1);
+
+        return location;
     })();
 }
 
 function getMainLocationSnapshot(userId) {
     return Promise.coroutine(function* () {
-        var location = yield Location.findOne({
-            userId: userId,
-            main: true
-        });
+        const [location] = yield Location
+            .find({
+                userId,
+                main: true,
+            })
+            .limit(1);
 
         if (! location) {
             return;

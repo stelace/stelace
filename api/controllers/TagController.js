@@ -59,7 +59,10 @@ function create(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return Tag.findOne({ name: createAttrs.name });
+            return Tag
+                .find({ name: createAttrs.name })
+                .limit(1)
+                .then(tags => tags[0]);
         })
         .then(tag => {
             if (! tag) {

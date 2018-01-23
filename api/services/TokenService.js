@@ -236,11 +236,13 @@ function getIncomeReportToken(userId, year, expirationDuration, refreshDuration)
     return Promise.coroutine(function* () {
         var results = yield Promise.props({
             randomString: GeneratorService.getRandomString(20),
-            token: Token.findOne({
+            token: Token.find({
                 type: getIncomeReportTokenName(year),
                 userId: userId
             })
             .sort({ createdDate: -1 })
+            .limit(1)
+            .then(tokens => tokens[0]),
         });
 
         var randomString = results.randomString;

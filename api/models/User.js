@@ -763,11 +763,13 @@ function getPartnerRef(userId) {
 
 function getRefererInfo(user) {
     return Promise.coroutine(function* () {
-        var link = yield Link.findOne({
-            toUserId: user.id,
-            relationship: "refer",
-            validated: true
-        });
+        var [link] = yield Link
+            .find({
+                toUserId: user.id,
+                relationship: "refer",
+                validated: true
+            })
+            .limit(1);
 
         if (! link) {
             return;

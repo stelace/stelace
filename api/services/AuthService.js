@@ -49,7 +49,10 @@ async function addPasswordAuth(params, options = {}) {
     }
 
     if (checkExistingAuth) {
-        const passport = await Passport.findOne({ user: userId, protocol: 'local' });
+        const [passport] = await Passport
+            .find({ user: userId, protocol: 'local' })
+            .limit(1);
+
         if (passport) {
             return passport;
         }

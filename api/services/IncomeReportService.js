@@ -309,11 +309,13 @@ function getReportFilepath(user, year) {
     // create a snapshot if there is no snapshot after the edited date
     function getSnapshot(targetType, model, editedDate) {
         return Promise.coroutine(function* () {
-            var snapshot = yield ModelSnapshot.findOne({
-                targetId: model.id,
-                targetType: targetType,
-                createdDate: { '>=': editedDate }
-            });
+            var [snapshot] = yield ModelSnapshot
+                .find({
+                    targetId: model.id,
+                    targetType: targetType,
+                    createdDate: { '>=': editedDate }
+                })
+                .limit(1);
 
             if (! snapshot) {
                 snapshot = yield ModelSnapshot.getSnapshot(targetType, model, true);

@@ -85,13 +85,16 @@ function sendVerify(req, res) {
                 });
         })
         .then(() => {
-            return Sms.findOne({
-                userId: req.user.id,
-                type: "verify",
-                reason: "phoneCheck",
-                verifyStatus: "0",
-                to: createAttrs.to
-            });
+            return Sms
+                .find({
+                    userId: req.user.id,
+                    type: "verify",
+                    reason: "phoneCheck",
+                    verifyStatus: "0",
+                    to: createAttrs.to
+                })
+                .limit(1)
+                .then(smses => smses[0]);
         })
         .then(sms => {
             if (sms) {

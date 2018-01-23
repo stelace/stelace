@@ -584,9 +584,12 @@ function getLast(listingIdOrIds) {
         };
 
         if (onlyOne) {
-            return yield Booking
-                .findOne(findAttrs)
-                .sort({ startDate: -1 });
+            const [booking] = yield Booking
+                .find(findAttrs)
+                .sort({ startDate: -1 })
+                .limit(1);
+
+            return booking;
         } else {
             var bookings = yield Booking
                 .find(findAttrs)

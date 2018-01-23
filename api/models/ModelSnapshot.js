@@ -185,11 +185,13 @@ function getSnapshot(targetType, model, force) {
             }
 
             return ModelSnapshot
-                .findOne({
+                .find({
                     targetId: model.id,
                     targetType: targetType
                 })
-                .sort({ createdDate: -1 });
+                .sort({ createdDate: -1 })
+                .limit(1)
+                .then(snapshots => snapshots[0]);
         })
         .then(snapshot => {
             if (snapshot && isIdentical(targetType, model, snapshot)) {

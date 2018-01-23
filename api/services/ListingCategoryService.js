@@ -20,7 +20,7 @@ async function createListingCategory({ name, parentId }) {
         existingListingCategory,
         parentCategory,
     ] = await Promise.all([
-        ListingCategory.findOne({ name }),
+        ListingCategory.find({ name }).limit(1).then(cats => cats[0]),
         parentId ? ListingCategory.findOne({ id: parentId }) : null,
     ]);
 

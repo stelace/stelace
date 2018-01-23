@@ -126,16 +126,14 @@ function postBeforeCreate(values) {
     })();
 }
 
-function isBookmarked(listingId, userId) {
-    return Promise
-        .resolve()
-        .then(() => {
-            return Bookmark
-                .findOne({
-                    listingId: listingId,
-                    userId: userId,
-                    active: true
-                });
+async function isBookmarked(listingId, userId) {
+    const [bookmark] = await Bookmark
+        .find({
+            listingId,
+            userId,
+            active: true,
         })
-        .then(bookmark => !! bookmark);
+        .limit(1);
+
+    return !!bookmark;
 }

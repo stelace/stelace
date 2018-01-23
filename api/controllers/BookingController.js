@@ -643,13 +643,21 @@ function paymentSecure(req, res) {
                 throw error;
             }
 
+            const getToken = async () => {
+                const [token] = await Token
+                    .find({
+                        value: tokenValue,
+                        userId,
+                        type: tokenType,
+                    })
+                    .limit(1);
+
+                return token;
+            }
+
             return [
                 Booking.findOne({ id: id }),
-                Token.findOne({
-                    value: tokenValue,
-                    userId: userId,
-                    type: tokenType
-                }),
+                getToken(),
                 User.findOne({ id: userId })
             ];
         })
@@ -1129,7 +1137,7 @@ function _sendBookingPendingEmailsSms(data) {
             }
         }
 
-        function sendEmailAndSmsBookingConfirmed() {
+        async function sendEmailAndSmsBookingConfirmed() {
             var findAssessmentAttrs = {
                 listingId: booking.listingId,
                 startBookingId: booking.id, // only startBooking is relevant for (taker's) signToken
@@ -1137,20 +1145,21 @@ function _sendBookingPendingEmailsSms(data) {
                 ownerId: booking.ownerId
             };
 
+            const [assessment] = await Assessment
+                .find(findAssessmentAttrs)
+                .limit(1);
 
-            return Assessment
-                .findOne(findAssessmentAttrs)
-                .then(assessment => {
-                    if (! assessment) {
-                        throw new NotFoundError("Fail to get assessment for booking confirm emails");
-                    }
+            if (!assessment) {
+                throw new NotFoundError("Fail to get assessment for booking confirm emails");
+            }
 
-                    return _sendBookingConfirmedEmailsSms({
-                        booking: booking,
-                        assessment: assessment,
-                        logger: logger
-                    });
-                });
+            const res = await _sendBookingConfirmedEmailsSms({
+                booking: booking,
+                assessment: assessment,
+                logger: logger
+            });
+
+            return res;
         }
     }
 }
@@ -1385,17 +1394,24 @@ function createContractToken(req, res) {
     Promise
         .resolve()
         .then(() => {
-            return [
-                Booking.findOne({ id: id }),
-                GeneratorService.getRandomString(20),
-                Token
-                    .findOne({
-                        type: "bookingContract",
+            const getToken = async () => {
+                const [token] = await Token
+                    .find({
+                        type: 'bookingContract',
                         userId: req.user.id,
-                        targetType: "booking",
+                        targetType: 'booking',
                         targetId: id,
                     })
                     .sort({ createdDate: -1 })
+                    .limit(1);
+
+                return token;
+            };
+
+            return [
+                Booking.findOne({ id: id }),
+                GeneratorService.getRandomString(20),
+                getToken(),
             ];
         })
         .spread((booking, randomString, token) => {
@@ -1448,14 +1464,22 @@ function getContract(req, res) {
     Promise
         .resolve()
         .then(() => {
+            const getToken = async () => {
+                const [token] = await Token
+                    .find({
+                        type: 'bookingContract',
+                        targetType: 'booking',
+                        targetId: id,
+                        value: tokenValue,
+                    })
+                    .limit(1);
+
+                return token;
+            };
+
             return [
                 Booking.findOne({ id: id }),
-                Token.findOne({
-                    type: "bookingContract",
-                    targetType: "booking",
-                    targetId: id,
-                    value: tokenValue
-                }),
+                getToken(),
                 Conversation.findOne({ bookingId: id })
             ];
         })

@@ -938,10 +938,12 @@ function _getConfig() {
             return Promise
                 .resolve()
                 .then(() => {
-                    return Link.findOne({
-                        toUserId: user.id,
-                        relationship: "refer"
-                    });
+                    return Link
+                        .find({
+                            toUserId: user.id,
+                            relationship: "refer"
+                        })
+                        .then(links => links[0]);
                 })
                 .then(link => {
                     if (! link) {

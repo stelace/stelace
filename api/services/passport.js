@@ -85,10 +85,12 @@ passport.connect = async function (req, query, profile, next) {
             throw new ForbiddenError('Social login disabled');
         }
 
-        const passport = await Passport.findOne({
-            provider: query.provider,
-            identifier: query.identifier.toString(),
-        });
+        const [passport] = await Passport
+            .find({
+                provider: query.provider,
+                identifier: query.identifier.toString(),
+            })
+            .limit(1);
 
         let user;
 

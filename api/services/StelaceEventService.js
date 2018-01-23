@@ -746,8 +746,10 @@ function getSessionInfo(sessionId, sessionParams) {
             var results = yield Promise.props({
                 stelaceSession: StelaceSession.findOne({ id: sessionId }),
                 stelaceEvent: StelaceEvent
-                    .findOne({ sessionId: sessionId })
+                    .find({ sessionId: sessionId })
                     .sort({ createdDate: -1 })
+                    .limit(1)
+                    .then(events => events[0]),
             });
 
             var stelaceSession = results.stelaceSession;

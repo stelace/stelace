@@ -144,10 +144,12 @@ function index(req, res) {
                 return token.reference && token.reference.listingId === listingId;
             });
         } else {
-            token = await Token.findOne({
-                type: 'authToken',
-                value: queryToken,
-            });
+            [token] = await Token
+                .find({
+                    type: 'authToken',
+                    value: queryToken,
+                })
+                .limit(1);
         }
 
         if (!token || !token.userId) {

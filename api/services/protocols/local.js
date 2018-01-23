@@ -101,10 +101,12 @@ exports.login = async function (req, identifier, password, next) {
             throw new NotFoundError("user not found");
         }
 
-        const passport = await Passport.findOne({
-            protocol: 'local',
-            user: user.id,
-        });
+        const [passport] = await Passport
+            .find({
+                protocol: 'local',
+                user: user.id,
+            })
+            .limit(1);
         if (!passport) {
             throw new BadRequestError("no password");
         }

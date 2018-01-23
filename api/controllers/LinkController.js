@@ -143,11 +143,14 @@ function createReferredBy(req, res) {
         return Promise
             .resolve()
             .then(() => {
-                return Link.findOne({
-                    email: toUser.email,
-                    relationship: relationship,
-                    source: "email"
-                });
+                return Link
+                    .find({
+                        email: toUser.email,
+                        relationship: relationship,
+                        source: "email"
+                    })
+                    .limit(1)
+                    .then(links => links[0]);
             })
             .then(link => {
                 if (! link) {
@@ -348,11 +351,14 @@ function getReferer(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return Link.findOne({
-                toUserId: req.user.id,
-                relationship: "refer",
-                validated: true
-            });
+            return Link
+                .find({
+                    toUserId: req.user.id,
+                    relationship: "refer",
+                    validated: true
+                })
+                .limit(1)
+                .then(links => links[0]);
         })
         .then(link => {
             if (! link) {

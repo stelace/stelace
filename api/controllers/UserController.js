@@ -859,12 +859,20 @@ function getIncomeReportPdf(req, res) {
     year = parseInt(year, 10);
 
     return Promise.coroutine(function* () {
+        const getToken = async () => {
+            const [token] = await Token
+                .find({
+                    type: TokenService.getIncomeReportTokenName(year),
+                    value: tokenValue,
+                })
+                .limit(1);
+
+            return token;
+        };
+
         var results = yield Promise.props({
             user: User.findOne({ id: id }),
-            token: Token.findOne({
-                type: TokenService.getIncomeReportTokenName(year),
-                value: tokenValue
-            })
+            token: getToken(),
         });
 
         var user  = results.user;
