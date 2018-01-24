@@ -15,6 +15,8 @@ var path  = require('path');
 var fs    = require('fs');
 var proxy = require('http-proxy-middleware');
 
+let dashboardProxy;
+
 module.exports.http = {
 
     /****************************************************************************
@@ -38,16 +40,14 @@ module.exports.http = {
         order: [
             'redirectToHomepageForOldBrowsers',
             'cookieParser',
-            // 'session',       // disable session, use token instead
             'requestIdentifier',
             'responseEnhancement',
             'customLogger',
-            // 'myRequestLogger',
             'bodyParser',
             'compress',
             'basicAuth',
             'secureResponseHeader',
-            '$custom', // sails customMiddleware using app object
+            'proxyDashboard',
             'router',
             'www',
             'favicon',
@@ -147,7 +147,27 @@ module.exports.http = {
             res.removeHeader("x-powered-by");
 
             next();
-        }
+        },
+
+        proxyDashboard: (req, res, next) => {
+            if (!sails.config.stelace.dashboardUrl) return next();
+
+            if (!dashboardProxy) {
+                const proxyOptions = {
+                    target: sails.config.stelace.dashboardUrl,
+                    changeOrigin: false,
+                    logLevel: 'warn',
+                };
+                const proxyUrls = [
+                    '/dashboard',
+                    '/stelace',
+                ];
+
+                dashboardProxy = proxy(proxyUrls, proxyOptions);
+            }
+
+            dashboardProxy(req, res, next);
+        },
 
         /***************************************************************************
         *                                                                          *
@@ -163,19 +183,6 @@ module.exports.http = {
         //   return middlewareFn;
         // })(),
 
-    },
-
-    customMiddleware: function (app) {
-        if (sails.config.stelace.dashboardUrl) {
-            app.use('/dashboard', proxy({
-                target: sails.config.stelace.dashboardUrl,
-                changeOrigin: false,
-            }));
-            app.use('/stelace', proxy({
-                target: sails.config.stelace.dashboardUrl,
-                changeOrigin: false,
-            }));
-        }
     },
 
     /***************************************************************************
