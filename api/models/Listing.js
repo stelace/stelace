@@ -374,10 +374,8 @@ function afterUpdate(listing, next) {
     next();
 }
 
-function afterDestroy(listings, next) {
-    listings = _.isArray(listings) ? listings : [listings];
-    var listingsIds = _.pluck(listings, 'id');
-    ElasticsearchService.shouldSyncListings(listingsIds);
+function afterDestroy(listing, next) {
+    ElasticsearchService.shouldSyncListings([listing.id]);
     next();
 }
 
