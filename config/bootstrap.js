@@ -17,7 +17,6 @@ module.exports.bootstrap = async function(done) {
         "uncaughtException",
         "waterlineRawQuery",
         "utilities",
-        "useProxy",
         "mangopay",
         "odoo",
         "passport",

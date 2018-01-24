@@ -18,7 +18,6 @@ function init(initFields, args) {
         "waterlineRawQuery",
         "mangopay",
         "utilities",
-        "useProxy",
         "odoo",
         "lowerSafe",
         "intl"
@@ -74,12 +73,6 @@ function init(initFields, args) {
                 } else {
                     // No Intl, so use and load the polyfill.
                     global.Intl = IntlPolyfill;
-                }
-                break;
-
-            case "useProxy":
-                if (sails.config.useProxy) {
-                    sails.hooks.http.app.set("trust proxy", true);
                 }
                 break;
 

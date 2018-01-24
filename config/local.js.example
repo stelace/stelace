@@ -43,7 +43,7 @@ module.exports = {
     // SERVER
     port: process.env.PORT || 1337,
     environment: process.env.NODE_ENV || 'development',
-    useProxy: false,
+    http: { trustProxy: false },
     hookTimeout: 600000, // 10 minutes
     // basicAuth: "", // ('username:password' in Base64)
 
