@@ -363,7 +363,7 @@ function createMessageWithNewConversation(args) {
 
         var message;
         if (shouldCreateMessage) {
-            message = yield Message.create(createAttrs);
+            message = yield Message.create(Object.assign({}, createAttrs));
         } else {
             message = { conversationId: conversation.id };
         }
@@ -451,7 +451,7 @@ function createMessageWithExistingConversation(args) {
 
         var message;
         if (shouldCreateMessage) {
-            message = yield Message.create(createAttrs);
+            message = yield Message.create(Object.assign({}, createAttrs));
         } else {
             message = { conversationId: conversation.id };
         }

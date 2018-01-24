@@ -53,9 +53,9 @@ async function find(req, res) {
 
         const fetchListings = () => {
             if (pagination) {
-                return Listing.find(findAttrs).sort(sorting).paginate(pagination.page, pagination.limit);
+                return Listing.find(Object.assign({}, findAttrs)).sort(sorting).paginate(pagination.page, pagination.limit);
             } else {
-                return Listing.find(findAttrs).sort(sorting);
+                return Listing.find(Object.assign({}, findAttrs)).sort(sorting);
             }
         };
 
@@ -64,7 +64,7 @@ async function find(req, res) {
             countListings,
         ] = await Promise.all([
             fetchListings(),
-            Listing.count(findAttrs),
+            Listing.count(Object.assign({}, findAttrs)),
         ]);
 
         const hashMedias = populateMedia ? await Listing.getMedias(listings) : {};

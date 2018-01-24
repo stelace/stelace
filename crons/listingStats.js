@@ -49,7 +49,7 @@ Sails.load(getConfig(), async function (err, sails) {
     return Promise.coroutine(function* () {
         const views = yield StelaceEvent.find({
             label: "Listing view",
-            createdDate: dateConstraints,
+            createdDate: Object.assign({}, dateConstraints),
             listingId: { "!=": null }
         });
         const groupedViews = _(views)
@@ -58,12 +58,12 @@ Sails.load(getConfig(), async function (err, sails) {
             .value();
 
         const conversations = yield Conversation.find({
-            createdDate: dateConstraints
+            createdDate: Object.assign({}, dateConstraints)
         });
         const groupedConversations = _.groupBy(conversations, "listingId");
 
         const bookings = yield Booking.find({
-            paidDate: dateConstraints
+            paidDate: Object.assign({}, dateConstraints)
         });
         const groupedBookings = _.groupBy(bookings, "listingId");
 

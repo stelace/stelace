@@ -54,9 +54,9 @@ async function find(req, res) {
 
         const fetchUsers = () => {
             if (pagination) {
-                return User.find(findAttrs).sort(sorting).paginate(pagination.page, pagination.limit);
+                return User.find(Object.assign({}, findAttrs)).sort(sorting).paginate(pagination.page, pagination.limit);
             } else {
-                return User.find(findAttrs).sort(sorting);
+                return User.find(Object.assign({}, findAttrs)).sort(sorting);
             }
         };
 
@@ -65,7 +65,7 @@ async function find(req, res) {
             countUsers,
         ] = await Promise.all([
             fetchUsers(),
-            User.count(findAttrs),
+            User.count(Object.assign({}, findAttrs)),
         ]);
 
         const hashMedias = populateMedia ? await User.getMedia(users) : {};

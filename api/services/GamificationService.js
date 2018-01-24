@@ -540,7 +540,7 @@ function _setAction(user, actionId, data, userStats, logger, sessionId) {
                     }
                 })
                 .then(() => {
-                    return GamificationEvent.create(createAttrs);
+                    return GamificationEvent.create(Object.assign({}, createAttrs));
                 });
         })
         .then(gamificationEvent => {

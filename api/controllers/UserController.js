@@ -219,7 +219,7 @@ function update(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return User.updateOne(req.user.id, updateAttrs);
+            return User.updateOne(req.user.id, Object.assign({}, updateAttrs));
         })
         .then(user => {
             return User.updateTags(user, updateAttrs.tagsIds);

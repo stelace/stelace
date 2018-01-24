@@ -149,7 +149,7 @@ async function createListing(attrs, { req, res } = {}) {
         createAttrs.locations = _.pluck(userLocations, 'id');
     }
 
-    let listing = await Listing.create(createAttrs);
+    let listing = await Listing.create(Object.assign({}, createAttrs));
 
     if (createAttrs.tags) {
         listing = await Listing.updateTags(listing, createAttrs.tags);
@@ -290,7 +290,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         updateAttrs.nameURLSafe = ToolsService.getURLStringSafe(updateAttrs.name);
     }
 
-    let updatedListing = await Listing.updateOne(listing.id, updateAttrs);
+    let updatedListing = await Listing.updateOne(listing.id, Object.assign({}, updateAttrs));
     if (updateAttrs.tags) {
         updatedListing = await Listing.updateTags(updatedListing, updateAttrs.tags);
     }

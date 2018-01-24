@@ -879,10 +879,10 @@ function _paymentEndProcess(data) {
                 // if email fails, do not save booking dates in order the process to be done again
                 return _sendBookingPendingEmailsSms(data2)
                     .then(() => {
-                        return Booking.updateOne(booking.id, updateAttrs);
+                        return Booking.updateOne(booking.id, Object.assign({}, updateAttrs));
                     });
             } else {
-                return Booking.updateOne(booking.id, updateAttrs);
+                return Booking.updateOne(booking.id, Object.assign({}, updateAttrs));
             }
         })
         .then(b => {
