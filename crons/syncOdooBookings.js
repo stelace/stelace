@@ -1,8 +1,9 @@
 /* global AccountingService, BootstrapService, LoggerService, MicroService */
 
-var Sails = require('sails');
-var path  = require('path');
-var fs    = require('fs');
+const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
+const path  = require('path');
+const fs    = require('fs');
 const Promise = require('bluebird');
 
 var cronTaskName = "syncOdooBookings";
@@ -10,16 +11,7 @@ var cronTaskName = "syncOdooBookings";
 
 Promise.promisifyAll(fs);
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail cron task: can't load sails");
         return;

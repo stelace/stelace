@@ -1,22 +1,14 @@
 /* global BootstrapService, EmailService, User */
 
 const Sails      = require('sails');
+const { getConfig } = require('../sailsrc');
 const path       = require('path');
 const fs         = require('fs');
 const Handlebars = require('handlebars');
 
 const Promise = require('bluebird');
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, async function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail cron task: can't load sails");
         return;

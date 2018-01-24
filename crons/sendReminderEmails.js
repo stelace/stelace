@@ -3,7 +3,8 @@
     MonitoringService, Rating, SmsService, TimeService, ToolsService, User
 */
 
-var Sails = require('sails');
+const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
 
 var cronTaskName = "sendReminderEmails";
 
@@ -13,16 +14,7 @@ const createError = require('http-errors');
 
 var moment = require('moment');
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail cron task: can't load sails");
         return;

@@ -1,19 +1,11 @@
 /* global BootstrapService, Media, MediaService */
 
 const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
 
 const Promise = require('bluebird');
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, async function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail script launch: can't load sails");
         return;

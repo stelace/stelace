@@ -1,10 +1,11 @@
 /* global BootstrapService, Media */
 
-var Sails = require('sails');
-var fs    = require('fs');
-var path  = require('path');
-var yargs = require('yargs');
-var gm    = require('gm');
+const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
+const fs    = require('fs');
+const path  = require('path');
+const yargs = require('yargs');
+const gm    = require('gm');
 const Promise = require('bluebird');
 
 var argv = yargs
@@ -23,16 +24,7 @@ if (! argv.cw && ! argv.ccw) {
     process.exit();
 }
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail script launch: can't load sails");
         return;

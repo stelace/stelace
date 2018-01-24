@@ -1,19 +1,11 @@
 /* global Booking, BootstrapService, Card, mangopay, Transaction, User */
 
-var Sails = require('sails');
+const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
 
 const Promise = require('bluebird');
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail script launch: can't load sails");
         return;

@@ -1,6 +1,7 @@
 /* global BootstrapService, Booking, Conversation, Listing, LoggerService, StelaceEvent */
 
 const Sails  = require('sails');
+const { getConfig } = require('../sailsrc');
 const moment = require('moment');
 const yargs  = require('yargs');
 
@@ -13,16 +14,7 @@ const argv = yargs
     .usage("Usage: $0 --pastDays")
     .argv;
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail cron task: can't load sails");
         return;

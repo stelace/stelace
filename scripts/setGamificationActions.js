@@ -1,7 +1,8 @@
 /* global BootstrapService, GamificationService, LoggerService, User */
 
-var Sails = require('sails');
-var yargs = require('yargs');
+const Sails = require('sails');
+const yargs = require('yargs');
+const { getConfig } = require('../sailsrc');
 
 const _ = require('lodash');
 const Promise = require('bluebird');
@@ -41,16 +42,7 @@ try {
     process.exit();
 }
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail script launch: can't load sails");
         return;

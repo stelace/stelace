@@ -1,19 +1,11 @@
 /* global BootstrapService, ElasticsearchService, LoggerService */
 
 const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
 
 const cronTaskName = "syncElasticsearch";
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, async function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail cron task: can't load sails");
         return;

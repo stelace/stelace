@@ -1,8 +1,8 @@
 /* global AccountingService, BootstrapService */
 
-var Sails = require('sails');
-var yargs = require('yargs');
-
+const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
+const yargs = require('yargs');
 
 const Promise = require('bluebird');
 
@@ -20,16 +20,7 @@ if (endDate && ! new Date(endDate).getTime) {
     console.log("Incorrect end date");
 }
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail script launch: can't load sails");
         return;

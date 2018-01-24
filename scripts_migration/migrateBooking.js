@@ -1,21 +1,13 @@
 /* global Booking, BootstrapService, Listing, ListingTypeService, TimeService */
 
 const Sails = require('sails');
+const { getConfig } = require('../sailsrc');
 const moment = require('moment');
 
 const _ = require('lodash');
 const Promise = require('bluebird');
 
-Sails.load({
-    models: {
-        migrate: "safe"
-    },
-    hooks: {
-        grunt: false,
-        sockets: false,
-        pubsub: false
-    }
-}, async function (err, sails) {
+Sails.load(getConfig(), async function (err, sails) {
     if (err) {
         console.log("\n!!! Fail script launch: can't load sails");
         return;
