@@ -12,8 +12,8 @@ const querystring = require('querystring');
 const Url         = require('url');
 const _ = require('lodash');
 
-var appUrl = sails.config.stelace.url;
-var appDomain;
+let appUrl;
+let appDomain;
 
 var urlTypes = {
     profile: getProfileUrl,
@@ -36,12 +36,16 @@ var urlTypes = {
 };
 
 function getAppUrl() {
+    if (!appUrl) {
+        appUrl = sails.config.stelace.url;
+    }
     return appUrl;
 }
 
 function getAppDomainUrl() {
     if (appDomain) return appDomain;
 
+    const appUrl = getAppUrl();
     const parsedUrl = Url.parse(appUrl);
     appDomain = parsedUrl.host;
 
@@ -78,6 +82,7 @@ function getUrl(name, urlData, args) {
     }
 
     var hasDomain = (str.slice(0, 1) !== "/");
+    const appUrl = getAppUrl();
 
     if (! hasDomain && args.domain) {
         var prefix;

@@ -16,18 +16,32 @@ module.exports = {
 
 const _ = require('lodash');
 
-const defaultConfig = sails.config.stelace.defaultConfig || {
-    SERVICE_NAME: 'Stelace',
-};
-const defaultFeatures = sails.config.stelace.defaultFeatures || {
-    GAMIFICATION: true,
-    TAGS: true,
-    EVENTS: true,
-    SOCIAL_LOGIN: true,
-    INCOME_REPORT: true,
-    SMS: true,
-    MAP: true,
-};
+let defaultConfig;
+let defaultFeatures;
+
+function getDefaultConfig() {
+    if (!defaultConfig) {
+        defaultConfig = sails.config.stelace.defaultConfig || {
+            SERVICE_NAME: 'Stelace',
+        };
+    }
+    return defaultConfig;
+}
+
+function getDefaultFeatures() {
+    if (!defaultFeatures) {
+        defaultFeatures = sails.config.stelace.defaultFeatures || {
+            GAMIFICATION: true,
+            TAGS: true,
+            EVENTS: true,
+            SOCIAL_LOGIN: true,
+            INCOME_REPORT: true,
+            SMS: true,
+            MAP: true,
+        };
+    }
+    return defaultFeatures;
+}
 
 const featureNames = [
     'EVENTS',
@@ -89,6 +103,7 @@ async function _updateCache(stelaceConfig) {
 }
 
 function _loadConfig(stelaceConfig) {
+    const defaultConfig = getDefaultConfig();
     config = _.defaults({}, stelaceConfig.config, defaultConfig);
 }
 
@@ -98,6 +113,7 @@ async function getConfig() {
 }
 
 async function _loadFeatures(stelaceConfig) {
+    const defaultFeatures = getDefaultFeatures();
     features = _.defaults({}, stelaceConfig.features, defaultFeatures);
 
     features.PRICE_RECOMMENDATION = !!sails.config.priceRecommendationUrl;

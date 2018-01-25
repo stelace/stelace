@@ -15,14 +15,21 @@ const Promise = require('bluebird');
 
 Promise.promisifyAll(nexmo);
 
-nexmo.initialize(sails.config.nexmo.apiKey, sails.config.nexmo.apiSecret, false);
+let nexmoInitialized = false;
 
-var debugSms = sails.config.debugSms;
+function initializeNexmo() {
+    if (!nexmoInitialized) {
+        nexmo.initialize(sails.config.nexmo.apiKey, sails.config.nexmo.apiSecret, false);
+        nexmoInitialized = true;
+    }
+}
 
 function sendPhoneCheckSms(args) {
     var from = args.from;
     var to   = args.to;
     var text = args.text;
+
+    initializeNexmo();
 
     // args can also include other options not used for the moment
     return nexmo.sendTextMessageAsync(from, to, text, args);
@@ -54,9 +61,11 @@ async function sendTextSms(args) {
     createAttrs.to          = '' + createAttrs.countryCode + parseInt(toUser.phone, 10);
 
     let response;
-    if (debugSms) {
-        response = await sendDebugSms(from, toUser.phone, text, debugSms);
+    if (sails.config.debugSms) {
+        response = await sendDebugSms(from, toUser.phone, text, sails.config.debugSms);
     } else {
+        initializeNexmo();
+
         // args can also include other options not used for the moment
         response = await nexmo.sendTextMessageAsync(from, createAttrs.to, text, args);
     }
@@ -133,10 +142,11 @@ async function verifyNumber(args) {
         pin_expiry: '600' // 10 minutes instead of 5 by default
     };
 
-    if (debugSms) {
+    if (sails.config.debugSms) {
         const res = await debugVerifyNumber();
         return res;
     } else {
+        initializeNexmo();
         const res = await nexmo.verifyNumberAsync(params);
         return res;
     }
@@ -172,10 +182,11 @@ async function checkVerifyRequest(args) {
         code: args.code,
     };
 
-    if (debugSms) {
+    if (sails.config.debugSms) {
         const res = await debugCheckVerifyRequest(args.code);
         return res;
     } else {
+        initializeNexmo();
         const res = await nexmo.checkVerifyRequestAsync(params);
         return res;
     }

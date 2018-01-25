@@ -22,8 +22,6 @@ module.exports = {
 
 const _ = require('lodash');
 
-var odooConfig = sails.config.odoo;
-
 function getPartnerId(userId) {
     if (! userId) {
         return Promise.reject(new Error('Missing params'));
@@ -76,6 +74,8 @@ function createPartner(args) {
     if (! OdooApiService.isEnabled()) {
         return Promise.resolve();
     }
+
+    const odooConfig = sails.config.odoo;
 
     var params = {
         name: args.name,
@@ -209,6 +209,8 @@ function createInvoice(args) {
         return Promise.resolve();
     }
 
+    const odooConfig = sails.config.odoo;
+
     var params = {
         account_id: args.accountId || odooConfig.ids.accounts.customer_goodsSalesAndServiceProvision,
         comment: args.comment,
@@ -309,6 +311,8 @@ function createPayment(args) {
         return Promise.resolve();
     }
 
+    const odooConfig = sails.config.odoo;
+
     var params = {
         amount: args.amount,
         communication: args.communication,
@@ -358,6 +362,8 @@ function createInternalPayment(args) {
     if (! OdooApiService.isEnabled()) {
         return Promise.resolve();
     }
+
+    const odooConfig = sails.config.odoo;
 
     var params = {
         amount: args.amount,

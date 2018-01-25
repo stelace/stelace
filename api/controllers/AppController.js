@@ -20,15 +20,20 @@ var UrlPattern  = require('url-pattern');
 const _ = require('lodash');
 const Promise = require('bluebird');
 
-var SeoSnapshot = SeoSnapshotService.init({
-    snapshotsDirPath: sails.config.snapshotsDir,
-    saveInterval: 300000
-});
+let SeoSnapshotCache;
+
+function getSeoSnapshot(sails) {
+    if (!SeoSnapshotCache) {
+        SeoSnapshotCache = SeoSnapshotService.init({
+            snapshotsDirPath: sails.config.snapshotsDir,
+            saveInterval: 300000
+        });
+    }
+    return SeoSnapshotCache;
+}
 
 var seoPatterns = null;
 var oldSearchPatterns;
-
-var clientTracking = sails.config.clientTracking;
 
 function index(req, res) {
     var userAgent = req.headers["user-agent"];
@@ -44,6 +49,7 @@ function index(req, res) {
         if (req.method !== "GET") {
             return res.forbidden();
         } else {
+            const SeoSnapshot = getSeoSnapshot(sails);
             return SeoSnapshot.serveSnapshot(sails.config.stelace.url, req.url, req, res);
         }
     }
@@ -87,6 +93,8 @@ function index(req, res) {
             config,
             features,
         };
+
+        const clientTracking = sails.config.clientTracking;
 
         var viewParams = {
             layout: "layouts/app",

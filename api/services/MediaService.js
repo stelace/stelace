@@ -25,8 +25,6 @@ const createError = require('http-errors');
 Promise.promisifyAll(fs);
 Promise.promisifyAll(request, { multiArgs: true });
 
-const tmpDir = sails.config.tmpDir;
-const uploadDir = sails.config.uploadDir;
 const maxSizeUploadInBytes = 50000000; // 50MB
 
 /**
@@ -407,7 +405,7 @@ async function uploadFile({
         req,
         res,
         inputFileName,
-        uploadDest: tmpDir,
+        uploadDest: sails.config.tmpDir,
         maxSizeInBytes: maxSize,
     });
 
@@ -533,7 +531,7 @@ async function createMediaFromFile({
     const media = await Media.create(createAttrs);
 
     try {
-        const finalDestPath = path.join(uploadDir, Media.getStorageFilename(media));
+        const finalDestPath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
         await fs.renameAsync(filepath, finalDestPath);
     } catch (err) {
         // destroy the file and the media if failed
@@ -550,8 +548,8 @@ async function createMediaFromFile({
 }
 
 async function runImageOperations(media, { logger }) {
-    const filepath = path.join(uploadDir, Media.getStorageFilename(media));
-    const tmpFilepath = path.join(tmpDir, Media.getStorageFilename(media));
+    const filepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
+    const tmpFilepath = path.join(sails.config.tmpDir, Media.getStorageFilename(media));
 
     try {
         await ImageService.autoOrient(filepath, tmpFilepath);
@@ -566,7 +564,7 @@ async function runImageOperations(media, { logger }) {
     }
 
     try {
-        await ImageService.compress(filepath, tmpDir);
+        await ImageService.compress(filepath, sails.config.tmpDir);
         await fs.renameAsync(tmpFilepath, filepath);
     } catch (err) {
         logger.error({
@@ -581,7 +579,7 @@ async function runImageOperations(media, { logger }) {
 }
 
 async function setImagePlaceholders(media) {
-    const filepath = path.join(uploadDir, Media.getStorageFilename(media));
+    const filepath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
 
     const [
         color,
@@ -634,7 +632,7 @@ async function downloadFile({
             throw createError(403);
         }
 
-        var filePath = path.join(uploadDir, Media.getStorageFilename(media));
+        var filePath = path.join(sails.config.uploadDir, Media.getStorageFilename(media));
 
         if (!MicroService.existsSync(filePath)) {
             throw createError('Media file not found', {

@@ -21,13 +21,20 @@ const nodemailer = require('nodemailer');
 const Handlebars = require('handlebars');
 const cheerio    = require('cheerio');
 const Sparkpost  = require('sparkpost');
-const sparkpostClient = new Sparkpost(sails.config.sparkpost.apiKey);
 
 Promise.promisifyAll(nodemailer);
 
 registerHbsHelpers(Handlebars);
 
 const templateCache = {};
+let sparkpostClient;
+
+function getSparkpostClient() {
+    if (!sparkpostClient) {
+        sparkpostClient = new Sparkpost(sails.config.sparkpost.apiKey);
+    }
+    return sparkpostClient;
+}
 
 /**
  * Send simple email
@@ -161,6 +168,7 @@ async function sendHtmlEmail({
         return;
     }
 
+    const sparkpostClient = getSparkpostClient();
     const { results: sparkpostResult } = await sparkpostClient.transmissions.send(params);
 
     const createAttrs = {
@@ -200,6 +208,7 @@ async function sendHtmlEmail({
                 enableClickTracking: false,
             });
 
+            const sparkpostClient = getSparkpostClient();
             await sparkpostClient.transmissions.send(params);
         }
     } catch (e) {
@@ -309,6 +318,7 @@ async function sendEmail({
         return;
     }
 
+    const sparkpostClient = getSparkpostClient();
     const { results: sparkpostResult } = await sparkpostClient.transmissions.send(params);
 
     const createAttrs = {
@@ -350,6 +360,7 @@ async function sendEmail({
                 enableClickTracking: false,
             });
 
+            const sparkpostClient = getSparkpostClient();
             await sparkpostClient.transmissions.send(params);
         }
     } catch (e) {

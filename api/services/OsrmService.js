@@ -14,11 +14,10 @@ const Promise = require('bluebird');
 
 Promise.promisifyAll(request, { multiArgs: true });
 
-var osrmUrl  = sails.config.osrmUrl;
-var osrmPort = sails.config.osrmPort || 5000;
-var osrmMock = sails.config.osrmMock;
-
 var doRequest = function (path) {
+    var osrmUrl  = sails.config.osrmUrl;
+    var osrmPort = sails.config.osrmPort || 5000;
+
     return request
         .getAsync({
             url: "http://" + osrmUrl + ":" + osrmPort + path,
@@ -182,7 +181,7 @@ function table(gpsPts) {
                 throw error;
             }
 
-            if (osrmMock) {
+            if (sails.config.osrmMock) {
                 return _tableMock(gpsPts);
             } else {
                 return _table(gpsPts);

@@ -44,7 +44,7 @@ var messageCache;
 
 Promise.promisifyAll(fs);
 
-function initMessageCache() {
+function initMessageCache(sails) {
     return Promise.coroutine(function* () {
         if (messageCache) {
             return;
@@ -360,7 +360,7 @@ function payment(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return initMessageCache();
+            return initMessageCache(sails);
         })
         .then(() => {
             return [
@@ -842,7 +842,7 @@ function _paymentEndProcess(data) {
     return Promise
         .resolve()
         .then(() => {
-            return initMessageCache();
+            return initMessageCache(sails);
         })
         .then(() => {
             if (operation === 'deposit-payment') {
