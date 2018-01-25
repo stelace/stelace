@@ -89,7 +89,7 @@ function callback(req, res) {
         // req.flash('form', req.body);
 
         if (req.wantsJSON) { // login request from local
-            res.badRequest(err);
+            res.serverError(err);
         } else { // login request from providers
             res.set("loginErr", err);
 
