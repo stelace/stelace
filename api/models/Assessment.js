@@ -391,6 +391,15 @@ function getAssessmentLevel(type, level) {
 async function filterConversationAssessments(assessments) {
     const assessmentsIds = MicroService.escapeListForQueries(_.pluck(assessments, 'id'));
 
+    const result = {
+        assessments: [],
+        hashAssessments: {},
+    };
+
+    if (!assessmentsIds.length) {
+        return result;
+    }
+
     const conversations = await Conversation.find({
         or: [
             { inputAssessmentId: assessmentsIds },
@@ -400,11 +409,6 @@ async function filterConversationAssessments(assessments) {
 
     const indexedInput  = _.indexBy(conversations, 'inputAssessmentId');
     const indexedOutput = _.indexBy(conversations, 'outputAssessmentId');
-
-    const result = {
-        assessments: [],
-        hashAssessments: {},
-    };
 
     _.forEach(assessments, assessment => {
         const conversation = indexedInput[assessment.id] || indexedOutput[assessment.id];

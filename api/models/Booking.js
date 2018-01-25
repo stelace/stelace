@@ -643,6 +643,10 @@ function isComplete(booking, inputAssessment, outputAssessment) {
 async function getAssessments(bookings) {
     const bookingsIds = MicroService.escapeListForQueries(_.pluck(bookings, 'id'));
 
+    if (!bookingsIds.length) {
+        return {};
+    }
+
     let assessments = await Assessment.find({
         or: [
             { startBookingId: bookingsIds },

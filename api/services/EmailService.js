@@ -409,14 +409,19 @@ async function getTrackingStats(emailLogs) {
     const mandrillMessagesIds = MicroService.escapeListForQueries(_.pluck(emailLogs, 'mandrillMessageId'));
     const sparkpostTransmissionsIds = MicroService.escapeListForQueries(_.pluck(emailLogs, 'sparkpostTransmissionId'));
 
-    const emailTrackings = await EmailTracking
-        .find({
-            or: [
-                { mandrillMessageId: mandrillMessagesIds },
-                { sparkpostTransmissionId: sparkpostTransmissionsIds },
-            ],
-        })
-        .sort('eventDate DESC');
+    let findAttrs;
+    if (mandrillMessagesIds.length) {
+        findAttrs = { mandrillMessageId: mandrillMessagesIds };
+    } else if (sparkpostTransmissionsIds.length) {
+        findAttrs = { sparkpostTransmissionId: sparkpostTransmissionsIds };
+    }
+
+    let emailTrackings;
+    if (!findAttrs) {
+        emailTrackings = [];
+    } else {
+        emailTrackings = await EmailTracking.find(findAttrs).sort('eventDate DESC');
+    }
 
     const mandrillHashMap = {};
     const sparkpostHashMap = {};

@@ -57,6 +57,14 @@ module.exports.models = {
 => http://sailsjs.org/documentation/reference/waterline-orm/records/save
 - Avoid to use waterline instance method like save() in promises as it NOT transactional (record can be corrupted during update)
 
+- Check empty arrays in OR queries, the following query will throw an error:
+{
+    or: [
+        { userId: usersIds }, // usersIds can be empty
+        { mediaId: mediasIds }, // mediasIds can be empty
+    ]
+}
+
 */
 
 const _ = require('lodash');
