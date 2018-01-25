@@ -147,6 +147,10 @@
 
                     usSpinnerService.spin('save-assessment-spinner');
 
+                    if (vm.assessment.id) {
+                        return vm.assessment.put();
+                    }
+
                     return vm.assessment.save();
                 })
                 .then(function () {

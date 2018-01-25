@@ -430,6 +430,9 @@
 
                         return $q.all(_.map(resListings, function (listing) {
                             listing.locations.push(location.id);
+                            if (listing.id) {
+                                return listing.put();
+                            }
                             return listing.save();
                         }));
                     }
