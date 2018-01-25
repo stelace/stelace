@@ -32,7 +32,7 @@ Sails.load(getConfig(), async function (err, sails) {
     return Promise.coroutine(function* () {
         const pausedListings = yield Listing.find({
             locked: true,
-            pausedUntil: { "!": null },
+            pausedUntil: { "!=": null },
             // listing locked without pauseUntil date is not paused but locked
         });
         let listingsToActivate = [];

@@ -50,7 +50,7 @@ Sails.load(getConfig(), async function (err, sails) {
         const views = yield StelaceEvent.find({
             label: "Listing view",
             createdDate: dateConstraints,
-            listingId: { "!": null }
+            listingId: { "!=": null }
         });
         const groupedViews = _(views)
             .uniq("sessionId")
