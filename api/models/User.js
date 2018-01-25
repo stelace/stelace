@@ -136,13 +136,13 @@ module.exports = {
             allowNull: true,
         },
         levelId: {
-            type: 'number',
-            columnType: 'int',
+            type: 'string',
+            columnType: 'varchar(255)',
             allowNull: true,
         },
         lastViewedLevelId: {
-            type: 'number',
-            columnType: 'int',
+            type: 'string',
+            columnType: 'varchar(255)',
             allowNull: true,
         },
         birthday: {
