@@ -501,7 +501,7 @@ function _getUsers(usersIds, access) {
     return Promise
         .resolve()
         .then(() => {
-            return User.find({ id: usersIds });
+            return User.find({ id: MicroService.escapeListForQueries(usersIds) });
         })
         .then(users => {
             return [

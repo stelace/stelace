@@ -143,7 +143,7 @@ function update(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return ListingCategory.find({ id: updateAttrs.listingCategories });
+            return ListingCategory.find({ id: MicroService.escapeListForQueries(updateAttrs.listingCategories) });
         })
         .then(listingCategories => {
             if (listingCategories.length !== updateAttrs.listingCategories.length) {

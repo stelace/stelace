@@ -406,8 +406,8 @@ function _generateText(text) {
  * @return {object[]} hash[emailLogId].details - array of sorted events (details from aggregated stats data)
  */
 async function getTrackingStats(emailLogs) {
-    const mandrillMessagesIds = _.pluck(emailLogs, 'mandrillMessageId');
-    const sparkpostTransmissionsIds = _.pluck(emailLogs, 'sparkpostTransmissionId');
+    const mandrillMessagesIds = MicroService.escapeListForQueries(_.pluck(emailLogs, 'mandrillMessageId'));
+    const sparkpostTransmissionsIds = MicroService.escapeListForQueries(_.pluck(emailLogs, 'sparkpostTransmissionId'));
 
     const emailTrackings = await EmailTracking
         .find({

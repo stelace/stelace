@@ -1,4 +1,4 @@
-/* global Assessment, Conversation, GeneratorService, Listing, ListingHistoryService, Location, ModelSnapshot, User */
+/* global Assessment, Conversation, GeneratorService, Listing, ListingHistoryService, Location, MicroService, ModelSnapshot, User */
 
 /**
 * Assessment.js
@@ -389,7 +389,7 @@ function getAssessmentLevel(type, level) {
  * @return {Boolean} res.hashAssessments[assessmentId].isOutput - is conversation output assessment
  */
 async function filterConversationAssessments(assessments) {
-    const assessmentsIds = _.pluck(assessments, 'id');
+    const assessmentsIds = MicroService.escapeListForQueries(_.pluck(assessments, 'id'));
 
     const conversations = await Conversation.find({
         or: [

@@ -174,7 +174,7 @@ async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
     };
 
     if (listingCategoriesIds) {
-        findAttrs.listingCategoryId = listingCategoriesIds;
+        findAttrs.listingCategoryId = MicroService.escapeListForQueries(listingCategoriesIds);
     }
     if (withoutIds) {
         findAttrs.id = { '!=': withoutIds };
@@ -469,7 +469,7 @@ async function getJourneysDuration(fromLocations, hashLocations) {
  * @return {object} extraInfo
  */
 async function getListingsExtraInfo({ listings, getMedia }) {
-    const ownersIds  = _.pluck(listings, 'ownerId');
+    const ownersIds  = MicroService.escapeListForQueries(_.pluck(listings, 'ownerId'));
     let infoPromises = [Listing.getMedias(listings)];
     let owners;
 

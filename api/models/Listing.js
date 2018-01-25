@@ -522,7 +522,7 @@ async function getMedias(listings) {
         memo = memo.concat(listing.mediasIds || []);
         return memo;
     }, []);
-    mediasIds = _.uniq(mediasIds);
+    mediasIds = MicroService.escapeListForQueries(mediasIds);
 
     var medias = await Media.find({ id: mediasIds });
     var indexedMedias = _.indexBy(medias, "id");
@@ -553,7 +553,7 @@ async function getInstructionsMedias(listings) {
         memo = memo.concat(listing.instructionsMediasIds || []);
         return memo;
     }, []);
-    mediasIds = _.uniq(mediasIds);
+    mediasIds = MicroService.escapeListForQueries(mediasIds);
 
     var medias = await Media.find({ id: mediasIds });
     var indexedMedias = _.indexBy(medias, "id");
@@ -585,7 +585,7 @@ function getTags(listingOrListings, completeObj) {
     return Promise
         .resolve()
         .then(() => {
-            return ListingXTag.find({ listingId: _.pluck(listings, "id") });
+            return ListingXTag.find({ listingId: MicroService.escapeListForQueries(_.pluck(listings, "id")) });
         })
         .then(listingXTags => {
             var getTags = () => {
@@ -593,7 +593,7 @@ function getTags(listingOrListings, completeObj) {
                     return [];
                 }
 
-                var tagIds = _.uniq(_.pluck(listingXTags, "tagId"));
+                var tagIds = MicroService.escapeListForQueries(_.pluck(listingXTags, "tagId"));
 
                 return Tag.find({ id: tagIds });
             };
@@ -651,7 +651,7 @@ function getListingsOrSnapshots(listingIdOrListingsIds) {
     });
 
     return Promise.coroutine(function* () {
-        var listings = yield Listing.find({ id: listingsIds });
+        var listings = yield Listing.find({ id: MicroService.escapeListForQueries(listingsIds) });
 
         var foundListingsIds    = _.pluck(listings, "id");
         var notFoundListingsIds = _.difference(listingsIds, foundListingsIds);

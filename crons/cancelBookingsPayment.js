@@ -1,4 +1,4 @@
-/* global Booking, BootstrapService, Cancellation, CancellationService, LoggerService, TransactionService */
+/* global Booking, BootstrapService, Cancellation, CancellationService, LoggerService, MicroService, TransactionService */
 
 const Sails = require('sails');
 const { getConfig } = require('../sailsrc');
@@ -42,7 +42,7 @@ Sails.load(getConfig(), async function (err, sails) {
 
         var result = yield Promise.props({
             transactionsManagers: TransactionService.getBookingTransactionsManagers(bookingsIds),
-            cancellations: Cancellation.find({ id: cancellationsIds })
+            cancellations: Cancellation.find({ id: MicroService.escapeListForQueries(cancellationsIds) })
         });
 
         var transactionsManagers = result.transactionsManagers;

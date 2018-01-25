@@ -1,5 +1,5 @@
 /* global
-    BookingService, Listing, ListingAvailability, ListingService, Location, Media,
+    BookingService, Listing, ListingAvailability, ListingService, Location, Media, MicroService,
     PriceRecommendationService, PricingService, SearchEvent, SearchService, TokenService, User
 */
 
@@ -68,7 +68,7 @@ async function find(req, res) {
             owners,
             locations,
         ] = await Promise.all([
-            User.find({ id: _.pluck(listings, 'ownerId') }),
+            User.find({ id: MicroService.escapeListForQueries(_.pluck(listings, 'ownerId')) }),
             Location.find({ id: locationsIds }),
         ]);
 
@@ -411,7 +411,7 @@ async function getLocations(req, res) {
             throw createError(404);
         }
 
-        const locations = await Location.find({ id: listing.locations });
+        const locations = await Location.find({ id: MicroService.escapeListForQueries(listing.locations) });
         res.json(Location.exposeAll(locations, access));
     } catch (err) {
         res.sendError(err);

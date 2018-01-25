@@ -362,7 +362,7 @@ async function updateListingMedias(listingId, { mediasIds, mediaType }, { userId
         medias,
     ] = await Promise.all([
         Listing.findOne({ id: listingId }),
-        Media.find({ id: mediasIds }),
+        Media.find({ id: MicroService.escapeListForQueries(mediasIds) }),
     ]);
 
     if (! listing

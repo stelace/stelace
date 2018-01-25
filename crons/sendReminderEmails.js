@@ -1,5 +1,5 @@
 /* global
-    Assessment, Booking, BootstrapService, Conversation, EmailHelperService, EmailTemplateService, Listing, LoggerService, Media,
+    Assessment, Booking, BootstrapService, Conversation, EmailHelperService, EmailTemplateService, Listing, LoggerService, Media, MicroService
     MonitoringService, Rating, SmsService, TimeService, ToolsService, User
 */
 
@@ -295,9 +295,9 @@ Sails.load(getConfig(), async function (err, sails) {
 
                 return [
                     bookings,
-                    User.find({ id: takersIds }),
-                    User.find({ id: ownerIds }),
-                    Listing.find({ id: listingsIds }),
+                    User.find({ id: MicroService.escapeListForQueries(takersIds) }),
+                    User.find({ id: MicroService.escapeListForQueries(ownerIds) }),
+                    Listing.find({ id: MicroService.escapeListForQueries(listingsIds) }),
                     Conversation.find({ bookingId: _.pluck(bookings, "id") }),
                 ];
             })
@@ -428,8 +428,8 @@ Sails.load(getConfig(), async function (err, sails) {
 
                 return [
                     result,
-                    Listing.find({ id: _.pluck(result, "listingId") }),
-                    Conversation.find({ bookingId: _.pluck(result, "bookingId") })
+                    Listing.find({ id: MicroService.escapeListForQueries(_.pluck(result, "listingId")) }),
+                    Conversation.find({ bookingId: MicroService.escapeListForQueries(_.pluck(result, "bookingId")) })
                 ];
             })
             .spread((result, listings, conversations) => {
@@ -575,7 +575,7 @@ Sails.load(getConfig(), async function (err, sails) {
 
                 return [
                     result,
-                    Media.find({ id: _.compact(_.pluck(result, "mediaId")) })
+                    Media.find({ id: MicroService.escapeListForQueries(_.pluck(result, "mediaId")) })
                 ];
             })
             .spread((result, medias) => {
@@ -628,9 +628,9 @@ Sails.load(getConfig(), async function (err, sails) {
 
                 return [
                     result,
-                    User.find({ id: _.pluck(result, "takerId") }),
-                    User.find({ id: _.pluck(result, "giverId") }),
-                    Listing.find({ id: _.pluck(result, "listingId") })
+                    User.find({ id: MicroService.escapeListForQueries(_.pluck(result, "takerId")) }),
+                    User.find({ id: MicroService.escapeListForQueries(_.pluck(result, "giverId")) }),
+                    Listing.find({ id: MicroService.escapeListForQueries(_.pluck(result, "listingId")) })
                 ];
             })
             .spread((result, takers, givers, listings) => {
@@ -681,7 +681,7 @@ Sails.load(getConfig(), async function (err, sails) {
 
                 return [
                     result,
-                    Media.find({ id: _.compact(_.pluck(result, "mediaId")) })
+                    Media.find({ id: MicroService.escapeListForQueries(_.pluck(result, "mediaId")) })
                 ];
             })
             .spread((result, medias) => {
@@ -774,8 +774,8 @@ Sails.load(getConfig(), async function (err, sails) {
             .spread((result, assessments) => {
                 return [
                     result,
-                    Rating.find({ id: _.pluck(assessments, "id") }),
-                    Listing.find({ id: _.pluck(assessments, "listingId") })
+                    Rating.find({ id: MicroService.escapeListForQueries(_.pluck(assessments, "id")) }),
+                    Listing.find({ id: MicroService.escapeListForQueries(_.pluck(assessments, "listingId")) })
                 ];
             })
             .spread((result, ratings, listings) => {
@@ -830,9 +830,9 @@ Sails.load(getConfig(), async function (err, sails) {
 
                 return [
                     result,
-                    User.find({ id: _.pluck(result, "userId") }),
-                    User.find({ id: _.pluck(result, "targetId") }),
-                    Media.find({ id: _.pluck(result, "mediaId") })
+                    User.find({ id: MicroService.escapeListForQueries(_.pluck(result, "userId")) }),
+                    User.find({ id: MicroService.escapeListForQueries(_.pluck(result, "targetId")) }),
+                    Media.find({ id: MicroService.escapeListForQueries(_.pluck(result, "mediaId")) })
                 ];
             })
             .spread((result, users, targets, medias) => {

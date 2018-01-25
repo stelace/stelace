@@ -1,4 +1,4 @@
-/* global ElasticsearchService, ListingXTag, Tag, TokenService, User, UserXTag */
+/* global ElasticsearchService, ListingXTag, MicroService, Tag, TokenService, User, UserXTag */
 
 /**
  * TagController
@@ -108,7 +108,7 @@ function destroy(req, res) {
         });
 
         tagUsersIds  = _.pluck(tagUse.userTags, "userId");
-        tagUsers     = yield User.find({ id: tagUsersIds });
+        tagUsers     = yield User.find({ id: MicroService.escapeListForQueries(tagUsersIds) });
         var updates  = [];
 
         _.forEach(tagUsers, function (user) {
@@ -117,7 +117,7 @@ function destroy(req, res) {
             }
             var updatedTagsIds = _.reject(user.tagsIds, id => id === tagId);
 
-            updates.push(User.updateOne(user.id, { tagsIds: updatedTagsIds }));
+            updates.push(User.updateOne(user.id, { tagsIds: MicroService.escapeListForQueries(updatedTagsIds) }));
         });
 
         yield Promise.all(updates);

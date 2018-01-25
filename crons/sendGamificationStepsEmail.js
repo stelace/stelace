@@ -1,4 +1,4 @@
-/* global BootstrapService, EmailTemplateService, GamificationEvent, GamificationService, LoggerService, User */
+/* global BootstrapService, EmailTemplateService, GamificationEvent, GamificationService, LoggerService, MicroService, User */
 
 const Sails  = require('sails');
 const { getConfig } = require('../sailsrc');
@@ -36,7 +36,7 @@ Sails.load(getConfig(), async function (err, sails) {
             var usersIds = _.pluck(gamificationEvents, "userId");
 
             return [
-                User.find({ id: usersIds }),
+                User.find({ id: MicroService.escapeListForQueries(usersIds) }),
                 gamificationEvents
             ];
         })

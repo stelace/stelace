@@ -1,4 +1,4 @@
-/* global BootstrapService, EmailService, EmailHelperService, TokenService, Transaction, User */
+/* global BootstrapService, EmailService, EmailHelperService, MicroService, TokenService, Transaction, User */
 
 const Sails = require('sails');
 const { getConfig } = require('../sailsrc');
@@ -19,7 +19,7 @@ Sails.load(getConfig(), async function (err, sails) {
     return Promise.coroutine(function* () {
         var ownersIds = yield getOwnersIds(reportYear);
         var owners    = yield User.find({
-            id: ownersIds,
+            id: MicroService.escapeListForQueries(ownersIds),
             email: { '!=': null }
         });
 

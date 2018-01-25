@@ -1,4 +1,4 @@
-/* global Booking, Listing, Rating */
+/* global Booking, Listing, MicroService, Rating */
 
 module.exports = {
 
@@ -18,7 +18,7 @@ async function getListingHistories(listingsIds) {
         ratings,
     ] = await Promise.all([
         Booking.getAssessments(bookings),
-        Rating.find({ bookingId: bookingsIds }),
+        Rating.find({ bookingId: MicroService.escapeListForQueries(bookingsIds) }),
     ]);
 
     const groupBookings = _.groupBy(bookings, 'listingId');

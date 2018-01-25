@@ -1,5 +1,5 @@
 /*
-    global Booking, Listing, odoo, OdooApiService, OdooService, PricingService,
+    global Booking, Listing, MicroService, odoo, OdooApiService, OdooService, PricingService,
     Transaction, TransactionService, User
 */
 
@@ -178,15 +178,15 @@ function getTransactionsData(startDate, endDate) {
             .find(findAttrs)
             .sort('mgpCreatedDate ASC');
 
-        var bookingsIds = _.pluck(transactions, "bookingId");
+        var bookingsIds = MicroService.escapeListForQueries(_.pluck(transactions, "bookingId"));
         var bookings    = yield Booking.find({ id: bookingsIds });
 
-        var listingsIds = _.pluck(bookings, "listingId");
+        var listingsIds = MicroService.escapeListForQueries(_.pluck(bookings, "listingId"));
         var usersIds = _.reduce(bookings, (memo, booking) => {
             memo = memo.concat([booking.ownerId, booking.takerId]);
             return memo;
         }, []);
-        usersIds = _.uniq(usersIds);
+        usersIds = MicroService.escapeListForQueries(usersIds);
 
         var results = yield Promise.props({
             users: User.find({ id: usersIds }),

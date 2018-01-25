@@ -611,8 +611,7 @@ function syncOdooUser(user, args) {
  * @param {Object[]} users - Users to retrieve media for
  */
 function getMedia(users) {
-    var mediasIds = _.uniq(_.pluck(users, "mediaId"));
-    mediasIds = _.without(mediasIds, null);
+    var mediasIds = MicroService.escapeListForQueries(_.pluck(users, "mediaId"));
 
     return Promise
         .resolve()
@@ -688,7 +687,7 @@ function updateTags(user, tagIds) {
                 });
         }
 
-        return yield User.updateOne(user.id, { tagsIds: tagIds });
+        return yield User.updateOne(user.id, { tagsIds: MicroService.escapeListForQueries(tagIds) });
     })();
 }
 
@@ -826,7 +825,7 @@ async function canBeDestroyed(users, { keepCommittedBookings = true } = {}) {
         listings,
     ] = await Promise.all([
         Booking.find({
-            takerId: usersIds,
+            takerId: MicroService.escapeListForQueries(usersIds),
             completedDate: null,
             cancellationId: null,
         }),

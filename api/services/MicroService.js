@@ -1,11 +1,12 @@
 module.exports = {
 
-    isEmail: isEmail,
-    checkArray: checkArray,
-    sendError: sendError,
-    getPrivateIp: getPrivateIp,
-    existsSync: existsSync,
-    getSize: getSize,
+    isEmail,
+    checkArray,
+    sendError,
+    getPrivateIp,
+    existsSync,
+    getSize,
+    escapeListForQueries,
 
 };
 
@@ -98,4 +99,8 @@ function existsSync(filepath) {
 async function getSize(filepath) {
     const stats = await fs.statAsync(filepath);
     return stats.size;
+}
+
+function escapeListForQueries(array) {
+    return _.compact(_.uniq(array));
 }

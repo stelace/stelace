@@ -1,4 +1,4 @@
-/* global Booking, GamificationService, User */
+/* global Booking, GamificationService, MicroService, User */
 
 module.exports = {
 
@@ -38,10 +38,10 @@ function afterAssessmentSigned(assessment, logger, req) {
 
 function getAfterAssessmentSignedData(assessment) {
     return Promise.coroutine(function* () {
-        var usersIds = _.uniq(_.compact([
+        var usersIds = MicroService.escapeListForQueries([
             assessment.ownerId,
             assessment.takerId,
-        ]));
+        ]);
 
         var result = yield Promise.props({
             users: User.find({ id: usersIds }),

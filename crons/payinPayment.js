@@ -1,4 +1,4 @@
-/* global Booking, BookingPaymentService, BootstrapService, LoggerService, TransactionService, User */
+/* global Booking, BookingPaymentService, BootstrapService, LoggerService, MicroService, TransactionService, User */
 
 const Sails = require('sails');
 const { getConfig } = require('../sailsrc');
@@ -45,7 +45,7 @@ Sails.load(getConfig(), async function (err, sails) {
 
         var result = yield Promise.props({
             hashTransactionsManagers: TransactionService.getBookingTransactionsManagers(bookingsIds),
-            takers: User.find({ id: takersIds })
+            takers: User.find({ id: MicroService.escapeListForQueries(takersIds) })
         });
 
         var hashTransactionsManagers = result.hashTransactionsManagers;

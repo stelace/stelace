@@ -1,4 +1,4 @@
-/* global Bookmark, EmailContent, EmailLog, EmailTracking, User */
+/* global Bookmark, EmailContent, EmailLog, EmailTracking, MicroService, User */
 
 // Useful links for Sparkpost events
 // https://www.sparkpost.com/docs/user-guide/comparing-data
@@ -75,6 +75,7 @@ function saveEvents(mandrillEvents, logger) {
                 var spamIds = _.pluck(eventTypes.spam, "mandrillMessageId");
 
                 var usersIds = yield getUsersIdsFromMandrillMessagesIds(spamIds);
+                usersIds = MicroService.escapeListForQueries(usersIds);
 
                 yield Promise.props({
                     // remove bookmarks
@@ -102,7 +103,7 @@ function saveEvents(mandrillEvents, logger) {
 }
 
 function getMandrillMessageIds(mandrillEvents) {
-    return _.compact(_.uniq(_.map(mandrillEvents, mandrillEvent => mandrillEvent._id)));
+    return MicroService.escapeListForQueries(_.map(mandrillEvents, mandrillEvent => mandrillEvent._id));
 }
 
 function saveSparkpostEvent(event, batchId) {
@@ -148,7 +149,7 @@ function isSparkpostRequest(authorization, { user, password }) {
 }
 
 async function processSparkpostEvents(emailTrackings) {
-    const transmissionsIds = _.pluck(emailTrackings, 'sparkpostTransmissionId');
+    const transmissionsIds = MicroService.escapeListForQueries(_.pluck(emailTrackings, 'sparkpostTransmissionId'));
     const emailLogs = await EmailLog.find({ sparkpostTransmissionId: transmissionsIds });
     const indexedEmailLogs = _.indexBy(emailLogs, 'sparkpostTransmissionId');
 
@@ -176,7 +177,7 @@ async function processSparkpostEvents(emailTrackings) {
         // remove bookmarks
         Bookmark.update(
             {
-                userId: removeBookmarkUsersIds,
+                userId: MicroService.escapeListForQueries(removeBookmarkUsersIds),
                 active: true
             },
             { active: false }
@@ -184,7 +185,7 @@ async function processSparkpostEvents(emailTrackings) {
         // do not send newsletter anymore
         User.update(
             {
-                userId: unsubscribeUsersIds,
+                userId: MicroService.escapeListForQueries(unsubscribeUsersIds),
                 newsletter: true
             },
             { newsletter: false }
@@ -253,11 +254,11 @@ function saveEvent(mandrillEvent) {
 function getUsersIdsFromMandrillMessagesIds(mandrillMessagesIds) {
     return Promise.coroutine(function* () {
         var emailLogs = yield EmailLog.find({
-            mandrillMessageId: mandrillMessagesIds,
+            mandrillMessageId: MicroService.escapeListForQueries(mandrillMessagesIds),
             userId: { '!=': null }
         });
 
-        return _.uniq(_.pluck(emailLogs, "userId"));
+        return MicroService.escapeListForQueries(_.pluck(emailLogs, "userId"));
     })();
 }
 

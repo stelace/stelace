@@ -1,4 +1,4 @@
-/* global Location, MathService, ModelSnapshot */
+/* global Location, MathService, MicroService, ModelSnapshot */
 
 /**
 * Location.js
@@ -141,7 +141,6 @@ var params = {
     gpsCoordsDecimal: 6
 };
 
-const _ = require('lodash');
 const Promise = require('bluebird');
 
 function getAccessFields(access) {
@@ -284,7 +283,7 @@ async function hasUserLocations(locationsIds, userId) {
     if (!locationsIds || !locationsIds.length) return true;
 
     const locations = await Location.find({
-        id: _.uniq(locationsIds),
+        id: MicroService.escapeListForQueries(locationsIds),
         userId,
     });
     return locations.length === locationsIds.length;

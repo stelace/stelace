@@ -1,4 +1,4 @@
-/* global Assessment, Booking, Cancellation, Conversation, Listing, Location, Message, ToolsService, User */
+/* global Assessment, Booking, Cancellation, Conversation, Listing, Location, Message, MicroService, ToolsService, User */
 
 /**
  * MessageController
@@ -258,7 +258,7 @@ function getConversations(req, res) {
         return Promise
             .resolve()
             .then(() => {
-                var assessmentsIds = _.uniq(_.reduce(conversations, (memo, conversation) => {
+                var assessmentsIds = _.reduce(conversations, (memo, conversation) => {
                     if (conversation.inputAssessmentId) {
                         memo.push(conversation.inputAssessmentId);
                     }
@@ -266,14 +266,14 @@ function getConversations(req, res) {
                         memo.push(conversation.outputAssessmentId);
                     }
                     return memo;
-                }, []));
-                var listingsIds   = _.uniq(_.pluck(conversations, "listingId"));
-                var bookingIds = _.uniq(_.pluck(conversations, "bookingId"));
+                }, []);
+                var listingsIds = _.pluck(conversations, "listingId");
+                var bookingIds  = _.pluck(conversations, "bookingId");
 
                 return [
-                    Assessment.find({ id: assessmentsIds }),
-                    Listing.getListingsOrSnapshots(listingsIds),
-                    Booking.find({ id: bookingIds })
+                    Assessment.find({ id: MicroService.escapeListForQueries(assessmentsIds) }),
+                    Listing.getListingsOrSnapshots(MicroService.escapeListForQueries(listingsIds)),
+                    Booking.find({ id: MicroService.escapeListForQueries(bookingIds) })
                 ];
             })
             .spread((assessments, listings, bookings) => {
@@ -356,7 +356,7 @@ function getPublicMessages(req, res) {
             // max two messages with public content in same conversation
             return Message
                 .find({
-                    conversationId: conversationIds,
+                    conversationId: MicroService.escapeListForQueries(conversationIds),
                     publicContent: { '!=': null }
                 })
                 .sort([
@@ -378,9 +378,12 @@ function _populateUsers(conversationsOrMessages, access) {
     return Promise
         .resolve()
         .then(() => {
+            const sendersIds = MicroService.escapeListForQueries(_.pluck(conversationsOrMessages, 'senderId'));
+            const receiversIds = MicroService.escapeListForQueries(_.pluck(conversationsOrMessages, 'receiverId'));
+
             return [
-                User.find({ id: _.pluck(conversationsOrMessages, "senderId") }),
-                User.find({ id: _.pluck(conversationsOrMessages, "receiverId") })
+                User.find({ id: sendersIds }),
+                User.find({ id: receiversIds })
             ];
         })
         .spread((senders, receivers) => {
@@ -418,7 +421,7 @@ function _populateUsers(conversationsOrMessages, access) {
 }
 
 function _populateBookings(messages, access) {
-    var bookingIds = _.compact(_.pluck(messages, "bookingId"));
+    var bookingIds = MicroService.escapeListForQueries(_.pluck(messages, "bookingId"));
 
     if (! bookingIds.length) {
         return Promise.resolve(messages);
@@ -430,7 +433,7 @@ function _populateBookings(messages, access) {
             return Booking.find({ id: bookingIds });
         })
         .then(bookings => {
-            var cancellationIds = _.compact(_.pluck(bookings, "cancellationId"));
+            var cancellationIds = MicroService.escapeListForQueries(_.pluck(bookings, "cancellationId"));
 
             return [
                 bookings,

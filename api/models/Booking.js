@@ -1,5 +1,5 @@
 /* global
-    Assessment, Booking, Conversation, Listing, TimeService
+    Assessment, Booking, Conversation, Listing, MicroService, TimeService
 */
 
 /**
@@ -578,7 +578,7 @@ function getLast(listingIdOrIds) {
 
     return Promise.coroutine(function* () {
         var findAttrs = {
-            listingId: listingIds,
+            listingId: MicroService.escapeListForQueries(listingIds),
             cancellationId: null,
             paidDate: { '!=': null },
             acceptedDate: { '!=': null }
@@ -641,7 +641,7 @@ function isComplete(booking, inputAssessment, outputAssessment) {
  * @return {Object} [hashBookings[bookingId].outputAssessment] - can be null
  */
 async function getAssessments(bookings) {
-    const bookingsIds = _.pluck(bookings, 'id');
+    const bookingsIds = MicroService.escapeListForQueries(_.pluck(bookings, 'id'));
 
     let assessments = await Assessment.find({
         or: [
@@ -732,7 +732,7 @@ function getPendingBookings(listingId, args) {
  */
 function filterVisibleBookings(bookings) {
     return Promise.coroutine(function* () {
-        var bookingsIds = _.pluck(bookings, "id");
+        var bookingsIds = MicroService.escapeListForQueries(_.pluck(bookings, "id"));
 
         var conversations = yield Conversation.find({ bookingId: bookingsIds });
 
@@ -755,7 +755,7 @@ function filterVisibleBookings(bookings) {
 // get bookings that are not cancelled and not completed
 async function getOpenBookings(listings) {
     const bookings = await Booking.find({
-        listingId: _.pluck(listings, 'id'),
+        listingId: MicroService.escapeListForQueries(_.pluck(listings, 'id')),
         completedDate: null,
         cancellationId: null,
     });

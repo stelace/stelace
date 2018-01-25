@@ -1,5 +1,5 @@
 /* global
-    Booking, Conversation, EmailTemplateService, Listing, LoggerService, Message,
+    Booking, Conversation, EmailTemplateService, Listing, LoggerService, Message, MicroService
     User, SmsTemplateService, ToolsService
 */
 
@@ -284,7 +284,7 @@ function findExistingConversation(createAttrs) {
         // find relevant conversations
         // Only one conversation for given listingId and senderId-receiverId pair AND paid bookingId
         // Take last conversation by default (most recent booking if several booking between 2 users and createAttrs.bookingId)
-        var usersIds = [createAttrs.senderId, createAttrs.receiverId];
+        var usersIds = MicroService.escapeListForQueries([createAttrs.senderId, createAttrs.receiverId]);
 
         var conversations = yield Conversation
             .find({

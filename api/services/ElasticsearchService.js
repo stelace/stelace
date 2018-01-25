@@ -1,4 +1,4 @@
-/* global Listing, ListingCategory, ListingXTag, LoggerService, StelaceConfigService, Tag */
+/* global Listing, ListingCategory, ListingXTag, LoggerService, MicroService, StelaceConfigService, Tag */
 
 module.exports = {
 
@@ -453,7 +453,7 @@ async function triggerSyncListings() {
     const client = getClient();
 
     try {
-        listingsIds = _.compact(_.uniq(listingsIds));
+        listingsIds = MicroService.escapeListForQueries(listingsIds);
 
         const [
             listings,
