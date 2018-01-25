@@ -216,7 +216,7 @@ module.exports = {
     },
 
     getAccessFields,
-    postBeforeCreate,
+    beforeCreate,
     afterCreate,
     afterUpdate,
     afterDestroy,
@@ -358,10 +358,14 @@ function getAccessFields(access) {
 
     return accessFields[access];
 }
-function postBeforeCreate(values) {
+
+function beforeCreate(values, next) {
+    Listing.beforeCreateDates(values);
     if (values.name) {
         values.nameURLSafe = ToolsService.getURLStringSafe(values.name);
     }
+
+    next();
 }
 
 function afterCreate(listing, next) {

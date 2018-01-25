@@ -1,5 +1,4 @@
-var bcrypt = require('bcrypt');
-var moment = require('moment');
+const bcrypt = require('bcrypt');
 const Promise = require('bluebird');
 
 Promise.promisifyAll(bcrypt);
@@ -117,26 +116,19 @@ var Passport = {
     * @param {Object}   passport The soon-to-be-created Passport
     * @param {Function} next
     */
-    beforeCreate: function (passport, next) {
-        var now = moment().toISOString();
-        passport.createdDate = now;
-        passport.updatedDate = now;
+    beforeCreate: async (passport, next) => {
+        try {
+            Passport.beforeCreateDates(passport);
 
-        return Promise
-            .resolve()
-            .then(function () {
-                if (passport.hasOwnProperty('password') && passport.password) {
-                    return bcrypt
-                        .hashAsync(passport.password, 10)
-                        .then(function (hash) {
-                            passport.password = hash;
-                            return passport;
-                        });
-                } else {
-                    return passport;
-                }
-            })
-            .asCallback(next);
+            if (passport.password) {
+                const hash = await bcrypt.hashAsync(passport.password, 10);
+                passport.password = hash;
+            }
+
+            next();
+        } catch(err) {
+            next(err);
+        }
     },
 
     /**
@@ -145,27 +137,20 @@ var Passport = {
     * @param {Object}   passport Values to be updated
     * @param {Function} next
     */
-    beforeUpdate: function (passport, next) {
-        var now = moment().toISOString();
-        passport.updatedDate = now;
-        delete passport.createdDate;
+    beforeUpdate: async (passport, next) => {
+        try {
+            Passport.beforeUpdateDates(passport);
 
-        return Promise
-            .resolve()
-            .then(function () {
-                if (passport.hasOwnProperty('password') && passport.password) {
-                    return bcrypt
-                        .hashAsync(passport.password, 10)
-                        .then(function (hash) {
-                            passport.password = hash;
-                            return passport;
-                        });
-                } else {
-                    return passport;
-                }
-            })
-            .asCallback(next);
-    }
+            if (passport.password) {
+                const hash = await bcrypt.hashAsync(passport.password, 10);
+                passport.password = hash;
+            }
+
+            next();
+        } catch(err) {
+            next(err);
+        }
+    },
 };
 
 module.exports = Passport;

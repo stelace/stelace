@@ -125,13 +125,13 @@ module.exports = {
         },
     },
 
-    postBeforeCreate: postBeforeCreate,
-    postBeforeUpdate: postBeforeUpdate,
-    getAccessFields: getAccessFields,
-    get: get,
-    getAddress: getAddress,
-    getBillingLocation: getBillingLocation,
-    getMainLocationSnapshot: getMainLocationSnapshot,
+    beforeCreate,
+    beforeUpdate,
+    getAccessFields,
+    get,
+    getAddress,
+    getBillingLocation,
+    getMainLocationSnapshot,
     hasUserLocations,
 };
 
@@ -193,25 +193,20 @@ function get(prop) {
     }
 }
 
-function postBeforeCreate(values) {
-    var gpsCoordsDecimal = Location.get("gpsCoordsDecimal");
-
-    if (values.alias === "") {
-        values.alias = null;
-    }
-    if (values.latitude) {
-        values.latitude = MathService.roundDecimal(values.latitude, gpsCoordsDecimal);
-    }
-    if (values.longitude) {
-        values.longitude = MathService.roundDecimal(values.longitude, gpsCoordsDecimal);
-    }
-    if (values.establishment) {
-        values.establishmentName = values.name;
-    }
+function beforeCreate(values, next) {
+    Location.beforeCreateDates(values);
+    beforeChange(values);
+    next();
 }
 
-function postBeforeUpdate(values) {
-    var gpsCoordsDecimal = Location.get("gpsCoordsDecimal");
+function beforeUpdate(values, next) {
+    Location.beforeUpdateDates(values);
+    beforeChange(values);
+    next();
+}
+
+function beforeChange(values) {
+    const gpsCoordsDecimal = Location.get("gpsCoordsDecimal");
 
     if (values.alias === "") {
         values.alias = null;

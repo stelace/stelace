@@ -221,7 +221,7 @@ module.exports = {
     getAccessFields,
     exposeTransform,
     get,
-    postBeforeCreate,
+    beforeCreate,
     getName,
     createMangopayUser,
     createWallet,
@@ -383,13 +383,21 @@ function get(prop) {
     }
 }
 
-async function postBeforeCreate(values) {
-    if (!values.username && values.email) {
-        values.username = values.email.split("@")[0];
-    }
+async function beforeCreate(values, next) {
+    try {
+        User.beforeCreateDates(values);
 
-    if (!values.emailToken) {
-        values.emailToken = await GeneratorService.getRandomString(30);
+        if (!values.username && values.email) {
+            values.username = values.email.split("@")[0];
+        }
+
+        if (!values.emailToken) {
+            values.emailToken = await GeneratorService.getRandomString(30);
+        }
+
+        next();
+    } catch (err) {
+        next(err);
     }
 }
 

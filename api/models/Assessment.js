@@ -1,4 +1,4 @@
-/* global Conversation, GeneratorService, Listing, ListingHistoryService, Location, ModelSnapshot, User */
+/* global Assessment, Conversation, GeneratorService, Listing, ListingHistoryService, Location, ModelSnapshot, User */
 
 /**
 * Assessment.js
@@ -127,21 +127,21 @@ module.exports = {
         },
     },
 
-    getAccessFields: getAccessFields,
-    get: get,
-    postBeforeCreate: postBeforeCreate,
-    isAccessSelf: isAccessSelf,
-    getLastSigned: getLastSigned,
-    getBookingState: getBookingState,
-    getRealTakerId: getRealTakerId,
-    getRealGiverId: getRealGiverId,
-    getSnapshots: getSnapshots,
-    getSnapshotsIds: getSnapshotsIds,
-    getPrefilledStateFields: getPrefilledStateFields,
-    getAssessmentLevel: getAssessmentLevel,
-    filterConversationAssessments: filterConversationAssessments,
-    exposeBeforeAssessment: exposeBeforeAssessment,
-    needBeforeAssessments: needBeforeAssessments
+    getAccessFields,
+    get,
+    beforeCreate,
+    isAccessSelf,
+    getLastSigned,
+    getBookingState,
+    getRealTakerId,
+    getRealGiverId,
+    getSnapshots,
+    getSnapshotsIds,
+    getPrefilledStateFields,
+    getAssessmentLevel,
+    filterConversationAssessments,
+    exposeBeforeAssessment,
+    needBeforeAssessments,
 
 };
 
@@ -204,8 +204,11 @@ function get(prop) {
     }
 }
 
-function postBeforeCreate(values) {
+function beforeCreate(values, next) {
+    Assessment.beforeCreateDates(values);
     values.signToken = values.signToken || GeneratorService.getFunnyString();
+
+    next();
 }
 
 function isAccessSelf(assessment, user) {

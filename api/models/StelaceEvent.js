@@ -1,4 +1,4 @@
-/* global GeneratorService */
+/* global GeneratorService, StelaceEvent */
 
 /**
 * StelaceEvent.js
@@ -220,11 +220,9 @@ module.exports = {
     },
 
     getAccessFields,
-    postBeforeCreate: postBeforeCreate,
+    beforeCreate,
 
 };
-
-const Promise = require('bluebird');
 
 function getAccessFields(access) {
     const accessFields = {
@@ -254,8 +252,13 @@ function getAccessFields(access) {
     return accessFields[access];
 }
 
-function postBeforeCreate(values) {
-    return Promise.coroutine(function* () {
-        values.token = yield GeneratorService.getRandomString(10);
-    })();
+async function beforeCreate(values, next) {
+    try {
+        StelaceEvent.beforeCreateDates(values);
+        values.token = await GeneratorService.getRandomString(10);
+
+        next();
+    } catch (err) {
+        next(err);
+    }
 }

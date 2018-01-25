@@ -69,9 +69,9 @@ module.exports = {
         },
     },
 
-    getAccessFields: getAccessFields,
-    postBeforeCreate: postBeforeCreate,
-    postBeforeUpdate: postBeforeUpdate,
+    getAccessFields,
+    beforeCreate,
+    beforeUpdate,
     existTags,
 
 };
@@ -96,13 +96,21 @@ function getAccessFields(access) {
     return accessFields[access];
 }
 
-function postBeforeCreate(values) {
-    if (values.name) {
-        values.nameURLSafe = ToolsService.getURLStringSafe(values.name);
-    }
+function beforeCreate(values, next) {
+    Tag.beforeCreateDates(values);
+    beforeChange(values);
+
+    next();
 }
 
-function postBeforeUpdate(values) {
+function beforeUpdate(values, next) {
+    Tag.beforeUpdateDates(values);
+    beforeChange(values);
+
+    next();
+}
+
+function beforeChange(values) {
     if (values.name) {
         values.nameURLSafe = ToolsService.getURLStringSafe(values.name);
     }

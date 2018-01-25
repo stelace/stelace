@@ -13,8 +13,6 @@ Sails.load(getConfig(), async function (err, sails) {
 
     BootstrapService.init(null, { sails: sails });
 
-    Media.beforeUpdateCustom = () => {}; // do not update "updatedDate"
-
     try {
         const medias = await Media.find({
             type: 'img',

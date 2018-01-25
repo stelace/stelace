@@ -15,18 +15,10 @@
 
 module.exports.models = {
 
-    /***************************************************************************
-    *                                                                          *
-    * Your app's default connection. i.e. the name of one of your app's        *
-    * connections (see `config/connections.js`)                                *
-    *                                                                          *
-    ***************************************************************************/
-
     datastore: 'MySQLServer',
     schema: true,
 
-    // migrate: "safe", // production
-    migrate: "alter",
+    migrate: 'safe',
 
     dataEncryptionKeys: {
         default: '9mpGP84T2bIDLZ0S9ivnPB+1OK4R4c1C1rIc0Gfq/dc='
@@ -41,6 +33,8 @@ module.exports.models = {
 
     beforeCreate,
     beforeUpdate,
+    beforeCreateDates,
+    beforeUpdateDates,
     getAccessFields,
     expose,
     exposeAll,
@@ -60,28 +54,12 @@ module.exports.models = {
 
 /*
 
-=> https://github.com/balderdashy/sails-postgresql/issues/159
-- NOT NULL criteria must be after the others
-
 => http://sailsjs.org/documentation/reference/waterline-orm/records/save
 - Avoid to use waterline instance method like save() in promises as it NOT transactional (record can be corrupted during update)
 
-=> afterUpdate() isn't triggered when multiple models are targeted
-
 */
 
-/**
- * Model "before" life cycle customization:
- * provide .postBeforeCreate() to add customization after dates set
- * provide .beforeCreateCustom() to replace completely the behaviour of .beforeCreate()
- *
- * Same thing for .beforeUpdate()
- */
-
-var moment = require('moment');
-
 const _ = require('lodash');
-const Promise = require('bluebird');
 const createError = require('http-errors');
 
 const knex = require('knex')({
@@ -89,71 +67,46 @@ const knex = require('knex')({
 });
 
 function beforeCreate(values, next) {
-    var model = this;
-
-    return Promise.coroutine(function* () {
-        if (typeof model.beforeCreateCustom === "function") {
-            yield Promise.resolve().then(() => model.beforeCreateCustom(values));
-        } else {
-            beforeCreateDates(values);
-
-            if (typeof model.postBeforeCreate === "function") {
-                yield Promise.resolve().then(() => model.postBeforeCreate(values));
-            }
-        }
-    })()
-    .asCallback(next);
+    beforeCreateDates(values);
+    next();
 }
 
 function beforeCreateDates(values) {
-    var now = moment().toISOString();
+    const now = new Date().toISOString();
     values.createdDate = now;
     values.updatedDate = now;
 }
 
 function beforeUpdate(values, next) {
-    var model = this;
-
-    return Promise.coroutine(function* () {
-        if (typeof model.beforeUpdateCustom === "function") {
-            yield Promise.resolve().then(() => model.beforeUpdateCustom(values));
-        } else {
-            beforeUpdateDates(values);
-
-            if (typeof model.postBeforeUpdate === "function") {
-                yield Promise.resolve().then(() => model.postBeforeUpdate(values));
-            }
-        }
-    })()
-    .asCallback(next);
+    beforeUpdateDates(values);
+    next();
 }
 
 function beforeUpdateDates(values) {
-    var now = moment().toISOString();
+    const now = new Date().toISOString();
     values.updatedDate = now;
     delete values.createdDate;
 }
 
 function getAccessFields(access) {
-    var accessFields = {};
+    const accessFields = {};
     return accessFields[access];
 }
 
-function expose(element, access) {
-    var model = this;
+function expose(element, access = 'others') {
+    const model = this;
 
-    access = access || "others";
-    var object = _.cloneDeep(element);
+    const object = _.cloneDeep(element);
 
-    if (access === "admin") {
+    if (access === 'admin') {
         return object;
     }
 
-    if (typeof element === "undefined" || element === null) {
+    if (typeof element === 'undefined' || element === null) {
         return null;
     }
 
-    var accessFields = model.getAccessFields(access);
+    const accessFields = model.getAccessFields(access);
     if (! accessFields) {
         return {};
     } else {
@@ -165,13 +118,13 @@ function expose(element, access) {
 }
 
 function exposeAll(elements, access) {
-    var model = this;
+    const model = this;
 
     if (! _.isArray(elements)) {
-        throw new Error("exposeAll: expected array");
+        throw new Error('array of elements expected');
     }
 
-    return _.reduce(elements, function (memo, element) {
+    return _.reduce(elements, (memo, element) => {
         memo.push(model.expose(element, access));
         return memo;
     }, []);
@@ -181,29 +134,27 @@ function exposeTransform(/* element, field, access */) {
     // do nothing (only for template, exposeTransform on model override)
 }
 
-function updateOne(queryIdOrObj, updateAttrs) {
-    var model = this;
+async function updateOne(queryIdOrObj, updateAttrs) {
+    const model = this;
 
-    return Promise.coroutine(function* () {
-        var query = (typeof queryIdOrObj === "object" ? queryIdOrObj : { id: queryIdOrObj });
+    const query = (typeof queryIdOrObj === 'object' ? queryIdOrObj : { id: queryIdOrObj });
 
-        var records = yield model.update(query, updateAttrs);
+    const records = await model.update(query, Object.assign({}, updateAttrs));
 
-        if (! records.length) {
-            throw createError('Update one - not found', {
-                model: model.globalId,
-                query: queryIdOrObj,
-            });
-        }
-        if (records.length > 1) {
-            throw createError('Update one - multiple instances', {
-                model: model.globalId,
-                query: queryIdOrObj,
-            });
-        }
+    if (! records.length) {
+        throw createError('Update one - not found', {
+            model: model.globalId,
+            query: queryIdOrObj,
+        });
+    }
+    if (records.length > 1) {
+        throw createError('Update one - multiple instances', {
+            model: model.globalId,
+            query: queryIdOrObj,
+        });
+    }
 
-        return records[0];
-    })();
+    return records[0];
 }
 
 function getCollection() {

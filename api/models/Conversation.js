@@ -1,3 +1,5 @@
+/* global Conversation */
+
 /**
 * Conversation.js
 *
@@ -112,12 +114,12 @@ module.exports = {
         },
     },
 
-    getAccessFields: getAccessFields,
-    get: get,
-    postBeforeCreate: postBeforeCreate,
-    postBeforeUpdate: postBeforeUpdate,
-    isEmpty: isEmpty,
-    isPartOfConversation: isPartOfConversation
+    getAccessFields,
+    get,
+    beforeCreate,
+    beforeUpdate,
+    isEmpty,
+    isPartOfConversation,
 
 };
 
@@ -190,11 +192,16 @@ function get(prop) {
     }
 }
 
-function postBeforeCreate(values) {
+function beforeCreate(values, next) {
+    Conversation.beforeCreateDates(values)
     values.newContentDate = values.createdDate;
+
+    next();
 }
 
-function postBeforeUpdate(values) {
+function beforeUpdate(values, next) {
+    Conversation.beforeUpdateDates(values);
+
     if (values.startDate
      || values.bookingStatus
      || values.agreementStatus
@@ -203,6 +210,8 @@ function postBeforeUpdate(values) {
     ) {
         values.newContentDate = values.updatedDate;
     }
+
+    next();
 }
 
 function isEmpty(conversation) {

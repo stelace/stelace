@@ -83,14 +83,12 @@ module.exports = {
         },
     },
 
-    getAccessFields: getAccessFields,
-    get: get,
-    postBeforeCreate: postBeforeCreate,
-    isBookmarked: isBookmarked
+    getAccessFields,
+    get,
+    beforeCreate,
+    isBookmarked,
 
 };
-
-const Promise = require('bluebird');
 
 var params = {
     types: ["push"]    // add 'list' later
@@ -120,10 +118,15 @@ function get(prop) {
     }
 }
 
-function postBeforeCreate(values) {
-    return Promise.coroutine(function* () {
-        values.token = yield GeneratorService.getRandomString(20);
-    })();
+async function beforeCreate(values, next) {
+    try {
+        Bookmark.beforeCreateDates(values);
+        values.token = await GeneratorService.getRandomString(20);
+
+        next();
+    } catch (err) {
+        next(err);
+    }
 }
 
 async function isBookmarked(listingId, userId) {

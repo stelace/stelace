@@ -1,4 +1,4 @@
-/* global GeneratorService */
+/* global GeneratorService, StelaceSession */
 
 /**
 * StelaceSession.js
@@ -175,14 +175,17 @@ module.exports = {
         },
     },
 
-    postBeforeCreate: postBeforeCreate
+    beforeCreate,
 
 };
 
-const Promise = require('bluebird');
+async function beforeCreate(values, next) {
+    try {
+        StelaceSession.beforeCreateDates(values);
+        values.token = await GeneratorService.getRandomString(10);
 
-function postBeforeCreate(values) {
-    return Promise.coroutine(function* () {
-        values.token = yield GeneratorService.getRandomString(10);
-    })();
+        next();
+    } catch (err) {
+        next(err);
+    }
 }
