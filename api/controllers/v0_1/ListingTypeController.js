@@ -53,7 +53,7 @@ async function create(req, res) {
     const access = 'api';
 
     try {
-        const listingType = await ListingTypeService.create(attrs);
+        const listingType = await ListingTypeService.createListingType(attrs);
 
         res.json(ListingType.expose(listingType, access));
     } catch (err) {

@@ -569,19 +569,3 @@ gulp.task('compress', function () {
         }))
         .pipe(gulp.dest(".tmp/public"));
 });
-
-gulp.task('mocha-backend', function () {
-    return gulp.src("tests/backend/**/*.spec.js", { read: false })
-            .pipe($$.mocha({
-                timeout: 60000
-            }));
-});
-
-gulp.task('mocha-frontend', function () {
-    return gulp.src("tests/frontend/**/*.spec.js", { read: false })
-            .pipe($$.mocha({
-                timeout: 60000
-            }));
-});
-
-gulp.task('mocha', ['mocha-backend', 'mocha-frontend']);

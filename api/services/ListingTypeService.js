@@ -255,8 +255,8 @@ function getComputedListingType(params, existingListingType) {
     const computedListingType = {};
 
     if (existingListingType) {
-        computedListingType.name = name ? name : existingListingType.name;
-        computedListingType.properties = _.merge(existingListingType.properties, properties || {}, );
+        computedListingType.name = typeof name !== 'undefined' ? name : existingListingType.name;
+        computedListingType.properties = _.merge(existingListingType.properties, properties || {});
         computedListingType.config = _.merge(existingListingType.config, config || {});
         computedListingType.customFields = customFields ? customFields : existingListingType.customFields;
         computedListingType.active = (typeof active !== 'undefined' ? active : existingListingType.active);

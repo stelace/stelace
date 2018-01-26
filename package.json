@@ -33,7 +33,6 @@
     "bluebird": "3.3.1",
     "browser-sync": "2.11.1",
     "bunyan": "1.6.0",
-    "chai": "3.5.0",
     "cheerio": "0.20.0",
     "crypto-js": "3.1.6",
     "del": "2.2.0",
@@ -56,7 +55,6 @@
     "gulp-json-format": "1.0.0",
     "gulp-load-plugins": "1.2.0",
     "gulp-minify-html": "1.0.5",
-    "gulp-mocha": "2.2.0",
     "gulp-ng-annotate": "1.1.0",
     "gulp-ng-lang2js": "0.2.0",
     "gulp-plumber": "1.1.0",
@@ -97,7 +95,6 @@
     "sails-hook-orm": "2.0.0-16",
     "sails-mysql": "https://github.com/stelace/sails-mysql.git#d8d69cbd92b707fba569cd517c9e74366866d243",
     "should": "8.2.2",
-    "sinon": "1.17.3",
     "sparkpost": "2.1.2",
     "to-snake-case": "1.0.0",
     "url-pattern": "1.0.1",
@@ -107,11 +104,18 @@
     "yargs": "4.1.0"
   },
   "devDependencies": {
+    "chai": "4.1.2",
     "eslint": "4.4.1",
-    "i18n-compile": "1.1.0"
+    "i18n-compile": "1.1.0",
+    "mocha": "5.0.0",
+    "sinon": "4.2.1",
+    "sql-fixtures": "1.0.0",
+    "supertest": "3.0.0"
   },
   "scripts": {
     "start": "node app.js",
+    "test": "npm run test:integration",
+    "test:integration": "mocha --recursive test/lifecycle.js test/integration",
     "debug": "node debug app.js",
     "patch:foundation": "patch -N assets/bower_components/foundation-apps/dist/js/foundation-apps.js < foundation-patch.txt",
     "html-validate": "node html-validate.js",
