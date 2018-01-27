@@ -132,18 +132,18 @@ module.exports.routes = {
     'get /api/message/get-conversations': "MessageController.getConversations",
     'get /api/message/listing': "MessageController.getPublicMessages",
     'put /api/message/:id/mark-read': "MessageController.markAsRead",
-    'put /api/message/:id/update-meta': "MessageController.updateMeta",
+    'patch /api/message/:id/update-meta': "MessageController.updateMeta",
 
     // SmsController
     'post /api/phone/sendCode': "SmsController.sendVerify",
     'post /api/phone/checkCode': "SmsController.checkVerify",
 
     // StelaceConfigController
-    'put /api/stelace/config': "StelaceConfigController.update",
+    'patch /api/stelace/config': "StelaceConfigController.update",
 
     // StelaceEventController
     'post /api/stelace/event': "StelaceEventController.createEvent",
-    'put /api/stelace/event/:id': "StelaceEventController.updateEvent",
+    'patch /api/stelace/event/:id': "StelaceEventController.updateEvent",
 
     // UserController
     'get /api/user/params': "UserController.params",
@@ -179,7 +179,7 @@ module.exports.routes = {
     'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },
     'get /api/v0.1/listings/:id': { target: 'v0_1/ListingController.findOne', cors: apiCors },
     'post /api/v0.1/listings': { target: 'v0_1/ListingController.create', cors: apiCors },
-    'put /api/v0.1/listings/:id': { target: 'v0_1/ListingController.update', cors: apiCors },
+    'patch /api/v0.1/listings/:id': { target: 'v0_1/ListingController.update', cors: apiCors },
     'put /api/v0.1/listings/:id/validate': { target: 'v0_1/ListingController.validate', cors: apiCors },
     'put /api/v0.1/listings/:id/medias': { target: 'v0_1/ListingController.updateMedias', cors: apiCors },
     'delete /api/v0.1/listings/:id': { target: 'v0_1/ListingController.destroy', cors: apiCors },
@@ -188,20 +188,20 @@ module.exports.routes = {
     'get /api/v0.1/listing-categories/:id': { target: 'v0_1/ListingCategoryController.findOne', cors: apiCors },
     'post /api/v0.1/listing-categories': { target: 'v0_1/ListingCategoryController.create', cors: apiCors },
     'put /api/v0.1/listing-categories/assign': { target: 'v0_1/ListingCategoryController.assignListings', cors: apiCors },
-    'put /api/v0.1/listing-categories/:id': { target: 'v0_1/ListingCategoryController.update', cors: apiCors },
+    'patch /api/v0.1/listing-categories/:id': { target: 'v0_1/ListingCategoryController.update', cors: apiCors },
     'delete /api/v0.1/listing-categories/:id': { target: 'v0_1/ListingCategoryController.destroy', cors: apiCors },
 
     'get /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.find', cors: apiCors },
     'get /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.findOne', cors: apiCors },
     'post /api/v0.1/listing-types': { target: 'v0_1/ListingTypeController.create', cors: apiCors },
-    'put /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.update', cors: apiCors },
+    'patch /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.update', cors: apiCors },
     'delete /api/v0.1/listing-types/:id': { target: 'v0_1/ListingTypeController.destroy', cors: apiCors },
 
     'get r|/api/v0.1/media/get/(\\d+)/([\\w-]+).(\\w+)|id,uuid,ext': { target: "v0_1/MediaController.get", cors: apiCors },
     'get /api/v0.1/media/get/:id/:uuid': { target: "v0_1/MediaController.getRedirect", cors: apiCors },
     'get /api/v0.1/media/download': { target: "v0_1/MediaController.download", cors: apiCors },
     'post /api/v0.1/media/upload': { target: "v0_1/MediaController.upload", cors: apiCors },
-    'put /api/v0.1/media/:id': { target: "v0_1/MediaController.update", cors: apiCors },
+    'patch /api/v0.1/media/:id': { target: "v0_1/MediaController.update", cors: apiCors },
 
     'get /api/v0.1/stats/users_registered': { target: 'v0_1/StatsController.userRegistered', cors: apiCors },
     'get /api/v0.1/stats/listings_published': { target: 'v0_1/StatsController.listingPublished', cors: apiCors },
@@ -210,7 +210,7 @@ module.exports.routes = {
     'get /api/v0.1/users': { target: 'v0_1/UserController.find', cors: apiCors },
     'get /api/v0.1/users/:id': { target: 'v0_1/UserController.findOne', cors: apiCors },
     'post /api/v0.1/users': { target: 'v0_1/UserController.create', cors: apiCors },
-    'put /api/v0.1/users/:id': { target: 'v0_1/UserController.update', cors: apiCors },
+    'patch /api/v0.1/users/:id': { target: 'v0_1/UserController.update', cors: apiCors },
     'delete /api/v0.1/users/:id': { target: 'v0_1/UserController.destroy', cors: apiCors },
 
     'get /api/v0.1/webhooks': { target: 'v0_1/WebhookController.find', cors: apiCors },

@@ -148,7 +148,7 @@
                     usSpinnerService.spin('save-assessment-spinner');
 
                     if (vm.assessment.id) {
-                        return vm.assessment.put();
+                        return vm.assessment.patch();
                     }
 
                     return vm.assessment.save();
@@ -277,7 +277,7 @@
                         return vm.myRating;
                     });
             } else {
-                return vm.myRating.save();
+                return vm.myRating.patch();
             }
         }
 

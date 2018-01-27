@@ -212,7 +212,7 @@
             updatingUser = true;
 
             vm.editingCurrentUser
-                .put()
+                .patch()
                 .then(function (user) {
                     angular.extend(vm.currentUser, user);
                     updatingUser = false;
@@ -403,14 +403,14 @@
                     location[attr] = vm.currentLocation[attr];
                 });
 
-                location.put();
+                location.patch();
             }
         }
 
         function updateLocationAlias(location) {
             if (location.aliasEdit !== location.alias) {
                 location.alias = location.aliasEdit;
-                location.put().then(function () {
+                location.patch().then(function () {
                     toastr.success("Enregistré");
                 });
             }
@@ -431,7 +431,7 @@
                         return $q.all(_.map(resListings, function (listing) {
                             listing.locations.push(location.id);
                             if (listing.id) {
-                                return listing.put();
+                                return listing.patch();
                             }
                             return listing.save();
                         }));

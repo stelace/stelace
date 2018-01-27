@@ -159,7 +159,7 @@
                     return $q.resolve();
                 }
 
-                return $http.put(apiBaseUrl + "/stelace/event/" + id, args);
+                return $http.patch(apiBaseUrl + "/stelace/event/" + id, args);
             }
         }
     }

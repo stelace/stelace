@@ -306,7 +306,7 @@
                     ];
 
                     if (! _.isEqual(_.pick(editingCurrentUser, updateAttrs), _.pick(vm.currentUser, updateAttrs))) {
-                        return editingCurrentUser.put();
+                        return editingCurrentUser.patch();
                     }
 
                     return;

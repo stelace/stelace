@@ -1296,7 +1296,7 @@
                 })
                 .then(function () {
                     vm.listing.tags = _.pluck(vm.listingTags, "id");
-                    return vm.listing.put();
+                    return vm.listing.patch();
                 })
                 .then(function () {
                     return updateListingAvailabilities(vm.listing);
@@ -1451,7 +1451,7 @@
                 .then(function (user) {
                     if (vm.firstname) {
                         user.firstname = vm.firstname;
-                        return user.put();
+                        return user.patch();
                     } else {
                         return true;
                     }

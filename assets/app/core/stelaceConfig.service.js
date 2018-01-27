@@ -47,14 +47,14 @@
         }
 
         function updateConfig(config) {
-            return $http.put(apiBaseUrl + "/stelace/config", { config: config })
+            return $http.patch(apiBaseUrl + "/stelace/config", { config: config })
                 .then(function (result) {
                     window.actions.ConfigActions.setConfig(result.config);
                 });
         }
 
         function updateFeatures(features) {
-            return $http.put(apiBaseUrl + "/stelace/config", { features: features })
+            return $http.patch(apiBaseUrl + "/stelace/config", { features: features })
                 .then(function (result) {
                     window.actions.FeaturesActions.setFeatures(result.features);
                 });

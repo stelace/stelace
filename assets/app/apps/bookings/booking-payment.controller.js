@@ -323,7 +323,7 @@
             return $q.when(true)
                 .then(function () {
                     if (! _.isEqual(_.pick(editingCurrentUser, updateAttrs), _.pick(vm.currentUser, updateAttrs))) {
-                        return editingCurrentUser.put().then(function (user) {
+                        return editingCurrentUser.patch().then(function (user) {
                             return user;
                         });
                         // needs name for mangopay account

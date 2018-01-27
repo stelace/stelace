@@ -75,7 +75,7 @@ describe('v0.1 | ListingTypeController', () => {
     describe('.update()', () => {
         it('updates the listing type', async () => {
             const res = await request(sails.hooks.http.app)
-                .put('/api/v0.1/listing-types/1')
+                .patch('/api/v0.1/listing-types/1')
                 .send({ name: 'new name' })
                 .set('x-api-key', apiKey)
                 .expect(200);
