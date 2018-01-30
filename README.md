@@ -101,10 +101,9 @@ And if you switch to another major version of Node.js (Major.Minor.Patch, see ht
 
 ##### Node.js global dependencies
     sudo npm install -g node-gyp
-    sudo npm install -g sails@0.11.4
+    sudo npm install -g sails@1.0.0-45
     sudo npm install -g gulp
     sudo npm install -g bower
-    sudo npm install -g eslint@3.1.1
     sudo npm install -g bunyan
 
 
@@ -112,7 +111,7 @@ And if you switch to another major version of Node.js (Major.Minor.Patch, see ht
 
     sudo apt-get install mysql-server
 
-> Recommended version: 5.7
+> Required version: >= 5.7
 
 Enter your identifiers (the following parameters can be used in dev environment):
 > user: root
