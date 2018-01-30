@@ -22,7 +22,8 @@ module.exports.policies = {
 
     AppController: {
         index: true,
-        oldBrowsers: true
+        oldBrowsers: true,
+        install: true,
     },
 
     AuthController: {
@@ -139,6 +140,12 @@ module.exports.policies = {
 
     SmsController: {
         sendVerify: ["isAuthenticated", "getUserInfo"]
+    },
+
+    StelaceConfigController: {
+        findOne: true,
+        install: true,
+        installStatus: true,
     },
 
     StelaceEventController: {

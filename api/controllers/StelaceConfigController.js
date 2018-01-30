@@ -15,13 +15,23 @@ module.exports = {
     update,
     destroy,
 
+    installStatus,
+    install,
+
 };
+
+const createError = require('http-errors');
 
 function find(req, res) {
     res.forbidden();
 }
 
 async function findOne(req, res) {
+    const hasConfig = await StelaceConfigService.hasStelaceConfig();
+    if (!hasConfig) {
+        throw createError(400, 'There is no stelace config yet');
+    }
+
     const config = await StelaceConfigService.getConfig();
     const features = await StelaceConfigService.getListFeatures();
 
@@ -56,4 +66,17 @@ async function update(req, res) {
 
 function destroy(req, res) {
     res.forbidden();
+}
+
+async function installStatus(req, res) {
+    const installationComplete = await StelaceConfigService.isInstallationComplete();
+
+    res.json({ installed: installationComplete });
+}
+
+async function install(req, res) {
+    const attrs = req.allParams();
+    await StelaceConfigService.install(attrs);
+
+    res.sendStatus(200);
 }

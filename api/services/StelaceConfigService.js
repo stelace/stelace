@@ -1,16 +1,21 @@
-/* global PassportService, PaymentMangopayService, PaymentStripeService, StelaceConfig */
+/* global MicroService, PassportService, PaymentMangopayService, PaymentStripeService, StelaceConfig, User, UserService */
 
 module.exports = {
 
     getTimeGranularities,
     getDefaultCurrency,
+    getAllowedLangs,
 
+    hasStelaceConfig,
+    isInstallationComplete,
+    install,
     getConfig,
     getSecretData,
 
     getListFeatures,
     isFeatureActive,
 
+    createStelaceConfig,
     updateConfig,
     updateFeatures,
     updateSecretData,
@@ -86,6 +91,10 @@ const timeGranularities = [
 ];
 
 const defaultCurrency = 'EUR';
+const allowedLangs = [
+    'en',
+    'fr',
+];
 
 function getTimeGranularities() {
     return timeGranularities;
@@ -93,6 +102,57 @@ function getTimeGranularities() {
 
 function getDefaultCurrency() {
     return defaultCurrency;
+}
+
+function getAllowedLangs() {
+    return allowedLangs;
+}
+
+async function hasStelaceConfig() {
+    const stelaceConfigs = await StelaceConfig.find().limit(1);
+    return !!stelaceConfigs.length;
+}
+
+async function isInstallationComplete() {
+    const hasConfig = await hasStelaceConfig();
+    if (!hasConfig) return false;
+
+    const users = await User.find({ role: 'admin' });
+    if (!users.length) return false;
+
+    return true;
+}
+
+/**
+ * @param {Object} params
+ * @param {String} params.lang
+ * @param {String} params.serviceName
+ * @param {String} params.email
+ * @param {String} params.password
+ */
+async function install(params) {
+    const {
+        lang,
+        serviceName,
+        email,
+        password,
+    } = params;
+
+    const installationComplete = await isInstallationComplete();
+    if (installationComplete) {
+        throw createError(400, 'Installation already completed');
+    }
+
+    if (!_.includes(allowedLangs, lang)
+     || (!serviceName || typeof serviceName !== 'string')
+     || !MicroService.isEmail(email)
+     || (typeof password !== 'string' || password.length < 8)
+    ) {
+        throw createError(400, 'Bad params');
+    }
+
+    await createStelaceConfig({ config: { SERVICE_NAME: serviceName, lang } });
+    await UserService.createUser({ email, password, role: 'admin' }, { passwordRequired: true });
 }
 
 async function _fetchStelaceConfig() {
@@ -163,6 +223,21 @@ async function isFeatureActive(name) {
     }
 
     return features[name];
+}
+
+async function createStelaceConfig({ features, config } = {}) {
+    const installationComplete = await isInstallationComplete();
+    if (installationComplete) {
+        throw new Error('Installation complete');
+    }
+
+    const createAttrs = {};
+    createAttrs.features = _.defaults({}, features, getDefaultFeatures());
+    createAttrs.config = _.defaults({}, config, getDefaultConfig());
+
+    const stelaceConfig = await StelaceConfig.create(createAttrs);
+    _updateCache(stelaceConfig);
+    return stelaceConfig;
 }
 
 async function updateConfig(updatedConfig) {

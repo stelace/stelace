@@ -11,9 +11,12 @@
  * https://sailsjs.com/config/http
  */
 
-var path  = require('path');
-var fs    = require('fs');
-var proxy = require('http-proxy-middleware');
+const path  = require('path');
+const fs    = require('fs');
+const proxy = require('http-proxy-middleware');
+const serveStatic = require('serve-static');
+
+const serve = serveStatic(path.join(__dirname, '../assets'));
 
 let dashboardProxy;
 
@@ -49,9 +52,20 @@ module.exports.http = {
             'secureResponseHeader',
             'proxyDashboard',
             'router',
+            'staticInstall',
             'www',
             'favicon',
         ],
+
+        staticInstall: (req, res, next) => {
+            const staticInstallUrl = '/install/';
+
+            if (req.url.substr(0, staticInstallUrl.length) !== staticInstallUrl) {
+                return next();
+            }
+
+            serve(req, res, next);
+        },
 
         redirectToHomepageForOldBrowsers: function (req, res, next) {
             var isOldBrowser = UAService.isOldBrowser(req.headers["user-agent"]);

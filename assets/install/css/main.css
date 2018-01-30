@@ -1,0 +1,11 @@
+#app.loaded {
+    display: block;
+}
+
+.step1 .language .radio {
+    margin-left: 5rem;
+}
+
+.step1 .language .radio:first-child {
+    margin-left: 0;
+}

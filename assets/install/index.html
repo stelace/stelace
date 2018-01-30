@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Installation</title>
+
+    <style>
+        #app.loading {
+            display: none;
+        }
+    </style>
+
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="/install/vendors/bulma-0.6.2.min.css">
+    <link rel="stylesheet" href="/install/vendors/buefy-0.6.2.min.css">
+    <link rel="stylesheet" href="/install/css/main.css">
+  </head>
+
+  <body>
+    <div id="app" class="loading" :class="{ loaded: loaded }">
+        <div class="section">
+            <div class="container" v-if="installed">
+                <div class="columns">
+                    <div class="column is-one-quarter"></div>
+                    <div class="column is-half">
+                        <div>{{lang.alreadyInstalled}}</div><br>
+                        <button class="button" @click="goToHome">{{lang.goHomepage}}</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container" v-if="installing">
+                <div class="step1" v-if="step === 1">
+                    <div class="columns">
+                        <div class="column is-one-quarter"></div>
+                        <div class="column is-half">
+                            <label class="label">{{lang.chooseLanguage}}</label>
+                            <div class="block language">
+                                <b-radio v-model="selectedLang"
+                                    native-value="en">
+                                    {{lang.langEn}}
+                                </b-radio>
+                                <b-radio v-model="selectedLang"
+                                    native-value="fr">
+                                    {{lang.langFr}}
+                                </b-radio>
+                            </div>
+                            <button class="button" @click="goNext">{{lang.next}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step2" v-if="step === 2">
+                    <div class="columns">
+                        <div class="column is-one-quarter"></div>
+                        <div class="column is-half">
+                            <b-field :label="lang.serviceName"
+                                :type="errors.serviceName ? 'is-danger': ''" :message="errors.serviceName"
+                            >
+                                <b-input v-model="serviceName"></b-input>
+                            </b-field>
+
+                            <b-field :label="lang.email"
+                                :type="errors.email ? 'is-danger': ''" :message="errors.email"
+                            >
+                                <b-input v-model="email"></b-input>
+                            </b-field>
+
+                            <b-field :label="lang.password"
+                                :type="errors.password ? 'is-danger': ''" :message="errors.password"
+                            >
+                                <b-input type="password" v-model="password" password-reveal></b-input>
+                            </b-field>
+                            <br>
+                            <div v-show="installationFailed">{{lang.installationFailed}}</div>
+
+                            <button class="button" @click="goBack">{{lang.back}}</button>
+                            <button class="button is-primary" @click="install">{{lang.install}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step2" v-if="step === 3">
+                    <div class="columns">
+                        <div class="column is-one-quarter"></div>
+                        <div class="column is-half">
+                            <div>{{lang.installationSuccess}}</div><br>
+                            <button class="button" @click="goToHome">{{lang.goHomepage}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/install/vendors/es6-promise.auto.min.js"></script>
+    <script src="/install/vendors/axios-0.17.1.min.js"></script>
+    <script src="/install/vendors/lodash-4.17.4.min.js"></script>
+    <script src="/install/vendors/vue-2.5.13.min.js"></script>
+    <script src="/install/vendors/buefy-0.6.2.min.js"></script>
+    <script src="/install/js/lang.js"></script>
+    <script src="/install/js/main.js"></script>
+  </body>
+</html>

@@ -16,8 +16,8 @@ module.exports.routes = {
     // View routes //
     /////////////////
 
-    // RegistrationController
     '/old-browsers': "AppController.oldBrowsers",
+    '/install': 'AppController.install',
     '/unsubscribe': "UserController.unsubscribeLink",
 
 
@@ -146,7 +146,9 @@ module.exports.routes = {
     'post /api/phone/checkCode': "SmsController.checkVerify",
 
     // StelaceConfigController
+    'get /api/stelace/config/install/status': "StelaceConfigController.installStatus",
     'get /api/stelace/config': "StelaceConfigController.findOne",
+    'post /api/stelace/config/install': "StelaceConfigController.install",
     'patch /api/stelace/config': "StelaceConfigController.update",
 
     // StelaceEventController

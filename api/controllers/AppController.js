@@ -9,8 +9,9 @@
 
 module.exports = {
 
-    index: index,
-    oldBrowsers: oldBrowsers
+    index,
+    oldBrowsers,
+    install,
 
 };
 
@@ -19,6 +20,7 @@ var querystring = require('querystring');
 var UrlPattern  = require('url-pattern');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const path = require('path');
 
 let SeoSnapshotCache;
 
@@ -35,8 +37,13 @@ function getSeoSnapshot(sails) {
 var seoPatterns = null;
 var oldSearchPatterns;
 
-function index(req, res) {
-    var userAgent = req.headers["user-agent"];
+async function index(req, res) {
+    const userAgent = req.headers["user-agent"];
+
+    const installationComplete = await StelaceConfigService.isInstallationComplete();
+    if (!installationComplete) {
+        return res.redirect('/install');
+    }
 
     var isSnapshotCrawler = UAService.isBot(userAgent, ["phantomjs"]);
 
@@ -58,92 +65,89 @@ function index(req, res) {
         return oldBrowsers(req, res);
     }
 
-    return Promise.coroutine(function* () {
-        // auth token
-        if (req.query.aut) {
-            var redirectedUrl = removeQueryParam(req.url, "aut");
+    // auth token
+    if (req.query.aut) {
+        var redirectedUrl = removeQueryParam(req.url, "aut");
 
-            yield setAuthToken({
-                queryToken: req.query.aut,
-                userAgent,
-                req,
-                res,
-            }).catch(() => null);
+        await setAuthToken({
+            queryToken: req.query.aut,
+            userAgent,
+            req,
+            res,
+        }).catch(() => null);
+        return res.redirect(redirectedUrl);
+    }
 
-            return res.redirect(redirectedUrl);
-        }
+    const newListingSearchUrl = getNewListingSearchUrl(req.url);
+    if (newListingSearchUrl) {
+        return res.redirect(newListingSearchUrl);
+    }
 
-        const newListingSearchUrl = getNewListingSearchUrl(req.url);
-        if (newListingSearchUrl) {
-            return res.redirect(newListingSearchUrl);
-        }
+    const config = await StelaceConfigService.getConfig();
+    const features = await StelaceConfigService.getListFeatures();
 
-        const config = yield StelaceConfigService.getConfig();
-        const features = yield StelaceConfigService.getListFeatures();
+    const eventActive = await StelaceConfigService.isFeatureActive('EVENTS');
+    const stelaceEventData = eventActive ? await getStelaceEventData(req, res) : {};
 
-        var eventActive = yield StelaceConfigService.isFeatureActive('EVENTS');
-        var stelaceEventData = eventActive ? yield getStelaceEventData(req, res) : {};
+    const stelaceSession = stelaceEventData.stelaceSession;
+    const stelaceEvent   = stelaceEventData.stelaceEvent;
 
-        var stelaceSession = stelaceEventData.stelaceSession;
-        var stelaceEvent   = stelaceEventData.stelaceEvent;
+    const seoConfig = await getSeoConfig(req.url);
 
-        var seoConfig = yield getSeoConfig(req.url);
+    const lang = ContentEntriesService.getBestLang(config.lang); // in case the language doesn't exist
+    const currency = config.currency || StelaceConfigService.getDefaultCurrency();
 
-        const lang = ContentEntriesService.getBestLang(config.lang); // in case the language doesn't exist
-        const currency = config.currency || StelaceConfigService.getDefaultCurrency();
+    // pre-load translations for client-side
+    const translations = await ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
 
-        // pre-load translations for client-side
-        const translations = yield ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
+    const paymentProvider = config.paymentProvider;
 
-        const paymentProvider = config.paymentProvider;
+    const dataFromServer = {
+        config,
+        features,
+        lang,
+        currency,
+        translations,
+        paymentProvider,
+        stripePublishKey: config.stripe_publishKey,
+    };
 
-        const dataFromServer = {
-            config,
-            features,
-            lang,
-            currency,
-            translations,
-            paymentProvider,
-            stripePublishKey: config.stripe_publishKey,
-        };
+    let viewParams = {
+        layout: 'layouts/app',
+        env: null,
+        lang,
+        metaRobotsTags: null,
+        canonicalUrl: null,
+        facebookAppId: config.facebook_app_id,
+        facebookTracking: config.facebook_pixel_active,
+        facebookPixelId: config.facebook_pixel_id,
+        googleTracking: config.google_analytics_active,
+        googleAnalyticsId: config.google_analytics_trackingId,
+        googleMapApiKey: config.google_maps_apiKey,
+        sessionId: stelaceSession ? stelaceSession.id : 0,
+        sessionToken: stelaceSession ? stelaceSession.token : '',
+        eventId: stelaceEvent ? stelaceEvent.id : 0,
+        eventToken: stelaceEvent ? stelaceEvent.token : '',
+        uxVersion: StelaceEventService.getCurrentVersion(),
+        devHighlightTranslations: sails.config.highlightTranslations ? 'dev-highlight-translations' : '',
+        featureDetection: !UAService.isBot(userAgent),
+        dataFromServer: JSON.stringify(dataFromServer || {}),
+        stripeActive: paymentProvider === 'stripe',
+    };
 
-        let viewParams = {
-            layout: 'layouts/app',
-            env: null,
-            lang,
-            metaRobotsTags: null,
-            canonicalUrl: null,
-            facebookAppId: config.facebook_app_id,
-            facebookTracking: config.facebook_pixel_active,
-            facebookPixelId: config.facebook_pixel_id,
-            googleTracking: config.google_analytics_active,
-            googleAnalyticsId: config.google_analytics_trackingId,
-            googleMapApiKey: config.google_maps_apiKey,
-            sessionId: stelaceSession ? stelaceSession.id : 0,
-            sessionToken: stelaceSession ? stelaceSession.token : '',
-            eventId: stelaceEvent ? stelaceEvent.id : 0,
-            eventToken: stelaceEvent ? stelaceEvent.token : '',
-            uxVersion: StelaceEventService.getCurrentVersion(),
-            devHighlightTranslations: sails.config.highlightTranslations ? 'dev-highlight-translations' : '',
-            featureDetection: !UAService.isBot(userAgent),
-            dataFromServer: JSON.stringify(dataFromServer || {}),
-            stripeActive: paymentProvider === 'stripe',
-        };
+    if (sails.config.environment === 'production') {
+        viewParams.env = 'prod';
+    } else if (sails.config.environment === 'pre-production') {
+        viewParams.env = 'preprod';
+    } else {
+        viewParams.env = 'dev';
+    }
 
-        if (sails.config.environment === 'production') {
-            viewParams.env = 'prod';
-        } else if (sails.config.environment === 'pre-production') {
-            viewParams.env = 'preprod';
-        } else {
-            viewParams.env = 'dev';
-        }
+    viewParams = _.assign(viewParams, seoConfig);
 
-        viewParams = _.assign(viewParams, seoConfig);
-
-        res
-            .set({ 'Cache-Control': 'no-cache' })
-            .view(viewParams);
-    })();
+    res
+        .set({ 'Cache-Control': 'no-cache' })
+        .view(viewParams);
 
 
 
@@ -529,4 +533,9 @@ function oldBrowsers(req, res) {
             title: "Please upgrade your browser",
             layout: "layouts/nothing"
         });
+}
+
+async function install(req, res) {
+    const htmlPath = path.join(__dirname, '../../assets/install/index.html');
+    return res.sendFile(htmlPath);
 }

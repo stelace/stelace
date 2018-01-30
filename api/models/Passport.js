@@ -1,5 +1,3 @@
-/* global Passport */
-
 const bcrypt = require('bcrypt');
 const Promise = require('bluebird');
 
@@ -120,7 +118,9 @@ module.exports = {
     */
     beforeCreate: async (passport, next) => {
         try {
-            Passport.beforeCreateDates(passport);
+            const now = new Date().toISOString();
+            passport.createdDate = now;
+            passport.updatedDate = now;
 
             if (passport.password) {
                 const hash = await bcrypt.hashAsync(passport.password, 10);
@@ -141,7 +141,9 @@ module.exports = {
     */
     beforeUpdate: async (passport, next) => {
         try {
-            Passport.beforeUpdateDates(passport);
+            const now = new Date().toISOString();
+            passport.updatedDate = now;
+            delete passport.createdDate;
 
             if (passport.password) {
                 const hash = await bcrypt.hashAsync(passport.password, 10);

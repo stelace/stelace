@@ -4,3 +4,4 @@ js/vendor/**
 vendors/**
 app/widgets/bootstrap/**
 app/widgets/google-places/**
+install/vendors/**
