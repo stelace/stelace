@@ -57,11 +57,9 @@ function create(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return mangopay.card.editRegistration({
-                cardRegistrationId: cardRegistrationId,
-                body: {
-                    RegistrationData: registrationData
-                }
+            return mangopay.CardRegistrations.update({
+                Id: cardRegistrationId,
+                RegistrationData: registrationData
             });
         })
         .then(cardRegistration => {
@@ -141,12 +139,10 @@ function createCardRegistration(req, res) {
     return Promise
         .resolve()
         .then(() => {
-            return mangopay.card.createRegistration({
-                body: {
-                    UserId: req.user.mangopayUserId,
-                    Currency: "EUR", // TODO: allow other currencies
-                    CardType: cardType
-                }
+            return mangopay.CardRegistrations.create({
+                UserId: req.user.mangopayUserId,
+                Currency: "EUR", // TODO: allow other currencies
+                CardType: cardType
             });
         })
         .then(cardRegistration => {

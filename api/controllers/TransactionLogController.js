@@ -67,7 +67,7 @@ function webhook(req, res) {
         var transactionLog = yield TransactionLog.create(createAttrs);
 
         if (transactionLog.eventType === "PAYOUT_NORMAL_SUCCEEDED") {
-            var payout = yield mangopay.payout.fetch({ payoutId: transactionLog.resourceId });
+            var payout = yield mangopay.PayOuts.get(transactionLog.resourceId);
             yield Transaction.update({ resourceId: payout.Id }, {
                 executionDate: TimeService.convertTimestampSecToISO(payout.ExecutionDate)
             });

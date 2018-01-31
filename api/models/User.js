@@ -448,16 +448,15 @@ function createMangopayUser(user, args) {
                 throw new Error("Missing or bad parameters");
             }
 
-            return mangopay.user
-                .createNatural({
-                    body: {
-                        Email: user.email,
-                        FirstName: user.firstname,
-                        LastName: user.lastname,
-                        Birthday: parseInt(moment(new Date(args.birthday)).format("X"), 10), // unix timestamp
-                        Nationality: args.nationality,
-                        CountryOfResidence: args.countryOfResidence
-                    }
+            return mangopay.Users
+                .create({
+                    Email: user.email,
+                    FirstName: user.firstname,
+                    LastName: user.lastname,
+                    Birthday: parseInt(moment(new Date(args.birthday)).format("X"), 10), // unix timestamp
+                    Nationality: args.nationality,
+                    CountryOfResidence: args.countryOfResidence,
+                    PersonType: 'NATURAL'
                 })
                 .then(mangopayUser => {
                     var updateAttrs = {
@@ -483,13 +482,11 @@ function createWallet(user) {
                 return user;
             }
 
-            return mangopay.wallet
+            return mangopay.Wallets
                 .create({
-                    body: {
-                        Owners: [user.mangopayUserId],
-                        Description: "Main wallet",
-                        Currency: "EUR", // TODO: allow other currencies
-                    }
+                    Owners: [user.mangopayUserId],
+                    Description: "Main wallet",
+                    Currency: "EUR", // TODO: allow other currencies
                 })
                 .then(wallet => {
                     return User.updateOne(user.id, { walletId: wallet.Id });
@@ -518,20 +515,17 @@ function createBankAccount(user) {
                 return user;
             }
 
-            return mangopay.bankAccount
-                .create({
-                    userId: user.mangopayUserId,
-                    type: "IBAN",
-                    body: {
-                        OwnerName: User.getName(user),
-                        OwnerAddress: {
-                            AddressLine1: Location.getAddress(user.address, true, false),
-                            City: user.address.city,
-                            PostalCode: user.address.postalCode,
-                            Country: "FR"
-                        },
-                        IBAN: user.iban
-                    }
+            return mangopay.Users
+                .createBankAccount(user.mangopayUserId, {
+                    OwnerName: User.getName(user),
+                    OwnerAddress: {
+                        AddressLine1: Location.getAddress(user.address, true, false),
+                        City: user.address.city,
+                        PostalCode: user.address.postalCode,
+                        Country: "FR"
+                    },
+                    IBAN: user.iban,
+                    Type: 'IBAN',
                 })
                 .then(bankAccount => {
                     return User.updateOne(user.id, { bankAccountId: bankAccount.Id });

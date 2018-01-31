@@ -80,6 +80,7 @@
     "lodash": "3.10.1",
     "make-dir": "1.0.0",
     "mandrill-api": "1.0.45",
+    "mangopay2-nodejs-sdk": "1.7.0",
     "mkdirp": "0.5.1",
     "moment": "2.11.2",
     "node-cache": "3.2.1",

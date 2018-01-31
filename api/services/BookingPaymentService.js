@@ -92,18 +92,15 @@ function getNonCancelledPreauthPayment(transactionManager) {
 //////////////////////
 function createMangopayPreauth(preauthorization, renewDepositAmount) {
     return Promise.coroutine(function* () {
-        var preauth = yield mangopay.preauthorization
-            .fetch({ preauthorizationId: preauthorization.resourceId });
+        var preauth = yield mangopay.CardPreAuthorizations.get(preauthorization.resourceId);
 
-        return yield mangopay.preauthorization
+        return yield mangopay.CardPreAuthorizations
             .create({
-                body: {
-                    AuthorId: preauth.AuthorId,
-                    DebitedFunds: { Amount: Math.round(renewDepositAmount * 100), Currency: "EUR" },
-                    SecureMode: "DEFAULT",
-                    CardId: preauth.CardId,
-                    SecureModeReturnURL: "https://example.com" // use a real url for mangopay
-                }
+                AuthorId: preauth.AuthorId,
+                DebitedFunds: { Amount: Math.round(renewDepositAmount * 100), Currency: "EUR" },
+                SecureMode: "DEFAULT",
+                CardId: preauth.CardId,
+                SecureModeReturnURL: "https://example.com" // use a real url for mangopay
             });
     })();
 }
@@ -111,12 +108,9 @@ function createMangopayPreauth(preauthorization, renewDepositAmount) {
 function cancelMangopayPreauth(transaction) {
     return Promise.coroutine(function* () {
         if (Transaction.isPreauthorizationCancellable(transaction)) {
-            yield mangopay.preauthorization
-                .edit({
-                    preauthorizationId: transaction.resourceId,
-                    body: {
-                        PaymentStatus: "CANCELED"
-                    }
+            yield mangopay.CardPreAuthorizations
+                .update(transaction.resourceId, {
+                    PaymentStatus: "CANCELED"
                 })
                 .catch(() => { /* do nothing */ });
         }
@@ -127,15 +121,15 @@ function createMangopayPayin(booking, transaction, taker, amount, takerFees) {
     takerFees = takerFees || 0;
 
     return Promise.coroutine(function* () {
-        var payin = yield mangopay.payin.preauthorizedDirect({
-            body: {
-                AuthorId: taker.mangopayUserId,
-                DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
-                Fees: { Amount: Math.round(takerFees * 100), Currency: "EUR" },
-                CreditedWalletId: taker.walletId,
-                PreauthorizationId: transaction.resourceId,
-                Tag: Booking.getBookingRef(booking.id)
-            }
+        var payin = yield mangopay.PayIns.create({
+            AuthorId: taker.mangopayUserId,
+            DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
+            Fees: { Amount: Math.round(takerFees * 100), Currency: "EUR" },
+            CreditedWalletId: taker.walletId,
+            PreauthorizationId: transaction.resourceId,
+            Tag: Booking.getBookingRef(booking.id),
+            PaymentType: 'PREAUTHORIZED',
+            ExecutionType: 'DIRECT',
         });
 
         if (payin.Status === "FAILED") {
@@ -167,10 +161,7 @@ function cancelMangopayPayin(booking, transaction, taker, amount, refundTakerFee
     }
 
     return Promise.coroutine(function* () {
-        var refund = yield mangopay.refund.payin({
-            payinId: transaction.resourceId,
-            body: body
-        });
+        var refund = yield mangopay.PayIns.createRefund(transaction.resourceId, body);
 
         if (refund.Status === "FAILED") {
             var error = new Error("Refund payin creation failed");
@@ -186,15 +177,13 @@ function cancelMangopayPayin(booking, transaction, taker, amount, refundTakerFee
 
 function createMangopayTransfer(booking, taker, owner, amount, fees) {
     return Promise.coroutine(function* () {
-        var transfer = yield mangopay.wallet.createTransfer({
-            body: {
-                AuthorId: taker.mangopayUserId,
-                DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
-                Fees: { Amount: Math.round(fees * 100), Currency: "EUR" },
-                DebitedWalletId: taker.walletId,
-                CreditedWalletId: owner.walletId,
-                Tag: Booking.getBookingRef(booking.id)
-            }
+        var transfer = yield mangopay.Transfers.create({
+            AuthorId: taker.mangopayUserId,
+            DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
+            Fees: { Amount: Math.round(fees * 100), Currency: "EUR" },
+            DebitedWalletId: taker.walletId,
+            CreditedWalletId: owner.walletId,
+            Tag: Booking.getBookingRef(booking.id)
         });
 
         if (transfer.Status === "FAILED") {
@@ -211,12 +200,9 @@ function createMangopayTransfer(booking, taker, owner, amount, fees) {
 
 function cancelMangopayTransfer(booking, transaction, taker) {
     return Promise.coroutine(function* () {
-        var refund = yield mangopay.refund.transfer({
-            transferId: transaction.resourceId,
-            body: {
-                AuthorId: taker.mangopayUserId,
-                Tag: Booking.getBookingRef(booking.id)
-            }
+        var refund = yield mangopay.Transfers.createRefund(transaction.resourceId, {
+            AuthorId: taker.mangopayUserId,
+            Tag: Booking.getBookingRef(booking.id)
         });
 
         if (refund.Status === "FAILED") {
@@ -235,16 +221,15 @@ function createMangopayPayout(booking, owner, amount) {
     return Promise.coroutine(function* () {
         var bankWireRef = Booking.getBookingRef(booking.id);
 
-        var payout = yield mangopay.payout.create({
-            body: {
-                AuthorId: owner.mangopayUserId,
-                DebitedWalletId: owner.walletId,
-                DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
-                Fees: { Amount: 0, Currency: "EUR" },
-                BankAccountId: owner.bankAccountId,
-                Tag: Booking.getBookingRef(booking.id),
-                BankWireRef: bankWireRef
-            }
+        var payout = yield mangopay.PayOuts.create({
+            AuthorId: owner.mangopayUserId,
+            DebitedWalletId: owner.walletId,
+            DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
+            Fees: { Amount: 0, Currency: "EUR" },
+            BankAccountId: owner.bankAccountId,
+            Tag: Booking.getBookingRef(booking.id),
+            BankWireRef: bankWireRef,
+            PaymentType: 'BANK_WIRE',
         });
 
         if (payout.Status === "FAILED") {

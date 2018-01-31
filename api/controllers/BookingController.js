@@ -545,17 +545,15 @@ function payment(req, res) {
                     price = booking.takerPrice || booking.deposit;
                 }
 
-                return mangopay.preauthorization.create({
-                    body: {
-                        AuthorId: taker.mangopayUserId,
-                        DebitedFunds: {
-                            Amount: Math.round(price * 100),
-                            Currency: "EUR"
-                        },
-                        SecureMode: setSecureMode ? "FORCE" : "DEFAULT",
-                        CardId: card.mangopayId,
-                        SecureModeReturnURL: returnURL
-                    }
+                return mangopay.CardPreAuthorizations.create({
+                    AuthorId: taker.mangopayUserId,
+                    DebitedFunds: {
+                        Amount: Math.round(price * 100),
+                        Currency: "EUR"
+                    },
+                    SecureMode: setSecureMode ? "FORCE" : "DEFAULT",
+                    CardId: card.mangopayId,
+                    SecureModeReturnURL: returnURL
                 });
             })
             .then(preauthorization => {
@@ -684,10 +682,8 @@ function paymentSecure(req, res) {
                 throw error;
             }
 
-            return mangopay.preauthorization
-                .fetch({
-                    preauthorizationId: preauthorizationId
-                })
+            return mangopay.CardPreAuthorizations
+                .get(preauthorizationId)
                 .then(preauthorization => {
                     var data = {
                         booking: booking,

@@ -41,7 +41,7 @@ module.exports = {
         expirationDate: { // "MMYY"
             type: 'string',
             columnType: 'varchar(255)',
-            required: true,
+            allowNull: true,
             maxLength: 255,
         },
         currency: {
@@ -132,8 +132,8 @@ function getAccessFields(access) {
 }
 
 function synchronize(card) {
-    return mangopay.card
-        .fetch({ cardId: card.mangopayId })
+    return mangopay.Cards
+        .get(card.mangopayId)
         .then(c => {
             var updateAttrs = {
                 expirationDate: c.ExpirationDate,
@@ -150,12 +150,9 @@ function synchronize(card) {
 }
 
 function disable(card) {
-    return mangopay.card
-        .edit({
-            cardId: card.mangopayId,
-            body: {
-                Active: false
-            }
+    return mangopay.Cards
+        .update(card.mangopayId, {
+            Active: false
         })
         .then(() => {
             return Card.updateOne(card.id, { active: false });
