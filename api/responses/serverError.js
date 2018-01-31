@@ -7,7 +7,7 @@ module.exports = function serverError(error) {
     const res = this.res;
 
     if (!(error instanceof Error)) {
-        return res.send(http.STATUS_CODES[500]);
+        return res.status(500).send(http.STATUS_CODES[500]);
     }
 
     const isProd = (sails.config.environment === 'production');
