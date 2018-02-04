@@ -1,21 +1,21 @@
-/* global Booking, MathService, mangopay, PricingService, Transaction, TransactionService */
+/* global Booking, MathService, PaymentMangopayService, PricingService, TransactionService, User */
 
 module.exports = {
 
-    renewDeposit: renewDeposit,
-    cancelDeposit: cancelDeposit,
-    cancelPreauthPayment: cancelPreauthPayment,
-    payinPayment: payinPayment,
-    cancelPayinPayment: cancelPayinPayment,
-    transferPayment: transferPayment,
-    cancelTransferPayment: cancelTransferPayment,
-    payoutPayment: payoutPayment
+    renewDeposit,
+    cancelDeposit,
+    cancelPreauthPayment,
+    payinPayment,
+    cancelPayinPayment,
+    transferPayment,
+    cancelTransferPayment,
+    payoutPayment,
 
 };
 
-var moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 var renewDepositDefaultAmount = 49; // 49€, only renew this amount to avoid secure mode
 
@@ -36,7 +36,7 @@ function checkMangopayItems(booking, users) {
     error.usersIds = [];
 
     _.forEach(users, user => {
-        if (! user.mangopayUserId || ! user.walletId) {
+        if (!User.getMangopayUserId(user) || !User.getMangopayWalletId(user)) {
             error.usersIds.push(user.id);
         }
     });
@@ -87,164 +87,6 @@ function getNonCancelledPreauthPayment(transactionManager) {
 
 
 
-//////////////////////
-// MANGOPAY PROCESS //
-//////////////////////
-function createMangopayPreauth(preauthorization, renewDepositAmount) {
-    return Promise.coroutine(function* () {
-        var preauth = yield mangopay.CardPreAuthorizations.get(preauthorization.resourceId);
-
-        return yield mangopay.CardPreAuthorizations
-            .create({
-                AuthorId: preauth.AuthorId,
-                DebitedFunds: { Amount: Math.round(renewDepositAmount * 100), Currency: "EUR" },
-                SecureMode: "DEFAULT",
-                CardId: preauth.CardId,
-                SecureModeReturnURL: "https://example.com" // use a real url for mangopay
-            });
-    })();
-}
-
-function cancelMangopayPreauth(transaction) {
-    return Promise.coroutine(function* () {
-        if (Transaction.isPreauthorizationCancellable(transaction)) {
-            yield mangopay.CardPreAuthorizations
-                .update(transaction.resourceId, {
-                    PaymentStatus: "CANCELED"
-                })
-                .catch(() => { /* do nothing */ });
-        }
-    })();
-}
-
-function createMangopayPayin(booking, transaction, taker, amount, takerFees) {
-    takerFees = takerFees || 0;
-
-    return Promise.coroutine(function* () {
-        var payin = yield mangopay.PayIns.create({
-            AuthorId: taker.mangopayUserId,
-            DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
-            Fees: { Amount: Math.round(takerFees * 100), Currency: "EUR" },
-            CreditedWalletId: taker.walletId,
-            PreauthorizationId: transaction.resourceId,
-            Tag: Booking.getBookingRef(booking.id),
-            PaymentType: 'PREAUTHORIZED',
-            ExecutionType: 'DIRECT',
-        });
-
-        if (payin.Status === "FAILED") {
-            var error = new Error("Payin creation failed");
-            error.bookingId = booking.id;
-            error.payin = payin;
-
-            throw error;
-        }
-
-        return payin;
-    })();
-}
-
-function cancelMangopayPayin(booking, transaction, taker, amount, refundTakerFees) {
-    var refundTotally = (typeof amount === "undefined" && typeof refundTakerFees === "undefined");
-
-    var body = {
-        AuthorId: taker.mangopayUserId,
-        Tag: Booking.getBookingRef(booking.id)
-    };
-
-    if (! refundTotally) {
-        amount          = amount || 0;
-        refundTakerFees = refundTakerFees || 0;
-
-        body.DebitedFunds = { Amount: Math.round(amount * 100), Currency: "EUR" };
-        body.Fees         = { Amount: Math.round(- refundTakerFees * 100), Currency: "EUR" };
-    }
-
-    return Promise.coroutine(function* () {
-        var refund = yield mangopay.PayIns.createRefund(transaction.resourceId, body);
-
-        if (refund.Status === "FAILED") {
-            var error = new Error("Refund payin creation failed");
-            error.bookingId = booking.id;
-            error.refund = refund;
-
-            throw error;
-        }
-
-        return refund;
-    })();
-}
-
-function createMangopayTransfer(booking, taker, owner, amount, fees) {
-    return Promise.coroutine(function* () {
-        var transfer = yield mangopay.Transfers.create({
-            AuthorId: taker.mangopayUserId,
-            DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
-            Fees: { Amount: Math.round(fees * 100), Currency: "EUR" },
-            DebitedWalletId: taker.walletId,
-            CreditedWalletId: owner.walletId,
-            Tag: Booking.getBookingRef(booking.id)
-        });
-
-        if (transfer.Status === "FAILED") {
-            var error = new Error("Transfer creation failed");
-            error.bookingId = booking.id;
-            error.transfer = transfer;
-
-            throw error;
-        }
-
-        return transfer;
-    })();
-}
-
-function cancelMangopayTransfer(booking, transaction, taker) {
-    return Promise.coroutine(function* () {
-        var refund = yield mangopay.Transfers.createRefund(transaction.resourceId, {
-            AuthorId: taker.mangopayUserId,
-            Tag: Booking.getBookingRef(booking.id)
-        });
-
-        if (refund.Status === "FAILED") {
-            var error = new Error("Refund transfer creation failed");
-            error.bookingId = booking.id;
-            error.refund = refund;
-
-            throw error;
-        }
-
-        return refund;
-    })();
-}
-
-function createMangopayPayout(booking, owner, amount) {
-    return Promise.coroutine(function* () {
-        var bankWireRef = Booking.getBookingRef(booking.id);
-
-        var payout = yield mangopay.PayOuts.create({
-            AuthorId: owner.mangopayUserId,
-            DebitedWalletId: owner.walletId,
-            DebitedFunds: { Amount: Math.round(amount * 100), Currency: "EUR" },
-            Fees: { Amount: 0, Currency: "EUR" },
-            BankAccountId: owner.bankAccountId,
-            Tag: Booking.getBookingRef(booking.id),
-            BankWireRef: bankWireRef,
-            PaymentType: 'BANK_WIRE',
-        });
-
-        if (payout.Status === "FAILED") {
-            var error = new Error("Payout creation failed");
-            error.bookingId = booking.id;
-            error.payout = payout;
-
-            throw error;
-        }
-
-        return payout;
-    })();
-}
-
-
 //////////////////
 // STOP PROCESS //
 //////////////////
@@ -268,109 +110,112 @@ function stopRenewDepositIfFailed(newPreauth, booking) {
 ////////////////////
 // IMPLEMENTATION //
 ////////////////////
-function renewDeposit(booking, transactionManager) {
-    return Promise.coroutine(function* () {
-        var skipProcess = booking.cancellationDepositDate
-         || booking.stopRenewDeposit
-         || booking.deposit === 0;
+async function renewDeposit(booking, transactionManager) {
+    const skipProcess = booking.cancellationDepositDate
+        || booking.stopRenewDeposit
+        || booking.deposit === 0;
 
-        if (skipProcess) {
-            return booking;
-        }
-
-        var renewDepositAmount = getRenewDepositAmount(booking, renewDepositDefaultAmount);
-
-        var deposit = getDeposit(transactionManager);
-
-        if (! deposit) {
-            var error = new Error("Booking has no deposit");
-            error.bookingId = booking.id;
-            throw error;
-        }
-
-        var newPreauth = yield createMangopayPreauth(deposit, renewDepositAmount);
-        yield stopRenewDepositIfFailed(newPreauth, booking);
-
-        var resultTransaction;
-
-        resultTransaction = yield TransactionService.createPreauthorization({
-            booking: booking,
-            preauthorization: newPreauth,
-            preauthAmount: renewDepositAmount,
-            label: "deposit renew"
-        });
-        addTransactionToManager(transactionManager, resultTransaction);
-
-        try {
-            var previousRenewDeposit = getPreviousRenewDeposit(transactionManager);
-            if (previousRenewDeposit
-             && ! transactionManager.isTransactionCancelled(previousRenewDeposit)
-            ) {
-                resultTransaction = yield TransactionService.cancelPreauthorization({
-                    transaction: previousRenewDeposit,
-                    label: previousRenewDeposit.label
-                });
-                addTransactionToManager(transactionManager, resultTransaction);
-            }
-        } catch (e) { /* do nothing */ }
-
+    if (skipProcess) {
         return booking;
-    })();
-}
+    }
 
-function cancelDeposit(booking, transactionManager) {
-    return Promise.coroutine(function* () {
-        var skipProcess = booking.cancellationDepositDate;
+    const renewDepositAmount = getRenewDepositAmount(booking, renewDepositDefaultAmount);
 
-        if (skipProcess) {
-            return booking;
-        }
+    const deposit = getDeposit(transactionManager);
 
-        var transactionsToCancel = getDepositsToCancel(transactionManager);
-
-        yield Promise.each(transactionsToCancel, transaction => {
-            return Promise.coroutine(function* () {
-                yield cancelMangopayPreauth(transaction);
-
-                var resultTransaction = yield TransactionService.cancelPreauthorization({
-                    transaction: transaction,
-                    label: transaction.label
-                });
-                addTransactionToManager(transactionManager, resultTransaction);
-            })();
+    if (! deposit) {
+        throw createError('Booking has no deposit', {
+            bookingId: booking.id,
         });
+    }
 
-        return yield Booking
-            .updateOne(booking.id, { cancellationDepositDate: moment().toISOString() })
-            .catch(() => booking);
-    })();
-}
+    const newPreauth = await PaymentMangopayService.copyPreauthorization({
+        transaction: deposit,
+        amount: renewDepositAmount,
+    });
+    await stopRenewDepositIfFailed(newPreauth, booking);
 
-function cancelPreauthPayment(booking, transactionManager) {
-    return Promise.coroutine(function* () {
-        var skipProcess = booking.cancellationPaymentDate;
+    let resultTransaction = await TransactionService.createPreauthorization({
+        booking,
+        providerData: {
+            preauthorization: newPreauth,
+        },
+        preauthAmount: renewDepositAmount,
+        label: 'deposit renew',
+    });
+    addTransactionToManager(transactionManager, resultTransaction);
 
-        if (skipProcess) {
-            return booking;
-        }
-
-        var transaction = getNonCancelledPreauthPayment(transactionManager);
-        var skipProcessWithUpdate = ! transaction;
-
-        if (! skipProcessWithUpdate) {
-            yield cancelMangopayPreauth(transaction);
-
-            var resultTransaction = yield TransactionService.cancelPreauthorization({
-                transaction: transaction,
-                label: transaction.label
+    try {
+        var previousRenewDeposit = getPreviousRenewDeposit(transactionManager);
+        if (previousRenewDeposit
+            && ! transactionManager.isTransactionCancelled(previousRenewDeposit)
+        ) {
+            resultTransaction = await TransactionService.cancelPreauthorization({
+                transaction: previousRenewDeposit,
+                label: previousRenewDeposit.label,
             });
             addTransactionToManager(transactionManager, resultTransaction);
         }
+    } catch (e) { /* do nothing */ }
 
-        return yield Booking
-            .updateOne(booking.id, { cancellationPaymentDate: moment().toISOString() })
-            .catch(() => booking);
-    })();
+    return booking;
+}
+
+async function cancelDeposit(booking, transactionManager) {
+    const skipProcess = booking.cancellationDepositDate;
+
+    if (skipProcess) {
+        return booking;
+    }
+
+    const transactionsToCancel = getDepositsToCancel(transactionManager);
+
+    await Promise.each(transactionsToCancel, async (transaction) => {
+        await PaymentMangopayService.cancelPreauthorization({ transaction }).catch(() => {});
+
+        const resultTransaction = await TransactionService.cancelPreauthorization({
+            transaction: transaction,
+            label: transaction.label
+        });
+        addTransactionToManager(transactionManager, resultTransaction);
+    });
+
+    try {
+        booking = await Booking.updateOne(booking.id, { cancellationDepositDate: new Date().toISOString() });
+    } catch (err) {
+        // do nothing
+    }
+
+    return booking;
+}
+
+async function cancelPreauthPayment(booking, transactionManager) {
+    const skipProcess = booking.cancellationPaymentDate;
+
+    if (skipProcess) {
+        return booking;
+    }
+
+    const transaction = getNonCancelledPreauthPayment(transactionManager);
+    const skipProcessWithUpdate = !transaction;
+
+    if (!skipProcessWithUpdate) {
+        await PaymentMangopayService.cancelPreauthorization({ transaction }).catch(() => {});
+
+        var resultTransaction = await TransactionService.cancelPreauthorization({
+            transaction: transaction,
+            label: transaction.label,
+        });
+        addTransactionToManager(transactionManager, resultTransaction);
+    }
+
+    try {
+        booking = await Booking.updateOne(booking.id, { cancellationPaymentDate: new Date().toISOString() });
+    } catch (err) {
+        // do nothing
+    }
+
+    return booking;
 }
 
 /**
@@ -382,50 +227,59 @@ function cancelPreauthPayment(booking, transactionManager) {
  * @param  {number} [paymentValues.amount] - if not provided, take booking payment
  * @return {object} booking
  */
-function payinPayment(booking, transactionManager, taker, paymentValues) {
-    return Promise.coroutine(function* () {
-        var skipProcess = booking.paymentUsedDate;
+async function payinPayment(booking, transactionManager, taker, paymentValues) {
+    const skipProcess = booking.paymentUsedDate;
 
-        if (skipProcess) {
-            return booking;
+    if (skipProcess) {
+        return booking;
+    }
+
+    checkMangopayItems(booking, [taker]);
+
+    const payin = transactionManager.getPayinPayment();
+
+    paymentValues = _.defaults({}, paymentValues, {
+        amount: booking.takerPrice,
+    });
+
+    const amount = paymentValues.amount;
+
+    const skipProcessWithUpdate = !amount || payin;
+
+    if (!skipProcessWithUpdate) {
+        const preauthPayment = getNonCancelledPreauthPayment(transactionManager);
+
+        if (! preauthPayment) {
+            throw createError('Booking has no preauth payment', {
+                bookingId: booking.id,
+            });
         }
 
-        checkMangopayItems(booking, [taker]);
-
-        var payin = transactionManager.getPayinPayment();
-
-        paymentValues = _.defaults({}, paymentValues, {
-            amount: booking.takerPrice
+        const mangopayPayin = await PaymentMangopayService.createPayin({
+            booking,
+            transaction: preauthPayment,
+            taker,
+            amount,
         });
 
-        var amount = paymentValues.amount;
-
-        var skipProcessWithUpdate = ! amount || payin;
-
-        if (! skipProcessWithUpdate) {
-            var preauthPayment = getNonCancelledPreauthPayment(transactionManager);
-
-            if (! preauthPayment) {
-                var error = new Error("Booking has no preauth payment");
-                error.bookingId = booking.id;
-                throw error;
-            }
-
-            var mangopayPayin = yield createMangopayPayin(booking, preauthPayment, taker, amount);
-
-            var resultTransaction = yield TransactionService.createPayin({
-                booking: booking,
+        const resultTransaction = await TransactionService.createPayin({
+            booking,
+            providerData: {
                 payin: mangopayPayin,
-                amount: amount,
-                label: "payment"
-            });
-            addTransactionToManager(transactionManager, resultTransaction);
-        }
+            },
+            amount,
+            label: 'payment',
+        });
+        addTransactionToManager(transactionManager, resultTransaction);
+    }
 
-        return yield Booking
-            .updateOne(booking.id, { paymentUsedDate: moment().toISOString() })
-            .catch(() => booking);
-    })();
+    try {
+        booking = await Booking.updateOne(booking.id, { paymentUsedDate: new Date().toISOString() });
+    } catch (err) {
+        // do nothing
+    }
+
+    return booking;
 }
 
 /**
@@ -437,45 +291,48 @@ function payinPayment(booking, transactionManager, taker, paymentValues) {
  * @param  {number} [paymentValues.amount] - if not provided, cancel booking payment
  * @return {object} booking
  */
-function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
-    return Promise.coroutine(function* () {
-        checkMangopayItems(booking, [taker]);
+async function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
+    checkMangopayItems(booking, [taker]);
 
-        var payin = transactionManager.getPayinPayment();
+    const payin = transactionManager.getPayinPayment();
 
-        if (! payin) {
-            var error = new Error("Booking has no payin payment");
-            error.bookingId = booking.id;
-            throw error;
-        }
+    if (!payin) {
+        throw createError('Booking has no payin payment', {
+            bookingId: booking.id,
+        });
+    }
 
-        if (transactionManager.isTransactionCancelled(payin)) {
-            return booking;
-        }
+    if (transactionManager.isTransactionCancelled(payin)) {
+        return booking;
+    }
 
-        paymentValues = _.defaults({}, paymentValues, {
-            amount: booking.takerPrice
+    paymentValues = _.defaults({}, paymentValues, {
+        amount: booking.takerPrice
+    });
+
+    const amount = paymentValues.amount;
+
+    // do not perform refund if 0 amount
+    if (amount) {
+        const mangopayRefundPayin = await PaymentMangopayService.cancelPayin({
+            booking,
+            transaction: payin,
+            taker,
+            amount,
         });
 
-        var amount = paymentValues.amount;
-
-        var mangopayRefundPayin;
-
-        // do not perform refund if 0 amount
-        if (amount) {
-            mangopayRefundPayin = yield cancelMangopayPayin(booking, payin, taker, amount);
-
-            var resultTransaction = yield TransactionService.cancelPayin({
-                transaction: payin,
+        const resultTransaction = await TransactionService.cancelPayin({
+            transaction: payin,
+            providerData: {
                 refund: mangopayRefundPayin,
-                amount: amount,
-                label: "payment"
-            });
-            addTransactionToManager(transactionManager, resultTransaction);
-        }
+            },
+            amount,
+            label: 'payment',
+        });
+        addTransactionToManager(transactionManager, resultTransaction);
+    }
 
-        return booking;
-    })();
+    return booking;
 }
 
 /**
@@ -490,55 +347,65 @@ function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
  * @param  {number} [paymentValues.takerFees] - if not provided, take taker fees
  * @return {object} booking
  */
-function transferPayment(booking, transactionManager, taker, owner, paymentValues) {
-    return Promise.coroutine(function* () {
-        var skipProcess = booking.paymentTransferDate
-            || booking.stopTransferPayment;
+async function transferPayment(booking, transactionManager, taker, owner, paymentValues) {
+    const skipProcess = booking.paymentTransferDate
+        || booking.stopTransferPayment;
 
-        if (skipProcess) {
-            return booking;
-        }
+    if (skipProcess) {
+        return booking;
+    }
 
-        checkMangopayItems(booking, [taker, owner]);
+    checkMangopayItems(booking, [taker, owner]);
 
-        var transfer = transactionManager.getTransferPayment();
+    const transfer = transactionManager.getTransferPayment();
 
-        var priceResult = PricingService.getPriceAfterRebateAndFees({ booking: booking });
+    const priceResult = PricingService.getPriceAfterRebateAndFees({ booking });
 
-        paymentValues = _.defaults({}, paymentValues, {
-            amount: priceResult.ownerNetIncome,
-            ownerFees: booking.ownerFees,
-            takerFees: booking.takerFees
+    paymentValues = _.defaults({}, paymentValues, {
+        amount: priceResult.ownerNetIncome,
+        ownerFees: booking.ownerFees,
+        takerFees: booking.takerFees
+    });
+
+    const amount     = paymentValues.amount;
+    const ownerFees  = paymentValues.ownerFees;
+    const takerFees  = paymentValues.takerFees;
+    const mgpSumFees = MathService.roundDecimal(ownerFees + takerFees, 2);
+    const mgpAmount  = MathService.roundDecimal(amount + mgpSumFees, 2);
+
+    const skipProcessWithUpdate = (! amount && ! ownerFees && ! takerFees)
+        || transfer;
+
+    if (!skipProcessWithUpdate) {
+        const mangopayTransfer = await PaymentMangopayService.createTransfer({
+            booking,
+            taker,
+            owner,
+            amount: mgpAmount,
+            fees: mgpSumFees,
         });
 
-        var amount     = paymentValues.amount;
-        var ownerFees  = paymentValues.ownerFees;
-        var takerFees  = paymentValues.takerFees;
-        var mgpSumFees = MathService.roundDecimal(ownerFees + takerFees, 2);
-        var mgpAmount  = MathService.roundDecimal(amount + mgpSumFees, 2);
-
-        var skipProcessWithUpdate = (! amount && ! ownerFees && ! takerFees)
-            || transfer;
-
-        if (! skipProcessWithUpdate) {
-            var mangopayTransfer = yield createMangopayTransfer(booking, taker, owner, mgpAmount, mgpSumFees);
-
-            var resultTransaction = yield TransactionService.createTransfer({
-                booking: booking,
+        const resultTransaction = await TransactionService.createTransfer({
+            booking,
+            providerData: {
                 transfer: mangopayTransfer,
-                amount: amount,
-                ownerFees: ownerFees,
-                takerFees: takerFees,
-                label: "payment"
-            });
+            },
+            amount,
+            ownerFees,
+            takerFees,
+            label: 'payment',
+        });
 
-            addTransactionToManager(transactionManager, resultTransaction);
-        }
+        addTransactionToManager(transactionManager, resultTransaction);
+    }
 
-        return yield Booking
-            .updateOne(booking.id, { paymentTransferDate: moment().toISOString() })
-            .catch(() => booking);
-    })();
+    try {
+        booking = await Booking.updateOne(booking.id, { paymentTransferDate: new Date().toISOString() });
+    } catch (err) {
+        // do nothing
+    }
+
+    return booking;
 }
 
 /**
@@ -552,48 +419,52 @@ function transferPayment(booking, transactionManager, taker, owner, paymentValue
  * @param  {number} [paymentValues.refundTakerFees] - if not provided, cancel taker fees
  * @return {object} booking
  */
-function cancelTransferPayment(booking, transactionManager, taker, paymentValues) {
-    return Promise.coroutine(function* () {
-        checkMangopayItems(booking, [taker]);
+async function cancelTransferPayment(booking, transactionManager, taker, paymentValues) {
+    checkMangopayItems(booking, [taker]);
 
-        var transfer = transactionManager.getTransferPayment();
+    const transfer = transactionManager.getTransferPayment();
 
-        if (! transfer) {
-            var error = new Error("Booking has no transfer payment");
-            error.bookingId = booking.id;
-            throw error;
-        }
-
-        if (transactionManager.isTransactionCancelled(transfer)) {
-            return booking;
-        }
-
-        var priceResult = PricingService.getPriceAfterRebateAndFees({ booking: booking });
-
-        paymentValues = _.defaults({}, paymentValues, {
-            amount: priceResult.ownerNetIncome,
-            refundOwnerFees: booking.ownerFees,
-            refundTakerFees: booking.takerFees
+    if (! transfer) {
+        throw createError('Booking has no transfer payment', {
+            bookingId: booking.id,
         });
+    }
 
-        var amount          = paymentValues.amount;
-        var refundOwnerFees = paymentValues.refundOwnerFees;
-        var refundTakerFees = paymentValues.refundTakerFees;
-
-        var mangopayRefundTransfer = yield cancelMangopayTransfer(booking, transfer, taker);
-
-        var resultTransaction = yield TransactionService.cancelTransfer({
-            transaction: transfer,
-            refund: mangopayRefundTransfer,
-            amount: amount,
-            refundOwnerFees: refundOwnerFees,
-            refundTakerFees: refundTakerFees,
-            label: "payment"
-        });
-        addTransactionToManager(transactionManager, resultTransaction);
-
+    if (transactionManager.isTransactionCancelled(transfer)) {
         return booking;
-    })();
+    }
+
+    const priceResult = PricingService.getPriceAfterRebateAndFees({ booking });
+
+    paymentValues = _.defaults({}, paymentValues, {
+        amount: priceResult.ownerNetIncome,
+        refundOwnerFees: booking.ownerFees,
+        refundTakerFees: booking.takerFees
+    });
+
+    const amount          = paymentValues.amount;
+    const refundOwnerFees = paymentValues.refundOwnerFees;
+    const refundTakerFees = paymentValues.refundTakerFees;
+
+    const mangopayRefundTransfer = await PaymentMangopayService.cancelTransfer({
+        booking,
+        transaction: transfer,
+        taker,
+    });
+
+    const resultTransaction = await TransactionService.cancelTransfer({
+        transaction: transfer,
+        providerData: {
+            refund: mangopayRefundTransfer,
+        },
+        amount,
+        refundOwnerFees,
+        refundTakerFees,
+        label: 'payment',
+    });
+    addTransactionToManager(transactionManager, resultTransaction);
+
+    return booking;
 }
 
 /**
@@ -605,49 +476,51 @@ function cancelTransferPayment(booking, transactionManager, taker, paymentValues
  * @param  {number} [paymentValues.amount] - if not provided, take booking payment
  * @return {object} booking
  */
-function payoutPayment(booking, transactionManager, owner, paymentValues) {
-    return Promise.coroutine(function* () {
-        var skipProcess = booking.withdrawalDate
-            || booking.stopWithdrawal;
+async function payoutPayment(booking, transactionManager, owner, paymentValues) {
+    const skipProcess = booking.withdrawalDate
+        || booking.stopWithdrawal;
 
-        if (skipProcess) {
-            return booking;
-        }
+    if (skipProcess) {
+        return booking;
+    }
 
-        checkMangopayItems(booking, [owner]);
+    checkMangopayItems(booking, [owner]);
 
-        var priceResult = PricingService.getPriceAfterRebateAndFees({ booking: booking });
+    const priceResult = PricingService.getPriceAfterRebateAndFees({ booking });
 
-        var payout = transactionManager.getPayoutPayment();
+    const payout = transactionManager.getPayoutPayment();
 
-        paymentValues = _.defaults({}, paymentValues, {
-            amount: priceResult.ownerNetIncome
+    paymentValues = _.defaults({}, paymentValues, {
+        amount: priceResult.ownerNetIncome
+    });
+
+    const amount = paymentValues.amount;
+
+    const skipProcessWithUpdate = ! amount || payout;
+
+    if (! skipProcessWithUpdate) {
+        const mangopayPayout = await PaymentMangopayService.createPayout({
+            booking,
+            owner,
+            amount,
         });
 
-        var amount = paymentValues.amount;
-
-        var skipProcessWithUpdate = ! amount || payout;
-
-        if (! skipProcessWithUpdate) {
-            if (! owner.bankAccountId) {
-                var error = new Error("Owner missing bank account");
-                error.bookingId = booking.id;
-                throw error;
-            }
-
-            var mangopayPayout = yield createMangopayPayout(booking, owner, amount);
-
-            var resultTransaction = yield TransactionService.createPayout({
-                booking: booking,
+        const resultTransaction = await TransactionService.createPayout({
+            booking,
+            providerData: {
                 payout: mangopayPayout,
-                payoutAmount: amount,
-                label: "payment"
-            });
-            addTransactionToManager(transactionManager, resultTransaction);
-        }
+            },
+            payoutAmount: amount,
+            label: 'payment',
+        });
+        addTransactionToManager(transactionManager, resultTransaction);
+    }
 
-        return yield Booking
-            .updateOne(booking.id, { withdrawalDate: moment().toISOString() })
-            .catch(() => booking);
-    })();
+    try {
+        booking = await Booking.updateOne(booking.id, { withdrawalDate: new Date().toISOString() });
+    } catch (err) {
+        // do nothing
+    }
+
+    return booking;
 }

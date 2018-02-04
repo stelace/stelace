@@ -1,9 +1,10 @@
-/* global Booking, BootstrapService, Card, mangopay, Transaction, User */
+/* global Booking, BootstrapService, Card, PaymentMangopayService, TransactionService, User */
 
 const Sails = require('sails');
 const { getConfig } = require('../sailsrc');
 
 const Promise = require('bluebird');
+const createError = require('http-errors');
 
 Sails.load(getConfig(), async function (err, sails) {
     if (err) {
@@ -100,127 +101,101 @@ Sails.load(getConfig(), async function (err, sails) {
 
 
 
-    function createPreauthorization(user, card, booking, damageAmount) {
-        return mangopay.preauthorization
-            .create({
-                body: {
-                    AuthorId: user.mangopayUserId,
-                    DebitedFunds: { Amount: Math.round(damageAmount * 100), Currency: "EUR" },
-                    SecureMode: "DEFAULT",
-                    CardId: card.mangopayId,
-                    SecureModeReturnURL: "https://example.com" // fake url because secure mode isn't triggered
-                }
-            })
-            .then(preauthorization => {
-                if (preauthorization.Status === "FAILED") {
-                    var error = new Error("Preauthorization failed");
-                    error.preauthorization = preauthorization;
-                    throw error;
-                }
+    async function createPreauthorization(user, card, booking, damageAmount) {
+        const preauthorization = await PaymentMangopayService.createPreauthorization({
+            user,
+            card,
+            amount: damageAmount,
+            currency: booking.currency,
+            setSecureMode: false,
+        });
 
-                var config = {
-                    booking: booking,
-                    preauthorization: preauthorization,
-                    preauthAmount: damageAmount,
-                    label: "deposit item damage"
-                };
-
-                return Transaction
-                    .createPreauthorization(config)
-                    .then(() => preauthorization);
+        if (preauthorization.Status === 'FAILED') {
+            throw createError('Preauthorization failed', {
+                preauthorization,
             });
+        }
+
+        await TransactionService.createPreauthorization({
+            booking,
+            providerData: {
+                preauthorization,
+            },
+            preauthAmount: damageAmount,
+            label: 'deposit listing damage',
+        });
+
+        return preauthorization;
     }
 
-    function createPayin(user, booking, preauthorization, damageAmount) {
-        return mangopay.payin
-            .preauthorizedDirect({
-                body: {
-                    AuthorId: user.mangopayUserId,
-                    DebitedFunds: { Amount: Math.round(damageAmount * 100), Currency: "EUR" },
-                    Fees: { Amount: 0, Currency: "EUR" },
-                    CreditedWalletId: user.walletId,
-                    PreauthorizationId: preauthorization.Id
-                }
-            })
-            .then(payin => {
-                if (payin.Status === "FAILED") {
-                    var error = new Error("Payin failed");
-                    error.payin = payin;
-                    throw error;
-                }
+    async function createPayin(user, booking, preauthorization, damageAmount) {
+        const payin = await PaymentMangopayService.createPayin({
+            booking,
+            providerData: { payin },
+            amount: damageAmount,
+            label: 'payment listing damage',
+        });
 
-                var config = {
-                    booking: booking,
-                    payin: payin,
-                    amount: damageAmount,
-                    label: "payment item damage"
-                };
-
-                return Transaction.createPayin(config)
-                    .then(() => payin);
+        if (payin.Status === 'FAILED') {
+            throw createError('Payin failed', {
+                payin,
             });
+        }
+
+        await TransactionService.createPayin({
+            booking,
+            providerData: { payin },
+            amount: damageAmount,
+            label: 'payment listing damage',
+        });
+
+        return payin;
     }
 
-    function createTransfer(user, owner, booking, damageAmount) {
-        return mangopay.wallet
-            .createTransfer({
-                body: {
-                    AuthorId: user.mangopayUserId,
-                    DebitedFunds: { Amount: damageAmount * 100, Currency: "EUR" },
-                    Fees: { Amount: 0, Currency: "EUR" },
-                    DebitedWalletId: user.walletId,
-                    CreditedWalletId: owner.walletId
-                }
-            })
-            .then(transfer => {
-                if (transfer.Status === "FAILED") {
-                    var error = new Error("Transfer creation failed");
-                    error.transfer = transfer;
+    async function createTransfer(user, owner, booking, damageAmount) {
+        const transfer = await PaymentMangopayService.createTransfer({
+            booking,
+            taker: user,
+            owner,
+            amount: damageAmount,
+        });
 
-                    throw error;
-                }
-
-                var config = {
-                    booking: booking,
-                    transfer: transfer,
-                    amount: damageAmount,
-                    ownerFees: 0,
-                    takerFees: 0,
-                    label: "payment item damage"
-                };
-
-                return Transaction.createTransfer(config)
-                    .then(() => transfer);
+        if (transfer.Status === 'FAILED') {
+            throw createError('Transfer creation failed', {
+                transfer,
             });
+        }
+
+        await TransactionService.createTransfer({
+            booking,
+            providerData: { transfer },
+            amount: damageAmount,
+            label: 'payment listing damage',
+        });
+
+        return transfer;
     }
 
-    function createPayout(owner, booking, damageAmount) {
-        return mangopay.payout
-            .create({
-                body: {
-                    AuthorId: owner.mangopayUserId,
-                    DebitedWalletId: owner.walletId,
-                    DebitedFunds: { Amount: Math.round(damageAmount * 100), Currency: "EUR" },
-                    Fees: { Amount: 0, Currency: "EUR" },
-                    BankAccountId: owner.bankAccountId
-                }
-            })
-            .then(payout => {
-                if (payout.Status === "FAILED") {
-                    var error = new Error("Payout failed");
-                    error.payout = payout;
-                    throw error;
-                }
+    async function createPayout(owner, booking, damageAmount) {
+        const payout = await PaymentMangopayService.createPayout({
+            booking,
+            owner,
+            amount: damageAmount,
+        });
 
-                var config = {
-                    booking: booking,
-                    payout: payout,
-                    payoutAmount: damageAmount,
-                    label: "payment item damage"
-                };
-
-                return Transaction.createPayout(config)
-                    .then(() => payout);
+        if (payout.Status === 'FAILED') {
+            throw createError('Payout failed', {
+                payout,
             });
+        }
+
+        await TransactionService.createPayout({
+            booking,
+            providerData: { payout },
+            payoutAmount: damageAmount,
+            label: 'payment listing damage',
+        });
+
+        return payout;
     }
 });

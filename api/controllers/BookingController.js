@@ -1,8 +1,8 @@
 /* global
     Assessment, AssessmentService, Booking, BookingService, BookingGamificationService,
-    Cancellation, CancellationService, Card, ContractService, Conversation,
-    EmailTemplateService, FileCachingService, GeneratorService, Listing, Location, Message, MicroService, mangopay,
-    ModelSnapshot, PaymentError, SmsTemplateService, StelaceEventService, Token, TransactionService, User
+    Cancellation, CancellationService, ContractService, Conversation,
+    EmailTemplateService, FileCachingService, GeneratorService, Listing, Location, Message,
+    ModelSnapshot, PaymentMangopayService, PaymentService, SmsTemplateService, StelaceEventService, Token, TransactionService, User
 */
 
 /**
@@ -37,6 +37,7 @@ var fs        = require('fs');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const createError = require('http-errors');
+const appendQuery = require('append-query');
 
 // TODO: use this cache to send message server-side during payment
 // Rather than relying on client-side booking-confirmation view
@@ -331,601 +332,223 @@ function cancel(req, res) {
     .catch(res.sendError);
 }
 
-/**
- * Payment with several options
- * @param {object}  req
- * @param {number}  params.cardId
- * @param {string}  params.operation     - Payement operation type ("payment", "deposit", "deposit-payment")
- * @param {string}  [params.userMessage] - Rejection message privateContent (for future email use)
- * @param {object}  res
- *
- * @return {object} res.json
- */
-function payment(req, res) {
-    var id        = req.param("id");
-    var cardId    = req.param("cardId");
-    var operation = req.param("operation");
-    var message   = req.param("userMessage");
+async function payment(req, res) {
+    const id        = req.param('id');
+    const cardId    = req.param('cardId');
+    const operation = req.param('operation'); // Payment operation type ("payment", "deposit", "deposit-payment")
+    const message   = req.param('userMessage'); // Rejection message privateContent (for future email use)
 
-    var access = "self";
-    var formatDate = "YYYY-MM-DD";
+    const access = 'self';
 
-    if (! cardId
-        || ! operation || ! _.contains(["payment", "deposit", "deposit-payment"], operation)
-        || ! req.user.mangopayUserId
-    ) {
-        return res.badRequest();
+    if (! operation || !_.includes(['payment', 'deposit', 'deposit-payment'], operation)) {
+        throw createError(400);
     }
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return initMessageCache(sails);
-        })
-        .then(() => {
-            return [
-                Booking.findOne({ id: id }),
-                Card.findOne({
-                    id: cardId,
-                    userId: req.user.id
-                }),
-                TransactionService.getBookingTransactionsManagers([id])
-            ];
-        })
-        .spread((booking, card, hashBookingsManagers) => {
-            return [
-                booking,
-                card,
-                hashBookingsManagers[booking.id],
-            ];
-        })
-        .spread((booking, card, transactionManager) => {
-            if (! booking) {
-                throw createError(404);
-            }
-            if (req.user.id !== booking.takerId) {
-                throw createError(403);
-            }
-            // if booking is already paid or cancelled
-            if (booking.paidDate
-                || booking.cancellationId
-                || (booking.paymentDate && operation === "payment")
-                || (booking.depositDate && operation === "deposit")
-                || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
-            ) {
-                throw createError(400);
-            }
+    await initMessageCache(sails);
 
-            // store booking message for emails sent before message creation in booking-confirmation view
-            if (operation !== "payment") { // payment in booking-confirmation view
-                messageCache.set(booking.id, message);
-            }
+    const booking = await Booking.findOne({ id });
 
-            var skipPayment = isPaymentSkipped(operation, booking, transactionManager);
+    if (! booking) {
+        throw createError(404);
+    }
+    if (req.user.id !== booking.takerId) {
+        throw createError(403);
+    }
+    // if booking is already paid or cancelled
+    if (booking.paidDate
+     || booking.cancellationId
+     || Booking.isPaymentDone(booking, operation)
+    ) {
+        throw createError(400);
+    }
 
-            if (skipPayment) {
-                var data = {
-                    booking: booking,
-                    operation: operation,
-                    logger: req.logger,
-                    req: req,
-                    res: res,
-                };
+    const hashBookingsManagers = await TransactionService.getBookingTransactionsManagers([id]);
+    const transactionManager = hashBookingsManagers[booking.id];
 
-                return _paymentEndProcess(data)
-                    .then(() => {
-                        res.json(Booking.expose(booking, access));
-                    });
-            } else {
-                return doPayment(booking, req.user, card, operation, req.logger);
-            }
-        })
-        .catch(res.sendError);
+    // store booking message for emails sent before message creation in booking-confirmation view
+    if (operation !== 'payment') { // payment in booking-confirmation view
+        messageCache.set(booking.id, message);
+    }
 
+    const skipPayment = Booking.shouldPaymentBeSkipped(booking, operation, transactionManager);
 
+    if (!skipPayment) {
+        const result = await PaymentService.createPreauthorization({
+            booking,
+            cardId,
+            operation,
+            req,
+            logger: req.logger,
+        });
 
-    function isPaymentSkipped(operation, booking, transactionManager) {
-        var depositPayment = transactionManager.getDepositPayment();
-        var deposit        = transactionManager.getDeposit();
-
-        if (operation === "payment") {
-            // if free, no need to do the whole payment process
-            if (booking.takerPrice === 0) {
-                return true;
-            }
-
-            // if one of the different type of deposits payment is already done, skip the payment
-            return !! (depositPayment || deposit);
-        } else if (operation === "deposit") {
-            // if free, no need to do the whole payment process
-            if (booking.deposit === 0) {
-                return true;
-            }
-
-            // if the deposit is already done, but something failed
-            return !! deposit;
-        } else if (operation === "deposit-payment") {
-            // if free, no need to do the whole payment process
-            if (booking.deposit === 0 && booking.takerPrice === 0) {
-                return true;
-            }
-
-            // if the deposit payment is already done, but something failed
-            return !! depositPayment;
+        // 3DSecure redirection for example
+        if (result.redirectUrl) {
+            return res.json({
+                redirectURL: result.redirectUrl,
+            });
         }
 
-        return false;
-    }
-
-    function doPayment(booking, taker, card, operation, logger) {
-        var error;
-
-        return Promise
-            .resolve()
-            .then(() => {
-                if (! card) {
-                    throw createError(404);
-                }
-                if (card.validity === "INVALID") {
-                    throw createError(400, 'Card invalid');
-                }
-                if (! card.active) {
-                    throw createError(400, 'Card inactive');
-                }
-
-                var limitDate;
-                if (Booking.isNoTime(booking)) {
-                    limitDate = moment().format(formatDate);
-                } else {
-                    limitDate = booking.endDate;
-                }
-
-                if (Card.isExpiredAt(card, moment(limitDate).add(30, "d").format(formatDate))) {
-                    throw createError(400, 'Expiration date too short');
-                }
-
-                return [
-                    User.findOne({ id: booking.ownerId }),
-                    GeneratorService.getRandomString(20)
-                ];
-            })
-            .spread((owner, randomString) => {
-                if (! owner) {
-                    throw createError(404);
-                }
-
-                var type;
-
-                if (operation === "deposit") {
-                    type = "depositSecure";
-                } else if (operation === "payment") {
-                    type = "paymentSecure";
-                } else { // operation === "deposit-payment"
-                    type = "depositPaymentSecure";
-                }
-
-                var createAttrs = {
-                    type: type,
-                    value: randomString,
-                    userId: taker.id,
-                    expirationDate: moment().add(1, "d").toISOString()
-                };
-
-                return [
-                    owner,
-                    Token.create(createAttrs)
-                ];
-            })
-            .spread((owner, token) => {
-                var setSecureMode = _.contains(["deposit", "deposit-payment"], operation);
-
-                var host;
-
-                if (sails.config.environment === "development") {
-                    // we cannot know if the device comes from the same machine as the server
-                    // or another device of the network
-                    host = "http://" + MicroService.getPrivateIp() + ":3000";
-                } else {
-                    host = sails.config.stelace.url;
-                }
-
-                var returnURL = host
-                                    + "/api/booking/" + id
-                                    + "/payment-secure?u=" + taker.id
-                                    + "&v=" + token.value
-                                    + "&t=" + token.type;
-
-                var price;
-
-                if (operation === "deposit") {
-                    price = booking.deposit;
-                } else if (operation === "payment") {
-                    price = booking.takerPrice;
-                } else { // operation === "deposit-payment"
-                    price = booking.takerPrice || booking.deposit;
-                }
-
-                return mangopay.CardPreAuthorizations.create({
-                    AuthorId: taker.mangopayUserId,
-                    DebitedFunds: {
-                        Amount: Math.round(price * 100),
-                        Currency: "EUR"
-                    },
-                    SecureMode: setSecureMode ? "FORCE" : "DEFAULT",
-                    CardId: card.mangopayId,
-                    SecureModeReturnURL: returnURL
-                });
-            })
-            .then(preauthorization => {
-                if (preauthorization.Status === "FAILED") {
-                    PaymentError.createError({
-                        req,
-                        preauthorization,
-                        userId: req.user.id,
-                        bookingId: booking.id,
-                        cardId: card.id,
-                    }).catch(() => { /* do nothing */ });
-
-                    error = new Error("Preauthorization fail");
-                    error.preauthorization = preauthorization;
-                    req.logger.error({ err: error });
-
-                    throw createError(400, 'preauthorization fail', {
-                        resultCode: preauthorization.ResultCode,
-                    });
-                }
-
-                if (preauthorization.SecureModeNeeded) {
-                    // redirection to secure mode managed in client side
-                    res.json({ redirectURL: preauthorization.SecureModeRedirectURL });
-                } else {
-                    var data = {
-                        booking: booking,
-                        taker: taker,
-                        operation: operation,
-                        preauthorization: preauthorization,
-                        logger: logger,
-                        req: req,
-                        res: res,
-                    };
-
-                    return _paymentProcessAfterPreauth(data)
-                        .then(() => {
-                            res.json(Booking.expose(booking, access));
-                        })
-                        .catch(err => {
-                            if (err.errorType === "fail") {
-                                req.logger.error({ err: err.error });
-
-                                throw createError(400, 'preauthorization fail', {
-                                    resultCode: err.ResultCode,
-                                });
-                            } else {
-                                throw err;
-                            }
-                        });
-                }
-            });
-    }
-}
-
-function paymentSecure(req, res) {
-    var id = req.param("id");
-    var preauthorizationId = req.param("preAuthorizationId");
-    var tokenValue         = req.param("v");
-    var tokenType          = req.param("t");
-    var userId             = req.param("u");
-
-    var redirectURL = "/booking-confirmation/" + id;
-    var error;
-
-    var allowedTokenTypes = [
-        "depositSecure",
-        "paymentSecure",
-        "depositPaymentSecure"
-    ];
-
-    return Promise
-        .resolve()
-        .then(() => {
-            if (! tokenType || ! _.contains(allowedTokenTypes, tokenType)) {
-                error = new Error();
-                error.errorType = "badRequest";
-                throw error;
-            }
-
-            const getToken = async () => {
-                const [token] = await Token
-                    .find({
-                        value: tokenValue,
-                        userId,
-                        type: tokenType,
-                    })
-                    .limit(1);
-
-                return token;
-            }
-
-            return [
-                Booking.findOne({ id: id }),
-                getToken(),
-                User.findOne({ id: userId })
-            ];
-        })
-        .spread((booking, token, taker) => {
-            var operation;
-
-            if (tokenType === "depositSecure") {
-                operation = "deposit";
-            } else if (tokenType === "paymentSecure") {
-                operation = "payment";
-            } else { // tokenType === "depositPaymentSecure"
-                operation = "deposit-payment";
-            }
-
-            if (! booking
-                || ! token
-                || ! taker
-            ) {
-                error = new Error();
-                error.errorType = "badRequest";
-                throw error;
-            }
-            if (booking.cancellationId
-                || booking.takerId !== taker.id
-                || (booking.depositDate && operation === "deposit")
-                || (booking.paymentDate && operation === "payment")
-                || (booking.paymentDate && booking.depositDate && operation === "deposit-payment")
-            ) {
-                error = new Error();
-                error.errorType = "badRequest";
-                throw error;
-            }
-
-            return mangopay.CardPreAuthorizations
-                .get(preauthorizationId)
-                .then(preauthorization => {
-                    var data = {
-                        booking: booking,
-                        taker: taker,
-                        operation: operation,
-                        preauthorization: preauthorization,
-                        logger: req.logger,
-                        req: req,
-                        res: res,
-                    };
-
-                    return _paymentProcessAfterPreauth(data);
-                });
-        })
-        .then(() => {
-            res.redirect(redirectURL);
-        })
-        .catch(err => {
-            redirectURL += "?error=";
-
-            if (err.errorType) {
-                redirectURL += err.errorType;
-
-                if (err.errorType === "fail") {
-                    redirectURL += "&resultCode=" + err.resultCode;
-
-                    req.logger.error({ err: err });
-                }
-            } else {
-                redirectURL += "other";
-            }
-
-            res.redirect(redirectURL);
+        await PaymentService.afterPreauthorizationReturn({
+            booking,
+            providerData: result.providerData,
+            operation,
+            req,
         });
+    }
+
+    const updatedBooking = await _afterPaymentSuccess({
+        booking,
+        operation,
+        req,
+        res,
+        logger: req.logger,
+    });
+
+    res.json(Booking.expose(updatedBooking, access));
 }
 
-/**
- * @param data
- * - *booking
- * - *preauthorization
- * - *operation
- * - *logger
- * - listing
- * - taker
- * - req
- * - res
- */
-// preauthorization can be performed by two ways (secure mode or not)
-function _paymentProcessAfterPreauth(data) {
-    var booking          = data.booking;
-    var preauthorization = data.preauthorization;
-    var operation        = data.operation;
-    var logger           = data.logger;
-    var req              = data.req;
-    var res              = data.res;
-    var card;
+async function paymentSecure(req, res) {
+    const id = req.param("id");
+    const preauthorizationId = req.param("preAuthorizationId");
+    const tokenValue = req.param("v");
+    const tokenType = req.param("t");
+    const userId = req.param("u");
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return Card
-                .findOne({ mangopayId: preauthorization.CardId })
-                .then(c => {
-                    card = c;
-                    if (! card) {
-                        throw createError(404);
-                    }
+    let redirectUrl = '/booking-confirmation/' + id;
 
-                    if (card.validity === "UNKNOWN") {
-                        return Card.synchronize(card);
-                    } else {
-                        return;
-                    }
+    try {
+        const allowedTokenTypes = [
+            'depositSecure',
+            'paymentSecure',
+            'depositPaymentSecure',
+        ];
+
+        if (!tokenType
+         || !_.includes(allowedTokenTypes, tokenType)
+        ) {
+            throw createError('Bad token', {
+                errorType: 'badRequest',
+            });
+        }
+
+        const getToken = async () => {
+            const [token] = await Token
+                .find({
+                    value: tokenValue,
+                    userId,
+                    type: tokenType,
                 })
-                .catch(() => { return; });
-        })
-        .then(() => {
-            if (preauthorization.Status === "FAILED") {
-                PaymentError.createError({
-                    req,
-                    preauthorization,
-                    userId: booking.takerId,
-                    bookingId: booking.id,
-                    cardId: card.id,
-                }).catch(() => { /* do nothing */ });
+                .limit(1);
 
-                var error = new Error("Preauthorization fail");
-                error.preauthorization = preauthorization;
-                error.errorType = "fail";
-                error.resultCode = preauthorization.ResultCode;
-                throw error;
-            }
+            return token;
+        };
 
-            var preauthAmount;
-            var label;
+        const [
+            booking,
+            token,
+            taker,
+        ] = await Promise.all([
+            Booking.findOne({ id }),
+            getToken(),
+            User.findOne({ id: userId }),
+        ]);
 
-            if (operation === "deposit") {
-                preauthAmount = booking.deposit;
-                label         = "deposit";
-            } else if (operation === "payment") {
-                preauthAmount = booking.takerPrice;
-                label         = "payment";
-            } else { // operation === "deposit-payment"
-                preauthAmount = booking.takerPrice || booking.deposit;
-                label         = "deposit-payment";
-            }
+        let operation;
 
-            var config = {
-                booking: booking,
-                preauthorization: preauthorization,
-                preauthAmount: preauthAmount,
-                label: label
-            };
+        if (tokenType === 'depositSecure') {
+            operation = 'deposit';
+        } else if (tokenType === 'paymentSecure') {
+            operation = 'payment';
+        } else { // tokenType === 'depositPaymentSecure'
+            operation = 'deposit-payment';
+        }
 
-            return TransactionService.createPreauthorization(config);
-        })
-        .then(() => {
-            return _paymentEndProcess({
-                booking: booking,
-                preauthorization: preauthorization,
-                operation: operation,
-                logger: logger,
-                req: req,
-                res: res,
+        if (! booking
+         || ! token
+         || ! taker
+        ) {
+            throw createError('Missing objects', {
+                errorType: 'badRequest',
             });
+        }
+
+        if (booking.cancellationId
+         || booking.takerId !== taker.id
+         || Booking.isPaymentDone(booking, operation)
+        ) {
+            throw createError('Booking should not be paid', {
+                errorType: 'badRequest',
+            });
+        }
+
+        if (booking.paymentProvider === 'mangopay') {
+            const preauthorization = await PaymentMangopayService.fetchPreauthorization(preauthorizationId);
+
+            await PaymentService.afterPreauthorizationReturn({
+                booking,
+                providerData: { preauthorization },
+                operation,
+                req,
+            });
+        }
+
+        await _afterPaymentSuccess({
+            booking,
+            operation,
+            req,
+            res,
+            logger: req.logger,
         });
+
+        res.redirect(redirectUrl);
+    } catch (err) {
+        const queryObj = {};
+
+        if (err.errorType) {
+            queryObj.error = err.errorType;
+        }
+        if (err.resultCode) {
+            queryObj.resultCode = err.resultCode;
+        }
+
+        if (!Object.keys(queryObj).length) {
+            queryObj.error = 'other';
+        }
+
+        redirectUrl = appendQuery(redirectUrl, queryObj);
+        req.logger.error({ err });
+
+        res.redirect(redirectUrl);
+    }
 }
 
-/**
- * @param data
- * - *booking
- * - *operation
- * - *logger
- * - listing
- * - taker
- * - req
- * - res
- */
-// set booking payment state when all previous steps go well
-function _paymentEndProcess(data) {
-    var booking   = data.booking;
-    var operation = data.operation;
-    var logger    = data.logger;
-    var listing   = data.listing;
-    var taker     = data.taker;
-    var req       = data.req;
-    var res       = data.res;
+async function _afterPaymentSuccess({
+    booking,
+    operation,
+    req,
+    res,
+    logger,
+}) {
+    const updatedBooking = await PaymentService.afterPaymentSuccess({
+        booking,
+        operation,
+        req,
+        res,
+        logger,
+    });
 
-    var updateAttrs = {};
-    var now = moment().toISOString();
-
-    return Promise
-        .resolve()
-        .then(() => {
-            return initMessageCache(sails);
-        })
-        .then(() => {
-            if (operation === 'deposit-payment') {
-                updateAttrs.depositDate = now;
-                booking.depositDate = now;
-                updateAttrs.paymentDate = now;
-                booking.paymentDate = now;
-            } else if (operation === "deposit") {
-                updateAttrs.depositDate = now;
-                booking.depositDate     = now;
-            } else if (operation === "payment") {
-                updateAttrs.paymentDate = now;
-                booking.paymentDate     = now;
-            }
-
-            if (booking.paymentDate && booking.depositDate) {
-                updateAttrs.paidDate = now;
-                booking.paidDate     = now;
-            }
-
-            if (Booking.isComplete(booking)) {
-                updateAttrs.completedDate = now;
-                booking.completedDate = now;
-            }
-
-            if (updateAttrs.paidDate) {
-                var data2 = {
-                    booking: booking,
-                    logger: logger,
-                    listing: listing,
-                    taker: taker
-                };
-
-                // if email fails, do not save booking dates in order the process to be done again
-                return _sendBookingPendingEmailsSms(data2)
-                    .then(() => {
-                        return Booking.updateOne(booking.id, Object.assign({}, updateAttrs));
-                    });
-            } else {
-                return Booking.updateOne(booking.id, Object.assign({}, updateAttrs));
-            }
-        })
-        .then(b => {
-            booking = b;
-
-            return StelaceEventService.createEvent({
-                req: req,
-                res: res,
-                label: 'booking.paid',
-                type: 'core',
-                bookingId: booking.id,
-                targetUserId: booking.ownerId,
-                listingId: booking.listingId,
+    if (updatedBooking.paidDate) {
+        try {
+            await _sendBookingPendingEmailsSms({
+                booking,
+                logger: req.logger,
             });
-        })
-        .then(() => {
-            BookingGamificationService.afterBookingPaidAndAccepted(booking, logger, req);
+        } catch (err) {
+            // do nothing
+        }
+    }
 
-            return Conversation
-                .update({ bookingId: booking.id }, { bookingStatus: "booking" })
-                .catch(err => {
-                    logger.error({
-                        err: err,
-                        bookingId: booking.id
-                    }, "Conversation update fail");
-                });
-        })
-        .then(() => {
-            // update quantity before cancelling other bookings
-            return Booking.updateListingQuantity(booking, { actionType: 'remove' });
-        })
-        .then(() => {
-            if (booking.paidDate && booking.acceptedDate) {
-                // cancel other bookings if this one is paid
-                return CancellationService
-                    .cancelOtherBookings(booking, logger)
-                    .catch(err => {
-                        logger.error({
-                            err: err,
-                            bookingId: booking.id
-                        }, "Booking cancelling other bookings");
-                    });
-            } else {
-                return;
-            }
-        })
-        .then(() => booking);
+    return updatedBooking;
 }
 
 /**

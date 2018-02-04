@@ -25,6 +25,18 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
         },
+        paymentProvider: { // 'stripe' or 'mangopay'
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        currency: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         fromUserId: {
             type: 'number',
             columnType: 'int',
@@ -34,6 +46,11 @@ module.exports = {
             type: 'number',
             columnType: 'int',
             // index: true,
+        },
+        paymentData: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
         },
         fromWalletId: {
             type: 'string',
@@ -56,32 +73,32 @@ module.exports = {
         credit: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         debit: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         payment: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         cashing: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         preauthAmount: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         payoutAmount: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         bookingId: {
             type: 'number',
@@ -102,6 +119,12 @@ module.exports = {
             maxLength: 255,
         },
         preauthExpirationDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
+        providerCreatedDate: {
             type: 'string',
             columnType: 'varchar(255)',
             allowNull: true,
@@ -139,21 +162,21 @@ module.exports = {
         },
     },
 
-    isPreauthorizationCancellable: isPreauthorizationCancellable,
+    isPreauthorizationCancellable,
 
-    createTransactionDetails: createTransactionDetails,
-    createTransaction: createTransaction
+    createTransactionDetails,
+    createTransaction,
 
 };
 
-var moment = require('moment');
+const moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
 
 // cannot cancel after "the expiration date - 5 minutes"
 function isPreauthorizationCancellable(transaction) {
     var now = moment().toISOString();
-    return now < moment(transaction.preauthExpirationDate).subtract(5, "m").toISOString();
+    return now < moment(transaction.preauthExpirationDate).subtract(5, 'm').toISOString();
 }
 
 function isValidTransactionsDetails(details) {
@@ -176,25 +199,25 @@ function isValidTransactionsDetails(details) {
  * @param  {number} [details.cashing = 0]
  * @return {Promise<Array[object]>}
  */
-function createTransactionDetails(transactionId, details) {
-    return Promise.coroutine(function* () {
-        if (! isValidTransactionsDetails(details)) {
-            throw new Error("Bad details");
-        }
+async function createTransactionDetails(transactionId, details) {
+    if (! isValidTransactionsDetails(details)) {
+        throw new Error('Bad details');
+    }
 
-        return yield Promise.mapSeries(details, detail => {
-            var createAttrs = _.pick(detail, [
-                "label",
-                "credit",
-                "debit",
-                "payment",
-                "cashing"
-            ]);
-            createAttrs.transactionId = transactionId;
+    const transactionDetails = await Promise.mapSeries(details, detail => {
+        const createAttrs = _.pick(detail, [
+            'label',
+            'credit',
+            'debit',
+            'payment',
+            'cashing',
+        ]);
+        createAttrs.transactionId = transactionId;
 
-            return TransactionDetail.create(createAttrs);
-        });
-    })();
+        return TransactionDetail.create(createAttrs);
+    });
+
+    return transactionDetails;
 }
 
 /**
@@ -226,70 +249,67 @@ function createTransactionDetails(transactionId, details) {
  * @return {object}          res.transaction
  * @return {object[]}        res.transactionDetails
  */
-function createTransaction(args) {
-    return Promise.coroutine(function* () {
+async function createTransaction(args) {
+    if (! args.fromUserId
+     || ! args.resourceType
+     || ! args.resourceId
+     || ! args.action
+     || ! args.label
+     || (args.details && ! isValidTransactionsDetails(args.details))
+    ) {
+        throw new Error('Missing params');
+    }
 
-        if (! args.fromUserId
-         || ! args.resourceType
-         || ! args.resourceId
-         || ! args.action
-         || ! args.label
-         || (args.details && ! isValidTransactionsDetails(args.details))
-        ) {
-            throw new Error("Missing params");
+    var financeInfo = _.reduce(args.details, (memo, detail) => {
+        if (typeof detail.credit === 'number') {
+            memo.credit += detail.credit;
         }
-
-        var financeInfo = _.reduce(args.details, (memo, detail) => {
-            if (typeof detail.credit === "number") {
-                memo.credit += detail.credit;
-            }
-            if (typeof detail.debit === "number") {
-                memo.debit += detail.debit;
-            }
-            if (typeof detail.payment === "number") {
-                memo.payment += detail.payment;
-            }
-            if (typeof detail.cashing === "number") {
-                memo.cashing += detail.cashing;
-            }
-            return memo;
-        }, {
-            credit: 0,
-            debit: 0,
-            payment: 0,
-            cashing: 0
-        });
-
-        var createAttrs = _.pick(args, [
-            "fromUserId",
-            "toUserId",
-            "fromWalletId",
-            "toWalletId",
-            "bankAccountId",
-            "preauthAmount",
-            "payoutAmount",
-            "bookingId",
-            "resourceType",
-            "resourceId",
-            "preauthExpirationDate",
-            "mgpCreatedDate",
-            "executionDate",
-            "cancelTransactionId",
-            "action",
-            "label"
-        ]);
-        createAttrs = _.assign(createAttrs, financeInfo);
-
-        var transaction = yield Transaction.create(createAttrs);
-        var transactionDetails;
-
-        if (args.details) {
-            transactionDetails = yield createTransactionDetails(transaction.id, args.details);
+        if (typeof detail.debit === 'number') {
+            memo.debit += detail.debit;
         }
+        if (typeof detail.payment === 'number') {
+            memo.payment += detail.payment;
+        }
+        if (typeof detail.cashing === 'number') {
+            memo.cashing += detail.cashing;
+        }
+        return memo;
+    }, {
+        credit: 0,
+        debit: 0,
+        payment: 0,
+        cashing: 0
+    });
 
-        return {
-            transaction: transaction,
-            transactionDetails: transactionDetails || []
-        };
-    })();
+    let createAttrs = _.pick(args, [
+        'fromUserId',
+        'toUserId',
+        'paymentProvider',
+        'currency',
+        'paymentData',
+        'preauthAmount',
+        'payoutAmount',
+        'bookingId',
+        'resourceType',
+        'resourceId',
+        'preauthExpirationDate',
+        'providerCreatedDate',
+        'executionDate',
+        'cancelTransactionId',
+        'action',
+        'label',
+    ]);
+    createAttrs = _.assign(createAttrs, financeInfo);
+
+    const transaction = await Transaction.create(createAttrs);
+    let transactionDetails;
+
+    if (args.details) {
+        transactionDetails = await createTransactionDetails(transaction.id, args.details);
+    }
+
+    return {
+        transaction: transaction,
+        transactionDetails: transactionDetails || []
+    };
 }

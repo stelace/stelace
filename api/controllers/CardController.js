@@ -1,4 +1,4 @@
-/* global mangopay, Card */
+/* global Card, PaymentMangopayService */
 
 /**
  * CardController
@@ -9,18 +9,17 @@
 
 module.exports = {
 
-    find: find,
-    findOne: findOne,
-    create: create,
-    update: update,
-    destroy: destroy,
+    find,
+    findOne,
+    create,
+    update,
+    destroy,
 
-    my: my,
-    createCardRegistration: createCardRegistration
+    my,
+    createCardRegistration,
 
 };
 
-var CryptoJS = require('crypto-js');
 const createError = require('http-errors');
 
 function find(req, res) {
@@ -31,131 +30,79 @@ function findOne(req, res) {
     return res.forbidden();
 }
 
-function create(req, res) {
-    var cardRegistrationId = req.param("cardRegistrationId");
-    var registrationData   = req.param("registrationData");
-    var forget             = req.param("forget");
-    var hash1              = req.param("hash1");
-    var hash2              = req.param("hash2");
-    var hash3              = req.param("hash3");
-    var access = "self";
+async function create(req, res) {
+    const {
+        cardRegistrationId,
+        registrationData,
+        forget,
+    } = req.allParams();
 
-    if (! cardRegistrationId
-     || ! registrationData
-     || ! hash1
-     || ! hash2
-     || ! hash3
+    const access = 'self';
+
+    if (!cardRegistrationId
+     || !registrationData
     ) {
-        return res.badRequest();
+        throw createError(400);
     }
 
-    var computedHash = CryptoJS.SHA1(hash1 + hash2).toString();
-    if (computedHash !== hash3) {
-        return res.badRequest();
-    }
+    const cardRegistration = await PaymentMangopayService.updateCardRegistration({
+        cardRegistrationId,
+        registrationData,
+    });
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return mangopay.CardRegistrations.update({
-                Id: cardRegistrationId,
-                RegistrationData: registrationData
-            });
-        })
-        .then(cardRegistration => {
-            var createAttrs = {
-                mangopayId: cardRegistration.CardId,
-                userId: req.user.id,
-                hash1: hash1,
-                hash2: hash2
-            };
+    const card = await PaymentMangopayService.createCard({
+        userId: req.user.id,
+        providerCardId: cardRegistration.CardId,
+        forget,
+    });
 
-            if (forget) {
-                createAttrs.forget = true;
-            }
-
-            return Card.create(createAttrs);
-        })
-        .then(card => {
-            return Card.synchronize(card);
-        })
-        .then(card => {
-            res.json(Card.expose(card, access));
-        })
-        .catch(res.sendError);
+    res.json(Card.expose(card, access));
 }
 
 function update(req, res) {
     return res.forbidden();
 }
 
-function destroy(req, res) {
-    var id = req.param("id");
+async function destroy(req, res) {
+    const id = req.param('id');
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return Card.findOne({
-                id: id,
-                userId: req.user.id
-            });
-        })
-        .then(card => {
-            if (! card) {
-                throw createError(404);
-            }
-
-            return Card.updateOne(card.id, { forget: true });
-        })
-        .then(() => {
-            res.json({ id: id });
-        })
-        .catch(res.sendError);
-}
-
-function my(req, res) {
-    var access = "self";
-
-    return Card
-        .find({
-            userId: req.user.id,
-            validity: { '!=': "INVALID" },
-            active: true,
-            forget: false
-        })
-        .then(cards => {
-            res.json(Card.exposeAll(cards, access));
-        })
-        .catch(res.sendError);
-}
-
-function createCardRegistration(req, res) {
-    var cardType = req.param("cardType");
-
-    if (! req.user.mangopayUserId) {
-        return res.badRequest();
+    const card = await Card.findOne({ id });
+    if (!card) {
+        throw createError(404);
+    }
+    if (card.userId !== req.user.id) {
+        throw createError(403);
     }
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return mangopay.CardRegistrations.create({
-                UserId: req.user.mangopayUserId,
-                Currency: "EUR", // TODO: allow other currencies
-                CardType: cardType
-            });
-        })
-        .then(cardRegistration => {
-            var obj = {
-                id: cardRegistration.Id,
-                cardRegistrationURL: cardRegistration.CardRegistrationURL,
-                preregistrationData: cardRegistration.PreregistrationData,
-                accessKey: cardRegistration.AccessKey,
-                cardType: cardRegistration.CardType,
-                resultCode: cardRegistration.ResultCode
-            };
+    await Card.updateOne(card.id, { forget: true });
 
-            return res.json(obj);
-        })
-        .catch(res.sendError);
+    res.json({ id });
+}
+
+async function my(req, res) {
+    const access = 'self';
+
+    const cards = await Card.fetchCards(req.user);
+    res.json(Card.exposeAll(cards, access));
+}
+
+async function createCardRegistration(req, res) {
+    const cardType = req.param('cardType');
+    const currency = req.param('currency');
+
+    const cardRegistration = await PaymentMangopayService.createCardRegistration(req.user, {
+        currency,
+        cardType,
+    });
+
+    const result = {
+        id: cardRegistration.Id,
+        cardRegistrationURL: cardRegistration.CardRegistrationURL,
+        preregistrationData: cardRegistration.PreregistrationData,
+        accessKey: cardRegistration.AccessKey,
+        cardType: cardRegistration.CardType,
+        resultCode: cardRegistration.ResultCode,
+    };
+
+    res.json(result);
 }

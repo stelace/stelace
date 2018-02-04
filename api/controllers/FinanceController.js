@@ -1,4 +1,4 @@
-/* global TimeService, User */
+/* global BankAccount, PaymentMangopayService, User */
 
 /**
  * FinanceController
@@ -9,18 +9,17 @@
 
 module.exports = {
 
-    find: find,
-    findOne: findOne,
-    create: create,
-    update: update,
-    destroy: destroy,
+    find,
+    findOne,
+    create,
+    update,
+    destroy,
 
-    createAccount: createAccount,
-    createBankAccount: createBankAccount
+    createAccount,
+    getBankAccounts,
+    createBankAccount,
 
 };
-
-const _ = require('lodash');
 
 function find(req, res) {
     return res.forbidden();
@@ -42,46 +41,27 @@ function destroy(req, res) {
     return res.forbidden();
 }
 
-function createAccount(req, res) {
-    var filteredAttrs = [
-        "birthday",
-        "nationality",
-        "countryOfResidence"
-    ];
-    var createAttrs = _.pick(req.allParams(), filteredAttrs);
-    var access = "self";
+async function createAccount(req, res) {
+    const access = 'self';
 
-    if (! createAttrs.birthday || ! TimeService.isDateString(createAttrs.birthday, { onlyDate: true })
-     || ! createAttrs.nationality
-     || ! createAttrs.countryOfResidence
-    ) {
-        return res.badRequest();
-    }
+    let user = await PaymentMangopayService.createUser(req.user);
+    user = await PaymentMangopayService.createWallet(user); // TODO: take website currency
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return User.createMangopayUser(req.user, createAttrs);
-        })
-        .then(user => {
-            return User.createWallet(user);
-        })
-        .then(user => {
-            res.json(User.expose(user, access));
-        })
-        .catch(res.sendError);
+    res.json(User.expose(user, access));
 }
 
-function createBankAccount(req, res) {
-    var access = "self";
+async function getBankAccounts(req, res) {
+    const access = 'self';
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return User.createBankAccount(req.user);
-        })
-        .then(user => {
-            res.json(User.expose(user, access));
-        })
-        .catch(res.sendError);
+    const bankAccounts = await BankAccount.fetchBankAccounts(req.user);
+    res.json(BankAccount.exposeAll(bankAccounts, access));
+}
+
+async function createBankAccount(req, res) {
+    const attrs = req.allParams();
+
+    const access = 'self';
+
+    const bankAccount = await PaymentMangopayService.createBankAccount(req.user, attrs);
+    res.json(BankAccount.expose(bankAccount, access));
 }

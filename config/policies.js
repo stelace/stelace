@@ -54,7 +54,8 @@ module.exports.policies = {
     },
 
     CardController: {
-        createCardRegistration: ["isAuthenticated", "getUserInfo"]
+        createCardRegistration: ["isAuthenticated", "getUserInfo"],
+        my: ['isAuthenticated', 'getUserInfo'],
     },
 
     ClientLogController: {
@@ -145,13 +146,15 @@ module.exports.policies = {
     },
 
     TransactionLogController: {
-        webhook: true
+        mangopayWebhook: true
     },
 
     UserController: {
         params: true,
         findOne: ["isAuthenticatedOptional"],
+        update: ["isAuthenticated", "getUserInfo"],
         me: ["gracefulDismissNoToken", "isAuthenticated", "getUserInfo"],
+        getPaymentAccounts: ['isAuthenticated', 'getUserInfo'],
         lostPassword: true,
         recoveryPassword: true,
         emailCheck: true,

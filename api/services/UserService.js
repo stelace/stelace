@@ -43,6 +43,8 @@ async function findUser(userId, { populateMedia = false } = {}) {
 /**
  * @param {Object} attrs
  * @param {String} attrs.email
+ * @param {String} [attrs.organizationName]
+ * @param {String} [attrs.userType]
  * @param {String} [attrs.username]
  * @param {String} [attrs.firstname]
  * @param {String} [attrs.lastname]
@@ -59,6 +61,8 @@ async function findUser(userId, { populateMedia = false } = {}) {
 async function createUser(attrs, options = {}) {
     const {
         email,
+        organizationName,
+        userType,
         username,
         firstname,
         lastname,
@@ -83,6 +87,9 @@ async function createUser(attrs, options = {}) {
     if (passwordRequired && !password) {
         throw createError(400, 'Missing password');
     }
+    if (userType && !User.isValidUserType(userType)) {
+        throw createError(400, 'Incorrect user type');
+    }
 
     let emailUsername;
     if (!username) {
@@ -101,6 +108,8 @@ async function createUser(attrs, options = {}) {
         user = await User.create({
             email,
             emailToken,
+            organizationName,
+            userType,
             username: username || emailUsername,
             firstname,
             lastname,
@@ -150,6 +159,8 @@ async function createUser(attrs, options = {}) {
  * @param {Number} userId
  * @param {Object} attrs
  * @param {String} [attrs.email]
+ * @param {String} [attrs.organizationName]
+ * @param {String} [attrs.userType]
  * @param {String} [attrs.username]
  * @param {String} [attrs.firstname]
  * @param {String} [attrs.lastname]
@@ -161,6 +172,8 @@ async function createUser(attrs, options = {}) {
 async function updateUser(userId, attrs = {}) {
     const {
         email,
+        organizationName,
+        userType,
         username,
         firstname,
         lastname,
@@ -173,6 +186,9 @@ async function updateUser(userId, attrs = {}) {
     if (typeof email !== 'undefined' && !MicroService.isEmail(email)) {
         throw createError(400, 'Invalid email');
     }
+    if (userType && !User.isValidUserType(userType)) {
+        throw createError(400, 'Incorrect user type');
+    }
 
     const foundUser = await User.findOne({ id: userId });
     if (!foundUser) {
@@ -181,6 +197,8 @@ async function updateUser(userId, attrs = {}) {
 
     const updateAttrs = {
         email,
+        organizationName,
+        userType,
         username,
         firstname,
         lastname,
@@ -189,6 +207,10 @@ async function updateUser(userId, attrs = {}) {
         role,
         newsletter,
     };
+
+    if (updateAttrs.userType && foundUser.userType && updateAttrs.userType !== foundUser.userType) {
+        throw createError(400, 'Cannot change the user type');
+    }
 
     if (typeof email !== 'undefined') {
         updateAttrs.emailCheck = false;

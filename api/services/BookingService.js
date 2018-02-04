@@ -70,6 +70,7 @@ async function createBooking({
         contractId: ContractService.getContractId(),
         listingTypeId: listingType.id,
         listingType: listingType,
+        paymentProvider: 'mangopay',
     };
 
     bookingAttrs = await setBookingTimePeriods({
@@ -129,7 +130,7 @@ function checkBasic({
         throw new Error('Not enough quantity');
     }
     if (!listing.validated) { // admin validation needed
-        throw createError(400);
+        throw createError(400, 'Not validated');
     }
 
     const bookable = Listing.isBookable(listing);

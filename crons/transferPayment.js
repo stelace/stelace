@@ -112,8 +112,11 @@ Sails.load(getConfig(), async function (err, sails) {
                 throw error;
             }
 
+            const ownerMangopayUserId = User.getMangopayUserId(owner);
+            const ownerMangopayWalletId = User.getMangopayUserId(owner);
+
             // the owner has no mangopay account
-            if (! owner.mangopayUserId || ! owner.walletId) {
+            if (!ownerMangopayUserId || !ownerMangopayWalletId) {
                 return;
             }
 

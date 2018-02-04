@@ -1,4 +1,4 @@
-/* global Booking, BookingPaymentService, BootstrapService, LoggerService, MicroService, TransactionService, User */
+/* global BankAccount, Booking, BookingPaymentService, BootstrapService, LoggerService, MicroService, TransactionService, User */
 
 const Sails = require('sails');
 const { getConfig } = require('../sailsrc');
@@ -89,10 +89,14 @@ Sails.load(getConfig(), async function (err, sails) {
                 throw error;
             }
 
+            const ownerMangopayUserId = User.getMangopayUserId(owner);
+            const ownerMangopayWalletId = User.getMangopayUserId(owner);
+            const bankAccounts = BankAccount.fetchBankAccounts(owner);
+
             // the owner has no mangopay account or bank account
-            if (! owner.mangopayUserId
-             || ! owner.walletId
-             || ! owner.bankAccountId
+            if (!ownerMangopayUserId
+             || !ownerMangopayWalletId
+             || !bankAccounts.length
             ) {
                 return;
             }

@@ -36,6 +36,7 @@
         service.canApplyFreeFees     = canApplyFreeFees;
         service.getIncomeReport      = getIncomeReport;
         service.getIncomeReportUrl   = getIncomeReportUrl;
+        service.getPaymentAccounts   = getPaymentAccounts;
 
         Restangular.extendModel("user", function (obj) {
             return User.mixInto(obj);
@@ -309,6 +310,13 @@
 
         function getIncomeReportUrl(userId, year, token) {
             return "/api/user/" + userId + "/income-report/" + year + "?t=" + token;
+        }
+
+        function getPaymentAccounts() {
+            return $http.get(apiBaseUrl + '/user/payment-accounts')
+                .then(function (res) {
+                    return res.data;
+                });
         }
     }
 

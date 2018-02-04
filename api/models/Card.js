@@ -1,4 +1,4 @@
-/* global Card, mangopay, TimeService */
+/* global Card, PaymentMangopayService, TimeService, User */
 
 /**
 * Card.js
@@ -28,6 +28,26 @@ module.exports = {
         mangopayId: {
             type: 'string',
             columnType: 'varchar(191)',
+            allowNull: true,
+            maxLength: 191,
+            // index: true,
+        },
+        paymentProvider: { // 'stripe' or 'mangopay'
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        resourceOwnerId: {
+            type: 'string',
+            columnType: 'varchar(191)',
+            required: true,
+            maxLength: 191,
+            // index: true,
+        },
+        resourceId: {
+            type: 'string',
+            columnType: 'varchar(191)',
             required: true,
             maxLength: 191,
             // index: true,
@@ -37,6 +57,16 @@ module.exports = {
             columnType: 'int',
             required: true,
             // index: true,
+        },
+        expirationMonth: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        expirationYear: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
         },
         expirationDate: { // "MMYY"
             type: 'string',
@@ -68,6 +98,12 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
+        country: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         active: {
             type: 'boolean',
             columnType: 'tinyint(1)',
@@ -83,6 +119,17 @@ module.exports = {
             type: 'boolean',
             columnType: 'tinyint(1)',
             defaultsTo: false,
+        },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        fingerprint: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+            allowNull: true,
         },
 
         /*
@@ -107,7 +154,12 @@ module.exports = {
     getAccessFields,
     synchronize,
     disable,
+    isInvalid,
+    hasUnknownStatus,
+    fetchCards,
     isExpiredAt,
+    parseMangopayExpirationDate,
+    parseMangopayData,
 
 };
 
@@ -118,7 +170,8 @@ function getAccessFields(access) {
         self: [
             "id",
             "userId",
-            "expirationDate",
+            "expirationMonth",
+            "expirationYear",
             "currency",
             "provider",
             "type",
@@ -131,45 +184,128 @@ function getAccessFields(access) {
     return accessFields[access];
 }
 
-function synchronize(card) {
-    return mangopay.Cards
-        .get(card.mangopayId)
-        .then(c => {
-            var updateAttrs = {
-                expirationDate: c.ExpirationDate,
-                currency: c.Currency,
-                provider: c.CardProvider,
-                type: c.CardType,
-                alias: c.Alias,
-                active: c.Active,
-                validity: c.Validity
-            };
-
-            return Card.updateOne(card.id, updateAttrs);
-        });
+async function synchronize(card) {
+    if (card.paymentProvider === 'mangopay') {
+        const updatedCard = await PaymentMangopayService.refreshCard(card);
+        return updatedCard;
+    }
 }
 
-function disable(card) {
-    return mangopay.Cards
-        .update(card.mangopayId, {
-            Active: false
-        })
-        .then(() => {
-            return Card.updateOne(card.id, { active: false });
-        });
+async function disable(card) {
+    if (card.paymentProvider === 'mangopay') {
+        const updatedCard = await PaymentMangopayService.deactivateCard(card);
+        return updatedCard;
+    }
+}
+
+function isInvalid(card) {
+    if (card.paymentProvider === 'mangopay') {
+        return card.validity === 'INVALID';
+    }
+
+    return false;
+}
+
+function hasUnknownStatus(card) {
+    if (card.paymentProvider === 'mangopay') {
+        return card.validity === 'UNKNOWN';
+    }
+
+    return false;
+}
+
+async function fetchCards(user) {
+    const resourceOwnerId = User.getMangopayUserId(user);
+    if (!resourceOwnerId) {
+        return [];
+    }
+
+    let findAttrs = {
+        resourceOwnerId,
+        forget: false,
+        active: true,
+    };
+
+    const oneHourAgo = moment().subtract(1, 'h').toISOString();
+
+    // if mangopay
+    findAttrs = Object.assign(findAttrs, {
+        paymentProvider: 'mangopay',
+        or: [
+            { validity: 'VALID' },
+            {
+                validity: 'UNKNOWN',
+                createdDate: { '>': oneHourAgo },
+            },
+        ],
+    });
+
+    const cards = await Card.find(findAttrs);
+    return cards;
 }
 
 function isExpiredAt(card, expiredDate) {
     if (! TimeService.isDateString(expiredDate, { onlyDate: true })) {
-        throw new Error("Bad value");
+        throw new Error('Bad value');
     }
 
-    var expirationYear  = parseInt("20" + card.expirationDate.substr(2, 2), 10);
-    var expirationMonth = parseInt(card.expirationDate.substr(0, 2), 10);
+    const expirationYear = card.expirationYear;
+    const expirationMonth = card.expirationMonth;
 
     expiredDate = moment(expiredDate);
-    var expiredYear  = expiredDate.year();
-    var expiredMonth = expiredDate.month() + 1;
+    const expiredYear  = expiredDate.year();
+    const expiredMonth = expiredDate.month() + 1;
 
     return (expirationYear < expiredYear || (expirationYear === expiredYear && expirationMonth < expiredMonth));
+}
+
+function parseMangopayExpirationDate(value) {
+    const result = {
+        expirationMonth: null,
+        expirationYear: null,
+    };
+
+    if (typeof value !== 'string'
+     || !/^\d{4}$/.test(value)
+    ) {
+        return result;
+    }
+
+    result.expirationMonth = parseInt(value.substr(0, 2), 10);
+    result.expirationYear = parseInt('20' + value.substr(2, 4), 10);
+
+    return result;
+}
+
+// https://docs.mangopay.com/endpoints/v2.01/cards
+function parseMangopayData(rawJson) {
+    let expirationDate = {};
+    if (rawJson.ExpirationDate) {
+        expirationDate = parseMangopayExpirationDate(rawJson.ExpirationDate);
+    }
+
+    const data = {};
+    if (rawJson.Product) {
+        data.product = rawJson.Product;
+    }
+    if (rawJson.BankCode) {
+        data.bankCode = rawJson.BankCode;
+    }
+
+    return {
+        paymentProvider: 'mangopay',
+        resourceOwnerId: rawJson.UserId,
+        resourceId: rawJson.Id,
+        expirationMonth: expirationDate.expirationMonth,
+        expirationYear: expirationDate.expirationYear,
+        country: rawJson.Country,
+        currency: rawJson.Currency,
+        provider: rawJson.CardProvider,
+        type: rawJson.CardType,
+        alias: rawJson.Alias,
+        active: rawJson.Active,
+        validity: rawJson.Validity,
+        fingerprint: rawJson.Fingerprint,
+        data,
+    };
 }

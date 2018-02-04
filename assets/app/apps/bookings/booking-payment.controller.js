@@ -15,6 +15,7 @@
                                     BookingService,
                                     CardService,
                                     finance,
+                                    KycService,
                                     ListingCategoryService,
                                     ListingService,
                                     mangopay,
@@ -40,6 +41,7 @@
         var bookingPaymentMessages;
         var cardId;
         var stelaceEventObj;
+        var kyc;
 
         var vm = this;
         vm.booking              = null;
@@ -105,11 +107,13 @@
                 currentUser: UserService.getCurrentUser(true),
                 cards: CardService.getMine(),
                 myImage: MediaService.getMyImage(),
-                bookingPaymentMessages: MessageService.getBookingPaymentMessageTmp($stateParams.id)
+                bookingPaymentMessages: MessageService.getBookingPaymentMessageTmp($stateParams.id),
+                kyc: KycService.getMine(),
             }).then(function (results) {
                 currentUser            = results.currentUser;
                 bookingPaymentMessages = results.bookingPaymentMessages || {};
                 cardId                 = results.cardId;
+                kyc                    = results.kyc;
 
                 if (currentUser.id !== results.booking.takerId) {
                     $state.go("listing", { slug: results.booking.listingId });
@@ -125,13 +129,12 @@
                 cardId = results.cardId;
                 vm.booking       = results.booking;
                 vm.currentUser   = currentUser;
-                vm.noAccount     = ! currentUser.mangopayAccount;
                 vm.cards         = results.cards;
                 vm.noImage       = (results.myImage.url === platform.getDefaultProfileImageUrl());
                 vm.identity      = {
-                    birthday: currentUser.birthday,
-                    nationality: currentUser.nationality || "FR",
-                    countryOfResidence: currentUser.countryOfResidence || "FR"
+                    birthday: kyc.data.birthday,
+                    nationality: kyc.data.nationality || "FR",
+                    countryOfResidence: kyc.data.countryOfResidence || "FR"
                 };
 
                 if (vm.booking.cancellationId) {
@@ -269,8 +272,7 @@
             var updateAttrs = [
                 "firstname",
                 "lastname",
-                "birthday"
-                // countryOfResidence is updated through Finance service
+                "userType",
             ];
             if (vm.isSmsActive) {
                 updateAttrs.push('phone');
@@ -305,6 +307,8 @@
                 editingCurrentUser.birthday = vm.identity.birthday;
             }
 
+            editingCurrentUser.userType = 'individual'; // TODO: the user can specify it via UI
+
             return $q.when(true)
                 .then(function () {
                     if (! _.isEqual(_.pick(editingCurrentUser, updateAttrs), _.pick(vm.currentUser, updateAttrs))) {
@@ -316,15 +320,17 @@
                     return $q.when(true);
                 })
                 .then(function () {
-                    if (vm.currentUser.mangopayAccount && vm.currentUser.wallet) {
-                        return true;
-                    }
-
-                    return finance.createAccount({
+                    return KycService.updateKyc(kyc, {
                         birthday: vm.identity.birthday,
                         nationality: vm.identity.nationality,
                         countryOfResidence: vm.identity.countryOfResidence
                     });
+                })
+                .then(function (newKyc) {
+                    kyc = newKyc;
+
+                    // will not create an account if there is existing ones
+                    return finance.createAccount();
                 });
         }
 

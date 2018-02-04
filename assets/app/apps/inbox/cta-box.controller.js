@@ -13,6 +13,7 @@
                                 BookingService,
                                 cache,
                                 finance,
+                                KycService,
                                 LocationService,
                                 map,
                                 Restangular,
@@ -26,6 +27,9 @@
         var displayFormatDate = "DD/MM/YYYY";
         var newAddress;
         var loadIBANForm;
+        var kyc;
+        var bankAccounts;
+        var paymentAccounts;
 
         var vm = this;
         vm.ctaTitle              = "";
@@ -111,9 +115,15 @@
                     currentUser: UserService.getCurrentUser(),
                     myLocations: LocationService.getMine(true),
                     uiGmapGoogleMapApi: uiGmapGoogleMapApi,
+                    kyc: KycService.getMine(),
+                    bankAccounts: finance.getBankAccounts(),
+                    paymentAccounts: UserService.getPaymentAccounts(),
                 }).then(function (results) {
                     vm.isGoogleMapSDKReady = true;
                     cache.set("isGoogleMapSDKReady", true);
+                    kyc = results.kyc;
+                    bankAccounts = results.bankAccounts;
+                    paymentAccounts = results.paymentAccounts;
 
                     vm.currentUser  = results.currentUser;
                     vm.myLocations = results.myLocations;
@@ -123,16 +133,15 @@
                     }
 
                     vm.identity = {
-                        birthday: vm.currentUser.birthday,
-                        nationality: vm.currentUser.nationality || "FR",
-                        countryOfResidence: vm.currentUser.countryOfResidence || "FR"
+                        birthday: kyc.data.birthday,
+                        nationality: kyc.data.nationality || "FR",
+                        countryOfResidence: kyc.data.countryOfResidence || "FR"
                     };
 
                     // Populate account form
                     vm.firstName          = vm.currentUser.firstname;
                     vm.lastName           = vm.currentUser.lastname;
-                    vm.iban               = vm.currentUser.iban;
-                    vm.hasBankAccount     = vm.currentUser.bankAccount;
+                    vm.hasBankAccount = !!bankAccounts[0];
                     vm.bankAccountMissing = loadIBANForm && ! vm.hasBankAccount;
 
                     vm.showBankAccountForm = true;
@@ -256,8 +265,7 @@
 
             // Check if all needed info was provided to create MangopayAccount/wallet
             // For creation only: e.g. do not prevent Sharinplace user from removing its lastname attribute...
-            if ((! vm.currentUser.mangopayAccount
-                || ! vm.currentUser.wallet)
+            if ((!paymentAccounts.mangopayAccount || !paymentAccounts.mangopayWallet)
                 && (
                     ! vm.identity.birthday
                     || ! vm.identity.nationality
@@ -273,7 +281,6 @@
 
             editingCurrentUser.firstname = vm.firstName;
             editingCurrentUser.lastname  = vm.lastName;
-            editingCurrentUser.iban      = vm.iban;
 
             return $q.when(true)
                 .then(function () {
@@ -282,9 +289,10 @@
                     var updateAttrs = [
                         "firstname",
                         "lastname",
-                        "birthday",
-                        "iban"
+                        "userType",
                     ];
+
+                    editingCurrentUser.userType = 'individual'; // TODO: the user can choose from UI
 
                     if (! _.isEqual(_.pick(editingCurrentUser, updateAttrs), _.pick(vm.currentUser, updateAttrs))) {
                         return editingCurrentUser.patch();
@@ -293,15 +301,24 @@
                     return;
                 })
                 .then(function () {
-                    if (vm.currentUser.mangopayAccount && vm.currentUser.wallet) {
+                    return UserService.getPaymentAccounts();
+                })
+                .then(function (paymentAccounts) {
+                    if (paymentAccounts.mangopayAccount && paymentAccounts.mangopayWallet) {
                         return true;
                     }
 
-                    return finance.createAccount({
+                    return KycService.updateKyc(kyc, {
                         birthday: vm.identity.birthday,
                         nationality: vm.identity.nationality,
                         countryOfResidence: vm.identity.countryOfResidence
-                    }).catch(function (err) {
+                    })
+                    .then(function (newKyc) {
+                        kyc = newKyc;
+
+                        return finance.createAccount();
+                    })
+                    .catch(function (err) {
                         toastr.warning("Nous sommes désolés, veuillez réessayez plus tard.", "Oups, une erreur est survenue.");
                         return $q.reject(err);
                     });
@@ -358,7 +375,18 @@
                         return $q.reject("no iban");
                     }
 
-                    return finance.createBankAccount()
+                    var createBankAccountAttrs = {
+                        ownerName: vm.firstName + " " + vm.lastName,
+                        ownerAddress: {
+                            AddressLine1: vm.currentUser.address.name,
+                            City: vm.currentUser.address.city,
+                            PostalCode: vm.currentUser.address.postalCode,
+                            Country: vm.identity.countryOfResidence, // TODO: get the country from the address
+                        },
+                        iban: vm.iban,
+                    };
+
+                    return finance.createBankAccount(createBankAccountAttrs)
                         .then(function () {
                             vm.hasBankAccount        = true;
                             vm.bankAccountActive     = false;

@@ -29,7 +29,7 @@ module.exports.routes = {
     // Webhooks
     '/webhook/mandrill': "EmailTrackingController.mandrill", // "POST" and "HEAD" authorized
     '/webhook/sparkpost': "EmailTrackingController.sparkpost", // multiple verbs authorized
-    'get /webhook/mangopay': "TransactionLogController.webhook",
+    'get /webhook/mangopay': "TransactionLogController.mangopayWebhook",
 
     // PublicMediaController
     'get /terms/mangopay': "PublicMediaController.mangopay",
@@ -86,12 +86,16 @@ module.exports.routes = {
 
     // FinanceController
     'post /api/finance/account': "FinanceController.createAccount",
+    'get /api/finance/bankAccount': "FinanceController.getBankAccounts",
     'post /api/finance/bankAccount': "FinanceController.createBankAccount",
 
     // GamificationController
     'get /api/gamification/params': "GamificationController.params",
     'get /api/gamification/stats': "GamificationController.getStats",
     'put /api/gamification/progressView': "GamificationController.updateProgressView",
+
+    // KycController
+    'get /api/kyc/my': 'KycController.my',
 
     // ListingController
     'get /api/listing/query': "ListingController.query",
@@ -149,6 +153,7 @@ module.exports.routes = {
     'get /api/user/params': "UserController.params",
     "get /api/user/me": "UserController.me",
     "get /api/user/getAuthMeans": "UserController.getAuthMeans",
+    "get /api/user/payment-accounts": "UserController.getPaymentAccounts",
     'put /api/user/:id/password': "UserController.updatePassword",
     'put /api/user/:id/email': "UserController.updateEmail",
     'put /api/user/:id/address': "UserController.updateAddress",

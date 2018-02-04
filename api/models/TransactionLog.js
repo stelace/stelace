@@ -23,6 +23,18 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
         },
+        paymentProvider: {  // 'stripe' or 'mangopay'
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
+        apiVersion: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         eventType: {
             type: 'string',
             columnType: 'varchar(255)',

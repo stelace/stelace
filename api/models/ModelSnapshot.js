@@ -97,10 +97,6 @@ function getComparedFields(targetType) {
             "nationality",
             "countryOfResidence",
             "address",
-            "mangopayUserId",
-            "walletId",
-            "bankAccountId",
-            "iban",
             "points",
             "levelId"
         ];
@@ -142,6 +138,7 @@ function getComparedFields(targetType) {
             "city",
             "department",
             "region",
+            "country",
             "latitude",
             "longitude",
             "transportMode",

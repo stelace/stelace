@@ -130,7 +130,7 @@ module.exports = {
         },
     },
 
-    createError,
+    createMangopayError,
 
 };
 
@@ -145,7 +145,7 @@ const useragent = require('useragent');
  * @param  {object} [req]
  * @return {object}
  */
-async function createError({
+async function createMangopayError({
     preauthorization,
     userId,
     bookingId,

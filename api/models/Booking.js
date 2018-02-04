@@ -49,6 +49,12 @@ module.exports = {
             columnType: 'json',
             defaultsTo: {},
         },
+        paymentProvider: {  // 'stripe' or 'mangopay'
+            type: 'string',
+            columnType: 'varchar(255)',
+            required: true,
+            maxLength: 255,
+        },
         paidDate: { // taker action, set if paymentDate and depositDate are set
             type: 'string',
             columnType: 'varchar(255)',
@@ -254,6 +260,9 @@ module.exports = {
     updateBookingEndState,
     canListingQuantityEvolve,
     updateListingQuantity,
+
+    isPaymentDone,
+    shouldPaymentBeSkipped,
 
     getLast,
     isComplete,
@@ -562,6 +571,45 @@ async function updateListingQuantity(booking, { actionType }) {
     }
 
     await Listing.updateOne({ id: booking.listingId }, updateAttrs);
+}
+
+function isPaymentDone(booking, operation) {
+    return (booking.paymentDate && operation === 'payment')
+     || (booking.depositDate && operation === 'deposit')
+     || (booking.paymentDate && booking.depositDate && operation === 'deposit-payment');
+}
+
+function shouldPaymentBeSkipped(booking, operation, transactionManager) {
+    const depositPayment = transactionManager.getDepositPayment();
+    const deposit        = transactionManager.getDeposit();
+
+    if (operation === 'payment') {
+        // if free, no need to do the whole payment process
+        if (booking.takerPrice === 0) {
+            return true;
+        }
+
+        // if one of the different type of deposits payment is already done, skip the payment
+        return !! (depositPayment || deposit);
+    } else if (operation === 'deposit') {
+        // if free, no need to do the whole payment process
+        if (booking.deposit === 0) {
+            return true;
+        }
+
+        // if the deposit is already done, but something failed
+        return !! deposit;
+    } else if (operation === 'deposit-payment') {
+        // if free, no need to do the whole payment process
+        if (booking.deposit === 0 && booking.takerPrice === 0) {
+            return true;
+        }
+
+        // if the deposit payment is already done, but something failed
+        return !! depositPayment;
+    }
+
+    return false;
 }
 
 function getLast(listingIdOrIds) {

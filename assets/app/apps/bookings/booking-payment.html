@@ -36,7 +36,7 @@
                         </span>
                         <span ng-class="{'text--light text--fade': !vm.reuseCard}">
                             Je souhaite utiliser ma carte
-                            <span class="text--semibold">{{vm.cards[0].alias}} - Exp. {{vm.cards[0].expirationDate.substr(0,2) + "/" + vm.cards[0].expirationDate.substr(2,4)}}</span>
+                            <span class="text--semibold">{{vm.cards[0].alias}} - Exp. {{vm.cards[0].expirationMonth + "/" + vm.cards[0].expirationYear}}</span>
                         </span>
                     </div>
                     <div ng-switch-default>
@@ -46,7 +46,7 @@
                                 ng-model="vm.selectedCard"
                                 ng-value="card"
                                 ng-click="vm.reuseCard = true">
-                            <label>{{card.alias}} - Exp. {{card.expirationDate.substr(0,2) + "/" + card.expirationDate.substr(2,4)}}</label>
+                            <label>{{card.alias}} - Exp. {{vm.cards[0].expirationMonth + "/" + vm.cards[0].expirationYear}}</label>
                         </div>
                         <div class="margin-top-plus margin-bottom cursor-pointer link--blue-underline"
                             ng-click="vm.cardsToggle()" ng-switch="vm.reuseCard">

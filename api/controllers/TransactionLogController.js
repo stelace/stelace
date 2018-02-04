@@ -15,11 +15,11 @@ module.exports = {
     update: update,
     destroy: destroy,
 
-    webhook: webhook
+    mangopayWebhook,
 
 };
 
-const Promise = require('bluebird');
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -41,41 +41,43 @@ function destroy(req, res) {
     return res.forbidden();
 }
 
-function webhook(req, res) {
-    var resourceId = req.param("RessourceId");
-    var date       = req.param("Date");
-    var eventType  = req.param("EventType");
+async function mangopayWebhook(req, res) {
+    const resourceId = req.param('RessourceId');
+    const date       = req.param('Date');
+    const eventType  = req.param('EventType');
 
-    var eventDate = new Date(parseInt(date + "000", 10));
+    let eventDate = new Date(parseInt(date + '000', 10));
 
     if (! resourceId
      || ! date || isNaN(eventDate.getTime())
      || ! eventType
     ) {
-        return res.badRequest();
+        throw new createError(400);
     }
 
-    eventDate = eventDate.toISOString();
+    try {
+        eventDate = eventDate.toISOString();
 
-    var createAttrs = {
-        resourceId: resourceId,
-        eventDate: eventDate,
-        eventType: eventType
-    };
+        const createAttrs = {
+            paymentProvider: 'mangopay',
+            resourceId: resourceId,
+            eventDate: eventDate,
+            eventType: eventType
+        };
 
-    return Promise.coroutine(function* () {
-        var transactionLog = yield TransactionLog.create(createAttrs);
+        const transactionLog = await TransactionLog.create(createAttrs);
 
-        if (transactionLog.eventType === "PAYOUT_NORMAL_SUCCEEDED") {
-            var payout = yield mangopay.PayOuts.get(transactionLog.resourceId);
-            yield Transaction.update({ resourceId: payout.Id }, {
-                executionDate: TimeService.convertTimestampSecToISO(payout.ExecutionDate)
+        // fetch the payout execution date
+        if (transactionLog.eventType === 'PAYOUT_NORMAL_SUCCEEDED') {
+            const payout = await mangopay.PayOuts.get(transactionLog.resourceId);
+            await Transaction.update({ resourceId: payout.Id }, {
+                executionDate: TimeService.convertTimestampSecToISO(payout.ExecutionDate),
             });
         }
-    })()
-    .then(() => res.sendStatus(200))
-    .catch(err => {
-        req.logger.error({ err: err }, "Mangopay webhook, fail creating TransactionLog");
+
+        res.sendStatus(200);
+    } catch (err) {
+        req.logger.error({ err }, 'Mangopay webhook, fail creating TransactionLog');
         res.serverError(err);
-    });
+    }
 }

@@ -31,22 +31,22 @@ module.exports = {
         credit: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         debit: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         payment: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         cashing: {
             type: 'number',
             columnType: 'float',
-            defaultsTo: 0,
+            allowNull: true,
         },
         label: {
             type: 'string',

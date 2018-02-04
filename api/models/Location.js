@@ -73,6 +73,12 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
+        country: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
         latitude: {
             type: 'number',
             columnType: 'float',
@@ -155,6 +161,7 @@ function getAccessFields(access) {
             "city",
             "department",
             "region",
+            "country",
             "latitude",
             "longitude",
             "main",
@@ -172,6 +179,7 @@ function getAccessFields(access) {
             "city",
             "department",
             "region",
+            "country",
             "latitude",
             "longitude",
             "main",

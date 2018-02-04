@@ -4,48 +4,34 @@
         .module("app.core")
         .factory("finance", finance);
 
-    function finance($http, apiBaseUrl, UserService) {
+    function finance($http, apiBaseUrl) {
         var service = {};
         service.createAccount     = createAccount;
         service.createBankAccount = createBankAccount;
+        service.getBankAccounts   = getBankAccounts;
 
         return service;
 
 
 
-        function createAccount(args) {
-            var create = function (currentUser) {
-                return $http.post(apiBaseUrl + "/finance/account", args)
-                    .then(function (user) {
-                        currentUser.birthday           = user.birthday;
-                        currentUser.nationality        = user.nationality;
-                        currentUser.countryOfResidence = user.countryOfResidence;
-                        currentUser.mangopayAccount    = true;
-                        currentUser.wallet             = true;
-                    });
-            };
-
-            return UserService.getCurrentUser()
-                .then(function (user) {
-                    if (! user.mangopayAccount || ! user.wallet) {
-                        return create(user);
-                    }
+        function createAccount() {
+            return $http.post(apiBaseUrl + "/finance/account")
+                .then(function (res) {
+                    return res.data;
                 });
         }
 
-        function createBankAccount() {
-            var create = function (currentUser) {
-                return $http.post(apiBaseUrl + "/finance/bankAccount")
-                    .then(function () {
-                        currentUser.bankAccount = true;
-                    });
-            };
+        function createBankAccount(args) {
+            return $http.post(apiBaseUrl + "/finance/bankAccount", args)
+                .then(function (res) {
+                    return res.data;
+                });
+        }
 
-            return UserService.getCurrentUser()
-                .then(function (user) {
-                    if (! user.bankAccount) {
-                        return create(user);
-                    }
+        function getBankAccounts() {
+            return $http.get(apiBaseUrl + '/finance/bankAccount')
+                .then(function (res) {
+                    return res.data;
                 });
         }
     }

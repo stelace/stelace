@@ -12,28 +12,30 @@
 
 module.exports = {
 
-    find: find,
-    findOne: findOne,
-    create: create,
-    update: update,
-    destroy: destroy,
+    find,
+    findOne,
+    create,
+    update,
+    destroy,
 
-    me: me,
-    params: params,
-    getAuthMeans: getAuthMeans,
-    updateAddress: updateAddress,
-    updatePassword: updatePassword,
-    updateEmail: updateEmail,
-    updatePhone: updatePhone,
-    lostPassword: lostPassword,
-    recoveryPassword: recoveryPassword,
-    emailNew: emailNew,
-    emailCheck: emailCheck,
-    updateMedia: updateMedia,
-    unsubscribeLink: unsubscribeLink,
-    applyFreeFees: applyFreeFees,
-    getIncomeReport: getIncomeReport,
-    getIncomeReportPdf: getIncomeReportPdf,
+    me,
+    params,
+    getAuthMeans,
+    updateAddress,
+    updatePassword,
+    updateEmail,
+    updatePhone,
+    lostPassword,
+    recoveryPassword,
+    emailNew,
+    emailCheck,
+    updateMedia,
+    unsubscribeLink,
+    applyFreeFees,
+    getIncomeReport,
+    getIncomeReportPdf,
+
+    getPaymentAccounts,
 
 };
 
@@ -196,55 +198,49 @@ function create(req, res) {
     return res.forbidden();
 }
 
-function update(req, res) {
-    var filteredAttrs = [
-        "firstname",
-        "lastname",
-        "tagsIds",
-        "description",
-        "birthday",
-        "countryOfResidence",
-        "iban"
+async function update(req, res) {
+    const filteredAttrs = [
+        'organizationName',
+        'firstname',
+        'lastname',
+        'tagsIds',
+        'description',
+        'birthday',
+        'countryOfResidence',
+        'userType',
+        'iban',
     ];
-    var updateAttrs = _.pick(req.allParams(), filteredAttrs);
-    var access = "self";
+    const updateAttrs = _.pick(req.allParams(), filteredAttrs);
+    const access = "self";
 
-    if (updateAttrs.firstname) {
-        updateAttrs.firstname = ToolsService.toStartCase(updateAttrs.firstname);
+    if (updateAttrs.userType && !User.isValidUserType(updateAttrs.userType)) {
+        throw createError(400, 'Incorrect user type');
     }
-    if (updateAttrs.lastname) {
-        updateAttrs.lastname = ToolsService.toStartCase(updateAttrs.lastname);
+    if (updateAttrs.userType && req.user.userType && updateAttrs.userType !== req.user.userType) {
+        throw createError(400, 'Cannot change the user type');
     }
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return User.updateOne(req.user.id, Object.assign({}, updateAttrs));
-        })
-        .then(user => {
-            return User.updateTags(user, updateAttrs.tagsIds);
-        })
-        .then(user => {
-            var actionsIds = [
-                "ADD_FIRSTNAME",
-                "ADD_LASTNAME",
-                "ADD_DESCRIPTION"
-            ];
+    let user = await User.updateOne(req.user.id, Object.assign({}, updateAttrs));
+    user = await User.updateTags(user, updateAttrs.tagsIds);
 
-            GamificationService.checkActions(user, actionsIds, null, req.logger, req);
+    const actionsIds = [
+        'ADD_FIRSTNAME',
+        'ADD_LASTNAME',
+        'ADD_DESCRIPTION',
+    ];
 
-            User
-                .syncOdooUser(user, {
-                    updateLocation: false,
-                    doNotCreateIfNone: true
-                })
-                .catch(err => {
-                    req.logger.warn({ err: err }, "Odoo sync user fail");
-                });
+    GamificationService.checkActions(user, actionsIds, null, req.logger, req);
 
-            res.json(User.expose(user, access));
+    User
+        .syncOdooUser(user, {
+            updateLocation: false,
+            doNotCreateIfNone: true
         })
-        .catch(res.sendError);
+        .catch(err => {
+            req.logger.warn({ err: err }, "Odoo sync user fail");
+        });
+
+    res.json(User.expose(user, access));
 }
 
 async function destroy(req, res) {
@@ -972,4 +968,14 @@ function getIncomeReportPdf(req, res) {
             </script>
         `;
     }
+}
+
+async function getPaymentAccounts(req, res) {
+    const mangopayUserId = User.getMangopayUserId(req.user);
+    const mangopayWalletId = User.getMangopayWalletId(req.user);
+
+    res.json({
+        mangopayAccount: !!mangopayUserId,
+        mangopayWallet: !!mangopayWalletId,
+    });
 }

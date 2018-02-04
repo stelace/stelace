@@ -15,6 +15,7 @@
                                             $timeout,
                                             BookingService,
                                             ezfb,
+                                            finance,
                                             ListingService,
                                             loggerToServer,
                                             map,
@@ -43,6 +44,7 @@
         var countdownInterval;
         var activated;
         var listingShareUrl;
+        var bankAccounts;
 
         var vm = this;
         vm.duplicateActionMessage     = null;
@@ -135,11 +137,13 @@
             return $q.all({
                 conversation: MessageService.conversationMeta(conversationId),
                 currentUser: UserService.getCurrentUser(),
-                messages: MessageService.conversation(conversationId)
+                messages: MessageService.conversation(conversationId),
+                bankAccounts: finance.getBankAccounts(),
             }).then(function (results) {
                 conversation = results.conversation;
                 currentUser  = results.currentUser;
                 messages     = results.messages;
+                bankAccounts = results.bankAccounts;
 
                 MessageService.populate([conversation], currentUser);
 
@@ -221,7 +225,7 @@
                     });
                 }
 
-                vm.hasBankAccount = currentUser.bankAccount;
+                vm.hasBankAccount = bankAccounts.length;
 
                 _populateMessageCTA();
                 _setCountdown();

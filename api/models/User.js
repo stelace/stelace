@@ -1,6 +1,6 @@
 /* global
     Booking, CancellationService, GamificationService, GeneratorService, Link, Listing, Location, mangopay, Media, MicroService, OdooService, Passport,
-    User, TimeService, Token, ToolsService, TransactionService, UserXTag
+    User, TimeService, Token, TransactionService, UserXTag
 */
 
 /**
@@ -26,6 +26,12 @@ module.exports = {
         updatedDate: {
             type: 'string',
             columnType: 'varchar(255)',
+            maxLength: 255,
+        },
+        organizationName: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
             maxLength: 255,
         },
         username: {
@@ -195,6 +201,16 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
+        paymentData: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        userType: { // 'individual' or 'organization'
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+        },
         blocked: { // use it if the user is to be banned temporarily
             type: 'boolean',
             columnType: 'tinyint(1)',
@@ -223,6 +239,12 @@ module.exports = {
     get,
     beforeCreate,
     getName,
+
+    getMangopayUserId,
+    getMangopayWalletId,
+
+    isValidUserType,
+    getMergedPaymentData,
     createMangopayUser,
     createWallet,
     createBankAccount,
@@ -283,10 +305,6 @@ function getAccessFields(access) {
             "address",
             "registrationCompleted",
             "firstUse",
-            "mangopayAccount", // boolean on the existence of 'mangopayUserId'
-            "wallet", // boolean on the existence of 'walletId'
-            "bankAccount", // boolean on the existence of 'bankAccountId'
-            "iban",
             "newsletter",
             "points",
             "lastViewedPoints",
@@ -294,6 +312,7 @@ function getAccessFields(access) {
             "lastViewedLevelId",
             "createdDate",
             "lastConnectionDate",
+            "userType",
         ],
         self: [
             "id",
@@ -317,16 +336,13 @@ function getAccessFields(access) {
             "address",
             "registrationCompleted",
             "firstUse",
-            "mangopayAccount", // boolean on the existence of 'mangopayUserId'
-            "wallet", // boolean on the existence of 'walletId'
-            "bankAccount", // boolean on the existence of 'bankAccountId'
-            "iban",
             "newsletter",
             "points",
             "lastViewedPoints",
             "levelId",
             "lastViewedLevelId",
-            "createdDate"
+            "createdDate",
+            "userType",
         ],
         others: [
             "id",
@@ -340,7 +356,8 @@ function getAccessFields(access) {
             "nbRatings",
             "points",
             "levelId",
-            "createdDate"
+            "createdDate",
+            "userType",
         ]
     };
 
@@ -351,21 +368,6 @@ function exposeTransform(element, field, access) {
     let exposeFullName;
 
     switch (field) {
-        case "mangopayAccount":
-            element.mangopayAccount = !! element.mangopayUserId;
-            break;
-
-        case "wallet":
-            element.wallet = !! element.walletId;
-            break;
-
-        case "bankAccount":
-            element.bankAccount = !! element.bankAccountId;
-            break;
-
-        case "iban":
-            element.iban = element.iban && ToolsService.obfuscateString(element.iban, 8, true);
-            break;
 
         case "lastname":
             exposeFullName = _.includes(['self', 'api'], access);
@@ -431,6 +433,36 @@ function getName(user, notFull) {
     } else {
         return "";
     }
+}
+
+function getMangopayUserId(user) {
+    if (!user.userType) return;
+
+    if (user.userType === 'individual') {
+        return _.get(user, 'paymentData.mangopay.naturalUserId');
+    }
+    if (user.userType === 'organization') {
+        return _.get(user, 'paymentData.mangopay.legalUserId');
+    }
+}
+
+function getMangopayWalletId(user) {
+    if (!user.userType) return;
+
+    if (user.userType === 'individual') {
+        return _.get(user, 'paymentData.mangopay.naturalWalletId');
+    }
+    if (user.userType === 'organization') {
+        return _.get(user, 'paymentData.mangopay.legalWalletId');
+    }
+}
+
+function isValidUserType(userType) {
+    return _.includes(['individual', 'organization'], userType);
+}
+
+function getMergedPaymentData(user, newPaymentData) {
+    return _.merge({}, newPaymentData, user.paymentData || {});
 }
 
 function createMangopayUser(user, args) {

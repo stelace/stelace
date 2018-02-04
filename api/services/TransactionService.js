@@ -2,470 +2,527 @@
 
 module.exports = {
 
-    getTransactionsByBooking: getTransactionsByBooking,
-    getBookingTransactionsManagers: getBookingTransactionsManagers,
+    getTransactionsByBooking,
+    getBookingTransactionsManagers,
 
-    createPreauthorization: createPreauthorization,
-    cancelPreauthorization: cancelPreauthorization,
-    createPayin: createPayin,
-    cancelPayin: cancelPayin,
-    createTransfer: createTransfer,
-    cancelTransfer: cancelTransfer,
-    createPayout: createPayout
+    createPreauthorization,
+    cancelPreauthorization,
+    createPayin,
+    cancelPayin,
+    createTransfer,
+    cancelTransfer,
+    createPayout,
 
 };
 
-var moment = require('moment');
 const _ = require('lodash');
-const Promise = require('bluebird');
 
-function getTransactionsByBooking(bookingsIds) {
-    return Promise.coroutine(function* () {
-        bookingsIds = _.uniq(bookingsIds);
+async function getTransactionsByBooking(bookingsIds) {
+    bookingsIds = _.uniq(bookingsIds);
 
-        var transactions = yield Transaction.find({ bookingId: bookingsIds });
-        var transactionsIds = _.pluck(transactions, "id");
+    const transactions = await Transaction.find({ bookingId: bookingsIds });
+    const transactionsIds = _.pluck(transactions, 'id');
 
-        var transactionsDetails = yield TransactionDetail.find({ transactionId: transactionsIds });
+    const transactionsDetails = await TransactionDetail.find({ transactionId: transactionsIds });
 
-        var indexedTransactions        = _.groupBy(transactions, "bookingId");
-        var indexedTransactionsDetails = _.groupBy(transactionsDetails, "transactionId");
+    const indexedTransactions = _.groupBy(transactions, 'bookingId');
+    const indexedTransactionsDetails = _.groupBy(transactionsDetails, 'transactionId');
 
-        return _.reduce(bookingsIds, (memo, bookingId) => {
-            var transactions = indexedTransactions[bookingId] || [];
+    return _.reduce(bookingsIds, (memo, bookingId) => {
+        const transactions = indexedTransactions[bookingId] || [];
 
-            memo[bookingId] = {
-                transactions: transactions,
-                transactionsDetails: _.reduce(transactions, (memo2, transaction) => {
-                    memo2 = memo2.concat(indexedTransactionsDetails[transaction.id] || []);
-                    return memo2;
-                }, [])
-            };
+        memo[bookingId] = {
+            transactions: transactions,
+            transactionsDetails: _.reduce(transactions, (memo2, transaction) => {
+                memo2 = memo2.concat(indexedTransactionsDetails[transaction.id] || []);
+                return memo2;
+            }, [])
+        };
 
-            return memo;
-        }, {});
-    })();
+        return memo;
+    }, {});
 }
 
-function getBookingTransactionsManagers(bookingsIds) {
-    return Promise.coroutine(function* () {
-        var res = yield getTransactionsByBooking(bookingsIds);
+async function getBookingTransactionsManagers(bookingsIds) {
+    const res = await getTransactionsByBooking(bookingsIds);
 
-        return _.reduce(bookingsIds, (memo, bookingId) => {
-            memo[bookingId] = BookingTransactionService.getBookingTransactionManager(
-                res[bookingId].transactions,
-                res[bookingId].transactionsDetails
-            );
-            return memo;
-        }, {});
-    })();
+    return _.reduce(bookingsIds, (memo, bookingId) => {
+        memo[bookingId] = BookingTransactionService.getBookingTransactionManager(
+            res[bookingId].transactions,
+            res[bookingId].transactionsDetails
+        );
+        return memo;
+    }, {});
 }
 
 /**
- * create preauthorization
- * @param  {object} args
- * @param  {object} args.booking
- * @param  {object} args.preauthorization
- * @param  {number} args.preauthAmount
- * @param  {string} args.label
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * Create a preauthorization
+ * @param {Object} args
+ * @param {Object} args.booking
+ * @param {Number} args.preauthAmount
+ * @param {String} args.label
+ * @param {Object} [args.providerData = {}]
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function createPreauthorization(args) {
-    return Promise.coroutine(function* () {
-        var booking          = args.booking;
-        var preauthorization = args.preauthorization;
-        var preauthAmount    = args.preauthAmount;
-        var label            = args.label;
+async function createPreauthorization(args) {
+    const {
+        booking,
+        preauthAmount,
+        providerData = {},
+        label,
+    } = args;
 
-        if (! booking
-         || ! preauthorization
-         || ! preauthAmount
-         || ! label
-        ) {
-            throw new Error("Missing params");
+    if (! booking
+     || typeof preauthAmount !== 'number' || ! preauthAmount
+     || ! providerData
+     || ! label
+    ) {
+        throw new Error('Missing params');
+    }
+
+    const config = {
+        paymentProvider: booking.paymentProvider,
+        currency: booking.currency,
+        fromUserId: booking.takerId,
+        toUserId: booking.ownerId,
+        preauthAmount,
+        bookingId: booking.id,
+        action: 'preauthorization',
+        label,
+    };
+
+    if (booking.paymentProvider === 'mangopay') {
+        const { preauthorization } = providerData;
+        if (!preauthorization) {
+            throw new Error('Missing provider data');
         }
 
-        var config = {
-            fromUserId: booking.takerId,
-            toUserId: booking.ownerId,
-            preauthAmount: preauthAmount,
-            bookingId: booking.id,
-            resourceType: "preauthorization",
-            resourceId: preauthorization.Id,
-            preauthExpirationDate: moment(parseInt(preauthorization.ExpirationDate, 10) * 1000).toISOString(),
-            action: "preauthorization",
-            label: label
-        };
+        config.resourceType = 'preauthorization';
+        config.resourceId = preauthorization.Id;
+        config.preauthExpirationDate = new Date(parseInt(preauthorization.ExpirationDate, 10) * 1000).toISOString();
+    }
 
-        return yield Transaction.createTransaction(config);
-    })();
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
 
 /**
  * cancel preauthorization
- * @param  {object} args
- * @param  {object} args.transaction
+ * @param  {Object} args
+ * @param  {Object} args.transaction
  * @param  {string} args.label
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function cancelPreauthorization(args) {
-    return Promise.coroutine(function* () {
-        var transaction = args.transaction;
-        var label       = args.label;
+async function cancelPreauthorization(args) {
+    const {
+        transaction,
+        label,
+    } = args;
 
-        if (! transaction
-         || ! label
-        ) {
-            throw new Error("Missing params");
-        }
+    if (! transaction
+     || ! label
+    ) {
+        throw new Error('Missing params');
+    }
 
-        var config = {
-            fromUserId: transaction.fromUserId,
-            toUserId: transaction.toUserId,
-            preauthAmount: - transaction.preauthAmount,
-            bookingId: transaction.bookingId,
-            resourceType: "preauthorization",
-            resourceId: transaction.resourceId,
-            cancelTransactionId: transaction.id,
-            action: "preauthorization",
-            label: label
-        };
+    const config = {
+        paymentProvider: transaction.paymentProvider,
+        currency: transaction.currency,
+        fromUserId: transaction.fromUserId,
+        toUserId: transaction.toUserId,
+        preauthAmount: - transaction.preauthAmount,
+        bookingId: transaction.bookingId,
+        resourceId: transaction.resourceId,
+        cancelTransactionId: transaction.id,
+        action: 'preauthorization',
+        label,
+    };
 
-        return yield Transaction.createTransaction(config);
-    })();
+    if (transaction.paymentProvider === 'mangopay') {
+        config.resourceType = 'preauthorization';
+    }
+
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
 
 /**
- * create payin
- * @param  {object} args
- * @param  {object} args.booking
- * @param  {object} args.payin
- * @param  {number} args.amount
- * @param  {string} args.label
- * @param  {number} [args.takerFees]
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * Create a payin
+ * @param  {Object} args
+ * @param  {Object} args.booking
+ * @param  {Object} [args.providerData = {}]
+ * @param  {Number} args.amount
+ * @param  {String} args.label
+ * @param  {Number} [args.takerFees = 0]
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function createPayin(args) {
-    return Promise.coroutine(function* () {
-        var booking   = args.booking;
-        var payin     = args.payin;
-        var amount    = args.amount;
-        var label     = args.label;
-        var takerFees = args.takerFees || 0;
+async function createPayin(args) {
+    const {
+        booking,
+        providerData = {},
+        amount,
+        label,
+        takerFees = 0,
+    } = args;
 
-        if (! booking
-         || ! payin
-         || ! amount
-         || ! label
-        ) {
-            throw new Error("Missing params");
+    if (! booking
+     || ! providerData
+     || ! label
+     || typeof amount !== 'number' || !amount
+     || typeof takerFees !== 'number'
+    ) {
+        throw new Error('Missing params');
+    }
+
+    const details = [
+        {
+            payment: amount,
+            cashing: 0,
+            label: 'main',
+        }
+    ];
+
+    if (takerFees) {
+        details.push({
+            credit: takerFees,
+            debit: 0,
+            payment: takerFees,
+            cashing: takerFees,
+            label: 'taker fees',
+        });
+    }
+
+    const config = {
+        paymentProvider: booking.paymentProvider,
+        currency: booking.currency,
+        fromUserId: booking.takerId,
+        toUserId: booking.ownerId,
+        bookingId: booking.id,
+        action: 'payin',
+        label,
+        details,
+    };
+
+    if (booking.paymentProvider === 'mangopay') {
+        const { payin } = providerData;
+        if (!payin) {
+            throw new Error('Missing provider data');
         }
 
-        var details = [];
+        config.resourceType = 'payin';
+        config.resourceId = payin.Id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(payin.CreationDate);
+        config.executionDate = TimeService.convertTimestampSecToISO(payin.ExecutionDate);
+    }
 
-        if (amount) {
-            details.push({
-                payment: amount,
-                cashing: 0,
-                label: "main"
-            });
-        }
-        if (takerFees) {
-            details.push({
-                credit: takerFees,
-                debit: 0,
-                payment: takerFees,
-                cashing: takerFees,
-                label: "taker fees"
-            });
-        }
-
-        var config = {
-            fromUserId: booking.takerId,
-            toUserId: booking.ownerId,
-            fromWalletId: payin.CreditedWalletId,
-            bookingId: booking.id,
-            resourceType: "payin",
-            resourceId: payin.Id,
-            mgpCreatedDate: TimeService.convertTimestampSecToISO(payin.CreationDate),
-            executionDate: TimeService.convertTimestampSecToISO(payin.ExecutionDate),
-            action: "payin",
-            label: label,
-            details: details
-        };
-
-        return yield Transaction.createTransaction(config);
-    })();
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
 
 /**
- * cancel payin
- * @param  {object} args
- * @param  {object} args.transaction
- * @param  {object} args.refund
- * @param  {number} args.amount
- * @param  {string} args.label
- * @param  {number} [args.refundTakerFees] - can be negative if fees are applied for this operation
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * Cancel a payin
+ * @param  {Object} args
+ * @param  {Object} args.transaction
+ * @param  {Object} [args.providerData = {}]
+ * @param  {Number} args.amount
+ * @param  {String} args.label
+ * @param  {Number} [args.refundTakerFees = 0] - can be negative if fees are applied for this operation
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function cancelPayin(args) {
-    return Promise.coroutine(function* () {
-        var transaction     = args.transaction;
-        var refund          = args.refund;
-        var amount          = args.amount;
-        var label           = args.label;
-        var refundTakerFees = args.refundTakerFees || 0;
+async function cancelPayin(args) {
+    const {
+        transaction,
+        providerData = {},
+        amount,
+        label,
+        refundTakerFees = 0,
+    } = args;
 
-        if (! transaction
-         || ! refund
-         || typeof amount === "undefined"
-         || ! label
-        ) {
-            throw new Error("Missing params");
+    if (! transaction
+     || ! providerData
+     || ! label
+     || typeof amount !== 'number' || !amount
+     || typeof refundTakerFees !== 'number'
+    ) {
+        throw new Error('Missing params');
+    }
+
+    const details = [
+        {
+            payment: - amount,
+            cashing: 0,
+            label: 'main',
+        },
+    ];
+
+    if (refundTakerFees) {
+        details.push({
+            credit: - refundTakerFees,
+            debit: 0,
+            payment: - refundTakerFees,
+            cashing: - refundTakerFees,
+            label: 'taker fees',
+        });
+    }
+
+    const config = {
+        paymentProvider: transaction.paymentProvider,
+        currency: transaction.currency,
+        fromUserId: transaction.fromUserId,
+        toUserId: transaction.toUserId,
+        bookingId: transaction.bookingId,
+        cancelTransactionId: transaction.id,
+        action: 'refund payin',
+        label,
+        details,
+    };
+
+    if (transaction.paymentProvider === 'mangopay') {
+        const { refund } = providerData;
+        if (!refund) {
+            throw new Error('Missing provider data');
         }
 
-        var details = [];
+        config.resourceType = 'refund';
+        config.resourceId = refund.Id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(refund.CreationDate);
+        config.executionDate = TimeService.convertTimestampSecToISO(refund.ExecutionDate);
+    }
 
-        if (amount) {
-            details.push({
-                payment: - amount,
-                cashing: 0,
-                label: "main"
-            });
-        }
-        if (refundTakerFees) {
-            details.push({
-                credit: - refundTakerFees,
-                debit: 0,
-                payment: - refundTakerFees,
-                cashing: - refundTakerFees,
-                label: "taker fees"
-            });
-        }
-
-        var config = {
-            fromUserId: transaction.fromUserId,
-            toUserId: transaction.toUserId,
-            fromWalletId: refund.DebitedWalletId,
-            bookingId: transaction.bookingId,
-            resourceType: "refund",
-            resourceId: refund.Id,
-            mgpCreatedDate: TimeService.convertTimestampSecToISO(refund.CreationDate),
-            executionDate: TimeService.convertTimestampSecToISO(refund.ExecutionDate),
-            cancelTransactionId: transaction.id,
-            action: "refund payin",
-            label: label,
-            details: details
-        };
-
-        return yield Transaction.createTransaction(config);
-    })();
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
 
 /**
- * create transfer
- * @param  {object} args
- * @param  {object} args.booking
- * @param  {object} args.tranfer
- * @param  {number} args.amount
- * @param  {string} args.label
- * @param  {number} [args.ownerFees]
- * @param  {number} [args.takerFees]
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * Create a transfer
+ * @param  {Object} args
+ * @param  {Object} args.booking
+ * @param  {Object} [args.providerData = {}]
+ * @param  {Number} args.amount
+ * @param  {String} args.label
+ * @param  {Number} [args.ownerFees = 0]
+ * @param  {Number} [args.takerFees = 0]
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function createTransfer(args) {
-    return Promise.coroutine(function* () {
-        var booking   = args.booking;
-        var transfer  = args.transfer;
-        var amount    = args.amount;
-        var label     = args.label;
-        var ownerFees = args.ownerFees || 0;
-        var takerFees = args.takerFees || 0;
+async function createTransfer(args) {
+    const {
+        booking,
+        providerData = {},
+        amount,
+        label,
+        ownerFees = 0,
+        takerFees = 0,
+    } = args;
 
-        if (! booking
-         || ! transfer
-         || typeof amount === "undefined"
-         || ! label
-        ) {
-            throw new Error("Missing params");
+
+    if (! booking
+     || ! providerData
+     || typeof amount !== 'number' || !amount
+     || ! label
+    ) {
+        throw new Error('Missing params');
+    }
+
+    const details = [
+        {
+            payment: 0,
+            cashing: amount,
+            label: 'main',
+        },
+    ];
+
+    if (ownerFees) {
+        details.push({
+            credit: ownerFees,
+            debit: 0,
+            payment: 0,
+            cashing: ownerFees,
+            label: 'owner fees',
+        });
+    }
+    if (takerFees) {
+        details.push({
+            credit: takerFees,
+            debit: 0,
+            payment: 0,
+            cashing: takerFees,
+            label: 'taker fees',
+        });
+    }
+
+    const config = {
+        paymentProvider: booking.paymentProvider,
+        currency: booking.currency,
+        fromUserId: booking.takerId,
+        toUserId: booking.ownerId,
+        bookingId: booking.id,
+        action: 'transfer',
+        label,
+        details,
+    };
+
+    if (booking.paymentProvider === 'mangopay') {
+        const { transfer } = providerData;
+        if (!transfer) {
+            throw new Error('Missing provider data');
         }
 
-        var details = [];
+        config.resourceType = 'transfer',
+        config.resourceId = transfer.Id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(transfer.CreationDate);
+        config.executionDate = TimeService.convertTimestampSecToISO(transfer.ExecutionDate);
+    }
 
-        if (amount) {
-            details.push({
-                payment: 0,
-                cashing: amount,
-                label: "main"
-            });
-        }
-        if (ownerFees) {
-            details.push({
-                credit: ownerFees,
-                debit: 0,
-                payment: 0,
-                cashing: ownerFees,
-                label: "owner fees"
-            });
-        }
-        if (takerFees) {
-            details.push({
-                credit: takerFees,
-                debit: 0,
-                payment: 0,
-                cashing: takerFees,
-                label: "taker fees"
-            });
-        }
-
-        var config = {
-            fromUserId: booking.takerId,
-            toUserId: booking.ownerId,
-            fromWalletId: transfer.DebitedWalletId,
-            toWalletId: transfer.CreditedWalletId,
-            bookingId: booking.id,
-            resourceType: "transfer",
-            resourceId: transfer.Id,
-            mgpCreatedDate: TimeService.convertTimestampSecToISO(transfer.CreationDate),
-            executionDate: TimeService.convertTimestampSecToISO(transfer.ExecutionDate),
-            action: "transfer",
-            label: label,
-            details: details
-        };
-
-        return yield Transaction.createTransaction(config);
-    })();
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
 
 /**
- * cancel transfer
- * @param  {object} args
- * @param  {object} args.transaction
- * @param  {object} args.refund
- * @param  {number} args.amount
- * @param  {string} args.label
- * @param  {number} [args.refundOwnerFees]
- * @param  {number} [args.refundTakerFees]
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * Cancel a transfer
+ * @param  {Object} args
+ * @param  {Object} args.transaction
+ * @param  {Object} [args.providerData = {}]
+ * @param  {Number} args.amount
+ * @param  {String} args.label
+ * @param  {Number} [args.refundOwnerFees = 0]
+ * @param  {Number} [args.refundTakerFees = 0]
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function cancelTransfer(args) {
-    return Promise.coroutine(function* () {
-        var transaction     = args.transaction;
-        var refund          = args.refund;
-        var amount          = args.amount;
-        var label           = args.label;
-        var refundOwnerFees = args.refundOwnerFees;
-        var refundTakerFees = args.refundTakerFees;
+async function cancelTransfer(args) {
+    const {
+        transaction,
+        providerData = {},
+        amount,
+        label,
+        refundOwnerFees = 0,
+        refundTakerFees = 0,
+    } = args;
 
-        if (! transaction
-         || ! refund
-         || ! amount
-         || ! label
-        ) {
-            throw new Error("Missing params");
+    if (! transaction
+     || ! providerData
+     || typeof amount !== 'number' || !amount
+     || ! label
+    ) {
+        throw new Error('Missing params');
+    }
+
+    const details = [
+        {
+            payment: 0,
+            cashing: - amount,
+            label: 'main',
+        },
+    ];
+
+    if (refundOwnerFees) {
+        details.push({
+            credit: - refundOwnerFees,
+            debit: 0,
+            payment: 0,
+            cashing: - refundOwnerFees,
+            label: 'owner fees',
+        });
+    }
+    if (refundTakerFees) {
+        details.push({
+            credit: - refundTakerFees,
+            debit: 0,
+            payment: 0,
+            cashing: - refundTakerFees,
+            label: 'taker fees',
+        });
+    }
+
+    const config = {
+        paymentProvider: transaction.paymentProvider,
+        currency: transaction.currency,
+        fromUserId: transaction.fromUserId,
+        toUserId: transaction.toUserId,
+        bookingId: transaction.bookingId,
+        cancelTransactionId: transaction.id,
+        action: 'refund transfer',
+        label,
+        details,
+    };
+
+    if (transaction.paymentProvider === 'mangopay') {
+        const { refund } = providerData;
+        if (!refund) {
+            throw new Error('Missing provider data');
         }
 
-        var details = [];
+        config.resourceType = 'refund';
+        config.resourceId = refund.Id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(refund.CreationDate);
+        config.executionDate = TimeService.convertTimestampSecToISO(refund.ExecutionDate);
+    }
 
-        if (amount) {
-            details.push({
-                payment: 0,
-                cashing: - amount,
-                label: "main"
-            });
-        }
-        if (refundOwnerFees) {
-            details.push({
-                credit: - refundOwnerFees,
-                debit: 0,
-                payment: 0,
-                cashing: - refundOwnerFees,
-                label: "owner fees"
-            });
-        }
-        if (refundTakerFees) {
-            details.push({
-                credit: - refundTakerFees,
-                debit: 0,
-                payment: 0,
-                cashing: - refundTakerFees,
-                label: "taker fees"
-            });
-        }
-
-        var config = {
-            fromUserId: transaction.fromUserId,
-            toUserId: transaction.toUserId,
-            fromWalletId: refund.CreditedWalletId,
-            toWalletId: refund.DebitedWalletId,
-            bookingId: transaction.bookingId,
-            resourceType: "refund",
-            resourceId: refund.Id,
-            mgpCreatedDate: TimeService.convertTimestampSecToISO(refund.CreationDate),
-            executionDate: TimeService.convertTimestampSecToISO(refund.ExecutionDate),
-            cancelTransactionId: transaction.id,
-            action: "refund transfer",
-            label: label,
-            details: details
-        };
-
-        return yield Transaction.createTransaction(config);
-    })();
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
 
 /**
- * create payout
- * @param  {object} args
- * @param  {object} args.booking
- * @param  {object} args.payout
- * @param  {number} args.payoutAmount
- * @param  {string} args.label
- * @return {Promise<object>} res
- * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * Create a payout
+ * @param  {Object} args
+ * @param  {Object} args.booking
+ * @param  {Object} [args.providerData = {}]
+ * @param  {Number} args.payoutAmount
+ * @param  {String} args.label
+ * @return {Object} res
+ * @return {Object} res.transaction
+ * @return {Object[]} res.transactionDetails
  */
-function createPayout(args) {
-    return Promise.coroutine(function* () {
-        var booking      = args.booking;
-        var payout       = args.payout;
-        var payoutAmount = args.payoutAmount;
-        var label        = args.label;
+async function createPayout(args) {
+    const {
+        booking,
+        providerData = {},
+        payoutAmount,
+        label,
+    } = args;
 
-        if (! booking
-         || ! payout
-         || ! payoutAmount
-         || ! label
-        ) {
-            throw new Error("Missing params");
+    if (!booking
+     || !providerData
+     || typeof payoutAmount !== 'number' || !payoutAmount
+     || !label
+    ) {
+        throw new Error('Missing params');
+    }
+
+    const config = {
+        paymentProvider: booking.paymentProvider,
+        currency: booking.currency,
+        fromUserId: booking.takerId,
+        toUserId: booking.ownerId,
+        payoutAmount,
+        bookingId: booking.id,
+        action: 'payout',
+        label,
+    };
+
+    if (booking.paymentProvider === 'mangopay') {
+        const { payout } = providerData;
+        if (!payout) {
+            throw new Error('Missing provider data');
         }
 
-        var config = {
-            fromUserId: booking.takerId,
-            toUserId: booking.ownerId,
-            toWalletId: payout.DebitedWalletId,
-            bankAccountId: payout.BankAccountId,
-            payoutAmount: payoutAmount,
-            bookingId: booking.id,
-            resourceType: "payout",
-            resourceId: payout.Id,
-            mgpCreatedDate: TimeService.convertTimestampSecToISO(payout.CreationDate),
-            executionDate: payout.ExecutionDate ? TimeService.convertTimestampSecToISO(payout.ExecutionDate) : null,
-            action: "payout",
-            label: label
-        };
+        config.resourceType = 'payout';
+        config.resourceId = payout.Id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(payout.CreationDate);
+        config.executionDate = payout.ExecutionDate ? TimeService.convertTimestampSecToISO(payout.ExecutionDate) : null;
+    }
 
-        return yield Transaction.createTransaction(config);
-    })();
+    const result = await Transaction.createTransaction(config);
+    return result;
 }
