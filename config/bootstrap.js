@@ -18,6 +18,7 @@ module.exports.bootstrap = async function(done) {
         "waterlineRawQuery",
         "utilities",
         "mangopay",
+        "stripe",
         "odoo",
         "passport",
         "intl"

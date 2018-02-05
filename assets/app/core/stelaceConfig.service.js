@@ -13,6 +13,8 @@
         service.updateConfig   = updateConfig;
         service.updateFeatures = updateFeatures;
 
+        service.getPaymentProvider = getPaymentProvider;
+
         activate();
 
         return service;
@@ -58,6 +60,10 @@
                 .then(function (result) {
                     window.actions.FeaturesActions.setFeatures(result.features);
                 });
+        }
+
+        function getPaymentProvider() {
+            return window.dataFromServer.paymentProvider; // TODO: make this variable into config
         }
 
     }

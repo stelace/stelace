@@ -12,12 +12,14 @@ var moment                  = require('moment');
 var areIntlLocalesSupported = require('intl-locales-supported');
 var IntlPolyfill            = require('intl');
 const Mangopay = require('mangopay2-nodejs-sdk');
+const Stripe = require('stripe');
 
 function init(initFields, args) {
     var defaultFields = [
         "uncaughtException",
         "waterlineRawQuery",
         "mangopay",
+        "stripe",
         "utilities",
         "odoo",
         "lowerSafe",
@@ -52,6 +54,10 @@ function init(initFields, args) {
                     baseUrl: mangopayConfig.workspace === 'production' ? 'https://api.mangopay.com' : 'https://api.sandbox.mangopay.com',
                     apiVersion: 'v2.01',
                 });
+                break;
+
+            case "stripe":
+                global.stripe = new Stripe(sails.config.stripe.secretKey);
                 break;
 
             case "utilities":

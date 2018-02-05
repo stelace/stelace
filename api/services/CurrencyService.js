@@ -2,6 +2,7 @@ module.exports = {
 
     isValidCurrency,
     getISOAmount,
+    getStandardAmount,
 
 };
 
@@ -18,4 +19,13 @@ function getISOAmount(amount, currency) {
     }
 
     return Math.floor(amount * Math.pow(10, obj.minor));
+}
+
+function getStandardAmount(amount, currency) {
+    const obj = isoCurrencies.get(currency);
+    if (!obj) {
+        throw new Error('Invalid currency');
+    }
+
+    return amount / Math.pow(10, obj.minor);
 }

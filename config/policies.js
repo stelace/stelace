@@ -54,6 +54,7 @@ module.exports.policies = {
     },
 
     CardController: {
+        create: ["isAuthenticated", "getUserInfo"],
         createCardRegistration: ["isAuthenticated", "getUserInfo"],
         my: ['isAuthenticated', 'getUserInfo'],
     },

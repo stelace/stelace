@@ -42,10 +42,15 @@
         var cardId;
         var stelaceEventObj;
         var kyc;
+        var stripeCardElement;
+        var touchCard = false;
 
         var vm = this;
+        vm.userType             = null;
+        vm.paymentProvider      = null;
         vm.booking              = null;
         vm.showEmail            = false;
+        vm.cardErrorType        = null;
         vm.newCard              = {};
         vm.reuseCard            = true; // default
         vm.rememberCard         = true; // default
@@ -134,8 +139,12 @@
                 vm.identity      = {
                     birthday: kyc.data.birthday,
                     nationality: kyc.data.nationality || "FR",
-                    countryOfResidence: kyc.data.countryOfResidence || "FR"
+                    countryOfResidence: kyc.data.countryOfResidence || "FR",
+                    legalPersonType: kyc.data.legalPersonType
                 };
+
+                vm.userType = vm.currentUser.userType;
+                vm.organizationName = vm.currentUser.organizationName;
 
                 if (vm.booking.cancellationId) {
                     toastr.warning("Réservation annulée");
@@ -159,6 +168,26 @@
                     } else {
                         vm.selectedCard = vm.cards[0];
                     }
+                }
+
+                vm.paymentProvider = StelaceConfig.getPaymentProvider();
+                if (vm.paymentProvider === 'stripe') {
+                    var eventCallback = function (error) {
+                        touchCard = true;
+                        if (error) {
+                            vm.cardErrorType = error.code;
+                            vm.cardErrorMessage = error.message;
+                        } else {
+                            vm.cardErrorType = null;
+                            vm.cardErrorMessage = null;
+                        }
+                        $scope.$digest();
+                    };
+
+                    stripeCardElement = CardService.getStripeCardElement({
+                        el: '#card-element',
+                        eventCallback: eventCallback
+                    });
                 }
 
                 vm.existingPhone = vm.currentUser.phoneCheck; // save initial value
@@ -330,11 +359,29 @@
                     kyc = newKyc;
 
                     // will not create an account if there is existing ones
-                    return finance.createAccount();
+                    return finance.createAccount({ accountType: 'customer' });
                 });
         }
 
         function saveCard() {
+            return $q.resolve()
+                .then(function () {
+                    if (vm.paymentProvider === 'mangopay') {
+                        return _saveMangopayCard();
+                    } else if (vm.paymentProvider === 'stripe') {
+                        return _saveStripeCard();
+                    } else {
+                        return $q.reject('Unknown payment provider');
+                    }
+                })
+                .then(function (card) {
+                    vm.cards.push(card);
+                    // toastr.info("Carte bleue enregistrée");
+                    return card;
+                });
+        }
+
+        function _saveMangopayCard() {
             var cardRegistration;
             vm.newCard.expirationDate = "" + vm.cardExpirationMonth + vm.cardExpirationYear.toString().slice(2, 4);
 
@@ -357,11 +404,19 @@
                         expirationDate: vm.newCard.expirationDate,
                         forget: ! vm.rememberCard
                     });
-                })
-                .then(function (card) {
-                    vm.cards.push(card);
-                    // toastr.info("Carte bleue enregistrée");
-                    return card;
+                });
+        }
+
+        function _saveStripeCard() {
+            if (vm.cardErrorType) {
+                return $q.reject('Invalid card');
+            }
+
+            return CardService.createStripeCardToken(stripeCardElement)
+                .then(function (res) {
+                    return CardService.createCard({
+                        cardToken: res.token.id
+                    });
                 });
         }
 
@@ -419,14 +474,23 @@
             } else if (! vm.selectedCard && vm.cards.length && vm.reuseCard) {
                 selectedCard = vm.cards[0]; // should not happen
             } else {
-                if ($scope.paymentForm.newCardNumber.$invalid) {
-                    return toastr.warning("Veuillez vérifier votre numéro de carte bancaire.", "Informations de paiement");
-                }
-                if (! vm.cardExpirationMonth || ! vm.cardExpirationYear) {
-                    return toastr.warning("Veuillez préciser la date d'expiration de votre carte bancaire.", "Informations de paiement");
-                }
-                if ($scope.paymentForm.newCardCvc.$invalid) {
-                    return toastr.warning("Veuillez vérifier votre code de sécurité (inscrit au dos de votre carte bancaire)", "Informations de paiement");
+                if (vm.paymentProvider === 'stripe') {
+                    if (!touchCard) {
+                        return toastr.warning("Veuillez saisir votre numéro de carte bancaire.", "Informations de paiement");
+                    }
+                    if (vm.cardErrorType) {
+                        return toastr.warning("Veuillez vérifier votre numéro de carte bancaire.", "Informations de paiement");
+                    }
+                } else { // vm.paymentProvider === 'mangopay'
+                    if ($scope.paymentForm.newCardNumber.$invalid) {
+                        return toastr.warning("Veuillez vérifier votre numéro de carte bancaire.", "Informations de paiement");
+                    }
+                    if (! vm.cardExpirationMonth || ! vm.cardExpirationYear) {
+                        return toastr.warning("Veuillez préciser la date d'expiration de votre carte bancaire.", "Informations de paiement");
+                    }
+                    if ($scope.paymentForm.newCardCvc.$invalid) {
+                        return toastr.warning("Veuillez vérifier votre code de sécurité (inscrit au dos de votre carte bancaire)", "Informations de paiement");
+                    }
                 }
             }
 

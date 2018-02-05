@@ -62,6 +62,8 @@ async function createBooking({
         throw createError(404);
     }
 
+    const paymentProvider = sails.config.paymentProvider;
+
     let bookingAttrs = {
         listingId: listing.id,
         ownerId: listing.ownerId,
@@ -70,7 +72,7 @@ async function createBooking({
         contractId: ContractService.getContractId(),
         listingTypeId: listingType.id,
         listingType: listingType,
-        paymentProvider: 'mangopay',
+        paymentProvider,
     };
 
     bookingAttrs = await setBookingTimePeriods({

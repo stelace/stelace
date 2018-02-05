@@ -1,4 +1,4 @@
-/* global Card, IPService, PaymentError */
+/* global Card, CurrencyService, IPService, PaymentError */
 
 /**
  * PaymentError.js
@@ -131,6 +131,7 @@ module.exports = {
     },
 
     createMangopayError,
+    createStripeError,
 
 };
 
@@ -197,6 +198,67 @@ async function createMangopayError({
         const card = await Card.findOne({ id: cardId }).catch(() => null);
         if (card) {
             createAttrs.cardNumber = card.alias;
+        }
+    }
+
+    createAttrs.data = data;
+
+    return await PaymentError.create(createAttrs);
+}
+
+/**
+ * Create payment error
+ * @param  {object} preauthorization
+ * @param  {number} userId
+ * @param  {number} bookingId
+ * @param  {number} cardId
+ * @param  {object} [req]
+ * @return {object}
+ */
+async function createStripeError({
+    charge,
+    userId,
+    bookingId,
+    req,
+}) {
+    // if there is no charge or it's not a failed one
+    if (!charge || charge.status !== 'failed') {
+        return;
+    }
+
+    const createAttrs = {
+        userId,
+        bookingId,
+        cardNumber: charge.source && charge.source.last4,
+    };
+    const data = {
+        charge,
+    };
+
+    createAttrs.message = charge.outcome.reaon;
+    createAttrs.code = charge.outcome.type;
+    createAttrs.amount = CurrencyService.getStandardAmount(charge.amount.charge.currency);
+
+    if (req) {
+        createAttrs.url = sails.config.stelace.url + req.url;
+        createAttrs.refererUrl = req.headers.referer;
+
+        const userAgent = req.headers['user-agent'];
+        createAttrs.userAgent = userAgent;
+
+        if (userAgent) {
+            const parsedUserAgent = useragent.parse(userAgent);
+            createAttrs.os = parsedUserAgent.os.toString();
+            createAttrs.browser = parsedUserAgent.toString();
+            createAttrs.device = parsedUserAgent.device.toString();
+        }
+
+        createAttrs.ip = req.ip;
+        if (req.ip) {
+            const ipInfo = await IPService.getInfo(req.ip);
+            createAttrs.country = ipInfo.country;
+            createAttrs.region = ipInfo.region;
+            createAttrs.city = ipInfo.city;
         }
     }
 

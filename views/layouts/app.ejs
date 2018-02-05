@@ -184,6 +184,10 @@
         })();
     </script>
 
+    <% if (typeof stripeActive !== "undefined" && stripeActive) { %>
+    <script src="https://js.stripe.com/v3/"></script>
+    <% } %>
+
     <!-- app:js -->
     <script src="/assets/build/js/app-lib.js"></script>
     <script src="/assets/build/js/app-template.js"></script>

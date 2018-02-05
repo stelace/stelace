@@ -49,4 +49,45 @@ describe('BankAccount', () => {
             expect(parsedData).to.deep.equal(expected);
         });
     });
+
+    describe('.parseStripeData()', () => {
+        it('parses the stripe raw object', () => {
+            const rawBankAccount = {
+                id: 'ba_1BrrjC2eZvKYlo2Cogd6j83P',
+                object: 'bank_account',
+                account: 'acct_1032D82eZvKYlo2C',
+                account_holder_name: 'Jane Austen',
+                account_holder_type: 'individual',
+                bank_name: 'STRIPE TEST BANK',
+                country: 'US',
+                currency: 'usd',
+                default_for_currency: false,
+                fingerprint: '1JWtPxqbdX5Gamtc',
+                last4: '6789',
+                metadata: {
+                },
+                routing_number: '110000000',
+                status: 'new',
+            };
+
+            const parsedData = BankAccount.parseStripeData(rawBankAccount);
+            const expected = {
+                paymentProvider: 'stripe',
+                resourceOwnerId: 'acct_1032D82eZvKYlo2C',
+                resourceId: 'ba_1BrrjC2eZvKYlo2Cogd6j83P',
+                fingerprint: '1JWtPxqbdX5Gamtc',
+                status: 'new',
+                active: true,
+                ownerName: 'Jane Austen',
+                data: {
+                    accountHolderType: 'individual',
+                    bankName: 'STRIPE TEST BANK',
+                    country: 'US',
+                    currency: 'usd',
+                    last4: '6789',
+                },
+            };
+            expect(parsedData).to.deep.equal(expected);
+        });
+    });
 });

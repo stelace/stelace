@@ -16,6 +16,7 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const moment = require('moment');
 
 async function getTransactionsByBooking(bookingsIds) {
     bookingsIds = _.uniq(bookingsIds);
@@ -102,6 +103,15 @@ async function createPreauthorization(args) {
         config.resourceType = 'preauthorization';
         config.resourceId = preauthorization.Id;
         config.preauthExpirationDate = new Date(parseInt(preauthorization.ExpirationDate, 10) * 1000).toISOString();
+    } else if (booking.paymentProvider === 'stripe') {
+        const { charge } = providerData;
+        if (!charge) {
+            throw new Error('Missing provider data');
+        }
+
+        config.resourceType = 'charge';
+        config.resourceId = charge.id;
+        config.preauthExpirationDate = moment(new Date(charge.created * 1000)).add(7, 'd').toISOString();
     }
 
     const result = await Transaction.createTransaction(config);
@@ -144,6 +154,8 @@ async function cancelPreauthorization(args) {
 
     if (transaction.paymentProvider === 'mangopay') {
         config.resourceType = 'preauthorization';
+    } else if (transaction.paymentProvider === 'stripe') {
+        config.resourceType = 'charge';
     }
 
     const result = await Transaction.createTransaction(config);
@@ -219,6 +231,16 @@ async function createPayin(args) {
         config.resourceId = payin.Id;
         config.providerCreatedDate = TimeService.convertTimestampSecToISO(payin.CreationDate);
         config.executionDate = TimeService.convertTimestampSecToISO(payin.ExecutionDate);
+    } else if (booking.paymentProvider === 'stripe') {
+        const { charge } = providerData;
+        if (!charge) {
+            throw new Error('Missing provider data');
+        }
+
+        config.resourceType = 'charge';
+        config.resourceId = charge.id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(charge.created);
+        // config.executionDate = TimeService.convertTimestampSecToISO(charge.created);
     }
 
     const result = await Transaction.createTransaction(config);
@@ -295,6 +317,13 @@ async function cancelPayin(args) {
         config.resourceId = refund.Id;
         config.providerCreatedDate = TimeService.convertTimestampSecToISO(refund.CreationDate);
         config.executionDate = TimeService.convertTimestampSecToISO(refund.ExecutionDate);
+    } else if (transaction.paymentProvider === 'stripe') {
+        const { refund } = providerData;
+
+        config.resourceType = 'refund';
+        config.resourceId = refund.id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(refund.created);
+        // config.executionDate = TimeService.convertTimestampSecToISO(refund.created);
     }
 
     const result = await Transaction.createTransaction(config);
@@ -377,10 +406,20 @@ async function createTransfer(args) {
             throw new Error('Missing provider data');
         }
 
-        config.resourceType = 'transfer',
+        config.resourceType = 'transfer';
         config.resourceId = transfer.Id;
         config.providerCreatedDate = TimeService.convertTimestampSecToISO(transfer.CreationDate);
         config.executionDate = TimeService.convertTimestampSecToISO(transfer.ExecutionDate);
+    } else if (booking.paymentProvider === 'stripe') {
+        const { transfer } = providerData;
+        if (!transfer) {
+            throw new Error('Missing provider data');
+        }
+
+        config.resourceType = 'transfer';
+        config.resourceId = transfer.id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(transfer.created);
+        // config.executionDate = TimeService.convertTimestampSecToISO(transfer.created);
     }
 
     const result = await Transaction.createTransaction(config);
@@ -467,6 +506,16 @@ async function cancelTransfer(args) {
         config.resourceId = refund.Id;
         config.providerCreatedDate = TimeService.convertTimestampSecToISO(refund.CreationDate);
         config.executionDate = TimeService.convertTimestampSecToISO(refund.ExecutionDate);
+    } else if (transaction.paymentProvider === 'stripe') {
+        const { transferReversal } = providerData;
+        if (!transferReversal) {
+            throw new Error('Missing provider data');
+        }
+
+        config.resourceType = 'transferReversal';
+        config.resourceId = transferReversal.id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(transferReversal.created);
+        // config.executionDate = TimeService.convertTimestampSecToISO(transferReversal.created);
     }
 
     const result = await Transaction.createTransaction(config);
@@ -521,6 +570,16 @@ async function createPayout(args) {
         config.resourceId = payout.Id;
         config.providerCreatedDate = TimeService.convertTimestampSecToISO(payout.CreationDate);
         config.executionDate = payout.ExecutionDate ? TimeService.convertTimestampSecToISO(payout.ExecutionDate) : null;
+    } else if (booking.paymentProvider === 'stripe') {
+        const { payout } = providerData;
+        if (!payout) {
+            throw new Error('Missing provider data');
+        }
+
+        config.resourceType = 'payout';
+        config.resourceId = payout.id;
+        config.providerCreatedDate = TimeService.convertTimestampSecToISO(payout.created);
+        // config.executionDate = payout.ExecutionDate ? TimeService.convertTimestampSecToISO(payout.created) : null;
     }
 
     const result = await Transaction.createTransaction(config);

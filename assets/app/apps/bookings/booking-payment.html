@@ -62,69 +62,78 @@
                         ng-if="! vm.reuseCard && vm.cards.length < 2">
                         Je souhaite utiliser une nouvelle carte
                     </p>
-                    <label for="card-number">
-                        Numéro de carte
-                    </label>
-                    <div class="flex-container flex--wrap">
-                        <div id="card-input-container" class="input__inner-icon-container small-12 medium-6">
-                            <input id="card-number" name="newCardNumber" type="text"
-                                class=""
-                                ng-model="vm.newCard.number"
-                                data-cc-number
-                                data-cc-format
-                                data-cc-eager-type>
-                            <!-- Tooltip auto left placement if buggy here, probably due to absolute positionning -->
-                            <span class="input__inner-icon icon-right"
-                                data-tooltip-placement="left"
-                                data-tooltip-trigger="mouseenter outsideClick"
-                                uib-tooltip="Votre numéro de carte est crypté par notre partenaire bancaire Mangopay - Crédit Mutuel">
-                                <img src="/assets/img/app/icons/lock-check.png" alt="Verrou - Paiement 3DSecure">
-                            </span>
-                            <div class="form-warning text--semibold"
-                                uib-collapse="vm.editingCardNumber || ! paymentForm.newCardNumber.$touched || ! paymentForm.newCardNumber.$invalid">
-                                Veuillez vérifier votre numéro de carte.
-                            </div>
+                    <div ng-show="vm.paymentProvider === 'stripe'" class="margin-bottom-plus">
+                        <div id="card-element" class="margin-bottom"></div>
+                        <div class="card-error form-warning text--semibold margin-bottom"
+                            uib-collapse="!vm.cardErrorMessage">
+                            {{vm.cardErrorMessage}}
                         </div>
-                        <img class="card-type-logo" src="/assets/img/app/payment/visa_logo.png" alt="logo Visa"
-                            ng-class="{ 'active': paymentForm.newCardNumber.$ccEagerType === 'Visa', 'inactive': paymentForm.newCardNumber.$ccEagerType && paymentForm.newCardNumber.$ccEagerType !== 'Visa'}">
-                        <img class="card-type-logo" src="/assets/img/app/payment/mastercard_logo.png" alt="logo MasterCard"
-                            ng-class="{ active: paymentForm.newCardNumber.$ccEagerType === 'MasterCard', 'inactive': paymentForm.newCardNumber.$ccEagerType && paymentForm.newCardNumber.$ccEagerType !== 'MasterCard'}">
-                        <!-- Collapse flickering will be fixed. See https://github.com/tmcgee123/bootstrap/commit/b7b1861dddd98b323d444e5cd2dde7b60110c990 -->
                     </div>
-                    <label for="select-expiration-month">
-                        Expiration
-                    </label>
-                    <div class="flex-container flex--start booking__card-expiration">
-                        <select id="select-expiration-month" name="card-expiration-month"
-                            ng-model="vm.cardExpirationMonth"
-                            ng-required="! vm.reuseCard">
-                            <option value="" selected disabled>Mois</option>
-                            <option value="01" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 1">1</option>
-                            <option value="02" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 2">2</option>
-                            <option value="03" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 3">3</option>
-                            <option value="04" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 4">4</option>
-                            <option value="05" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 5">5</option>
-                            <option value="06" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 6">6</option>
-                            <option value="07" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 7">7</option>
-                            <option value="08" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 8">8</option>
-                            <option value="09" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 9">9</option>
-                            <option value="10" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 10">10</option>
-                            <option value="11" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 11">11</option>
-                            <option value="12" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 12">12</option>
-                        </select>
-                        <select id="select-expiration-year" name="card-expiration-year"
-                            ng-model="vm.cardExpirationYear"
-                            ng-required="! vm.reuseCard">
-                            <option value="" selected disabled>Année</option>
-                            <option value="{{year}}" ng-repeat="year in vm.expirationYears">{{year}}</option>
-                        </select>
+                    <div ng-show="vm.paymentProvider === 'mangopay'">
+                        <label for="card-number">
+                            Numéro de carte
+                        </label>
+                        <div class="flex-container flex--wrap">
+                            <div id="card-input-container" class="input__inner-icon-container small-12 medium-6">
+                                <input id="card-number" name="newCardNumber" type="text"
+                                    class=""
+                                    ng-model="vm.newCard.number"
+                                    data-cc-number
+                                    data-cc-format
+                                    data-cc-eager-type>
+                                <!-- Tooltip auto left placement if buggy here, probably due to absolute positionning -->
+                                <span class="input__inner-icon icon-right"
+                                    data-tooltip-placement="left"
+                                    data-tooltip-trigger="mouseenter outsideClick"
+                                    uib-tooltip="Votre numéro de carte est crypté par notre partenaire bancaire Mangopay - Crédit Mutuel">
+                                    <img src="/assets/img/app/icons/lock-check.png" alt="Verrou - Paiement 3DSecure">
+                                </span>
+                                <div class="form-warning text--semibold"
+                                    uib-collapse="vm.editingCardNumber || ! paymentForm.newCardNumber.$touched || ! paymentForm.newCardNumber.$invalid">
+                                    Veuillez vérifier votre numéro de carte.
+                                </div>
+                            </div>
+                            <img class="card-type-logo" src="/assets/img/app/payment/visa_logo.png" alt="logo Visa"
+                                ng-class="{ 'active': paymentForm.newCardNumber.$ccEagerType === 'Visa', 'inactive': paymentForm.newCardNumber.$ccEagerType && paymentForm.newCardNumber.$ccEagerType !== 'Visa'}">
+                            <img class="card-type-logo" src="/assets/img/app/payment/mastercard_logo.png" alt="logo MasterCard"
+                                ng-class="{ active: paymentForm.newCardNumber.$ccEagerType === 'MasterCard', 'inactive': paymentForm.newCardNumber.$ccEagerType && paymentForm.newCardNumber.$ccEagerType !== 'MasterCard'}">
+                            <!-- Collapse flickering will be fixed. See https://github.com/tmcgee123/bootstrap/commit/b7b1861dddd98b323d444e5cd2dde7b60110c990 -->
+                        </div>
+                        <label for="select-expiration-month">
+                                Expiration
+                            </label>
+                            <div class="flex-container flex--start booking__card-expiration">
+                                <select id="select-expiration-month" name="card-expiration-month"
+                                    ng-model="vm.cardExpirationMonth"
+                                    ng-required="! vm.reuseCard">
+                                    <option value="" selected disabled>Mois</option>
+                                    <option value="01" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 1">1</option>
+                                    <option value="02" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 2">2</option>
+                                    <option value="03" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 3">3</option>
+                                    <option value="04" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 4">4</option>
+                                    <option value="05" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 5">5</option>
+                                    <option value="06" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 6">6</option>
+                                    <option value="07" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 7">7</option>
+                                    <option value="08" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 8">8</option>
+                                    <option value="09" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 9">9</option>
+                                    <option value="10" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 10">10</option>
+                                    <option value="11" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 11">11</option>
+                                    <option value="12" ng-if="vm.cardExpirationYear != vm.thisYear || vm.thisMonth <= 12">12</option>
+                                </select>
+                                <select id="select-expiration-year" name="card-expiration-year"
+                                    ng-model="vm.cardExpirationYear"
+                                    ng-required="! vm.reuseCard">
+                                    <option value="" selected disabled>Année</option>
+                                    <option value="{{year}}" ng-repeat="year in vm.expirationYears">{{year}}</option>
+                                </select>
+                            </div>
+                            <label for="card-cvc">
+                                Code de sécurité
+                            </label>
+                            <input id="card-cvc" type="text" name="newCardCvc" class="small-3" placeholder="XXX"
+                                ng-model="vm.newCard.cvx"
+                                data-cc-cvc>
                     </div>
-                    <label for="card-cvc">
-                        Code de sécurité
-                    </label>
-                    <input id="card-cvc" type="text" name="newCardCvc" class="small-3" placeholder="XXX"
-                        ng-model="vm.newCard.cvx"
-                        data-cc-cvc>
                     <div class="flex-container">
                         <div class="text-center">
                             <input id="switch-forget-card" type="checkbox" ng-model="vm.rememberCard">
@@ -142,6 +151,58 @@
 
                 <h2>Informations de facturation</h2>
                 <div class="flex-form__fields"> <!-- noAccount to avoid block disappearance -->
+                    <!-- <div class="flex-container flex-form-line margin-bottom-plus">
+                        <div class="small-6 flex-container">
+                            <input type="radio"
+                                id="user-type-individual"
+                                name="user-type"
+                                ng-model="vm.userType"
+                                value="individual"
+                                required>
+                            <label for="user-type-individual">
+                                Personne physique
+                            </label>
+                        </div>
+                        <div class="small-6 flex-container">
+                            <input type="radio"
+                                id="user-type-organization"
+                                name="user-type"
+                                ng-model="vm.userType"
+                                value="organization"
+                                required>
+                            <label for="user-type-organization">
+                                Personne morale
+                            </label>
+                        </div>
+                    </div>
+                    <div uib-collapse="vm.userType !== 'organization'">
+                        <div class="flex-container">
+                            <div class="small-12">
+                                <label for="taker-organizationName">
+                                    Nom de la personne morale
+                                </label>
+                                <input id="taker-organizationName" type="text"
+                                    ng-model="vm.organizationName"
+                                    ng-required="vm.userType === 'organization'">
+                            </div>
+                        </div>
+                        <div class="flex-container margin-bottom">
+                            <div class="small-12">
+                                <label for="legal-person-type">
+                                    Type de personne morale
+                                </label>
+                                <select
+                                    id="legal-person-type"
+                                    class="margin-bottom"
+                                    ng-model="vm.identity.legalPersonType"
+                                    ng-required="vm.userType === 'organization'">
+                                    <option value="BUSINESS">Entreprise</option>
+                                    <option value="ORGANIZATION">Organisation</option>
+                                    <option value="SOLETRADER">Entreprise individuelle</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div> -->
                     <div class="flex-container flex-form-line">
                         <div class="small-6">
                             <label for="taker-firstname">

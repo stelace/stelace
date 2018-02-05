@@ -1,4 +1,4 @@
-/* global Card, PaymentMangopayService */
+/* global Card, PaymentMangopayService, PaymentStripeService */
 
 /**
  * CardController
@@ -34,27 +34,46 @@ async function create(req, res) {
     const {
         cardRegistrationId,
         registrationData,
+        cardToken,
         forget,
     } = req.allParams();
 
     const access = 'self';
 
-    if (!cardRegistrationId
-     || !registrationData
-    ) {
-        throw createError(400);
+    const paymentProvider = sails.config.paymentProvider;
+
+    let card;
+
+    if (paymentProvider === 'mangopay') {
+        if (!cardRegistrationId
+         || !registrationData
+        ) {
+            throw createError(400);
+        }
+
+        const cardRegistration = await PaymentMangopayService.updateCardRegistration({
+            cardRegistrationId,
+            registrationData,
+        });
+
+        card = await PaymentMangopayService.createCard({
+            userId: req.user.id,
+            providerCardId: cardRegistration.CardId,
+            forget,
+        });
+    } else if (paymentProvider === 'stripe') {
+        if (!cardToken) {
+            throw createError(400);
+        }
+
+        card = await PaymentStripeService.createCard({
+            user: req.user,
+            sourceId: cardToken,
+            forget,
+        });
+    } else {
+        throw new Error('Unknown payment provider');
     }
-
-    const cardRegistration = await PaymentMangopayService.updateCardRegistration({
-        cardRegistrationId,
-        registrationData,
-    });
-
-    const card = await PaymentMangopayService.createCard({
-        userId: req.user.id,
-        providerCardId: cardRegistration.CardId,
-        forget,
-    });
 
     res.json(Card.expose(card, access));
 }

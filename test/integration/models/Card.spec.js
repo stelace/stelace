@@ -54,4 +54,65 @@ describe('Card', () => {
             expect(parsedData).to.deep.equal(expected);
         });
     });
+
+    describe('.parseStripeData()', () => {
+        it('parses the stripe raw object', () => {
+            const rawCard = {
+                id: 'card_1Brrj72eZvKYlo2CzrX6Na85',
+                object: 'card',
+                address_city: null,
+                address_country: null,
+                address_line1: null,
+                address_line1_check: null,
+                address_line2: null,
+                address_state: null,
+                address_zip: null,
+                address_zip_check: null,
+                brand: 'Visa',
+                country: 'US',
+                customer: 'cus_CGMd3eZanFamae',
+                cvc_check: null,
+                dynamic_last4: null,
+                exp_month: 8,
+                exp_year: 2019,
+                fingerprint: 'Xt5EWLLDS7FJjR1c',
+                funding: 'credit',
+                last4: '4242',
+                metadata: {
+                },
+                name: null,
+                tokenization_method: null
+            };
+
+            const parsedData = Card.parseStripeData(rawCard);
+            const expected = {
+                paymentProvider: 'stripe',
+                resourceOwnerId: 'cus_CGMd3eZanFamae',
+                resourceId: 'card_1Brrj72eZvKYlo2CzrX6Na85',
+                expirationMonth: 8,
+                expirationYear: 2019,
+                currency: null,
+                provider: null,
+                type: 'Visa',
+                alias: '4242',
+                active: true,
+                validity: null,
+                fingerprint: 'Xt5EWLLDS7FJjR1c',
+                country: 'US',
+                data: {
+                    ownerName: null,
+                    funding: 'credit',
+                    address_city: null,
+                    address_country: null,
+                    address_line1: null,
+                    address_line1_check: null,
+                    address_line2: null,
+                    address_state: null,
+                    address_zip: null,
+                    address_zip_check: null,
+                },
+            };
+            expect(parsedData).to.deep.equal(expected);
+        });
+    });
 });

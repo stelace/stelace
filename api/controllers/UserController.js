@@ -216,7 +216,7 @@ async function update(req, res) {
     if (updateAttrs.userType && !User.isValidUserType(updateAttrs.userType)) {
         throw createError(400, 'Incorrect user type');
     }
-    if (updateAttrs.userType && req.user.userType && updateAttrs.userType !== req.user.userType) {
+    if (updateAttrs.userType && !User.canChangeUserType(req.user) && updateAttrs.userType !== req.user.userType) {
         throw createError(400, 'Cannot change the user type');
     }
 
@@ -973,9 +973,13 @@ function getIncomeReportPdf(req, res) {
 async function getPaymentAccounts(req, res) {
     const mangopayUserId = User.getMangopayUserId(req.user);
     const mangopayWalletId = User.getMangopayWalletId(req.user);
+    const stripeCustomerId = User.getStripeCustomerId(req.user);
+    const stripeAccountId = User.getStripeAccountId(req.user);
 
     res.json({
         mangopayAccount: !!mangopayUserId,
         mangopayWallet: !!mangopayWalletId,
+        stripeCustomer: !!stripeCustomerId,
+        stripeAccount: !!stripeAccountId,
     });
 }

@@ -92,6 +92,8 @@ function index(req, res) {
         const dataFromServer = {
             config,
             features,
+            paymentProvider: sails.config.paymentProvider,
+            stripePublishKey: sails.config.stripe.publishKey,
         };
 
         const clientTracking = sails.config.clientTracking;
@@ -113,6 +115,7 @@ function index(req, res) {
             featureDetection: ! UAService.isBot(userAgent),
             googleMapApiKey: sails.config.googleMapApiKey,
             dataFromServer: JSON.stringify(dataFromServer || {}),
+            stripeActive: sails.config.paymentProvider === 'stripe',
         };
 
         if (sails.config.environment === "production") {

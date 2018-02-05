@@ -1,4 +1,4 @@
-/* global Booking, MathService, PaymentMangopayService, PricingService, TransactionService, User */
+/* global Booking, MathService, PaymentMangopayService, PaymentStripeService, PricingService, TransactionService, User */
 
 module.exports = {
 
@@ -17,10 +17,14 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const createError = require('http-errors');
 
-var renewDepositDefaultAmount = 49; // 49€, only renew this amount to avoid secure mode
-
-function getRenewDepositAmount(booking, renewDepositDefaultAmount) {
-    return Math.min(renewDepositDefaultAmount, booking.deposit);
+function getRenewDepositAmount(booking) {
+    if (booking.paymentProvider === 'mangopay') {
+        var renewDepositDefaultAmount = 49; // 49€, only renew this amount to avoid secure mode
+        return Math.min(renewDepositDefaultAmount, booking.deposit);
+    } else {
+        const maxDeposit = 500;
+        return Math.min(maxDeposit, Math.round(booking.deposit / 2));
+    }
 }
 
 function addTransactionToManager(transactionManager, resultTransaction) {
@@ -42,6 +46,27 @@ function checkMangopayItems(booking, users) {
     });
 
     if (error.usersIds.length) {
+        throw error;
+    }
+}
+
+function checkStripeItems(booking, { owner, taker }) {
+    const error = new Error('Users have missing account');
+    error.bookingId = booking.id;
+    error.users = {};
+
+    if (owner) {
+        if (!User.getStripeAccountId(owner)) {
+            error.users.owner = owner;
+        }
+    }
+    if (taker) {
+        if (!User.getStripeCustomerId(taker)) {
+            error.users.taker = taker;
+        }
+    }
+
+    if (Object.keys(error.users).length) {
         throw error;
     }
 }
@@ -90,19 +115,40 @@ function getNonCancelledPreauthPayment(transactionManager) {
 //////////////////
 // STOP PROCESS //
 //////////////////
-function stopRenewDepositIfFailed(newPreauth, booking) {
-    return Promise.coroutine(function* () {
-        if (newPreauth.Status !== "FAILED") {
-            return;
-        }
+async function stopMangopayRenewDepositIfFailed(newPreauth, booking) {
+    if (newPreauth.Status !== 'FAILED') {
+        return;
+    }
 
-        var error = new Error("Preauthorization fail");
-        error.preauthorization = newPreauth;
+    const error = createError('Preauthorization fail', {
+        preauthorization: newPreauth,
+    });
 
-        yield Booking.updateOne(booking.id, { stopRenewDeposit: true })
-            .then(() => { throw error; })
-            .catch(() => { throw error; });
-    })();
+    try {
+        await Booking.updateOne(booking.id, { stopRenewDeposit: true });
+    } catch (err) {
+        throw error;
+    }
+
+    throw error;
+}
+
+async function stopStripeRenewDepositIfFailed(charge, booking) {
+    if (charge.status !== 'FAILED') {
+        return;
+    }
+
+    const error = createError('Preauth charge fail', {
+        charge,
+    });
+
+    try {
+        await Booking.updateOne(booking.id, { stopRenewDeposit: true });
+    } catch (err) {
+        throw error;
+    }
+
+    throw error;
 }
 
 
@@ -119,7 +165,9 @@ async function renewDeposit(booking, transactionManager) {
         return booking;
     }
 
-    const renewDepositAmount = getRenewDepositAmount(booking, renewDepositDefaultAmount);
+    const paymentProvider = sails.config.paymentProvider;
+
+    const renewDepositAmount = getRenewDepositAmount(booking);
 
     const deposit = getDeposit(transactionManager);
 
@@ -129,17 +177,33 @@ async function renewDeposit(booking, transactionManager) {
         });
     }
 
-    const newPreauth = await PaymentMangopayService.copyPreauthorization({
-        transaction: deposit,
-        amount: renewDepositAmount,
-    });
-    await stopRenewDepositIfFailed(newPreauth, booking);
+    let providerData;
+
+    if (paymentProvider === 'mangopay') {
+        const newPreauth = await PaymentMangopayService.copyPreauthorization({
+            transaction: deposit,
+            amount: renewDepositAmount,
+        });
+        await stopMangopayRenewDepositIfFailed(newPreauth, booking);
+
+        providerData = {
+            preauthorization: newPreauth,
+        };
+    } else if (paymentProvider === 'stripe') {
+        const charge = await PaymentStripeService.copyChargePreauthorization({
+            transaction: deposit,
+            amount: renewDepositAmount,
+        });
+        await stopStripeRenewDepositIfFailed(charge, booking);
+
+        providerData = {
+            charge,
+        };
+    }
 
     let resultTransaction = await TransactionService.createPreauthorization({
         booking,
-        providerData: {
-            preauthorization: newPreauth,
-        },
+        providerData,
         preauthAmount: renewDepositAmount,
         label: 'deposit renew',
     });
@@ -168,10 +232,16 @@ async function cancelDeposit(booking, transactionManager) {
         return booking;
     }
 
+    const paymentProvider = sails.config.paymentProvider;
+
     const transactionsToCancel = getDepositsToCancel(transactionManager);
 
     await Promise.each(transactionsToCancel, async (transaction) => {
-        await PaymentMangopayService.cancelPreauthorization({ transaction }).catch(() => {});
+        if (paymentProvider === 'mangopay') {
+            await PaymentMangopayService.cancelPreauthorization({ transaction }).catch(() => {});
+        } else if (paymentProvider === 'stripe') {
+            await PaymentStripeService.cancelChargePreauthorization({ transaction }).catch(() => {});
+        }
 
         const resultTransaction = await TransactionService.cancelPreauthorization({
             transaction: transaction,
@@ -196,11 +266,17 @@ async function cancelPreauthPayment(booking, transactionManager) {
         return booking;
     }
 
+    const paymentProvider = sails.config.paymentProvider;
+
     const transaction = getNonCancelledPreauthPayment(transactionManager);
     const skipProcessWithUpdate = !transaction;
 
     if (!skipProcessWithUpdate) {
-        await PaymentMangopayService.cancelPreauthorization({ transaction }).catch(() => {});
+        if (paymentProvider === 'mangopay') {
+            await PaymentMangopayService.cancelPreauthorization({ transaction }).catch(() => {});
+        } else if (paymentProvider === 'stripe') {
+            await PaymentStripeService.cancelChargePreauthorization({ transaction }).catch(() => {});
+        }
 
         var resultTransaction = await TransactionService.cancelPreauthorization({
             transaction: transaction,
@@ -234,7 +310,13 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
         return booking;
     }
 
-    checkMangopayItems(booking, [taker]);
+    const paymentProvider = sails.config.paymentProvider;
+
+    if (paymentProvider === 'mangopay') {
+        checkMangopayItems(booking, [taker]);
+    } else if (paymentProvider === 'stripe') {
+        checkStripeItems(booking, { taker });
+    }
 
     const payin = transactionManager.getPayinPayment();
 
@@ -246,6 +328,8 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
 
     const skipProcessWithUpdate = !amount || payin;
 
+    let providerData;
+
     if (!skipProcessWithUpdate) {
         const preauthPayment = getNonCancelledPreauthPayment(transactionManager);
 
@@ -255,18 +339,32 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
             });
         }
 
-        const mangopayPayin = await PaymentMangopayService.createPayin({
-            booking,
-            transaction: preauthPayment,
-            taker,
-            amount,
-        });
+        if (paymentProvider === 'mangopay') {
+            const mangopayPayin = await PaymentMangopayService.createPayin({
+                booking,
+                transaction: preauthPayment,
+                taker,
+                amount,
+            });
+
+            providerData = {
+                payin: mangopayPayin,
+            };
+        } else if (paymentProvider === 'stripe') {
+            const charge = await PaymentStripeService.createChargePayin({
+                booking,
+                transaction: preauthPayment,
+                amount,
+            });
+
+            providerData = {
+                charge,
+            };
+        }
 
         const resultTransaction = await TransactionService.createPayin({
             booking,
-            providerData: {
-                payin: mangopayPayin,
-            },
+            providerData,
             amount,
             label: 'payment',
         });
@@ -292,7 +390,13 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
  * @return {object} booking
  */
 async function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
-    checkMangopayItems(booking, [taker]);
+    const paymentProvider = sails.config.paymentProvider;
+
+    if (paymentProvider === 'mangopay') {
+        checkMangopayItems(booking, [taker]);
+    } else if (paymentProvider === 'stripe') {
+        checkStripeItems(booking, { taker });
+    }
 
     const payin = transactionManager.getPayinPayment();
 
@@ -314,18 +418,34 @@ async function cancelPayinPayment(booking, transactionManager, taker, paymentVal
 
     // do not perform refund if 0 amount
     if (amount) {
-        const mangopayRefundPayin = await PaymentMangopayService.cancelPayin({
-            booking,
-            transaction: payin,
-            taker,
-            amount,
-        });
+        let providerData;
+
+        if (paymentProvider === 'mangopay') {
+            const refund = await PaymentMangopayService.cancelPayin({
+                booking,
+                transaction: payin,
+                taker,
+                amount,
+            });
+
+            providerData = {
+                refund,
+            };
+        } else if (paymentProvider === 'stripe') {
+            const refund = await PaymentStripeService.cancelChargePayin({
+                booking,
+                transaction: payin,
+                amount,
+            });
+
+            providerData = {
+                refund,
+            };
+        }
 
         const resultTransaction = await TransactionService.cancelPayin({
             transaction: payin,
-            providerData: {
-                refund: mangopayRefundPayin,
-            },
+            providerData,
             amount,
             label: 'payment',
         });
@@ -355,8 +475,15 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
         return booking;
     }
 
-    checkMangopayItems(booking, [taker, owner]);
+    const paymentProvider = sails.config.paymentProvider;
 
+    if (paymentProvider === 'mangopay') {
+        checkMangopayItems(booking, [taker, owner]);
+    } else if (paymentProvider === 'stripe') {
+        checkStripeItems(booking, { owner, taker });
+    }
+
+    const payin = transactionManager.getPayinPayment();
     const transfer = transactionManager.getTransferPayment();
 
     const priceResult = PricingService.getPriceAfterRebateAndFees({ booking });
@@ -370,26 +497,45 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
     const amount     = paymentValues.amount;
     const ownerFees  = paymentValues.ownerFees;
     const takerFees  = paymentValues.takerFees;
-    const mgpSumFees = MathService.roundDecimal(ownerFees + takerFees, 2);
-    const mgpAmount  = MathService.roundDecimal(amount + mgpSumFees, 2);
 
     const skipProcessWithUpdate = (! amount && ! ownerFees && ! takerFees)
         || transfer;
 
     if (!skipProcessWithUpdate) {
-        const mangopayTransfer = await PaymentMangopayService.createTransfer({
-            booking,
-            taker,
-            owner,
-            amount: mgpAmount,
-            fees: mgpSumFees,
-        });
+        let providerData;
+
+        if (paymentProvider === 'mangopay') {
+            const mgpSumFees = MathService.roundDecimal(ownerFees + takerFees, 2);
+            const mgpAmount  = MathService.roundDecimal(amount + mgpSumFees, 2);
+
+            const transfer = await PaymentMangopayService.createTransfer({
+                booking,
+                taker,
+                owner,
+                amount: mgpAmount,
+                fees: mgpSumFees,
+            });
+
+            providerData = {
+                transfer,
+            };
+        } else if (paymentProvider === 'stripe') {
+            const transfer = await PaymentStripeService.createTransfer({
+                booking,
+                owner,
+                amount,
+                chargeId: payin.resourceId,
+                // transferGroup,
+            });
+
+            providerData = {
+                transfer,
+            };
+        }
 
         const resultTransaction = await TransactionService.createTransfer({
             booking,
-            providerData: {
-                transfer: mangopayTransfer,
-            },
+            providerData,
             amount,
             ownerFees,
             takerFees,
@@ -420,7 +566,13 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
  * @return {object} booking
  */
 async function cancelTransferPayment(booking, transactionManager, taker, paymentValues) {
-    checkMangopayItems(booking, [taker]);
+    const paymentProvider = sails.config.paymentProvider;
+
+    if (paymentProvider === 'mangopay') {
+        checkMangopayItems(booking, [taker]);
+    } else if (paymentProvider === 'stripe') {
+        checkStripeItems(booking, { taker });
+    }
 
     const transfer = transactionManager.getTransferPayment();
 
@@ -446,17 +598,33 @@ async function cancelTransferPayment(booking, transactionManager, taker, payment
     const refundOwnerFees = paymentValues.refundOwnerFees;
     const refundTakerFees = paymentValues.refundTakerFees;
 
-    const mangopayRefundTransfer = await PaymentMangopayService.cancelTransfer({
-        booking,
-        transaction: transfer,
-        taker,
-    });
+    let providerData;
+
+    if (paymentProvider === 'mangopay') {
+        const refund = await PaymentMangopayService.cancelTransfer({
+            booking,
+            transaction: transfer,
+            taker,
+        });
+
+        providerData = {
+            refund,
+        };
+    } else if (paymentProvider === 'stripe') {
+        const transferReversal = await PaymentStripeService.cancelTransfer({
+            booking,
+            transaction: transfer,
+            taker,
+        });
+
+        providerData = {
+            transferReversal,
+        };
+    }
 
     const resultTransaction = await TransactionService.cancelTransfer({
         transaction: transfer,
-        providerData: {
-            refund: mangopayRefundTransfer,
-        },
+        providerData,
         amount,
         refundOwnerFees,
         refundTakerFees,
@@ -484,7 +652,13 @@ async function payoutPayment(booking, transactionManager, owner, paymentValues) 
         return booking;
     }
 
-    checkMangopayItems(booking, [owner]);
+    const paymentProvider = sails.config.paymentProvider;
+
+    if (paymentProvider === 'mangopay') {
+        checkMangopayItems(booking, [owner]);
+    } else if (paymentProvider === 'stripe') {
+        checkStripeItems(booking, { owner });
+    }
 
     const priceResult = PricingService.getPriceAfterRebateAndFees({ booking });
 
@@ -499,17 +673,33 @@ async function payoutPayment(booking, transactionManager, owner, paymentValues) 
     const skipProcessWithUpdate = ! amount || payout;
 
     if (! skipProcessWithUpdate) {
-        const mangopayPayout = await PaymentMangopayService.createPayout({
-            booking,
-            owner,
-            amount,
-        });
+        let providerData;
+
+        if (paymentProvider === 'mangopay') {
+            const payout = await PaymentMangopayService.createPayout({
+                booking,
+                owner,
+                amount,
+            });
+
+            providerData = {
+                payout,
+            };
+        } else if (paymentProvider === 'stripe') {
+            const payout = await PaymentStripeService.createPayout({
+                booking,
+                owner,
+                amount,
+            });
+
+            providerData = {
+                payout,
+            };
+        }
 
         const resultTransaction = await TransactionService.createPayout({
             booking,
-            providerData: {
-                payout: mangopayPayout,
-            },
+            providerData,
             payoutAmount: amount,
             label: 'payment',
         });

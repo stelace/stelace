@@ -79,10 +79,15 @@ Sails.load(getConfig(), async function (err, sails) {
                     data.countryOfResidence = user.countryOfResidence;
                 }
 
-                await Kyc.create({
-                    userId: user.id,
-                    data,
-                });
+                const kyc = await Kyc.findOne({ userId: user.id });
+                if (kyc) {
+                    await Kyc.update({ id: kyc.id }, { data });
+                } else {
+                    await Kyc.create({
+                        userId: user.id,
+                        data,
+                    });
+                }
             } catch (err) {
                 // do nothing
             }

@@ -81,6 +81,7 @@ module.exports = {
 
     getAccessFields,
     parseMangopayData,
+    parseStripeData,
     fetchBankAccounts,
 
 };
@@ -163,13 +164,45 @@ function parseMangopayData(rawJson) {
     };
 }
 
+
+// https://stripe.com/docs/api/node#account_bank_account_object
+function parseStripeData(rawJson) {
+    const data = {
+        accountHolderType: rawJson.account_holder_type,
+        bankName: rawJson.bank_name,
+        country: rawJson.country,
+        currency: rawJson.currency,
+        last4: rawJson.last4,
+    };
+
+    return {
+        paymentProvider: 'stripe',
+        resourceOwnerId: rawJson.account,
+        resourceId: rawJson.id,
+        fingerprint: rawJson.fingerprint,
+        status: rawJson.status,
+        active: true,
+        ownerName: rawJson.account_holder_name,
+        data,
+    };
+}
+
 async function fetchBankAccounts(user) {
-    const resourceOwnerId = User.getMangopayUserId(user);
+    const paymentProvider = sails.config.paymentProvider;
+
+    let resourceOwnerId;
+    if (paymentProvider === 'mangopay') {
+        resourceOwnerId = User.getMangopayUserId(user);
+    } else if (paymentProvider === 'stripe') {
+        resourceOwnerId = User.getStripeAccountId(user);
+    }
+
     if (!resourceOwnerId) {
         return [];
     }
 
     const bankAccounts = await BankAccount.find({
+        paymentProvider,
         resourceOwnerId,
         active: true,
     });

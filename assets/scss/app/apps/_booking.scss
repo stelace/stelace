@@ -36,6 +36,7 @@
 
         input[type=radio] {
             outline: none;
+            margin-top: 2px;
         }
     }
 
@@ -212,5 +213,33 @@
         & ~ span {
             margin-left: 0.5rem; // avoid to change switch marigins
         }
+    }
+
+    .card-error {
+        color: #FF7800;
+    }
+
+    .StripeElement {
+        background-color: #FFF;
+        padding: 0.6rem;
+        border-radius: 2px;
+        border: 1px solid #CCC;
+    }
+
+    .StripeElement:hover {
+        border: 1px solid #BBB;
+    }
+
+    .StripeElement--focus {
+        border: 1px solid #999;
+    }
+
+    .StripeElement--invalid {
+        background-color: rgba(255, 120, 0, 0.1);
+        border: 1px solid rgba(255, 120, 0, 0.5);
+    }
+
+    .StripeElement--webkit-autofill {
+        background-color: #fefde5 !important;
     }
 }

@@ -18,6 +18,7 @@
                                 map,
                                 Restangular,
                                 pricing,
+                                StelaceConfig,
                                 toastr,
                                 tools,
                                 uiGmapGoogleMapApi,
@@ -68,6 +69,8 @@
         function activate() {
             // conversation bookingStatus is more accurate since updated
             vm.ctaTitle = _getCtaTitle((vm.conversation && vm.conversation.bookingStatus) || vm.message.bookingStatus);
+
+            vm.paymentProvider = StelaceConfig.getPaymentProvider();
 
             // no booking if booking status is 'info'
             if (vm.booking) {
@@ -141,7 +144,7 @@
                     // Populate account form
                     vm.firstName          = vm.currentUser.firstname;
                     vm.lastName           = vm.currentUser.lastname;
-                    vm.hasBankAccount = !!bankAccounts[0];
+                    vm.hasBankAccount     = !!bankAccounts[0];
                     vm.bankAccountMissing = loadIBANForm && ! vm.hasBankAccount;
 
                     vm.showBankAccountForm = true;
@@ -263,20 +266,23 @@
                 return;
             }
 
-            // Check if all needed info was provided to create MangopayAccount/wallet
-            // For creation only: e.g. do not prevent Sharinplace user from removing its lastname attribute...
-            if ((!paymentAccounts.mangopayAccount || !paymentAccounts.mangopayWallet)
-                && (
-                    ! vm.identity.birthday
-                    || ! vm.identity.nationality
-                    || ! vm.identity.countryOfResidence
-                    || ! vm.firstName
-                    || ! vm.lastName
-                )
-            ) {
-                toastr.warning("Il manque des informations nécessaires à la validation de la réservation.", "Informations bancaires");
-                vm.currentRequest = false;
-                return;
+            var isCompleteMangopay = paymentAccounts.mangopayAccount && paymentAccounts.mangopayWallet;
+            var isCompleteStripe = paymentAccounts.stripeAccount;
+            var isComplete = (vm.paymentProvider === 'mangopay' && isCompleteMangopay)
+                || (vm.paymentProvider === 'stripe' && isCompleteStripe);
+
+            // Check if all needed info was provider for bank account
+            if (!isComplete) {
+                if (! vm.identity.birthday
+                 || ! vm.identity.nationality
+                 || ! vm.identity.countryOfResidence
+                 || ! vm.firstName
+                 || ! vm.lastName
+                ) {
+                    toastr.warning("Il manque des informations nécessaires à la validation de la réservation.", "Informations bancaires");
+                    vm.currentRequest = false;
+                    return;
+                }
             }
 
             editingCurrentUser.firstname = vm.firstName;
@@ -299,29 +305,6 @@
                     }
 
                     return;
-                })
-                .then(function () {
-                    return UserService.getPaymentAccounts();
-                })
-                .then(function (paymentAccounts) {
-                    if (paymentAccounts.mangopayAccount && paymentAccounts.mangopayWallet) {
-                        return true;
-                    }
-
-                    return KycService.updateKyc(kyc, {
-                        birthday: vm.identity.birthday,
-                        nationality: vm.identity.nationality,
-                        countryOfResidence: vm.identity.countryOfResidence
-                    })
-                    .then(function (newKyc) {
-                        kyc = newKyc;
-
-                        return finance.createAccount();
-                    })
-                    .catch(function (err) {
-                        toastr.warning("Nous sommes désolés, veuillez réessayez plus tard.", "Oups, une erreur est survenue.");
-                        return $q.reject(err);
-                    });
                 })
                 .then(function () {
                     var updatingAddress = null;
@@ -369,42 +352,107 @@
                     }
                 })
                 .then(function () {
-                    if (! vm.iban) {
+                    if (isComplete) {
+                        return true;
+                    }
+
+                    return KycService.updateKyc(kyc, {
+                        birthday: vm.identity.birthday,
+                        nationality: vm.identity.nationality,
+                        countryOfResidence: vm.identity.countryOfResidence
+                    })
+                    .then(function (newKyc) {
+                        kyc = newKyc;
+
+                        if (vm.paymentProvider === 'mangopay') {
+                            return finance.createAccount();
+                        } else if (vm.paymentProvider === 'stripe') {
+                            return finance.createStripeAccountToken({
+                                legal_entity: {
+                                    first_name: vm.currentUser.firstname,
+                                    last_name: vm.currentUser.lastname,
+                                    address: {
+                                        line1: vm.currentUser.address.name,
+                                        city: vm.currentUser.address.city,
+                                        state: vm.currentUser.address.region,
+                                        postal_code: vm.currentUser.address.postalCode,
+                                    },
+                                },
+                                tos_shown_and_accepted: true
+                            })
+                            .then(function (res) {
+                                return finance.createAccount({
+                                    accountToken: res.token.id,
+                                    accountType: 'account',
+                                    country: kyc.data.countryOfResidence, // TODO: check the country associated with RIB
+                                });
+                            });
+                        }
+                    })
+                    .catch(function (err) {
+                        toastr.warning("Nous sommes désolés, veuillez réessayez plus tard.", "Oups, une erreur est survenue.");
+                        return $q.reject(err);
+                    });
+                })
+                .then(function () {
+                    if (!vm.hasBankAccount && ! vm.iban) {
                         toastr.warning("Veuillez renseigner votre IBAN.", "IBAN manquant");
                         vm.badIban = true;
                         return $q.reject("no iban");
                     }
 
-                    var createBankAccountAttrs = {
-                        ownerName: vm.firstName + " " + vm.lastName,
-                        ownerAddress: {
-                            AddressLine1: vm.currentUser.address.name,
-                            City: vm.currentUser.address.city,
-                            PostalCode: vm.currentUser.address.postalCode,
-                            Country: vm.identity.countryOfResidence, // TODO: get the country from the address
-                        },
-                        iban: vm.iban,
-                    };
+                    if (vm.paymentProvider === 'mangopay') {
+                        var createBankAccountAttrs = {
+                            ownerName: vm.firstName + " " + vm.lastName,
+                            ownerAddress: {
+                                AddressLine1: vm.currentUser.address.name,
+                                City: vm.currentUser.address.city,
+                                PostalCode: vm.currentUser.address.postalCode,
+                                Country: vm.identity.countryOfResidence, // TODO: get the country from the address
+                            },
+                            iban: vm.iban,
+                        };
 
-                    return finance.createBankAccount(createBankAccountAttrs)
-                        .then(function () {
-                            vm.hasBankAccount        = true;
-                            vm.bankAccountActive     = false;
-                            vm.showBankAccountToggle = true;
-                            _getCtaTitle();
-                            toastr.success("Merci\xa0! Nous pourrons vous transférer le montant de la location après signature de l'état des lieux initial.",
-                                "Coordonnées bancaires enregistrées");
+                        return finance.createBankAccount(createBankAccountAttrs)
+                            .then(_afterBankAccountCreationSuccess)
+                            .catch(_afterBankAccountCreationFail);
+                    } else if (vm.paymentProvider === 'stripe') {
+                        return finance.createStripeBankAccountToken({
+                            country: vm.identity.countryOfResidence,
+                            currency: 'eur', // handle other currencies
+                            routing_number: undefined,
+                            account_number: vm.iban,
+                            account_holder_name: vm.firstName + " " + vm.lastName,
+                            account_holder_type: vm.currentUser.userType
                         })
-                        .catch(function (err) {
-                            toastr.warning("Veuillez vérifier votre IBAN.", "Erreur lors de l'enregistrement de vos informations bancaires");
-                            vm.badIban = true;
-                            return $q.reject(err);
-                        });
+                        .then(function (res) {
+                            return finance.createBankAccount({
+                                accountToken: res.token.id
+                            });
+                        })
+                        .then(_afterBankAccountCreationSuccess)
+                        .catch(_afterBankAccountCreationFail);
+                    }
                 })
                 .finally(function () {
                     usSpinnerService.stop('booking-validation-spinner');
                     vm.currentRequest = false;
                 });
+        }
+
+        function _afterBankAccountCreationSuccess() {
+            vm.hasBankAccount        = true;
+            vm.bankAccountActive     = false;
+            vm.showBankAccountToggle = true;
+            _getCtaTitle();
+            toastr.success("Merci\xa0! Nous pourrons vous transférer le montant de la location après signature de l'état des lieux initial.",
+                "Coordonnées bancaires enregistrées");
+        }
+
+        function _afterBankAccountCreationFail(err) {
+            toastr.warning("Veuillez vérifier votre IBAN.", "Erreur lors de l'enregistrement de vos informations bancaires");
+            vm.badIban = true;
+            return $q.reject(err);
         }
 
         function _setBookingState() {

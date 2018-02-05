@@ -1,6 +1,6 @@
 /* global
     Booking, BookingGamificationService, CancellationService, Card, Conversation, GeneratorService,
-    PaymentError, PaymentMangopayService, StelaceEventService, Token, TransactionService, User
+    PaymentError, PaymentMangopayService, PaymentStripeService, StelaceEventService, Token, TransactionService, User
 */
 
 module.exports = {
@@ -101,6 +101,20 @@ async function createPreauthorization({ booking, cardId, operation, req, logger 
         result.providerData = {
             preauthorization,
         };
+    } else if (booking.paymentProvider === 'stripe') {
+        const charge = await PaymentStripeService.createCharge({
+            user: taker,
+            card,
+            amount,
+            currency: booking.currency,
+            capture: false,
+        });
+
+        result.providerData = {
+            charge,
+        };
+    } else {
+        throw new Error('Unknown payment provider');
     }
 
     return result;
@@ -149,6 +163,26 @@ async function afterPreauthorizationReturn({
         }
 
         transactionProviderData = { preauthorization };
+    } else if (booking.paymentProvider === 'stripe') {
+        const { charge } = providerData;
+
+        if (charge.status === 'failed') {
+            PaymentError.createStripeError({
+                req,
+                charge,
+                userId: booking.takerId,
+                bookingId: booking.id,
+            }).catch(() => { /* do nothing */ });
+
+            throw createError('Preauthorization fail', {
+                charge,
+                errorType: 'fail',
+                resultCode: charge.outcome.type,
+                outcome: charge.outcome,
+            });
+        }
+
+        transactionProviderData = { charge };
     }
 
     const preauthAmount = _getAmount(booking, operation);

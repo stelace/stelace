@@ -130,6 +130,8 @@ module.exports = {
     //     }
     // },
 
+    paymentProvider: '', // 'mangopay' or 'stripe'
+
     mangopay: {
         sandbox: {
             clientId: "",
@@ -144,6 +146,11 @@ module.exports = {
         },
 
         workspace: "sandbox" // change to production if ready
+    },
+
+    stripe: {
+        publishKey: '',
+        secretKey: '',
     },
 
     sparkpost: {

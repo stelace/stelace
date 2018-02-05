@@ -208,7 +208,7 @@ async function updateUser(userId, attrs = {}) {
         newsletter,
     };
 
-    if (updateAttrs.userType && foundUser.userType && updateAttrs.userType !== foundUser.userType) {
+    if (updateAttrs.userType && !User.canChangeUserType(foundUser) && updateAttrs.userType !== foundUser.userType) {
         throw createError(400, 'Cannot change the user type');
     }
 

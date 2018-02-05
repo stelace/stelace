@@ -242,8 +242,13 @@ module.exports = {
 
     getMangopayUserId,
     getMangopayWalletId,
+    getStripeCustomerId,
+    getStripeAccountId,
+    hasPaymentAccount,
 
     isValidUserType,
+    canChangeUserType,
+
     getMergedPaymentData,
     createMangopayUser,
     createWallet,
@@ -457,8 +462,28 @@ function getMangopayWalletId(user) {
     }
 }
 
+function getStripeCustomerId(user) {
+    return _.get(user, 'paymentData.stripe.customerId');
+}
+
+function getStripeAccountId(user) {
+    return _.get(user, 'paymentData.stripe.accountId');
+}
+
+function hasPaymentAccount(user) {
+    const mangopayUserId = getMangopayUserId(user);
+    const stripeCustomerId = getStripeCustomerId(user);
+    const stripeAccountId = getStripeAccountId(user);
+
+    return !!(mangopayUserId || stripeCustomerId || stripeAccountId);
+}
+
 function isValidUserType(userType) {
     return _.includes(['individual', 'organization'], userType);
+}
+
+function canChangeUserType(user) {
+    return !hasPaymentAccount(user);
 }
 
 function getMergedPaymentData(user, newPaymentData) {

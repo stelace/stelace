@@ -160,6 +160,7 @@ module.exports = {
     isExpiredAt,
     parseMangopayExpirationDate,
     parseMangopayData,
+    parseStripeData,
 
 };
 
@@ -215,7 +216,15 @@ function hasUnknownStatus(card) {
 }
 
 async function fetchCards(user) {
-    const resourceOwnerId = User.getMangopayUserId(user);
+    const paymentProvider = sails.config.paymentProvider;
+
+    let resourceOwnerId;
+    if (paymentProvider === 'mangopay') {
+        resourceOwnerId = User.getMangopayUserId(user);
+    } else if (paymentProvider === 'stripe') {
+        resourceOwnerId = User.getStripeCustomerId(user);
+    }
+
     if (!resourceOwnerId) {
         return [];
     }
@@ -228,17 +237,22 @@ async function fetchCards(user) {
 
     const oneHourAgo = moment().subtract(1, 'h').toISOString();
 
-    // if mangopay
-    findAttrs = Object.assign(findAttrs, {
-        paymentProvider: 'mangopay',
-        or: [
-            { validity: 'VALID' },
-            {
-                validity: 'UNKNOWN',
-                createdDate: { '>': oneHourAgo },
-            },
-        ],
-    });
+    if (paymentProvider === 'mangopay') {
+        findAttrs = Object.assign(findAttrs, {
+            paymentProvider: 'mangopay',
+            or: [
+                { validity: 'VALID' },
+                {
+                    validity: 'UNKNOWN',
+                    createdDate: { '>': oneHourAgo },
+                },
+            ],
+        });
+    } else { // paymentProvider === 'stripe'
+        findAttrs = Object.assign(findAttrs, {
+            paymentProvider: 'stripe',
+        });
+    }
 
     const cards = await Card.find(findAttrs);
     return cards;
@@ -306,6 +320,46 @@ function parseMangopayData(rawJson) {
         active: rawJson.Active,
         validity: rawJson.Validity,
         fingerprint: rawJson.Fingerprint,
+        data,
+    };
+}
+
+// https://stripe.com/docs/api/node#card_object
+function parseStripeData(rawJson) {
+    const locationFields = [
+        'address_city',
+        'address_country',
+        'address_line1',
+        'address_line1_check',
+        'address_line2',
+        'address_state',
+        'address_zip',
+        'address_zip_check',
+    ];
+
+    const data = {
+        ownerName: rawJson.name,
+        funding: rawJson.funding,
+    };
+
+    locationFields.forEach(field => {
+        data[field] = rawJson[field];
+    });
+
+    return {
+        paymentProvider: 'stripe',
+        resourceOwnerId: rawJson.customer,
+        resourceId: rawJson.id,
+        expirationMonth: rawJson.exp_month,
+        expirationYear: rawJson.exp_year,
+        country: rawJson.country,
+        currency: null,
+        provider: null,
+        type: rawJson.brand,
+        alias: rawJson.last4,
+        active: true,
+        validity: null,
+        fingerprint: rawJson.fingerprint,
         data,
     };
 }

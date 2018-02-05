@@ -1,4 +1,4 @@
-/* global BankAccount, PaymentMangopayService, User */
+/* global BankAccount, PaymentMangopayService, PaymentStripeService, User */
 
 /**
  * FinanceController
@@ -20,6 +20,8 @@ module.exports = {
     createBankAccount,
 
 };
+
+const createError = require('http-errors');
 
 function find(req, res) {
     return res.forbidden();
@@ -43,9 +45,37 @@ function destroy(req, res) {
 
 async function createAccount(req, res) {
     const access = 'self';
+    const {
+        accountType,
+        accountToken,
+        country,
+    } = req.allParams();
 
-    let user = await PaymentMangopayService.createUser(req.user);
-    user = await PaymentMangopayService.createWallet(user); // TODO: take website currency
+    const paymentProvider = sails.config.paymentProvider;
+
+    let user = req.user;
+
+    if (paymentProvider === 'mangopay') {
+        user = await PaymentMangopayService.createUser(user);
+        user = await PaymentMangopayService.createWallet(user); // TODO: take website currency
+    } else if (paymentProvider === 'stripe') {
+        if (!accountType) {
+            throw createError(400, 'Account type missing');
+        }
+
+        if (accountType === 'customer') {
+            user = await PaymentStripeService.createCustomer(user);
+        } else if (accountType === 'account') {
+            if (!accountToken) {
+                throw createError(400, 'Missing account token');
+            }
+            user = await PaymentStripeService.createAccount(user, { accountToken, country });
+        } else {
+            throw createError(400, 'Unknown account type');
+        }
+    } else {
+        throw new Error('Unknown payment provider');
+    }
 
     res.json(User.expose(user, access));
 }
@@ -62,6 +92,14 @@ async function createBankAccount(req, res) {
 
     const access = 'self';
 
-    const bankAccount = await PaymentMangopayService.createBankAccount(req.user, attrs);
+    const paymentProvider = sails.config.paymentProvider;
+
+    let bankAccount;
+    if (paymentProvider === 'mangopay') {
+        bankAccount = await PaymentMangopayService.createBankAccount(req.user, attrs);
+    } else if (paymentProvider === 'stripe') {
+        bankAccount = await PaymentStripeService.createBankAccount(req.user, attrs);
+    }
+
     res.json(BankAccount.expose(bankAccount, access));
 }
