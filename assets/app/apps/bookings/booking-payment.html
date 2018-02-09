@@ -171,7 +171,20 @@
                         </div>
                     </div>
                     <div ng-include="'/assets/app/templates/select-birthday.html'"></div>
-                    <div ng-include="'/assets/app/templates/select-country-short.html'"></div>
+                    <label for="select-country">
+                        Pays
+                    </label>
+                    <select id="select-country" name="booking-country"
+                        ng-model="vm.identity.countryOfResidence"
+                        data-stl-select-country
+                        data-lang="fr"
+                        ng-change="vm.checkCountry()"
+                        ng-class="{'force-invalid': vm.euroCountryWarning}">
+                    </select>
+                    <div class="form-warning text--semibold"
+                        uib-collapse="! vm.euroCountryWarning">
+                        Seuls les paiements en euros sont acceptés.
+                    </div>
                     <!-- <button class="button" ng-click="vm.createAccount()">Enregistrer mon identité</button> -->
                 </div>
 
