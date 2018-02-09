@@ -199,8 +199,18 @@
                                             required>
                                     </div>
                                 </div>
-                                <div ng-if="! vm.hasBankAccount"
-                                    ng-include="'/assets/app/templates/select-birthday.html'"></div>
+                                <div ng-if="!vm.hasBankAccount">
+                                    <label for="select-birth-day">
+                                        Date de naissance&nbsp;
+                                        <span class="badge tooltip-badge"
+                                            data-tooltip-placement="auto top"
+                                            data-tooltip-trigger="mouseenter outsideClick"
+                                            uib-tooltip="Seuls les majeurs sont autorisés à effectuer des transactions sur Sharinplace.">
+                                            ?
+                                        </span>
+                                    </label>
+                                    <div data-stl-select-birthday data-birth-date="{{vm.identity.birthday}}" on-change="vm.onChangeBirthday(date)"></div>
+                                </div>
                                 <label>Adresse indiquée sur mon RIB</label>
                                 <input
                                     ng-if="vm.isGoogleMapSDKReady"

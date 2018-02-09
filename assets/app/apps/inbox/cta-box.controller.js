@@ -37,12 +37,6 @@
         vm.showBankAccountForm   = false;
         vm.bankAccountActive     = false;
         vm.showBankAccountToggle = false;
-        vm.thisYear              = moment().year();
-        vm.thisMonth             = moment().month() + 1;
-        vm.birthDay              = "23";  // http://www.ladepeche.fr/article/2013/09/23/1715135-23-septembre-jour-plus-naissance.html
-        vm.birthMonth            = "09";
-        vm.birthYear             = 1990; // int required for default to match in ng-options
-        vm.birthYears            = _.range((vm.thisYear - 18), 1900, -1);
         vm.showContract          = false;
         vm.contractUrl           = null;
         vm.contractTarget        = "_blank";
@@ -55,6 +49,7 @@
             watchEnter: true
         };
 
+        vm.onChangeBirthday = onChangeBirthday;
         vm.reveal            = reveal;
         vm.accept            = accept;
         vm.afterAccept       = afterAccept;
@@ -139,15 +134,6 @@
                     vm.iban               = vm.currentUser.iban;
                     vm.hasBankAccount     = vm.currentUser.bankAccount;
                     vm.bankAccountMissing = loadIBANForm && ! vm.hasBankAccount;
-
-                    if (vm.currentUser.birthday) {
-                        var birth = vm.currentUser.birthday.split('-');
-                        if (birth.length === 3) {
-                            vm.birthYear  = parseInt(birth[0], 10); // required for match in ng-options
-                            vm.birthMonth = birth[1];
-                            vm.birthDay   = birth[2];
-                        }
-                    }
 
                     vm.showBankAccountForm = true;
 
@@ -257,14 +243,16 @@
             }
         }
 
+        function onChangeBirthday(date) {
+            vm.identity.birthday = date;
+        }
+
         function createBankAccount() {
             var editingCurrentUser = Restangular.copy(vm.currentUser);
 
             if (vm.currentRequest) { // debounce
                 return;
             }
-
-            vm.identity.birthday = "" + vm.birthYear + "-" + vm.birthMonth + "-" + vm.birthDay; // ISO
 
             // Check if all needed info was provided to create MangopayAccount/wallet
             // For creation only: e.g. do not prevent Sharinplace user from removing its lastname attribute...
@@ -286,13 +274,6 @@
             editingCurrentUser.firstname = vm.firstName;
             editingCurrentUser.lastname  = vm.lastName;
             editingCurrentUser.iban      = vm.iban;
-
-            if (vm.birthDay !== "23"
-             || vm.birthMonth !== "09"
-             || vm.birthYear !== 1990
-            ) {
-                editingCurrentUser.birthday = vm.identity.birthday;
-            }
 
             return $q.when(true)
                 .then(function () {

@@ -45,12 +45,6 @@
         vm.booking              = null;
         vm.showEmail            = false;
         vm.newCard              = {};
-        vm.thisYear             = moment().year();
-        vm.thisMonth            = moment().month() + 1;
-        vm.birthDay             = "23";  // http://www.ladepeche.fr/article/2013/09/23/1715135-23-septembre-jour-plus-naissance.html
-        vm.birthMonth           = "09";
-        vm.birthYear            = 1990; // int required for default to match in ng-options
-        vm.birthYears           = _.range((vm.thisYear - 18), 1900, -1);
         vm.reuseCard            = true; // default
         vm.rememberCard         = true; // default
         vm.promptPhoneHighlight = false;
@@ -59,6 +53,7 @@
 
         vm.footerTestimonials   = true;
 
+        vm.onChangeBirthday = onChangeBirthday;
         vm.cardsToggle   = cardsToggle;
         vm.checkCountry  = checkCountry;
         vm.createAccount = createAccount;
@@ -168,16 +163,6 @@
                 // Populate account form
                 vm.firstName = vm.currentUser.firstname;
                 vm.lastName  = vm.currentUser.lastname;
-                if (vm.currentUser.birthday
-                  && ! isNaN(new Date(vm.identity.birthday)) // valid date
-                ) {
-                    var birth = vm.currentUser.birthday.split('-');
-                    if (birth.length === 3) {
-                        vm.birthYear  = parseInt(birth[0], 10); // required for match in ng-options
-                        vm.birthMonth = birth[1];
-                        vm.birthDay   = birth[2];
-                    }
-                }
 
                 if (vm.booking.startDate && vm.booking.endDate) {
                     vm.startDate = _displayDate(vm.booking.startDate);
@@ -276,6 +261,10 @@
             return moment(date).format("ddd D MMM YYYY");
         }
 
+        function onChangeBirthday(date) {
+            vm.identity.birthday = date;
+        }
+
         function createAccount() {
             var updateAttrs = [
                 "firstname",
@@ -288,7 +277,6 @@
             }
 
             var editingCurrentUser = Restangular.copy(vm.currentUser);
-            vm.identity.birthday = "" + vm.birthYear + "-" + vm.birthMonth + "-" + vm.birthDay; // ISO
             var validBirthday    = ! isNaN(new Date(vm.identity.birthday));
 
             // Check if all needed info was provided
@@ -313,10 +301,7 @@
             if (! vm.currentUser.lastname && vm.lastName) {
                 editingCurrentUser.lastname = vm.lastName;
             }
-            if (validBirthday
-             && ($scope.paymentForm.takerBirthDay.$dirty || $scope.paymentForm.takerBirthMonth.$dirty || $scope.paymentForm.takerBirthYear.$dirty)
-            ) {
-                // At least one of inputs has changed... Not very safe anyway
+            if (vm.identity.birthday) {
                 editingCurrentUser.birthday = vm.identity.birthday;
             }
 
