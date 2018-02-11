@@ -151,24 +151,6 @@ module.exports = {
             columnType: 'varchar(255)',
             allowNull: true,
         },
-        birthday: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        nationality: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        countryOfResidence: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
         address: {
             type: 'json',
             columnType: 'json',
@@ -182,24 +164,6 @@ module.exports = {
             type: 'boolean',
             columnType: 'tinyint(1)',
             defaultsTo: true,
-        },
-        mangopayUserId: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        walletId: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        bankAccountId: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
         },
         paymentData: {
             type: 'json',
@@ -220,12 +184,6 @@ module.exports = {
             type: 'boolean',
             columnType: 'tinyint(1)',
             defaultsTo: false,
-        },
-        iban: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
         },
         newsletter: { // if true, we can send newsletter
             type: 'boolean',

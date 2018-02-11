@@ -52,24 +52,6 @@ module.exports = {
             columnType: 'json',
             defaultsTo: {},
         },
-        fromWalletId: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        toWalletId: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        bankAccountId: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
         credit: {
             type: 'number',
             columnType: 'float',

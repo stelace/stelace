@@ -25,13 +25,6 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
         },
-        mangopayId: {
-            type: 'string',
-            columnType: 'varchar(191)',
-            allowNull: true,
-            maxLength: 191,
-            // index: true,
-        },
         paymentProvider: { // 'stripe' or 'mangopay'
             type: 'string',
             columnType: 'varchar(255)',
@@ -67,12 +60,6 @@ module.exports = {
             type: 'number',
             columnType: 'int',
             allowNull: true,
-        },
-        expirationDate: { // "MMYY"
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
         },
         currency: {
             type: 'string',
@@ -130,24 +117,6 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
             allowNull: true,
-        },
-
-        /*
-            hash1 and hash2 are for card number unicity
-            identical card number:
-            cardA.hash1 === cardB.hash1 && cardA.hash2 === cardB.hash2
-        */
-        hash1: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
-        hash2: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
         },
     },
 
