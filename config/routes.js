@@ -179,6 +179,7 @@ module.exports.routes = {
     'post /api/v0.1/bookings/:id/cancel': { target: 'v0_1/BookingController.cancel', cors: apiCors },
 
     'get /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.findEditable', cors: apiCors },
+    'patch /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.updateEditable', cors: apiCors },
 
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
     'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },

@@ -180,7 +180,8 @@ module.exports.policies = {
     },
 
     'v0_1/ContentEntriesController': {
-        '*': true,
+        '*': ['isApiAuthenticated'],
+        'findEditable': true,
     },
 
     'v0_1/ListingController': {
