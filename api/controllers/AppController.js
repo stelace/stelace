@@ -1,4 +1,4 @@
-/* global Listing, SeoSnapshotService, StelaceConfigService, StelaceEventService, Tag, Token, TokenService, ToolsService, UAService, User */
+/* global ContentEntriesService, Listing, SeoSnapshotService, StelaceConfigService, StelaceEventService, Tag, Token, TokenService, ToolsService, UAService, User */
 
 /**
  * AppController
@@ -89,9 +89,22 @@ function index(req, res) {
 
         var seoConfig = yield getSeoConfig(req.url);
 
+        let lang = config.lang;
+        if (!ContentEntriesService.isLangAllowed(lang)) {
+            lang = ContentEntriesService.getDefaultLang();
+        }
+
+        const currency = config.currency || StelaceConfigService.getDefaultCurrency();
+
+        // pre-load translations for client-side
+        const translations = yield ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
+
         const dataFromServer = {
             config,
             features,
+            lang,
+            currency,
+            translations,
             paymentProvider: sails.config.paymentProvider,
             stripePublishKey: sails.config.stripe.publishKey,
         };
@@ -101,6 +114,7 @@ function index(req, res) {
         var viewParams = {
             layout: "layouts/app",
             env: "prod",
+            lang,
             facebookAppId: sails.config.facebookAppId,
             facebookTracking: clientTracking && clientTracking.facebook,
             googleTracking: clientTracking && clientTracking.google,

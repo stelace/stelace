@@ -3,6 +3,7 @@
 module.exports = {
 
     getTimeGranularities,
+    getDefaultCurrency,
 
     getConfig,
 
@@ -78,8 +79,14 @@ const timeGranularities = [
     'M', // months
 ];
 
+const defaultCurrency = 'EUR';
+
 function getTimeGranularities() {
     return timeGranularities;
+}
+
+function getDefaultCurrency() {
+    return defaultCurrency;
 }
 
 async function _fetchConfig() {

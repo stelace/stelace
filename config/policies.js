@@ -63,6 +63,10 @@ module.exports.policies = {
         "*": true
     },
 
+    ContentEntriesController: {
+        findLanguage: true,
+    },
+
     EmailTrackingController: {
         mandrill: true,
         sparkpost: true,

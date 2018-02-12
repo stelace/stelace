@@ -12,6 +12,7 @@
                             $logProvider,
                             $httpProvider,
                             $sceDelegateProvider,
+                            $translateMessageFormatInterpolationProvider,
                             $uibTooltipProvider,
                             ezfbProvider,
                             lazyImgConfigProvider,
@@ -41,24 +42,43 @@
         $locationProvider
             .html5Mode(true);
 
-        $translateProvider
-            .registerAvailableLanguageKeys(["en", "fr"/*, "fr_FR"*/], {
-                "en_*": "en",
-                // "fr_FR": "fr_FR",
-                "fr_*": "fr"
-            })
-            .fallbackLanguage(["en", "fr"])
-            .determinePreferredLanguage();
+        var lang = window.dataFromServer.lang;
+        var currency = window.dataFromServer.currency;
+        var translations = window.dataFromServer.translations;
+        var fallbackLanguages = ['en'];
 
         $translateProvider
+            .registerAvailableLanguageKeys(["en", "fr"], {
+                "en_*": "en",
+                "fr_*": "fr"
+            });
+
+        if (typeof translations === 'object') {
+            $translateProvider
+                .translations(lang, translations)
+                .use(lang);
+
+            fallbackLanguages = [lang];
+        }
+
+        $translateProvider
+            .fallbackLanguage(fallbackLanguages)
             .useMessageFormatInterpolation()
             .useSanitizeValueStrategy("sceParameters") // better than "santitize" for UTF-8 chars
-            .useLocalStorage()
-            .useLoaderCache('$translationCache')
+            // .useLocalStorage()
+            // .useLoaderCache('$translationCache')
             .useStaticFilesLoader({
-                prefix: "assets/translations/",
-                suffix: ".json"
+                prefix: "/api/contents/entries/",
+                suffix: ""
             });
+
+        $translateMessageFormatInterpolationProvider.messageFormatConfigurer(function (mf) {
+            mf.intlSupport = true;
+
+            if (currency) {
+                mf.currency = currency;
+            }
+        });
 
         lazyImgConfigProvider.setOptions({
             offset: 100, // how early you want to load image (default = 100)

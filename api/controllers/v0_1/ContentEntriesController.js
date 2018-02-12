@@ -11,7 +11,7 @@ async function findEditable(req, res) {
     const attrs = req.allParams();
 
     // TODO: expose languages supported in config
-    const lang = ['fr', 'en'].includes(attrs.locale) ? attrs.locale : 'en';
+    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
 
     const translations = await ContentEntriesService.getTranslations({ lang, displayContext: true, onlyEditableKeys: true });
     const metadata = await ContentEntriesService.getMetadata(lang);
@@ -25,7 +25,7 @@ async function findEditable(req, res) {
 async function updateEditable(req, res) {
     const attrs = req.allParams();
 
-    const lang = ['fr', 'en'].includes(attrs.locale) ? attrs.locale : 'en';
+    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
 
     await ContentEntriesService.updateUserTranslations({ lang, newTranslations: attrs.translations });
 

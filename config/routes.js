@@ -81,6 +81,9 @@ module.exports.routes = {
     'get /api/card/my': "CardController.my",
     'post /api/card/registration': "CardController.createCardRegistration",
 
+    // ContentEntriesController
+    'get /api/contents/entries/:lang': 'ContentEntriesController.findLanguage',
+
     // ClientLogController
     'post /api/clientLog/error': "ClientLogController.error",
 

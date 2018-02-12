@@ -2,6 +2,7 @@
 
 module.exports = {
 
+    getDefaultLang,
     isLangAllowed,
 
     getTranslations,
@@ -24,6 +25,7 @@ Promise.promisifyAll(fs);
 const editableKeyLabelSuffix = '__EDITOR_LABEL';
 const editableKeyHelperSuffix = '__EDITOR_HELPER';
 
+const defaultLang = 'en';
 const allowedLangs = ['en', 'fr'];
 
 const translationFolder = path.join(__dirname, '../../translations');
@@ -31,6 +33,10 @@ const translationFolder = path.join(__dirname, '../../translations');
 let cachedDefaultTranslations = {};
 let cachedUserTranslations = {};
 let cachedMetadatas = {};
+
+function getDefaultLang() {
+    return defaultLang;
+}
 
 function isLangAllowed(lang) {
     return _.includes(allowedLangs, lang);
@@ -243,24 +249,28 @@ function computeTranslations({
     const workingKeys = onlyEditableKeys ? editableKeys : keys;
 
     workingKeys.forEach(key => {
-        const value = _.get(userTranslations, key) || _.get(translations, key);
+        const userTranslation = _.get(userTranslations, key);
 
-        if (value) {
-            _.set(computedTranslations, key, value);
+        const isEmptyValue = value => {
+            return typeof value === 'undefined' || value === null;
+        };
 
-            if (displayContext) {
-                const labelKey = getLabelKey(key);
-                const helperKey = getHelperKey(key);
+        const value = !isEmptyValue(userTranslation) ? userTranslation : _.get(translations, key);
 
-                const label = _.get(translations, labelKey);
-                const helper = _.get(translations, helperKey);
+        _.set(computedTranslations, key, value);
 
-                if (label) {
-                    _.set(computedTranslations, labelKey, label);
-                }
-                if (helper) {
-                    _.set(computedTranslations, helperKey, helper);
-                }
+        if (displayContext) {
+            const labelKey = getLabelKey(key);
+            const helperKey = getHelperKey(key);
+
+            const label = _.get(translations, labelKey);
+            const helper = _.get(translations, helperKey);
+
+            if (label) {
+                _.set(computedTranslations, labelKey, label);
+            }
+            if (helper) {
+                _.set(computedTranslations, helperKey, helper);
             }
         }
     });

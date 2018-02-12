@@ -526,9 +526,9 @@ gulp.task('default', ['build', 'browser-sync'], function () {
 
     gulp.watch("assets/img/**/*", ["serve:images:dev"]);
 
-    gulp.watch("translations/**/*.yaml", ['build:translations']);
+    // gulp.watch("translations/**/*.yaml", ['build:translations']);
 
-    gulp.watch("translations/*.json", ['serve:translations', 'watch:translations:cache']);
+    // gulp.watch("translations/*.json", ['serve:translations', 'watch:translations:cache']);
 
     gulp.watch("assets/scss/**/*", ["watch:sass:dev"]);
 
@@ -537,8 +537,8 @@ gulp.task('default', ['build', 'browser-sync'], function () {
 
 gulp.task('build', function (cb) {
     runSequence(
-        ['build:app-pre:dev', 'build:app:dev', 'build:app-lib', 'build:app-templates', 'build:sass:dev', 'build:sprites-svg:dev', 'build:translations'],
-        ['serve:root', 'serve:translations', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components', 'build:translations:cache'],
+        ['build:app-pre:dev', 'build:app:dev', 'build:app-lib', 'build:app-templates', 'build:sass:dev', 'build:sprites-svg:dev', /*'build:translations'*/],
+        ['serve:root', /*'serve:translations', */'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components', /*'build:translations:cache'*/],
         'linker:dev',
         cb
     );
@@ -546,9 +546,9 @@ gulp.task('build', function (cb) {
 
 gulp.task('build-prod', function (cb) {
     runSequence(
-        ['build:app-templates', 'build:translations'],
-        ['build:app-pre:prod', 'build:app:prod', 'build:sass:prod', 'build:sprites-svg:prod', 'build:translations:cache'],
-        ['serve:root', 'serve:translations', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
+        ['build:app-templates'/*, 'build:translations'*/],
+        ['build:app-pre:prod', 'build:app:prod', 'build:sass:prod', 'build:sprites-svg:prod'/*, 'build:translations:cache'*/],
+        ['serve:root', /*'serve:translations',*/ 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
         ['linker:prod', 'cache-bust'],
         'compress',
         cb
