@@ -35,7 +35,9 @@ module.exports = {
         },
 
         // Stelace SaaS or custom dashboard base url
-        dashboardUrl: '' // http://localhost:8080 if served at http://localhost:8080/dashboard
+        dashboardUrl: '', // http://localhost:8080 if served at http://localhost:8080/dashboard
+
+        superAdmin: false,
     },
 
 

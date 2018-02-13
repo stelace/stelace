@@ -5,6 +5,9 @@ module.exports = {
     findEditable,
     updateEditable,
 
+    findDefault,
+    updateDefault,
+
 };
 
 async function findEditable(req, res) {
@@ -27,7 +30,30 @@ async function updateEditable(req, res) {
 
     const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
 
-    await ContentEntriesService.updateUserTranslations({ lang, newTranslations: attrs.translations });
+    await ContentEntriesService.updateUserTranslations(lang, attrs.translations);
+
+    res.json({ ok: true });
+}
+
+async function findDefault(req, res) {
+    const attrs = req.allParams();
+
+    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
+
+    const translations = await ContentEntriesService.fetchDefaultTranslations(lang);
+    res.json(translations);
+}
+
+async function updateDefault(req, res) {
+    if (!sails.config.stelace.superAdmin) {
+        return res.forbidden();
+    }
+
+    const attrs = req.allParams();
+
+    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
+
+    await ContentEntriesService.updateTranslations(lang, attrs.translations);
 
     res.json({ ok: true });
 }

@@ -186,6 +186,7 @@ module.exports.policies = {
     'v0_1/ContentEntriesController': {
         '*': ['isApiAuthenticated'],
         'findEditable': true,
+        'findDefault': true,
     },
 
     'v0_1/ListingController': {

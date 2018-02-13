@@ -6,6 +6,10 @@ module.exports = {
     isLangAllowed,
 
     getTranslations,
+    fetchDefaultTranslations,
+    updateDefaultTranslations,
+
+    updateTranslations,
     updateUserTranslations,
     refreshTranslations,
     getMetadata,
@@ -87,8 +91,25 @@ async function _getTranslations(lang) {
     };
 }
 
-async function updateUserTranslations({ lang, newTranslations }) {
-    const { keys } = parseMetadata(newTranslations);
+async function updateTranslations(lang, newTranslations) {
+    const keys = getAllKeys(newTranslations);
+
+    const existingTranslations = await fetchDefaultTranslations(lang);
+    const existingKeys = getAllKeys(existingTranslations);
+
+    const filteredKeys = _.intersection(keys, existingKeys);
+
+    const updatingTranslations = Object.assign({}, existingTranslations);
+
+    filteredKeys.forEach(key => {
+        _.set(updatingTranslations, key, _.get(newTranslations, key));
+    });
+
+    await updateDefaultTranslations(lang, updatingTranslations);
+}
+
+async function updateUserTranslations(lang, newTranslations) {
+    const keys = getAllKeys(newTranslations);
     const { metadata } = await _getTranslations(lang);
 
     const editableKeys = _.intersection(keys, metadata.editableKeys); // filter out non valid editable keys
@@ -140,6 +161,13 @@ async function fetchDefaultTranslations(lang) {
     return cachedDefaultTranslations[lang];
 }
 
+async function updateDefaultTranslations(lang, translations) {
+    const filepath = path.join(translationFolder, `${lang}.json`);
+    await fs.writeFileAsync(filepath, JSON.stringify(translations, null, 4), 'utf8');
+
+    cachedDefaultTranslations[lang] = translations;
+}
+
 async function fetchUserTranslations(lang) {
     if (cachedUserTranslations[lang]) {
         return cachedUserTranslations[lang];
@@ -168,6 +196,28 @@ function parseMetadata(translations) {
         editableKeys,
         helpers,
     };
+}
+
+function getAllKeys(obj) {
+    const keys = [];
+
+    _getAllKeys({ obj, keys });
+
+    return keys;
+}
+
+function _getAllKeys({ obj, currentPath = '', keys }) {
+    for (const key in obj) {
+        if (obj[key] instanceof Object) { // avoid null value
+            _getAllKeys({
+                obj: obj[key],
+                currentPath: getKeyPath(currentPath, key),
+                keys,
+            });
+        } else {
+            keys.push(getKeyPath(currentPath, key));
+        }
+    }
 }
 
 function loopTranslationsKeys({ translations, currentPath = '', editableKeys, keys, helpers }) {
