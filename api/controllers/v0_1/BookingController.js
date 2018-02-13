@@ -33,7 +33,11 @@ async function find(req, res) {
 
         const fetchBookings = () => {
             if (pagination) {
-                return Booking.find().sort(sorting).paginate(pagination.page, pagination.limit);
+                return Booking
+                    .find()
+                    .sort(sorting)
+                    .skip((pagination.page - 1) * pagination.limit)
+                    .limit(pagination.limit);
             } else {
                 return Booking.find().sort(sorting);
             }

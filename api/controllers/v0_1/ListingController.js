@@ -53,7 +53,11 @@ async function find(req, res) {
 
         const fetchListings = () => {
             if (pagination) {
-                return Listing.find(Object.assign({}, findAttrs)).sort(sorting).paginate(pagination.page, pagination.limit);
+                return Listing
+                    .find(Object.assign({}, findAttrs))
+                    .sort(sorting)
+                    .skip((pagination.page - 1) * pagination.limit)
+                    .limit(pagination.limit);
             } else {
                 return Listing.find(Object.assign({}, findAttrs)).sort(sorting);
             }

@@ -54,7 +54,11 @@ async function find(req, res) {
 
         const fetchUsers = () => {
             if (pagination) {
-                return User.find(Object.assign({}, findAttrs)).sort(sorting).paginate(pagination.page, pagination.limit);
+                return User
+                    .find(Object.assign({}, findAttrs))
+                    .sort(sorting)
+                    .skip((pagination.page - 1) * pagination.limit)
+                    .limit(pagination.limit);
             } else {
                 return User.find(Object.assign({}, findAttrs)).sort(sorting);
             }
