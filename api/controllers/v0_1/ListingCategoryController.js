@@ -31,7 +31,7 @@ async function find(req, res) {
                 GROUP BY listingCategoryId
             `;
 
-            const countListings = await Listing.query(sqlQuery);
+            const countListings = await Listing.sendNativeQuery(sqlQuery);
             const indexedCountListings = _.indexBy(countListings, 'listingCategoryId');
 
             const hashParentCount = {};
