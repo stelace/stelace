@@ -1,25 +1,12 @@
-/* global StelaceConfigService, TokenService */
-
-/**
- * StelaceConfigController
- *
- * @description :: Server-side logic for managing stelaceconfigs
- * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
- */
+/* global StelaceConfigService */
 
 module.exports = {
 
-    find,
     findOne,
-    create,
     update,
-    destroy,
 
 };
 
-function find(req, res) {
-    res.forbidden();
-}
 
 async function findOne(req, res) {
     const config = await StelaceConfigService.getConfig();
@@ -31,15 +18,7 @@ async function findOne(req, res) {
     });
 }
 
-function create(req, res) {
-    res.forbidden();
-}
-
 async function update(req, res) {
-    if (!TokenService.isRole(req, 'admin')) {
-        return res.forbidden();
-    }
-
     const { config, features } = req.allParams();
 
     const result = {};
@@ -52,8 +31,4 @@ async function update(req, res) {
     }
 
     res.json(result);
-}
-
-function destroy(req, res) {
-    res.forbidden();
 }

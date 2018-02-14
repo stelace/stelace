@@ -211,6 +211,10 @@ module.exports.policies = {
         '*': ['isApiAuthenticated'],
     },
 
+    'v0_1/StelaceConfigController': {
+        '*': ['isApiAuthenticated'],
+    },
+
     'v0_1/UserController': {
         '*': ['isApiAuthenticated'],
     },

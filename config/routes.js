@@ -146,6 +146,7 @@ module.exports.routes = {
     'post /api/phone/checkCode': "SmsController.checkVerify",
 
     // StelaceConfigController
+    'get /api/stelace/config': "StelaceConfigController.findOne",
     'patch /api/stelace/config': "StelaceConfigController.update",
 
     // StelaceEventController
@@ -217,6 +218,9 @@ module.exports.routes = {
     'get /api/v0.1/stats/users_registered': { target: 'v0_1/StatsController.userRegistered', cors: apiCors },
     'get /api/v0.1/stats/listings_published': { target: 'v0_1/StatsController.listingPublished', cors: apiCors },
     'get /api/v0.1/stats/bookings_paid': { target: 'v0_1/StatsController.bookingPaid', cors: apiCors },
+
+    'get /api/v0.1/stelace/config': { target: 'v0_1/StelaceConfigController.findOne', cors: apiCors },
+    'patch /api/v0.1/stelace/config': { target: 'v0_1/StelaceConfigController.update', cors: apiCors },
 
     'get /api/v0.1/users': { target: 'v0_1/UserController.find', cors: apiCors },
     'get /api/v0.1/users/:id': { target: 'v0_1/UserController.findOne', cors: apiCors },
