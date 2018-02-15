@@ -180,7 +180,7 @@
         });
     }
 
-    function runBlock($ngRedux, cache, uiGmapGoogleMapApi, tools, cookie) {
+    function runBlock($ngRedux, $translate, cache, uiGmapGoogleMapApi, tools, cookie) {
         // auth token
         var authTokenField = "setAuthToken";
 
@@ -242,6 +242,11 @@
                 }
             });
         }
+
+        // expose this function so translations can be refreshed from outside
+        window.refreshTranslation = function () {
+            $translate.refresh();
+        };
 
         // Force $ngRedux.subscribe in rootScope with dispatch
         var overwriteState = _populateState({});
