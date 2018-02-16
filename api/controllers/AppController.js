@@ -89,11 +89,7 @@ function index(req, res) {
 
         var seoConfig = yield getSeoConfig(req.url);
 
-        let lang = config.lang;
-        if (!ContentEntriesService.isLangAllowed(lang)) {
-            lang = ContentEntriesService.getDefaultLang();
-        }
-
+        const lang = ContentEntriesService.getBestLang(config.lang); // in case the language doesn't exist
         const currency = config.currency || StelaceConfigService.getDefaultCurrency();
 
         // pre-load translations for client-side

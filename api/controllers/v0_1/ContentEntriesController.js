@@ -14,7 +14,7 @@ async function findEditable(req, res) {
     const attrs = req.allParams();
 
     // TODO: expose languages supported in config
-    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
+    const lang = ContentEntriesService.getBestLang(attrs.locale);
 
     const translations = await ContentEntriesService.getTranslations({ lang, displayContext: true, onlyEditableKeys: true });
     const metadata = await ContentEntriesService.getMetadata(lang);
@@ -28,7 +28,7 @@ async function findEditable(req, res) {
 async function updateEditable(req, res) {
     const attrs = req.allParams();
 
-    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
+    const lang = ContentEntriesService.getBestLang(attrs.locale);
 
     await ContentEntriesService.updateUserTranslations(lang, attrs.translations);
 
@@ -38,7 +38,7 @@ async function updateEditable(req, res) {
 async function findDefault(req, res) {
     const attrs = req.allParams();
 
-    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
+    const lang = ContentEntriesService.getBestLang(attrs.locale);
 
     const translations = await ContentEntriesService.fetchDefaultTranslations(lang);
     res.json(translations);
@@ -51,7 +51,7 @@ async function updateDefault(req, res) {
 
     const attrs = req.allParams();
 
-    const lang = ContentEntriesService.isLangAllowed(attrs.locale) ? attrs.locale : ContentEntriesService.getDefaultLang();
+    const lang = ContentEntriesService.getBestLang(attrs.locale);
 
     await ContentEntriesService.updateTranslations(lang, attrs.translations);
 

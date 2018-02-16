@@ -42,7 +42,7 @@ async function destroy(req, res) {
 async function findLanguage(req, res) {
     const attrs = req.allParams();
 
-    const lang = ContentEntriesService.isLangAllowed(attrs.lang) ? attrs.lang : ContentEntriesService.getDefaultLang();
+    const lang = ContentEntriesService.getBestLang(attrs.lang);
 
     const translations = await ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
 

@@ -3,7 +3,9 @@
 module.exports = {
 
     getDefaultLang,
+    getAvailableLangs,
     isLangAllowed,
+    getBestLang,
 
     getTranslations,
     fetchDefaultTranslations,
@@ -30,7 +32,7 @@ const editableKeyLabelSuffix = '__EDITOR_LABEL';
 const editableKeyHelperSuffix = '__EDITOR_HELPER';
 
 const defaultLang = 'en';
-const allowedLangs = ['en', 'fr'];
+const availableLangs = ['en', 'fr'];
 
 const translationFolder = path.join(__dirname, '../../translations');
 
@@ -42,8 +44,20 @@ function getDefaultLang() {
     return defaultLang;
 }
 
+function getAvailableLangs() {
+    return availableLangs.slice();
+}
+
 function isLangAllowed(lang) {
-    return _.includes(allowedLangs, lang);
+    return _.includes(availableLangs, lang);
+}
+
+function getBestLang(lang) {
+    if (isLangAllowed(lang)) {
+        return lang;
+    }
+
+    return getDefaultLang();
 }
 
 async function getTranslations({
