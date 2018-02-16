@@ -137,7 +137,7 @@ const createError = require('http-errors');
 Promise.promisifyAll(fs);
 
 const params = {
-    fields: ["user", "listing"],
+    fields: ["user", "listing", "content"],
     types: ["img", "pdf", "link"],
     displayTypes: ["smart", "cover", "contain", "containOriginal"],
     maxNb: {

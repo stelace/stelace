@@ -243,10 +243,30 @@
             });
         }
 
+        var homeHeroBgStyle = document.createElement('style');
+        homeHeroBgStyle.id = _.uniqueId('style_');
+        document.body.appendChild(homeHeroBgStyle);
+
+        var setHomeHeroBackground = function (url) {
+            homeHeroBgStyle.innerHTML = [
+                '.stelace-hero.stelace-hero__background {',
+                    'background-image: url("' + url + '")',
+                '}'
+            ].join('');
+        };
+
         // expose this function so translations can be refreshed from outside
         window.refreshTranslation = function () {
             $translate.refresh();
         };
+
+        window.setHomeHeroBackground = setHomeHeroBackground;
+
+        var config = window.dataFromServer.config;
+
+        if (config.homeHeroBgUrl) {
+            setHomeHeroBackground(config.homeHeroBgUrl);
+        }
 
         // Force $ngRedux.subscribe in rootScope with dispatch
         var overwriteState = _populateState({});

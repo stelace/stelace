@@ -69,10 +69,9 @@ async function uploadMedia(attrs, { req, res, userId } = {}) {
         url,
     } = attrs;
 
-    if (field && (!_.includes(Media.get('fields'), field) || !targetId)) {
-        throw createError(400);
+    if (field) {
+        _checkField({ field, targetId });
     }
-
     if (field && targetId) {
         await _checkTarget({ field, targetId, userId });
     }
@@ -102,6 +101,15 @@ async function uploadMedia(attrs, { req, res, userId } = {}) {
     }
 
     return media;
+}
+
+function _checkField({ field, targetId }) {
+    if (!_.includes(Media.get('fields'), field)) {
+        throw createError(400);
+    }
+    if (field !== 'content' && !targetId) {
+        throw createError(400);
+    }
 }
 
 async function _checkTarget({ field, targetId, userId }) {
