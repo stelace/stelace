@@ -33,6 +33,11 @@ module.exports = {
             columnType: 'json',
             defaultsTo: {},
         },
+        secretData: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
 };

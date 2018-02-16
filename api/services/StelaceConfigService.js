@@ -6,12 +6,14 @@ module.exports = {
     getDefaultCurrency,
 
     getConfig,
+    getSecretData,
 
     getListFeatures,
     isFeatureActive,
 
     updateConfig,
     updateFeatures,
+    updateSecretData,
 
 };
 
@@ -24,6 +26,7 @@ function getDefaultConfig() {
     if (!defaultConfig) {
         defaultConfig = sails.config.stelace.defaultConfig || {
             SERVICE_NAME: 'Stelace',
+            lang: 'en',
         };
     }
     return defaultConfig;
@@ -70,6 +73,7 @@ let cached = false;
 let stelaceConfigId;
 let features;
 let config;
+let secretData;
 
 const timeGranularities = [
     'm', // minutes
@@ -89,7 +93,7 @@ function getDefaultCurrency() {
     return defaultCurrency;
 }
 
-async function _fetchConfig() {
+async function _fetchStelaceConfig() {
     if (cached) return;
 
     const stelaceConfigs = await StelaceConfig.find().limit(1);
@@ -106,6 +110,7 @@ async function _fetchConfig() {
 async function _updateCache(stelaceConfig) {
     _loadConfig(stelaceConfig);
     _loadFeatures(stelaceConfig);
+    _loadSecretData(stelaceConfig);
     stelaceConfigId = stelaceConfig.id;
 }
 
@@ -115,8 +120,13 @@ function _loadConfig(stelaceConfig) {
 }
 
 async function getConfig() {
-    await _fetchConfig();
+    await _fetchStelaceConfig();
     return config;
+}
+
+async function getSecretData() {
+    await _fetchStelaceConfig();
+    return secretData;
 }
 
 async function _loadFeatures(stelaceConfig) {
@@ -134,13 +144,17 @@ async function _loadFeatures(stelaceConfig) {
     features = _.pick(features, featureNames);
 }
 
+async function _loadSecretData(stelaceConfig) {
+    secretData = stelaceConfig.secretData;
+}
+
 async function getListFeatures() {
-    await _fetchConfig();
+    await _fetchStelaceConfig();
     return features;
 }
 
 async function isFeatureActive(name) {
-    await _fetchConfig();
+    await _fetchStelaceConfig();
 
     if (typeof features[name] === 'undefined') {
         throw new Error('Unknown feature');
@@ -150,7 +164,7 @@ async function isFeatureActive(name) {
 }
 
 async function updateConfig(updatedConfig) {
-    await _fetchConfig();
+    await _fetchStelaceConfig();
 
     const newConfig = _.defaults({}, updatedConfig, config);
     const updateAttrs = {
@@ -163,7 +177,7 @@ async function updateConfig(updatedConfig) {
 }
 
 async function updateFeatures(updatedFeatures) {
-    await _fetchConfig();
+    await _fetchStelaceConfig();
 
     const newFeatures = _.defaults({}, updatedFeatures, features);
     const updateAttrs = {
@@ -173,4 +187,17 @@ async function updateFeatures(updatedFeatures) {
     const stelaceConfig = await StelaceConfig.updateOne(stelaceConfigId, updateAttrs);
     _updateCache(stelaceConfig);
     return features;
+}
+
+async function updateSecretData(updatedSecretData) {
+    await _fetchStelaceConfig();
+
+    const newSecretData = _.defaults({}, updatedSecretData, secretData);
+    const updateAttrs = {
+        secretData: newSecretData,
+    };
+
+    const stelaceConfig = await StelaceConfig.updateOne(stelaceConfigId, updateAttrs);
+    _updateCache(stelaceConfig);
+    return secretData;
 }
