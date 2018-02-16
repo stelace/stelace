@@ -4,7 +4,7 @@
         .module("app.widgets")
         .directive("stlSelectBirthday", stlSelectBirthday);
 
-        function stlSelectBirthday($compile, CountryService, diacritics) {
+        function stlSelectBirthday() {
             return {
             restrict: 'A',
             scope: {
@@ -18,7 +18,7 @@
 
 
 
-        function link(scope, element, attrs) {
+        function link(scope /*, element, attrs */) {
             scope.day = null;
             scope.month = null;
             scope.year = null;
@@ -34,7 +34,7 @@
 
 
 
-            scope.$watch('birthDate', function (date) {
+            scope.$watch('birthDate', function () {
                 setBirthDate();
             });
 
