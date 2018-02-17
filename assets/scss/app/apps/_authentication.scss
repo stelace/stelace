@@ -39,6 +39,7 @@
         max-width: 385px;
         margin : 0 auto 0.5rem;
         padding: 0 10%;
+        text-align: center;
         @media #{$mq-mobile} {
             height: 80px;
         }

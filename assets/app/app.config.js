@@ -268,6 +268,17 @@
             setHomeHeroBackground(config.homeHeroBgUrl);
         }
 
+        var setLogo = function (url) {
+            var state = $ngRedux.getState();
+            var config = state.config;
+            config.logoUrl = url;
+            config = _.assign({}, config);
+
+            $ngRedux.dispatch(window.actions.ConfigActions.setConfig(config));
+        };
+
+        window.setLogo = setLogo;
+
         // Force $ngRedux.subscribe in rootScope with dispatch
         var overwriteState = _populateState({});
 

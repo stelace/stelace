@@ -158,6 +158,11 @@ const params = {
             height: 128
         },
         {
+            label: "300x100",
+            width: 300,
+            height: 100
+        },
+        {
             label: "300x300",
             width: 300,
             height: 300

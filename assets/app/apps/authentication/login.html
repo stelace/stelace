@@ -1,11 +1,7 @@
 <div class="signin-form-container flex-container flex--center">
     <form name="loginForm" novalidate class="signin-form" ng-class="{ 'gentle-shake': vm.formAnimationError }">
         <div>
-            <div class="logo-container">
-                <svg class="logo">
-                    <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
-                </svg>
-            </div>
+            <div data-sip-logo></div>
             <p class="sign__text text-center"
                 data-translate="authentication.log_in_required_message"
                 data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">

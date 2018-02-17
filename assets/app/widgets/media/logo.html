@@ -1,0 +1,6 @@
+<div class="logo-container" ng-switch="hasLogo">
+    <img class="logo" ng-switch-when="true" ng-src="{{logoUrl}}">
+    <svg class="logo" ng-switch-when="false">
+        <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
+    </svg>
+</div>

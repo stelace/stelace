@@ -1,10 +1,6 @@
 <form novalidate name="authModalForm" class="signin-form" ng-class="{ 'gentle-shake': vm.formAnimationError }">
     <a zf-close="" class="close-button">×</a>
-    <div class="logo-container">
-        <svg class="logo">
-            <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
-        </svg>
-    </div>
+    <div data-sip-logo></div>
     <p class="sign__text" ng-if="vm.authForm === 'lost'"
         data-translate="authentication.lost_password_message">
     </p>

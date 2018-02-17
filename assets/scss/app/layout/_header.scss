@@ -164,6 +164,7 @@ $header-height: 3rem;
         }
         .company-logo {
             height: $header-height;
+            padding: 2px 0;
             @media #{$mq-from-desktop} {
                 width: 11rem;
             }

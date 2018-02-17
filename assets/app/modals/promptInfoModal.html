@@ -1,10 +1,6 @@
 <form novalidate name="promptModalForm" class="signin-form" ng-class="{ 'gentle-shake': vm.formAnimationError }">
     <a zf-close="" class="close-button">×</a>
-    <div class="logo-container">
-        <svg class="logo">
-            <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"/>
-        </svg>
-    </div>
+    <div data-sip-logo></div>
     <!-- Phone validation -->
     <div class="margin-bottom" ng-if="vm.info === 'phone' || vm.info === 'phoneNew'" ng-switch="vm.step">
         <div ng-switch-when="1">
