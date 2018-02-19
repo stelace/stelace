@@ -95,51 +95,53 @@ function index(req, res) {
         // pre-load translations for client-side
         const translations = yield ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
 
+        const paymentProvider = config.paymentProvider;
+
         const dataFromServer = {
             config,
             features,
             lang,
             currency,
             translations,
-            paymentProvider: sails.config.paymentProvider,
-            stripePublishKey: sails.config.stripe.publishKey,
+            paymentProvider,
+            stripePublishKey: config.stripe_publishKey,
         };
 
-        const clientTracking = sails.config.clientTracking;
-
-        var viewParams = {
-            layout: "layouts/app",
-            env: "prod",
+        let viewParams = {
+            layout: 'layouts/app',
+            env: null,
             lang,
-            facebookAppId: sails.config.facebookAppId,
-            facebookTracking: clientTracking && clientTracking.facebook,
-            googleTracking: clientTracking && clientTracking.google,
-            facebookPixelId: clientTracking && clientTracking.facebookPixelId,
-            googleAnalyticsId: clientTracking && clientTracking.googleAnalyticsId,
+            metaRobotsTags: null,
+            canonicalUrl: null,
+            facebookAppId: config.facebook_app_id,
+            facebookTracking: config.facebook_pixel_active,
+            facebookPixelId: config.facebook_pixel_id,
+            googleTracking: config.google_analytics_active,
+            googleAnalyticsId: config.google_analytics_trackingId,
+            googleMapApiKey: config.google_maps_apiKey,
             sessionId: stelaceSession ? stelaceSession.id : 0,
-            sessionToken: stelaceSession ? stelaceSession.token : "",
+            sessionToken: stelaceSession ? stelaceSession.token : '',
             eventId: stelaceEvent ? stelaceEvent.id : 0,
-            eventToken: stelaceEvent ? stelaceEvent.token : "",
+            eventToken: stelaceEvent ? stelaceEvent.token : '',
             uxVersion: StelaceEventService.getCurrentVersion(),
-            devHighlightTranslations: sails.config.highlightTranslations ? "dev-highlight-translations" : "",
-            featureDetection: ! UAService.isBot(userAgent),
-            googleMapApiKey: sails.config.googleMapApiKey,
+            devHighlightTranslations: sails.config.highlightTranslations ? 'dev-highlight-translations' : '',
+            featureDetection: !UAService.isBot(userAgent),
             dataFromServer: JSON.stringify(dataFromServer || {}),
-            stripeActive: sails.config.paymentProvider === 'stripe',
+            stripeActive: paymentProvider === 'stripe',
         };
 
-        if (sails.config.environment === "production") {
-            viewParams.env = "prod";
-        } else if (sails.config.environment === "pre-production") {
-            viewParams.env = "preprod";
+        if (sails.config.environment === 'production') {
+            viewParams.env = 'prod';
+        } else if (sails.config.environment === 'pre-production') {
+            viewParams.env = 'preprod';
         } else {
-            viewParams.env = "dev";
+            viewParams.env = 'dev';
         }
 
-        viewParams = _.extend(viewParams, seoConfig);
+        viewParams = _.assign(viewParams, seoConfig);
 
         res
-            .set({ "Cache-Control": "no-cache" })
+            .set({ 'Cache-Control': 'no-cache' })
             .view(viewParams);
     })();
 

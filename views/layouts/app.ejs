@@ -9,10 +9,10 @@
     <title>Stelace</title>
 
     <!-- OpenGraph -->
-    <% if (typeof facebookAppId !== "undefined" && facebookAppId) { %>
+    <% if (facebookAppId) { %>
     <meta property="fb:app_id" content="<%= facebookAppId %>">
     <% } %>
-    <meta property="og:locale" content="en_US">
+    <meta property="og:locale" content="<%= lang %>">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Smart marketplace launcher">
     <meta property="og:url" content="https://stelace.com/">
@@ -47,11 +47,11 @@
     <meta name="application-name" content="Stelace">
     <meta name="theme-color" content="#00578E">
 
-    <% if (typeof metaRobotsTags !== "undefined" && metaRobotsTags) { %>
+    <% if (metaRobotsTags) { %>
     <meta name="robots" href="<%= metaRobotsTags %>">
     <% } %>
 
-    <% if (typeof canonicalUrl !== "undefined" && canonicalUrl) { %>
+    <% if (canonicalUrl) { %>
     <link rel="canonical" href="<%= canonicalUrl %>">
     <% } %>
 
@@ -98,7 +98,7 @@
         }
     </script>
 
-    <% if (typeof dataFromServer !== 'undefined' && dataFromServer) { %>
+    <% if (dataFromServer) { %>
     <script>
         window.dataFromServer = <%- dataFromServer %>;
     </script>
@@ -106,7 +106,7 @@
 
     <%- body %>
 
-    <% if (typeof googleTracking !== "undefined" && googleTracking && typeof googleAnalyticsId !== "undefined" && googleAnalyticsId) { %>
+    <% if (googleTracking && googleAnalyticsId) { %>
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -124,12 +124,12 @@
     </script>
     <% } %>
 
-    <% if (typeof facebookTracking !== "undefined" && facebookTracking === "dev") { %>
+    <% if (facebookTracking === "dev") { %>
     <script>
         // Facebook Pixel Debugging
         window.fbq = function (t,name,data) { console.log("Facebook Pixel Event:", name, data); };
     </script>
-    <% } else if (typeof facebookTracking !== "undefined" && facebookTracking && typeof facebookPixelId !== "undefined" && facebookPixelId) { %>
+    <% } else if (facebookTracking && facebookPixelId) { %>
     <script>
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -146,7 +146,7 @@
     </script>
     <% } %>
 
-    <% if (typeof googleMapApiKey !== "undefined" && googleMapApiKey) { %>
+    <% if (googleMapApiKey) { %>
         <script>
             window.googleMapApiKey = "<%= googleMapApiKey %>";
         </script>
@@ -156,7 +156,7 @@
     <script src="/assets/build/js/app-pre.js"></script>
     <!-- endinject -->
 
-    <% if (typeof featureDetection !== "undefined" && featureDetection) { %>
+    <% if (featureDetection) { %>
     <script>
         var hasFeatures = (Modernizr.flexbox || Modernizr.flexboxtweener)
                             && Modernizr.matchmedia;
@@ -184,7 +184,7 @@
         })();
     </script>
 
-    <% if (typeof stripeActive !== "undefined" && stripeActive) { %>
+    <% if (stripeActive) { %>
     <script src="https://js.stripe.com/v3/"></script>
     <% } %>
 

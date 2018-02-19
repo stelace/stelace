@@ -1,4 +1,4 @@
-/* global BankAccount, User */
+/* global BankAccount, StelaceConfigService, User */
 
 /**
  * BankAccount.js
@@ -188,7 +188,8 @@ function parseStripeData(rawJson) {
 }
 
 async function fetchBankAccounts(user) {
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     let resourceOwnerId;
     if (paymentProvider === 'mangopay') {

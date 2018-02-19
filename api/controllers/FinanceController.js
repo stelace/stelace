@@ -1,4 +1,4 @@
-/* global BankAccount, PaymentMangopayService, PaymentStripeService, User */
+/* global BankAccount, PaymentMangopayService, PaymentStripeService, StelaceConfigService, User */
 
 /**
  * FinanceController
@@ -51,7 +51,8 @@ async function createAccount(req, res) {
         country,
     } = req.allParams();
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     let user = req.user;
 
@@ -92,7 +93,8 @@ async function createBankAccount(req, res) {
 
     const access = 'self';
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     let bankAccount;
     if (paymentProvider === 'mangopay') {

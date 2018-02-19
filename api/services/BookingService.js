@@ -1,5 +1,6 @@
 /*
-    global Booking, ContractService, Listing, ListingAvailability, ListingTypeService, ModelSnapshot, PricingService, User
+    global Booking, ContractService, Listing, ListingAvailability, ListingTypeService, ModelSnapshot, PricingService,
+    StelaceConfigService, User
  */
 
 module.exports = {
@@ -62,7 +63,8 @@ async function createBooking({
         throw createError(404);
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     let bookingAttrs = {
         listingId: listing.id,

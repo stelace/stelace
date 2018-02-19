@@ -1,4 +1,4 @@
-/* global Card, PaymentMangopayService, TimeService, User */
+/* global Card, PaymentMangopayService, StelaceConfigService, TimeService, User */
 
 /**
 * Card.js
@@ -185,7 +185,8 @@ function hasUnknownStatus(card) {
 }
 
 async function fetchCards(user) {
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     let resourceOwnerId;
     if (paymentProvider === 'mangopay') {

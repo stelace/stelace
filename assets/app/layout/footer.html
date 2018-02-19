@@ -47,20 +47,20 @@
                 <span data-translate="social.join_us"></span>
             </p>
             <div class="flex-container flex--center flex--wrap">
-                <a class="footer__link" href="https://twitter.com/stelaceAI" target="_blank"
-                    itemprop="sameAs">
+                <a class="footer__link" ng-href="{{config.twitter_url}}" target="_blank"
+                    itemprop="sameAs" ng-if="config.twitter_url">
                     <svg class="icon soc-tw">
                         <use xlink:href="/assets/build/icons/sprite.svg#cui-circle"/>
                     </svg>
                 </a>
-                <a class="footer__link" href="https://www.facebook.com/" target="_blank"
-                    itemprop="sameAs">
+                <a class="footer__link" ng-href="{{config.facebook_url}}" target="_blank"
+                    itemprop="sameAs" ng-if="config.facebook_url">
                     <svg class="icon soc-fb">
                         <use xlink:href="/assets/build/icons/sprite.svg#face-circled"/>
                     </svg>
                 </a>
-                <a class="footer__link" href="https://plus.google.com" rel="publisher" target="_blank"
-                    itemprop="sameAs">
+                <a class="footer__link" ng-href="{{config.googleplus_url}}" rel="publisher" target="_blank"
+                    itemprop="sameAs" ng-if="config.googleplus_url">
                     <svg class="icon soc-gpl">
                         <use xlink:href="/assets/build/icons/sprite.svg#g-pl-circled"/>
                     </svg>

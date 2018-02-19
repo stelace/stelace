@@ -1,4 +1,4 @@
-/* global Booking, MathService, PaymentMangopayService, PaymentStripeService, PricingService, TransactionService, User */
+/* global Booking, MathService, PaymentMangopayService, PaymentStripeService, PricingService, StelaceConfigService, TransactionService, User */
 
 module.exports = {
 
@@ -165,7 +165,8 @@ async function renewDeposit(booking, transactionManager) {
         return booking;
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     const renewDepositAmount = getRenewDepositAmount(booking);
 
@@ -232,7 +233,8 @@ async function cancelDeposit(booking, transactionManager) {
         return booking;
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     const transactionsToCancel = getDepositsToCancel(transactionManager);
 
@@ -266,7 +268,8 @@ async function cancelPreauthPayment(booking, transactionManager) {
         return booking;
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     const transaction = getNonCancelledPreauthPayment(transactionManager);
     const skipProcessWithUpdate = !transaction;
@@ -310,7 +313,8 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
         return booking;
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker]);
@@ -390,7 +394,8 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
  * @return {object} booking
  */
 async function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker]);
@@ -475,7 +480,8 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
         return booking;
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker, owner]);
@@ -566,7 +572,8 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
  * @return {object} booking
  */
 async function cancelTransferPayment(booking, transactionManager, taker, paymentValues) {
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker]);
@@ -652,7 +659,8 @@ async function payoutPayment(booking, transactionManager, owner, paymentValues) 
         return booking;
     }
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [owner]);

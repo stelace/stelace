@@ -1,4 +1,4 @@
-/* global Card, PaymentMangopayService, PaymentStripeService */
+/* global Card, PaymentMangopayService, PaymentStripeService, StelaceConfigService */
 
 /**
  * CardController
@@ -40,7 +40,8 @@ async function create(req, res) {
 
     const access = 'self';
 
-    const paymentProvider = sails.config.paymentProvider;
+    const config = await StelaceConfigService.getConfig();
+    const paymentProvider = config.paymentProvider;
 
     let card;
 
