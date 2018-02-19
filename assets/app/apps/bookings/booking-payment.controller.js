@@ -57,6 +57,8 @@
         vm.promptPhoneHighlight = false;
         vm.showBookingDuration  = false;
         vm.isSmsActive          = StelaceConfig.isFeatureActive('SMS');
+        vm.thisYear             = moment().year();
+        vm.thisMonth            = moment().month() + 1;
 
         vm.footerTestimonials   = true;
 
