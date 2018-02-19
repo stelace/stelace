@@ -1,4 +1,4 @@
-/* global passport */
+/* global PassportService */
 
 /**
  * Passport Middleware
@@ -23,10 +23,14 @@
  * @param {Object}   res
  * @param {Function} next
  */
-module.exports = function (req, res, next) {
+module.exports = async function (req, res, next) {
 
-    passport.initialize()(req, res, function () {
-        next();
-    });
+    try {
+        const passport = await PassportService.getPassportInstance();
+
+        passport.initialize()(req, res, () => next());
+    } catch (err) {
+        next(err);
+    }
 
 };

@@ -100,8 +100,6 @@ module.exports = {
         facebook: null,
         // facebook: {
         //     options: {
-        //         clientID: "",
-        //         clientSecret: "",
         //         callbackURL: "<service_url>/auth/facebook/callback"
         //     }
         // },
@@ -109,8 +107,6 @@ module.exports = {
         google: null,
         // google: {
         //     options: {
-        //         clientID: "",
-        //         clientSecret: "",
         //         callbackURL: "<service_url>/auth/google/callback"
         //     }
         // }

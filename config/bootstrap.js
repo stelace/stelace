@@ -20,7 +20,6 @@ module.exports.bootstrap = async function(done) {
         "mangopay",
         "stripe",
         "odoo",
-        "passport",
         "intl"
     ], { sails: sails });
 

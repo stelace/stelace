@@ -1,4 +1,4 @@
-/* global passport */
+/* global PassportService */
 
 /**
  * OAuth 2.0 Authentication Protocol
@@ -20,7 +20,7 @@
  * @param {Object}   profile
  * @param {Function} next
  */
-module.exports = function (req, accessToken, refreshToken, profile, next) {
+module.exports = async function (req, accessToken, refreshToken, profile, next) {
     var query    = {
         identifier : profile.id,
         protocol   : "oauth2",
@@ -31,5 +31,10 @@ module.exports = function (req, accessToken, refreshToken, profile, next) {
         query.tokens.refreshToken = refreshToken;
     }
 
-    passport.connect(req, query, profile, next);
+    try {
+        const passport = await PassportService.getPassportInstance();
+        passport.connect(req, query, profile, next);
+    } catch (err) {
+        next(err);
+    }
 };

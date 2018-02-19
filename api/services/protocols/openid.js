@@ -1,4 +1,4 @@
-/* global passport */
+/* global PassportService */
 
 /**
  * OpenID Authentication Protocol
@@ -17,11 +17,16 @@
  * @param {Object}   profile
  * @param {Function} next
  */
-module.exports = function (req, identifier, profile, next) {
+module.exports = async function (req, identifier, profile, next) {
     var query    = {
         identifier : identifier,
         protocol   : 'openid'
     };
 
-    passport.connect(req, query, profile, next);
+    try {
+        const passport = await PassportService.getPassportInstance();
+        passport.connect(req, query, profile, next);
+    } catch (err) {
+        next(err);
+    }
 };

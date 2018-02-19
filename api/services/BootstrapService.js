@@ -84,10 +84,6 @@ function init(initFields, args) {
                 }
                 break;
 
-            case "passport":
-                sails.services.passport.loadStrategies();
-                break;
-
             case "odoo":
                 var odooConnection = sails.config.odoo.connection;
                 global.odoo = OdooApiService.getInstance({

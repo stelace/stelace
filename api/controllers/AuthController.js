@@ -1,15 +1,6 @@
-/* global GamificationService, passport, StelaceEventService, TokenService, UAService, User */
+/* global GamificationService, PassportService, StelaceEventService, TokenService, UAService, User */
 
-/**
- * Authentication Controller
- *
- * This is merely meant as an example of how your Authentication controller
- * should look. It currently includes the minimum amount of functionality for
- * the basics of Passport.js to work.
- */
-
-var jwt    = require('jsonwebtoken');
-var moment = require('moment');
+const jwt    = require('jsonwebtoken');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const createError = require('http-errors');
@@ -62,7 +53,8 @@ function logout(req, res) {
 * @param {Object} req
 * @param {Object} res
 */
-function provider(req, res) {
+async function provider(req, res) {
+    const passport = await PassportService.getPassportInstance();
     passport.endpoint(req, res);
 }
 
@@ -82,72 +74,79 @@ function provider(req, res) {
 * @param {Object} req
 * @param {Object} res
 */
-function callback(req, res) {
-    function tryAgain(err) {
-        // If an error was thrown, redirect the user to the login which should
-        // take care of rendering the error messages.
-        // req.flash('form', req.body);
-
-        if (req.wantsJSON) { // login request from local
-            res.serverError(err);
-        } else { // login request from providers
-            res.set("loginErr", err);
-
-            res.redirect(req.param('action') === 'register' ? '/register' : '/login');
-        }
-    }
-
+async function callback(req, res) {
     // error from social login
-    if (req.query.error_reason === "user_denied") {
-        return res.redirect("/login?error=user_denied");
+    if (req.query.error_reason === 'user_denied') {
+        return res.redirect('/login?error=user_denied');
     } else if (req.query.error) {
-        return res.redirect("/login?error=access_denied");
+        return res.redirect('/login?error=access_denied');
     }
 
-    passport.callback(req, res, function (err, user) {
-        if (err) {
-            return tryAgain(err);
-        }
+    const passport = await PassportService.getPassportInstance();
 
-        req.login(user, function (loginErr) {
-            if (loginErr) {
-                return tryAgain();
-            }
-
-            return Promise.coroutine(function* () {
-                var userAgent = req.headers["user-agent"];
-                var authToken = TokenService.createAuthToken(user, {
-                    userAgent: userAgent
-                });
-
-                _updateGamificationWhenLoggedIn(user, userAgent, req.logger, req);
-
-                yield StelaceEventService.createEvent({
-                    req: req,
-                    res: res,
-                    label: 'user.logged_in',
-                    defaultUserId: user.id,
-                    type: 'core',
-                });
-
-                User
-                    .updateOne(user.id, { lastConnectionDate: moment().toISOString() })
-                    .catch(() => { /* do nothing */ });
-
-                // Upon successful login, send the user to the homepage were req.user
-                // will available.
-                if (req.wantsJSON) {
-                    res.json({
-                        token_type: "Bearer",
-                        access_token: authToken
-                    });
-                } else {
-                    res.cookie("authToken", authToken);
-                    res.redirect("/social-auth");
-                }
-            })();
+    let user;
+    try {
+        user = await new Promise((resolve, reject) => {
+            passport.callback(req, res, (err, user) => {
+                if (err) return reject(err);
+                resolve(user);
+            });
         });
+    } catch (err) {
+        return tryAgain(err, { req, res });
+    }
+
+    try {
+        await new Promise((resolve, reject) => {
+            req.login(user, (loginErr) => {
+                if (loginErr) return reject(loginErr);
+                resolve();
+            });
+        });
+    } catch (err) {
+        return tryAgain(null, { req, res });
+    }
+
+    const userAgent = req.headers['user-agent'];
+    const authToken = TokenService.createAuthToken(user, {
+        userAgent: userAgent
     });
+
+    _updateGamificationWhenLoggedIn(user, userAgent, req.logger, req);
+
+    await StelaceEventService.createEvent({
+        req: req,
+        res: res,
+        label: 'user.logged_in',
+        defaultUserId: user.id,
+        type: 'core',
+    });
+
+    User
+        .updateOne(user.id, { lastConnectionDate: new Date().toISOString() })
+        .catch(() => { /* do nothing */ });
+
+    // Upon successful login, send the user to the homepage were req.user
+    // will available.
+    if (req.wantsJSON) {
+        res.json({
+            token_type: 'Bearer',
+            access_token: authToken
+        });
+    } else {
+        res.cookie('authToken', authToken);
+        res.redirect('/social-auth');
+    }
+}
+
+function tryAgain(err, { req, res }) {
+    if (req.wantsJSON) { // login request from local
+        res.serverError(err);
+    } else { // login request from providers
+        res.set("loginErr", err);
+
+        res.redirect(req.param('action') === 'register' ? '/register' : '/login');
+    }
 }
 
 function refreshToken(req, res) {
@@ -276,7 +275,7 @@ function _updateGamificationWhenLoggedIn(user, userAgent, logger, req) {
         "ADD_PROFILE_IMAGE"
     ];
     var actionsData = {
-        CONNECTION_OF_THE_DAY: { connectionDate: moment().toISOString() }
+        CONNECTION_OF_THE_DAY: { connectionDate: new Date().toISOString() }
     };
 
     if (UAService.isMobile(userAgent)) {
@@ -284,5 +283,5 @@ function _updateGamificationWhenLoggedIn(user, userAgent, logger, req) {
         actionsData.FIRST_MOBILE_CONNECTION = { userAgent: userAgent };
     }
 
-    GamificationService.checkActions(user, actionsIds, actionsData, logger, req);
+    GamificationService.checkActions(user, actionsIds, actionsData, logger, req).then(() => {});
 }

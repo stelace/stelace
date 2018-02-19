@@ -1,4 +1,4 @@
-/* global passport */
+/* global PassportService */
 
 /**
  * OAuth Authentication Protocol
@@ -19,7 +19,7 @@
  * @param {Object}   profile
  * @param {Function} next
  */
-module.exports = function (req, token, tokenSecret, profile, next) {
+module.exports = async function (req, token, tokenSecret, profile, next) {
     var query    = {
         identifier : profile.id,
         protocol   : "oauth",
@@ -30,5 +30,11 @@ module.exports = function (req, token, tokenSecret, profile, next) {
         query.tokens.tokenSecret = tokenSecret;
     }
 
-    passport.connect(req, query, profile, next);
+    try {
+        const passport = await PassportService.getPassportInstance();
+        passport.connect(req, query, profile, next);
+    } catch (err) {
+        next(err);
+    }
+
 };
