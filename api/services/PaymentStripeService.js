@@ -1,6 +1,9 @@
-/* global BankAccount, Booking, Card, CurrencyService, stripe, Transaction, User */
+/* global BankAccount, Booking, Card, CurrencyService, StelaceConfigService, Transaction, User */
 
 module.exports = {
+
+    getStripeInstance,
+    unsetStripeInstance,
 
     createCustomer,
 
@@ -34,6 +37,27 @@ module.exports = {
 
 const _ =  require('lodash');
 const createError = require('http-errors');
+const Stripe = require('stripe');
+
+let stripeInstance;
+
+async function getStripeInstance() {
+    if (stripeInstance) return stripeInstance;
+
+    const secretData = await StelaceConfigService.getSecretData();
+
+    const secretKey = secretData.stripe_secretKey;
+    if (!secretKey) {
+        throw createError('Missing Stripe secret key', { missingCredentials: true });
+    }
+
+    stripeInstance = new Stripe(sails.config.stripe.secretKey);
+    return stripeInstance;
+}
+
+function unsetStripeInstance() {
+    stripeInstance = null;
+}
 
 /**
  * @param {Object} user
@@ -48,6 +72,7 @@ async function createCustomer(user) {
         throw createError(400, 'Missing params');
     }
 
+    const stripe = await getStripeInstance();
     const customer = await stripe.customers.create({ email: user.email });
 
     const paymentData = User.getMergedPaymentData(user, { stripe: { customerId: customer.id } });
@@ -57,6 +82,8 @@ async function createCustomer(user) {
 
 async function fetchAccount(user) {
     const accountId = User.getStripeAccountId(user);
+
+    const stripe = await getStripeInstance();
 
     const account = await stripe.accounts.retrieve(accountId);
     return account;
@@ -74,6 +101,8 @@ async function isAccountVerificationComplete(user) {
  * @param {String} params.country
  */
 async function createAccount(user, { accountToken, country }) {
+    const stripe = await getStripeInstance();
+
     const account = await stripe.accounts.create({
         type: 'custom',
         account_token: accountToken,
@@ -91,6 +120,8 @@ async function createAccount(user, { accountToken, country }) {
  * @param {String} accountToken
  */
 async function updateAccount(user, { accountToken }) {
+    const stripe = await getStripeInstance();
+
     const accountId = User.getStripeAccountId(user);
 
     await stripe.accounts.update(accountId, {
@@ -102,6 +133,8 @@ async function updateAccount(user, { accountToken }) {
  * @param {Object} [user] - if not provided, get the platform balance
  */
 async function getBalance(user) {
+    const stripe = await getStripeInstance();
+
     let balance;
     if (typeof user === 'undefined') {
         balance = await stripe.balance.retrieve();
@@ -118,6 +151,8 @@ async function getBalance(user) {
  * @param {String} accountToken
  */
 async function createBankAccount(user, { accountToken }) {
+    const stripe = await getStripeInstance();
+
     const accountId = User.getStripeAccountId(user);
 
     const stripeBankAccount = await stripe.accounts.createExternalAccount(accountId, { external_account: accountToken });
@@ -133,6 +168,8 @@ async function createBankAccount(user, { accountToken }) {
  * @param {String} customerId
  */
 async function fetchCard(providerCardId, customerId) {
+    const stripe = await getStripeInstance();
+
     const card = await stripe.customers.retrieveCard(customerId, providerCardId);
     return card;
 }
@@ -143,7 +180,8 @@ async function fetchCard(providerCardId, customerId) {
  * @param {Boolean} forget
  */
 async function createCard({ user, sourceId, forget }) {
-    console.log(sourceId)
+    const stripe = await getStripeInstance();
+
     const customerId = User.getStripeCustomerId(user);
     const providerCard = await stripe.customers.createSource(customerId, { source: sourceId });
     const parsedCard = Card.parseStripeData(providerCard);
@@ -172,6 +210,8 @@ async function refreshCard(card) {
  * @param {Object} card
  */
 async function deactivateCard(card) {
+    const stripe = await getStripeInstance();
+
     await stripe.customers.deleteCard(card.resourceOwnerId, card.resourceId);
 
     const updatedCard = await Card.updateOne(card.id, { active: false });
@@ -182,6 +222,8 @@ async function deactivateCard(card) {
  * @param {String} chargeId
  */
 async function fetchCharge(chargeId) {
+    const stripe = await getStripeInstance();
+
     const charge = await stripe.charges.retrieve(chargeId);
     return charge;
 }
@@ -204,6 +246,8 @@ async function createCharge({
     // setSecureMode = false,
     // returnUrl,
 }) {
+    const stripe = await getStripeInstance();
+
     const customerId = User.getStripeCustomerId(user);
 
     const charge = await stripe.charges.create({
@@ -225,6 +269,8 @@ async function createCharge({
  * @param {String} params.currency
  */
 async function captureCharge(chargeId, { amount, currency }) {
+    const stripe = await getStripeInstance();
+
     let charge;
     if (typeof amount === 'undefined') {
         charge = await stripe.charges.capture(chargeId);
@@ -242,6 +288,8 @@ async function captureCharge(chargeId, { amount, currency }) {
  * @param {Number} amount
  */
 async function copyChargePreauthorization({ transaction, amount }) {
+    const stripe = await getStripeInstance();
+
     const charge = await fetchCharge(transaction.resourceId);
 
     const currency = charge.currency;
@@ -262,6 +310,8 @@ async function copyChargePreauthorization({ transaction, amount }) {
  */
 async function cancelChargePreauthorization({ transaction }) {
     if (Transaction.isPreauthorizationCancellable(transaction)) {
+        const stripe = await getStripeInstance();
+
         await stripe.refunds.create({ charge: transaction.resourceId });
     }
 }
@@ -278,6 +328,8 @@ async function createChargePayin({
     amount,
     takerFees = 0,
 }) {
+    const stripe = await getStripeInstance();
+
     const charge = await stripe.charges.capture({
         charge: transaction.resourceId,
         amount: CurrencyService.getISOAmount(amount, transaction.currency),
@@ -311,6 +363,8 @@ async function cancelChargePayin({
     refundTakerFees = true,
 }) {
     const refundTotally = (typeof amount === 'undefined' && refundTakerFees);
+
+    const stripe = await getStripeInstance();
 
     let params;
     if (refundTotally) {
@@ -353,6 +407,8 @@ async function createTransfer({
     chargeId,
     transferGroup,
 }) {
+    const stripe = await getStripeInstance();
+
     const accountId = User.getStripeAccountId(owner);
 
     const transfer = await stripe.transfers.create({
@@ -373,6 +429,8 @@ async function cancelTransfer({
     booking,
     transaction,
 }) {
+    const stripe = await getStripeInstance();
+
     const transferReversal = await stripe.transfers.createReversal(transaction.resourceId, {
         refund_application_fee: true,
         metadata: {
@@ -388,6 +446,8 @@ async function createPayout({
     owner,
     amount,
 }) {
+    const stripe = await getStripeInstance();
+
     const bankWireRef = Booking.getBookingRef(booking.id);
 
     const accountId = User.getStripeAccountId(owner);

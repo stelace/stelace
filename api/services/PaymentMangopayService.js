@@ -1,6 +1,9 @@
-/* global BankAccount, Booking, Card, CurrencyService, Kyc, mangopay, Transaction, User */
+/* global BankAccount, Booking, Card, CurrencyService, Kyc, StelaceConfigService, Transaction, User */
 
 module.exports = {
+
+    getMangopayInstance,
+    unsetMangopayInstance,
 
     createUser,
     createNaturalUser,
@@ -32,6 +35,37 @@ module.exports = {
 const _ = require('lodash');
 const createError = require('http-errors');
 const moment = require('moment');
+const Mangopay = require('mangopay2-nodejs-sdk');
+
+let mangopayInstance;
+
+async function getMangopayInstance() {
+    if (mangopayInstance) return mangopayInstance;
+
+    const secretData = await StelaceConfigService.getSecretData();
+
+    const clientId = secretData.mangopay_clientId
+    const passphrase = secretData.mangopay_passphrase;
+
+    const workspace = sails.config.mangopay.workspace;
+
+    if (!clientId || !passphrase) {
+        throw createError('Missing Mangopay client credentials', { missingCredentials: true });
+    }
+
+    mangopayInstance = new Mangopay({
+        clientId,
+        clientPassword: passphrase,
+        baseUrl: workspace === 'production' ? 'https://api.mangopay.com' : 'https://api.sandbox.mangopay.com',
+        apiVersion: 'v2.01',
+    });
+
+    return mangopayInstance;
+}
+
+function unsetMangopayInstance() {
+    mangopayInstance = null;
+}
 
 async function createUser(user) {
     let updatedUser;
@@ -64,6 +98,8 @@ async function createNaturalUser(user) {
     ) {
         throw createError(400, 'Missing KYC');
     }
+
+    const mangopay = await getMangopayInstance();
 
     const mangopayUser = await mangopay.Users.create({
         Email: user.email,
@@ -103,6 +139,8 @@ async function createLegalUser(user) {
     ) {
         throw createError(400, 'Missing KYC');
     }
+
+    const mangopay = await getMangopayInstance();
 
     const mangopayUser = await mangopay.Users.create({
         Email: user.email,
@@ -145,6 +183,8 @@ async function createWallet(user, { currency = 'EUR' } = {}) {
 
     const mangopayUserId = User.getMangopayUserId(user);
 
+    const mangopay = await getMangopayInstance();
+
     const mangopayWallet = await mangopay.Wallets.create({
         Owners: [mangopayUserId],
         Description: 'Main wallet',
@@ -174,6 +214,8 @@ async function createBankAccount(user, { ownerAddress, ownerName, iban } = {}) {
 
     const mangopayUserId = User.getMangopayUserId(user);
 
+    const mangopay = await getMangopayInstance();
+
     const mangopayBankAccount = await mangopay.Users.createBankAccount(mangopayUserId, {
         OwnerName: ownerName,
         OwnerAddress: ownerAddress,
@@ -201,6 +243,8 @@ async function createCardRegistration(user, { currency = 'EUR', cardType } = {})
 
     const mangopayUserId = User.getMangopayUserId(user);
 
+    const mangopay = await getMangopayInstance();
+
     const cardRegistration = await mangopay.CardRegistrations.create({
         UserId: mangopayUserId,
         Currency: currency,
@@ -211,6 +255,8 @@ async function createCardRegistration(user, { currency = 'EUR', cardType } = {})
 }
 
 async function updateCardRegistration({ cardRegistrationId, registrationData }) {
+    const mangopay = await getMangopayInstance();
+
     const cardRegistration = await mangopay.CardRegistrations.update({
         Id: cardRegistrationId,
         RegistrationData: registrationData,
@@ -220,6 +266,8 @@ async function updateCardRegistration({ cardRegistrationId, registrationData }) 
 }
 
 async function fetchCard(providerCardId) {
+    const mangopay = await getMangopayInstance();
+
     const card = await mangopay.Cards.get(providerCardId);
     return card;
 }
@@ -246,6 +294,8 @@ async function refreshCard(card) {
 }
 
 async function deactivateCard(card) {
+    const mangopay = await getMangopayInstance();
+
     await mangopay.Cards.update(card.resourceId, {
         Active: false,
     });
@@ -255,6 +305,8 @@ async function deactivateCard(card) {
 }
 
 async function fetchPreauthorization(preauthorizationId) {
+    const mangopay = await getMangopayInstance();
+
     const preauthorization = await mangopay.CardPreAuthorizations.get(preauthorizationId);
     return preauthorization;
 }
@@ -279,6 +331,8 @@ async function createPreauthorization({
         throw new Error('Missing return url');
     }
 
+    const mangopay = await getMangopayInstance();
+
     const mangopayUserId = User.getMangopayUserId(user);
 
     const preauthorization = mangopay.CardPreAuthorizations.create({
@@ -296,6 +350,8 @@ async function createPreauthorization({
 }
 
 async function copyPreauthorization({ transaction, amount }) {
+    const mangopay = await getMangopayInstance();
+
     const preauth = await mangopay.CardPreAuthorizations.get(transaction.resourceId);
 
     const currency = preauth.DebitedFunds.Currency;
@@ -316,6 +372,8 @@ async function copyPreauthorization({ transaction, amount }) {
 
 async function cancelPreauthorization({ transaction }) {
     if (Transaction.isPreauthorizationCancellable(transaction)) {
+        const mangopay = await getMangopayInstance();
+
         await mangopay.CardPreAuthorizations.update(transaction.resourceId, {
             PaymentStatus: 'CANCELED',
         });
@@ -329,6 +387,8 @@ async function createPayin({
     amount,
     takerFees = 0,
 }) {
+    const mangopay = await getMangopayInstance();
+
     const mangopayUserId = User.getMangopayUserId(taker);
 
     const payin = await mangopay.PayIns.create({
@@ -386,6 +446,8 @@ async function cancelPayin({
         };
     }
 
+    const mangopay = await getMangopayInstance();
+
     const refund = await mangopay.PayIns.createRefund(transaction.resourceId, body);
 
     if (refund.Status === "FAILED") {
@@ -405,6 +467,8 @@ async function createTransfer({
     amount,
     fees,
 }) {
+    const mangopay = await getMangopayInstance();
+
     const transfer = await mangopay.Transfers.create({
         AuthorId: User.getMangopayUserId(taker),
         DebitedFunds: {
@@ -435,6 +499,8 @@ async function cancelTransfer({
     transaction,
     taker,
 }) {
+    const mangopay = await getMangopayInstance();
+
     const refund = await mangopay.Transfers.createRefund(transaction.resourceId, {
         AuthorId: User.getMangopayUserId(taker),
         Tag: Booking.getBookingRef(booking.id),
@@ -467,6 +533,8 @@ async function createPayout({
     }
 
     const fees = 0;
+
+    const mangopay = await getMangopayInstance();
 
     const payout = await mangopay.PayOuts.create({
         AuthorId: User.getMangopayUserId(owner),
