@@ -1,4 +1,4 @@
-/* global StelaceConfig */
+/* global PassportService, PaymentMangopayService, PaymentStripeService, StelaceConfig */
 
 module.exports = {
 
@@ -213,6 +213,10 @@ async function updateSecretData(updatedSecretData) {
     const newSecretData = _.defaults({}, updatedSecretData, secretData);
     const newConfig = _computeNewConfig({ config, secretData: newSecretData });
 
+    const socialLoginChanged = hasSocialLoginChanged(newSecretData, secretData);
+    const mangopayChanged = hasMangopayChanged(newSecretData, secretData);
+    const stripeChanged = hasStripeChanged(newSecretData, secretData);
+
     const updateAttrs = {
         secretData: newSecretData,
         config: newConfig,
@@ -220,6 +224,17 @@ async function updateSecretData(updatedSecretData) {
 
     const stelaceConfig = await StelaceConfig.updateOne(stelaceConfigId, updateAttrs);
     _updateCache(stelaceConfig);
+
+    if (socialLoginChanged) {
+        PassportService.unsetPassportInstance();
+    }
+    if (mangopayChanged) {
+        PaymentMangopayService.unsetMangopayInstance();
+    }
+    if (stripeChanged) {
+        PaymentStripeService.unsetStripeInstance();
+    }
+
     return secretData;
 }
 
@@ -232,4 +247,32 @@ function _computeNewConfig({ config, secretData }) {
     newConfig.socialLogin_google_complete = !!(secretData.socialLogin_google_clientId && secretData.socialLogin_google_clientSecret);
 
     return newConfig;
+}
+
+function hasSocialLoginChanged(newSecretData, oldSecretData) {
+    const fields = [
+        'socialLogin_facebook_clientId',
+        'socialLogin_facebook_clientSecret',
+        'socialLogin_google_clientId',
+        'socialLogin_google_clientSecret',
+    ];
+
+    return !_.isEqual(_.pick(newSecretData, fields), _.pick(oldSecretData, fields));
+}
+
+function hasMangopayChanged(newSecretData, oldSecretData) {
+    const fields = [
+        'mangopay_clientId',
+        'mangopay_passphrase',
+    ];
+
+    return !_.isEqual(_.pick(newSecretData, fields), _.pick(oldSecretData, fields));
+}
+
+function hasStripeChanged(newSecretData, oldSecretData) {
+    const fields = [
+        'stripe_secretKey',
+    ];
+
+    return !_.isEqual(_.pick(newSecretData, fields), _.pick(oldSecretData, fields));
 }
