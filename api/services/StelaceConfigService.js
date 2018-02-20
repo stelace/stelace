@@ -18,6 +18,8 @@ module.exports = {
 };
 
 const _ = require('lodash');
+const createError = require('http-errors');
+const stelaceConfigHelper = require('./stelaceConfig');
 
 let defaultConfig;
 let defaultFeatures;
@@ -166,7 +168,18 @@ async function isFeatureActive(name) {
 async function updateConfig(updatedConfig) {
     await _fetchStelaceConfig();
 
-    const newConfig = _.defaults({}, updatedConfig, config);
+    // drop non editable fields
+    const nonEditableFields = stelaceConfigHelper.config.getNonEditableFields();
+    const updatingConfig = _.omit(updatedConfig, nonEditableFields);
+
+    const valid = stelaceConfigHelper.config.validate(updatingConfig);
+    if (!valid) {
+        throw createError(400);
+    }
+
+    let newConfig = _.defaults({}, updatingConfig, config);
+    newConfig = _computeNewConfig({ config: newConfig, secretData });
+
     const updateAttrs = {
         config: newConfig,
     };
@@ -192,12 +205,31 @@ async function updateFeatures(updatedFeatures) {
 async function updateSecretData(updatedSecretData) {
     await _fetchStelaceConfig();
 
+    const valid = stelaceConfigHelper.secretData.validate(updatedSecretData);
+    if (!valid) {
+        throw createError(400);
+    }
+
     const newSecretData = _.defaults({}, updatedSecretData, secretData);
+    const newConfig = _computeNewConfig({ config, secretData: newSecretData });
+
     const updateAttrs = {
         secretData: newSecretData,
+        config: newConfig,
     };
 
     const stelaceConfig = await StelaceConfig.updateOne(stelaceConfigId, updateAttrs);
     _updateCache(stelaceConfig);
     return secretData;
+}
+
+function _computeNewConfig({ config, secretData }) {
+    const newConfig = Object.assign({}, config);
+
+    newConfig.stripe_complete = !!(config.stripe_publishKey && secretData.stripe_secretKey);
+    newConfig.mangopay_complete = !!(secretData.mangopay_clientId && secretData.mangopay_passphrase);
+    newConfig.socialLogin_facebook_complete = !!(secretData.socialLogin_facebook_clientId && secretData.socialLogin_facebook_clientSecret);
+    newConfig.socialLogin_google_complete = !!(secretData.socialLogin_google_clientId && secretData.socialLogin_google_clientSecret);
+
+    return newConfig;
 }
