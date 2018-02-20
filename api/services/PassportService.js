@@ -183,11 +183,18 @@ async function createNewUser(query, profile, req) {
 
     const user = await UserService.createUser(params);
 
-    await Passport.create({
-        provider: query.provider,
-        identifier: query.identifier,
-        user: user.id,
-    });
+    try {
+        await Passport.create({
+            provider: query.provider,
+            identifier: query.identifier,
+            protocol: query.protocol,
+            user: user.id,
+        });
+    } catch (err) {
+        await User.destroy({ id: user.id }).catch(() => {});
+
+        throw err;
+    }
 
     // email can be null if social login without email provided
     if (user.email) {
