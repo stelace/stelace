@@ -17,7 +17,7 @@ const schema = {
             type: ['string', 'null'],
         },
         homeHeroBgMediaId: {
-            type: ['string', 'null'],
+            type: ['number', 'null'],
         },
         homeHeroBgUrl: {
             type: ['string', 'null'],
