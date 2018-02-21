@@ -180,7 +180,7 @@
         });
     }
 
-    function runBlock($ngRedux, $translate, cache, uiGmapGoogleMapApi, tools, cookie) {
+    function runBlock($ngRedux, cache, uiGmapGoogleMapApi, tools, cookie, ContentService, external) {
         // auth token
         var authTokenField = "setAuthToken";
 
@@ -243,41 +243,14 @@
             });
         }
 
-        var homeHeroBgStyle = document.createElement('style');
-        homeHeroBgStyle.id = _.uniqueId('style_');
-        document.body.appendChild(homeHeroBgStyle);
-
-        var setHomeHeroBackground = function (url) {
-            homeHeroBgStyle.innerHTML = [
-                '.stelace-hero.stelace-hero__background {',
-                    'background-image: url("' + url + '")',
-                '}'
-            ].join('');
-        };
-
-        // expose this function so translations can be refreshed from outside
-        window.refreshTranslation = function () {
-            $translate.refresh();
-        };
-
-        window.setHomeHeroBackground = setHomeHeroBackground;
+        // expose functions for ouside
+        external.init();
 
         var config = window.dataFromServer.config;
 
         if (config.homeHeroBgUrl) {
-            setHomeHeroBackground(config.homeHeroBgUrl);
+            ContentService.setHomeHeroBackground(config.homeHeroBgUrl);
         }
-
-        var setLogo = function (url) {
-            var state = $ngRedux.getState();
-            var config = state.config;
-            config.logoUrl = url;
-            config = _.assign({}, config);
-
-            $ngRedux.dispatch(window.actions.ConfigActions.setConfig(config));
-        };
-
-        window.setLogo = setLogo;
 
         // Force $ngRedux.subscribe in rootScope with dispatch
         var overwriteState = _populateState({});
