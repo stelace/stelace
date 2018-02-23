@@ -38,6 +38,8 @@ var seoPatterns = null;
 var oldSearchPatterns;
 
 async function index(req, res) {
+    const attrs = req.allParams();
+
     const userAgent = req.headers["user-agent"];
 
     const installationComplete = await StelaceConfigService.isInstallationComplete();
@@ -112,6 +114,14 @@ async function index(req, res) {
         stripePublishKey: config.stripe_publishKey,
     };
 
+    let highlightTranslations;
+    if (sails.config.highlightTranslations) {
+        highlightTranslations = true;
+    }
+    if (attrs['highlight-translations'] === '1') {
+        highlightTranslations = true;
+    }
+
     let viewParams = {
         layout: 'layouts/app',
         env: null,
@@ -129,7 +139,7 @@ async function index(req, res) {
         eventId: stelaceEvent ? stelaceEvent.id : 0,
         eventToken: stelaceEvent ? stelaceEvent.token : '',
         uxVersion: StelaceEventService.getCurrentVersion(),
-        devHighlightTranslations: sails.config.highlightTranslations ? 'dev-highlight-translations' : '',
+        devHighlightTranslations: highlightTranslations ? 'dev-highlight-translations' : '',
         featureDetection: !UAService.isBot(userAgent),
         dataFromServer: JSON.stringify(dataFromServer || {}),
         stripeActive: paymentProvider === 'stripe',
