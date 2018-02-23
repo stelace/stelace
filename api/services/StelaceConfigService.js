@@ -47,6 +47,7 @@ function getDefaultFeatures() {
             EVENTS: true,
             SOCIAL_LOGIN: true,
             INCOME_REPORT: true,
+            LISTING_CATEGORIES: true,
             SMS: true,
             MAP: true,
         };
@@ -70,6 +71,7 @@ const dbFeatureNames = [
     'EVENTS',
     'GAMIFICATION',
     'INCOME_REPORT',
+    'LISTING_CATEGORIES',
     'MAP',
     'SMS',
     'SOCIAL_LOGIN',
@@ -199,7 +201,6 @@ async function _loadFeatures(stelaceConfig) {
 
     // create alias for some features
     _.assign(features, {
-        LISTING_CATEGORIES: features.TAGS,
         REFERRAL: features.GAMIFICATION,
     });
 
