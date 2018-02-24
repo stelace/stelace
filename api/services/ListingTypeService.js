@@ -37,7 +37,7 @@ let indexedListingTypes;
 
 const listingTypeProperties = {
     TIME: {
-        values: ['NONE', 'TIME_FLEXIBLE'],
+        values: ['NONE', 'TIME_PREDEFINED', 'TIME_FLEXIBLE'],
         defaultValue: 'NONE',
     },
     ASSESSMENTS: {

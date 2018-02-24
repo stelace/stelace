@@ -108,4 +108,104 @@ describe('BookingService', () => {
             expect(availability.availablePeriods).to.deep.equal(availablePeriods);
         });
     });
+
+    describe.only('.getAvailabilityDates()', () => {
+        it('is available if there is no future bookings and no new booking is provided', () => {
+            const availability = BookingService.getAvailabilityDates();
+
+            expect(availability.isAvailable).to.be.true;
+            expect(availability.availableDates.length).to.equal(0);
+        });
+
+        it(`is available if there is no future bookings and new booking is provided`, () => {
+            const newBooking = {
+                startDate: '2018-01-01T00:00:00.000Z',
+                quantity: 1,
+            };
+            const availableDates = [
+                { date: '2018-01-01T00:00:00.000Z', quantity: 1, selected: true },
+            ];
+            const availability = BookingService.getAvailabilityDates({ newBooking });
+
+            expect(availability.isAvailable).to.be.true;
+            expect(availability.availableDates).to.deep.equal(availableDates);
+        });
+
+        it(`isn't available if the new booking quantity exceeds the max quantity`, () => {
+            const newBooking = {
+                startDate: '2018-01-01T00:00:00.000Z',
+                quantity: 2,
+            };
+            const availableDates = [
+                { date: '2018-01-01T00:00:00.000Z', quantity: 2, selected: true },
+            ];
+            const availability = BookingService.getAvailabilityDates({ newBooking, maxQuantity: 1 });
+
+            expect(availability.isAvailable).to.be.false;
+            expect(availability.availableDates).to.deep.equal(availableDates);
+        });
+
+        it(`isn't available if the new booking quantity exceeds the max quantity of a listing availability`, () => {
+            const newBooking = {
+                startDate: '2018-01-01T00:00:00.000Z',
+                quantity: 2,
+            };
+            const listingAvailabilities = [
+                {
+                    startDate: '2018-01-01T00:00:00.000Z',
+                    quantity: 1,
+                },
+            ];
+            const availableDates = [
+                { date: '2018-01-01T00:00:00.000Z', quantity: 2, selected: true },
+            ];
+            const availability = BookingService.getAvailabilityDates({ newBooking, listingAvailabilities, maxQuantity: 4 });
+
+            expect(availability.isAvailable).to.be.false;
+            expect(availability.availableDates).to.deep.equal(availableDates);
+        });
+
+        it('returns the availability dates graph to see how the quantity evolves', () => {
+            const futureBookings = [
+                {
+                    startDate: '2018-01-01T00:00:00.000Z',
+                    quantity: 1,
+                },
+                {
+                    startDate: '2018-01-03T00:00:00.000Z',
+                    quantity: 2,
+                },
+                {
+                    startDate: '2018-01-03T00:00:00.000Z', // overlaps the previous booking
+                    quantity: 1,
+                },
+                {
+                    startDate: '2018-02-01T00:00:00.000Z',
+                    quantity: 3,
+                },
+            ];
+            const listingAvailabilities = [
+                {
+                    startDate: '2018-01-05T00:00:00.000Z',
+                    quantity: 2,
+                },
+            ];
+            const newBooking = {
+                startDate: '2018-01-04T00:00:00.000Z',
+                quantity: 4,
+            };
+            const availableDates = [
+                { date: '2018-01-01T00:00:00.000Z', quantity: 1 },
+                { date: '2018-01-03T00:00:00.000Z', quantity: 3 },
+                { date: '2018-01-04T00:00:00.000Z', quantity: 4, selected: true },
+                { date: '2018-02-01T00:00:00.000Z', quantity: 3 },
+            ];
+
+            const availability = BookingService.getAvailabilityDates({ futureBookings, listingAvailabilities, newBooking });
+
+            expect(availability.isAvailable).to.be.true;
+            expect(availability.availableDates).to.deep.equal(availableDates);
+            expect(availability.listingAvailabilities).to.deep.equal(listingAvailabilities);
+        });
+    });
 });

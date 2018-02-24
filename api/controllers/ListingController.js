@@ -29,6 +29,7 @@ module.exports = {
     pauseListingToggle,
     getListingAvailability,
     createListingAvailability,
+    updateListingAvailability,
     removeListingAvailability,
 
 };
@@ -504,37 +505,45 @@ async function createListingAvailability(req, res) {
     const {
         startDate,
         endDate,
+        quantity = 1,
     } = req.allParams();
-    const quantity = 1; // TODO: take user input
 
     const access = 'others';
 
-    try {
-        const listingAvailability = await ListingService.createListingAvailability({
-            listingId: id,
-            startDate,
-            endDate,
-            quantity,
-        }, { userId: req.user.id });
+    const listingAvailability = await ListingService.createListingAvailability({
+        listingId: id,
+        startDate,
+        endDate,
+        quantity,
+    }, { userId: req.user.id });
 
-        res.json(ListingAvailability.expose(listingAvailability, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    res.json(ListingAvailability.expose(listingAvailability, access));
+}
+
+async function updateListingAvailability(req, res) {
+    const id = req.param('id');
+    const listingAvailabilityId = req.param('listingAvailabilityId');
+    const quantity = req.param('quantity');
+
+    const access = 'others';
+
+    const listingAvailability = await ListingService.updateListingAvailability({
+        listingId: id,
+        listingAvailabilityId,
+        quantity,
+    }, { userId: req.user.id });
+
+    res.json(ListingAvailability.expose(listingAvailability, access));
 }
 
 async function removeListingAvailability(req, res) {
     const id = req.param('id');
     const listingAvailabilityId = req.param('listingAvailabilityId');
 
-    try {
-        await ListingService.removeListingAvailability(
-            { listingId: id, listingAvailabilityId },
-            { userId: req.user.id }
-        );
+    await ListingService.removeListingAvailability(
+        { listingId: id, listingAvailabilityId },
+        { userId: req.user.id }
+    );
 
-        res.json({ ok: true });
-    } catch (err) {
-        res.sendError(err);
-    }
+    res.json({ ok: true });
 }

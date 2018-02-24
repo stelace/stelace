@@ -1,17 +1,23 @@
 module.exports = {
 
-    isDate: isDate,
-    isDateString: isDateString,
-    isPureDate: isPureDate,
-    isIntersection: isIntersection,
-    getPeriodLimits: getPeriodLimits,
-    convertTimestampSecToISO: convertTimestampSecToISO,
-    getMonthWeekDays: getMonthWeekDays
+    isDate,
+    isDateString,
+    isPureDate,
+    isIntersection,
+    getPeriodLimits,
+    convertTimestampSecToISO,
+    getMonthWeekDays,
+    isValidCronPattern,
+    parseCronPattern,
+    convertToCronPattern,
+    forceCronPattern,
+    computeRecurringDates,
 
 };
 
-var moment = require('moment');
+const moment = require('moment');
 const _ = require('lodash');
+const CronConverter = require('cron-converter');
 
 /**
  * Check if the provided date is an instance of Date and a valid date
@@ -132,4 +138,108 @@ function getMonthWeekDays(weekDayNum, year, month) {
     }
 
     return weekDays;
+}
+
+function isValidCronPattern(pattern) {
+    const cronInstance = new CronConverter();
+    try {
+        cronInstance.fromString(pattern);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function parseCronPattern(pattern) {
+    const cronInstance = new CronConverter();
+
+    cronInstance.fromString(pattern);
+    const array = cronInstance.toArray();
+
+    return {
+        minute: array[0],
+        hour: array[1],
+        dayOfMonth: array[2],
+        month: array[3],
+        dayOfWeek: array[4],
+    };
+}
+
+function convertToCronPattern(cronObj) {
+    const cronInstance = new CronConverter();
+
+    const array = [
+        cronObj.minute,
+        cronObj.hour,
+        cronObj.dayOfMonth,
+        cronObj.month,
+        cronObj.dayOfWeek,
+    ];
+
+    return cronInstance.fromArray(array).toString();
+}
+
+/**
+ * Force the cron pattern to not trigger below the provided time unit
+ * e.g. if the time unit is day, do not trigger every minute or every hour
+ * @param {String} pattern
+ * @param {String} timeUnit - 'm', 'h', 'd'
+ */
+function forceCronPattern(pattern, timeUnit) {
+    if (!_.includes(['m', 'h', 'd'], timeUnit)) {
+        throw new Error('Invalid time unit');
+    }
+
+    if (timeUnit === 'm') {
+        return pattern;
+    }
+
+    const parsed = parseCronPattern(pattern);
+
+    if (timeUnit === 'h') {
+        parsed.minute = [0];
+    } else if (timeUnit === 'd') {
+        parsed.minute = [0];
+        parsed.hour = [0];
+    }
+
+    return convertToCronPattern(parsed);
+}
+
+/**
+ * @param {String} pattern
+ * @param {Object} attrs
+ * @param {String} attrs.startDate - inclusive
+ * @param {String} attrs.endDate - exclusive
+ * @param {String[]} dates
+ */
+function computeRecurringDates(pattern, { startDate, endDate } = {}) {
+    if (!isDateString(startDate) || !isDateString(endDate)) {
+        throw new Error('Expected start and end dates');
+    }
+    if (endDate < startDate) {
+        throw new Error('Invalid dates');
+    }
+
+    const cronInstance = new CronConverter({
+        timezone: 'Europe/London', // Greenwich timezone
+    });
+    cronInstance.fromString(pattern);
+
+    const schedule = cronInstance.schedule(startDate);
+
+    let continueLoop = true;
+    const dates = [];
+
+    while (continueLoop) {
+        const date = schedule.next().toISOString();
+
+        continueLoop = date < endDate;
+
+        if (continueLoop) {
+            dates.push(date);
+        }
+    }
+
+    return dates;
 }

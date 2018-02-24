@@ -58,9 +58,10 @@
         /**
          * Check if booking dates are valid when calendar needed based on listing type config
          * @param  {String}  startDate
-         * @param  {Number}  nbTimeUnits
+         * @param  {Number}  [nbTimeUnits] - not required if no duration
          * @param  {String}  refDate
          * @param  {Object}  config
+         * @param  {Object}  [canOmitDuration = false] - if true, nbTimeUnits not required
          * @return {Boolean}
          */
         function isValidDates(args) {
@@ -68,6 +69,7 @@
             var nbTimeUnits = args.nbTimeUnits;
             var refDate     = args.refDate;
             var config      = args.config;
+            var canOmitDuration = args.canOmitDuration || false;
 
             var errors          = {};
             var badParamsErrors = {};
@@ -96,16 +98,19 @@
             var durationErrors  = {};
             var startDateErrors = {};
 
-            if (nbTimeUnits <= 0) {
-                durationErrors.INVALID = true;
-            } else {
-                if (nbTimeUnits && config.minDuration && nbTimeUnits < config.minDuration) {
-                    durationErrors.BELOW_MIN = true;
-                }
-                if (nbTimeUnits && config.maxDuration && config.maxDuration < nbTimeUnits) {
-                    durationErrors.ABOVE_MAX = true;
+            if (canOmitDuration) {
+                if (nbTimeUnits <= 0) {
+                    durationErrors.INVALID = true;
+                } else {
+                    if (nbTimeUnits && config.minDuration && nbTimeUnits < config.minDuration) {
+                        durationErrors.BELOW_MIN = true;
+                    }
+                    if (nbTimeUnits && config.maxDuration && config.maxDuration < nbTimeUnits) {
+                        durationErrors.ABOVE_MAX = true;
+                    }
                 }
             }
+
             if (startDateMinLimit && startDate < startDateMinLimit) {
                 startDateErrors.BEFORE_MIN = true;
             }

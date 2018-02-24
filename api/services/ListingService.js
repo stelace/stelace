@@ -13,6 +13,7 @@ module.exports = {
     validateListing,
     getPricing,
     createListingAvailability,
+    updateListingAvailability,
     removeListingAvailability,
 
 };
@@ -39,6 +40,7 @@ const createError = require('http-errors');
  * @param {Boolean} [attrs.validation]
  * @param {String[]} [attrs.validationFields]
  * @param {Number[]} [attrs.locations]
+ * @param {String} [attrs.reccuringDatesPattern]
  * @param {Number[]} [attrs.listingTypesIds]
  * @param {Object} [attrs.customPricingConfig]
  * @param {Boolean} [attrs.acceptFree]
@@ -62,6 +64,7 @@ async function createListing(attrs, { req, res } = {}) {
         'validation',
         'validationFields',
         'locations',
+        'reccuringDatesPattern',
         'listingTypesIds',
         'dayOnePrice',
         'sellingPrice',
@@ -80,6 +83,7 @@ async function createListing(attrs, { req, res } = {}) {
         || typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
+        || (createAttrs.reccuringDatesPattern && !TimeService.isValidCronPattern(createAttrs.reccuringDatesPattern))
     ) {
         throw createError(400);
     }
@@ -87,6 +91,14 @@ async function createListing(attrs, { req, res } = {}) {
     const listingTypes = await ListingTypeService.filterListingTypes(createAttrs.listingTypesIds);
     if (createAttrs.listingTypesIds.length !== listingTypes.length) {
         throw createError(400);
+    }
+
+    if (createAttrs.reccuringDatesPattern) {
+        const listingType = listingTypes[0];
+        createAttrs.reccuringDatesPattern = TimeService.forceCronPattern(
+            createAttrs.reccuringDatesPattern,
+            listingType.config.bookingTime.timeUnit || 'd'
+        );
     }
 
     let data = createAttrs.data || {};
@@ -187,6 +199,7 @@ async function createListing(attrs, { req, res } = {}) {
  * @param {Boolean} [attrs.validation]
  * @param {String[]} [attrs.validationFields]
  * @param {Number[]} [attrs.locations]
+ * @param {String} [attrs.reccuringDatesPattern]
  * @param {Number[]} [attrs.listingTypesIds]
  * @param {Object} [attrs.customPricingConfig]
  * @param {Boolean} [attrs.acceptFree]
@@ -207,6 +220,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         'brandId',
         'listingCategoryId',
         'locations',
+        'reccuringDatesPattern',
         'listingTypesIds',
         'dayOnePrice',
         'sellingPrice',
@@ -225,6 +239,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== 'number' || updateAttrs.dayOnePrice < 0))
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
         || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
+        || (updateAttrs.reccuringDatesPattern && !TimeService.isValidCronPattern(updateAttrs.reccuringDatesPattern))
     ) {
         throw createError(400);
     }
@@ -265,6 +280,14 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         data = newData;
     });
     updateAttrs.data = data;
+
+    if (updateAttrs.reccuringDatesPattern) {
+        const listingType = listingTypes[0];
+        updateAttrs.reccuringDatesPattern = TimeService.forceCronPattern(
+            updateAttrs.reccuringDatesPattern,
+            listingType.config.bookingTime.timeUnit || 'd'
+        );
+    }
 
     const [
         validReferences,
@@ -509,10 +532,10 @@ async function createListingAvailability(attrs, { userId } = {}) {
         quantity,
     } = attrs;
 
-    if (!startDate || !TimeService.isDateString(startDate)
-     || !endDate || !TimeService.isDateString(endDate)
-     || endDate <= startDate
-    ) {
+    if (!startDate || !TimeService.isDateString(startDate)) {
+        throw createError(400);
+    }
+    if (typeof quantity !== 'number' || quantity < 0) {
         throw createError(400);
     }
 
@@ -532,32 +555,88 @@ async function createListingAvailability(attrs, { userId } = {}) {
         throw createError(404);
     }
 
-    const { timeAvailability } = listingType.config;
+    const { TIME } = listingType.properties;
+    let createAttrs;
 
-    if (timeAvailability === 'NONE') {
+    if (TIME === 'TIME_PREDEFINED') {
+        const [existingListingAvailability] = await ListingAvailability.find({
+            listingId,
+            type: 'date',
+            startDate,
+        }).limit(1);
+
+        if (existingListingAvailability) {
+            throw createError(400, 'Listing availability already exists');
+        }
+
+        createAttrs = {
+            listingId,
+            startDate,
+            quantity,
+            type: 'date',
+            available: true,
+        };
+    } else {
+        if (!endDate || !TimeService.isDateString(endDate)
+         || endDate <= startDate
+        ) {
+            throw createError(400);
+        }
+
+        const { timeAvailability } = listingType.config;
+
+        if (timeAvailability === 'NONE') {
+            throw createError(403);
+        }
+
+        let available;
+        if (timeAvailability === 'AVAILABLE') {
+            available = false;
+        } else if (timeAvailability === 'UNAVAILABLE') {
+            available = true;
+        }
+
+        const listingAvailabilities = await ListingAvailability.find({ listingId, type: 'period' });
+
+        if (TimeService.isIntersection(listingAvailabilities, { startDate, endDate })) {
+            throw createError(400, 'Listing availability conflict');
+        }
+
+        createAttrs = {
+            listingId,
+            startDate,
+            endDate,
+            quantity,
+            type: 'period',
+            available,
+        };
+    }
+
+    const listingAvailability = await ListingAvailability.create(createAttrs);
+    return listingAvailability;
+}
+
+/**
+ * @param {Object} attrs
+ * @param {Number} attrs.listingId
+ * @param {Number} attrs.listingAvailabilityId
+ * @param {Number} attrs.quantity
+ * @param {Object} [options]
+ * @param {Number} [options.userId]
+ */
+async function updateListingAvailability({ listingId, listingAvailabilityId, quantity }, { userId } = {}) {
+    const listing = await Listing.findOne({ id: listingId });
+    if (!listing) {
+        throw createError(404);
+    }
+    if (userId && listing.ownerId !== userId) {
         throw createError(403);
     }
-
-    let available;
-    if (timeAvailability === 'AVAILABLE') {
-        available = false;
-    } else if (timeAvailability === 'UNAVAILABLE') {
-        available = true;
+    if (typeof quantity !== 'number' || quantity < 0) {
+        throw createError(400);
     }
 
-    const listingAvailabilities = await ListingAvailability.find({ listingId });
-
-    if (TimeService.isIntersection(listingAvailabilities, { startDate, endDate })) {
-        throw createError(400, 'Listing availability conflict');
-    }
-
-    const listingAvailability = await ListingAvailability.create({
-        listingId,
-        startDate,
-        endDate,
-        quantity,
-        available,
-    });
+    const listingAvailability = await ListingAvailability.updateOne(listingAvailabilityId, { quantity });
     return listingAvailability;
 }
 

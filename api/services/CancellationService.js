@@ -1,5 +1,5 @@
 /* global
-    Booking, BookingPaymentService, BookingService, Cancellation, Conversation, Listing, MathService, User
+    Booking, BookingPaymentService, BookingService, Cancellation, Conversation, Listing, ListingAvailability, MathService, User
 */
 
 module.exports = {
@@ -286,12 +286,39 @@ async function cancelOtherBookings(booking, logger) {
     if (TIME === 'NONE') {
         otherBookings = await Booking.find({
             listingId: booking.listingId,
-            quantity: { '>': listing.quantity },
+            quantity: { '>': listing.quantity }, // listing quantity has been updated previously
             id: { '!=': booking.id },
             paidDate: null,
             cancellationId: null,
         });
-    // time does matter (like renting)
+    // cancel pending bookings whose quantity exceeds the max quantity during the booking date
+    } else if (TIME === 'TIME_PREDEFINED') {
+        const pendingBookings = await Booking.getPendingBookings(booking.listingId, {
+            refBooking: booking,
+            intersection: true,
+        });
+
+        const refDate = booking.startDate;
+        const futureBookings = await Listing.getFutureBookings(booking.listingId, refDate);
+
+        const listingAvailabilities = await ListingAvailability.find({
+            listingId: booking.listingId,
+            type: 'date',
+        });
+
+        // for each pending bookings, compute if it exceeds the stock limit at the booking date
+        _.forEach(pendingBookings, pendingBooking => {
+            const availableResult = BookingService.getAvailabilityDates({
+                futureBookings,
+                listingAvailabilities,
+                newBooking: pendingBooking,
+                maxQuantity: listing.quantity,
+            });
+
+            if (!availableResult.isAvailable) {
+                otherBookings.push(pendingBooking);
+            }
+        });
     // cancel pending bookings whose quantity exceeds the max quantity during the booking period
     } else if (TIME === 'TIME_FLEXIBLE') {
         const pendingBookings = await Booking.getPendingBookings(booking.listingId, {
@@ -302,10 +329,16 @@ async function cancelOtherBookings(booking, logger) {
         const refDate = booking.startDate;
         const futureBookings = await Listing.getFutureBookings(booking.listingId, refDate);
 
+        const listingAvailabilities = await ListingAvailability.find({
+            listingId: booking.listingId,
+            type: 'period',
+        });
+
         // for each pending bookings, compute if it exceeds the stock limit during the period
         _.forEach(pendingBookings, pendingBooking => {
             const availableResult = BookingService.getAvailabilityPeriods({
                 futureBookings,
+                listingAvailabilities,
                 newBooking: pendingBooking,
                 maxQuantity: listing.quantity,
             });

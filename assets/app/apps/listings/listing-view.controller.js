@@ -592,7 +592,8 @@
                     startDate: startDate,
                     nbTimeUnits: vm.nbTimeUnits,
                     refDate: refDate,
-                    config: vm.timeFlexibleListingType.config.bookingTime
+                    config: vm.timeFlexibleListingType.config.bookingTime,
+                    canOmitDuration: false
                 });
 
                 if (isValidDates.result) {

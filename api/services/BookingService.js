@@ -1,12 +1,13 @@
 /*
     global Booking, ContractService, Listing, ListingAvailability, ListingTypeService, ModelSnapshot, PricingService,
-    StelaceConfigService, User
+    StelaceConfigService, TimeService, User
  */
 
 module.exports = {
 
     createBooking,
     getAvailabilityPeriods,
+    getAvailabilityDates,
 
 };
 
@@ -164,6 +165,7 @@ async function setBookingTimePeriods({
             nbTimeUnits,
             refDate: moment().format('YYYY-MM-DD') + 'T00:00:00.000Z',
             config: listingType.config.bookingTime,
+            canOmitDuration: false,
         });
 
         if (!validDates.result) {
@@ -187,6 +189,53 @@ async function setBookingTimePeriods({
             pricingId: listing.pricingId,
             customPricingConfig: listing.customPricingConfig,
         });
+    } else if (TIME === 'TIME_PREDEFINED') {
+        if (!startDate) {
+            throw createError(400);
+        }
+
+        const timeUnit = listingType.config.bookingTime.timeUnit;
+
+        const validDates = Booking.isValidDates({
+            startDate,
+            refDate: moment().format('YYYY-MM-DD') + 'T00:00:00.000Z',
+            config: listingType.config.bookingTime,
+            canOmitDuration: true,
+        });
+
+        if (!validDates.result) {
+            throw createError(400, 'Invalid date');
+        }
+
+        let validPredefinedDate = true;
+        let isDateInRecurringList = false;
+
+        const listingAvailability = await ListingAvailability.findOne({
+            listingId: listing.id,
+            startDate,
+            type: 'date',
+        });
+
+        if (listing.reccuringDatesPattern) {
+            const recurringDates = TimeService.computeRecurringDates(listing.reccuringDatesPattern, {
+                startDate: moment(startDate).add({ d: -1 }).toISOString(),
+                endDate: moment(startDate).add({ d: 1 }).toISOString(),
+            });
+
+            isDateInRecurringList = _.includes(recurringDates, startDate);
+        }
+
+        validPredefinedDate = !!listingAvailability || isDateInRecurringList;
+
+        if (!validPredefinedDate) {
+            throw createError(400, 'The booking date is not in the predefined list');
+        }
+
+        _.assign(bookingAttrs, {
+            startDate,
+            timeUnit,
+            currency: 'EUR', // TODO: allow to set other currencies
+        });
     }
 
     return bookingAttrs;
@@ -208,17 +257,26 @@ async function setBookingAvailability({
 
     if (AVAILABILITY === 'NONE') {
         bookingAttrs.quantity = 1;
-    } else {
+    } else if (AVAILABILITY === 'UNIQUE') {
         if (maxQuantity < quantity) {
             throw createError(400, 'Do not have enough quantity');
         }
 
+        bookingAttrs.quantity = 1;
+    } else {
         if (TIME === 'TIME_FLEXIBLE') {
+            if (maxQuantity < quantity) {
+                throw createError(400, 'Do not have enough quantity');
+            }
+
             const futureBookings = await Listing.getFutureBookings(listing.id, now);
 
             let listingAvailabilities;
             if (timeAvailability === 'AVAILABLE' || timeAvailability === 'UNAVAILABLE') {
-                listingAvailabilities = await ListingAvailability.find({ listingId: listing.id });
+                listingAvailabilities = await ListingAvailability.find({
+                    listingId: listing.id,
+                    type: 'period',
+                });
             }
 
             const availability = getAvailabilityPeriods({
@@ -227,6 +285,28 @@ async function setBookingAvailability({
                 newBooking: {
                     startDate,
                     endDate,
+                    quantity,
+                },
+                maxQuantity,
+            });
+
+            if (!availability.isAvailable) {
+                throw createError(400, 'Not available');
+            }
+        } else if (TIME === 'TIME_PREDEFINED') {
+            const futureBookings = await Listing.getFutureBookings(listing.id, now);
+
+            let listingAvailabilities;
+            listingAvailabilities = await ListingAvailability.find({
+                listingId: listing.id,
+                type: 'date',
+            });
+
+            const availability = getAvailabilityDates({
+                futureBookings,
+                listingAvailabilities,
+                newBooking: {
+                    startDate,
                     quantity,
                 },
                 maxQuantity,
@@ -460,5 +540,84 @@ function getAvailabilityPeriods({ futureBookings = [], listingAvailabilities = [
     return {
         isAvailable,
         availablePeriods,
+    };
+}
+
+/**
+ * Check if the listing is available compared to future bookings and stock availability
+ * @param  {Object[]} [futureBookings]
+ * @param  {String} futureBookings[i].startDate
+ * @param  {Number} futureBookings[i].quantity
+ * @param  {Object[]} [listingAvailabilities]
+ * @param  {String} listingAvailabilities[i].startDate
+ * @param  {Number} listingAvailabilities[i].quantity
+ * @param  {Object} [newBooking]
+ * @param  {String} newBooking.startDate
+ * @param  {Number} newBooking.quantity
+ * @param  {Number} [maxQuantity] - if not defined, treat it as no limit
+ *
+ * @return {Object} res
+ * @return {Boolean} res.isAvailable
+ * @return {Object[]} res.availableDates
+ * @return {String} res.availableDates[i].date
+ * @return {Number} res.availableDates[i].quantity - represents the quantity used at this date
+ * @return {Boolean} [res.availableDates[i].selected] - if defined, show that this date is from the new booking
+ */
+function getAvailabilityDates({ futureBookings = [], listingAvailabilities = [], newBooking, maxQuantity } = {}) {
+    const dateSteps = {};
+
+    _.forEach(futureBookings, booking => {
+        let dateStep = dateSteps[booking.startDate];
+        if (!dateStep) {
+            dateStep = {
+                date: booking.startDate,
+                quantity: 0,
+            };
+            dateSteps[booking.startDate] = dateStep;
+        }
+
+        dateStep.quantity += booking.quantity;
+    });
+
+    if (newBooking) {
+        let dateStep = dateSteps[newBooking.startDate];
+        if (!dateStep) {
+            dateStep = {
+                date: newBooking.startDate,
+                quantity: 0,
+            };
+            dateSteps[newBooking.startDate] = dateStep;
+        }
+
+        dateStep.quantity += newBooking.quantity;
+        dateStep.selected = true;
+    }
+
+    let isAvailable = true;
+    const availableDates = _.sortBy(_.values(dateSteps), 'date');
+    const exposedListingAvailabilities = listingAvailabilities.map(listingAvailability => {
+        return _.pick(listingAvailability, ['startDate', 'quantity']);
+    })
+
+    const indexedListingAvailabilities = _.indexBy(listingAvailabilities, 'startDate');
+
+    let currentMaxQuantity;
+    if (newBooking && typeof maxQuantity === 'number') {
+        currentMaxQuantity = maxQuantity;
+
+        const listingAvailability = indexedListingAvailabilities[newBooking.startDate];
+        if (listingAvailability) {
+            currentMaxQuantity = listingAvailability.quantity;
+        }
+    }
+
+    if (newBooking && typeof currentMaxQuantity === 'number' && dateSteps[newBooking.startDate].quantity > currentMaxQuantity) {
+        isAvailable = false;
+    }
+
+    return {
+        isAvailable,
+        listingAvailabilities: exposedListingAvailabilities,
+        availableDates,
     };
 }

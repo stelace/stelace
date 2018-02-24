@@ -51,11 +51,20 @@ module.exports = {
             columnType: 'tinyint(1)',
             required: true,
         },
+        type: { // 'period' or 'date'
+            type: 'string',
+            columnType: 'varchar(255)',
+            maxLength: 255,
+            required: true,
+        },
     },
 
     getAccessFields,
+    isValidType,
 
 };
+
+const _ = require('lodash');
 
 function getAccessFields(access) {
     var accessFields = {
@@ -70,4 +79,8 @@ function getAccessFields(access) {
     };
 
     return accessFields[access];
+}
+
+function isValidType(type) {
+    return _.includes(['period', 'date'], type);
 }

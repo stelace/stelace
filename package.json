@@ -36,6 +36,7 @@
     "bunyan": "1.6.0",
     "cheerio": "0.20.0",
     "countryjs": "1.8.0",
+    "cron-converter": "0.0.12",
     "crypto-js": "3.1.6",
     "del": "2.2.0",
     "diacritics": "1.2.3",
