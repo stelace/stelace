@@ -351,15 +351,16 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
 
 /**
  * Check if the listing is available compared to future bookings and stock availability
- * @param  {Object[]} futureBookings
- * @param  {Object} futureBookings[i].startDate
- * @param  {Object} futureBookings[i].endDate
- * @param  {Object} futureBookings[i].quantity
- * @param  {Object[]} listingAvailabilities
- * @param  {Object} listingAvailabilities[i].startDate
- * @param  {Object} listingAvailabilities[i].endDate
- * @param  {Object} listingAvailabilities[i].quantity
- * @param  {Object[]} newBooking
+ * @param  {Object[]} [futureBookings]
+ * @param  {String} futureBookings[i].startDate
+ * @param  {String} futureBookings[i].endDate
+ * @param  {Number} futureBookings[i].quantity
+ * @param  {Object[]} [listingAvailabilities]
+ * @param  {String} listingAvailabilities[i].startDate
+ * @param  {String} listingAvailabilities[i].endDate
+ * @param  {Boolean} listingAvailabilities[i].available
+ * @param  {Number} listingAvailabilities[i].quantity
+ * @param  {Object} [newBooking]
  * @param  {String} newBooking.startDate
  * @param  {String} newBooking.endDate
  * @param  {Number} newBooking.quantity
@@ -369,17 +370,10 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
  * @return {Boolean} res.isAvailable
  * @return {Object[]} res.availablePeriods
  * @return {String} res.availablePeriods[i].date
- * @return {Number} res.availablePeriods[i].quantity
- * @return {String} [res.availablePeriods[i].newPeriod]
+ * @return {Number} res.availablePeriods[i].quantity - represents the quantity used at this date
+ * @return {String} [res.availablePeriods[i].newPeriod] - 'start' or 'end', represents the limits of the new booking if provided
  */
 function getAvailabilityPeriods({ futureBookings = [], listingAvailabilities = [], newBooking, maxQuantity } = {}) {
-    if (!futureBookings.length && !listingAvailabilities.length) {
-        return {
-            isAvailable: true,
-            availablePeriods: [],
-        };
-    }
-
     const dateSteps = [];
 
     _.forEach(futureBookings, booking => {
