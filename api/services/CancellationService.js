@@ -10,7 +10,6 @@ module.exports = {
 
 };
 
-const moment = require('moment');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const createError = require('http-errors');
@@ -300,19 +299,13 @@ async function cancelOtherBookings(booking, logger) {
             intersection: true,
         });
 
-        const today = moment().format('YYYY-MM-DD');
-        const futureBookings = await Listing.getFutureBookings(booking.listingId, today);
+        const refDate = booking.startDate;
+        const futureBookings = await Listing.getFutureBookings(booking.listingId, refDate);
 
-        // in some configuration, the current booking is not yet considered as future, so add it manually
-        const refBookingInFuture = !!_.find(futureBookings, futureBooking => {
-            return futureBooking.id === booking.id;
-        });
-        if (!refBookingInFuture) {
-            futureBookings.push(booking);
-        }
-
+        // for each pending bookings, compute if it exceeds the stock limit during the period
         _.forEach(pendingBookings, pendingBooking => {
-            const availableResult = BookingService.getAvailabilityPeriods(futureBookings, {
+            const availableResult = BookingService.getAvailabilityPeriods({
+                futureBookings,
                 newBooking: pendingBooking,
                 maxQuantity: listing.quantity,
             });
