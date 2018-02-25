@@ -96,7 +96,6 @@ function checkListingTypeProperty(name, value) {
 
 function getDefaultListingTypeConfig() {
     return {
-        timeAvailability: 'NONE',
         pricing: {
             ownerFeesPercent: 0,
             takerFeesPercent: 0,
@@ -119,16 +118,13 @@ function getDefaultListingTypeConfig() {
 
 function isValidConfig(config) {
     return typeof config === 'object'
-        && checkListingTypeConfigField('timeAvailability', config.timeAvailability)
         && checkListingTypeConfigField('pricing', config.pricing)
         && checkListingTypeConfigField('bookingTime', config.bookingTime)
         && checkListingTypeConfigField('rating', config.rating);
 }
 
 function checkListingTypeConfigField(field, value) {
-    if (field === 'timeAvailability') {
-        return _.includes(['NONE', 'AVAILABLE', 'UNAVAILABLE'], value);
-    } else if (field === 'pricing') {
+    if (field === 'pricing') {
         if (typeof value !== 'object') return false;
         const obj = value;
 

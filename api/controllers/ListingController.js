@@ -1,5 +1,5 @@
 /* global
-    BookingService, Listing, ListingAvailability, ListingService, Location, Media, MicroService,
+    BookingService, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, MicroService,
     PriceRecommendationService, PricingService, SearchEvent, SearchService, TokenService, User
 */
 
@@ -192,13 +192,41 @@ async function findOne(req, res) {
         listing.medias             = Media.exposeAll(listingMedias, access);
         listing.instructionsMedias = Media.exposeAll(listingInstructionsMedias, access);
 
-        let listingAvailabilities = await ListingAvailability.find({ listingId: listing.id });
+        let listingType;
+        if (listing.listingTypesIds.length) {
+            listingType = await ListingTypeService.getListingType(listing.listingTypesIds[0]);
+        }
 
-        const availableResult = BookingService.getAvailabilityPeriods({
-            futureBookings,
-            listingAvailabilities,
-        });
-        listing.availablePeriods = availableResult.availablePeriods;
+        const availabilityGraphs = {
+            periods: null,
+            dates: null,
+        };
+
+        if (listingType) {
+            const { TIME } = listingType.properties;
+
+            const maxQuantity = Listing.getMaxQuantity(listing, listingType);
+
+            if (TIME === 'TIME_FLEXIBLE') {
+                const listingAvailabilities = await ListingAvailability.find({
+                    listingId: listing.id,
+                    type: 'period',
+                });
+
+                const availabilityGraph = BookingService.getAvailabilityPeriodGraph({ futureBookings, listingAvailabilities, maxQuantity });
+                availabilityGraphs.periods = availabilityGraph;
+            } else if (TIME === 'TIME_PREDEFINED') {
+                const listingAvailabilities = await ListingAvailability.find({
+                    listingId: listing.id,
+                    type: 'date',
+                });
+
+                const availabilityGraph = BookingService.getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });
+                availabilityGraphs.dates = availabilityGraph;
+            }
+        }
+
+        listing.availabilityGraphs = availabilityGraphs;
 
         res.json(listing);
     } catch (err) {

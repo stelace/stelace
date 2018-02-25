@@ -6,8 +6,12 @@
 module.exports = {
 
     createBooking,
-    getAvailabilityPeriods,
-    getAvailabilityDates,
+
+    getAvailabilityPeriodGraph,
+    getAvailabilityDateGraph,
+
+    getAvailabilityPeriodInfo,
+    getAvailabilityDateInfo,
 
 };
 
@@ -251,69 +255,51 @@ async function setBookingAvailability({
     now,
 }) {
     const { TIME, AVAILABILITY } = listingType.properties;
-    const { timeAvailability } = listingType.config;
-
-    const maxQuantity = Listing.getMaxQuantity(listing, listingType);
 
     if (AVAILABILITY === 'NONE') {
         bookingAttrs.quantity = 1;
-    } else if (AVAILABILITY === 'UNIQUE') {
-        if (maxQuantity < quantity) {
-            throw createError(400, 'Do not have enough quantity');
-        }
-
-        bookingAttrs.quantity = 1;
     } else {
-        if (TIME === 'TIME_FLEXIBLE') {
-            if (maxQuantity < quantity) {
-                throw createError(400, 'Do not have enough quantity');
-            }
+        const maxQuantity = Listing.getMaxQuantity(listing, listingType);
 
+        if (TIME === 'TIME_FLEXIBLE') {
             const futureBookings = await Listing.getFutureBookings(listing.id, now);
 
-            let listingAvailabilities;
-            if (timeAvailability === 'AVAILABLE' || timeAvailability === 'UNAVAILABLE') {
-                listingAvailabilities = await ListingAvailability.find({
-                    listingId: listing.id,
-                    type: 'period',
-                });
-            }
-
-            const availability = getAvailabilityPeriods({
-                futureBookings,
-                listingAvailabilities,
-                newBooking: {
-                    startDate,
-                    endDate,
-                    quantity,
-                },
-                maxQuantity,
+            const listingAvailabilities = await ListingAvailability.find({
+                listingId: listing.id,
+                type: 'period',
             });
 
-            if (!availability.isAvailable) {
+            const availabilityGraph = getAvailabilityPeriodGraph({ futureBookings, listingAvailabilities, maxQuantity });
+            const availabilityResult = getAvailabilityPeriodInfo(availabilityGraph, {
+                startDate,
+                endDate,
+                quantity,
+            });
+
+            if (!availabilityResult.isAvailable) {
                 throw createError(400, 'Not available');
             }
+
         } else if (TIME === 'TIME_PREDEFINED') {
             const futureBookings = await Listing.getFutureBookings(listing.id, now);
 
-            let listingAvailabilities;
-            listingAvailabilities = await ListingAvailability.find({
+            const listingAvailabilities = await ListingAvailability.find({
                 listingId: listing.id,
                 type: 'date',
             });
 
-            const availability = getAvailabilityDates({
-                futureBookings,
-                listingAvailabilities,
-                newBooking: {
-                    startDate,
-                    quantity,
-                },
-                maxQuantity,
+            const availabilityGraph = getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });
+            const availabilityResult = getAvailabilityDateInfo(availabilityGraph, {
+                startDate,
+                quantity,
             });
 
-            if (!availability.isAvailable) {
+            if (!availabilityResult.isAvailable) {
                 throw createError(400, 'Not available');
+            }
+        } else if (TIME === 'NONE') {
+            if (maxQuantity < quantity) {
+                throw createError(400, 'Do not have enough quantity');
             }
         }
 
@@ -430,194 +416,214 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
 }
 
 /**
- * Check if the listing is available compared to future bookings and stock availability
- * @param  {Object[]} [futureBookings]
- * @param  {String} futureBookings[i].startDate
- * @param  {String} futureBookings[i].endDate
- * @param  {Number} futureBookings[i].quantity
+ * Get the graph that shows availability by period
+ * @param {Object[]} futureBookings
+ * @param {String} futureBookings[i].startDate
+ * @param {String} futureBookings[i].endDate
+ * @param {Number} futureBookings[i].quantity
+ * @param {Number} maxQuantity
  * @param  {Object[]} [listingAvailabilities]
  * @param  {String} listingAvailabilities[i].startDate
  * @param  {String} listingAvailabilities[i].endDate
  * @param  {Boolean} listingAvailabilities[i].available
  * @param  {Number} listingAvailabilities[i].quantity
- * @param  {Object} [newBooking]
- * @param  {String} newBooking.startDate
- * @param  {String} newBooking.endDate
- * @param  {Number} newBooking.quantity
- * @param  {Number} [maxQuantity] - if not defined, treat it as no limit
- *
- * @return {Object} res
- * @return {Boolean} res.isAvailable
- * @return {Object[]} res.availablePeriods
- * @return {String} res.availablePeriods[i].date
- * @return {Number} res.availablePeriods[i].quantity - represents the quantity used at this date
- * @return {String} [res.availablePeriods[i].newPeriod] - 'start' or 'end', represents the limits of the new booking if provided
  */
-function getAvailabilityPeriods({ futureBookings = [], listingAvailabilities = [], newBooking, maxQuantity } = {}) {
-    const dateSteps = [];
+function getAvailabilityPeriodGraph({ futureBookings, maxQuantity, listingAvailabilities = [] } = {}) {
+    const indexedFutureBookingsByStartDate = _.groupBy(futureBookings, 'startDate');
+    const indexedFutureBookingsByEndDate = _.groupBy(futureBookings, 'endDate');
+    const indexedListingAvailabilitiesByStartDate = _.indexBy(listingAvailabilities, 'startDate');
+    const indexedListingAvailabilitiesByEndDate = _.indexBy(listingAvailabilities, 'endDate');
 
-    _.forEach(futureBookings, booking => {
-        dateSteps.push({
-            date: booking.startDate,
-            delta: booking.quantity,
-        });
-
-        dateSteps.push({
-            date: booking.endDate,
-            delta: -booking.quantity,
-        });
+    let dates = [];
+    futureBookings.forEach(booking => {
+        dates.push(booking.startDate);
+        dates.push(booking.endDate);
     });
 
-    _.forEach(listingAvailabilities, listingAvailability => {
-        const startSign = listingAvailability.available ? -1 : 1; // if available, one extra place so -1
-        const endSign = -1 * startSign;
-
-        dateSteps.push({
-            date: listingAvailability.startDate,
-            delta: startSign * listingAvailability.quantity,
-        });
-
-        dateSteps.push({
-            date: listingAvailability.endDate,
-            delta: endSign * listingAvailability.quantity,
-        });
+    listingAvailabilities.forEach(listingAvailability => {
+        dates.push(listingAvailability.startDate);
+        dates.push(listingAvailability.endDate);
     });
 
-    if (newBooking) {
-        dateSteps.push({
-            date: newBooking.startDate,
-            delta: newBooking.quantity,
-            newPeriod: 'start',
-        });
+    dates = _.sortBy(_.uniq(dates));
 
-        dateSteps.push({
-            date: newBooking.endDate,
-            delta: -newBooking.quantity,
-            newPeriod: 'end',
-        });
-    }
+    const defaultMaxQuantity = maxQuantity;
 
-    const sortedSteps = _.sortBy(dateSteps, step => step.date);
+    let prevMaxQuantity = defaultMaxQuantity;
+    let prevUsedQuantity = 0;
 
-    const availablePeriods = [];
-    let quantity = 0;
-    let oldStep;
-    let currStep;
-    let isAvailable = true;
+    const graphDates = [];
 
-    _.forEach(sortedSteps, step => {
-        quantity += step.delta;
+    dates.forEach(date => {
+        const addUsedQuantity = _.reduce(indexedFutureBookingsByStartDate[date] || [], (memo, booking) => {
+            memo += booking.quantity;
+            return memo;
+        }, 0);
+        const removeUsedQuantity = _.reduce(indexedFutureBookingsByEndDate[date] || [], (memo, booking) => {
+            memo += booking.quantity;
+            return memo;
+        }, 0);
 
-        currStep = {
-            date: step.date,
-            quantity,
+        const currUsedQuantity = prevUsedQuantity + addUsedQuantity - removeUsedQuantity;
+        let currMaxQuantity;
+
+        const startAvail = indexedListingAvailabilitiesByStartDate[date];
+        const endAvail = indexedListingAvailabilitiesByEndDate[date];
+
+        if (startAvail) {
+            currMaxQuantity = startAvail.quantity;
+        } else if (endAvail) {
+            currMaxQuantity = defaultMaxQuantity;
+        } else {
+            currMaxQuantity = prevMaxQuantity;
+        }
+
+        const graphDate = {
+            date,
+            usedQuantity: currUsedQuantity,
+            maxQuantity: currMaxQuantity,
         };
 
-        if (isAvailable && newBooking && typeof maxQuantity === 'number' && currStep.quantity > maxQuantity) {
-            isAvailable = false;
-        }
+        prevUsedQuantity = currUsedQuantity;
+        prevMaxQuantity = currMaxQuantity;
 
-        if (step.newPeriod) {
-            currStep.newPeriod = step.newPeriod;
-        }
-
-        if (oldStep && currStep.date === oldStep.date) {
-            oldStep.quantity = quantity;
-        } else {
-            availablePeriods.push(currStep);
-            oldStep = currStep;
-        }
+        graphDates.push(graphDate);
     });
 
-    if (availablePeriods.length) {
-        const firstStep = availablePeriods[0];
-        availablePeriods.unshift({
-            date: moment(firstStep.date).subtract({ d: 1 }).toISOString(),
-            quantity: 0,
-        });
-    }
-
     return {
-        isAvailable,
-        availablePeriods,
+        graphDates,
+        defaultMaxQuantity,
     };
 }
 
 /**
- * Check if the listing is available compared to future bookings and stock availability
- * @param  {Object[]} [futureBookings]
- * @param  {String} futureBookings[i].startDate
- * @param  {Number} futureBookings[i].quantity
- * @param  {Object[]} [listingAvailabilities]
- * @param  {String} listingAvailabilities[i].startDate
- * @param  {Number} listingAvailabilities[i].quantity
- * @param  {Object} [newBooking]
- * @param  {String} newBooking.startDate
- * @param  {Number} newBooking.quantity
- * @param  {Number} [maxQuantity] - if not defined, treat it as no limit
- *
- * @return {Object} res
- * @return {Boolean} res.isAvailable
- * @return {Object[]} res.availableDates
- * @return {String} res.availableDates[i].date
- * @return {Number} res.availableDates[i].quantity - represents the quantity used at this date
- * @return {Boolean} [res.availableDates[i].selected] - if defined, show that this date is from the new booking
+ * @param {Object} availabilityGraph
+ * @param {Object} newBooking
+ * @param {String} newBooking.startDate
+ * @param {String} [newBooking.endDate] - if not provided, compute remaining quantity only on start date
+ * @param {Number} newBooking.quantity
+ * @return {Object} info
+ * @return {Boolean} info.isAvailable
+ * @return {Number} info.maxRemainingQuantity
  */
-function getAvailabilityDates({ futureBookings = [], listingAvailabilities = [], newBooking, maxQuantity } = {}) {
-    const dateSteps = {};
+function getAvailabilityPeriodInfo(availabilityGraph, newBooking) {
+    const { defaultMaxQuantity, graphDates } = availabilityGraph;
 
-    _.forEach(futureBookings, booking => {
-        let dateStep = dateSteps[booking.startDate];
-        if (!dateStep) {
-            dateStep = {
-                date: booking.startDate,
-                quantity: 0,
-            };
-            dateSteps[booking.startDate] = dateStep;
+    let maxRemainingQuantity;
+
+    const beforeStartGraphDate = _.last(graphDates.filter(graphDate => graphDate.date <= newBooking.startDate));
+
+    // compute the remaining quantity at the start date only
+    if (!newBooking.endDate) {
+        if (beforeStartGraphDate) {
+            maxRemainingQuantity = Math.abs(beforeStartGraphDate.maxQuantity - beforeStartGraphDate.usedQuantity);
+        } else {
+            maxRemainingQuantity = defaultMaxQuantity;
         }
+    } else {
+        const overlapGraphDates = graphDates.filter(graphDate => {
+            const startDate = beforeStartGraphDate ? beforeStartGraphDate.date : newBooking.startDate;
+            return startDate <= graphDate.date && graphDate.date < newBooking.endDate;
+        });
 
-        dateStep.quantity += booking.quantity;
-    });
+        if (!overlapGraphDates.length) {
+            maxRemainingQuantity = defaultMaxQuantity;
+        } else {
+            maxRemainingQuantity = Math.abs(overlapGraphDates[0].maxQuantity - overlapGraphDates[0].usedQuantity);
 
-    if (newBooking) {
-        let dateStep = dateSteps[newBooking.startDate];
-        if (!dateStep) {
-            dateStep = {
-                date: newBooking.startDate,
-                quantity: 0,
-            };
-            dateSteps[newBooking.startDate] = dateStep;
+            overlapGraphDates.forEach(graphDate => {
+                maxRemainingQuantity = Math.min(maxRemainingQuantity, Math.abs(graphDate.maxQuantity - graphDate.usedQuantity));
+            });
         }
-
-        dateStep.quantity += newBooking.quantity;
-        dateStep.selected = true;
-    }
-
-    let isAvailable = true;
-    const availableDates = _.sortBy(_.values(dateSteps), 'date');
-    const exposedListingAvailabilities = listingAvailabilities.map(listingAvailability => {
-        return _.pick(listingAvailability, ['startDate', 'quantity']);
-    })
-
-    const indexedListingAvailabilities = _.indexBy(listingAvailabilities, 'startDate');
-
-    let currentMaxQuantity;
-    if (newBooking && typeof maxQuantity === 'number') {
-        currentMaxQuantity = maxQuantity;
-
-        const listingAvailability = indexedListingAvailabilities[newBooking.startDate];
-        if (listingAvailability) {
-            currentMaxQuantity = listingAvailability.quantity;
-        }
-    }
-
-    if (newBooking && typeof currentMaxQuantity === 'number' && dateSteps[newBooking.startDate].quantity > currentMaxQuantity) {
-        isAvailable = false;
     }
 
     return {
-        isAvailable,
-        listingAvailabilities: exposedListingAvailabilities,
-        availableDates,
+        isAvailable: newBooking.quantity <= maxRemainingQuantity && maxRemainingQuantity > 0,
+        maxRemainingQuantity,
+    };
+}
+
+/**
+ * Get the graph that shows availability by date
+ * @param {Object[]} futureBookings
+ * @param {String} futureBookings[i].startDate
+ * @param {Number} futureBookings[i].quantity
+ * @param {Number} maxQuantity
+ * @param  {Object[]} [listingAvailabilities]
+ * @param  {String} listingAvailabilities[i].startDate
+ * @param  {Number} listingAvailabilities[i].quantity
+ */
+function getAvailabilityDateGraph({ futureBookings, maxQuantity, listingAvailabilities = [] } = {}) {
+    const indexedFutureBookingsByStartDate = _.groupBy(futureBookings, 'startDate');
+    const indexedListingAvailabilitiesByStartDate = _.indexBy(listingAvailabilities, 'startDate');
+
+    let dates = [];
+    futureBookings.forEach(booking => {
+        dates.push(booking.startDate);
+    });
+
+    listingAvailabilities.forEach(listingAvailability => {
+        dates.push(listingAvailability.startDate);
+    });
+
+    dates = _.sortBy(_.uniq(dates));
+
+    const defaultMaxQuantity = maxQuantity;
+
+    const graphDates = [];
+
+    dates.forEach(date => {
+        const currUsedQuantity = _.reduce(indexedFutureBookingsByStartDate[date] || [], (memo, booking) => {
+            memo += booking.quantity;
+            return memo;
+        }, 0);
+
+        const startAvail = indexedListingAvailabilitiesByStartDate[date];
+        const currMaxQuantity = startAvail ? startAvail.quantity : defaultMaxQuantity;
+
+        const graphDate = {
+            date,
+            usedQuantity: currUsedQuantity,
+            maxQuantity: currMaxQuantity,
+        };
+
+        graphDates.push(graphDate);
+    });
+
+    return {
+        graphDates,
+        defaultMaxQuantity,
+    };
+}
+
+/**
+ * @param {Object} availabilityGraph
+ * @param {Object} newBooking
+ * @param {String} newBooking.startDate
+ * @param {Number} newBooking.quantity
+ * @return {Object} info
+ * @return {Boolean} info.isAvailable
+ * @return {Number} info.maxRemainingQuantity
+ */
+function getAvailabilityDateInfo(availabilityGraph, newBooking) {
+    const { defaultMaxQuantity, graphDates } = availabilityGraph;
+
+    let maxRemainingQuantity;
+
+    let graphDate;
+
+    graphDate = graphDates.find(date => {
+        return date.date === newBooking.startDate;
+    });
+
+    if (!graphDate) {
+        maxRemainingQuantity = defaultMaxQuantity;
+    } else {
+        maxRemainingQuantity = Math.abs(graphDate.maxQuantity - graphDate.usedQuantity);
+    }
+
+    return {
+        isAvailable: newBooking.quantity <= maxRemainingQuantity && maxRemainingQuantity > 0,
+        maxRemainingQuantity,
     };
 }

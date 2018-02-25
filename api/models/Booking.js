@@ -433,7 +433,7 @@ function isValidDates({
     let durationErrors  = {};
     let startDateErrors = {};
 
-    if (canOmitDuration) {
+    if (!canOmitDuration) {
         if (nbTimeUnits <= 0) {
             durationErrors.INVALID = true;
         } else {

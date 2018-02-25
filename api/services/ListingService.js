@@ -59,6 +59,7 @@ async function createListing(attrs, { req, res } = {}) {
         'stateComment',
         'bookingPreferences',
         'accessories',
+        'quantity',
         'brandId',
         'listingCategoryId',
         'validation',
@@ -84,6 +85,7 @@ async function createListing(attrs, { req, res } = {}) {
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
         || (createAttrs.reccuringDatesPattern && !TimeService.isValidCronPattern(createAttrs.reccuringDatesPattern))
+        || (typeof createAttrs.quantity !== 'number' || createAttrs.quantity < 0)
     ) {
         throw createError(400);
     }
@@ -91,6 +93,13 @@ async function createListing(attrs, { req, res } = {}) {
     const listingTypes = await ListingTypeService.filterListingTypes(createAttrs.listingTypesIds);
     if (createAttrs.listingTypesIds.length !== listingTypes.length) {
         throw createError(400);
+    }
+
+    const listingType = listingTypes[0];
+    const { AVAILABILITY } = listingType.properties;
+
+    if (AVAILABILITY === 'NONE' || AVAILABILITY === 'UNIQUE') {
+        createAttrs.quantity = 1;
     }
 
     if (createAttrs.reccuringDatesPattern) {
@@ -110,23 +119,6 @@ async function createListing(attrs, { req, res } = {}) {
         data = newData;
     });
     createAttrs.data = data;
-
-    // TODO: uncomment it when listing quantity equals to 0 is correctly managed
-    // let listingType;
-    // if (createAttrs.listingTypesIds.length === 1) {
-    //     listingType = await ListingTypeService.getListingType(createAttrs.listingTypesIds[0]);
-    //     if (!listingType) {
-    //         return res.notFound();
-    //     }
-    // }
-
-    // const { TIME } = listingType.properties;
-    // const { timeAvailability } = listingType.config;
-    // if (TIME === 'TIME_FLEXIBLE' && timeAvailability === 'UNAVAILABLE') {
-    //     createAttrs.quantity = 0;
-    // } else {
-    //     createAttrs.quantity = 1;
-    // }
 
     createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
     createAttrs.dayOnePrice  = PricingService.roundPrice(createAttrs.dayOnePrice);
@@ -218,6 +210,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         'bookingPreferences',
         'accessories',
         'brandId',
+        'quantity',
         'listingCategoryId',
         'locations',
         'reccuringDatesPattern',
@@ -240,6 +233,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
         || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
         || (updateAttrs.reccuringDatesPattern && !TimeService.isValidCronPattern(updateAttrs.reccuringDatesPattern))
+        || (updateAttrs.quantity && (typeof updateAttrs.quantity !== 'number' || updateAttrs.quantity < 0))
     ) {
         throw createError(400);
     }
@@ -287,6 +281,13 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
             updateAttrs.reccuringDatesPattern,
             listingType.config.bookingTime.timeUnit || 'd'
         );
+    }
+
+    const listingType = listingTypes[0];
+    const { AVAILABILITY } = listingType.properties;
+
+    if (AVAILABILITY === 'NONE' || AVAILABILITY === 'UNIQUE') {
+        updateAttrs.quantity = 1;
     }
 
     const [
@@ -555,7 +556,15 @@ async function createListingAvailability(attrs, { userId } = {}) {
         throw createError(404);
     }
 
-    const { TIME } = listingType.properties;
+    const { TIME, AVAILABILITY } = listingType.properties;
+
+    if (TIME === 'NONE') {
+        throw createError(400);
+    }
+    if (AVAILABILITY === 'UNIQUE' && quantity > 1) {
+        throw createError(400);
+    }
+
     let createAttrs;
 
     if (TIME === 'TIME_PREDEFINED') {
@@ -574,26 +583,12 @@ async function createListingAvailability(attrs, { userId } = {}) {
             startDate,
             quantity,
             type: 'date',
-            available: true,
         };
     } else {
         if (!endDate || !TimeService.isDateString(endDate)
          || endDate <= startDate
         ) {
             throw createError(400);
-        }
-
-        const { timeAvailability } = listingType.config;
-
-        if (timeAvailability === 'NONE') {
-            throw createError(403);
-        }
-
-        let available;
-        if (timeAvailability === 'AVAILABLE') {
-            available = false;
-        } else if (timeAvailability === 'UNAVAILABLE') {
-            available = true;
         }
 
         const listingAvailabilities = await ListingAvailability.find({ listingId, type: 'period' });
@@ -608,7 +603,6 @@ async function createListingAvailability(attrs, { userId } = {}) {
             endDate,
             quantity,
             type: 'period',
-            available,
         };
     }
 
@@ -633,6 +627,20 @@ async function updateListingAvailability({ listingId, listingAvailabilityId, qua
         throw createError(403);
     }
     if (typeof quantity !== 'number' || quantity < 0) {
+        throw createError(400);
+    }
+
+    const listingType = await ListingTypeService.getListingType(listing.listingTypesIds[0]);
+    if (!listingType) {
+        throw createError(404);
+    }
+
+    const { TIME, AVAILABILITY } = listingType.properties;
+
+    if (TIME === 'NONE') {
+        throw createError(400);
+    }
+    if (AVAILABILITY === 'UNIQUE' && quantity > 1) {
         throw createError(400);
     }
 

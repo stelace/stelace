@@ -10,14 +10,14 @@
         var service = Restangular.all("booking");
         service.getMine                               = getMine;
 
-        service.checkAvailability                     = checkAvailability;
-        service.getPredictedQuantity                  = getPredictedQuantity;
         service.getNbTimeUnits                        = getNbTimeUnits;
         service.getStartDateRange                     = getStartDateRange;
         service.getEndDateRange                       = getEndDateRange;
         service.isWithinRangeStartDate                = isWithinRangeStartDate;
         service.isWithinRangeEndDate                  = isWithinRangeEndDate;
         service.isValidDates                          = isValidDates;
+        service.getAvailabilityPeriodInfo             = getAvailabilityPeriodInfo;
+        service.getAvailabilityDateInfo               = getAvailabilityDateInfo;
 
         service.getContractUrl                        = getContractUrl;
         service.isNoTime                              = isNoTime;
@@ -71,6 +71,8 @@
             var config      = args.config;
             var canOmitDuration = args.canOmitDuration || false;
 
+            console.log('test', nbTimeUnits)
+
             var errors          = {};
             var badParamsErrors = {};
 
@@ -98,7 +100,7 @@
             var durationErrors  = {};
             var startDateErrors = {};
 
-            if (canOmitDuration) {
+            if (!canOmitDuration) {
                 if (nbTimeUnits <= 0) {
                     durationErrors.INVALID = true;
                 } else {
@@ -137,93 +139,85 @@
             }
         }
 
-        function checkAvailability(args) {
-            var startDate        = args.startDate;
-            var endDate          = args.endDate;
-            var availablePeriods = args.availablePeriods || [];
-            var quantity         = args.quantity || 1;
-            var listing          = args.listing;
-            var listingType      = args.listingType;
+        /**
+         * @param {Object} availabilityGraph
+         * @param {Object} newBooking
+         * @param {String} newBooking.startDate
+         * @param {String} [newBooking.endDate] - if not provided, compute remaining quantity only on start date
+         * @param {Number} newBooking.quantity
+         * @return {Object} info
+         * @return {Boolean} info.isAvailable
+         * @return {Number} info.maxRemainingQuantity
+         */
+        function getAvailabilityPeriodInfo(availabilityGraph, newBooking) {
+            var defaultMaxQuantity = availabilityGraph.defaultMaxQuantity;
+            var graphDates = availabilityGraph.graphDates;
 
-            var maxQuantity = ListingService.getMaxQuantity(listing, listingType);
+            var maxRemainingQuantity;
 
-            if (!availablePeriods.length) {
-                return quantity <= maxQuantity;
-            }
+            var beforeStartGraphDate = _.last(_.filter(graphDates, function (graphDate) {
+                return graphDate.date <= newBooking.startDate;
+            }));
 
-            var lastStep = availablePeriods[availablePeriods.length - 1];
-            if (lastStep.date <= startDate) {
-                return lastStep.quantity + quantity <= maxQuantity;
-            }
-
-            var tmpAvailablePeriods = _.clone(availablePeriods);
-
-            tmpAvailablePeriods.push({
-                date: startDate,
-                quantity: quantity,
-                newPeriod: 'start'
-            });
-            tmpAvailablePeriods.push({
-                date: endDate,
-                quantity: quantity,
-                newPeriod: 'end'
-            });
-
-            tmpAvailablePeriods = _.sortBy(tmpAvailablePeriods, function (step) { return step.date });
-
-            var processingPeriod = false;
-            var startQuantity = 0;
-
-            for (var i = 0, l = tmpAvailablePeriods.length; i < l; i++) {
-                var step = tmpAvailablePeriods[i];
-
-                // is available because no problem at the end
-                if (step.newPeriod === 'end') {
-                    return true;
-                }
-
-                // check if the new booking dates exceed listing quantity
-                if (step.newPeriod === 'start') {
-                    processingPeriod = true;
-                    if (startQuantity + quantity > maxQuantity) {
-                        return false;
-                    }
+            // compute the remaining quantity at the start date only
+            if (!newBooking.endDate) {
+                if (beforeStartGraphDate) {
+                    maxRemainingQuantity = Math.abs(beforeStartGraphDate.maxQuantity - beforeStartGraphDate.usedQuantity);
                 } else {
-                    if (processingPeriod) {
-                        if (step.quantity + quantity > maxQuantity) {
-                            return false;
-                        }
-                    } else {
-                        startQuantity = step.quantity;
-                    }
+                    maxRemainingQuantity = defaultMaxQuantity;
+                }
+            } else {
+                var overlapGraphDates = _.filter(graphDates, function (graphDate) {
+                    var startDate = beforeStartGraphDate ? beforeStartGraphDate.date : newBooking.startDate;
+                    return startDate <= graphDate.date && graphDate.date < newBooking.endDate;
+                });
+
+                if (!overlapGraphDates.length) {
+                    maxRemainingQuantity = defaultMaxQuantity;
+                } else {
+                    maxRemainingQuantity = Math.abs(overlapGraphDates[0].maxQuantity - overlapGraphDates[0].usedQuantity);
+
+                    _.forEach(overlapGraphDates, function (graphDate) {
+                        maxRemainingQuantity = Math.min(maxRemainingQuantity, Math.abs(graphDate.maxQuantity - graphDate.usedQuantity));
+                    })
                 }
             }
 
-            return true;
+            return {
+                isAvailable: newBooking.quantity <= maxRemainingQuantity && maxRemainingQuantity > 0,
+                maxRemainingQuantity,
+            };
         }
 
-        function getPredictedQuantity(date, availablePeriods, quantity) {
-            quantity = quantity || 1;
+        /**
+         * @param {Object} availabilityGraph
+         * @param {Object} newBooking
+         * @param {String} newBooking.startDate
+         * @param {Number} newBooking.quantity
+         * @return {Object} info
+         * @return {Boolean} info.isAvailable
+         * @return {Number} info.maxRemainingQuantity
+         */
+        function getAvailabilityDateInfo(availabilityGraph, newBooking) {
+            var defaultMaxQuantity = availabilityGraph.defaultMaxQuantity;
+            var graphDates = availabilityGraph.graphDates;
 
-            if (!availablePeriods.length) {
-                return quantity;
+            var maxRemainingQuantity;
+
+            var graphDate = _.find(graphDates, function (date) {
+                return date.date === newBooking.startDate;
+            });
+
+            if (!graphDate) {
+                maxRemainingQuantity = defaultMaxQuantity;
+            } else {
+                maxRemainingQuantity = Math.abs(graphDate.maxQuantity - graphDate.usedQuantity);
             }
 
-            var oldStep;
-
-            for (var i = 0, l = availablePeriods.length; i < l; i++) {
-                var step = availablePeriods[i];
-
-                if (date === step.date) {
-                    return step.quantity + quantity;
-                } else if (oldStep && oldStep.date < step.date && date < step.date) {
-                    return oldStep.quantity + quantity;
-                }
-
-                oldStep = step;
-            }
-
-            return oldStep.quantity + quantity;
+            return {
+                isAvailable: newBooking.quantity <= maxRemainingQuantity && maxRemainingQuantity > 0,
+                maxRemainingQuantity,
+            };
         }
 
         function getNbTimeUnits(startDate, endDate, timeUnit) {

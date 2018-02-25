@@ -477,8 +477,9 @@
         function _computeDateConstraints(listing, listingType) {
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
             var config = (listingType.config && listingType.config.bookingTime) || {};
-            var quantity = 1; // TODO: make quantity depend on user input
-            var availablePeriods = listing.availablePeriods;
+            var availabilityGraphs = listing.availabilityGraphs;
+
+            var availabilityGraph = availabilityGraphs.periods;
 
             var _disableStartDate = function (data) {
                 if (listing.locked) {
@@ -497,12 +498,12 @@
                     return true;
                 }
 
-                var predictedQuantity = BookingService.getPredictedQuantity(startDate, availablePeriods, quantity);
-                if (ListingService.getMaxQuantity(listing, vm.timeFlexibleListingType) < predictedQuantity) {
-                    return true;
-                }
+                var availabilityInfo = BookingService.getAvailabilityPeriodInfo(availabilityGraph, {
+                    startDate: startDate,
+                    quantity: 1
+                });
 
-                return false;
+                return !availabilityInfo.isAvailable;
             };
 
             var _disableEndDate = function (data) {
@@ -522,12 +523,12 @@
                     return true;
                 }
 
-                var predictedQuantity = BookingService.getPredictedQuantity(endDate, availablePeriods, quantity);
-                if (ListingService.getMaxQuantity(listing, vm.timeFlexibleListingType) < predictedQuantity) {
-                    return true;
-                }
+                var availabilityInfo = BookingService.getAvailabilityPeriodInfo(availabilityGraph, {
+                    startDate: endDate,
+                    quantity: 1
+                });
 
-                return false;
+                return !availabilityInfo.isAvailable;
             };
 
             /// Init datepicker
@@ -597,14 +598,15 @@
                 });
 
                 if (isValidDates.result) {
-                    isAvailable = BookingService.checkAvailability({
+                    var availabilityGraph = listing.availabilityGraphs.periods;
+
+                    var availabilityInfo = BookingService.getAvailabilityPeriodInfo(availabilityGraph, {
                         startDate: startDate,
                         endDate: endDate,
-                        listing: listing,
-                        availablePeriods: listing.availablePeriods,
-                        quantity: 1, // TODO: depend on user input
-                        listingType: vm.timeFlexibleListingType
+                        quantity: 1 // TODO: depend on user input
                     });
+
+                    isAvailable = availabilityInfo.isAvailable;
                 } else {
                     isAvailable = false;
                 }

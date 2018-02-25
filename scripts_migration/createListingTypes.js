@@ -27,7 +27,6 @@ Sails.load(getConfig(), async function (err, sails) {
                         DYNAMIC_PRICING: 'NONE',
                     },
                     config: {
-                        timeAvailability: 'AVAILABLE',
                         pricing: {
                             ownerFeesPercent: 5,
                             takerFeesPercent: 15,
@@ -57,11 +56,18 @@ Sails.load(getConfig(), async function (err, sails) {
                         DYNAMIC_PRICING: 'NONE',
                     },
                     config: {
-                        timeAvailability: 'NONE',
                         pricing: {
                             ownerFeesPercent: 7,
                             takerFeesPercent: 0,
                             maxDiscountPercent: 80,
+                        },
+                        bookingTime: {
+                            timeUnit: 'd',
+                            minDuration: 1,
+                            maxDuration: 100,
+                            startDateMinDelta: { d: 1 },
+                            startDateMaxDelta: { d: 90 },
+                            releaseDateAfterEndDate: { d: 7 },
                         },
                         rating: {
                             remainingTimeToRateAfterBookingCompletion: { d: 60 },
