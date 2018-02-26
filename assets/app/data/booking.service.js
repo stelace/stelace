@@ -336,8 +336,8 @@
             var timeUnit = config.timeUnit || 'd';
 
             var dates;
-            if (listing.reccuringDatesPattern) {
-                dates = time.computeRecurringDates(listing.reccuringDatesPattern, {
+            if (listing.recurringDatesPattern) {
+                dates = time.computeRecurringDates(listing.recurringDatesPattern, {
                     startDate: startDateMinLimit,
                     endDate: startDateMaxLimit,
                     onlyPureDate: timeUnit === 'd' || timeUnit === 'M'

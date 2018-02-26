@@ -220,10 +220,10 @@ async function setBookingTimePeriods({
             type: 'date',
         });
 
-        if (listing.reccuringDatesPattern) {
+        if (listing.recurringDatesPattern) {
             const timeUnit = listingType.config.bookingTime.timeUnit;
 
-            const recurringDates = TimeService.computeRecurringDates(listing.reccuringDatesPattern, {
+            const recurringDates = TimeService.computeRecurringDates(listing.recurringDatesPattern, {
                 startDate: moment(startDate).add({ d: -1 }).toISOString(),
                 endDate: moment(startDate).add({ d: 1 }).toISOString(),
                 onlyPureDate: timeUnit === 'd' || timeUnit === 'M',

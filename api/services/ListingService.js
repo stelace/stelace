@@ -40,7 +40,7 @@ const createError = require('http-errors');
  * @param {Boolean} [attrs.validation]
  * @param {String[]} [attrs.validationFields]
  * @param {Number[]} [attrs.locations]
- * @param {String} [attrs.reccuringDatesPattern]
+ * @param {String} [attrs.recurringDatesPattern]
  * @param {Number[]} [attrs.listingTypesIds]
  * @param {Object} [attrs.customPricingConfig]
  * @param {Boolean} [attrs.acceptFree]
@@ -65,7 +65,7 @@ async function createListing(attrs, { req, res } = {}) {
         'validation',
         'validationFields',
         'locations',
-        'reccuringDatesPattern',
+        'recurringDatesPattern',
         'listingTypesIds',
         'dayOnePrice',
         'sellingPrice',
@@ -84,7 +84,7 @@ async function createListing(attrs, { req, res } = {}) {
         || typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
-        || (createAttrs.reccuringDatesPattern && !TimeService.isValidCronPattern(createAttrs.reccuringDatesPattern))
+        || (createAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(createAttrs.recurringDatesPattern))
         || (typeof createAttrs.quantity !== 'number' || createAttrs.quantity < 0)
     ) {
         throw createError(400);
@@ -102,10 +102,10 @@ async function createListing(attrs, { req, res } = {}) {
         createAttrs.quantity = 1;
     }
 
-    if (createAttrs.reccuringDatesPattern) {
+    if (createAttrs.recurringDatesPattern) {
         const listingType = listingTypes[0];
-        createAttrs.reccuringDatesPattern = TimeService.forceCronPattern(
-            createAttrs.reccuringDatesPattern,
+        createAttrs.recurringDatesPattern = TimeService.forceCronPattern(
+            createAttrs.recurringDatesPattern,
             listingType.config.bookingTime.timeUnit || 'd'
         );
     }
@@ -191,7 +191,7 @@ async function createListing(attrs, { req, res } = {}) {
  * @param {Boolean} [attrs.validation]
  * @param {String[]} [attrs.validationFields]
  * @param {Number[]} [attrs.locations]
- * @param {String} [attrs.reccuringDatesPattern]
+ * @param {String} [attrs.recurringDatesPattern]
  * @param {Number[]} [attrs.listingTypesIds]
  * @param {Object} [attrs.customPricingConfig]
  * @param {Boolean} [attrs.acceptFree]
@@ -213,7 +213,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         'quantity',
         'listingCategoryId',
         'locations',
-        'reccuringDatesPattern',
+        'recurringDatesPattern',
         'listingTypesIds',
         'dayOnePrice',
         'sellingPrice',
@@ -232,7 +232,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== 'number' || updateAttrs.dayOnePrice < 0))
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
         || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
-        || (updateAttrs.reccuringDatesPattern && !TimeService.isValidCronPattern(updateAttrs.reccuringDatesPattern))
+        || (updateAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(updateAttrs.recurringDatesPattern))
         || (updateAttrs.quantity && (typeof updateAttrs.quantity !== 'number' || updateAttrs.quantity < 0))
     ) {
         throw createError(400);
@@ -275,10 +275,10 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     });
     updateAttrs.data = data;
 
-    if (updateAttrs.reccuringDatesPattern) {
+    if (updateAttrs.recurringDatesPattern) {
         const listingType = listingTypes[0];
-        updateAttrs.reccuringDatesPattern = TimeService.forceCronPattern(
-            updateAttrs.reccuringDatesPattern,
+        updateAttrs.recurringDatesPattern = TimeService.forceCronPattern(
+            updateAttrs.recurringDatesPattern,
             listingType.config.bookingTime.timeUnit || 'd'
         );
     }
