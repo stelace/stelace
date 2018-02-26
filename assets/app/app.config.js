@@ -96,7 +96,7 @@
                         params = {
                             style: 'currency',
                             currency: mf.currency,
-                            minimumFractionDigits: currencyDecimal,
+                            minimumFractionDigits: 0,
                             maximumFractionDigits: currencyDecimal,
                         };
                     }

@@ -16,6 +16,7 @@
          * {object}  bookingParams
          * {string}  bookingParams.startDate
          * {string}  bookingParams.endDate
+         * {string}  bookingParams.quantity
          * {boolean} [bookingParams.applyFreeFees = false]
          */
         return {
@@ -94,13 +95,14 @@
                     scope.applyFreeFees = scope.booking.priceData.takerFreeFees;
                 }
 
-                scope.dependDuration = isDurationRelated();
+                scope.dependStock = isPricingDependStock();
+                scope.dependDuration = isPricingDependDuration();
                 populateListing();
                 setBookingParams();
             }
 
             function populateListing() {
-                if (scope.dependDuration) {
+                if (!scope.dependDuration) {
                     return;
                 }
 
@@ -119,8 +121,17 @@
                 });
             }
 
+            function getTimeUnit() {
+                if (scope.booking) {
+                    return scope.booking.timeUnit;
+                } else {
+                    var listingType = getListingType();
+                    return listingType.config.bookingTime.timeUnit;
+                }
+            }
+
             function getBookingDuration() {
-                if (scope.dependDuration) {
+                if (!scope.dependDuration) {
                     return 0;
                 }
 
@@ -137,32 +148,29 @@
                     scope.startDate     = scope.booking.startDate;
                     scope.endDate       = scope.booking.endDate;
                     scope.applyFreeFees = scope.booking.applyFreeFees || false;
+                    scope.quantity      = scope.booking.quantity;
                 } else {
                     scope.startDate     = scope.bookingParams.startDate;
                     scope.endDate       = scope.bookingParams.endDate;
                     scope.applyFreeFees = scope.bookingParams.applyFreeFees || false;
+                    scope.quantity      = scope.bookingParams.quantity;
                 }
 
                 if (scope.booking) {
-                    scope.dayOnePrice = scope.booking.timeUnitPrice;
+                    scope.timeUnitPrice = scope.booking.timeUnitPrice;
                 } else {
-                    scope.dayOnePrice = scope.listing.prices[0];
+                    scope.timeUnitPrice = scope.listing.prices[0];
                 }
 
-                scope.nbTimeUnits          = getBookingDuration();
-                priceResult                = getPriceResult();
-                scope.fullPrice            = getFullPrice();
-                scope.discount             = getDiscount();
-                scope.durationDiscount     = getDurationDiscount();
-                scope.durationDiscountRate = getDurationDiscountRate();
-                scope.takerFees            = getTakerFees();
-                scope.takerFeesStr         = getTakerFeesDescription(
-                    scope.applyFreeFees,
-                    priceResult.ownerPriceAfterRebate
-                );
-                scope.totalPrice    = getTotalPrice();
-                scope.dailyPrice    = getDailyPrice();
-                scope.dailyPriceStr = scope.dailyPrice.toLocaleString();
+                scope.timeUnit         = getTimeUnit();
+                scope.nbTimeUnits      = getBookingDuration();
+                priceResult            = getPriceResult();
+                scope.basePrice        = getBasePrice();
+                scope.fullPrice        = getFullPrice();
+                scope.durationDiscount = getDurationDiscount();
+                scope.takerFees        = getTakerFees();
+                scope.totalPrice       = getTotalPrice();
+                scope.dailyPrice       = getDailyPrice();
 
                 // copy isolated scope to external
                 if (typeof scope.data === "object") {
@@ -180,38 +188,38 @@
                 }
             }
 
-            function isDurationRelated() {
+            function isPricingDependStock() {
                 var listingType = getListingType();
-
-                return listingType.properties.TIME === 'NONE' || listingType.properties.TIME === 'TIME_PREDEFINED';
+                return listingType.properties.AVAILABILITY === 'STOCK';
             }
 
-            function getFullPrice() {
-                if (! scope.dependDuration) {
+            function isPricingDependDuration() {
+                var listingType = getListingType();
+                return listingType.properties.TIME === 'TIME_FLEXIBLE';
+            }
+
+            function getBasePrice() {
+                if (scope.dependDuration) {
                     return scope.nbTimeUnits * scope.listing.prices[0];
                 } else {
                     return scope.listing.sellingPrice;
                 }
             }
 
-            function getRealPrice() {
-                if (! scope.dependDuration) {
+            function getRealBasePrice() {
+                if (scope.dependDuration) {
                     return scope.listing.prices[scope.nbTimeUnits - 1];
                 } else {
                     return scope.listing.sellingPrice;
                 }
             }
 
-            function getDiscount() {
-                return 0;
+            function getFullPrice() {
+                return scope.quantity * getBasePrice();
             }
 
             function getDurationDiscount() {
-                return Math.round(getFullPrice() - getRealPrice());
-            }
-
-            function getDurationDiscountRate() {
-                return Math.round(getDurationDiscount() / getFullPrice() * 100);
+                return scope.quantity * Math.round(getBasePrice() - getRealBasePrice());
             }
 
             function getPriceResult() {
@@ -222,8 +230,8 @@
                     priceResult = pricing.getPriceAfterRebateAndFees({ booking: scope.booking });
                 } else {
                     priceResult = pricing.getPriceAfterRebateAndFees({
-                        ownerPrice: getRealPrice(),
-                        freeValue: getDiscount(),
+                        ownerPrice: getFullPrice(),
+                        freeValue: 0,
                         ownerFeesPercent: 0, // do not care about owner fees
                         takerFeesPercent: ! scope.applyFreeFees ? getTakerFeesPercent() : 0,
                         maxDiscountPercent: listingType.config.pricing.maxDiscountPercent
@@ -251,25 +259,11 @@
             }
 
             function getDailyPrice() {
-                if (scope.dependDuration) {
+                if (!scope.dependDuration) {
                     return 0;
                 }
 
                 return tools.roundDecimal(getTotalPrice(priceResult) / scope.nbTimeUnits, 1);
-            }
-
-            function getTakerFeesDescription(applyFreeFees, amount) {
-                var str = "Ces frais participent au fonctionnement de la plateforme et nous permettent de vous offrir la meilleure qualité de service.";
-
-                if (applyFreeFees) {
-                    str += " Vous avez activé l'option 0 commission.";
-                }
-
-                if (amount) {
-                    str += " Les " + amount + "€ restants correspondent au prix fixé par le propriétaire.";
-                }
-
-                return str;
             }
         }
     }

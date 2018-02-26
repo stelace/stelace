@@ -111,10 +111,20 @@
                                     <span class="text--emphasize">
                                         <span ng-if="vm.pricingTableData.data.totalPrice">
                                             <span ng-if="vm.listingTypeProperties.isTimeFlexible">
-                                                <span itemprop="price">{{vm.pricingTableData.data.dailyPriceStr}}</span><sup itemprop="priceCurrency" content="EUR">€</sup>/j.
+                                                <span data-translate="pricing.price_value"
+                                                    data-translate-values="{ price: vm.pricingTableData.data.dailyPrice }"
+                                                >
+                                                </span>
+                                                <span data-translate="listing.time.unit_label_short"
+                                                    data-translate-values="{ timeUnit: vm.pricingTableData.data.timeUnit }"
+                                                >
+                                                </span>
                                             </span>
-                                            <span ng-if="! vm.listingTypeProperties.isTimeFlexible">
-                                                <span itemprop="price">{{vm.pricingTableData.data.totalPrice}}</span><sup itemprop="priceCurrency" content="EUR">€</sup>
+                                            <span ng-if="!vm.listingTypeProperties.isTimeFlexible">
+                                                <span data-translate="pricing.price_value"
+                                                    data-translate-values="{ price: vm.pricingTableData.data.totalPrice }"
+                                                >
+                                                </span>
                                             </span>
                                         </span>
                                         <span ng-if="! vm.pricingTableData.data.totalPrice"
@@ -124,7 +134,7 @@
                                 <div ng-if="! vm.showPrice" class="flex-container flex--space-between flex--align-center">
                                     <span class="text--small text--semibold"
                                         data-translate="listing.time.unit_label"
-                                        data-translate-values="{ timeUnit: 'D', nbUnits: 1}"></span>
+                                        data-translate-values="{ timeUnit: 'd', nbUnits: 1}"></span>
                                     <span class="text--emphasize">
                                         <span itemprop="price">{{vm.listing.prices[0]}}</span><sup itemprop="priceCurrency" content="EUR">€</sup>
                                     </span>
@@ -257,7 +267,7 @@
                                             <option ng-repeat="predefinedDate in vm.predefinedDates"
                                                 value="{{predefinedDate.date}}"
                                                 ng-if="vm.listingTypeProperties.isAvailabilityStock"
-                                                data-translate="listing.time.predefined_date_select_value"
+                                                data-translate="listing.time.predefined_date_select_value_quantity"
                                                 data-translate-values="{ date: predefinedDate.date, remainingQuantity: predefinedDate.maxRemainingQuantity }"
                                                 ng-disabled="predefinedDate.maxRemainingQuantity === 0"
                                             >

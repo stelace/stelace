@@ -65,7 +65,8 @@
         "time": {
             "from_day_label": "From",
             "to_day_label": "To",
-            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Per day} other{# days}} } N{ {nbUnits, plural, one{Per night} other{# nights}} } H{ {nbUnits, plural, one{Per hour} other{# hours}} } M{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }",
+            "unit_label": "{timeUnit, select, d{ {nbUnits, plural, one{Per day} other{# days}} } n{ {nbUnits, plural, one{Per night} other{# nights}} } h{ {nbUnits, plural, one{Per hour} other{# hours}} } m{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }",
+            "unit_label_short": "{timeUnit, select, d{/d} n{/night} h{/h} m{/min} other{} }",
             "dates_label": "Dates",
             "predefined_date_select_value": "{date, date, short}",
             "predefined_date_select_value_quantity": "{date, date, short} ({remainingQuantity})"
@@ -174,5 +175,14 @@
         "unknown_happened_title": "An error has happened.",
         "unknown_happened_message": "We’re sorry about this and will do our best to fix the issue. Please retry later.",
         "invalid_link": "This link is invalid"
+    },
+    "pricing": {
+        "price_value": "{price, number, currency}",
+        "price": "Price",
+        "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
+        "duration_discount": "Duration discount",
+        "booking_fees": "Booking fees",
+        "free": "Free",
+        "total": "Total"
     }
 }

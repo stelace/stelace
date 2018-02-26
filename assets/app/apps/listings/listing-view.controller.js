@@ -332,10 +332,13 @@
                 vm.pricingTableData.listing          = listing;
                 vm.pricingTableData.listingType   = vm.selectedListingType;
                 vm.pricingTableData.listingPricing   = listingPricing;
-                vm.pricingTableData.bookingParams = {};
+                vm.pricingTableData.bookingParams = {
+                    quantity: 1
+                };
                 vm.pricingTableData.data          = {
                     totalPrice: 0,
-                    dailyPriceStr: ""
+                    timeUnit: null,
+                    dailyPrice: null
                 };
 
                 // the listing pricing doesn't need duration, display the pricing table

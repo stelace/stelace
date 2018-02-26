@@ -65,7 +65,8 @@
         "time": {
             "from_day_label": "Du",
             "to_day_label": "Au",
-            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Par jour} other{# jours}} } N{ {nbUnits, plural, one{Par nuit} other{# nuits}} } H{ {nbUnits, plural, one{Par heure} other{# heures}} } M{ {nbUnits, plural, one{Par minute} other{# minutes}} } other{} }",
+            "unit_label": "{timeUnit, select, d{ {nbUnits, plural, one{Par jour} other{# jours}} } n{ {nbUnits, plural, one{Par nuit} other{# nuits}} } h{ {nbUnits, plural, one{Par heure} other{# heures}} } m{ {nbUnits, plural, one{Par minute} other{# minutes}} } other{} }",
+            "unit_label_short": "{timeUnit, select, d{/j} n{/nuit} h{/h} m{/min} other{} }",
             "dates_label": "Dates",
             "predefined_date_select_value": "{date, date, short}",
             "predefined_date_select_value_quantity": "{date, date, short} ({remainingQuantity})"
@@ -174,5 +175,14 @@
         "unknown_happened_title": "Une erreur s'est produite.",
         "unknown_happened_message": "Nous sommes désolés et cherchons à résoudre le problème. Nous vous invitons à réessayer plus tard.",
         "invalid_link": "Ce lien est invalide"
+    },
+    "pricing": {
+        "price_value": "{price, number, currency}",
+        "price": "Prix",
+        "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# jour} other{# jours}} } n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} } h{ {nbTimeUnits, plural, one{# heure} other{# heures}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
+        "duration_discount": "Réduction sur la durée",
+        "booking_fees": "Frais de réservation",
+        "free": "Gratuit",
+        "total": "Total"
     }
 }
