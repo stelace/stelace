@@ -65,7 +65,10 @@
         "time": {
             "from_day_label": "Du",
             "to_day_label": "Au",
-            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Par jour} other{# jours}} } N{ {nbUnits, plural, one{Par nuit} other{# nuits}} } H{ {nbUnits, plural, one{Par heure} other{# heures}} } M{ {nbUnits, plural, one{Par minute} other{# minutes}} } other{} }"
+            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Par jour} other{# jours}} } N{ {nbUnits, plural, one{Par nuit} other{# nuits}} } H{ {nbUnits, plural, one{Par heure} other{# heures}} } M{ {nbUnits, plural, one{Par minute} other{# minutes}} } other{} }",
+            "dates_label": "Dates",
+            "predefined_date_select_value": "{date, date, short}",
+            "predefined_date_select_value_quantity": "{date, date, short} ({remainingQuantity})"
         },
         "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Réserver} NONE{Commander} other{Commander}}",
         "edit_my_listing_action": "Modifier mon annonce",
@@ -147,7 +150,10 @@
         "see_more": "En voir plus",
         "hide": "Masquer",
         "details": "Détail",
-        "login_to_manage_map_locations": "Connectez-vous pour gérer vos lieux favoris"
+        "login_to_manage_map_locations": "Connectez-vous pour gérer vos lieux favoris",
+        "booking": {
+            "choose_date": "Choisissez une date"
+        }
     },
     "ratings": {
         "see_more": "Voir plus d’évaluations",

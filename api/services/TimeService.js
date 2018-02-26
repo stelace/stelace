@@ -3,6 +3,7 @@ module.exports = {
     isDate,
     isDateString,
     isPureDate,
+    getPureDate,
     isIntersection,
     getPeriodLimits,
     convertTimestampSecToISO,
@@ -69,6 +70,15 @@ function isPureDate(date) {
         && m.minutes() === 0
         && m.seconds() === 0
         && m.milliseconds() === 0;
+}
+
+function getPureDate(date) {
+    if (!isDateString(date) && !isDate(date)) {
+        throw new Error('Expected a valid date');
+    }
+
+    const m = moment(date);
+    return m.format('YYYY-MM-DD') + 'T00:00:00.000Z';
 }
 
 function isIntersection(array, value) {
@@ -211,9 +221,10 @@ function forceCronPattern(pattern, timeUnit) {
  * @param {Object} attrs
  * @param {String} attrs.startDate - inclusive
  * @param {String} attrs.endDate - exclusive
+ * @param {String} [attrs.onlyPureDate = false] - returns date with 0 hours 0 minutes 0 seconds
  * @param {String[]} dates
  */
-function computeRecurringDates(pattern, { startDate, endDate } = {}) {
+function computeRecurringDates(pattern, { startDate, endDate, onlyPureDate = false } = {}) {
     if (!isDateString(startDate) || !isDateString(endDate)) {
         throw new Error('Expected start and end dates');
     }
@@ -232,7 +243,14 @@ function computeRecurringDates(pattern, { startDate, endDate } = {}) {
     const dates = [];
 
     while (continueLoop) {
-        const date = schedule.next().toISOString();
+        const momentDate = schedule.next();
+
+        let date;
+        if (onlyPureDate) {
+            date = momentDate.format('YYYY-MM-DD') + 'T00:00:00.000Z';
+        } else {
+            date = momentDate.toISOString();
+        }
 
         continueLoop = date < endDate;
 

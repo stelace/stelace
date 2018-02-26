@@ -49,7 +49,7 @@ module.exports = {
         available: {
             type: 'boolean',
             columnType: 'tinyint(1)',
-            required: true,
+            allowNull: true,
         },
         type: { // 'period' or 'date'
             type: 'string',

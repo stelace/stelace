@@ -65,7 +65,10 @@
         "time": {
             "from_day_label": "From",
             "to_day_label": "To",
-            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Per day} other{# days}} } N{ {nbUnits, plural, one{Per night} other{# nights}} } H{ {nbUnits, plural, one{Per hour} other{# hours}} } M{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }"
+            "unit_label": "{timeUnit, select, D{ {nbUnits, plural, one{Per day} other{# days}} } N{ {nbUnits, plural, one{Per night} other{# nights}} } H{ {nbUnits, plural, one{Per hour} other{# hours}} } M{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }",
+            "dates_label": "Dates",
+            "predefined_date_select_value": "{date, date, short}",
+            "predefined_date_select_value_quantity": "{date, date, short} ({remainingQuantity})"
         },
         "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}",
         "edit_my_listing_action": "Edit my listing",
@@ -147,7 +150,10 @@
         "see_more": "See more",
         "hide": "Hide",
         "details": "Details",
-        "login_to_manage_map_locations": "Login to manage your locations"
+        "login_to_manage_map_locations": "Login to manage your locations",
+        "booking": {
+            "choose_date": "Choose a date"
+        }
     },
     "ratings": {
         "see_more": "See more ratings",

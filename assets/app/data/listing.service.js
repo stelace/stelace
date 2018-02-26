@@ -827,7 +827,10 @@
         }
 
         function getListingTypesProperties(listing, listingTypes) {
-            return _.reduce(listing.listingTypesIds, function (memo, listingTypeId) {
+            // TODO: only take the first one for now, manage several of them later
+            var ids = [_.first(listing.listingTypesIds)];
+
+            return _.reduce(ids, function (memo, listingTypeId) {
                 var listingType = _.find(listingTypes, function (l) {
                     return l.id === listingTypeId;
                 });

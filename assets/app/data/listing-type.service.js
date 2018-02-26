@@ -7,6 +7,7 @@
       function ListingTypeService($ngRedux, CleanService, ListingType, Restangular) {
           var service = Restangular.all("listingType");
           service.getBookingTimeUnit = getBookingTimeUnit;
+          service.getProperties = getProperties;
 
           CleanService.clean(service);
 
@@ -23,6 +24,19 @@
               }
 
               return config.timeUnit;
+          }
+
+          function getProperties(listingType) {
+            var properties = listingType.properties;
+
+            return {
+                isTimeNone: properties.TIME === 'NONE',
+                isTimePredefined: properties.TIME === 'TIME_PREDEFINED',
+                isTimeFlexible: properties.TIME === 'TIME_FLEXIBLE',
+                isAvailabilityNone: properties.AVAILABILITY === 'NONE',
+                isAvailabilityUnique: properties.AVAILABILITY === 'UNIQUE',
+                isAvailabilityStock: properties.AVAILABILITY === 'STOCK'
+            };
           }
 
           return service;

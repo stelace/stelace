@@ -516,14 +516,9 @@
                             </p>
                         </div>
                     </div>
-                    <div uib-collapse="!vm.showTimeAvailability" class="margin-bottom-plus">
-                        <div class="margin-bottom-plus text--semibold" ng-switch="vm.timeAvailabilityType">
-                            <span ng-switch-when="AVAILABLE">
-                                Je peux définir des périodes où mon objet ne sera pas disponible&nbsp;:
-                            </span>
-                            <span ng-switch-when="UNAVAILABLE">
-                                Je peux définir des périodes où mon objet sera disponible&nbsp;:
-                            </span>
+                    <div uib-collapse="!vm.showPeriodAvailability" class="margin-bottom-plus">
+                        <div class="margin-bottom-plus text--semibold">
+                            Je peux définir des périodes où mon objet ne sera pas disponible&nbsp;:
                         </div>
 
                         <div class="flex-container flex--space">
@@ -589,7 +584,7 @@
                         </div>
 
                         <div uib-collapse="!vm.editingListingAvailabilities.length">
-                            <div class="margin-bottom" ng-switch="vm.timeAvailabilityType">
+                            <div class="margin-bottom">
                                 Liste de mes périodes&nbsp;:
                             </div>
 

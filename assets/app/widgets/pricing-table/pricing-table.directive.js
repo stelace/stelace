@@ -94,13 +94,13 @@
                     scope.applyFreeFees = scope.booking.priceData.takerFreeFees;
                 }
 
-                scope.noTime = isNoTime();
+                scope.dependDuration = isDurationRelated();
                 populateListing();
                 setBookingParams();
             }
 
             function populateListing() {
-                if (scope.noTime) {
+                if (scope.dependDuration) {
                     return;
                 }
 
@@ -120,7 +120,7 @@
             }
 
             function getBookingDuration() {
-                if (scope.noTime) {
+                if (scope.dependDuration) {
                     return 0;
                 }
 
@@ -180,14 +180,14 @@
                 }
             }
 
-            function isNoTime() {
+            function isDurationRelated() {
                 var listingType = getListingType();
 
-                return listingType.properties.TIME === 'NONE';
+                return listingType.properties.TIME === 'NONE' || listingType.properties.TIME === 'TIME_PREDEFINED';
             }
 
             function getFullPrice() {
-                if (! scope.noTime) {
+                if (! scope.dependDuration) {
                     return scope.nbTimeUnits * scope.listing.prices[0];
                 } else {
                     return scope.listing.sellingPrice;
@@ -195,7 +195,7 @@
             }
 
             function getRealPrice() {
-                if (! scope.noTime) {
+                if (! scope.dependDuration) {
                     return scope.listing.prices[scope.nbTimeUnits - 1];
                 } else {
                     return scope.listing.sellingPrice;
@@ -251,7 +251,7 @@
             }
 
             function getDailyPrice() {
-                if (scope.noTime) {
+                if (scope.dependDuration) {
                     return 0;
                 }
 

@@ -15,6 +15,7 @@
         service.getEndDateRange                       = getEndDateRange;
         service.isWithinRangeStartDate                = isWithinRangeStartDate;
         service.isWithinRangeEndDate                  = isWithinRangeEndDate;
+        service.getPredefinedDates                    = getPredefinedDates;
         service.isValidDates                          = isValidDates;
         service.getAvailabilityPeriodInfo             = getAvailabilityPeriodInfo;
         service.getAvailabilityDateInfo               = getAvailabilityDateInfo;
@@ -70,8 +71,6 @@
             var refDate     = args.refDate;
             var config      = args.config;
             var canOmitDuration = args.canOmitDuration || false;
-
-            console.log('test', nbTimeUnits)
 
             var errors          = {};
             var badParamsErrors = {};
@@ -185,7 +184,7 @@
 
             return {
                 isAvailable: newBooking.quantity <= maxRemainingQuantity && maxRemainingQuantity > 0,
-                maxRemainingQuantity,
+                maxRemainingQuantity: maxRemainingQuantity
             };
         }
 
@@ -216,7 +215,7 @@
 
             return {
                 isAvailable: newBooking.quantity <= maxRemainingQuantity && maxRemainingQuantity > 0,
-                maxRemainingQuantity,
+                maxRemainingQuantity: maxRemainingQuantity
             };
         }
 
@@ -319,6 +318,44 @@
             }
 
             return isWithinRange;
+        }
+
+        function getPredefinedDates(listing, listingType, graphDates) {
+            var refDate = moment().format('YYYY-MM-DD') + 'T00:00:00.000Z';
+            var config = (listingType.config && listingType.config.bookingTime) || {};
+
+            var range = getStartDateRange({
+                refDate: refDate,
+                config: config
+            });
+
+            var startDateMinLimit = range.startDateMinLimit;
+            var startDateMaxLimit = range.startDateMaxLimit
+                || moment(refDate).add({ d: 60 }).toISOString(); // max limit at 2 month if not specified
+
+            var timeUnit = config.timeUnit || 'd';
+
+            var dates;
+            if (listing.reccuringDatesPattern) {
+                dates = time.computeRecurringDates(listing.reccuringDatesPattern, {
+                    startDate: startDateMinLimit,
+                    endDate: startDateMaxLimit,
+                    onlyPureDate: timeUnit === 'd' || timeUnit === 'M'
+                });
+            }
+
+            _.forEach(graphDates || [], function (graphDate) {
+                if (graphDate.custom) {
+                    // if the owner sets to 0 purposely, do not put the date
+                    if (graphDate.maxQuantity) {
+                        dates.push(graphDate.date);
+                    }
+                }
+            });
+
+            dates = _.sortBy(_.uniq(dates));
+
+            return dates;
         }
 
         function getContractUrl(bookingId, token) {

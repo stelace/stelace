@@ -233,8 +233,8 @@ describe.only('BookingService', () => {
             ];
             const maxQuantity = 3;
             const graphDates = [
-                { date: '2018-01-01T00:00:00.000Z', usedQuantity: 1, maxQuantity: 3 },
-                { date: '2018-01-03T00:00:00.000Z', usedQuantity: 2, maxQuantity: 3 },
+                { date: '2018-01-01T00:00:00.000Z', usedQuantity: 1, maxQuantity: 3, custom: false },
+                { date: '2018-01-03T00:00:00.000Z', usedQuantity: 2, maxQuantity: 3, custom: false },
             ];
             const availabilityGraph = BookingService.getAvailabilityDateGraph({ futureBookings, maxQuantity });
 
@@ -269,10 +269,10 @@ describe.only('BookingService', () => {
             ];
             const maxQuantity = 3;
             const graphDates = [
-                { date: '2018-01-01T00:00:00.000Z', usedQuantity: 1, maxQuantity: 3 },
-                { date: '2018-01-03T00:00:00.000Z', usedQuantity: 2, maxQuantity: 3 },
-                { date: '2018-01-06T00:00:00.000Z', usedQuantity: 5, maxQuantity: 10 },
-                { date: '2018-02-01T00:00:00.000Z', usedQuantity: 3, maxQuantity: 3 },
+                { date: '2018-01-01T00:00:00.000Z', usedQuantity: 1, maxQuantity: 3, custom: false },
+                { date: '2018-01-03T00:00:00.000Z', usedQuantity: 2, maxQuantity: 3, custom: false },
+                { date: '2018-01-06T00:00:00.000Z', usedQuantity: 5, maxQuantity: 10, custom: true },
+                { date: '2018-02-01T00:00:00.000Z', usedQuantity: 3, maxQuantity: 3, custom: false },
             ];
 
             const availabilityGraph = BookingService.getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });

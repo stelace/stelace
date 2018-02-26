@@ -1,12 +1,12 @@
 <table class="book__prices text--small">
     <tbody>
-        <tr ng-if="!noTime">
+        <tr ng-if="!dependDuration">
             <td>
                 {{dayOnePrice}}€ × {{nbTimeUnits + " jour" + (nbTimeUnits > 1 ? "s" : "")}} de location
             </td>
             <td>{{fullPrice}}€</td>
         </tr>
-        <tr ng-if="noTime">
+        <tr ng-if="dependDuration">
             <td>Prix de vente</td>
             <td>{{fullPrice}}€</td>
         </tr>
@@ -51,7 +51,7 @@
             <td>
                 {{ totalPrice === 0 ? "Gratuit" : totalPrice + "€"}}
                 <span class="text--vsmall"
-                    ng-show="!noTime && nbTimeUnits > 1 && dailyPrice > 0">
+                    ng-show="!dependDuration && nbTimeUnits > 1 && dailyPrice > 0">
                     &nbsp;({{ dailyPriceStr }}€/j.)
                 </span>
             </td>

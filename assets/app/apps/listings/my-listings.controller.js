@@ -1798,10 +1798,14 @@
             } else {
                 vm.uniqueListingType = null;
             }
-            vm.showTimeAvailability = vm.uniqueListingType && vm.uniqueListingType.config.timeAvailability !== 'NONE';
 
-            if (vm.showTimeAvailability) {
-                vm.timeAvailabilityType = vm.uniqueListingType.config.timeAvailability;
+            if (!vm.uniqueListingType) {
+                vm.showTimeAvailability = false;
+            } else {
+                var properties = vm.uniqueListingType.properties;
+
+                vm.showPeriodAvailability = properties.TIME === 'TIME_FLEXIBLE';
+                vm.showDateAvailability = properties.TIME === 'TIME_PREDEFINED';
             }
         }
 
@@ -1843,7 +1847,8 @@
             _.forEach(listingAvailabilitiesToAdd, function (l) {
                 addPromises.push(ListingService.createListingAvailabilities(listing.id, {
                     startDate: l.startDate,
-                    endDate: l.endDate
+                    endDate: l.endDate,
+                    quantity: 0
                 }));
             });
 

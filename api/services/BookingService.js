@@ -221,9 +221,12 @@ async function setBookingTimePeriods({
         });
 
         if (listing.reccuringDatesPattern) {
+            const timeUnit = listingType.config.bookingTime.timeUnit;
+
             const recurringDates = TimeService.computeRecurringDates(listing.reccuringDatesPattern, {
                 startDate: moment(startDate).add({ d: -1 }).toISOString(),
                 endDate: moment(startDate).add({ d: 1 }).toISOString(),
+                onlyPureDate: timeUnit === 'd' || timeUnit === 'M',
             });
 
             isDateInRecurringList = _.includes(recurringDates, startDate);
@@ -261,12 +264,15 @@ async function setBookingAvailability({
     } else {
         const maxQuantity = Listing.getMaxQuantity(listing, listingType);
 
+        const today = TimeService.getPureDate(now);
+
         if (TIME === 'TIME_FLEXIBLE') {
             const futureBookings = await Listing.getFutureBookings(listing.id, now);
 
             const listingAvailabilities = await ListingAvailability.find({
                 listingId: listing.id,
                 type: 'period',
+                endDate: { '>=': today },
             });
 
             const availabilityGraph = getAvailabilityPeriodGraph({ futureBookings, listingAvailabilities, maxQuantity });
@@ -286,6 +292,7 @@ async function setBookingAvailability({
             const listingAvailabilities = await ListingAvailability.find({
                 listingId: listing.id,
                 type: 'date',
+                startDate: { '>=': today },
             });
 
             const availabilityGraph = getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });
@@ -337,6 +344,7 @@ async function setBookingPrices({
     const maxDiscountPercent = listingType.config.pricing.maxDiscountPercent;
 
     const {
+        ownerPriceUnit,
         ownerPrice,
         freeValue,
         discountValue,
@@ -363,10 +371,11 @@ async function setBookingPrices({
         takerFreeFees,
     };
 
-    bookingAttrs.ownerFees  = priceResult.ownerFees;
-    bookingAttrs.takerFees  = priceResult.takerFees;
-    bookingAttrs.ownerPrice = ownerPrice;
-    bookingAttrs.takerPrice = priceResult.takerPrice;
+    bookingAttrs.ownerFees      = priceResult.ownerFees;
+    bookingAttrs.takerFees      = priceResult.takerFees;
+    bookingAttrs.ownerPriceUnit = ownerPriceUnit;
+    bookingAttrs.ownerPrice     = ownerPrice;
+    bookingAttrs.takerPrice     = priceResult.takerPrice;
 
     return bookingAttrs;
 }
@@ -409,6 +418,7 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
     }
 
     return {
+        ownerPriceUnit: ownerPrice,
         ownerPrice: ownerPrice * quantity,
         freeValue,
         discountValue,
@@ -552,6 +562,7 @@ function getAvailabilityPeriodInfo(availabilityGraph, newBooking) {
  * @param  {Object[]} [listingAvailabilities]
  * @param  {String} listingAvailabilities[i].startDate
  * @param  {Number} listingAvailabilities[i].quantity
+ * @param  {Boolean} listingAvailabilities[i].custom - if true, it means that owner customizes the quantity
  */
 function getAvailabilityDateGraph({ futureBookings, maxQuantity, listingAvailabilities = [] } = {}) {
     const indexedFutureBookingsByStartDate = _.groupBy(futureBookings, 'startDate');
@@ -585,6 +596,7 @@ function getAvailabilityDateGraph({ futureBookings, maxQuantity, listingAvailabi
             date,
             usedQuantity: currUsedQuantity,
             maxQuantity: currMaxQuantity,
+            custom: !!startAvail,
         };
 
         graphDates.push(graphDate);

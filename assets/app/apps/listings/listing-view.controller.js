@@ -113,8 +113,9 @@
         vm.displaySnapshotView  = false;
         vm.pricingTableData     = {};
         vm.showGamification     = StelaceConfig.isFeatureActive('GAMIFICATION');
-        vm.uniqueListingType    = false;
-        vm.onlyNoTimeListing    = false;
+        vm.listingTypeProperties = {};
+        vm.predefinedDates = [];
+        vm.selectedPredefinedDate = null;
 
         // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
@@ -249,29 +250,15 @@
                 vm.listingTypes    = results.listingTypes;
                 vm.uniqueListingType = listing.listingTypesIds.length === 1;
 
-                if (vm.uniqueListingType) {
-                    vm.selectedListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.id === listing.listingTypesIds[0];
-                    });
-                }
+                vm.selectedListingType = _.find(vm.listingTypes, function (listingType) {
+                    return listingType.id === listing.listingTypesIds[0];
+                });
+
+                vm.listingTypeProperties = ListingTypeService.getProperties(vm.selectedListingType);
 
                 ListingService.populate(listing, {
                     listingTypes: vm.listingTypes
                 });
-
-                // TODO: create tab by listingType
-                if (listing.listingTypesProperties.TIME.TIME_FLEXIBLE) {
-                    vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.properties.TIME === 'TIME_FLEXIBLE';
-                    });
-                }
-                if (listing.listingTypesProperties.TIME.NONE) {
-                    vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.properties.TIME === 'NONE';
-                    });
-                }
-
-                vm.onlyNoTimeListing = vm.uniqueListingType && listing.listingTypesProperties.TIME.NONE;
 
                 if (vm.currentUser) {
                     var now = moment().toISOString();
@@ -282,7 +269,10 @@
                 }
 
                 var noMoreAvailable = false;
-                if (vm.selectedListingType && vm.selectedListingType.properties.TIME === 'NONE' && listing.quantity === 0) {
+                if ((vm.listingTypeProperties.isTimeNone
+                 && (vm.listingTypeProperties.isAvailabilityUnique || vm.listingTypeProperties.isAvailabilityNone))
+                 && listing.quantity === 0
+                ) {
                     noMoreAvailable = true;
                 }
 
@@ -297,8 +287,8 @@
                 }
 
                 var maxDurationBooking;
-                if (vm.timeFlexibleListingType) {
-                    maxDurationBooking = vm.timeFlexibleListingType.config.bookingTime.maxDuration;
+                if (vm.listingTypeProperties.isTimeFlexible) {
+                    maxDurationBooking = vm.selectedListingType.config.bookingTime.maxDuration;
                 }
 
                 ListingService.populate(listing, {
@@ -320,9 +310,12 @@
 
                 _setBreadcrumbs();
 
-                if (!vm.onlyNoTimeListing) {
-                    _computeDateConstraints(listing, vm.timeFlexibleListingType);
+                if (vm.listingTypeProperties.isTimeFlexible) {
+                    _computeTimeFlexibleDateConstraints(listing, vm.selectedListingType);
+                } else if (vm.listingTypeProperties.isTimePredefined) {
+                    vm.predefinedDates = _getPredefinedDates(listing, vm.selectedListingType);
                 }
+
                 vm.calendarReady = true;
                 vm.startDate = null;
                 vm.endDate   = null;
@@ -337,7 +330,7 @@
 
                 vm.pricingTableData.show          = false;
                 vm.pricingTableData.listing          = listing;
-                vm.pricingTableData.listingType   = vm.onlyNoTimeListing ? vm.timeNoneListingType : vm.timeFlexibleListingType;
+                vm.pricingTableData.listingType   = vm.selectedListingType;
                 vm.pricingTableData.listingPricing   = listingPricing;
                 vm.pricingTableData.bookingParams = {};
                 vm.pricingTableData.data          = {
@@ -345,8 +338,8 @@
                     dailyPriceStr: ""
                 };
 
-                // the listing is only sellable, display the pricing table
-                if (vm.onlyNoTimeListing) {
+                // the listing pricing doesn't need duration, display the pricing table
+                if (!vm.listingTypeProperties.isTimeFlexible) {
                     vm.pricingTableData.bookingParams.applyFreeFees = vm.applyFreeFees;
                     vm.pricingTableData.show                        = true;
                     vm.showPrice = true;
@@ -474,7 +467,7 @@
             return $q.reject("stop");
         }
 
-        function _computeDateConstraints(listing, listingType) {
+        function _computeTimeFlexibleDateConstraints(listing, listingType) {
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
             var config = (listingType.config && listingType.config.bookingTime) || {};
             var availabilityGraphs = listing.availabilityGraphs;
@@ -538,6 +531,29 @@
             vm.endDateOptions   = _.assign({}, dateOptions, { dateDisabled: _disableEndDate });
         }
 
+        function _getPredefinedDates(listing, listingType) {
+            var availabilityGraphs = listing.availabilityGraphs;
+            var availabilityGraph = availabilityGraphs.dates;
+
+            var predefinedDates = BookingService.getPredefinedDates(listing, listingType, availabilityGraph.graphDates);
+
+            var predefinedDatesWithQuantity = [];
+
+            _.forEach(predefinedDates, function (date) {
+                var availabilityInfo = BookingService.getAvailabilityDateInfo(availabilityGraph, {
+                    startDate: date,
+                    quantity: 1
+                });
+
+                predefinedDatesWithQuantity.push({
+                    date: date,
+                    maxRemainingQuantity: availabilityInfo.maxRemainingQuantity
+                });
+            });
+
+            return predefinedDatesWithQuantity;
+        }
+
         function displayFullDate(date) {
             return moment(date).format("LL");
         }
@@ -581,7 +597,7 @@
 
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z'; // TODO: compute ref date based on time unit
 
-            var timeUnit = ListingTypeService.getBookingTimeUnit(vm.timeFlexibleListingType);
+            var timeUnit = ListingTypeService.getBookingTimeUnit(vm.selectedListingType);
             vm.nbTimeUnits = BookingService.getNbTimeUnits(startDate, endDate, timeUnit);
 
             var isValidDates;
@@ -593,7 +609,7 @@
                     startDate: startDate,
                     nbTimeUnits: vm.nbTimeUnits,
                     refDate: refDate,
-                    config: vm.timeFlexibleListingType.config.bookingTime,
+                    config: vm.selectedListingType.config.bookingTime,
                     canOmitDuration: false
                 });
 
@@ -626,7 +642,7 @@
             }
 
             if (vm.showIncorrectDates) {
-                _setErrorDateMessage(listing, vm.timeFlexibleListingType, isValidDates);
+                _setErrorDateMessage(listing, vm.selectedListingType, isValidDates);
             } else {
                 _removeErrorDateMessage();
             }
@@ -712,12 +728,10 @@
             });
         }
 
-        function bookListing(bookInNoTime) {
-            var listingType = _.find(vm.listingTypes, function (listingType) {
-                return listingType.properties.TIME === (bookInNoTime ? 'NONE' : 'TIME_FLEXIBLE');
-            });
+        function bookListing() {
+            var listingType = vm.selectedListingType;
 
-            if (! vm.startDate && ! bookInNoTime) {
+            if (! vm.startDate && vm.listingTypeProperties.isTimeFlexible) {
                 // Hack: only way found to force datepicker to open (even with a $scope variable)
                 // Without timeout, get digest loop in progress error if trying to use $apply
                 // See http://stackoverflow.com/a/18626821
@@ -739,15 +753,22 @@
                 // }
                 return;
             }
+            if (!vm.selectedPredefinedDate && vm.listingTypeProperties.isTimePredefined) {
+                var element = document.getElementById('predefined-date-list');
+                element.focus();
+                return;
+            }
 
             var createAttrs = {
                 listingId: vm.listing.id,
                 listingTypeId: listingType.id
             };
 
-            if (! bookInNoTime) {
+            if (vm.listingTypeProperties.isTimeFlexible) {
                 createAttrs.startDate = getStartDate(vm.startDate);
                 createAttrs.nbTimeUnits = vm.nbTimeUnits;
+            } else if (vm.listingTypeProperties.isTimePredefined) {
+                createAttrs.startDate = vm.selectedPredefinedDate;
             }
 
             // Google Analytics event
@@ -807,8 +828,7 @@
             StelaceEvent.sendEvent("Sticky booking button click");
             $window.scrollTo(0, 0);
 
-            var bookInNoTime = vm.onlyNoTimeListing;
-            bookListing(bookInNoTime);
+            bookListing();
         }
 
         function _promptEndDate(newDate, oldDate) {
@@ -818,7 +838,7 @@
             }
 
             if (! vm.endDate) {
-                var minDuration = vm.timeFlexibleListingType.config.bookingTime.minDuration;
+                var minDuration = vm.selectedListingType.config.bookingTime.minDuration;
 
                 if (! minDuration) {
                     minDuration = 1;
@@ -1015,8 +1035,8 @@
             listingLocations        = [];
 
             var maxDurationBooking;
-            if (vm.timeFlexibleListingType) {
-                maxDurationBooking = vm.timeFlexibleListingType.config.bookingTime.maxDuration;
+            if (vm.listingTypeProperties.isTimeFlexible) {
+                maxDurationBooking = vm.selectedListingType.config.bookingTime.maxDuration;
             }
 
             _setBreadcrumbs();
@@ -1082,7 +1102,7 @@
                         listingId: vm.listing.id,
                         startDate: vm.startDate ? moment(vm.startDate).format(formatDate) : null,
                         endDate: vm.endDate ? moment(vm.endDate).format(formatDate) : null,
-                        listingTypeId: vm.noTimeBookingSelected ? vm.timeNoneListingType.id : vm.timeFlexibleListingType.id // TODO: find a better way to select it
+                        listingTypeId: vm.selectedListingType
                     });
                 })
                 .then(function (booking) {
@@ -1110,8 +1130,9 @@
 
             var lockScrollClass      = "modal-opened" + (vm.iOS ? " lock-both" : "");
             vm.editPublicQuestion    = false;
-            vm.showToggleListingType = vm.listing.listingTypesIds.length > 1;
-            vm.noTimeBookingSelected = vm.onlyNoTimeListing;
+            // vm.showToggleListingType = vm.listing.listingTypesIds.length > 1;
+            vm.showToggleListingType = false;
+            vm.noTimeBookingSelected = vm.listingTypeProperties.isTimeNone;
 
             vm.editPublicQuestion = true;
 

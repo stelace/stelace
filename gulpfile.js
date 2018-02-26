@@ -45,6 +45,8 @@ var jsConfig = {
         "assets/bower_components/spin.js/spin.js",
         "assets/bower_components/viewport-units-buggyfill/viewport-units-buggyfill.js",
         "assets/vendors/redux-3.7.2.min.js",
+        "assets/bower_components/sprintf/dist/sprintf.min.js",
+        "assets/bower_components/cron-converter/dist/cron.min.js",
         "assets/bower_components/angular/angular.js",
         "assets/bower_components/angular-i18n/angular-locale_fr-fr.js",
         "assets/bower_components/restangular/dist/restangular.js",

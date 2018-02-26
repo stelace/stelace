@@ -39,6 +39,7 @@
     "angular-ui-select": "0.19.4",
     "angular-ui-select-patched": "https://github.com/abruere/ui-select.git#e2d7a4554a3798a341c6373ba1e4fe8f1f6ae8f2",
     "angularjs-slider": "^6.4.0",
+    "cron-converter": "0.0.11",
     "cryptojslib": "3.1.2",
     "domurl": "2.1.7",
     "error-stack-parser": "1.2.3",

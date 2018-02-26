@@ -28,7 +28,7 @@
                 itemtype="http://schema.org/Offer">
                 <div class="listing-grid__price">
                     <span class="listing-grid__selling-icon-container"
-                        ng-show="vm.listing.listingTypesProperties.TIME.NONE && !vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE"
+                        ng-show="(vm.listing.listingTypesProperties.TIME.NONE || vm.listing.listingTypesProperties.TIME.TIME_PREDEFINED) && !vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE"
                         data-tooltip-placement="auto left"
                         data-tooltip-trigger="mouseenter"
                         uib-tooltip="{{::vm.sellableTooltip}}"

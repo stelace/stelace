@@ -110,10 +110,10 @@
                                         data-translate="listing.price_label"></span>
                                     <span class="text--emphasize">
                                         <span ng-if="vm.pricingTableData.data.totalPrice">
-                                            <span ng-if="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                                            <span ng-if="vm.listingTypeProperties.isTimeFlexible">
                                                 <span itemprop="price">{{vm.pricingTableData.data.dailyPriceStr}}</span><sup itemprop="priceCurrency" content="EUR">€</sup>/j.
                                             </span>
-                                            <span ng-if="! vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                                            <span ng-if="! vm.listingTypeProperties.isTimeFlexible">
                                                 <span itemprop="price">{{vm.pricingTableData.data.totalPrice}}</span><sup itemprop="priceCurrency" content="EUR">€</sup>
                                             </span>
                                         </span>
@@ -173,11 +173,11 @@
                             <!-- HACK : Only allow scroll on reasonably narrow height desktop screens (500-640px) when some text below date inputs (room for datepicker to show without too much scroll) -->
                             <div class="book__dates"
                                 ng-class="{'conditional-scroll': vm.showPrice}"
-                                ng-if="(vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE && vm.calendarReady) || !vm.listing.listingTypeProperties.TIME.TIME_FLEXIBLE">
+                                ng-if="(vm.listingTypeProperties.isTimeFlexible && vm.calendarReady) || !vm.listingTypeProperties.isTimeFlexible">
                                 <div class="flex-container flex--space">
                                     <!-- Previously: ng-if="! vm.inlineDatepicker" -->
                                     <div class="datepicker-side datepicker-left"
-                                        ng-if="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                                        ng-if="vm.listingTypeProperties.isTimeFlexible">
                                         <label for="popup-start-date"
                                             data-translate="listing.time.from_day_label">
                                         </label>
@@ -209,7 +209,7 @@
                                         </div>
                                     </div>
                                     <div class="datepicker-side datepicker-right"
-                                        ng-if="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                                        ng-if="vm.listingTypeProperties.isTimeFlexible">
                                         <label for="popup-end-date"
                                             data-translate="listing.time.to_day_label">
                                         </label>
@@ -237,6 +237,33 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div
+                                        ng-if="vm.listingTypeProperties.isTimePredefined">
+                                        <label for="predefined-date-list"
+                                            data-translate="listing.time.dates_label">
+                                        </label>
+                                        <select id="predefined-date-list"
+                                            class="input__inner-icon-container"
+                                            ng-model="vm.selectedPredefinedDate"
+                                            ng-change="vm.displayPrice()">
+                                            <option value="" selected disabled="disabled" data-translate="prompt.booking.choose_date"></option>
+                                            <option ng-repeat="predefinedDate in vm.predefinedDates"
+                                                ng-if="!vm.listingTypeProperties.isAvailabilityStock"
+                                                value="{{predefinedDate.date}}"
+                                                data-translate="listing.time.predefined_date_select_value"
+                                                data-translate-values="{ date: predefinedDate.date, remainingQuantity: predefinedDate.maxRemainingQuantity }"
+                                                ng-disabled="predefinedDate.maxRemainingQuantity === 0"
+                                            >
+                                            <option ng-repeat="predefinedDate in vm.predefinedDates"
+                                                value="{{predefinedDate.date}}"
+                                                ng-if="vm.listingTypeProperties.isAvailabilityStock"
+                                                data-translate="listing.time.predefined_date_select_value"
+                                                data-translate-values="{ date: predefinedDate.date, remainingQuantity: predefinedDate.maxRemainingQuantity }"
+                                                ng-disabled="predefinedDate.maxRemainingQuantity === 0"
+                                            >
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <p class="text-center" ng-show="vm.showIncorrectDates">
                                     <span>{{vm.dateErrorMessage}}</span>
@@ -250,17 +277,26 @@
                                         <button id="listing-book-button" class="button brightblue margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
-                                            ng-click="vm.bookListing(false)"
-                                            ng-show="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE"
+                                            ng-click="vm.bookListing()"
+                                            ng-show="vm.listingTypeProperties.isTimeFlexible"
                                             ng-switch-when="false"
                                             data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                                         </button>
+                                        <button id="listing-purchase-defined-button" class="button red margin-bottom"
+                                            ng-class="{ disabled: vm.disableBookingButton }"
+                                            ng-disabled="vm.disableBookingButton"
+                                            ng-click="vm.bookListing()"
+                                            ng-show="vm.listingTypeProperties.isTimePredefined"
+                                            ng-switch-when="false"
+                                            data-translate="listing.checkout_action"
+                                            data-translate-values="{ timeDimension: 'TIME_PREDEFINED' }">
+                                        </button>
                                         <button id="listing-purchase-button" class="button red margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
-                                            ng-click="vm.bookListing(true)"
-                                            ng-show="vm.listing.listingTypesProperties.TIME.NONE"
+                                            ng-click="vm.bookListing()"
+                                            ng-show="vm.listingTypeProperties.isTimeNone"
                                             ng-switch-when="false"
                                             data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: 'NONE' }">
@@ -278,7 +314,7 @@
                                         ng-switch-when="false"
                                         data-sip-sticky-button="listing-book-button">
                                         <span data-translate="listing.checkout_action"
-                                            data-translate-values="{ timeDimension: vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE ? 'TIME_FLEXIBLE' : 'NONE' }"></span>
+                                            data-translate-values="{ timeDimension: vm.listingTypeProperties.isTimeFlexible ? 'TIME_FLEXIBLE' : 'NONE' }"></span>
                                     </button>
                                     <a class="button purple"
                                         ui-sref="editListing({ id: vm.listing.id })"
@@ -311,7 +347,7 @@
                 <meta itemprop="image" content="{{vm.listing.url}}">
                 <div class="small-12 desktop-8">
                     <div class="stelace-listing__context-info"
-                        ng-if="vm.listing.listingTypesProperties.TIME.NONE && vm.listing.sellingPrice">
+                        ng-if="vm.listingTypeProperties.isTimeNone && vm.listing.sellingPrice">
                         <h3>
                             <span data-translate="listing.buy_now.title">
                             </span>
@@ -322,7 +358,7 @@
 
                         </p>
                         <!-- Pricing table is shown in sticky sidebar when is listing is not on rent -->
-                        <div ng-show="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                        <div ng-show="vm.listingTypeProperties.isTimeFlexible">
                             <div class="link--blue-underline cursor-pointer text--small"
                                 ng-click="vm.showPurchasePricingTable = ! vm.showPurchasePricingTable"
                                 data-sip-action-key>
@@ -406,7 +442,7 @@
                             <strong data-translate="listing.condition_label"></strong><br>
                             {{vm.listing.stateComment}}
                         </p>
-                        <p ng-if="vm.listing.deposit && vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
+                        <p ng-if="vm.listing.deposit && vm.listingTypeProperties.isTimeFlexible">
                             <strong data-translate="listing.security_deposit_label"></strong>
                             <br>
                             {{vm.listing.deposit}}€

@@ -211,6 +211,7 @@ async function findOne(req, res) {
                 const listingAvailabilities = await ListingAvailability.find({
                     listingId: listing.id,
                     type: 'period',
+                    endDate: { '>=': today },
                 });
 
                 const availabilityGraph = BookingService.getAvailabilityPeriodGraph({ futureBookings, listingAvailabilities, maxQuantity });
@@ -219,6 +220,7 @@ async function findOne(req, res) {
                 const listingAvailabilities = await ListingAvailability.find({
                     listingId: listing.id,
                     type: 'date',
+                    startDate: { '>=': today },
                 });
 
                 const availabilityGraph = BookingService.getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });
