@@ -134,9 +134,13 @@
                                 <div ng-if="! vm.showPrice" class="flex-container flex--space-between flex--align-center">
                                     <span class="text--small text--semibold"
                                         data-translate="listing.time.unit_label"
-                                        data-translate-values="{ timeUnit: 'd', nbUnits: 1}"></span>
+                                        data-translate-values="{ timeUnit: vm.timeUnit, nbUnits: 1}"></span>
                                     <span class="text--emphasize">
-                                        <span itemprop="price">{{vm.listing.prices[0]}}</span><sup itemprop="priceCurrency" content="EUR">€</sup>
+                                        <span data-translate="pricing.price_value"
+                                            data-translate-values="{ price: vm.listing.prices[0] }"
+                                            ng-show="vm.listing.prices.length"
+                                        >
+                                        </span>
                                     </span>
                                 </div>
                             </div>
@@ -200,13 +204,13 @@
                                                 ng-model="vm.startDate"
                                                 ng-click="vm.openDatepicker('start')"
                                                 ng-focus="vm.openDatepicker('start')"
-                                                ng-change="vm.displayPrice()"
+                                                ng-change="vm.displayTimeFlexiblePrice()"
                                                 uib-datepicker-popup="{{vm.formatDate}}"
                                                 data-datepicker-options="vm.startDateOptions"
                                                 data-datepicker-append-to-body="false"
                                                 data-is-open="vm.startDateOpened"
                                                 data-show-button-bar="false"
-                                                placeholder="jj/mm/aaaa"
+                                                placeholder="{{vm.calendarPlaceholder}}"
                                                 readonly
                                                 data-sip-autoblur="vm.iOS">
                                             <div class="input__inner-icon icon-right cursor-pointer"
@@ -229,13 +233,13 @@
                                                 ng-model="vm.endDate"
                                                 ng-click="vm.openDatepicker('end')"
                                                 ng-focus="vm.openDatepicker('end')"
-                                                ng-change="vm.displayPrice()"
+                                                ng-change="vm.displayTimeFlexiblePrice()"
                                                 uib-datepicker-popup="{{vm.formatDate}}"
                                                 data-datepicker-options="vm.endDateOptions"
                                                 data-datepicker-append-to-body="false"
                                                 data-is-open="vm.endDateOpened"
                                                 data-show-button-bar="false"
-                                                placeholder="jj/mm/aaaa"
+                                                placeholder="{{vm.calendarPlaceholder}}"
                                                 readonly
                                                 data-sip-autoblur="vm.iOS">
                                             <div class="input__inner-icon icon-right cursor-pointer"
@@ -247,36 +251,67 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div
+
+                                    <div class="datepicker-side"
                                         ng-if="vm.listingTypeProperties.isTimePredefined">
-                                        <label for="predefined-date-list"
-                                            data-translate="listing.time.dates_label">
+                                        <label for="pop-predefined-date" class="text-center"
+                                            data-translate="listing.time.date_label">
                                         </label>
-                                        <select id="predefined-date-list"
-                                            class="input__inner-icon-container"
-                                            ng-model="vm.selectedPredefinedDate"
-                                            ng-change="vm.displayPrice()">
-                                            <option value="" selected disabled="disabled" data-translate="prompt.booking.choose_date"></option>
-                                            <option ng-repeat="predefinedDate in vm.predefinedDates"
-                                                ng-if="!vm.listingTypeProperties.isAvailabilityStock"
-                                                value="{{predefinedDate.date}}"
-                                                data-translate="listing.time.predefined_date_select_value"
-                                                data-translate-values="{ date: predefinedDate.date, remainingQuantity: predefinedDate.maxRemainingQuantity }"
-                                                ng-disabled="predefinedDate.maxRemainingQuantity === 0"
-                                            >
-                                            <option ng-repeat="predefinedDate in vm.predefinedDates"
-                                                value="{{predefinedDate.date}}"
-                                                ng-if="vm.listingTypeProperties.isAvailabilityStock"
-                                                data-translate="listing.time.predefined_date_select_value_quantity"
-                                                data-translate-values="{ date: predefinedDate.date, remainingQuantity: predefinedDate.maxRemainingQuantity }"
-                                                ng-disabled="predefinedDate.maxRemainingQuantity === 0"
-                                            >
-                                            </option>
-                                        </select>
+                                        <div class="input__inner-icon-container">
+                                            <input id="pop-predefined-date"
+                                                type="text"
+                                                ng-model="vm.selectedPredefinedDate"
+                                                ng-click="vm.openDatepicker('predefined')"
+                                                ng-focus="vm.openDatepicker('predefined')"
+                                                ng-change="vm.displayTimePredefinedPrice()"
+                                                uib-datepicker-popup="{{vm.formatDate}}"
+                                                data-datepicker-options="vm.predefinedDateOptions"
+                                                data-datepicker-append-to-body="false"
+                                                data-is-open="vm.predefinedDateOpened"
+                                                data-show-button-bar="false"
+                                                placeholder="{{vm.calendarPlaceholder}}"
+                                                readonly
+                                                data-sip-autoblur="vm.iOS">
+                                            <div class="input__inner-icon icon-right cursor-pointer"
+                                                ng-class="{active: vm.predefinedDateOpened}"
+                                                ng-click="vm.predefinedDateOpened = ! vm.predefinedDateOpened">
+                                                <svg class="icon">
+                                                    <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <p class="text-center" ng-show="vm.showIncorrectDates">
-                                    <span>{{vm.dateErrorMessage}}</span>
+
+                                <div ng-if="vm.listingTypeProperties.isAvailabilityStock"
+                                    class="flex-container flex--space-between flex--align-center margin-top margin-bottom">
+                                    <label for="quantity-list" data-translate="pricing.quantity"></label>
+                                    <select id="quantity-list" class="select-quantity"
+                                        ng-model="vm.selectedQuantityStr"
+                                        ng-change="vm.changeQuantity()"
+                                    >
+                                        <option ng-repeat="quantity in vm.listQuantities"
+                                            value="{{quantity}}"
+                                        >
+                                            {{quantity}}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <p class="text-center margin-bottom" ng-show="vm.showIncorrectDates" ng-switch="vm.dateErrorObject.type">
+                                    <span ng-switch-when="DEFAULT"
+                                        data-translate="booking.error.incorrect_dates">
+                                    </span>
+                                    <span ng-switch-when="BELOW_MIN_DURATION"
+                                        data-translate="booking.error.minimum_duration"
+                                        data-translate-values="{ timeUnit: vm.dateErrorObject.timeUnit, nbTimeUnits: vm.dateErrorObject.minDuration }"
+                                    >
+                                    </span>
+                                    <span ng-switch-when="ABOVE_MAX_DURATION"
+                                        data-translate="booking.error.maximum_duration"
+                                        data-translate-values="{ timeUnit: vm.dateErrorObject.timeUnit, nbTimeUnits: vm.dateErrorObject.maxDuration }"
+                                    >
+                                    </span>
                                 </p>
                                 <div class="text-center" ng-switch="vm.isOwner">
                                     <div ng-if="vm.listing.locked"
@@ -574,14 +609,29 @@
                                             data-translate-values="{ month_year: vm.listing.owner.seniority }"></span>
                                     </div>
                                 </div>
-                                <div class="medium-6 flex-container flex--column" ng-if="vm.ownerMessageStats.answerRateString">
+                                <div class="medium-6 flex-container flex--column" ng-if="vm.ownerMessageStats.answerRate">
                                     <div>
                                         <span data-translate="listing.response_rate_label"></span>
-                                        <span class="text--semibold">{{vm.ownerMessageStats.answerRateString}}</span>
+                                        <span class="text--semibold"
+                                            ng-if="vm.ownerMessageStats.answerRate < 50"
+                                            data-translate="quantity.percent"
+                                            data-translate-values="{ nbUnits: vm.ownerMessageStats.answerRate / 100 }"
+                                        >
+                                        </span>
+                                        <span class="text--semibold"
+                                            ng-if="vm.ownerMessageStats.answerRate >= 50"
+                                            data-translate="quantity.less_than_percent"
+                                            data-translate-values="{ nbUnits: vm.ownerMessageStats.answerRate / 100 }"
+                                        >
+                                        </span>
                                     </div>
                                     <div>
                                         <span data-translate="listing.response_time_label"></span>
-                                        <span class="text--semibold">{{vm.ownerMessageStats.answerDelayString}}</span>
+                                        <span class="text--semibold"
+                                            data-translate="{{vm.ownerMessageStats.answerDelayKey}}"
+                                        >
+                                        </span>
+                                        <!-- <span class="text--semibold">{{vm.ownerMessageStats.answerDelayString}}</span> -->
                                     </div>
                                 </div>
                             </div>

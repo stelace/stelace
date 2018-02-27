@@ -20,23 +20,6 @@
             class="fluid-width form--control"
             novalidate>
             <div>
-                <div ng-show="vm.showToggleListingType">
-                    <p class="margin-top text--semibold margin-bottom">
-                        Souhaitez-vous louer ou acheter ?
-                    </p>
-                    <div class="text-center">
-                        <button class="button brightblue"
-                            ng-click="vm.toggleListingType()"
-                            ng-class="{ gray: vm.noTimeBookingSelected }">
-                            Louer
-                        </button>
-                        <button class="button brightblue"
-                            ng-click="vm.toggleListingType()"
-                            ng-class="{ gray: ! vm.noTimeBookingSelected }">
-                            Acheter
-                        </button>
-                    </div>
-                </div>
                 <div ng-hide="vm.noTimeBookingSelected">
                     <p class="margin-top text--semibold">À quelles dates envisagez-vous de réserver&nbsp;?</p>
                     <div class="flex-container flex--space">

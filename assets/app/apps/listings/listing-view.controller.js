@@ -14,6 +14,7 @@
                                 $timeout,
                                 $location,
                                 $q,
+                                $translate,
                                 $window,
                                 authenticationModal,
                                 // BrandService,
@@ -59,6 +60,7 @@
         var mapDimensionsObject = {};
         var startDateOpenedOnce = false;
         var endDateOpenedOnce   = false;
+        var predefinedDateOpenedOnce = false;
         var dateOptions         = {
             minDate: todayDate,
             startingDay: 1,
@@ -96,9 +98,10 @@
         vm.showTags             = StelaceConfig.isFeatureActive('TAGS');
         vm.mqMobileTablet       = mqMobileTablet.matches;
         vm.formatDate           = "dd/MM/yyyy";
+        vm.calendarPlaceholder  = '';
         vm.showDate             = false;
         vm.showIncorrectDates   = false;
-        vm.dateErrorMessage     = "";
+        vm.dateErrorObject      = null;
         vm.disableBookingButton = false;
         vm.listing              = null;
         vm.nbPictures           = 1;
@@ -114,8 +117,11 @@
         vm.pricingTableData     = {};
         vm.showGamification     = StelaceConfig.isFeatureActive('GAMIFICATION');
         vm.listingTypeProperties = {};
-        vm.predefinedDates = [];
         vm.selectedPredefinedDate = null;
+        vm.listQuantities = [];
+        vm.selectedQuantityStr = '1';
+        vm.selectedQuantity    = 1;
+        vm.timeUnit = null;
 
         // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
@@ -134,7 +140,9 @@
         vm.stickyButtonBookListing  = stickyButtonBookListing;
         // vm.changeMobileStartDate = changeMobileStartDate;
         // vm.changeMobileEndDate   = changeMobileEndDate;
-        vm.displayPrice          = displayPrice;
+        vm.displayTimeFlexiblePrice = displayTimeFlexiblePrice;
+        vm.displayTimePredefinedPrice = displayTimePredefinedPrice;
+        vm.changeQuantity        = changeQuantity;
         vm.displayFullDate       = displayFullDate;
         vm.openImgSmallGallery   = openImgSmallGallery;
         vm.openImgGallery        = openImgGallery;
@@ -145,7 +153,6 @@
         vm.toggleDetailBox       = _toggleDetailBox;
         // vm.toggleDetailBox       = _.throttle(_toggleDetailBox, 200, { trailing: false }) ;
         vm.myLocationCta         = myLocationCta;
-        vm.toggleListingType     = toggleListingType;
 
         activate();
 
@@ -182,9 +189,13 @@
                 }
                 usSpinnerService.stop('map-spinner');
                 if (! vm.mqMobileTablet) { // map is lower in view on mobiles
-                    toastr.info("Nous sommes désolés, la carte de la page n'a pas pu être chargée pour le moment.", "Carte indisponible", {
-                        timeOut: 15000
-                    });
+                    var errorTitleKey = 'error.map_loading_error_title';
+                    var errorMessageKey = 'error.map_loading_error_message';
+
+                    $translate([errorTitleKey, errorMessageKey])
+                        .then(function (translations) {
+                            toastr.info(translations[errorMessageKey], translations[errorTitleKey], { timeOut: 15000 });
+                        });
                 }
             }, 45000);
 
@@ -226,6 +237,13 @@
             //     vm.inlineDatepicker = true;
             // }
 
+            var lang = platform.getLang();
+            if (lang === 'en') {
+                vm.calendarPlaceholder = 'dd/mm/yyyy';
+            } else {
+                vm.calendarPlaceholder = 'jj/mm/aaaa';
+            }
+
             $q.all({
                 // brands: BrandService.getList(),
                 currentUser: UserService.getCurrentUser(),
@@ -253,6 +271,13 @@
                 vm.selectedListingType = _.find(vm.listingTypes, function (listingType) {
                     return listingType.id === listing.listingTypesIds[0];
                 });
+
+                if (!vm.selectedListingType) {
+                    vm.displaySnapshotView = true;
+                    return _displayListingSnapshot(results);
+                }
+
+                vm.timeUnit = vm.selectedListingType.config.bookingTime.timeUnit;
 
                 vm.listingTypeProperties = ListingTypeService.getProperties(vm.selectedListingType);
 
@@ -313,7 +338,36 @@
                 if (vm.listingTypeProperties.isTimeFlexible) {
                     _computeTimeFlexibleDateConstraints(listing, vm.selectedListingType);
                 } else if (vm.listingTypeProperties.isTimePredefined) {
-                    vm.predefinedDates = _getPredefinedDates(listing, vm.selectedListingType);
+                    _computeTimePredefinedDateConstraints(listing, vm.selectedListingType);
+                }
+
+                // generate the list of max quantities available
+                if (vm.listingTypeProperties.isAvailabilityStock) {
+                    var maxQuantity = listing.quantity;
+
+                    var availabilityGraph;
+                    var availabilityInfo;
+                    if (vm.listingTypeProperties.isTimeFlexible) {
+                        availabilityGraph = _getAvailabilityGraph(listing, 'period');
+                        _.forEach(availabilityGraph.graphDates, function (graphDate) {
+                            availabilityInfo = BookingService.getAvailabilityPeriodInfo(availabilityGraph, {
+                                startDate: graphDate.date,
+                                quantity: 1
+                            });
+                            maxQuantity = Math.max(maxQuantity, availabilityInfo.maxRemainingQuantity);
+                        });
+                    } else if (vm.listingTypeProperties.isTimePredefined) {
+                        availabilityGraph = _getAvailabilityGraph(listing, 'date');
+                        _.forEach(availabilityGraph.graphDates, function (graphDate) {
+                            availabilityInfo = BookingService.getAvailabilityDateInfo(availabilityGraph, {
+                                startDate: graphDate.date,
+                                quantity: 1
+                            });
+                            maxQuantity = Math.max(maxQuantity, availabilityInfo.maxRemainingQuantity);
+                        });
+                    }
+
+                    _generateListQuantities(maxQuantity);
                 }
 
                 vm.calendarReady = true;
@@ -470,12 +524,32 @@
             return $q.reject("stop");
         }
 
+        function _generateListQuantities(maxQuantity) {
+            vm.listQuantities = _.range(1, maxQuantity + 1);
+        }
+
+        function _setQuantity(quantity) {
+            vm.selectedQuantity = quantity;
+            vm.selectedQuantityStr = '' + quantity;
+        }
+
+        function _getAvailabilityGraph(listing, type) {
+            var availabilityGraphs = listing.availabilityGraphs;
+
+            var field;
+            if (type === 'period') {
+                field = 'periods';
+            } else {
+                field = 'dates';
+            }
+
+            return availabilityGraphs[field];
+        }
+
         function _computeTimeFlexibleDateConstraints(listing, listingType) {
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
             var config = (listingType.config && listingType.config.bookingTime) || {};
-            var availabilityGraphs = listing.availabilityGraphs;
-
-            var availabilityGraph = availabilityGraphs.periods;
+            var availabilityGraph = _getAvailabilityGraph(listing, 'period');
 
             var _disableStartDate = function (data) {
                 if (listing.locked) {
@@ -534,10 +608,38 @@
             vm.endDateOptions   = _.assign({}, dateOptions, { dateDisabled: _disableEndDate });
         }
 
-        function _getPredefinedDates(listing, listingType) {
-            var availabilityGraphs = listing.availabilityGraphs;
-            var availabilityGraph = availabilityGraphs.dates;
+        function _computeTimePredefinedDateConstraints(listing, listingType) {
+            var refDate = moment().format(formatDate) + 'T00:00:00.000Z';
+            var config = (listingType.config && listingType.config.bookingTime) || {};
 
+            var predefinedDates = _getPredefinedDates(listing, listingType);
+            var indexedPredefinedDates = _.indexBy(predefinedDates, 'date');
+
+            var _disableEventDate = function (data) {
+                if (listing.locked) {
+                    return true;
+                }
+
+                var startDate = getStartDate(data.date);
+
+                var isWithinRange = BookingService.isWithinRangeStartDate({
+                    refDate: refDate,
+                    config: config,
+                    startDate: startDate
+                });
+
+                if (!isWithinRange) {
+                    return true;
+                }
+
+                return !indexedPredefinedDates[startDate];
+            };
+
+            vm.predefinedDateOptions = _.assign({}, dateOptions, { dateDisabled: _disableEventDate });
+        }
+
+        function _getPredefinedDates(listing, listingType) {
+            var availabilityGraph = _getAvailabilityGraph(listing, 'date');
             var predefinedDates = BookingService.getPredefinedDates(listing, listingType, availabilityGraph.graphDates);
 
             var predefinedDatesWithQuantity = [];
@@ -572,14 +674,14 @@
         //         vm.hideInlineEndDatepicker = false;
         //     }
 
-        //     displayPrice();
+        //     displayTimeFlexiblePrice();
         // }
         // function changeMobileEndDate() {
         //     if (vm.displayMobileEndDatePicker) {
         //         vm.displayMobileEndDatePicker = false;
         //     }
 
-        //     displayPrice();
+        //     displayTimeFlexiblePrice();
         // }
 
         function getStartDate(date) {
@@ -590,7 +692,70 @@
             return moment(date).add({ d: 1 }).format(formatDate) + 'T00:00:00.000Z';
         }
 
-        function displayPrice() {
+        function changeQuantity() {
+            vm.selectedQuantity = parseInt(vm.selectedQuantityStr, 10);
+            vm.pricingTableData.bookingParams.quantity = vm.selectedQuantity;
+        }
+
+        function displayTimePredefinedPrice() {
+            if (! vm.selectedPredefinedDate) {
+                return;
+            }
+
+            var predefinedDate = getStartDate(vm.selectedPredefinedDate);
+
+            var refDate = moment().format(formatDate) + 'T00:00:00.000Z'; // TODO: compute ref date based on time unit
+
+            var isAvailable;
+
+            var isValidDates = BookingService.isValidDates({
+                startDate: predefinedDate,
+                refDate: refDate,
+                config: vm.selectedListingType.config.bookingTime,
+                canOmitDuration: true
+            });
+
+            if (isValidDates.result) {
+                var availabilityGraph = _getAvailabilityGraph(listing, 'date');
+
+                var availabilityInfo = BookingService.getAvailabilityDateInfo(availabilityGraph, {
+                    startDate: predefinedDate,
+                    quantity: vm.selectedQuantity
+                });
+
+                isAvailable = availabilityInfo.maxRemainingQuantity !== 0;
+
+                // refresh the quantities list and force to the max if exceeded
+                if (availabilityInfo.maxRemainingQuantity < vm.selectedQuantity) {
+                    _setQuantity(availabilityInfo.maxRemainingQuantity);
+                }
+                _generateListQuantities(availabilityInfo.maxRemainingQuantity);
+
+            } else {
+                isAvailable = false;
+            }
+
+            vm.showIncorrectDates = ! isValidDates.result || ! isAvailable;
+
+            vm.showPrice = ! vm.showIncorrectDates;
+
+            if (vm.showPrice) {
+                vm.pricingTableData.bookingParams.startDate     = predefinedDate;
+                vm.pricingTableData.bookingParams.applyFreeFees = vm.applyFreeFees;
+                vm.pricingTableData.show                        = true;
+            } else {
+                vm.pricingTableData.show = false;
+            }
+
+            if (vm.showIncorrectDates) {
+                _setErrorDateMessage(listing, vm.selectedListingType, isValidDates);
+            } else {
+                _removeErrorDateMessage();
+            }
+            _setDisableBookingButton();
+        }
+
+        function displayTimeFlexiblePrice() {
             if (! vm.startDate || ! vm.endDate) {
                 return;
             }
@@ -617,15 +782,22 @@
                 });
 
                 if (isValidDates.result) {
-                    var availabilityGraph = listing.availabilityGraphs.periods;
+                    var availabilityGraph = _getAvailabilityGraph(listing, 'period');
 
                     var availabilityInfo = BookingService.getAvailabilityPeriodInfo(availabilityGraph, {
                         startDate: startDate,
                         endDate: endDate,
-                        quantity: 1 // TODO: depend on user input
+                        quantity: vm.selectedQuantity
                     });
 
-                    isAvailable = availabilityInfo.isAvailable;
+                    isAvailable = availabilityInfo.maxRemainingQuantity !== 0;
+
+                    // refresh the quantities list and force to the max if exceeded
+                    if (availabilityInfo.maxRemainingQuantity < vm.selectedQuantity) {
+                        _setQuantity(availabilityInfo.maxRemainingQuantity);
+                    }
+                    _generateListQuantities(availabilityInfo.maxRemainingQuantity);
+
                 } else {
                     isAvailable = false;
                 }
@@ -703,28 +875,30 @@
 
                 // Message Stats
                 var computeMessageStats = function (messageStats) {
-                    var answerRateString, answerDelayString;
+                    var answerRate;
+                    var answerDelayKey;
+
                     if (messageStats && messageStats.answerRate > -1) {
-                        answerRateString = (messageStats.answerRate < 50) ? "moins de 50%" : "" + Math.round(messageStats.answerRate) + "%";
+                        answerRate = Math.floor(messageStats.answerRate);
                         if (messageStats.answerDelay < 1800) {
-                            answerDelayString = "Quelques minutes";
+                            answerDelayKey = 'few_minutes';
                         } else if (messageStats.answerDelay <= 3600) {
-                            answerDelayString = "Moins d'une heure";
+                            answerDelayKey = 'less_than_one_hour';
                         } else if (messageStats.answerDelay <= 3600 * 5) {
-                            answerDelayString = "Quelques heures";
+                            answerDelayKey = 'few_hours';
                         } else if (messageStats.answerDelay <= 3600 * 12) {
-                            answerDelayString = "Dans la journée";
+                            answerDelayKey = 'in_the_day';
                         } else if (messageStats.answerDelay <= 3600 * 24) {
-                            answerDelayString = "Moins de 24 heures";
+                            answerDelayKey = 'less_than_one_day';
                         } else if (messageStats.answerDelay <= 3600 * 48) {
-                            answerDelayString = "Un à deux jours";
+                            answerDelayKey = 'less_than_two_days';
                         } else {
-                            answerDelayString = "Plus de 48 heures";
+                            answerDelayKey = 'more_than_two_days';
                         }
                     }
                     return {
-                        answerRateString: answerRateString,
-                        answerDelayString: answerDelayString
+                        answerRate: answerRate,
+                        answerDelayKey: 'duration.' + answerDelayKey // generate key here because too much templating otherwise
                     };
                 };
                 vm.ownerMessageStats = computeMessageStats(ownerMessageStats);
@@ -751,14 +925,25 @@
                     });
                 }
 
-                // if (vm.inlineDatepicker) { // no dropdown > must prompt user another way
-                //     toastr.info("Merci de choisir la date à laquelle vous souhaitez emprunter cet objet dans le calendrier.", "Date requise");
-                // }
                 return;
             }
             if (!vm.selectedPredefinedDate && vm.listingTypeProperties.isTimePredefined) {
-                var element = document.getElementById('predefined-date-list');
-                element.focus();
+                // Hack: only way found to force datepicker to open (even with a $scope variable)
+                // Without timeout, get digest loop in progress error if trying to use $apply
+                // See http://stackoverflow.com/a/18626821
+                $timeout(function () {
+                    vm.predefinedDateOpened = true;
+                });
+
+                if (! predefinedDateOpenedOnce) {
+                    predefinedDateOpenedOnce = true;
+                    StelaceEvent.sendEvent("Booking datepicker use", {
+                        listingId: listingId,
+                        type: "click",
+                        data: { datepicker: "predefined" }
+                    });
+                }
+
                 return;
             }
 
@@ -771,7 +956,7 @@
                 createAttrs.startDate = getStartDate(vm.startDate);
                 createAttrs.nbTimeUnits = vm.nbTimeUnits;
             } else if (vm.listingTypeProperties.isTimePredefined) {
-                createAttrs.startDate = vm.selectedPredefinedDate;
+                createAttrs.startDate = getStartDate(vm.selectedPredefinedDate);
             }
 
             // Google Analytics event
@@ -806,7 +991,10 @@
                     }
 
                     if (vm.listing.ownerId === vm.currentUser.id) {
-                        toastr.warning("Vous ne pouvez pas emprunter votre propre objet ;)");
+                        $translate('booking.error.own_listing_booking')
+                            .then(function (message) {
+                                toastr.warning(message);
+                            });
                         return;
                     }
 
@@ -822,7 +1010,13 @@
                     $state.go("bookingPayment", { id: newBooking.id });
                 }).catch(function (err) {
                     if (err !== "not authenticated") {
-                        toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.", "Oups");
+                        var titleKey = 'error.unknown_happened_title';
+                        var messageKey = 'error.unknown_happened_message';
+
+                        $translate([titleKey, messageKey])
+                            .then(function (translations) {
+                                toastr.warning(translations[messageKey], translations[titleKey]);
+                            });
                     }
                 });
         }
@@ -866,7 +1060,7 @@
                     });
                 }
 
-                displayPrice();
+                displayTimeFlexiblePrice();
             });
         }
 
@@ -1074,8 +1268,9 @@
             var agreementStatus;
             var createBooking = false;
 
-            if ((! vm.noTimeBookingSelected && vm.startDate && vm.endDate)
-                || vm.noTimeBookingSelected
+            if ((vm.listingTypeProperties.isTimeFlexible && vm.startDate && vm.endDate)
+                || (vm.listingTypeProperties.isTimePredefined && vm.startDate)
+                || vm.listingTypeProperties.isTimeNone
             ) {
                 bookingStatus = "pre-booking";
                 agreementStatus = "pending";
@@ -1118,12 +1313,11 @@
                     toastr.success("Nous vous préviendrons de la réponse à votre message par email", "Demande envoyée");
                 })
                 .catch(function (/* err */) {
-                    toastr.warning("Oups, une erreur s'est produite.", "Erreur lors de l'envoi");
+                    $translate('sending_message_fail')
+                        .then(function (message) {
+                            toastr.warning(message);
+                        });
                 });
-        }
-
-        function toggleListingType() {
-            vm.noTimeBookingSelected = ! vm.noTimeBookingSelected;
         }
 
         function openQuestionModal(toUser) {
@@ -1133,8 +1327,6 @@
 
             var lockScrollClass      = "modal-opened" + (vm.iOS ? " lock-both" : "");
             vm.editPublicQuestion    = false;
-            // vm.showToggleListingType = vm.listing.listingTypesIds.length > 1;
-            vm.showToggleListingType = false;
             vm.noTimeBookingSelected = vm.listingTypeProperties.isTimeNone;
 
             vm.editPublicQuestion = true;
@@ -1227,16 +1419,27 @@
                     type: "click",
                     data: { datepicker: "end" }
                 });
+            } else if (datepicker.indexOf("predefined") >= 0 && ! predefinedDateOpenedOnce) {
+                predefinedDateOpenedOnce = true;
+                StelaceEvent.sendEvent("Booking datepicker use", {
+                    listingId: listingId,
+                    type: "click",
+                    data: { datepicker: "predefined" }
+                });
             }
 
             if (datepicker === "start" && ! vm.startDateOpened) {
                 vm.startDateOpened = true;
             } else if (datepicker === "end" && ! vm.endDateOpened) {
                 vm.endDateOpened = true;
+            } else if (datepicker === "predefined" && ! vm.predefinedDateOpened) {
+                vm.predefinedDateOpened = true;
             } else if (datepicker === "startModal" && ! vm.startDateModalOpened) {
                 vm.startDateModalOpened = true;
             } else if (datepicker === "endModal" && ! vm.endDateModalOpened) {
                 vm.endDateModalOpened = true;
+            } else if (datepicker === "predefinedModal" && ! vm.predefinedDateOpened) {
+                vm.predefinedModalOpened = true;
             }
         }
 
@@ -1247,6 +1450,8 @@
                     vm.startDateModalOpened = false;
                 } else if (datepicker === "endModal") {
                     vm.endDateModalOpened = false;
+                } else if (datepicker === 'predefinedModal') {
+                    vm.predefinedDateOpened = false;
                 }
             }, 1500);
         }
@@ -1260,7 +1465,10 @@
                 .then(function (isAuthenticated) {
                     // promise resolved to true or false only
                     if (isAuthenticated === false && ! customGreeting) {
-                        toastr.info("Nous vous invitons à vous connecter pour effectuer votre demande.");
+                        $translate('booking.login_first')
+                            .then(function (message) {
+                                toastr.info(message);
+                            });
                     }
 
                     if (isAuthenticated) {
@@ -1292,7 +1500,11 @@
                     if (UserService.isFreeFees(vm.currentUser, now)) {
                         vm.applyFreeFees = true;
 
-                        displayPrice();
+                        if (vm.listingTypeProperties.isTimeFlexible) {
+                            displayTimeFlexiblePrice();
+                        } else if (vm.listingTypeProperties.isTimePredefined) {
+                            displayTimePredefinedPrice();
+                        }
                     }
                 }
 
@@ -1519,28 +1731,27 @@
         }
 
         function _setErrorDateMessage(listing, listingType, isValidDates) {
-            var defaultMessage = 'Les dates sont incorrectes.';
+            vm.dateErrorObject = {
+                type: 'DEFAULT',
+            };
+
             var config = listingType.config.bookingTime;
-            var str;
+
+            vm.dateErrorObject.timeUnit = config.timeUnit;
 
             if (isValidDates.errors.DURATION) {
-                // TODO: get time unit
                 if (isValidDates.errors.DURATION.BELOW_MIN) {
-                    str = "Les emprunts durent " + config.minDuration + " jours au minimum.";
+                    vm.dateErrorObject.type = 'BELOW_MIN_DURATION';
+                    vm.dateErrorObject.minDuration = config.minDuration;
                 } else if (isValidDates.errors.DURATION.ABOVE_MAX) {
-                    str = "Les emprunts durent " + config.maxDuration + " jours au maximum.";
+                    vm.dateErrorObject.type = 'ABOVE_MAX_DURATION';
+                    vm.dateErrorObject.maxDuration = config.maxDuration;
                 }
             }
-
-            if (!str) {
-                str = defaultMessage;
-            }
-
-            vm.dateErrorMessage = str;
         }
 
         function _removeErrorDateMessage() {
-            vm.dateErrorMessage = '';
+            vm.dateErrorObject = null;
         }
 
         function _setMarkers() {

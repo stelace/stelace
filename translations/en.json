@@ -67,9 +67,7 @@
             "to_day_label": "To",
             "unit_label": "{timeUnit, select, d{ {nbUnits, plural, one{Per day} other{# days}} } n{ {nbUnits, plural, one{Per night} other{# nights}} } h{ {nbUnits, plural, one{Per hour} other{# hours}} } m{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }",
             "unit_label_short": "{timeUnit, select, d{/d} n{/night} h{/h} m{/min} other{} }",
-            "dates_label": "Dates",
-            "predefined_date_select_value": "{date, date, short}",
-            "predefined_date_select_value_quantity": "{date, date, short} ({remainingQuantity})"
+            "date_label": "Date"
         },
         "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}",
         "edit_my_listing_action": "Edit my listing",
@@ -174,7 +172,19 @@
     "error": {
         "unknown_happened_title": "An error has happened.",
         "unknown_happened_message": "We’re sorry about this and will do our best to fix the issue. Please retry later.",
-        "invalid_link": "This link is invalid"
+        "invalid_link": "This link is invalid",
+        "map_loading_error_title": "Map service unavailable",
+        "map_loading_error_message": "We’re sorry, the page map didn't load for the moment.",
+        "sending_message_fail": "Sending message fail"
+    },
+    "booking": {
+        "error": {
+            "incorrect_dates": "The dates are incorrect.",
+            "own_listing_booking": "You cannot book your own listing.",
+            "minimum_duration": "The duration must be {timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } at least.",
+            "maximum_duration": "The duration must be {timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } at the maximum."
+        },
+        "login_first": "Please login before going further."
     },
     "pricing": {
         "price_value": "{price, number, currency}",
@@ -183,6 +193,19 @@
         "duration_discount": "Duration discount",
         "booking_fees": "Booking fees",
         "free": "Free",
-        "total": "Total"
+        "total": "Total",
+        "quantity": "Quantity"
+    },
+    "quantity": {
+        "less_than_percent": "Less than {nbUnits, number, percent}"
+    },
+    "duration": {
+        "few_minutes": "Few minutes",
+        "less_than_one_hour": "Less than one hour",
+        "few_hours": "Few hours",
+        "in_the_day": "In the day",
+        "less_than_one_day": "Less than one day",
+        "less_than_two_days": "One or two days",
+        "more_than_two_days": "More than two days"
     }
 }
