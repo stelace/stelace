@@ -47,7 +47,8 @@
         var nbDaysPricing           = 7;
         var breakpointDays          = [3, 7, 14, 28];
         var lastBreakpointDay       = _.last(breakpointDays);
-        var listingId                  = parseInt($stateParams.id, 10);
+        var listingId               = parseInt($stateParams.id, 10);
+        var listingTypeId           = parseInt($stateParams.listingTypeId, 10);
         var tags                    = [];  // save tag bindings until search
         var mediaSelectionInitiated = false;
         var savingListing              = false;
@@ -91,6 +92,8 @@
 
         vm.activeTags           = StelaceConfig.isFeatureActive('TAGS');
         vm.showListingCategories = StelaceConfig.isFeatureActive('LISTING_CATEGORIES');
+        vm.listingType          = null;
+        vm.listingType  = null;
         vm.listingTypes         = [];
         vm.showListingTypes     = false;
         vm.formatDate           = "dd/MM/yyyy";
@@ -100,7 +103,7 @@
         vm.viewCreate           = ($state.current.name === "listingCreate");
         vm.myListingsView          = ($state.current.name === "myListings");
         vm.showListingEditor       = !! listingId;
-        vm.listingType          = $stateParams.t;
+        vm.listingTypeId        = listingTypeId;
         vm.listingId               = listingId;
         vm.showSocialLogin      = authentication.isSocialLoginAllowed();
         vm.useSocialLogin       = false;
@@ -143,23 +146,7 @@
             },
             overlay: {}
         };
-
-        vm.trustSteps           = [{
-            label: "Confiance",
-            content: "Les évaluations et la vérification des coordonnées des membres garantissent le bon déroulement des transactions. "
-                + "Aucune information personnelle n’est révélée avant la validation d’une réservation.",
-            icon: "star"
-        }, {
-            label: "Sécurité",
-            content: "Notre prestataire de paiements sécurisés transfère l’argent sur votre compte dans les jours qui suivent la vente ou la location. "
-                + "Un dépôt de garantie est bloqué sur la carte bancaire de l’emprunteur pendant chaque location.",
-            icon: "lock-check"
-        }, {
-            label: "Gratuité",
-            content: "Sharinplace vous permet de publier et promouvoir vos annonces en un clin d'œil. "
-                + "Le dépôt d’annonces est gratuit et illimité. Et il le restera. Obtenez encore davantage de récompenses en participant.",
-            icon: "gift"
-        }];
+        vm.showSideHelper = !vm.viewCreate;
 
         vm.socialLogin                    = socialLogin;
         vm.selectListingCategoryLvl2         = selectListingCategoryLvl2;
@@ -183,8 +170,8 @@
         vm.changeMediaMode                = changeMediaMode;
         vm.facebookShareMyListing            = facebookShareMyListing;
         vm.fixCustomPricing               = fixCustomPricing;
-        vm.toggleListingListingTimeProperty  = toggleListingListingTimeProperty;
         vm.openDatepicker                 = openDatepicker;
+        vm.selectListingTypeFromView      = selectListingTypeFromView;
         vm.addTimeAvailability            = addTimeAvailability;
         vm.removeListingAvailability      = removeListingAvailability;
 
@@ -241,6 +228,7 @@
 
                 stlEventData = {
                     completed: {
+                        type: false,
                         category: false,
                         name: false,
                         price: false,
@@ -272,13 +260,21 @@
                 }); // return most used and most searched tags first
 
                 vm.listingTypes = results.listingTypes;
-                vm.showListingTypes = vm.listingTypes.length > 1;
-                vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
-                    return listingType.properties.TIME === 'NONE';
-                });
-                vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
-                    return listingType.properties.TIME === 'TIME_FLEXIBLE';
-                });
+
+                if (vm.listingTypes.length === 1) {
+                    selectListingType(vm.listingTypes[0]);
+                }
+
+                vm.showListingTypes = vm.listingTypes.length > 1 && !listingId;
+
+                if (!listingId && vm.listingTypeId) {
+                    var listingType = _.find(vm.listingTypes, function (listingType) {
+                        return listingType.id === vm.listingTypeId;
+                    });
+                    if (listingType) {
+                        selectListingType(listingType);
+                    }
+                }
 
                 vm.isAuthenticated    = !! currentUser;
                 vm.createAccount      = ! currentUser;
@@ -347,12 +343,11 @@
                     isAdmin          = results.isAdmin;
                     anonymousListingTmp = results.anonymousListingTmp;
 
-
-                    var shouldRecycleAnonymousItmTmp = currentUser
+                    var shouldRecycleAnonymousListingTmp = currentUser
                         && (! newListingTmp || (newListingTmp && ! (newListingTmp.name && newListingTmp.listingCategoryId)));
                     // Keep work of anonymous user who has just authenticated
                     // Old user draft automatic locations or prices alone do not count for much if listing name is missing
-                    if (shouldRecycleAnonymousItmTmp) {
+                    if (shouldRecycleAnonymousListingTmp) {
                         newListingTmp = anonymousListingTmp;
                         ListingService.setNewListingTmp(null, null); // Avoid to pass input data to another future user
                     }
@@ -397,6 +392,8 @@
                             listingTypes: vm.listingTypes
                         });
 
+                        vm.showSideHelper = !vm.viewCreate && vm.myListings.length;
+
                         vm.selectedShareListing = vm.myListings.length ? vm.myListings[0] : null;
 
                         if (vm.activeTags) {
@@ -430,6 +427,7 @@
                 vm.selectedListingCategoryLvl2 = null;
                 vm.mediasMaxNbReached       = false;
                 vm.listing.listingTypesIds  = [];
+                vm.listing.quantity         = 1;
                 stepProgressDone            = {};
 
                 vm.listingFullValidation       = true;
@@ -458,6 +456,7 @@
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
                 vm.listing.listingTypesIds  = vm.listing.listingTypesIds || [];
+                vm.listing.quantity         = vm.listing.quantity || 1;
                 stepProgressDone            = {};
                 vm.mediasMaxNbReached       = false;
 
@@ -541,8 +540,14 @@
             vm.isMoveModeAllowed = mediasSelector.isMoveModeAllowed();
             vm.mediaMode         = "edit";
 
-            _computeListingTypesProperties();
-            _setUniqueListingType();
+            if (vm.listing.listingTypesIds.length) {
+                var listingType = _.find(vm.listingTypes, function (listingType) {
+                    return listingType.id === vm.listing.listingTypesIds[0];
+                });
+                selectListingType(listingType);
+                showStep2();
+            }
+
             _initPrice();
             _computeDateConstraints(vm.editingListingAvailabilities);
 
@@ -571,6 +576,10 @@
                 if (vm.activeTags) {
                     TagService.deduplicateTagsByInsensitiveName(vm.listingTags, tags);
                     newListing.tags = _.pluck(vm.listingTags, "id");
+                }
+
+                if (vm.listingType) {
+                    newListing.listingTypesIds = [vm.listingType.id];
                 }
 
                 _updateUxEventData(field);
@@ -685,11 +694,10 @@
         }
 
         function showStep2() {
-            if (! vm.listing || ! vm.listing.name) {
+            if (!vm.listingType) {
                 return;
             }
-            // No listingType
-            if (vm.showListingTypes && !_.keys(vm.listing.listingTypesIds).length) {
+            if (! vm.listing || ! vm.listing.name) {
                 return;
             }
 
@@ -1118,7 +1126,6 @@
                 "acceptFree",
                 "listingTypesIds"
             ]);
-            createAttrs.mode = vm.listing.mode;
 
             vm.listingMedias           = mediasSelector.getMedias();
             var indexedConfigMedias = _.indexBy(vm.configMedias, "id");
@@ -1149,6 +1156,8 @@
                     createAttrs.validation = false;
                 }
             }
+
+            createAttrs.listingTypesIds = [vm.listingType.id];
 
             var mediasIds = [];
             var createdListing;
@@ -1762,51 +1771,21 @@
             return tools.clampNumber(dayOnePrice * vm.factorDeposit, initialDefaultDeposit, vm.maxDeposit);
         }
 
-        function toggleListingListingTimeProperty(propertyName) {
-            vm.listingTypesProperties.TIME = vm.listingTypesProperties.TIME || {};
-            vm.listingTypesProperties.TIME[propertyName] = !vm.listingTypesProperties.TIME[propertyName];
-
-            vm.listing.listingTypesIds = [];
-
-            if (vm.listingTypesProperties.TIME.NONE) {
-                vm.listing.listingTypesIds.push(vm.timeNoneListingType.id);
-            }
-            if (vm.listingTypesProperties.TIME.TIME_FLEXIBLE) {
-                vm.listing.listingTypesIds.push(vm.timeFlexibleListingType.id);
-            }
-
-            _setUniqueListingType();
+        function selectListingTypeFromView(listingType) {
+            selectListingType(listingType);
+            showStep2();
+            saveLocal('type');
         }
 
-        function _computeListingTypesProperties() {
-            // not a created listing
-            if (!vm.listing.id) {
-                // TODO: take the url filter into account
-                _.forEach(vm.listingTypes, function (listingType) {
-                    vm.listing.listingTypesIds.push(listingType.id);
-                });
-            }
+        function selectListingType(listingType) {
+            if (!listingType) return;
 
-            vm.listingTypesProperties = ListingService.getListingTypesProperties(vm.listing, vm.listingTypes);
-        }
+            vm.listingTypeModel = listingType;
+            vm.listingType = listingType;
+            vm.listingTypeProperties = ListingTypeService.getProperties(listingType);
 
-        function _setUniqueListingType() {
-            if (vm.listing.listingTypesIds.length === 1) {
-                vm.uniqueListingType = _.find(vm.listingTypes, function (listingType) {
-                    return vm.listing.listingTypesIds[0] === listingType.id;
-                });
-            } else {
-                vm.uniqueListingType = null;
-            }
-
-            if (!vm.uniqueListingType) {
-                vm.showTimeAvailability = false;
-            } else {
-                var properties = vm.uniqueListingType.properties;
-
-                vm.showPeriodAvailability = properties.TIME === 'TIME_FLEXIBLE';
-                vm.showDateAvailability = properties.TIME === 'TIME_PREDEFINED';
-            }
+            vm.showPeriodAvailability = vm.listingTypeProperties.isTimeFlexible;
+            vm.showDateAvailability = vm.listingTypeProperties.isTimePredefined;
         }
 
         // Ensure modal is not re-opened with ng-focus. This maybe overkill with recent (v1.1.2) ui-bootstrap udpate

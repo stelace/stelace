@@ -20,40 +20,24 @@
                     <a ui-sref="home"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
-                        ng-click="offcanvas.closeMenu()">
-                        Accueil
+                        ng-click="offcanvas.closeMenu()"
+                        data-translate="navigation.home">
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item">
                     <a ui-sref="search"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
-                        ng-click="offcanvas.closeMenu()">
-                        Rechercher un objet
+                        ng-click="offcanvas.closeMenu()"
+                        data-translate="navigation.search">
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item">
                     <a ui-sref="listingCreate"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
-                        ng-click="offcanvas.closeMenu()">
-                        Déposez votre annonce
-                    </a>
-                </li>
-                <li class="offcanvas-menu__link offcanvas-item">
-                    <a ui-sref="listingCreate({t: 'sell'})"
-                        class="offcanvas-menu__public-link"
-                        tabindex="{{offcanvas.menuTabindex}}"
-                        ng-click="offcanvas.closeMenu()">
-                        Vendre
-                    </a>
-                </li>
-                <li class="offcanvas-menu__link offcanvas-item">
-                    <a ui-sref="listingCreate({t: 'rent'})"
-                        class="offcanvas-menu__public-link"
-                        tabindex="{{offcanvas.menuTabindex}}"
-                        ng-click="offcanvas.closeMenu()">
-                        Louer
+                        ng-click="offcanvas.closeMenu()"
+                        data-translate="prompt.post_listing_short_button_1">
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item">
@@ -61,8 +45,8 @@
                     <button ui-sref="login({ redirect: offcanvas.currentUrl})"
                         class="offcanvas-menu__public-link"
                         tabindex="{{offcanvas.menuTabindex}}"
-                        ng-click="offcanvas.closeMenu()">
-                        Se connecter
+                        ng-click="offcanvas.closeMenu()"
+                        data-translate="authentication.log_in_button">
                     </button>
                 </li>
             </ul>
@@ -81,7 +65,7 @@
                         <svg class="icon {{::offcanvas.memberLinks[0].color}}">
                             <use xlink:href="{{::offcanvas.memberLinks[0].iconUrl}}"></use>
                         </svg>
-                        <span>{{::offcanvas.memberLinks[0].label}}</span>
+                        <span data-translate="{{::offcanvas.memberLinks[0].labelKey}}"></span>
                     </a>
                 </li>
                 <li class="offcanvas-menu__link offcanvas-item"
@@ -94,7 +78,7 @@
                         <svg class="icon {{::memberLink.color}}">
                             <use xlink:href="{{::memberLink.iconUrl}}"></use>
                         </svg>
-                        <span>{{::memberLink.label}}</span>
+                        <span data-translate="{{memberLink.labelKey}}"></span>
                         <span class="alert badge message-badge"
                             ng-if="::(memberLink.icon === 'email-envelope')"
                             ng-show="offcanvas.newMessagesCount">
@@ -113,7 +97,7 @@
                         <svg class="icon grey">
                             <use xlink:href="/assets/build/icons/sprite.svg#power-off"></use>
                         </svg>
-                        <span>Me déconnecter</span>
+                        <span data-translate="authentication.log_out_button"></span>
                     </button>
                 </li>
             </ul>
@@ -303,28 +287,24 @@
                     </a>
                 </li>
                 <li class="header__link">
-                    <a ui-sref="listingCreate({t: 'sell'})" class="new-listing-button-1 header-event"
-                        data-translate="prompt.post_listing_short_button_1"
-                        data-translate-values="{ timeDimension: 'NONE' }">
+                    <a ui-sref="listingCreate()" class="new-listing-button-1 header-event"
+                        data-translate="prompt.post_listing_short_button_1">
                     </a>
-                    <a ui-sref="listingCreate({t: 'rent'})" class="new-listing-button-2 header-event"
-                        data-translate="prompt.post_listing_short_button_2"
-                        data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
-                    </a>
+                    <!-- <a ui-sref="listingCreate()" class="new-listing-button-2 header-event"
+                        data-translate="prompt.post_listing_short_button_2">
+                    </a> -->
                 </li>
             </ul>
             <ul id="header-public-links" class="public-links text--semibold"
                 ng-show="! header.isAuthenticated">
                 <!-- Using ng-show to ensure links existence for ux event listener -->
                 <li>
-                    <a ui-sref="listingCreate({t: 'sell'})" class="new-listing-button-1 header-event"
-                        data-translate="prompt.post_listing_short_button_1"
-                        data-translate-values="{ timeDimension: 'NONE' }">
+                    <a ui-sref="listingCreate()" class="new-listing-button-1 header-event"
+                        data-translate="prompt.post_listing_short_button_1">
                     </a>
-                    <a ui-sref="listingCreate({t: 'rent'})" class="new-listing-button-2 header-event"
-                        data-translate="prompt.post_listing_short_button_2"
-                        data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
-                    </a>
+                    <!-- <a ui-sref="listingCreate()" class="new-listing-button-2 header-event"
+                        data-translate="prompt.post_listing_short_button_2">
+                    </a> -->
                 </li>
                 <li id="desktop-main-header__log-in"
                     class="anchor-like cursor-pointer header-event"

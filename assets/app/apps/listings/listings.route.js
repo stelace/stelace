@@ -20,7 +20,7 @@
 
         $stateProvider
             .state("listingCreate", {
-                url: "/listing/new?t", // listing type sell or rent
+                url: "/listing/new?listingTypeId",
                 urlWithoutParams: "/listing/new",
                 templateUrl: appsPath + "/listings/my-listings.html",
                 controller: "MyListingsController",

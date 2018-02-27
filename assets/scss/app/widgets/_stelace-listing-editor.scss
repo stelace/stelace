@@ -17,10 +17,11 @@
         }
     }
 
-    label:not([for*="listing-price-"]) {
+    label:not([for*="listing-price--"]) {
         font-weight: 600;
     }
 
+    .listing-type-select,
     .category-select {
         width: 15rem;
         max-width: 100%;

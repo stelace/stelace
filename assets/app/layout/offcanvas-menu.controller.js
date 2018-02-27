@@ -50,7 +50,7 @@
 
         memberLinks = memberLinks.concat([
             {
-                label: "Mon tableau de bord",
+                labelKey: 'navigation.profile',
                 color: "blue",
                 icon: "home",
                 sref: "account"
@@ -60,7 +60,7 @@
         if (vm.showReferral) {
             memberLinks = memberLinks.concat([
                 {
-                    label: "Parrainer mes amis",
+                    labelKey: 'navigation.invite',
                     color: "red",
                     icon: "megaphone",
                     sref: "invite"
@@ -70,47 +70,35 @@
 
         memberLinks = memberLinks.concat([
             {
-                label: "Déposer une annonce",
+                labelKey: 'navigation.new_listing',
                 color: "purple",
                 icon: "clipboard-pencil",
                 sref: "listingCreate"
             },
             {
-                label: "Rechercher",
+                labelKey: 'navigation.search',
                 color: "orange",
                 icon: "magnifying",
                 sref: "search"
             },
             {
-                label: "Ma boite de réception",
+                labelKey: 'navigation.inbox',
                 color: "blue",
                 icon: "email-envelope",
                 sref: "inbox({ f: null })"
             },
             {
-                label: vm.showGamification ? "Mes défis" : "Mon profil",
+                labelKey: vm.showGamification ? 'navigation.rewards' : 'navigation.public_profile',
                 color: "gold",
                 icon: vm.showGamification ? "trophy" : "user",
                 sref: "userMe"
             },
             {
-                label: "Mes annonces",
+                labelKey: 'navigation.my_listings',
                 color: "purple",
                 icon: "tag",
                 sref: "myListings"
             },
-            // {
-            //     label: "Mes locations",
-            //     color: "red",
-            //     icon: "checklist",
-            //     sref: "inbox({ f: 't' })"
-            // },
-            // {
-            //     label: "Mes Favoris",
-            //     color: "red",
-            //     icon : "heart-round",
-            //     sref: "home"
-            // }
         ]);
 
         activate();

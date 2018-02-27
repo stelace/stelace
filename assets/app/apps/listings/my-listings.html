@@ -5,14 +5,9 @@
         class="text-center stelace-hero space padded-sides"
         ui-sref="listingCreate"
         ng-switch-default>
-            <h1 class="stelace-hero__title">
-                Publiez
-                <span ng-hide="vm.myListings.length">votre</span>
-                <span ng-show="vm.myListings.length">une nouvelle</span>
-                annonce
+            <h1 class="stelace-hero__title" data-translate="listing.edition.my_listing_header" data-translate="{ hasListings: vm.myListings.length }">
             </h1>
-            <div class="stelace-hero__subtitle">
-                Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
+            <div class="stelace-hero__subtitle" data-translate="listing.edition.my_listing_subheader">
             </div>
             <div class="my-listings__cta"
                 uib-collapse="vm.viewCreate">
@@ -23,18 +18,15 @@
     </a>
     <div class="text-center stelace-hero space padded-sides"
         ng-switch-when="true">
-        <h1 class="stelace-hero__title">
-            Voici votre nouvelle annonce
+        <h1 class="stelace-hero__title" data-translate="listing.edition.new_listing_header">
         </h1>
-        <div class="stelace-hero__subtitle">
-            Profitez de sa diffusion gratuite{{ vm.isActivePriceRecommendation ? " et de notre recommandation automatique de prix" : "" }}.
+        <div class="stelace-hero__subtitle" data-translate="listing.edition.new_listing_subheader">
         </div>
     </div>
     <div class="stelace-listing-editor fluid-content sticky-helper__flex-container">
-        <div class="small-12 desktop-8">
+        <div class="small-12 desktop-8" ng-class="{ 'desktop-offset-2': !vm.showSideHelper }">
             <h2 class="text-center"
-                ng-if="vm.listingId">
-                Je mets à jour mon annonce <span ng-show="vm.listing.name">({{vm.listing.name}})</span>
+                ng-if="vm.listingId" data-translate="listing.edition.my_listing_section_title">
             </h2>
             <div class="pull-t text-center margin-bottom-plus"
                 ng-if="vm.listingId">
@@ -45,12 +37,12 @@
                 tabindex="0"
                 data-sip-action-key>
                     <span ng-switch-when="true">
-                        ▲
-                        Voir mes autres annonces
+                        <span>▲</span>
+                        <span data-translate="listing.edition.show_my_other_listings"></span>
                     </span>
                     <span ng-switch-default>
-                        ▼
-                        Voir mon annonce à modifier
+                        <span>▼</span>
+                        <span data-translate="listing.edition.show_my_editing_listing"></span>
                     </span>
                 </span>
             </div>
@@ -59,11 +51,7 @@
                 uib-collapse="! vm.viewCreate && ! vm.showListingEditor"
                 novalidate>
                 <div ng-if="vm.viewCreate">
-                    <h2 ng-if="vm.isAuthenticated && vm.myListings.length">
-                        Créez votre <span>{{vm.myListings.length + 1}}<sup>e</sup></span> annonce ci-dessous en un clin d'œil
-                    </h2>
-                    <h2 ng-if="!vm.isAuthenticated">
-                        Louez et vendez en toute sécurité
+                    <h2 data-translate="listing.edition.new_listing_section_title">
                     </h2>
                 </div>
                 <div ng-if="vm.viewCreate && ! vm.myListings.length">
@@ -88,60 +76,27 @@
                 </div>
 
                 <div class="step-1">
-                    <div class="padding-bottom"
-                        ng-if="vm.showListingTypes">
-                        <div class="text-center">
-                            <!-- TODO: make a generic directive for each listingType button -->
-                            <div class="button"
-                                ng-class="{
-                                    brightblue: vm.listingTypesProperties.TIME.NONE,
-                                    darkblue: ! vm.listingTypesProperties.TIME.NONE
-                                }"
-                                ng-click="vm.toggleListingListingTimeProperty('NONE')"
-                                ng-switch="vm.listingTypesProperties.TIME.NONE">
-                                <span ng-switch-when="true">
-                                    <svg class="icon icon--inline">
-                                        <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
-                                    </svg>
-                                </span>
-                                <span ng-switch-default>
-                                    <svg class="icon icon--inline">
-                                        <use xlink:href="/assets/build/icons/sprite.svg#x"/>
-                                    </svg>
-                                </span>
-                                <span>
-                                    <span ng-show="vm.listing.sellingPrice === 0">Je donne</span>
-                                    <span ng-hide="vm.listing.sellingPrice === 0">Je vends</span>
-                                </span>
-                            </div>
-                            <div class="button margin-left"
-                                ng-class="{
-                                    brightblue: vm.listingTypesProperties.TIME.TIME_FLEXIBLE,
-                                    darkblue: ! vm.listingTypesProperties.TIME.TIME_FLEXIBLE
-                                }"
-                                ng-click="vm.toggleListingListingTimeProperty('TIME_FLEXIBLE')"
-                                ng-switch="vm.listingTypesProperties.TIME.TIME_FLEXIBLE">
-                                <span ng-switch-when="true">
-                                    <svg class="icon icon--inline" >
-                                        <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
-                                    </svg>
-                                </span>
-                                <span ng-switch-default>
-                                    <svg class="icon icon--inline">
-                                        <use xlink:href="/assets/build/icons/sprite.svg#x"/>
-                                    </svg>
-                                </span>
-                                <span>
-                                    <span ng-show="vm.listing.dayOnePrice === 0">Je prête</span>
-                                    <span ng-hide="vm.listing.dayOnePrice === 0">Je loue</span>
-                                </span>
-                            </div>
-                        </div>
+                    <div ng-if="vm.showListingTypes">
+                        <label for="listing-type-select" class="no-margin-bottom">
+                            <span data-translate="listing.listing_type_label"></span>
+                            <span>*</span>
+                        </label>
+                        <select id="listing-type-select"
+                            name="listingType"
+                            class="listing-type-select"
+                            ng-model="vm.listingType"
+                            ng-options="listingType.name for listingType in vm.listingTypes"
+                            ng-change="vm.selectListingTypeFromView(vm.listingType)"
+                            required>
+                            <option value="" selected disabled="disabled" data-translate="listing.listing_type_label">
+                            </option>
+                        </select>
                     </div>
 
                     <div ng-if="vm.showListingCategories">
                         <label for="category-lvl1-select" class="no-margin-bottom">
-                            Catégorie*&nbsp;:
+                            <span data-translate="listing.category_label"></span>
+                            <span>*&nbsp;:</span>
                         </label>
                         <div>
                             <select id="category-lvl1-select"
@@ -151,8 +106,7 @@
                                 ng-options="cat.name for cat in vm.listingCategoriesLvl1"
                                 ng-change="vm.categoryChanged()"
                                 required>
-                                <option value="" selected disabled="disabled">
-                                    Catégorie de mon annonce*
+                                <option value="" selected disabled="disabled" data-translate="listing.category_label">
                                 </option>
                             </select>
                             <br class="hide-for-desktop">
@@ -160,8 +114,7 @@
                                 ng-options="cat.name for cat in vm.listingCategoriesLvl2"
                                 ng-show="vm.selectedListingCategoryLvl1"
                                 ng-change="vm.updateBrandList(); vm.saveLocal('subcategory')">
-                                <option value="" selected>
-                                    Sous-catégorie
+                                <option value="" selected data-translate="listing.subcategory_label">
                                 </option>
                             </select>
                         </div>
@@ -176,8 +129,10 @@
                     </select>
                     <br>-->
                     <p class="no-margin-bottom">
-                        <label for="listing-name">
-                            Titre de votre annonce*&nbsp;:<br>
+                        <label for="listing-name" >
+                            <span data-translate="listing.title_label"></span>
+                            <span>*</span>
+                            <br>
                         </label>
                     </p>
                     <input id="listing-name"
@@ -187,7 +142,7 @@
                         ng-model="vm.listing.name"
                         ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
                         ng-maxlength="75"
-                        placeholder="Titre de mon annonce*"
+                        data-translate-attr ="{ placeholder: 'listing.title_label' }"
                         required>
                     <!-- Do not show form-warning when invalid-maxlength -->
                     <div class="form-warning text--semibold"
@@ -202,72 +157,104 @@
                 </div>
                 <div class="step-2"
                     uib-collapse="! vm.step2">
-                    <p class="no-margin-bottom">
-                        <label for="listing-price">
-                            Valeur*&nbsp;:
-                            <br>
-                        </label>
-                    </p>
-                    <div class="margin-bottom-plus stelace-listing__pricing-slider-container" ng-if="vm.isActivePriceRecommendation">
-                        <div class="rzslider-container">
-                            <rzslider
-                                data-rz-slider-model="vm.listing.sellingPrice"
-                                data-rz-slider-options="vm.pricingSlider.options"
-                                ng-if="vm.pricingSlider.options.ceil"></rzslider>
-                            <div class="rzslider-overlay"
-                                ng-if="vm.pricingSliderOverlayRight"
-                                ng-style="{ right: vm.pricingSliderOverlayRight, left: vm.pricingSliderOverlayLeft }">
+                    <div ng-if="!vm.listingTypeProperties.isTimeFlexible">
+                        <p class="no-margin-bottom">
+                            <label for="listing-price">
+                                <span data-translate="listing.price_label"></span>
+                                <span>*</span>
+                                <br>
+                            </label>
+                        </p>
+                        <div class="margin-bottom-plus stelace-listing__pricing-slider-container" ng-if="vm.isActivePriceRecommendation">
+                            <div class="rzslider-container">
+                                <rzslider
+                                    data-rz-slider-model="vm.listing.sellingPrice"
+                                    data-rz-slider-options="vm.pricingSlider.options"
+                                    ng-if="vm.pricingSlider.options.ceil"></rzslider>
+                                <div class="rzslider-overlay"
+                                    ng-if="vm.pricingSliderOverlayRight"
+                                    ng-style="{ right: vm.pricingSliderOverlayRight, left: vm.pricingSliderOverlayLeft }">
+                                </div>
+                            </div>
+                            <div class="spinner-container text--small text--light text--semibold"
+                                ng-switch="vm.recommendedPrices.status">
+                                <span data-us-spinner="{top: '20%'}"
+                                    data-spinner-theme="fiveColors"
+                                    data-spinner-key="price-recommendation-spinner"></span>
+                                <div class="spinner-label"
+                                    ng-switch-when="pending">
+                                    Calcul du prix adapté
+                                </div>
+                                <div class="spinner-label"
+                                    ng-switch-when="ok">
+                                    Suggestion&nbsp;:
+                                    <span class="text--success text--nofade">
+                                        {{ vm.pricingSlider.options.ticksArray[1] + "€ à " + vm.pricingSlider.options.ticksArray[2] + "€" }}
+                                    </span>
+                                </div>
+                                <div class="spinner-label"
+                                    ng-switch-when="fail">
+                                    Aucune suggestion de prix adapté à ce titre&nbsp;:(
+                                </div>
+                                <div class="spinner-label"
+                                    ng-switch-default>
+                                    Glisser pour modifier
+                                </div>
                             </div>
                         </div>
-                        <div class="spinner-container text--small text--light text--semibold"
-                            ng-switch="vm.recommendedPrices.status">
-                            <span data-us-spinner="{top: '20%'}"
-                                data-spinner-theme="fiveColors"
-                                data-spinner-key="price-recommendation-spinner"></span>
-                            <div class="spinner-label"
-                                ng-switch-when="pending">
-                                Calcul du prix adapté
-                            </div>
-                            <div class="spinner-label"
-                                ng-switch-when="ok">
-                                Suggestion&nbsp;:
-                                <span class="text--success text--nofade">
-                                    {{ vm.pricingSlider.options.ticksArray[1] + "€ à " + vm.pricingSlider.options.ticksArray[2] + "€" }}
+                        <div uib-collapse="vm.listing.sellingPrice === 0 && vm.isActivePriceRecommendation">
+                            <input id="listing-selling-price" class="stelace-listing__main-price-input no-margin-bottom"
+                                name="listingSellingPrice"
+                                type="number"
+                                ng-model="vm.listing.sellingPrice"
+                                ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
+                                ng-change="vm.saveLocal('sellingPrice')"
+                                min="0"
+                                step="1"
+                                data-translate-attr="{ placeholder: 'listing.price_label' }"
+                                required>
+                        </div>
+                    </div>
+                    <div ng-if="vm.listingTypeProperties.isTimeFlexible">
+                        <p class="no-margin-bottom">
+                            <label for="listing-price-one-time-unit">
+                                <span data-translate="listing.price_per_time_unit_label"
+                                    data-translate-values="{ timeUnit: vm.listingType.config.bookingTime.timeUnit }"
+                                ></span>
+                                <span>*</span>
+                            </label>
+                        </p>
+                        <input id="listing-price-one-time-unit" class="stelace-listing__main-price-input no-margin-bottom"
+                            name="listingPrice"
+                            type="number"
+                            ng-model="vm.listing.dayOnePrice"
+                            ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
+                            ng-change="vm.setDefaultPrices(); vm.saveLocal('price')"
+                            min="0"
+                            step="1"
+                            placeholder="{{vm.defaultDayOnePrice}}">
+                        <div class="text--small text--semibold"
+                            ng-hide="! vm.recommendedPrices.highDayOnePrice" ng-if="vm.isActivePriceRecommendation">
+                            <span class="text--light">
+                                Montant suggéré&nbsp;:
+                            </span>
+                            <span class="text--success">
+                                {{ vm.recommendedPrices.lowDayOnePrice }}€
+                                {{ vm.recommendedPrices.lowDayOnePrice !== vm.recommendedPrices.highDayOnePrice ?
+                                    "à " + vm.recommendedPrices.highDayOnePrice + "€" : ""}}
                                 </span>
-                            </div>
-                            <div class="spinner-label"
-                                ng-switch-when="fail">
-                                Aucune suggestion de prix adapté à ce titre&nbsp;:(
-                            </div>
-                            <div class="spinner-label"
-                                ng-switch-default>
-                                Glisser pour modifier
-                            </div>
+                                <span class="badge tooltip-badge tooltip-dispensable"
+                                data-tooltip-placement="auto bottom"
+                                data-tooltip-trigger="mouseenter outsideClick"
+                                uib-tooltip="D'après la valeur indiquée plus haut.">
+                                ?
+                            </span>
                         </div>
-                    </div>
-                    <div uib-collapse="vm.listing.sellingPrice === 0 && vm.isActivePriceRecommendation">
-                        <input id="listing-selling-price" class="stelace-listing__main-price-input no-margin-bottom"
-                        name="listingSellingprice"
-                        type="number"
-                        ng-model="vm.listing.sellingPrice"
-                        ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
-                        ng-change="vm.saveLocal('sellingPrice')"
-                        min="0"
-                        step="1"
-                        placeholder="Valeur de mon offre"
-                        required>
-                    </div>
-                    <div class="margin-top text-small text--semibold"
-                        ng-if="vm.listing.listingTypesProperties.TIME.NONE && vm.listing.sellingPrice === 0">
-                        J’offre gratuitement
-                        <svg class="icon icon--inline red">
-                            <use xlink:href="/assets/build/icons/sprite.svg#heart-round"/>
-                        </svg>
                     </div>
                 </div>
                 <div class="step-3" ng-if="vm.step3" >
                     <hr class="small-offset-3 small-6">
-                    <h2 class="text-center margin-bottom-plus">De belles photos font la différence…</h2>
+                    <h2 class="text-center margin-bottom-plus" data-translate="listing.edition.image_title"></h2>
                     <div class="media-editor grid-block small-up-2 s-medium-up-3">
                         <div
                             data-sip-select-image
@@ -296,14 +283,18 @@
                             }"
                             tabindex="0"
                             data-sip-action-key>
-                            {{ vm.mediaMode === "edit" ? "Changer l'ordre des photos" : "Ajouter / supprimer vos photos" }}
+                            <span ng-show="vm.mediaMode === 'edit'" data-translate="listing.edition.change_image_order">
+                            </span>
+                            <span ng-show="vm.mediaMode !== 'edit'" data-translate="listing.edition.add_remove_images">
+                                </span>
                         </span>
                     </div>
                     <hr class="small-offset-3 small-6">
 
                     <div>
                         <label for="listing-description">
-                            Description de votre {{vm.listing.name}}*&nbsp;:
+                            <span data-translate="listing.description_label"></span>
+                            <span>*</span>
                         </label>
                         <textarea id="listing-description" name="listingDescription"
                             class="stelace-listing-editor__description"
@@ -311,7 +302,6 @@
                             ng-model="vm.listing.description"
                             ng-maxlength="3000"
                             ng-change="vm.saveLocal('description')"
-                            placeholder=" Comment je l'utilise? Quelles sont ses fonctions que je trouve les plus pratiques?"
                             required
                             data-sip-textarea-auto-adjust>
                         </textarea>
@@ -321,51 +311,14 @@
                         </div>
 
                         <div class="listing-rentable-price margin-bottom-plus"
-                            uib-collapse="! vm.listingTypesProperties.TIME.TIME_FLEXIBLE || ! vm.validPrice">
-                            <p class="no-margin-bottom">
-                                <label for="listing-price-day-one">
-                                    Prix de la première journée de location&nbsp;:<br>
-                                </label>
-                            </p>
-                            <input id="listing-price-day-one" class="stelace-listing__main-price-input no-margin-bottom"
-                                name="listingPrice"
-                                type="number"
-                                ng-model="vm.listing.dayOnePrice"
-                                ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
-                                ng-change="vm.setDefaultPrices(); vm.saveLocal('price')"
-                                min="0"
-                                step="1"
-                                placeholder="{{vm.defaultDayOnePrice}}">
-                            <div class="text--small text--semibold"
-                                ng-hide="! vm.recommendedPrices.highDayOnePrice" ng-if="vm.isActivePriceRecommendation">
-                                <span class="text--light">
-                                    Montant suggéré&nbsp;:
-                                </span>
-                                <span class="text--success">
-                                    {{ vm.recommendedPrices.lowDayOnePrice }}€
-                                    {{ vm.recommendedPrices.lowDayOnePrice !== vm.recommendedPrices.highDayOnePrice ?
-                                        "à " + vm.recommendedPrices.highDayOnePrice + "€" : ""}}
-                                    </span>
-                                    <span class="badge tooltip-badge tooltip-dispensable"
-                                    data-tooltip-placement="auto bottom"
-                                    data-tooltip-trigger="mouseenter outsideClick"
-                                    uib-tooltip="D'après la valeur indiquée plus haut.">
-                                    ?
-                                </span>
-                            </div>
-                            <div class="margin-top text-small text--semibold"
-                                ng-if="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE && vm.listing.dayOnePrice === 0">
-                                Je partage gratuitement
-                                <svg class="icon icon--inline red">
-                                    <use xlink:href="/assets/build/icons/sprite.svg#heart-round"/>
-                                </svg>
-                            </div>
+                            uib-collapse="!vm.listingTypeProperties.isTimeFlexible || ! vm.validPrice">
                             <p class="margin-top-plus no-margin-bottom text--semibold">
                                 <span class="link--blue-underline cursor-pointer"
                                 ng-click="vm.showRentingPricingDetails = ! vm.showRentingPricingDetails"
                                 tabindex="0"
                                 data-sip-action-key>
-                                Personnalisation des tarifs longue durée&nbsp;:
+                                <span data-translate="listing.edition.longer_duration_title">
+                                </span>
                                 <span ng-if="! vm.showRentingPricingDetails">▼</span>
                                 <span ng-if="vm.showRentingPricingDetails">▲</span>
                             </span>
@@ -374,8 +327,13 @@
                                 <table class="stelace-listing__pricing-table text-center margin-bottom-plus">
                                     <thead class="stelace-listing__pricing-table-head">
                                         <tr>
-                                            <td class="stelace-listing__pricing-table-column">Exemple de durée</td>
-                                            <td class="stelace-listing__pricing-table-column">Prix total en €</td>
+                                            <td class="stelace-listing__pricing-table-column"
+                                                data-translate="listing.edition.longer_duration_breakpoint_label"
+                                            >
+                                            </td>
+                                            <td class="stelace-listing__pricing-table-column"
+                                                data-translate="listing.edition.longer_duration_total_price_label"
+                                            ></td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -384,9 +342,9 @@
                                             <td>{{ vm.listing.dayOnePrice || vm.defaultDayOnePrice }}</td>
                                         </tr> -->
                                         <tr ng-repeat="bookingPrice in vm.listingBookingPrices track by bookingPrice.day">
-                                            <td><label for="listing-price-{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>
+                                            <td><label for="listing-price--{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>
                                             <td>
-                                                <input id="listing-price-{{bookingPrice.day}}"
+                                                <input id="listing-price--{{bookingPrice.day}}"
                                                     type="number"
                                                     class="stelace-listing__pricing-table-input"
                                                     ng-model="bookingPrice.price"
@@ -401,7 +359,7 @@
                             </div>
                             <p class="no-margin-bottom margin-top">
                                 <label for="listing-deposit">
-                                    Montant de la caution&nbsp;:<br>
+                                    <span data-translate="listing.security_deposit_label"></span>
                                 </label>
                             </p>
                             <input id="listing-deposit"
@@ -414,50 +372,15 @@
                                 placeholder="{{vm.defaultDeposit}}"
                                 min="0"
                                 step="1">
-                            <div class="text--small text--light">
+                            <div class="text--small text--light margin-bottom-plus" data-translate="listing.edition.security_deposit_message">
                                 Montant automatiquement bloqué par sécurité sur la carte bancaire des locataires.
                             </div>
                             <div class="form-warning text--semibold"
-                                uib-collapse="! vm.showDepositWarning">
-                                La caution par carte bancaire est limitée à {{::vm.maxDeposit}}€. En cas de réservation, nous vous recommandons de demander au locataire un chèque de caution complémentaire pour la partie de votre caution souhaitée dépassant ce montant.
+                                uib-collapse="! vm.showDepositWarning"
+                                data-translate="listing.edition.security_deposit_max_error"
+                                data-translate-values="{ max_deposit: vm.maxDeposit }"
+                            >
                             </div>
-                            <!-- <<p>
-                                J'accepte de partager gratuitement mon objet en échange de cadeaux Sharinplace&nbsp;
-                                <span class="small switch switch--success">
-                                    <input id="switch-free" type="checkbox" ng-model="vm.listing.acceptFree">
-                                    <label for="switch-free"></label>
-                                </span>
-                            </p> -->
-
-                            <!-- <label for="listing-state"  class="margin-top-plus no-margin-bottom">
-                                État et accessoires fournis&nbsp;:
-                            </label>
-                            <div class="text--small text--light">
-                                Gagnez du temps: ces informations seront automatiquement reportées sur votre contrat de location électronique.
-                            </div>
-                            <textarea id="listing-state" name="listingState"
-                                class="stelace-listing-editor__description no-margin-bottom"
-                                rows="3"
-                                ng-model="vm.listing.stateComment"
-                                ng-maxlength="1000"
-                                ng-change="vm.saveLocal('state')"
-                                placeholder="Exemple: {{vm.listing.name}} en parfait état de fonctionnement et confié avec la notice. Légères rayures visibles."
-                                required
-                                data-sip-textarea-auto-adjust>
-                            </textarea> -->
-
-                            <!-- <label for="listing-booking-preferences" class="margin-top-plus">
-                                Préférences de réservation&nbsp;:
-                            </label>
-                            <textarea id="listing-booking-preferences" name="listingBookingPreferences"
-                                class="stelace-listing-editor__description"
-                                rows="3"
-                                ng-maxlength="1000"
-                                ng-change="vm.saveLocal('booking-preferences')"
-                                ng-model="vm.listing.bookingPreferences"
-                                placeholder="Facultatif. Exemple: j'accepte les réservations et remises d'objet du lundi au samedi."
-                                data-sip-textarea-auto-adjust>
-                            </textarea> -->
                         </div>
 
                     </div>
@@ -710,23 +633,23 @@
                         </div>
                     </div>
                     <div class="text-center spinner-button-container save-button-container">
-                        <div ng-if="!vm.listing.quantity">
+                        <div ng-if="!vm.listing.quantity && vm.listingTypeProperties.isTimeNone">
                             Cette offre a déjà trouvé preneur. Vous ne pouvez donc plus apporter de modifications à votre annonce.
                         </div>
                         <button
                             class="button button--highlight brightblue spinner-button--center"
                             type="submit"
                             ng-disabled="vm.saveListingBtnDisabled"
-                            ng-click="vm.saveListing()">
-                            Enregistrer mon annonce
+                            ng-click="vm.saveListing()"
+                            data-translate="listing.edition.save_button">
                         </button>
                         <span class="spinner-container">
                             <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-listing-spinner"></span>
                         </span>
                     </div>
                     <div class="text--small text-center margin-top margin-bottom"
-                        ng-if="vm.viewCreate">
-                        En cas de réservation, le prix sera transféré sur votre compte dans les jours qui suivront votre confirmation. Facile et sécurisé&nbsp;!
+                        ng-if="vm.viewCreate"
+                        data-translate="listing.edition.trust_message">
                     </div>
                     <!-- <div class="text-center text--small">
                     <svg class="icon icon--inline light-grey">
@@ -745,8 +668,10 @@
             <div class="margin-bottom-plus"
                 ng-if="vm.myListings.length"
                 ng-hide="vm.listingId && vm.myListings.length === 1">
-                <h2 class="text-center margin-bottom-plus">
-                    Mes <span ng-show="vm.listingId">autres</span> annonces
+                <h2 class="text-center margin-bottom-plus"
+                    data-translate="listing.edition.my_listings_label"
+                    data-translate-values="{ hasOther: !!vm.listingId }"
+                >
                 </h2>
                 <div id="my-items-list"
                     class="listing-grid grid-block small-vertical">
@@ -760,11 +685,13 @@
                     </div>
                 </div>
             </div>
+
+            <div ng-if="vm.viewCreate" data-translate="listing.edition.additional_content"></div>
         </div>
         <div id="helper-column" class="sticky-helper__column desktop-4">
             <div class="image-white-cta sticky-helper__card"
                 ng-class="{ 'stelace-listing-editor__sticky-share': ! vm.viewCreate && vm.myListings.length }"
-                ng-if="vm.stickyOffset"
+                ng-if="vm.stickyOffset && vm.showSideHelper"
                 ng-switch="! (vm.viewCreate || ! vm.myListings.length)"
                 data-bound-id="helper-column"
                 data-offset="{{ vm.stickyOffset }}"
@@ -780,7 +707,6 @@
                         <select id="share-my-listing-select" class="text--small"
                             ng-model="vm.selectedShareListing"
                             ng-options="listing.name for listing in vm.myListings track by listing.id">
-                            <!-- <option ng-repeat="listing in vm.myListings" value="{{listing.id}}">{{listing.name}}</option> -->
                         </select>
                     </div>
                     <div class="cursor-pointer"
@@ -819,21 +745,8 @@
                         </div>
                     </div>
                 </div>
-                <div ng-switch-default>
-                    <h2>
-                        Une belle annonce change tout...
-                    </h2>
-                    <p class="text--small margin-bottom">
-                        Fixez un prix attractif, soignez vos photographies et décrivez votre offre avec amour&nbsp;!
-                    </p>
-                </div>
             </div>
         </div>
-    </div>
-    <div class="padded-sides margin-bottom-plus"
-        data-sip-step-icons
-        data-steps="vm.trustSteps"
-        ng-show="! vm.listingId">
     </div>
     <div ng-include="'/assets/app/layout/footer.html'"></div>
 </div>
