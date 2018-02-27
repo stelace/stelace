@@ -12,6 +12,7 @@
         provider.getFacebookAppId   = getFacebookAppId;
         provider.getAdminResolve    = getAdminResolve;
         provider.getGoogleMapApiKey = getGoogleMapApiKey;
+        provider.getBestLocale      = getBestLocale;
 
         /* @ngInject */
         provider.$get = function ($injector, $location, $q, urlService) {
@@ -38,6 +39,10 @@
             service.unsetCanonicalLink        = unsetCanonicalLink;
             service.getFacebookAppId          = getFacebookAppId;
             service.getDataFromServer         = getDataFromServer;
+            service.getLang                   = getLang;
+            service.getBestLocale             = getBestLocale;
+            service.getUserLocales            = getUserLocales;
+            service.parseLocale               = parseLocale;
             service.showErrorMessage          = showErrorMessage;
 
             return service;
@@ -410,6 +415,58 @@
             if (window.dataFromServer && typeof window.dataFromServer === 'object') {
                 return window.dataFromServer;
             }
+        }
+
+        function getLang() {
+            var dataFromServer = getDataFromServer();
+            return dataFromServer.lang;
+        }
+
+        function getBestLocale() {
+            var lang = getLang();
+            var userLocales = getUserLocales();
+
+            var bestLocale;
+
+            _.forEach(userLocales, function (locale) {
+                if (bestLocale) return; // best locale already found
+
+                var localeInfo = parseLocale(locale);
+                if (localeInfo.language === lang) {
+                    bestLocale = locale;
+                }
+            });
+
+            if (!bestLocale) {
+                bestLocale = lang;
+            }
+
+            return bestLocale;
+        }
+
+        function getUserLocales() {
+            return navigator.languages || [navigator.language || navigator.userLanguage];
+        }
+
+        function parseLocale(locale) {
+            var localeRegex = /([a-z]{2})(?:[_-]([a-z]{2}))?/i;
+            var regexResult = localeRegex.exec(locale);
+            var language = regexResult[1];
+            var region = regexResult[2];
+
+            var result = {
+                language: null,
+                region: null
+            };
+
+            if (language) {
+                result.language = language.toLowerCase();
+            }
+            if (region) {
+                result.region = region.toUpperCase();
+            }
+
+            return result;
         }
 
         function getAdminResolve() {

@@ -45,7 +45,7 @@
         var lang = window.dataFromServer.lang;
         var currency = window.dataFromServer.currency;
         var translations = window.dataFromServer.translations;
-        var fallbackLanguages = ['en'];
+        var fallbackLanguages = ['en']; // shouldn't be useful because language is forced by server
 
         $translateProvider
             .registerAvailableLanguageKeys(["en", "fr"], {
@@ -57,6 +57,14 @@
             $translateProvider
                 .translations(lang, translations)
                 .use(lang);
+
+            var bestLocale = platformProvider.getBestLocale();
+            // if the user has a specific locale of the language, register the user locale to benefit date intl format
+            if (bestLocale !== lang) {
+                $translateProvider
+                    .translations(bestLocale, translations)
+                    .use(bestLocale);
+            }
 
             fallbackLanguages = [lang];
         }
@@ -103,7 +111,7 @@
 
                     return new Intl.NumberFormat(lc, params).format(v);
                 }
-            })
+            });
         });
 
         lazyImgConfigProvider.setOptions({
@@ -213,7 +221,8 @@
         tools,
         cookie,
         ContentService,
-        external
+        external,
+        platform
     ) {
         // auth token
         var authTokenField = "setAuthToken";
@@ -277,8 +286,8 @@
             });
         }
 
-        var lang = window.dataFromServer.lang;
-        $translateMessageFormatInterpolation.setLocale(lang);
+        var bestLocale = platform.getBestLocale();
+        $translateMessageFormatInterpolation.setLocale(bestLocale);
 
         // expose functions for ouside
         external.init();
