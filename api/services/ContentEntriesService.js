@@ -93,6 +93,10 @@ async function _getTranslations(lang) {
         fetchUserTranslations(lang),
     ]);
 
+    if (!sails.config.useCacheTranslations) {
+        cachedMetadatas[lang] = null;
+    }
+
     if (!cachedMetadatas[lang]) {
         const metadata = parseMetadata(translations);
         cachedMetadatas[lang] = metadata;
@@ -163,6 +167,10 @@ async function getMetadata(lang) {
 }
 
 async function fetchDefaultTranslations(lang) {
+    if (!sails.config.useCacheTranslations) {
+        cachedDefaultTranslations[lang] = null;
+    }
+
     if (cachedDefaultTranslations[lang]) {
         return cachedDefaultTranslations[lang];
     }
@@ -183,6 +191,10 @@ async function updateDefaultTranslations(lang, translations) {
 }
 
 async function fetchUserTranslations(lang) {
+    if (!sails.config.useCacheTranslations) {
+        cachedUserTranslations[lang] = null;
+    }
+
     if (cachedUserTranslations[lang]) {
         return cachedUserTranslations[lang];
     }

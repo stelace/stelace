@@ -90,6 +90,7 @@ module.exports = {
     debugSms: "" // debug@example.com
 
     highlightTranslations: false, // enable translated strings highlighting
+    useCacheTranslations: true, // enable cache for translations
 
 
 
