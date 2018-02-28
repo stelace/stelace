@@ -36,7 +36,8 @@
         "error": {
             "missing": "Veuillez renseigner vos identifiants.",
             "incorrect": "Votre email/mot de passe est erroné.",
-            "cancelled_social_auth": "Connexion annulée. Votre profil n’a pas été créé."
+            "cancelled_social_auth": "Connexion annulée. Votre profil n’a pas été créé.",
+            "invalid_email": "Veuillez renseigner une adresse email valide."
         }
     },
     "listing": {
@@ -47,6 +48,7 @@
         "subcategory_label": "Sous-Catégorie",
         "description_label": "Description",
         "accessories_label": "Accessoires",
+        "quantity_label": "Quantité",
         "condition_label": "État",
         "security_deposit_label": "Dépôt de garantie",
         "security_deposit_helper": "Un dépôt de garantie permet de sécuriser les échanges liés à cette annonce.",
@@ -118,7 +120,34 @@
             "longer_duration_breakpoint_label": "Exemple de durée",
             "longer_duration_breakpoint_label__EDITOR_LABEL": "Exemple de durée",
             "longer_duration_total_price_label": "Prix total",
-            "longer_duration_total_price_label__EDITOR_LABEL": "Prix total"
+            "longer_duration_total_price_label__EDITOR_LABEL": "Prix total",
+            "description_required_message": "Veuillez renseigner une description.",
+            "locations_label": "Je choisis les lieux de disponibilité de mon annonce",
+            "locations_label__EDITOR_LABEL": "",
+            "no_locations_available_message": "Aucun lieu favori n'est actuellement renseigné.",
+            "no_locations_available_message__EDITOR_LABEL": "",
+            "add_locations_message": "Ajoutez des lieux favoris à votre compte.",
+            "add_locations_message__EDITOR_LABEL": "",
+            "activate_locations_message": "Activez-les sur cette page afin d'augmenter la visibilité de votre annonce.",
+            "activate_locations_message__EDITOR_LABEL": ""
+        },
+        "error": {
+            "missing_title_title": "Titre requis",
+            "missing_title_message": "Veuillez renseigner un titre pour votre annonce. Un titre clair et précis attirera l'attention des membres.",
+            "missing_price_title": "Prix manquant",
+            "missing_price_message": "Veuillez renseigner le prix de votre annonce.",
+            "missing_time_unit_price_title": "Prix manquant",
+            "missing_time_unit_price_message": "Veuillez renseigner le prix de votre annonce.",
+            "missing_description_title": "Description requise",
+            "missing_description_message": "Veuillez renseigner une description. Ceci encouragera les autres membres à vous contacter.",
+            "missing_image_title": "Photographie manquante",
+            "missing_image_message": "Une belle photo rend votre annonce plus attractive.",
+            "missing_location_title": "Adresse ou ville requise",
+            "missing_location_message": "Une annonce ne peut être enregistrée sans localisation.",
+            "missing_email_title": "Adresse email manquante",
+            "missing_email_message": "L'annonce ne peut être enregistrée sans email.",
+            "account_required_title": "Compte requis",
+            "account_required_message": "Veuillez créez un compte en quelques secondes ou vous connecter pour publier votre annonce."
         }
     },
     "user": {

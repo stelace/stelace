@@ -66,7 +66,8 @@
         height: auto;
     }
 
-    .stelace-listing__main-price-input {
+    .stelace-listing__main-price-input,
+    .stelace-listing-editor__quantity {
         width: 15rem;
         max-width: 100%;
     }

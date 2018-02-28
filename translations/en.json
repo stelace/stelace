@@ -36,7 +36,8 @@
         "error": {
             "missing": "Please fill in your credentials.",
             "incorrect": "Please check your email address/password.",
-            "cancelled_social_auth": "Authentication cancelled. No account has been created."
+            "cancelled_social_auth": "Authentication cancelled. No account has been created.",
+            "invalid_email": "Please enter an valid email address."
         }
     },
     "listing": {
@@ -48,6 +49,7 @@
         "title_label": "Titre de votre annonce",
         "description_label": "Description",
         "accessories_label": "Accessories",
+        "quantity_label": "Quantity",
         "condition_label": "Condition",
         "security_deposit_label": "Security deposit",
         "security_deposit_helper": "Booking secured by deposit",
@@ -119,7 +121,34 @@
             "longer_duration_breakpoint_label": "Duration breakpoints",
             "longer_duration_breakpoint_label__EDITOR_LABEL": "",
             "longer_duration_total_price_label": "Total price",
-            "longer_duration_total_price_label__EDITOR_LABEL": ""
+            "longer_duration_total_price_label__EDITOR_LABEL": "",
+            "description_required_message": "Please give a description.",
+            "locations_label": "I select my listing locations",
+            "locations_label__EDITOR_LABEL": "",
+            "no_locations_available_message": "No locations entered for now.",
+            "no_locations_available_message__EDITOR_LABEL": "",
+            "add_locations_message": "Add locations into your account.",
+            "add_locations_message__EDITOR_LABEL": "",
+            "activate_locations_message": "Activate them on the current page to increase the listing visibility.",
+            "activate_locations_message__EDITOR_LABEL": ""
+        },
+        "error": {
+            "missing_title_title": "Required title",
+            "missing_title_message": "Please enter the listing title. A clear and specific title draw other members' attention.",
+            "missing_price_title": "Missing price",
+            "missing_price_message": "Please enter the listing price.",
+            "missing_time_unit_price_title": "Missing price",
+            "missing_time_unit_price_message": "Please enter the listing price.",
+            "missing_description_title": "Required description",
+            "missing_description_message": "Please give a description. That will encourage other members to contact you.",
+            "missing_image_title": "Missing picture",
+            "missing_image_message": "A beautiful picture make your listing more attractive.",
+            "missing_location_title": "Required address or city",
+            "missing_location_message": "A listing cannot be saved without location.",
+            "missing_email_title": "Missing email address",
+            "missing_email_message": "The listing cannot be saved without email address.",
+            "account_required_title": "Required account",
+            "account_required_message": "Please create an account in no time or please log in to post your listing."
         }
     },
     "user": {

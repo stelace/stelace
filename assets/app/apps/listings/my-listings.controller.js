@@ -14,9 +14,11 @@
                                 $state,
                                 $stateParams,
                                 $timeout,
+                                $translate,
                                 authentication,
                                 authenticationModal,
                                 // BrandService,
+                                ContentService,
                                 crossTabCommunication,
                                 diacritics,
                                 ezfb,
@@ -141,7 +143,7 @@
                 translate: function (value) {
                     return "<strong>" + (value || 0) + "€</strong>";
                 },
-                customValueToPosition: sliderValueToPositon,
+                customValueToPosition: sliderValueToPosition,
                 customPositionToValue: sliderPositionToValue
             },
             overlay: {}
@@ -428,6 +430,7 @@
                 vm.mediasMaxNbReached       = false;
                 vm.listing.listingTypesIds  = [];
                 vm.listing.quantity         = 1;
+                vm.listing.recurringDatesPattern = '* * * * *';
                 stepProgressDone            = {};
 
                 vm.listingFullValidation       = true;
@@ -456,6 +459,7 @@
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
                 vm.listing.listingTypesIds  = vm.listing.listingTypesIds || [];
+                vm.listing.recurringDatesPattern = vm.listing.recurringDatesPattern || '* * * * *';
                 vm.listing.quantity         = vm.listing.quantity || 1;
                 stepProgressDone            = {};
                 vm.mediasMaxNbReached       = false;
@@ -749,8 +753,8 @@
                     vm.pricingSlider.options.ticksArray = [0, Math.round(recommendedValue * 0.7), Math.round(recommendedValue * 1.1)];
                     vm.recommendedPrices.status         = "ok";
 
-                    vm.pricingSliderOverlayLeft  = sliderValueToPositon(vm.pricingSlider.options.ticksArray[1]) * 100  + "%";
-                    vm.pricingSliderOverlayRight = (1 - sliderValueToPositon(vm.pricingSlider.options.ticksArray[2])) * 100 + "%";
+                    vm.pricingSliderOverlayLeft  = sliderValueToPosition(vm.pricingSlider.options.ticksArray[1]) * 100  + "%";
+                    vm.pricingSliderOverlayRight = (1 - sliderValueToPosition(vm.pricingSlider.options.ticksArray[2])) * 100 + "%";
 
                     platform.debugDev(vm.pricingSlider, vm.pricingSliderOverlayLeft, vm.pricingSliderOverlayRight)
 
@@ -787,7 +791,7 @@
             }
         }
 
-        function sliderValueToPositon(val, minVal, maxVal) {
+        function sliderValueToPosition(val, minVal, maxVal) {
             // when using outside of angular slider logic
             minVal = _.isFinite(minVal) ? minVal : vm.pricingSlider.options.floor;
             maxVal = _.isFinite(maxVal) ? maxVal : vm.pricingSlider.options.ceil;
@@ -825,7 +829,8 @@
 
         function showStep3AndUpdatePrice() {
             if (! vm.listing
-                || typeof vm.listing.sellingPrice === "undefined"
+                || (typeof vm.listing.sellingPrice === "undefined" && !vm.isTimeFlexible)
+                || (typeof vm.listing.timeUnitPrice === "undefined" && vm.isTimeFlexible)
             ) {
                 return;
             }
@@ -931,50 +936,57 @@
             // refresh after promptModal only if no current locations
             refreshLocations = !! vm.listing.listLocations;
 
+            var notificationOptions = {
+                timeOut: 0,
+                closeButton: true
+            };
+
             if (! vm.listing.name) {
-                return toastr.info("Veuillez renseigner un titre pour votre annonce. Un titre clair et précis (marque, modèle...) attirera l'attention des membres.",
-                    "Titre requis", {
-                        timeOut: 0,
-                        closeButton: true
+                return ContentService.showNotification({
+                    titleKey: 'listing.error.missing_title_title',
+                    messageKey: 'listing.error.missing_title_message',
+                    options: notificationOptions
                 });
             }
-            if (isNaN(parseFloat(vm.listing.sellingPrice))) {
-                return toastr.info("Veuillez renseigner la valeur de l'objet.",
-                    "Prix manquant", {
-                        timeOut: 0,
-                        closeButton: true
+            if (isNaN(parseFloat(vm.listing.sellingPrice)) && !vm.listingTypeProperties.isTimeFlexible) {
+                return ContentService.showNotification({
+                    titleKey: 'listing.error.missing_price_title',
+                    messageKey: 'listing.error.missing_price_message',
+                    options: notificationOptions
+                });
+            }
+            if (isNaN(parseFloat(vm.listing.timeUnitPrice)) && vm.listingTypeProperties.isTimeFlexible) {
+                return ContentService.showNotification({
+                    titleKey: 'listing.error.missing_time_unit_price_title',
+                    messageKey: 'listing.error.missing_time_unit_price_message',
+                    options: notificationOptions
                 });
             }
             if (! vm.listing.description) {
-                return toastr.info("Veuillez renseigner une description. Ceci encouragera les autres membres à vous contacter.",
-                    "Description requise", {
-                        timeOut: 0,
-                        closeButton: true
-                });
-            }
-            if (!vm.listing.listingTypesIds.length) {
-                return toastr.info("Veuillez renseigner un type d'annonce (location, vente…)", "Type d'annonce manquant", {
-                    timeOut: 0,
-                    closeButton: true
+                return ContentService.showNotification({
+                    titleKey: 'listing.error.missing_description_title',
+                    messageKey: 'listing.error.missing_description_message',
+                    options: notificationOptions
                 });
             }
             if (vm.listingMedias.length === 0) {
-                return toastr.info("Et si vous ajoutiez une image pour mettre toutes les chances de votre côté\xa0?", "Photographie manquante", {
-                    timeOut: 0,
-                    closeButton: true
+                return ContentService.showNotification({
+                    titleKey: 'listing.error.missing_image_title',
+                    messageKey: 'listing.error.missing_image_message',
+                    options: notificationOptions
                 });
             }
 
             if (! vm.isAuthenticated
                 && (! vm.email || ! vm.password)
             ) {
-                return toastr.info("Merci de renseigner les identifiants de votre compte.");
+                return ContentService.showNotification({ messageKey: 'authentication.error.missing' });
             }
             if (! vm.isAuthenticated
                 && ! tools.isEmail(vm.email)
             ) {
                 vm.invalidAddress = true;
-                return toastr.warning("Merci de renseigner une adresse email valide.");
+                return ContentService.showNotification({ messageKey: 'authentication.error.invalid_email', type: 'warning' });
             }
 
             vm.useSocialLogin      = false;
@@ -1043,7 +1055,11 @@
                     if (locations && locations.length) {
                         return _createListing();
                     } else {
-                        toastr.warning("Nous ne pouvons malheureusement pas enregistrer votre objet sans localisation.", "Adresse ou ville requise");
+                        ContentService.showNotification({
+                            titleKey: 'listing.error.missing_location_title',
+                            messageKey: 'listing.error.missing_location_message',
+                            type: 'warning'
+                        });
                         return false;
                     }
 
@@ -1054,11 +1070,23 @@
 
         function afterAuthenticationErrorHandler(err) {
             if (err === "missing email") {
-                toastr.warning("L'annonce de l'objet ne peut être enregistré sans email.", "Adresse email manquante");
+                ContentService.showNotification({
+                    titleKey: 'listing.error.missing_email_title',
+                    messageKey: 'listing.error.missing_email_message',
+                    type: 'warning'
+                });
             } else if (err === "not authenticated") {
-                toastr.info("Veuillez créez un compte en quelques secondes ou vous connecter pour publier votre annonce", "Compte requis");
+                ContentService.showNotification({
+                    titleKey: 'listing.error.account_required_title',
+                    messageKey: 'listing.error.account_required_message',
+                    type: 'info'
+                });
             } else if (err !== "wrong password") {
-                toastr.warning("Nous sommes désolés, veuillez réessayez plus tard.", "Oups, une erreur est survenue.");
+                ContentService.showNotification({
+                    titleKey: 'error.unknown_happened_title',
+                    messageKey: 'error.unknown_happened_message',
+                    type: 'warning'
+                });
                 loggerToServer.error(err);
             }
         }
@@ -1119,7 +1147,8 @@
                 "quantity",
                 "bookingPreferences",
                 "acceptFree",
-                "listingTypesIds"
+                "listingTypesIds",
+                "recurringDatesPattern"
             ]);
 
             vm.listingMedias           = mediasSelector.getMedias();
@@ -1153,6 +1182,7 @@
             }
 
             createAttrs.listingTypesIds = [vm.listingType.id];
+            createAttrs.quantity = parseInt(createAttrs.quantity, 10); // get an integer
 
             var mediasIds = [];
             var createdListing;

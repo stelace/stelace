@@ -54,12 +54,11 @@
                     <h2 data-translate="listing.edition.new_listing_section_title">
                     </h2>
                 </div>
-                <div ng-if="vm.viewCreate && ! vm.myListings.length">
+                <!-- <div ng-if="vm.viewCreate && ! vm.myListings.length">
                     <p class="text-center no-margin-bottom"
                         data-uib-popover="Sur Sharinplace, le montant des transactions est bloqué par validation 3DSecure jusqu'à la signature d'un contrat électronique, généré automatiquement. Votre paiement est garanti, pas de surprises !"
                         data-popover-trigger="mouseenter outsideClick"
-                        data-popover-placement="auto top"
-                        data-popover-title="Contrat électronique">
+                        data-popover-placement="auto top">
                         <span class="text--semibold">
                             <span class="step-icons">
                                 <svg class="icon success">
@@ -73,7 +72,7 @@
                     <p class="text-center">
                         Commençons par enregistrer ensemble votre offre en un éclair.
                     </p>
-                </div>
+                </div> -->
 
                 <div class="step-1">
                     <div ng-if="vm.showListingTypes">
@@ -306,8 +305,19 @@
                             data-sip-textarea-auto-adjust>
                         </textarea>
                         <div class="form-warning text--semibold"
-                            uib-collapse="! myListingsEditor.listingDescription.$touched || ! myListingsEditor.listingDescription.$invalid || myListingsEditor.listingDescription.$error.maxlength">
-                            Veuillez renseigner une description de votre {{vm.listing.name}}.
+                            uib-collapse="! myListingsEditor.listingDescription.$touched || ! myListingsEditor.listingDescription.$invalid || myListingsEditor.listingDescription.$error.maxlength"
+                            data-translate="listing.edition.description_required_message">
+                        </div>
+
+                        <div v-if="vm.listingTypeProperties.isAvailabilityStock">
+                            <label for="listing-quantity">
+                                <span data-translate="listing.quantity_label"></span>
+                            </label>
+                            <input type="number" id="listing-quantity" name="listingQuantity"
+                                class="stelace-listing-editor__quantity"
+                                ng-model="vm.listing.quantity"
+                                ng-change="vm.saveLocal('quantity')"
+                                ng-required="vm.listingTypeProperties.isAvailabilityStock">
                         </div>
 
                         <div class="listing-rentable-price margin-bottom-plus"
@@ -372,8 +382,8 @@
                                 placeholder="{{vm.defaultDeposit}}"
                                 min="0"
                                 step="1">
-                            <div class="text--small text--light margin-bottom-plus" data-translate="listing.edition.security_deposit_message">
-                                Montant automatiquement bloqué par sécurité sur la carte bancaire des locataires.
+                            <div class="text--small text--light margin-bottom-plus"
+                                data-translate="listing.edition.security_deposit_message">
                             </div>
                             <div class="form-warning text--semibold"
                                 uib-collapse="! vm.showDepositWarning"
@@ -410,11 +420,10 @@
                     </div>
                     <div class="flex-container flex--column margin-bottom-plus"
                         ng-if="! vm.createAccount">
-                        <div class="margin-bottom-plus text--semibold">
-                            Je choisis les lieux de disponibilité de mon annonce&nbsp;:
+                        <div class="margin-bottom-plus text--semibold" data-translate="listing.edition.locations_label">
                         </div>
                         <div ng-if="vm.listing.listLocations.length === 0">
-                            <p>Aucun lieu favori n'est actuellement renseigné.</p>
+                            <p data-translate="listing.edition.no_locations_available_message"></p>
                         </div>
                         <div class="stelace-listing__locations flex-container small-up-2">
                             <div ng-repeat="loc in vm.listing.listLocations track by loc.id">
@@ -435,7 +444,12 @@
                         </div>
                         <div ng-if="vm.listing.listLocations.length === 1 && ! vm.viewCreate">
                             <p>
-                                <span ui-sref="account" class="link--blue-underline">Ajoutez des lieux favoris à votre compte</span> et activez-les sur cette page afin d'augmenter vos chances de louer votre {{vm.listing.name}}.
+                                <span ui-sref="account" class="link--blue-underline"
+                                    data-translate="listing.edition.add_locations_message"
+                                >
+                                </span>
+                                <span data-translate="listing.edition.activate_locations_message">
+                                </span>
                             </p>
                         </div>
                     </div>

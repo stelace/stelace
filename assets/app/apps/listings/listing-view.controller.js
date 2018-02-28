@@ -20,6 +20,7 @@
                                 // BrandService,
                                 BookingService,
                                 cache,
+                                ContentService,
                                 FoundationApi,
                                 gamification,
                                 GoogleMap,
@@ -189,13 +190,13 @@
                 }
                 usSpinnerService.stop('map-spinner');
                 if (! vm.mqMobileTablet) { // map is lower in view on mobiles
-                    var errorTitleKey = 'error.map_loading_error_title';
-                    var errorMessageKey = 'error.map_loading_error_message';
-
-                    $translate([errorTitleKey, errorMessageKey])
-                        .then(function (translations) {
-                            toastr.info(translations[errorMessageKey], translations[errorTitleKey], { timeOut: 15000 });
-                        });
+                    ContentService.showNotification({
+                        titleKey: 'error.map_loading_error_title',
+                        messageKey: 'error.map_loading_error_message',
+                        options: {
+                            timeOut: 15000
+                        }
+                    });
                 }
             }, 45000);
 
@@ -991,10 +992,10 @@
                     }
 
                     if (vm.listing.ownerId === vm.currentUser.id) {
-                        $translate('booking.error.own_listing_booking')
-                            .then(function (message) {
-                                toastr.warning(message);
-                            });
+                        ContentService.showNotification({
+                            messageKey: 'booking.error.own_listing_booking',
+                            type: 'warning'
+                        });
                         return;
                     }
 
@@ -1010,13 +1011,11 @@
                     $state.go("bookingPayment", { id: newBooking.id });
                 }).catch(function (err) {
                     if (err !== "not authenticated") {
-                        var titleKey = 'error.unknown_happened_title';
-                        var messageKey = 'error.unknown_happened_message';
-
-                        $translate([titleKey, messageKey])
-                            .then(function (translations) {
-                                toastr.warning(translations[messageKey], translations[titleKey]);
-                            });
+                        ContentService.showNotification({
+                            titleKey: 'error.unknown_happened_title',
+                            messageKey: 'error.unknown_happened_message',
+                            type: 'warning'
+                        });
                     }
                 });
         }
@@ -1313,10 +1312,10 @@
                     toastr.success("Nous vous préviendrons de la réponse à votre message par email", "Demande envoyée");
                 })
                 .catch(function (/* err */) {
-                    $translate('sending_message_fail')
-                        .then(function (message) {
-                            toastr.warning(message);
-                        });
+                    ContentService.showNotification({
+                        messageKey: 'error.sending_message_fail',
+                        type: 'warning'
+                    });
                 });
         }
 
@@ -1465,10 +1464,7 @@
                 .then(function (isAuthenticated) {
                     // promise resolved to true or false only
                     if (isAuthenticated === false && ! customGreeting) {
-                        $translate('booking.login_first')
-                            .then(function (message) {
-                                toastr.info(message);
-                            });
+                        ContentService.showNotification({ messageKey: 'booking.login_first' });
                     }
 
                     if (isAuthenticated) {
