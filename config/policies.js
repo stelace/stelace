@@ -95,7 +95,7 @@ module.exports.policies = {
         getPricing: true,
         search: ["isAuthenticatedOptional", "getUserInfo"],
         getRecommendedPrices: ["isAuthenticatedOptional"],
-        getRentingPriceFromSellingPrice: true,
+        getTimeUnitPriceFromSellingPrice: true,
         pauseListingToggle: ["isAuthenticated"]
     },
 

@@ -45,7 +45,7 @@
         service.getUploadMediasManager  = getUploadMediasManager;
         service.getFbOfferTypes         = getFbOfferTypes;
         service.getFbSellingPrice       = getFbSellingPrice;
-        service.getFbRentingDayOnePrice = getFbRentingDayOnePrice;
+        service.getFbTimeUnitPrice      = getFbTimeUnitPrice;
         service.getRecommendedPrices    = getRecommendedPrices;
         service.normalizeName           = normalizeName;
         service.encodeUrlQuery          = encodeUrlQuery;
@@ -195,7 +195,7 @@
                     listing.prices = pricing.getPrice({
                         config: listing.customPricingConfig || listing.pricing.config,
                         nbDays: nbDaysPricing,
-                        dayOne: listing.dayOnePrice,
+                        dayOne: listing.timeUnitPrice,
                         custom: !! listing.customPricingConfig,
                         array: true
                     });
@@ -708,7 +708,7 @@
             if (listing.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 types.push("renting");
 
-                if (listing.dayOnePrice === 0) {
+                if (listing.timeUnitPrice === 0) {
                     types.push("sharing");
                 }
             }
@@ -731,12 +731,12 @@
             return listing.sellingPrice;
         }
 
-        function getFbRentingDayOnePrice(listing) {
+        function getFbTimeUnitPrice(listing) {
             if (! listing.listingTypesProperties.TIME.TIME_FLEXIBLE) {
                 return;
             }
 
-            return listing.dayOnePrice;
+            return listing.timeUnitPrice;
         }
 
         function getRecommendedPrices(query) {

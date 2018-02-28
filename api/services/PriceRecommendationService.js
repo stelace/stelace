@@ -1,7 +1,7 @@
 module.exports = {
 
     getRecommendedPrices: getRecommendedPrices,
-    getRentingPriceFromSellingPrice: getRentingPriceFromSellingPrice
+    getTimeUnitPriceFromSellingPrice: getTimeUnitPriceFromSellingPrice
 
 };
 
@@ -32,7 +32,7 @@ async function getRecommendedPrices(query) {
     const url = apiUrl + '?query=' + encodeURIComponent(query);
     const estimatedValue = await doRequest({ url });
 
-    let recommendedPrices = await getRentingPriceFromSellingPrice(estimatedValue);
+    let recommendedPrices = await getTimeUnitPriceFromSellingPrice(estimatedValue);
 
     recommendedPrices.price = Math.round(estimatedValue);
 
@@ -43,25 +43,25 @@ async function getRecommendedPrices(query) {
     return Promise.resolve(recommendedPrices);
 }
 
-function getRentingPriceFromSellingPrice(value) {
+function getTimeUnitPriceFromSellingPrice(value) {
     if (! _.isFinite(value)) {
         throw new Error("Expecting a number to get renting price recommendation.");
     }
 
     return Promise.resolve({
-        dayOnePrice: getDayOnePriceFromValue(value, config.sellingPriceMultiplicator),
-        lowDayOnePrice: getDayOnePriceFromValue(value, config.lowSellingPriceMultiplicator),
-        highDayOnePrice: getDayOnePriceFromValue(value, config.highSellingPriceMultiplicator)
+        timeUnitPrice: getTimeUnitPriceFromValue(value, config.sellingPriceMultiplicator),
+        lowTimeUnitPrice: getTimeUnitPriceFromValue(value, config.lowSellingPriceMultiplicator),
+        highTimeUnitPrice: getTimeUnitPriceFromValue(value, config.highSellingPriceMultiplicator)
     });
 }
 
 /**
- * Use selling price or other reference to derive dayOnePrice
+ * Use selling price or other reference to derive timeUnitPrice
  * @param  {object} value - usually sellingPrice
  * @param  {object} multiplicator
- * @return {object} dayOnePrice
+ * @return {object} timeUnitPrice
  */
-function getDayOnePriceFromValue(value, multiplicator) {
+function getTimeUnitPriceFromValue(value, multiplicator) {
     const absolute = Math.sqrt(value * multiplicator)
         - 4 // shift downwards for low value listings
         // Balancing sqrt for high-value listings (1 % of value > higherValueThreshold)

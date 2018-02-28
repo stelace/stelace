@@ -122,7 +122,7 @@ function getComparedFields(targetType) {
             "locations",
             "listingTypesIds",
             "sellingPrice",
-            "dayOnePrice",
+            "timeUnitPrice",
             "pricingId",
             "customPricingConfig",
             "deposit",

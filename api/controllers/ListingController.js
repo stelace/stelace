@@ -25,7 +25,7 @@ module.exports = {
     getLocations,
     getPricing,
     getRecommendedPrices,
-    getRentingPriceFromSellingPrice,
+    getTimeUnitPriceFromSellingPrice,
     pauseListingToggle,
     getListingAvailability,
     createListingAvailability,
@@ -497,14 +497,14 @@ function getRecommendedPrices(req, res) {
         });
 }
 
-function getRentingPriceFromSellingPrice(req, res) {
+function getTimeUnitPriceFromSellingPrice(req, res) {
     var sellingPrice = req.param("value");
 
     if (! _.isFinite(sellingPrice)) {
         throw createError(400, 'Number expected');
     }
 
-    return PriceRecommendationService.getRentingPriceFromSellingPrice(sellingPrice)
+    return PriceRecommendationService.getTimeUnitPriceFromSellingPrice(sellingPrice)
         .then(prices => {
             res.json(prices);
         })

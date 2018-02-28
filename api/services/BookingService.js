@@ -188,7 +188,7 @@ async function setBookingTimePeriods({
             nbTimeUnits,
             timeUnit,
             deposit: listing.deposit,
-            timeUnitPrice: listing.dayOnePrice,
+            timeUnitPrice: listing.timeUnitPrice,
             currency: 'EUR', // TODO: allow to set other currencies
             pricingId: listing.pricingId,
             customPricingConfig: listing.customPricingConfig,
@@ -403,7 +403,7 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
     if (listingType.properties.TIME === 'TIME_FLEXIBLE') {
         const prices = PricingService.getPrice({
             config: listing.customPricingConfig || PricingService.getPricing(listing.pricingId).config,
-            dayOne: listing.dayOnePrice,
+            dayOne: listing.timeUnitPrice,
             nbDays: nbTimeUnits,
             custom: !! listing.customPricingConfig,
             array: true

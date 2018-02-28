@@ -433,16 +433,16 @@
                     content_name: vm.listing.name,
                     content_ids: [vm.listing.id],
                     content_category: ListingCategoryService.getCategoriesString(vm.breadcrumbCategory, vm.breadcrumbQuery),
-                    sip_offer_types: ListingService.getFbOfferTypes(vm.listing)
+                    stelace_offer_types: ListingService.getFbOfferTypes(vm.listing)
                 };
 
-                var fbRentingDayOnePrice = ListingService.getFbRentingDayOnePrice(vm.listing);
-                var fbSellingPrice       = ListingService.getFbSellingPrice(vm.listing);
-                if (typeof fbRentingDayOnePrice === "number") {
-                    fbEventParams.sip_renting_day_one_price = fbRentingDayOnePrice;
+                var fbRentingTimeUnit = ListingService.getFbTimeUnitPrice(vm.listing);
+                var fbSellingPrice    = ListingService.getFbSellingPrice(vm.listing);
+                if (typeof fbRentingTimeUnit === "number") {
+                    fbEventParams.stelace_renting_day_one_price = fbRentingTimeUnit;
                 }
                 if (typeof fbSellingPrice === "number") {
-                    fbEventParams.sip_selling_price = fbSellingPrice;
+                    fbEventParams.stelace_selling_price = fbSellingPrice;
                 }
 
                 fbq('track', 'ViewContent', fbEventParams);

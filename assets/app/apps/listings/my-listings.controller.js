@@ -110,7 +110,7 @@
         vm.isAuthenticated      = false;
         vm.createAccount        = false;
         vm.factorDeposit        = 15;
-        vm.defaultDayOnePrice   = 0;
+        vm.defaultTimeUnitPrice = 0;
         vm.defaultDeposit       = initialDefaultDeposit;
         vm.maxDeposit           = 600; // EUR
         vm.listingBookingPrices    = _.map(breakpointDays, function (day) { return { day: day }; });
@@ -737,12 +737,6 @@
             vm.recommendedPrices.status = "pending";
 
             return ListingService.getRecommendedPrices(vm.listing.name)
-            // return $q.when({ // testing
-            //       "price": 15,
-            //       "dayOnePrice": 3.9,
-            //       "lowDayOnePrice": 3,
-            //       "highDayOnePrice": 4
-            //     })
                 .then(function (prices) {
                     var recommendedValue = prices && prices.price;
                     if (! recommendedValue) {
@@ -885,14 +879,14 @@
                 vm.validPrice = true;
 
                 return $q.when(sellingPrice)
-                    .then(getDefaultDayOnePrice)
-                    .then(function (defaultDayOnePrice) {
-                        var dayOnePrice = getDayOnePrice(vm.defaultDayOnePrice);
+                    .then(getDefaultTimeUnitPrice)
+                    .then(function (defaultTimeUnitPrice) {
+                        var timeUnitPrice = getTimeUnitPrice(vm.defaultTimeUnitPrice);
 
                         showStep2();
 
                         var prices = pricing.getPrice({
-                            dayOne: dayOnePrice,
+                            dayOne: timeUnitPrice,
                             nbDays: lastBreakpointDay,
                             config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
                             array: true
@@ -902,15 +896,15 @@
                             booking.defaultPrice = prices[booking.day - 1];
                         });
 
-                        vm.defaultDeposit = getDefaultDeposit(dayOnePrice);
+                        vm.defaultDeposit = getDefaultDeposit(timeUnitPrice);
 
-                        fixCustomPricing(defaultDayOnePrice);
+                        fixCustomPricing(defaultTimeUnitPrice);
                     });
             }
 
-            vm.defaultDayOnePrice = 0;
+            vm.defaultTimeUnitPrice = 0;
             vm.defaultDeposit     = 0;
-            getDayOnePrice(); // for view
+            getTimeUnitPrice(); // for view
 
             _.forEach(vm.listingBookingPrices, function (booking) {
                 booking.defaultPrice = 0;
@@ -1076,13 +1070,13 @@
                 return;
             }
 
-            return getDefaultDayOnePrice(sellingPrice)
-                .then(function (defaultDayOnePrice) {
-                    var dayOnePrice        = getDayOnePrice(defaultDayOnePrice);
+            return getDefaultTimeUnitPrice(sellingPrice)
+                .then(function (defaultTimeUnitPrice) {
+                    var timeUnitPrice = getTimeUnitPrice(defaultTimeUnitPrice);
 
                     attrs.sellingPrice = sellingPrice;
-                    attrs.dayOnePrice  = dayOnePrice;
-                    attrs.deposit      = getDeposit(dayOnePrice);
+                    attrs.timeUnitPrice  = timeUnitPrice;
+                    attrs.deposit      = getDeposit(timeUnitPrice);
 
                     if (vm.showListingCategories) {
                         if (vm.selectedBrand) {
@@ -1095,7 +1089,7 @@
                         }
                     }
 
-                    var customPricing = getCustomPricingConfig(dayOnePrice);
+                    var customPricing = getCustomPricingConfig(timeUnitPrice);
 
                     attrs.customPricingConfig = customPricing;
 
@@ -1122,6 +1116,7 @@
                 "reference",
                 "description",
                 "stateComment",
+                "quantity",
                 "bookingPreferences",
                 "acceptFree",
                 "listingTypesIds"
@@ -1261,16 +1256,16 @@
                         var fbEventParams = {
                             content_name: createdListing.name,
                             content_ids: [createdListing.id],
-                            sip_offer_types: ListingService.getFbOfferTypes(createdListing)
+                            stelace_offer_types: ListingService.getFbOfferTypes(createdListing)
                         };
 
-                        var fbRentingDayOnePrice = ListingService.getFbRentingDayOnePrice(createdListing);
-                        var fbSellingPrice       = ListingService.getFbSellingPrice(createdListing);
-                        if (typeof fbRentingDayOnePrice === "number") {
-                            fbEventParams.sip_renting_day_one_price = fbRentingDayOnePrice;
+                        var fbTimeUnitPrice = ListingService.getFbTimeUnitPrice(createdListing);
+                        var fbSellingPrice  = ListingService.getFbSellingPrice(createdListing);
+                        if (typeof fbTimeUnitPrice === "number") {
+                            fbEventParams.stelace_renting_day_one_price = fbTimeUnitPrice;
                         }
                         if (typeof fbSellingPrice === "number") {
-                            fbEventParams.sip_selling_price = fbSellingPrice;
+                            fbEventParams.stelace_selling_price = fbSellingPrice;
                         }
 
                         fbq('trackCustom', 'AddListing', fbEventParams);
@@ -1535,10 +1530,10 @@
             mediasSelector.setMode(vm.mediaMode);
         }
 
-        function fixCustomPricing(defaultDayOnePrice) {
-            var dayOnePrice = getDayOnePrice(defaultDayOnePrice);
+        function fixCustomPricing(defaultTimeUnitPrice) {
+            var timeUnitPrice = getTimeUnitPrice(defaultTimeUnitPrice);
 
-            var customPricing      = getCustomPricingConfig(dayOnePrice);
+            var customPricing = getCustomPricingConfig(timeUnitPrice);
 
             if (customPricing
                 && ! pricing.isValidCustomConfig(customPricing)
@@ -1672,9 +1667,9 @@
             });
         }
 
-        function getCustomPricingConfig(dayOnePrice) {
+        function getCustomPricingConfig(timeUnitPrice) {
             var defaultPrices = pricing.getPrice({
-                dayOne: dayOnePrice,
+                dayOne: timeUnitPrice,
                 nbDays: lastBreakpointDay,
                 config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
                 array: true
@@ -1686,7 +1681,7 @@
 
             customPricing.breakpoints.push({
                 day: 1,
-                price: dayOnePrice
+                price: timeUnitPrice
             });
 
             _.forEach(breakpointDays, function (breakpointDay) {
@@ -1723,34 +1718,34 @@
             return sellingPrice;
         }
 
-        function getDayOnePrice(defaultDayOnePrice) {
-            if (typeof vm.listing.dayOnePrice === "undefined") {
-                return defaultDayOnePrice;
+        function getTimeUnitPrice(defaultTimeUnitPrice) {
+            if (typeof vm.listing.timeUnitPrice === "undefined") {
+                return defaultTimeUnitPrice;
             }
 
-            var dayOnePrice = parseFloat(vm.listing.dayOnePrice);
+            var timeUnitPrice = parseFloat(vm.listing.timeUnitPrice);
 
-            if (isNaN(dayOnePrice)) {
-                return defaultDayOnePrice;
+            if (isNaN(timeUnitPrice)) {
+                return defaultTimeUnitPrice;
             } else {
-                return dayOnePrice;
+                return timeUnitPrice;
             }
         }
 
-        function getDefaultDayOnePrice(sellingPrice) {
+        function getDefaultTimeUnitPrice(sellingPrice) {
             return $q.when(sellingPrice)
                 .then(pricing.rentingPriceRecommendation)
                 .then(function(recommendation) {
                     _.assign(vm.recommendedPrices, recommendation);
 
-                    vm.defaultDayOnePrice = _.get(recommendation, "dayOnePrice") || vm.defaultDayOnePrice;
+                    vm.defaultTimeUnitPrice = _.get(recommendation, "timeUnitPrice") || vm.defaultTimeUnitPrice;
 
-                    return vm.defaultDayOnePrice;
+                    return vm.defaultTimeUnitPrice;
                 });
         }
 
-        function getDeposit(dayOnePrice) {
-            var defaultDeposit = getDefaultDeposit(dayOnePrice);
+        function getDeposit(timeUnitPrice) {
+            var defaultDeposit = getDefaultDeposit(timeUnitPrice);
 
             var deposit;
 
@@ -1767,8 +1762,8 @@
             }
         }
 
-        function getDefaultDeposit(dayOnePrice) {
-            return tools.clampNumber(dayOnePrice * vm.factorDeposit, initialDefaultDeposit, vm.maxDeposit);
+        function getDefaultDeposit(timeUnitPrice) {
+            return tools.clampNumber(timeUnitPrice * vm.factorDeposit, initialDefaultDeposit, vm.maxDeposit);
         }
 
         function selectListingTypeFromView(listingType) {

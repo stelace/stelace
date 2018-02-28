@@ -227,21 +227,21 @@
                         <input id="listing-price-one-time-unit" class="stelace-listing__main-price-input no-margin-bottom"
                             name="listingPrice"
                             type="number"
-                            ng-model="vm.listing.dayOnePrice"
+                            ng-model="vm.listing.timeUnitPrice"
                             ng-model-options="{ updateOn: 'default', debounce: {'default': 300} }"
                             ng-change="vm.setDefaultPrices(); vm.saveLocal('price')"
                             min="0"
                             step="1"
-                            placeholder="{{vm.defaultDayOnePrice}}">
+                            placeholder="{{vm.defaultTimeUnitPrice}}">
                         <div class="text--small text--semibold"
-                            ng-hide="! vm.recommendedPrices.highDayOnePrice" ng-if="vm.isActivePriceRecommendation">
+                            ng-hide="! vm.recommendedPrices.highTimeUnitPrice" ng-if="vm.isActivePriceRecommendation">
                             <span class="text--light">
                                 Montant suggéré&nbsp;:
                             </span>
                             <span class="text--success">
-                                {{ vm.recommendedPrices.lowDayOnePrice }}€
-                                {{ vm.recommendedPrices.lowDayOnePrice !== vm.recommendedPrices.highDayOnePrice ?
-                                    "à " + vm.recommendedPrices.highDayOnePrice + "€" : ""}}
+                                {{ vm.recommendedPrices.lowTimeUnitPrice }}€
+                                {{ vm.recommendedPrices.lowTimeUnitPrice !== vm.recommendedPrices.highTimeUnitPrice ?
+                                    "à " + vm.recommendedPrices.highTimeUnitPrice + "€" : ""}}
                                 </span>
                                 <span class="badge tooltip-badge tooltip-dispensable"
                                 data-tooltip-placement="auto bottom"
@@ -339,7 +339,7 @@
                                     <tbody>
                                         <!-- <tr class="stelace-listing__pricing-table-row--first">
                                             <td>1&nbsp;jour</td>
-                                            <td>{{ vm.listing.dayOnePrice || vm.defaultDayOnePrice }}</td>
+                                            <td>{{ vm.listing.timeUnitPrice || vm.defaultTimeUnitPrice }}</td>
                                         </tr> -->
                                         <tr ng-repeat="bookingPrice in vm.listingBookingPrices track by bookingPrice.day">
                                             <td><label for="listing-price--{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>

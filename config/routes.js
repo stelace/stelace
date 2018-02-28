@@ -108,7 +108,7 @@ module.exports.routes = {
     'get /api/listing/:id/locations': "ListingController.getLocations",
     'get /api/listing/pricing': "ListingController.getPricing",
     'get /api/listing/price-recommendation': "ListingController.getRecommendedPrices",
-    'post /api/listing/renting-price': "ListingController.getRentingPriceFromSellingPrice",
+    'post /api/listing/price-recommendation/time-unit-price': "ListingController.getTimeUnitPriceFromSellingPrice",
     'put /api/listing/:id/pause': "ListingController.pauseListingToggle",
     'get /api/listing/:id/listingAvailabilities': "ListingController.getListingAvailability",
     'post /api/listing/:id/listingAvailabilities': "ListingController.createListingAvailability",

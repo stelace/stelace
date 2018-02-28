@@ -388,13 +388,13 @@
 
             if (! value) { // free or invalid
                 return {
-                    lowDayOnePrice: 0,
-                    dayOnePrice: 0,
-                    highDayOnePrice: 0
+                    lowTimeUnitPrice: 0,
+                    timeUnitPrice: 0,
+                    highTimeUnitPrice: 0
                 };
             }
 
-            return $http.post(apiBaseUrl + "/listing/renting-price", { value: value })
+            return $http.post(apiBaseUrl + "/listing/price-recommendation/time-unit-price", { value: value })
                 .then(function (res) {
                     return res.data;
                 });

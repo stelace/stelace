@@ -27,9 +27,10 @@ const createError = require('http-errors');
  * @param {String} attrs.name
  * @param {Number} attrs.ownerId
  * @param {String} [attrs.reference]
- * @param {Number} attrs.dayOnePrice
+ * @param {Number} attrs.timeUnitPrice
  * @param {Number} attrs.sellingPrice
  * @param {Number} attrs.deposit
+ * @param {Number} [attrs.quantity = 1]
  * @param {String} [attrs.description]
  * @param {Number[]} [attrs.tags]
  * @param {String} [attrs.stateComment]
@@ -67,7 +68,7 @@ async function createListing(attrs, { req, res } = {}) {
         'locations',
         'recurringDatesPattern',
         'listingTypesIds',
-        'dayOnePrice',
+        'timeUnitPrice',
         'sellingPrice',
         'customPricingConfig',
         'deposit',
@@ -80,14 +81,18 @@ async function createListing(attrs, { req, res } = {}) {
         || (createAttrs.tags && !MicroService.checkArray(createAttrs.tags, 'id'))
         || (createAttrs.locations && !MicroService.checkArray(createAttrs.locations, 'id'))
         || typeof createAttrs.sellingPrice !== 'number' || createAttrs.sellingPrice < 0
-        || typeof createAttrs.dayOnePrice !== 'number' || createAttrs.dayOnePrice < 0
+        || typeof createAttrs.timeUnitPrice !== 'number' || createAttrs.timeUnitPrice < 0
         || typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
         || (createAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(createAttrs.recurringDatesPattern))
-        || (typeof createAttrs.quantity !== 'number' || createAttrs.quantity < 0)
+        || (typeof createAttrs.quantity === 'number' && createAttrs.quantity < 0)
     ) {
         throw createError(400);
+    }
+
+    if (typeof createAttrs.quantity === 'undefined') {
+        createAttrs.quantity = 1;
     }
 
     const listingTypes = await ListingTypeService.filterListingTypes(createAttrs.listingTypesIds);
@@ -121,7 +126,7 @@ async function createListing(attrs, { req, res } = {}) {
     createAttrs.data = data;
 
     createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
-    createAttrs.dayOnePrice  = PricingService.roundPrice(createAttrs.dayOnePrice);
+    createAttrs.timeUnitPrice  = PricingService.roundPrice(createAttrs.timeUnitPrice);
     createAttrs.deposit      = PricingService.roundPrice(createAttrs.deposit);
 
     const pricing = PricingService.getPricing();
@@ -178,7 +183,7 @@ async function createListing(attrs, { req, res } = {}) {
  * @param {Object} attrs
  * @param {String} [attrs.name]
  * @param {String} [attrs.reference]
- * @param {Number} [attrs.dayOnePrice]
+ * @param {Number} [attrs.timeUnitPrice]
  * @param {Number} [attrs.sellingPrice]
  * @param {Number} [attrs.deposit]
  * @param {String} [attrs.description]
@@ -215,7 +220,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         'locations',
         'recurringDatesPattern',
         'listingTypesIds',
-        'dayOnePrice',
+        'timeUnitPrice',
         'sellingPrice',
         'customPricingConfig',
         'deposit',
@@ -229,7 +234,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || (updateAttrs.listingTypesIds && (! MicroService.checkArray(updateAttrs.listingTypesIds, 'id') || !updateAttrs.listingTypesIds.length))
         || (updateAttrs.data && typeof updateAttrs.data !== 'object')
         || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== 'number' || updateAttrs.sellingPrice < 0))
-        || (updateAttrs.dayOnePrice && (typeof updateAttrs.dayOnePrice !== 'number' || updateAttrs.dayOnePrice < 0))
+        || (updateAttrs.timeUnitPrice && (typeof updateAttrs.timeUnitPrice !== 'number' || updateAttrs.timeUnitPrice < 0))
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
         || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
         || (updateAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(updateAttrs.recurringDatesPattern))
@@ -241,8 +246,8 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     if (typeof updateAttrs.sellingPrice === "number") {
         updateAttrs.sellingPrice = PricingService.roundPrice(updateAttrs.sellingPrice);
     }
-    if (typeof updateAttrs.dayOnePrice === "number") {
-        updateAttrs.dayOnePrice = PricingService.roundPrice(updateAttrs.dayOnePrice);
+    if (typeof updateAttrs.timeUnitPrice === "number") {
+        updateAttrs.timeUnitPrice = PricingService.roundPrice(updateAttrs.timeUnitPrice);
     }
     if (typeof updateAttrs.deposit === "number") {
         updateAttrs.deposit = PricingService.roundPrice(updateAttrs.deposit);

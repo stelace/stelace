@@ -190,7 +190,7 @@ module.exports = {
             columnType: 'float',
             allowNull: true,
         },
-        dayOnePrice: {
+        timeUnitPrice: {
             type: 'number',
             columnType: 'float',
             allowNull: true,
@@ -277,7 +277,7 @@ function getAccessFields(access) {
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
-            "dayOnePrice",
+            "timeUnitPrice",
             "sellingPrice",
             "pricingId",
             "customPricingConfig",
@@ -317,7 +317,7 @@ function getAccessFields(access) {
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
-            "dayOnePrice",
+            "timeUnitPrice",
             "sellingPrice",
             "pricingId",
             "customPricingConfig",
@@ -352,7 +352,7 @@ function getAccessFields(access) {
             "listingTypesIds",
             "listingTypes", // due to expose transform
             "quantity",
-            "dayOnePrice",
+            "timeUnitPrice",
             "sellingPrice",
             "pricingId",
             "customPricingConfig",
