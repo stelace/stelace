@@ -234,20 +234,20 @@
         "login_first": "Nous vous invitons à vous connecter avant de continuer."
     },
     "pricing": {
-        "price_value": "{price, number, currency}",
+        "price_with_currency": "{price, number, currency}",
         "price": "Prix",
         "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# jour} other{# jours}} } n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} } h{ {nbTimeUnits, plural, one{# heure} other{# heures}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
         "duration_discount": "Réduction sur la durée",
-        "booking_fees": "Frais de réservation",
+        "transaction_fees": "Frais de transaction",
         "free": "Gratuit",
         "total": "Total",
         "quantity": "Quantité"
     },
-    "quantity": {
+    "fraction": {
         "less_than_percent": "Moins de {nbUnits, number, percent}",
         "percent": "{nbUnits, number, percent}"
     },
-    "duration": {
+    "delay": {
         "few_minutes": "Quelques minutes",
         "less_than_one_hour": "Moins d'une heure",
         "few_hours": "Quelques heures",

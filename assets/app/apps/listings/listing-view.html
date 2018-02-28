@@ -111,7 +111,7 @@
                                     <span class="text--emphasize">
                                         <span ng-if="vm.pricingTableData.data.totalPrice">
                                             <span ng-if="vm.listingTypeProperties.isTimeFlexible">
-                                                <span data-translate="pricing.price_value"
+                                                <span data-translate="pricing.price_with_currency"
                                                     data-translate-values="{ price: vm.pricingTableData.data.dailyPrice }"
                                                 >
                                                 </span>
@@ -121,7 +121,7 @@
                                                 </span>
                                             </span>
                                             <span ng-if="!vm.listingTypeProperties.isTimeFlexible">
-                                                <span data-translate="pricing.price_value"
+                                                <span data-translate="pricing.price_with_currency"
                                                     data-translate-values="{ price: vm.pricingTableData.data.totalPrice }"
                                                 >
                                                 </span>
@@ -136,7 +136,7 @@
                                         data-translate="listing.time.unit_label"
                                         data-translate-values="{ timeUnit: vm.timeUnit, nbUnits: 1}"></span>
                                     <span class="text--emphasize">
-                                        <span data-translate="pricing.price_value"
+                                        <span data-translate="pricing.price_with_currency"
                                             data-translate-values="{ price: vm.listing.prices[0] }"
                                             ng-show="vm.listing.prices.length"
                                         >
@@ -614,13 +614,13 @@
                                         <span data-translate="listing.response_rate_label"></span>
                                         <span class="text--semibold"
                                             ng-if="vm.ownerMessageStats.answerRate < 50"
-                                            data-translate="quantity.percent"
+                                            data-translate="fraction.percent"
                                             data-translate-values="{ nbUnits: vm.ownerMessageStats.answerRate / 100 }"
                                         >
                                         </span>
                                         <span class="text--semibold"
                                             ng-if="vm.ownerMessageStats.answerRate >= 50"
-                                            data-translate="quantity.less_than_percent"
+                                            data-translate="fraction.less_than_percent"
                                             data-translate-values="{ nbUnits: vm.ownerMessageStats.answerRate / 100 }"
                                         >
                                         </span>

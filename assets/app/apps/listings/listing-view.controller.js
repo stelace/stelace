@@ -898,7 +898,7 @@
                     }
                     return {
                         answerRate: answerRate,
-                        answerDelayKey: 'duration.' + answerDelayKey // generate key here because too much templating otherwise
+                        answerDelayKey: 'delay.' + answerDelayKey // generate key here because too much templating otherwise
                     };
                 };
                 vm.ownerMessageStats = computeMessageStats(ownerMessageStats);

@@ -235,19 +235,20 @@
         "login_first": "Please login before going further."
     },
     "pricing": {
-        "price_value": "{price, number, currency}",
+        "price_with_currency": "{price, number, currency}",
         "price": "Price",
         "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
         "duration_discount": "Duration discount",
-        "booking_fees": "Booking fees",
+        "transaction_fees": "Transaction fees",
         "free": "Free",
         "total": "Total",
         "quantity": "Quantity"
     },
-    "quantity": {
-        "less_than_percent": "Less than {nbUnits, number, percent}"
+    "fraction": {
+        "less_than_percent": "Less than {nbUnits, number, percent}",
+        "percent": "{nbUnits, number, percent}"
     },
-    "duration": {
+    "delay": {
         "few_minutes": "Few minutes",
         "less_than_one_hour": "Less than one hour",
         "few_hours": "Few hours",

@@ -3,7 +3,7 @@
         <tr>
             <td ng-if="dependStock || dependDuration">
                 <span ng-if="dependStock">{{quantity}}&nbsp;x</span>
-                <span data-translate="pricing.price_value" data-translate-values="{ price: basePrice }"></span>
+                <span data-translate="pricing.price_with_currency" data-translate-values="{ price: basePrice }"></span>
                 <span ng-if="dependDuration">
                     <span>x&nbsp;</span>
                     <span data-translate="pricing.nb_unit_label"
@@ -15,7 +15,7 @@
             <td ng-if="!dependStock && !dependDuration">
                 <span data-translate="pricing.price"></span>
             </td>
-            <td data-translate="pricing.price_value"
+            <td data-translate="pricing.price_with_currency"
                 data-translate-values="{ price: fullPrice }">
             </td>
         </tr>
@@ -23,25 +23,25 @@
             <td data-translate="pricing.duration_discount"></td>
             <td class="discount">
                 <span>-&nbsp;</span>
-                <span data-translate="pricing.price_value" data-translate-values="{ price: durationDiscount }"></span>
+                <span data-translate="pricing.price_with_currency" data-translate-values="{ price: durationDiscount }"></span>
             </td>
         </tr>
         <tr>
-            <td data-translate="pricing.booking_fees"></td>
+            <td data-translate="pricing.transaction_fees"></td>
             <td>
-                <span ng-if="takerFees" data-translate="pricing.price_value" data-translate-values="{ price: takerFees }"></span>
+                <span ng-if="takerFees" data-translate="pricing.price_with_currency" data-translate-values="{ price: takerFees }"></span>
                 <span ng-if="!takerFees" data-translate="pricing.free"></span>
             </td>
         </tr>
         <tr class="text--semibold">
             <td data-translate="pricing.total"></td>
             <td>
-                <span ng-if="totalPrice" data-translate="pricing.price_value" data-translate-values="{ price: totalPrice }"></span>
+                <span ng-if="totalPrice" data-translate="pricing.price_with_currency" data-translate-values="{ price: totalPrice }"></span>
                 <span ng-if="!totalPrice" data-translate="pricing.free"></span>
                 <span class="text--vsmall"
                     ng-show="dependDuration && nbTimeUnits > 1 && dailyPrice > 0">
                     &nbsp;(
-                        <span data-translate="pricing.price_value" data-translate-values="{ price: dailyPrice }"></span>
+                        <span data-translate="pricing.price_with_currency" data-translate-values="{ price: dailyPrice }"></span>
                         <span data-translate="listing.time.unit_label_short" data-translate-values="{ timeUnit: timeUnit }"></span>
                     )
                 </span>
