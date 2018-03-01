@@ -1,0 +1,8 @@
+node_modules
+assets/bower_components
+assets/build
+logs
+emailTests
+.tmp
+config/local.js
+.env

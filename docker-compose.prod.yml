@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  stelace:
+    container_name: stelace
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "1337"
+    volumes:
+      - ./config/local.js:/usr/src/app/config/local.js
+      - ./emailTests:/usr/src/app/emailTests
+      - ./logs:/usr/src/app/logs
+      - ./external-files:/usr/src/app/external-files
+    environment:
+      - NGINX_SERVER_NAME=${NGINX_SERVER_NAME}
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - VIRTUAL_PORT=${VIRTUAL_PORT}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+
+  data_mysql:
+    container_name: stelace-mysql
+    image: mysql:5.7.20
+    ports:
+      - "3306"
+    volumes:
+      - stelace-data-mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+  data_elasticsearch:
+    container_name: stelace-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.1
+    ports:
+      - "9200"
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+volumes:
+  stelace-data-mysql:
+  esdata:
