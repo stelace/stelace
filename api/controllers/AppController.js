@@ -139,7 +139,7 @@ async function index(req, res) {
         eventId: stelaceEvent ? stelaceEvent.id : 0,
         eventToken: stelaceEvent ? stelaceEvent.token : '',
         uxVersion: StelaceEventService.getCurrentVersion(),
-        devHighlightTranslations: highlightTranslations ? 'dev-highlight-translations' : '',
+        devHighlightTranslations: highlightTranslations ? 'highlight-translations' : '',
         featureDetection: !UAService.isBot(userAgent),
         dataFromServer: JSON.stringify(dataFromServer || {}),
         stripeActive: paymentProvider === 'stripe',
