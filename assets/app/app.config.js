@@ -8,20 +8,22 @@
         .run(runBlock);
 
     function configBlock($compileProvider,
-                            $locationProvider,
-                            $logProvider,
-                            $httpProvider,
-                            $sceDelegateProvider,
-                            $translateMessageFormatInterpolationProvider,
-                            $uibTooltipProvider,
-                            ezfbProvider,
-                            lazyImgConfigProvider,
-                            $ngReduxProvider,
-                            platformProvider,
-                            $translateProvider,
-                            uiGmapGoogleMapApiProvider,
-                            uiSelectConfig,
-                            usSpinnerConfigProvider) {
+        $httpProvider,
+        $locationProvider,
+        $logProvider,
+        $ngReduxProvider,
+        $sceDelegateProvider,
+        $translateMessageFormatInterpolationProvider,
+        $translateProvider,
+        $uibTooltipProvider,
+        ezfbProvider,
+        lazyImgConfigProvider,
+        platformProvider,
+        tmhDynamicLocaleProvider,
+        uiGmapGoogleMapApiProvider,
+        uiSelectConfig,
+        usSpinnerConfigProvider
+    ) {
 
         var reducers = window.Redux.combineReducers(window.reducers || {});
         $ngReduxProvider.createStoreWith(reducers, null, null, _populateState({}));
@@ -113,6 +115,8 @@
                 }
             });
         });
+
+        tmhDynamicLocaleProvider.localeLocationPattern('/assets/bower_components/angular-i18n/angular-locale_{{locale}}.js');
 
         lazyImgConfigProvider.setOptions({
             offset: 100, // how early you want to load image (default = 100)
@@ -217,12 +221,13 @@
     function runBlock($ngRedux,
         $translateMessageFormatInterpolation,
         cache,
-        uiGmapGoogleMapApi,
-        tools,
-        cookie,
         ContentService,
+        cookie,
         external,
-        platform
+        platform,
+        tmhDynamicLocale,
+        tools,
+        uiGmapGoogleMapApi
     ) {
         // auth token
         var authTokenField = "setAuthToken";
@@ -287,7 +292,12 @@
         }
 
         var bestLocale = platform.getBestLocale();
+        // change the message format locale (date, number, currency...)
         $translateMessageFormatInterpolation.setLocale(bestLocale);
+
+        // Change the angular $locale in run time
+        // https://stackoverflow.com/questions/13007430/angularjs-and-locale
+        tmhDynamicLocale.set(bestLocale.toLowerCase());
 
         // expose functions for ouside
         external.init();

@@ -23,6 +23,7 @@
     "angular-cookies": "1.4.9",
     "angular-cookie": "4.1.0",
     "angular-credit-cards": "2.4.3",
+    "angular-dynamic-locale": "0.1.32",
     "angular-easyfb": "1.5.1",
     "angular-google-maps": "2.3.2",
     "angular-i18n": "1.4.9",

@@ -27,6 +27,7 @@
             "angularLazyImg",
             "ngRedux",
             "pascalprecht.translate",
+            "tmh.dynamicLocale"
             // "stelace.translationCache"
         ])
         .constant("CryptoJS", window.CryptoJS)

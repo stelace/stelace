@@ -48,7 +48,6 @@ var jsConfig = {
         "assets/bower_components/sprintf/dist/sprintf.min.js",
         "assets/bower_components/cron-converter/dist/cron.min.js",
         "assets/bower_components/angular/angular.js",
-        "assets/bower_components/angular-i18n/angular-locale_fr-fr.js",
         "assets/bower_components/restangular/dist/restangular.js",
         "assets/bower_components/angular-ui-router/release/angular-ui-router.js",
 
@@ -69,6 +68,7 @@ var jsConfig = {
         "assets/bower_components/angular-toastr/dist/angular-toastr.tpls.js",
         "assets/bower_components/angularjs-slider/dist/rzslider.js",
         "assets/bower_components/angular-lazy-img/release/angular-lazy-img.js",
+        "assets/bower_components/angular-dynamic-locale/dist/tmhDynamicLocale.min.js",
 
         // use a custom version where production message build is removed (do not use the minified version of bower because it breaks the workflow)
         "assets/vendors/ng-redux-3.5.2.js",
