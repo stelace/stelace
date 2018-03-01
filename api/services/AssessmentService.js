@@ -438,7 +438,9 @@ function _sendAssessmentEmailsSms(data) {
             .then(() => {
                 // send booking-checkout emails to taker and owner if startBookingId, or listing-return emails to owner and taker if endBookingId
                 if (assessment.startBookingId) {
-                    if (! newAssessment && ! Booking.isNoTime(startBooking)) {
+                    const { TIME } = startBooking.listingType.properties;
+
+                    if (! newAssessment && TIME === 'TIME_FLEXIBLE') {
                         throw createError('newAssessment missing');
                     }
 

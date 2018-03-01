@@ -259,7 +259,6 @@ module.exports = {
     computeEndDate,
     getAgreementUserId,
     isValidationTooLate,
-    isNoTime,
     getLaunchDate,
     getDueDate,
     updateBookingEndState,
@@ -494,10 +493,6 @@ function isValidationTooLate(booking, refDate) {
     return booking.paidDate && moment(refDate).diff(booking.paidDate, "h") > 167;
 }
 
-function isNoTime(booking) {
-    return booking.listingType.properties.TIME === 'NONE';
-}
-
 function getLaunchDate(booking) {
     if (booking.paidDate < booking.acceptedDate) {
         return booking.acceptedDate;
@@ -519,9 +514,13 @@ function getDueDate(booking, type) {
         throw new Error("Bad type");
     }
 
-    if (isNoTime(booking)) {
+    const { TIME } = booking.listingType.properties;
+
+    if (TIME === 'NONE') {
         dueDate = getLaunchDate(booking);
         dueDate = moment(dueDate).add(2, "d").format("YYYY-MM-DD");
+    } else if (TIME === 'TIME_FLEXIBLE') {
+        dueDate = booking.startDate;
     } else {
         if (type === "start") {
             dueDate = booking.startDate;

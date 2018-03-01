@@ -280,7 +280,10 @@ function _isCardExpirationEnough(booking, card) {
     const formatDate = 'YYYY-MM-DD';
 
     let cardMinLimitDate;
-    if (Booking.isNoTime(booking)) {
+
+    const { TIME } = booking.listingType.properties;
+
+    if (TIME !== 'TIME_FLEXIBLE') {
         cardMinLimitDate = moment().format(formatDate);
     } else {
         cardMinLimitDate = booking.endDate;

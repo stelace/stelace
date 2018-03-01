@@ -950,7 +950,8 @@
 
             var createAttrs = {
                 listingId: vm.listing.id,
-                listingTypeId: listingType.id
+                listingTypeId: listingType.id,
+                quantity: vm.selectedQuantity
             };
 
             if (vm.listingTypeProperties.isTimeFlexible) {

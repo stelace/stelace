@@ -278,14 +278,8 @@ function getRoles(booking, userId) {
 
 function getDefaultVisibleDate(booking) {
     var nbDays = Rating.get("nbDaysAfterBookingEndDateToCreate");
-    var date;
 
-    if (! Booking.isNoTime(booking)) {
-        date = booking.endDate;
-    } else {
-        date = Booking.getDueDate(booking, "end");
-    }
-
+    var date = Booking.getDueDate(booking, 'end');
     return moment(date).add(nbDays, "d").toISOString();
 }
 

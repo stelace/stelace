@@ -1,5 +1,5 @@
 /* global
-    AppUrlService, Assessment, Booking, EmailUtmService, PricingService, ToolsService,
+    AppUrlService, Assessment, EmailUtmService, PricingService, ToolsService,
     UrlService, User
 */
 
@@ -27,7 +27,6 @@ module.exports = {
     isMissingIban: isMissingIban,
     getNearestLocations: getNearestLocations,
     getMailTo: getMailTo,
-    isNoTime: isNoTime
 
 };
 
@@ -342,8 +341,4 @@ function getMailTo(email, subject) {
     }
 
     return encodeURIComponent(str);
-}
-
-function isNoTime(booking) {
-    return Booking.isNoTime(booking);
 }
