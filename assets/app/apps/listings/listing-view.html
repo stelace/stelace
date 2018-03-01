@@ -111,12 +111,8 @@
                                     <span class="text--emphasize">
                                         <span ng-if="vm.pricingTableData.data.totalPrice">
                                             <span ng-if="vm.listingTypeProperties.isTimeFlexible">
-                                                <span data-translate="pricing.price_with_currency"
-                                                    data-translate-values="{ price: vm.pricingTableData.data.dailyPrice }"
-                                                >
-                                                </span>
-                                                <span data-translate="listing.time.unit_label_short"
-                                                    data-translate-values="{ timeUnit: vm.pricingTableData.data.timeUnit }"
+                                                <span data-translate="pricing.price_with_currency_per_unit_time_short"
+                                                    data-translate-values="{ price: vm.pricingTableData.data.dailyPrice, timeUnit: vm.pricingTableData.data.timeUnit }"
                                                 >
                                                 </span>
                                             </span>

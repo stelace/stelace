@@ -133,6 +133,7 @@
         vm.stickyOffset         = 208;
         vm.recommendedPrices    = {};
         vm.listingTypesProperties = {};
+        vm.showFacebookShare    = !!platform.getFacebookAppId();
         vm.pricingSlider        = {
             options: {
                 floor: 0,
@@ -148,7 +149,7 @@
             },
             overlay: {}
         };
-        vm.showSideHelper = !vm.viewCreate;
+        vm.showSideHelper = !vm.viewCreate && vm.showFacebookShare;
 
         vm.socialLogin                    = socialLogin;
         vm.selectListingCategoryLvl2         = selectListingCategoryLvl2;
@@ -170,7 +171,7 @@
         vm.prevMedia                      = prevMedia;
         vm.nextMedia                      = nextMedia;
         vm.changeMediaMode                = changeMediaMode;
-        vm.facebookShareMyListing            = facebookShareMyListing;
+        vm.facebookShareMyListing         = facebookShareMyListing;
         vm.fixCustomPricing               = fixCustomPricing;
         vm.openDatepicker                 = openDatepicker;
         vm.selectListingTypeFromView      = selectListingTypeFromView;
@@ -394,7 +395,7 @@
                             listingTypes: vm.listingTypes
                         });
 
-                        vm.showSideHelper = !vm.viewCreate && vm.myListings.length;
+                        vm.showSideHelper = !vm.viewCreate && !!vm.myListings.length && vm.showFacebookShare;
 
                         vm.selectedShareListing = vm.myListings.length ? vm.myListings[0] : null;
 

@@ -46,7 +46,6 @@
         "listing_type_label": "Listing type",
         "category_label": "Category",
         "subcategory_label": "Subcategory",
-        "title_label": "Titre de votre annonce",
         "description_label": "Description",
         "accessories_label": "Accessories",
         "quantity_label": "Quantity",
@@ -75,7 +74,6 @@
             "from_day_label": "From",
             "to_day_label": "To",
             "unit_label": "{timeUnit, select, d{ {nbUnits, plural, one{Per day} other{# days}} } n{ {nbUnits, plural, one{Per night} other{# nights}} } h{ {nbUnits, plural, one{Per hour} other{# hours}} } m{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }",
-            "unit_label_short": "{timeUnit, select, d{/d} n{/night} h{/h} m{/min} other{} }",
             "date_label": "Date"
         },
         "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}",
@@ -88,6 +86,12 @@
             "text": "Buy now from {owner} at {price}."
         },
         "free": "Free",
+        "remove_action": "Remove",
+        "remove_tooltip": "Definitely remove your listing",
+        "pause_action": "Pause",
+        "pause_tooltip": "Deactivate your listing when you are unavailable",
+        "publish_again_action": "Publish again",
+        "paused": "Paused",
         "edition": {
             "new_listing_header": "Here is your new listing",
             "new_listing_header__EDITOR_LABEL": "Main header of your listing creation page",
@@ -149,6 +153,19 @@
             "missing_email_message": "The listing cannot be saved without email address.",
             "account_required_title": "Required account",
             "account_required_message": "Please create an account in no time or please log in to post your listing."
+        },
+        "social": {
+            "share_listing_title": "Your friends can show interest for your offers!",
+            "share_listing_title__EDITOR_LABEL": "",
+            "share_listing_select_message": "Select your most beautiful listing:",
+            "share_listing_select_message__EDITOR_LABEL": "",
+            "share_listing_content": "Posted in no time by {ownerName}",
+            "share_listing_content__EDITOR_LABEL": ""
+        },
+        "notification": {
+            "removed_success_message": "Removed listing",
+            "activated_success_message": "Listing activated",
+            "deactivated_success_message": "Listing paused"
         }
     },
     "user": {
@@ -243,7 +260,8 @@
         "near_place": "Near {place}"
     },
     "social": {
-        "join_us": "Join us"
+        "join_us": "Join us",
+        "share_on_facebook": "Share on Facebook"
     },
     "greeting": "Hello",
     "error": {
@@ -265,6 +283,7 @@
     },
     "pricing": {
         "price_with_currency": "{price, number, currency}",
+        "price_with_currency_per_unit_time_short": "{price, number, currency}{timeUnit, select, d{/d} n{/night} h{/h} m{/min} other{} }",
         "price": "Price",
         "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
         "duration_discount": "Duration discount",
@@ -285,5 +304,8 @@
         "less_than_one_day": "Less than one day",
         "less_than_two_days": "One or two days",
         "more_than_two_days": "More than two days"
+    },
+    "location": {
+        "from_distance_separator": "from"
     }
 }

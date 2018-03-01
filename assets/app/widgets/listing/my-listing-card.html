@@ -10,14 +10,14 @@
                 <svg class="icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#play"/>
                 </svg>
-                En pause
+                <span data-translate="listing.paused"></span>
                 <span ng-show="vm.daysPaused">
                     (J-{{ vm.daysPaused }})
                 </span>
             </div>
             <div class="my-listing-card__pause-overlay"
                 title="Objet vendu, bravo!"
-                ng-if="!vm.listing.quantity">
+                ng-if="!vm.listing.quantity && vm.listing.listingTypesProperties.TIME.NONE">
                 <svg class="icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
                 </svg>
@@ -41,46 +41,17 @@
             {{::vm.listing.name}}
         </h3>
         <div class="listing-grid__price my-listing-card__price">
-            <span class="listing-grid__selling-icon-container"
-                ng-show="vm.listing.listingTypesProperties.TIME.NONE && ! vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE"
-                data-tooltip-placement="auto left"
-                data-tooltip-trigger="mouseenter"
-                uib-tooltip="{{::vm.sellableTooltip}}"
-                data-tooltip-append-to-body="true">
-                <svg class="icon">
-                    <use xlink:href="{{::vm.sellableIconUrl}}"/>
-                </svg>
-            </span>
             <span ng-switch="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
                 <span ng-switch-when="true">
-                    <span class="listing-grid__booking-modes"
-                        ng-if="vm.bookingDescription">
-                        <span class="text--semibold listing-grid__selling-price"
-                            ng-show="vm.listing.listingTypesProperties.TIME.NONE">
-                            <span class="listing-grid__selling-icon-container"
-                                ng-show="vm.listing.listingTypesProperties.TIME.NONE"
-                                data-tooltip-placement="auto left"
-                                data-tooltip-trigger="mouseenter"
-                                uib-tooltip="{{::vm.sellableTooltip}}"
-                                data-tooltip-append-to-body="true">
-                                <svg class="icon">
-                                    <use xlink:href="{{::vm.sellableIconUrl}}"/>
-                                </svg>
-                            </span>
-                            {{ ::vm.bookingDescription }}
-                        </span>
-                        <span class="text--fade">
-                            ou
-                        </span>
+                    <span data-translate="pricing.price_with_currency_per_unit_time_short"
+                        data-translate-values="{ price: vm.listing.timeUnitPrice, timeUnit: vm.listing.listingTypeConfig.bookingTime.timeUnit }"
+                    >
                     </span>
-                    <span itemprop="price">{{::vm.listing.timeUnitPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>&nbsp;/&nbsp;j
                 </span>
                 <span ng-switch-default>
-                    <span ng-hide="vm.listing.sellingPrice === 0">
-                        <span itemprop="price">{{::vm.listing.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
-                    </span>
-                    <span ng-show="vm.listing.sellingPrice === 0">
-                        {{ ::vm.bookingDescription }}
+                    <span data-translate="pricing.price_with_currency"
+                        data-translate-values="{ price: vm.listing.sellingPrice }"
+                    >
                     </span>
                 </span>
             </span>
@@ -126,11 +97,11 @@
             <!-- relative positionning makes IE11 buggy -->
             <span>
                 <span class="text-control"
-                    title="Supprimez définitivement votre annonce."
                     tabindex="0"
                     data-sip-action-key
                     data-sip-autoblur
-                    ng-click="vm.deleteListing($event)">
+                    ng-click="vm.deleteListing($event)"
+                    data-translate-attr="{ title: 'listing.remove_tooltip' }">
                     <svg class="icon icon--inline">
                         <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
                     </svg>
@@ -141,17 +112,16 @@
             </span>
             <span ng-hide="!vm.listing.quantity">
                 <span class="text-control"
-                    title="Suspendez votre annonce en cas d'indisponibilité."
                     tabindex="0"
                     data-sip-action-key
                     data-sip-autoblur
-                    ng-click="vm.togglePauseListing($event)">
+                    ng-click="vm.togglePauseListing($event)"
+                    data-translate-attr="{ title: 'listing.pause_tooltip' }">
                     <svg class="icon icon--inline">
                         <use xlink:href="{{ vm.pauseIcon }}"/>
                     </svg>
                 </span>
-                <span class="text-control__label">
-                    {{ vm.pauseStr }}
+                <span class="text-control__label" data-translate="{{vm.pauseActionKey}}">
                 </span>
             </span>
             <span class="text-control__label text-control__spinner"

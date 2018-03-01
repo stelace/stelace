@@ -6,8 +6,7 @@
 
     function ListingCardController($scope,
                                 $state,
-                                LocationService,
-                                platform) {
+                                LocationService) {
 
         var displayDuration = ($scope.displayDuration === "true");
 
@@ -25,7 +24,6 @@
                 vm.listing = newListing;
                 _displayLocation();
                 // _displayOwnerImage();
-                _displayBookingInfo();
             });
 
         }
@@ -70,22 +68,6 @@
         //     }
         // }
 
-        function _displayBookingInfo() {
-            vm.imageAlt = vm.listing.name + " à louer sur Sharinplace"; // default
-
-            if (vm.listing.listingTypesProperties.TIME.NONE && vm.listing.sellingPrice) {
-                vm.bookingDescription = vm.listing.sellingPrice + "€";
-                vm.sellableIconUrl = platform.getSpriteSvgUrl("tag");
-                vm.sellableTooltip = "En vente à " + vm.listing.sellingPrice + "€"
-                vm.imageAlt        = vm.listing.name + " à vendre sur Sharinplace";
-            } else if (vm.listing.listingTypesProperties.TIME.NONE) {
-                vm.bookingDescription = "Don";
-                vm.sellableIconUrl = platform.getSpriteSvgUrl("euro-crossed");
-                vm.sellableTooltip = "Il s'agit d'un don du propriétaire."
-                vm.imageAlt        = vm.listing.name + " à donner sur Sharinplace";
-            }
-
-        }
     }
 
 })();

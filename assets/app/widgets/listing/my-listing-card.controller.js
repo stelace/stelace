@@ -9,6 +9,7 @@
     function MyListingCardController($scope,
                                 $state,
                                 $timeout,
+                                ContentService,
                                 FoundationApi,
                                 ListingService,
                                 Modal,
@@ -38,29 +39,12 @@
             $scope.$watch('listing', function (newListing) {
                 vm.listing = newListing;
                 _showPauseState()
-                _displayBookingInfo();
                 _showStats();
             });
 
             $scope.$on("$destroy", function () {
                 $timeout.cancel(controlSpinnerTimeout);
             });
-        }
-
-        function _displayBookingInfo() {
-            vm.imageAlt = vm.listing.name + " à louer sur Sharinplace"; // default
-
-            if (vm.listing.listingTypesProperties.TIME.NONE && vm.listing.sellingPrice) {
-                vm.bookingDescription = vm.listing.sellingPrice + "€";
-                vm.sellableIconUrl = platform.getSpriteSvgUrl("tag");
-                vm.sellableTooltip = "En vente à " + vm.listing.sellingPrice + "€"
-                vm.imageAlt        = vm.listing.name + " à vendre sur Sharinplace";
-            } else if (vm.listing.listingTypesProperties.TIME.NONE) {
-                vm.bookingDescription = "Don";
-                vm.sellableIconUrl = platform.getSpriteSvgUrl("euro-crossed");
-                vm.sellableTooltip = "Il s'agit d'un don du propriétaire."
-                vm.imageAlt        = vm.listing.name + " à donner sur Sharinplace";
-            }
         }
 
         function _showStats() {
@@ -79,7 +63,10 @@
                 var resListing = Restangular.restangularizeElement(null, deletingListing, "listing");
                 resListing.remove()
                     .then(function () {
-                        toastr.success("Annonce supprimée");
+                        ContentService.showNotification({
+                            messageKey: 'listing.notification.removed_success_message',
+                            type: 'success'
+                        });
 
                         return ListingService.getMyListings();
                     })
@@ -145,9 +132,12 @@
                             timeOut: 15000
                         });
                     } else if (listing.locked && ! vm.pausedUntil) {
-                        toastr.info("Annonce désactivée");
+                        ContentService.showNotification({ messageKey: 'listing.notification.deactivated_success_message' });
                     } else {
-                        toastr.success("Annonce réactivée\xa0!");
+                        ContentService.showNotification({
+                            messageKey: 'listing.notification.activated_success_message',
+                            type: 'success'
+                        });
                     }
                 })
                 .finally(function () {
@@ -163,7 +153,7 @@
             vm.listingPaused = vm.listing.locked && pauseDate;
             vm.listingLocked = vm.listing.locked && ! pauseDate;
             vm.pauseIcon  = platform.getSpriteSvgUrl(vm.listingPaused ? "play" : "pause");
-            vm.pauseStr   = vm.listingPaused ? "Re-publier" : "Mettre en pause";
+            vm.pauseActionKey = vm.listingPaused ? 'listing.publish_again_action' : 'listing.pause_action';
             vm.daysPaused = pauseDate && Math.abs(moment().diff(vm.listing.pausedUntil, "d")) + 1;
             vm.pausedUntil = pauseDate && moment(vm.listing.pausedUntil).format("DD/MM/YY");
         }

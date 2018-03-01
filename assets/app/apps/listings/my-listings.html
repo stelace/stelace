@@ -711,12 +711,12 @@
                 data-offset="{{ vm.stickyOffset }}"
                 data-sip-sticky-sidebar>
                 <div ng-switch-when="true">
-                    <h2>
-                        Vos offres peuvent intéresser vos amis&nbsp;!
+                    <h2 data-translate="listing.social.share_listing_title">
                     </h2>
                     <div>
-                        <label for="share-my-listing-select" class="text--small">
-                            Choisissez votre plus belle annonce&nbsp;:
+                        <label for="share-my-listing-select" class="text--small"
+                            data-translate="listing.social.share_listing_select_message"
+                        >
                         </label>
                         <select id="share-my-listing-select" class="text--small"
                             ng-model="vm.selectedShareListing"
@@ -738,11 +738,13 @@
                                 <div class="text--semibold ellipsis">
                                     {{ vm.selectedShareListing.name }}
                                 </div>
-                                <div class="text--small ellipsis">
-                                    Ajouté en un éclair par {{ vm.displayName }}
+                                <div class="text--small ellipsis"
+                                    data-translate="listing.social.share_listing_content"
+                                    data-translate-values="{ ownerName: vm.displayName }"
+                                >
                                 </div>
                                 <div class="text--vsmall text--light ellipsis">
-                                    SHARINPLACE.FR
+                                    {{config.SERVICE_NAME}} <!-- TODO: replace by domain name -->
                                 </div>
                             </div>
                         </div>
@@ -751,7 +753,8 @@
                                 <svg class="icon">
                                     <use xlink:href="/assets/build/icons/sprite.svg#face"/>
                                 </svg>
-                                &nbsp;Partagez sur Facebook
+                                &nbsp;
+                                <span data-translate="social.share_on_facebook"></span>
                             </span>
                             <span class="spinner-container">
                                 <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-listing-spinner"></span>

@@ -7,7 +7,7 @@
         <div class="listing-grid__image-container">
             <div class="ar-content">
                 <img class="img--cover-vertical"
-                    alt="{{::vm.imageAlt}}"
+                    alt="{{::vm.listing.name}}"
                     ng-src="{{::vm.listing.urlPlaceholder}}"
                     data-lazy-img="{{::vm.listing.url + '?size=450x300'}}"
                     itemprop="image">
@@ -27,46 +27,17 @@
                 itemscope
                 itemtype="http://schema.org/Offer">
                 <div class="listing-grid__price">
-                    <span class="listing-grid__selling-icon-container"
-                        ng-show="(vm.listing.listingTypesProperties.TIME.NONE || vm.listing.listingTypesProperties.TIME.TIME_PREDEFINED) && !vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE"
-                        data-tooltip-placement="auto left"
-                        data-tooltip-trigger="mouseenter"
-                        uib-tooltip="{{::vm.sellableTooltip}}"
-                        data-tooltip-append-to-body="true">
-                        <svg class="icon">
-                            <use xlink:href="{{::vm.sellableIconUrl}}"/>
-                        </svg>
-                    </span>
                     <span ng-switch="vm.listing.listingTypesProperties.TIME.TIME_FLEXIBLE">
                         <span ng-switch-when="true">
-                            <span class="listing-grid__booking-modes"
-                                ng-if="vm.bookingDescription">
-                                <span class="text--semibold listing-grid__selling-price"
-                                    ng-show="vm.listing.listingTypesProperties.TIME.NONE">
-                                    <span class="listing-grid__selling-icon-container"
-                                        ng-show="vm.listing.listingTypesProperties.TIME.NONE"
-                                        data-tooltip-placement="auto left"
-                                        data-tooltip-trigger="mouseenter"
-                                        uib-tooltip="{{::vm.sellableTooltip}}"
-                                        data-tooltip-append-to-body="true">
-                                        <svg class="icon">
-                                            <use xlink:href="{{::vm.sellableIconUrl}}"/>
-                                        </svg>
-                                    </span>
-                                    {{ ::vm.bookingDescription }}
-                                </span>
-                                <span class="text--fade">
-                                    ou
-                                </span>
+                            <span data-translate="pricing.price_with_currency_per_unit_time_short"
+                                data-translate-values="{ price: vm.listing.timeUnitPrice, timeUnit: vm.listing.listingTypeConfig.bookingTime.timeUnit }"
+                            >
                             </span>
-                            <span itemprop="price">{{::vm.listing.timeUnitPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>/j
                         </span>
                         <span ng-switch-default>
-                            <span ng-hide="vm.listing.sellingPrice === 0">
-                                <span itemprop="price">{{::vm.listing.sellingPrice}}</span><span itemprop="priceCurrency" content="EUR">€</span>
-                            </span>
-                            <span ng-show="vm.listing.sellingPrice === 0">
-                                {{ ::vm.bookingDescription }}
+                            <span data-translate="pricing.price_with_currency"
+                                data-translate-values="{ price: vm.listing.sellingPrice }"
+                            >
                             </span>
                         </span>
                     </span>
@@ -91,10 +62,10 @@
                         itemtype="http://schema.org/GeoCoordinates">
                         <meta itemprop="latitude" content="{{::vm.locationCoords.latitude}}">
                         <meta itemprop="longitude" content="{{::vm.locationCoords.longitude}}">
-                        À
                     </span>
                     <span ng-if="vm.durationString">
-                        {{::vm.durationString}} de
+                        <span>{{::vm.durationString}} </span>
+                        <span data-translate="location.from_distance_separator"></span>
                     </span>
                     <span class=""
                         itemprop="address"

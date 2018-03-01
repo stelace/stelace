@@ -167,7 +167,7 @@
             v: "3.30",
             libraries: "places",
             // sensor: false, // not required anymore since 3.22
-            language: "fr"
+            language: lang
         };
 
         var googleMapApiKey = platformProvider.getGoogleMapApiKey();

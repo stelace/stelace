@@ -202,6 +202,11 @@
                 }
                 if (listingTypes) {
                     listing.listingTypesProperties = getListingTypesProperties(listing, listingTypes);
+
+                    var listingType = listingTypes[0]
+                    if (listingType) {
+                        listing.listingTypeConfig = listingType.config;
+                    }
                 }
             };
 
