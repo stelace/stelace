@@ -209,9 +209,9 @@
                             </span>
                             <input class="input--subtle text--semibold" type="text" ng-model="location.aliasEdit" ng-blur="vm.updateLocationAlias(location)" placeholder="Je nomme ce lieu...">
                             <a class="text-control padded-sides"
-                                title="Supprimer"
                                 tabindex="0"
                                 data-sip-action-key
+                                data-translate-attr="{ title: 'listing.remove_action' }"
                                 ng-if="vm.myLocations.length >= 2"
                                 ng-click="vm.removeLocation(location)">
                                 <svg class="light-grey icon icon--inline">
@@ -362,31 +362,18 @@
                                     </div>
                                 </div>
                                 <div class="listing-grid__description flex-item--grow-auto hide-for-small-only">
-                                    <h3 class="no-margin listing-name ellipsis">
-                                        Vendez et louez votre matériel
+                                    <h3 class="no-margin listing-name ellipsis" data-translate="listing.prompt.add_listing_message">
                                     </h3>
-                                    <p class="ellipsis listing-grid__place">
-                                        Déposez gratuitement vos annonces.
-                                    </p>
-                                    <div class="listing-grid__meta">
-                                        <span class="listing-grid__rating small"
-                                            data-user-score="10"
-                                            data-user-ratings="2"
-                                            data-listing-score="10"
-                                            data-listing-ratings="2"
-                                            data-count="false"
-                                            data-tooltip-msg="Créez de belles annonces et participez à l'aventure Sharinplace..."
-                                            data-append-to-body="true"
-                                            data-sip-rating-stars></span>
-                                    </div>
                                 </div>
                             </div>
                         </a>
                     </div>
                     <a class="button brightblue button--highlight"
                         ng-if="vm.myListings.length"
-                        ui-sref="myListings">
-                        Voir vos annonces ({{vm.myListings.length}})
+                        ui-sref="myListings"
+                        data-translate="listing.prompt.view_listing_message"
+                        data-translate-values="{ nbListings: vm.myListings.length }"
+                    >
                     </a>
                 </div>
             </div>

@@ -7,8 +7,7 @@
         ng-if="! vm.destroyForm">
         <div class="margin-top-plus">
             <div class="margin-bottom-plus">
-                <div class="query-label">
-                    Type d'annonce
+                <div class="query-label" data-translate="search.listing_types_filter">
                 </div>
                 <!-- <select id="search__transaction-type"
                     ng-model="vm.params.transactionType"
@@ -48,8 +47,7 @@
                 </span>
             </div> -->
             <div class="">
-                <div class="query-label">
-                    Type de recherche
+                <div class="query-label" data-translate="search.search_types_filter">
                 </div>
                 <select class="search__query-mode"
                     ng-model="vm.params.queryMode"
@@ -61,7 +59,7 @@
         <div class="search__my-locations padding-bottom margin-bottom"
             data-uib-collapse="vm.params.queryMode === 'relevance' || ! vm.myLocations.length">
             <p class="margin-top padding-top query-label text--semibold">
-                <span>Mes lieux favoris</span>&nbsp;
+                <span data-translate="search.locations_filter"></span>&nbsp;
                 <span class="badge tooltip-badge tooltip-dispensable"
                     data-tooltip-placement="auto bottom"
                     data-tooltip-trigger="mouseenter outsideClick"
@@ -92,13 +90,14 @@
                 <svg class="icon icon--inline">
                     <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
                 </svg>
-                Rechercher
+                <span data-translate="navigation.search"></span>
             </button>
         </div>
         <div>
             <button class="button red text--semibold"
-                ng-click="vm.config.showAdvancedSearch = false">
-                Retour
+                ng-click="vm.config.showAdvancedSearch = false"
+                data-translate="navigation.back"
+            >
             </button>
         </div>
     </form>

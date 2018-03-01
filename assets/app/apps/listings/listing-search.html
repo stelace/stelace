@@ -38,7 +38,9 @@
                             ng-autocomplete="searchQueryLocation"
                             data-options="vm.ngAutocompleteOptions"
                             data-details="vm.searchQuery.location"
-                            placeholder="À proximité de… {{ (nbActiveLocations || '') && '(' + (nbActiveLocations > 1 ? nbActiveLocations + ' lieux favoris activés' : nbActiveLocations + ' lieu favori activé') +')'}}">
+                            data-translate-attr="{ placeholder: 'prompt.search.near_location_placeholder_active_locations' }"
+                            data-translate-values="{ nbActiveLocations: nbActiveLocations }"
+                        >
                     </div>
                     <div class="search__filter-toggle anchor-like text--light cursor-pointer"
                         tabindex="0"
@@ -86,8 +88,7 @@
                                     </div>
                                 </div>
                                 <div class="listing-grid__description flex-item--grow-auto">
-                                    <h3 class="no-margin listing-name ellipsis">
-                                        Vendez et louez votre matériel
+                                    <h3 class="no-margin listing-name ellipsis" data-translate="listing.prompt.add_listing_message">
                                     </h3>
                                     <div class="listing-grid__meta">
                                         <span class="listing-grid__rating small"
@@ -96,7 +97,6 @@
                                             data-listing-score="10"
                                             data-listing-ratings="2"
                                             data-count="false"
-                                            data-tooltip-msg="Créez de belles annonces et participez à l'aventure Sharinplace..."
                                             data-append-to-body="true"
                                             data-sip-rating-stars></span>
                                     </div>
@@ -130,18 +130,20 @@
                         itemtype="http://data-vocabulary.org/Breadcrumb">
                         <a id="search-root-breadcrumb" class="link--blue-underline"
                             ui-sref="search({reset: 'all'})"
-                            title="Remettre à zéro vos paramètres de recherche"
+                            data-translate-attr="{ title: 'search.reset_search_results' }"
                             itemprop="url">
-                            <span itemprop="title">Vente et location de matériel entre particuliers</span>
-                        </a> ›&nbsp;
+                            <span itemprop="title">{{config.SERVICE_NAME}}</span>
+                        </a>
                     </span>
                     <span ng-if="vm.firstLocation.city"
                         itemscope
                         itemtype="http://data-vocabulary.org/Breadcrumb">
                         <!-- // TODO : get nearest big city via a service -->
+                        ›&nbsp;
                         <a id="search-city-breadcrumb" class="link--blue-underline"
                             ng-href="{{vm.breadcrumbCityLink}}"
-                            title="{{'Location / Vente près de ' + vm.firstLocation.city}}"
+                            data-translate-attr="{ title: 'search.results_near_location' }"
+                            data-translate-values="{ locationName: vm.firstLocation.city }"
                             itemprop="url">
                             <span
                                 itemprop="title"
@@ -153,7 +155,7 @@
                                     itemtype="http://schema.org/PostalAddress">
                                     <span itemprop="addressLocality">{{vm.firstLocation.city}}</span>
                                     <!-- WARNING : France is the only country for the moment -->
-                                    <meta itemprop="addressCountry" content="France">
+                                    <meta itemprop="addressCountry" content="{{vm.firstLocation.country}}">
                                 </span>
                             </span>
                         </a>

@@ -65,6 +65,10 @@
         "reviews_title": "Listing reviews",
         "keywords_title": "Related keywords",
         "similar_title": "Similar listings",
+        "prompt": {
+            "add_listing_message": "Add your listing",
+            "view_listing_message": "View your listings{nbListings, plural, 0{} other{ (#)}}"
+        },
         "trust_helper": {
             "payments": "Secured payment {payment_gateway, select, stripe{with Stripe} mangopay{with Mangopay} other{}}",
             "online_validation": "Online validation & signature",
@@ -95,7 +99,7 @@
         "edition": {
             "new_listing_header": "Here is your new listing",
             "new_listing_header__EDITOR_LABEL": "Main header of your listing creation page",
-            "new_listing_subheader": "Enjoy its free distribution",
+            "new_listing_subheader": "",
             "new_listing_subheader__EDITOR_LABEL": "Subheader of your listing creation page",
             "new_listing_section_title": "Create a listing in no time",
             "new_listing_section_title__EDITOR_LABEL": "",
@@ -238,7 +242,8 @@
         "save_button": "Save",
         "search": {
             "query_placeholder": "You’re looking for…",
-            "near_location_placeholder": "Near…"
+            "near_location_placeholder": "Near…",
+            "near_location_placeholder_active_locations": "Near…{nbActiveLocations, plural, =0{} one{ (1 active location)} other{ (# active locations)}}"
         },
         "see_more": "See more",
         "hide": "Hide",
@@ -307,5 +312,12 @@
     },
     "location": {
         "from_distance_separator": "from"
+    },
+    "search": {
+        "listing_types_filter": "Listing types",
+        "search_types_filter": "Search types",
+        "locations_filter": "Favorite locations",
+        "reset_search_results": "Reset your search parameters",
+        "results_near_location": "Results near {locationName}"
     }
 }

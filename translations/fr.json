@@ -65,6 +65,10 @@
         "reviews_title": "Évaluations de l’annonce",
         "keywords_title": "Mots-clés",
         "similar_title": "Annonces similaires",
+        "prompt": {
+            "add_listing_message": "Ajouter votre annonce",
+            "view_listing_message": "Voir vos annonces{nbListings, plural, 0{} other{ (#)}}"
+        },
         "trust_helper": {
             "payments": "Paiement sécurisé {payment_gateway, select, stripe{par Stripe} mangopay{par Mangopay} other{}}",
             "online_validation": "Validation et signature en ligne",
@@ -95,7 +99,7 @@
         "edition": {
             "new_listing_header": "Voici votre nouvelle annonce",
             "new_listing_header__EDITOR_LABEL": "En-tête principal de la page création d'annonce",
-            "new_listing_subheader": "Profitez de sa diffusion gratuite",
+            "new_listing_subheader": "",
             "new_listing_subheader__EDITOR_LABEL": "En-tête secondaire de la page création d'annonce",
             "new_listing_section_title": "Créez votre annonce en un clin d'oeil",
             "new_listing_section_title__EDITOR_LABEL": "",
@@ -238,7 +242,8 @@
         "save_button": "Enregistrer",
         "search": {
             "query_placeholder": "Que recherchez-vous ?",
-            "near_location_placeholder": "À proximité de…"
+            "near_location_placeholder": "À proximité de…",
+            "near_location_placeholder_active_locations": "À proximité de…{nbActiveLocations, plural, =0{} one{ (1 lieu activé)} other{ (# lieux activés)}}"
         },
         "see_more": "En voir plus",
         "hide": "Masquer",
@@ -307,5 +312,12 @@
     },
     "location": {
         "from_distance_separator": "de"
+    },
+    "search": {
+        "listing_types_filter": "Type d'annonce",
+        "search_types_filter": "Type de recherche",
+        "locations_filter": "Mes lieux favoris",
+        "reset_search_results": "Réinitialiser vos paramètres de recherche",
+        "results_near_location": "Résultats près de {locationName}"
     }
 }
