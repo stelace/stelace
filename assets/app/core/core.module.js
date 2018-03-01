@@ -27,7 +27,7 @@
             "angularLazyImg",
             "ngRedux",
             "pascalprecht.translate",
-            "stelace.translationCache"
+            // "stelace.translationCache"
         ])
         .constant("CryptoJS", window.CryptoJS)
         .constant("moment", window.moment)
