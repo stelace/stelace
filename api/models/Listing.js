@@ -401,23 +401,34 @@ function isBookable(listing) {
 }
 
 /**
- * get bookings from listings that are paid and accepted
- * @param  {number[]} listingsIds
- * @param  {object} [args]
- * @param  {string} [args.minStartDate] - filter bookings that start after that date included
- * @param  {string} [args.maxStartDate] - filter bookings that start before that date not included
- * @param  {string} [args.minEndDate]   - filter bookings that end after that date included
- * @param  {string} [args.maxEndDate]   - filter bookings that end before that date not included
- * @return {Promise<object[]>} - bookings
+ * Get bookings from listings that are paid and accepted
+ * @param  {Number[]} listingsIds
+ * @param  {Object} [args]
+ * @param  {String} [args.minStartDate] - filter bookings that start after that date included
+ * @param  {String} [args.maxStartDate] - filter bookings that start before that date not included
+ * @param  {String} [args.minEndDate]   - filter bookings that end after that date included
+ * @param  {String} [args.maxEndDate]   - filter bookings that end before that date not included
+ * @param  {String} [args.finishAfterDate] - filter bookings that finish after that date included
+ *                                           (filtering on end date isn't sufficient because of bookings that don't have end date)
+ * @return {Object} - bookings
  */
-function getBookings(listingsIds, args) {
-    args = args || {};
+async function getBookings(listingsIds, {
+    minStartDate,
+    maxStartDate,
+    minEndDate,
+    maxEndDate,
+    finishAfterDate,
+}) {
+    var findAttrs = {};
 
-    return Promise.coroutine(function* () {
-        var findAttrs = {};
-
-        var startPeriod = ToolsService.getPeriodAttrs(args.minStartDate, args.maxStartDate);
-        var endPeriod   = ToolsService.getPeriodAttrs(args.minEndDate, args.maxEndDate);
+    if (finishAfterDate) {
+        findAttrs.or = [
+            { startDate: { '>=': finishAfterDate } },
+            { endDate: { '>=': finishAfterDate } },
+        ];
+    } else {
+        let startPeriod = ToolsService.getPeriodAttrs(minStartDate, maxStartDate);
+        let endPeriod   = ToolsService.getPeriodAttrs(minEndDate, maxEndDate);
 
         if (startPeriod) {
             findAttrs.startDate = startPeriod;
@@ -425,47 +436,44 @@ function getBookings(listingsIds, args) {
         if (endPeriod) {
             findAttrs.endDate = endPeriod;
         }
+    }
 
-        findAttrs.listingId         = listingsIds;
-        findAttrs.cancellationId = null;
-        findAttrs.paidDate       = { '!=': null };
-        findAttrs.acceptedDate   = { '!=': null };
+    findAttrs.listingId      = listingsIds;
+    findAttrs.cancellationId = null;
+    findAttrs.paidDate       = { '!=': null };
+    findAttrs.acceptedDate   = { '!=': null };
 
-        return yield Booking
-            .find(findAttrs)
-            .sort('startDate ASC');
-    })();
+    const bookings = await Booking.find(findAttrs).sort('startDate ASC');
+    return bookings;
 }
 
-function getFutureBookings(listingIdOrIds, refDate) {
-    return Promise.coroutine(function* () {
-        var onlyOne;
-        var listingsIds;
+async function getFutureBookings(listingIdOrIds, refDate) {
+    let onlyOne;
+    let listingsIds;
 
-        if (_.isArray(listingIdOrIds)) {
-            listingsIds = _.uniq(listingIdOrIds);
-            onlyOne = false;
-        } else {
-            listingsIds = [listingIdOrIds];
-            onlyOne = true;
-        }
+    if (_.isArray(listingIdOrIds)) {
+        listingsIds = _.uniq(listingIdOrIds);
+        onlyOne = false;
+    } else {
+        listingsIds = [listingIdOrIds];
+        onlyOne = true;
+    }
 
-        // get bookings that end after the ref date
-        var bookings = yield getBookings(listingsIds, { minEndDate: refDate });
+    // get bookings that end after the ref date
+    const bookings = await getBookings(listingsIds, { finishAfterDate: refDate });
 
-        var hashBookings = _.groupBy(bookings, "listingId");
+    let hashBookings = _.groupBy(bookings, "listingId");
 
-        hashBookings = _.reduce(listingsIds, function (memo, listingId) {
-            memo[listingId] = hashBookings[listingId] || [];
-            return memo;
-        }, {});
+    hashBookings = _.reduce(listingsIds, function (memo, listingId) {
+        memo[listingId] = hashBookings[listingId] || [];
+        return memo;
+    }, {});
 
-        if (onlyOne) {
-            return hashBookings[listingIdOrIds];
-        } else {
-            return hashBookings;
-        }
-    })();
+    if (onlyOne) {
+        return hashBookings[listingIdOrIds];
+    } else {
+        return hashBookings;
+    }
 }
 
 function updateTags(listing, tagIds) {
