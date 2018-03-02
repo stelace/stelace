@@ -253,6 +253,11 @@ async function updateConfig(updatedConfig) {
     }
 
     let newConfig = _.defaults({}, updatingConfig, config);
+
+    if (newConfig.currency) {
+        newConfig.currency = newConfig.currency.toUpperCase();
+    }
+
     newConfig = _computeNewConfig({ config: newConfig, secretData });
 
     const updateAttrs = {

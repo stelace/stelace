@@ -217,7 +217,7 @@
                 // Facebook event
                 var fbEventParams = {
                     value: vm.booking.ownerPrice,
-                    currency: "EUR",
+                    currency: vm.booking.currency,
                     content_name: vm.listing.name,
                     content_ids: [vm.listing.id],
                     content_category: ListingCategoryService.getCategoriesString(vm.listingCategoryName, vm.notCategoryTags[0]),

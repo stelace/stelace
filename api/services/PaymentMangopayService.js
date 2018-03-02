@@ -158,7 +158,7 @@ async function createLegalUser(user) {
     return updatedUser;
 }
 
-async function createWallet(user, { currency = 'EUR' } = {}) {
+async function createWallet(user, { currency } = {}) {
     if (!user.userType) {
         throw new Error('Missing user type');
     }
@@ -229,7 +229,7 @@ async function createBankAccount(user, { ownerAddress, ownerName, iban } = {}) {
     return bankAccount;
 }
 
-async function createCardRegistration(user, { currency = 'EUR', cardType } = {}) {
+async function createCardRegistration(user, { currency, cardType } = {}) {
     if (!user.userType) {
         throw new Error('Missing user type');
     }

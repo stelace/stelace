@@ -70,6 +70,11 @@ async function createBooking({
 
     const config = await StelaceConfigService.getConfig();
     const paymentProvider = config.paymentProvider;
+    const currency = config.currency;
+
+    if (!paymentProvider || !currency) {
+        throw createError(500, 'Missing payment configuration', { expose: true });
+    }
 
     let bookingAttrs = {
         listingId: listing.id,
@@ -80,6 +85,7 @@ async function createBooking({
         listingTypeId: listingType.id,
         listingType: listingType,
         paymentProvider,
+        currency,
     };
 
     bookingAttrs = await setBookingTimePeriods({
@@ -189,7 +195,6 @@ async function setBookingTimePeriods({
             timeUnit,
             deposit: listing.deposit,
             timeUnitPrice: listing.timeUnitPrice,
-            currency: 'EUR', // TODO: allow to set other currencies
             pricingId: listing.pricingId,
             customPricingConfig: listing.customPricingConfig,
         });
@@ -241,7 +246,6 @@ async function setBookingTimePeriods({
         _.assign(bookingAttrs, {
             startDate,
             timeUnit,
-            currency: 'EUR', // TODO: allow to set other currencies
         });
     }
 

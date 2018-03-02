@@ -108,7 +108,16 @@ async function my(req, res) {
 
 async function createCardRegistration(req, res) {
     const cardType = req.param('cardType');
-    const currency = req.param('currency');
+    let currency = req.param('currency');
+
+    if (!currency) {
+        const config = await StelaceConfigService.getConfig();
+        currency = config.currency;
+
+        if (!currency) {
+            throw new Error('Missing payment configuration');
+        }
+    }
 
     const cardRegistration = await PaymentMangopayService.createCardRegistration(req.user, {
         currency,

@@ -13,6 +13,7 @@ function isValidCurrency(currency) {
 }
 
 function getISOAmount(amount, currency) {
+    console.log(currency)
     const obj = isoCurrencies.get(currency);
     if (!obj) {
         throw new Error('Invalid currency');

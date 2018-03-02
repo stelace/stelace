@@ -53,12 +53,17 @@ async function createAccount(req, res) {
 
     const config = await StelaceConfigService.getConfig();
     const paymentProvider = config.paymentProvider;
+    const currency = config.currency;
+
+    if (!currency) {
+        throw new Error('Missing payment configuration');
+    }
 
     let user = req.user;
 
     if (paymentProvider === 'mangopay') {
         user = await PaymentMangopayService.createUser(user);
-        user = await PaymentMangopayService.createWallet(user); // TODO: take website currency
+        user = await PaymentMangopayService.createWallet(user, { currency });
     } else if (paymentProvider === 'stripe') {
         if (!accountType) {
             throw createError(400, 'Account type missing');

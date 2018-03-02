@@ -209,8 +209,6 @@ module.exports = {
 
     getMergedPaymentData,
     createMangopayUser,
-    createWallet,
-    createBankAccount,
     hasSameId,
     getMedia,
     createCheckEmailToken,
@@ -482,68 +480,6 @@ function createMangopayUser(user, args) {
                     };
 
                     return User.updateOne(user.id, updateAttrs);
-                });
-        });
-}
-
-function createWallet(user) {
-    return Promise
-        .resolve()
-        .then(() => {
-            if (! user.mangopayUserId) {
-                throw new Error("Missing mangopayUserId");
-            }
-            if (user.walletId) {
-                return user;
-            }
-
-            return mangopay.Wallets
-                .create({
-                    Owners: [user.mangopayUserId],
-                    Description: "Main wallet",
-                    Currency: "EUR", // TODO: allow other currencies
-                })
-                .then(wallet => {
-                    return User.updateOne(user.id, { walletId: wallet.Id });
-                });
-        });
-}
-
-function createBankAccount(user) {
-    return Promise
-        .resolve()
-        .then(() => {
-            if (! user.mangopayUserId) {
-                throw new Error("Missing mangopayUserId");
-            }
-            if (! user.iban
-                || ! user.address
-                || ! user.address.name
-                || (! user.address.establishment && ! user.address.street)
-                || ! user.address.city
-                || ! user.address.postalCode
-            ) {
-                throw new Error("Missing params");
-            }
-
-            if (user.bankAccountId) {
-                return user;
-            }
-
-            return mangopay.Users
-                .createBankAccount(user.mangopayUserId, {
-                    OwnerName: User.getName(user),
-                    OwnerAddress: {
-                        AddressLine1: Location.getAddress(user.address, true, false),
-                        City: user.address.city,
-                        PostalCode: user.address.postalCode,
-                        Country: "FR"
-                    },
-                    IBAN: user.iban,
-                    Type: 'IBAN',
-                })
-                .then(bankAccount => {
-                    return User.updateOne(user.id, { bankAccountId: bankAccount.Id });
                 });
         });
 }
