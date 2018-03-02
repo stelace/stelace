@@ -86,6 +86,7 @@
                             ng-model="vm.listingType"
                             ng-options="listingType.name for listingType in vm.listingTypes"
                             ng-change="vm.selectListingTypeFromView(vm.listingType)"
+                            ng-disabled="!!vm.listing.id"
                             required>
                             <option value="" selected disabled="disabled" data-translate="listing.listing_type_label">
                             </option>
@@ -309,7 +310,7 @@
                             data-translate="listing.edition.description_required_message">
                         </div>
 
-                        <div v-if="vm.listingTypeProperties.isAvailabilityStock">
+                        <div uib-collapse="!vm.listingTypeProperties.isAvailabilityStock">
                             <label for="listing-quantity">
                                 <span data-translate="listing.quantity_label"></span>
                             </label>
@@ -367,29 +368,31 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <p class="no-margin-bottom margin-top">
-                                <label for="listing-deposit">
-                                    <span data-translate="listing.security_deposit_label"></span>
-                                </label>
-                            </p>
-                            <input id="listing-deposit"
-                                name="listingDeposit"
-                                type="number"
-                                class="stelace-listing__main-price-input no-margin-bottom"
-                                ng-model="vm.listing.deposit"
-                                ng-model-options="{ updateOn: 'default', debounce: {'default': 500} }"
-                                ng-change="vm.updateDeposit(); vm.saveLocal('deposit')"
-                                placeholder="{{vm.defaultDeposit}}"
-                                min="0"
-                                step="1">
-                            <div class="text--small text--light margin-bottom-plus"
-                                data-translate="listing.edition.security_deposit_message">
-                            </div>
-                            <div class="form-warning text--semibold"
-                                uib-collapse="! vm.showDepositWarning"
-                                data-translate="listing.edition.security_deposit_max_error"
-                                data-translate-values="{ max_deposit: vm.maxDeposit }"
-                            >
+                            <div data-uib-collapse="!vm.listingTypeProperties.isTimeFlexible">
+                                <p class="no-margin-bottom margin-top">
+                                    <label for="listing-deposit">
+                                        <span data-translate="listing.security_deposit_label"></span>
+                                    </label>
+                                </p>
+                                <input id="listing-deposit"
+                                    name="listingDeposit"
+                                    type="number"
+                                    class="stelace-listing__main-price-input no-margin-bottom"
+                                    ng-model="vm.listing.deposit"
+                                    ng-model-options="{ updateOn: 'default', debounce: {'default': 500} }"
+                                    ng-change="vm.updateDeposit(); vm.saveLocal('deposit')"
+                                    placeholder="{{vm.defaultDeposit}}"
+                                    min="0"
+                                    step="1">
+                                <div class="text--small text--light margin-bottom-plus"
+                                    data-translate="listing.edition.security_deposit_message">
+                                </div>
+                                <div class="form-warning text--semibold"
+                                    data-uib-collapse="! vm.showDepositWarning"
+                                    data-translate="listing.edition.security_deposit_max_error"
+                                    data-translate-values="{ max_deposit: vm.maxDeposit }"
+                                >
+                                </div>
                             </div>
                         </div>
 
@@ -527,9 +530,17 @@
 
                             <div class="flex-container flex--center stelace-listing__availability-period" ng-repeat="listingAvailability in vm.editingListingAvailabilities track by listingAvailability.id">
                                 <div class="stelace-listing__availability-period-label" data-translate="listing.time.from_day_label"></div>
-                                <div class="stelace-listing__availability-period-label">{{listingAvailability.displayStartDate}}</div>
+                                <div class="stelace-listing__availability-period-label"
+                                    data-translate="time.date_short"
+                                    data-translate-values="{ date: listingAvailability.displayStartDate }"
+                                >
+                                </div>
                                 <div class="stelace-listing__availability-period-label" data-translate="listing.time.to_day_label"></div>
-                                <div class="stelace-listing__availability-period-label">{{listingAvailability.displayEndDate}}</div>
+                                <div class="stelace-listing__availability-period-label"
+                                    data-translate="time.date_short"
+                                    data-translate-values="{ date: listingAvailability.displayEndDate }"
+                                >
+                                </div>
                                 <span class="text-control"
                                     tabindex="0"
                                     data-sip-action-key
@@ -719,7 +730,7 @@
                         >
                         </label>
                         <select id="share-my-listing-select" class="text--small"
-                            ng-model="vm.selectedShareListing"
+                            ng-model="vm.selectedListingToSocialShare"
                             ng-options="listing.name for listing in vm.myListings track by listing.id">
                         </select>
                     </div>
@@ -730,13 +741,13 @@
                         <div class="flex-container f-share-card">
                             <div class="f-share-card__image-container">
                                 <div class="ar-content">
-                                    <img ng-src="{{ vm.selectedShareListing.url + '?size=400x300'}}" alt=" {{ vm.selectedShareListing.name }}"
+                                    <img ng-src="{{ vm.selectedListingToSocialShare.url + '?size=400x300'}}" alt=" {{ vm.selectedListingToSocialShare.name }}"
                                         class="f-share-card__image">
                                 </div>
                             </div>
                             <div class="f-share-card__content flex-item--grow flex-container flex--column flex--space-between">
                                 <div class="text--semibold ellipsis">
-                                    {{ vm.selectedShareListing.name }}
+                                    {{ vm.selectedListingToSocialShare.name }}
                                 </div>
                                 <div class="text--small ellipsis"
                                     data-translate="listing.social.share_listing_content"

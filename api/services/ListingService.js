@@ -80,9 +80,9 @@ async function createListing(attrs, { req, res } = {}) {
         || !createAttrs.ownerId
         || (createAttrs.tags && !MicroService.checkArray(createAttrs.tags, 'id'))
         || (createAttrs.locations && !MicroService.checkArray(createAttrs.locations, 'id'))
-        || typeof createAttrs.sellingPrice !== 'number' || createAttrs.sellingPrice < 0
-        || typeof createAttrs.timeUnitPrice !== 'number' || createAttrs.timeUnitPrice < 0
-        || typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0
+        || (typeof createAttrs.sellingPrice !== 'undefined' && (typeof createAttrs.sellingPrice !== 'number' || createAttrs.sellingPrice < 0))
+        || (typeof createAttrs.timeUnitPrice !== 'undefined' && (typeof createAttrs.timeUnitPrice !== 'number' || createAttrs.timeUnitPrice < 0))
+        || (typeof createAttrs.deposit !== 'undefined' && (typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0))
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
         || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
         || (createAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(createAttrs.recurringDatesPattern))
@@ -101,7 +101,14 @@ async function createListing(attrs, { req, res } = {}) {
     }
 
     const listingType = listingTypes[0];
-    const { AVAILABILITY } = listingType.properties;
+    const { TIME, AVAILABILITY } = listingType.properties;
+
+    if (TIME === 'TIME_FLEXIBLE' && typeof createAttrs.timeUnitPrice !== 'number') {
+        throw createError(400);
+    }
+    if (TIME !== 'TIME_FLEXIBLE' && typeof createAttrs.sellingPrice !== 'number') {
+        throw createError(400);
+    }
 
     if (AVAILABILITY === 'NONE' || AVAILABILITY === 'UNIQUE') {
         createAttrs.quantity = 1;
@@ -125,9 +132,19 @@ async function createListing(attrs, { req, res } = {}) {
     });
     createAttrs.data = data;
 
-    createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
-    createAttrs.timeUnitPrice  = PricingService.roundPrice(createAttrs.timeUnitPrice);
-    createAttrs.deposit      = PricingService.roundPrice(createAttrs.deposit);
+    if (createAttrs.sellingPrice) {
+        createAttrs.sellingPrice = PricingService.roundPrice(createAttrs.sellingPrice);
+    }
+    if (createAttrs.timeUnitPrice) {
+        createAttrs.timeUnitPrice = PricingService.roundPrice(createAttrs.timeUnitPrice);
+    }
+    if (createAttrs.deposit) {
+        createAttrs.deposit = PricingService.roundPrice(createAttrs.deposit);
+    }
+
+    createAttrs.sellingPrice = createAttrs.sellingPrice || 0;
+    createAttrs.timeUnitPrice = createAttrs.timeUnitPrice || 0;
+    createAttrs.deposit = createAttrs.deposit || 0;
 
     const pricing = PricingService.getPricing();
     createAttrs.pricingId = pricing.id;

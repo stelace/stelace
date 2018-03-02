@@ -41,7 +41,6 @@
                                 tools,
                                 UserService,
                                 usSpinnerService) {
-        var displayFormatDate = 'DD/MM/YYYY';
         var formatDate = 'YYYY-MM-DD';
         var listeners               = [];
         var listingValidationFields    = ["title", "category", "description", "media", "price", "sellingPrice", "deposit"];
@@ -111,7 +110,7 @@
         vm.useSocialLogin       = false;
         vm.isAuthenticated      = false;
         vm.createAccount        = false;
-        vm.factorDeposit        = 15;
+        vm.factorDeposit        = 4;
         vm.defaultTimeUnitPrice = 0;
         vm.defaultDeposit       = initialDefaultDeposit;
         vm.maxDeposit           = 600; // EUR
@@ -119,7 +118,7 @@
         vm.myListingsEditor        = {};
         vm.tags                 = [];
         vm.myListings              = [];
-        vm.selectedShareListing    = null;
+        vm.selectedListingToSocialShare = null;
         // vm.brands            = [];
         vm.listingCategoriesLvl1 = [];
         vm.listingCategoriesLvl2 = [];
@@ -268,7 +267,7 @@
                     selectListingType(vm.listingTypes[0]);
                 }
 
-                vm.showListingTypes = vm.listingTypes.length > 1 && !listingId;
+                vm.showListingTypes = vm.listingTypes.length > 1;
 
                 if (!listingId && vm.listingTypeId) {
                     var listingType = _.find(vm.listingTypes, function (listingType) {
@@ -397,7 +396,7 @@
 
                         vm.showSideHelper = !vm.viewCreate && !!vm.myListings.length && vm.showFacebookShare;
 
-                        vm.selectedShareListing = vm.myListings.length ? vm.myListings[0] : null;
+                        vm.selectedListingToSocialShare = vm.myListings.length ? vm.myListings[0] : null;
 
                         if (vm.activeTags) {
                             vm.showTags         = isAdmin;
@@ -428,6 +427,7 @@
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
+                vm.listingType              = null;
                 vm.mediasMaxNbReached       = false;
                 vm.listing.listingTypesIds  = [];
                 vm.listing.quantity         = 1;
@@ -439,6 +439,8 @@
                 _.forEach(listingValidationFields, function (field) {
                     vm.listingValidationFields[field] = false;
                 });
+
+                _loadListingType();
 
                 if (currentUser) {
                     vm.listing.listLocations = _.map(myLocations, function (location) {
@@ -459,6 +461,7 @@
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
+                vm.listingType              = null;
                 vm.listing.listingTypesIds  = vm.listing.listingTypesIds || [];
                 vm.listing.recurringDatesPattern = vm.listing.recurringDatesPattern || '* * * * *';
                 vm.listing.quantity         = vm.listing.quantity || 1;
@@ -470,6 +473,8 @@
                 _.forEach(listingValidationFields, function (field) {
                     vm.listingValidationFields[field] = false;
                 });
+
+                _loadListingType();
 
                 if (currentUser
                     && (! vm.listing.listLocations || ! vm.listing.listLocations.length)
@@ -490,7 +495,7 @@
 
                 platform.debugDev("step 3 init newListingTmp", vm.listing)
 
-                if (_.isFinite(vm.listing.sellingPrice)) {
+                if (_.isFinite(vm.listing.sellingPrice) || _.isFinite(vm.listing.timeUnitPrice)) {
                     platform.debugDev("step 3 from new init")
                     showStep3AndUpdatePrice();
                 }
@@ -509,12 +514,13 @@
                 vm.stepProgress             = 100;
                 vm.step2                    = true;
                 vm.step3                    = true;
-                vm.saveListingBtnDisabled   = !listing.quantity;
                 vm.validPrice               = true;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
                 stepProgressDone            = {};
                 vm.viewCreate               = false;
+
+                _loadListingType();
 
                 _populateTags();
                 _populateListingCategories();
@@ -535,7 +541,9 @@
                     return l;
                 });
 
-                vm.selectedShareListing = vm.listing;
+                vm.selectedListingToSocialShare = vm.listing;
+
+                vm.saveListingBtnDisabled = !listing.quantity && vm.listingTypeProperties.isTimeNone;
             }
 
             mediasSelector = ListingService.getMediasSelector({
@@ -545,19 +553,22 @@
             vm.isMoveModeAllowed = mediasSelector.isMoveModeAllowed();
             vm.mediaMode         = "edit";
 
+            _initPrice();
+            _computeDateConstraints(vm.editingListingAvailabilities);
+            showStep2();
+
+            listeners.push($scope.$watch("vm.listing.name", _.debounce(_nameChanged, vm.isActivePriceRecommendation ? 1500 : 0)));
+            listeners.push($scope.$watch("vm.listing.sellingPrice", _.throttle(_sellingPriceChanged, 300)));
+            listeners.push($scope.$watch("vm.listing.timeUnitPrice", _.throttle(_timeUnitPriceChanged, 300)));
+        }
+
+        function _loadListingType() {
             if (vm.listing.listingTypesIds.length) {
                 var listingType = _.find(vm.listingTypes, function (listingType) {
                     return listingType.id === vm.listing.listingTypesIds[0];
                 });
                 selectListingType(listingType);
-                showStep2();
             }
-
-            _initPrice();
-            _computeDateConstraints(vm.editingListingAvailabilities);
-
-            listeners.push($scope.$watch("vm.listing.name", _.debounce(_nameChanged, vm.isActivePriceRecommendation ? 1500 : 0)));
-            listeners.push($scope.$watch("vm.listing.sellingPrice", _.throttle(_sellingPriceChanged, 300)));
         }
 
         function saveLocal(field) {
@@ -828,10 +839,21 @@
             showStep3AndUpdatePrice();
         }
 
+        function _timeUnitPriceChanged(newPrice, oldPrice) {
+            var priceChanged = newPrice !== oldPrice;
+            platform.debugDev("_timeUnitPriceChanged:", priceChanged, newPrice, "<=", oldPrice)
+
+            if (! priceChanged || ! _.isFinite(newPrice)) { // init watch
+                return;
+            }
+
+            showStep3AndUpdatePrice();
+        }
+
         function showStep3AndUpdatePrice() {
             if (! vm.listing
-                || (typeof vm.listing.sellingPrice === "undefined" && !vm.isTimeFlexible)
-                || (typeof vm.listing.timeUnitPrice === "undefined" && vm.isTimeFlexible)
+                || (typeof vm.listing.sellingPrice === "undefined" && !vm.listingTypeProperties.isTimeFlexible)
+                || (typeof vm.listing.timeUnitPrice === "undefined" && vm.listingTypeProperties.isTimeFlexible)
             ) {
                 return;
             }
@@ -878,43 +900,40 @@
 
         function setDefaultPrices() {
             var sellingPrice = getSellingPrice();
+            var timeUnitPrice = getTimeUnitPrice();
 
             platform.debugDev("setDefaultPrices begin");
 
-            if (_.isFinite(sellingPrice)) {
+            if (!vm.listingTypeProperties.isTimeFlexible && _.isFinite(sellingPrice)) {
+                vm.validPrice = true;
+            } else if (vm.listingTypeProperties.isTimeFlexible && _.isFinite(timeUnitPrice)) {
                 vm.validPrice = true;
 
-                return $q.when(sellingPrice)
-                    .then(getDefaultTimeUnitPrice)
-                    .then(function (defaultTimeUnitPrice) {
-                        var timeUnitPrice = getTimeUnitPrice(vm.defaultTimeUnitPrice);
+                var prices = pricing.getPrice({
+                    dayOne: timeUnitPrice,
+                    nbDays: lastBreakpointDay,
+                    config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
+                    array: true
+                });
 
-                        showStep2();
+                _.forEach(vm.listingBookingPrices, function (booking) {
+                    booking.defaultPrice = prices[booking.day - 1];
+                });
 
-                        var prices = pricing.getPrice({
-                            dayOne: timeUnitPrice,
-                            nbDays: lastBreakpointDay,
-                            config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
-                            array: true
-                        });
-
-                        _.forEach(vm.listingBookingPrices, function (booking) {
-                            booking.defaultPrice = prices[booking.day - 1];
-                        });
-
-                        vm.defaultDeposit = getDefaultDeposit(timeUnitPrice);
-
-                        fixCustomPricing(defaultTimeUnitPrice);
-                    });
+                vm.defaultDeposit = getDefaultDeposit(timeUnitPrice);
+                fixCustomPricing();
             }
 
-            vm.defaultTimeUnitPrice = 0;
-            vm.defaultDeposit     = 0;
-            getTimeUnitPrice(); // for view
+            if (vm.validPrice) {
+                showStep2();
+            } else {
+                vm.defaultTimeUnitPrice = 0;
+                vm.defaultDeposit     = 0;
 
-            _.forEach(vm.listingBookingPrices, function (booking) {
-                booking.defaultPrice = 0;
-            });
+                _.forEach(vm.listingBookingPrices, function (booking) {
+                    booking.defaultPrice = 0;
+                });
+            }
         }
 
         function updateDeposit() {
@@ -1094,49 +1113,53 @@
 
         function _setSaveAttrs(attrs) {
             var sellingPrice = getSellingPrice();
+            var timeUnitPrice = getTimeUnitPrice();
 
-            if (! _.isFinite(sellingPrice)) {
+            var validPrice = false;
+
+            if (!vm.listingTypeProperties.isTimeFlexible && _.isFinite(sellingPrice)) {
+                validPrice = true;
+                attrs.sellingPrice = sellingPrice;
+            } else if (vm.listingTypeProperties.isTimeFlexible && _.isFinite(timeUnitPrice)) {
+                validPrice = true;
+                attrs.timeUnitPrice = timeUnitPrice;
+                attrs.deposit = getDeposit(timeUnitPrice);
+            }
+
+            if (!validPrice) {
                 return;
             }
 
-            return getDefaultTimeUnitPrice(sellingPrice)
-                .then(function (defaultTimeUnitPrice) {
-                    var timeUnitPrice = getTimeUnitPrice(defaultTimeUnitPrice);
+            if (vm.showListingCategories) {
+                if (vm.selectedBrand) {
+                    attrs.brandId = vm.selectedBrand.id;
+                }
+                if (vm.selectedListingCategoryLvl2) {
+                    attrs.listingCategoryId = vm.selectedListingCategoryLvl2.id;
+                } else {
+                    attrs.listingCategoryId = vm.selectedListingCategoryLvl1.id;
+                }
+            }
 
-                    attrs.sellingPrice = sellingPrice;
-                    attrs.timeUnitPrice  = timeUnitPrice;
-                    attrs.deposit      = getDeposit(timeUnitPrice);
+            if (vm.listingTypeProperties.isTimeFlexible) {
+                var customPricing = getCustomPricingConfig(timeUnitPrice);
+                attrs.customPricingConfig = customPricing;
+            }
 
-                    if (vm.showListingCategories) {
-                        if (vm.selectedBrand) {
-                            attrs.brandId = vm.selectedBrand.id;
-                        }
-                        if (vm.selectedListingCategoryLvl2) {
-                            attrs.listingCategoryId = vm.selectedListingCategoryLvl2.id;
-                        } else {
-                            attrs.listingCategoryId = vm.selectedListingCategoryLvl1.id;
-                        }
-                    }
+            attrs.locations = _.reduce(vm.listing.listLocations, function (memo, location) {
+                if (location.checked) {
+                    memo.push(location.id);
+                }
+                return memo;
+            }, []);
 
-                    var customPricing = getCustomPricingConfig(timeUnitPrice);
-
-                    attrs.customPricingConfig = customPricing;
-
-                    attrs.locations = _.reduce(vm.listing.listLocations, function (memo, location) {
-                        if (location.checked) {
-                            memo.push(location.id);
-                        }
-                        return memo;
-                    }, []);
-
-                    if (! attrs.locations.length) {
-                        toastr.info("Votre annonce ne pourra malheureusement pas être publiée sans localisation. "
-                            + "Votre adresse complète n'apparaîtra jamais publiquement.",
-                            "Adresse ou ville requise", {
-                                timeOut: 20000
-                            });
-                    }
-                });
+            if (! attrs.locations.length) {
+                toastr.info("Votre annonce ne pourra malheureusement pas être publiée sans localisation. "
+                    + "Votre adresse complète n'apparaîtra jamais publiquement.",
+                    "Adresse ou ville requise", {
+                        timeOut: 20000
+                    });
+            }
         }
 
         function _createListing() {
@@ -1561,8 +1584,8 @@
             mediasSelector.setMode(vm.mediaMode);
         }
 
-        function fixCustomPricing(defaultTimeUnitPrice) {
-            var timeUnitPrice = getTimeUnitPrice(defaultTimeUnitPrice);
+        function fixCustomPricing() {
+            var timeUnitPrice = getTimeUnitPrice();
 
             var customPricing = getCustomPricingConfig(timeUnitPrice);
 
@@ -1646,7 +1669,7 @@
         }
 
         function facebookShareMyListing() {
-            if (! vm.selectedShareListing || ! vm.selectedShareListing.slug) {
+            if (! vm.selectedListingToSocialShare || ! vm.selectedListingToSocialShare.slug) {
                 return;
             }
 
@@ -1658,11 +1681,11 @@
                 utmCampaign: "listing-share-owner",
                 utmContent: "picture"
             };
-            var listingUrl     = platform.getListingShareUrl(vm.selectedShareListing.slug, shareUtmTags);
+            var listingUrl     = platform.getListingShareUrl(vm.selectedListingToSocialShare.slug, shareUtmTags);
             var description = "Ajouté(e) par " + vm.displayName + " en (presque) un éclair. "
                 + "Empruntez ou achetez l'objet de vos rêves en toute sécurité ou, comme " + vm.displayName + ", créez vos propres annonces sur Sharinplace.";
             var stlEventData = {
-                tagsIds: vm.selectedShareListing.tags,
+                tagsIds: vm.selectedListingToSocialShare.tags,
                 origin: listingId ? "editListing" : "myListings",
                 isOwner: true
             };
@@ -1670,7 +1693,7 @@
 
             StelaceEvent.sendEvent("Listing social share", {
                 type: "click",
-                listingId: vm.selectedShareListing.id,
+                listingId: vm.selectedListingToSocialShare.id,
                 data: stlEventData
             })
             .then(function (stelaceEvent) {
@@ -1699,6 +1722,10 @@
         }
 
         function getCustomPricingConfig(timeUnitPrice) {
+            if (typeof timeUnitPrice !== 'number') {
+                return;
+            }
+
             var defaultPrices = pricing.getPrice({
                 dayOne: timeUnitPrice,
                 nbDays: lastBreakpointDay,
@@ -1763,17 +1790,17 @@
             }
         }
 
-        function getDefaultTimeUnitPrice(sellingPrice) {
-            return $q.when(sellingPrice)
-                .then(pricing.rentingPriceRecommendation)
-                .then(function(recommendation) {
-                    _.assign(vm.recommendedPrices, recommendation);
+        // function getDefaultTimeUnitPrice(sellingPrice) {
+        //     return $q.when(sellingPrice)
+        //         .then(pricing.rentingPriceRecommendation)
+        //         .then(function(recommendation) {
+        //             _.assign(vm.recommendedPrices, recommendation);
 
-                    vm.defaultTimeUnitPrice = _.get(recommendation, "timeUnitPrice") || vm.defaultTimeUnitPrice;
+        //             vm.defaultTimeUnitPrice = _.get(recommendation, "timeUnitPrice") || vm.defaultTimeUnitPrice;
 
-                    return vm.defaultTimeUnitPrice;
-                });
-        }
+        //             return vm.defaultTimeUnitPrice;
+        //         });
+        // }
 
         function getDeposit(timeUnitPrice) {
             var defaultDeposit = getDefaultDeposit(timeUnitPrice);
@@ -1806,7 +1833,6 @@
         function selectListingType(listingType) {
             if (!listingType) return;
 
-            vm.listingTypeModel = listingType;
             vm.listingType = listingType;
             vm.listingTypeProperties = ListingTypeService.getProperties(listingType);
 
@@ -1972,8 +1998,8 @@
             });
 
             _.forEach(vm.editingListingAvailabilities, function (l) {
-                l.displayStartDate = moment(l.startDate).format(displayFormatDate);
-                l.displayEndDate = moment(l.endDate).add({ d: -1 }).format(displayFormatDate);
+                l.displayStartDate = l.startDate;
+                l.displayEndDate = moment(l.endDate).add({ d: -1 }).format('YYYY-MM-DD') + 'T00:00:00.000Z';
             });
         }
 

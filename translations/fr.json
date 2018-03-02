@@ -172,6 +172,9 @@
             "deactivated_success_message": "Annonce désactivée"
         }
     },
+    "time": {
+        "date_short": "{date, date, short}"
+    },
     "user": {
         "is_level": "Membre {level}",
         "service_admin_account": "Compte officiel {SERVICE_NAME}",
@@ -292,7 +295,7 @@
         "price": "Prix",
         "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# jour} other{# jours}} } n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} } h{ {nbTimeUnits, plural, one{# heure} other{# heures}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
         "duration_discount": "Réduction sur la durée",
-        "transaction_fees": "Frais de transaction",
+        "service_fees": "Frais de service",
         "free": "Gratuit",
         "total": "Total",
         "quantity": "Quantité"

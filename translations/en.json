@@ -172,6 +172,9 @@
             "deactivated_success_message": "Listing paused"
         }
     },
+    "time": {
+        "short_date": "{date, date, short}"
+    },
     "user": {
         "is_level": "{level} user",
         "service_admin_account": "{SERVICE_NAME}’s account",
@@ -292,7 +295,7 @@
         "price": "Price",
         "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
         "duration_discount": "Duration discount",
-        "transaction_fees": "Transaction fees",
+        "service_fees": "Service fees",
         "free": "Free",
         "total": "Total",
         "quantity": "Quantity"
