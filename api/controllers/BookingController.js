@@ -319,8 +319,6 @@ function cancel(req, res) {
             listingId: booking.listingId,
         });
 
-        yield Booking.updateListingQuantity(booking, { actionType: 'add' });
-
         if (req.user.id === booking.takerId) {
             access = "self";
         } else if (req.user.id === booking.ownerId) {
