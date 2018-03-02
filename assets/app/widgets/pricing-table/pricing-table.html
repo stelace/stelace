@@ -3,7 +3,7 @@
         <tr>
             <td ng-if="dependStock || dependDuration">
                 <span ng-if="dependStock">{{quantity}}&nbsp;x</span>
-                <span data-translate="pricing.price_with_currency" data-translate-values="{ price: basePrice }"></span>
+                <span data-translate="pricing.price_with_currency" data-translate-values="{ price: timeUnitPrice }"></span>
                 <span ng-if="dependDuration">
                     <span>x&nbsp;</span>
                     <span data-translate="pricing.nb_unit_label"
@@ -27,7 +27,7 @@
             </td>
         </tr>
         <tr>
-            <td data-translate="pricing.transaction_fees"></td>
+            <td data-translate="pricing.service_fees"></td>
             <td>
                 <span ng-if="takerFees" data-translate="pricing.price_with_currency" data-translate-values="{ price: takerFees }"></span>
                 <span ng-if="!takerFees" data-translate="pricing.free"></span>

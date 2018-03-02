@@ -8,7 +8,7 @@
         var priceResult;
 
         /**
-         * {object}  booking - if provided, it autofills variables (only need listing)
+         * {object}  booking - if provided, it autofills variables
          * {object}  listing
          * {number}  maxBookingDuration
          * {object}  data - to get data from internal to external
@@ -102,6 +102,9 @@
             }
 
             function populateListing() {
+                if (!scope.listing) {
+                    return;
+                }
                 if (!scope.dependDuration) {
                     return;
                 }
@@ -149,22 +152,19 @@
                     scope.endDate       = scope.booking.endDate;
                     scope.applyFreeFees = scope.booking.applyFreeFees || false;
                     scope.quantity      = scope.booking.quantity;
+                    scope.timeUnitPrice = scope.booking.timeUnitPrice;
                 } else {
                     scope.startDate     = scope.bookingParams.startDate;
                     scope.endDate       = scope.bookingParams.endDate;
                     scope.applyFreeFees = scope.bookingParams.applyFreeFees || false;
                     scope.quantity      = scope.bookingParams.quantity;
-                }
-
-                if (scope.booking) {
-                    scope.timeUnitPrice = scope.booking.timeUnitPrice;
-                } else {
                     scope.timeUnitPrice = scope.listing.prices[0];
                 }
 
                 scope.timeUnit         = getTimeUnit();
                 scope.nbTimeUnits      = getBookingDuration();
                 priceResult            = getPriceResult();
+
                 scope.basePrice        = getBasePrice();
                 scope.fullPrice        = getFullPrice();
                 scope.durationDiscount = getDurationDiscount();
@@ -200,13 +200,21 @@
 
             function getBasePrice() {
                 if (scope.dependDuration) {
-                    return scope.nbTimeUnits * scope.listing.prices[0];
+                    return scope.nbTimeUnits * scope.timeUnitPrice;
                 } else {
-                    return scope.listing.sellingPrice;
+                    if (scope.booking) {
+                        return scope.booking.ownerPriceUnit;
+                    } else {
+                        return scope.listing.sellingPrice;
+                    }
                 }
             }
 
             function getRealBasePrice() {
+                if (scope.booking) {
+                    return scope.booking.ownerPriceUnit;
+                }
+
                 if (scope.dependDuration) {
                     return scope.listing.prices[scope.nbTimeUnits - 1];
                 } else {
@@ -218,8 +226,12 @@
                 return scope.quantity * getBasePrice();
             }
 
+            function getRealFullPrice() {
+                return scope.quantity * getRealBasePrice();
+            }
+
             function getDurationDiscount() {
-                return scope.quantity * Math.round(getBasePrice() - getRealBasePrice());
+                return Math.max(0, scope.quantity * Math.round(getBasePrice() - getRealBasePrice()));
             }
 
             function getPriceResult() {
@@ -230,7 +242,7 @@
                     priceResult = pricing.getPriceAfterRebateAndFees({ booking: scope.booking });
                 } else {
                     priceResult = pricing.getPriceAfterRebateAndFees({
-                        ownerPrice: getFullPrice(),
+                        ownerPrice: getRealFullPrice(),
                         freeValue: 0,
                         ownerFeesPercent: 0, // do not care about owner fees
                         takerFeesPercent: ! scope.applyFreeFees ? getTakerFeesPercent() : 0,
