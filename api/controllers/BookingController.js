@@ -1062,6 +1062,7 @@ function createContractToken(req, res) {
         .catch(res.sendError);
 }
 
+// TODO: enable booking contract with the listing type
 function getContract(req, res) {
     var id = req.param("id");
     var tokenValue = req.param("t");

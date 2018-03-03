@@ -112,8 +112,7 @@ async function findAssessments(conversationId, userId) {
  * @param  {object} args.booking
  * @param  {string} args.type - "start" or "end"; assessment is the start or end of the provided booking
  * @param  {object} [args.stateFields] - if not provided, take fields from before assessment
- * @param  {string} [args.stateFields.workingLevel]
- * @param  {string} [args.stateFields.cleanlinessLevel]
+ * @param  {string} [args.stateFields.status]
  * @param  {string} [args.stateFields.comment]
  * @param  {string} [args.stateFields.commentDiff]
  * @param  {object} [args.beforeAssessment] - if not provided, fetch the last assessment
@@ -126,10 +125,9 @@ function createAssessment(args) {
     var stateFields      = args.stateFields;
 
     var filteredStateAttrs = [
-        "workingLevel",
-        "cleanlinessLevel",
-        "comment",
-        "commentDiff"
+        'status',
+        'comment',
+        'commentDiff',
     ];
     var createAttrs = _.pick(stateFields, filteredStateAttrs);
 
@@ -156,9 +154,6 @@ function createAssessment(args) {
 
         _.assign(createAttrs, Assessment.getBookingState(booking, type));
 
-        var snapshots = yield Assessment.getSnapshots(createAttrs);
-        _.assign(createAttrs, Assessment.getSnapshotsIds(snapshots));
-
         return yield Assessment.create(createAttrs);
     })();
 }
@@ -176,18 +171,15 @@ function createAssessment(args) {
  */
 function updateAssessment(assessmentId, updateAttrs, userId) {
     var filteredAttrs = [
-        "workingLevel",
-        "cleanlinessLevel",
-        "comment",
-        "commentDiff"
+        'status',
+        'comment',
+        'commentDiff',
     ];
 
     updateAttrs = _.pick(updateAttrs, filteredAttrs);
 
     return Promise.coroutine(function* () {
-        if ((updateAttrs.workingLevel && ! _.contains(Assessment.get("workingLevels"), updateAttrs.workingLevel))
-            || (updateAttrs.cleanlinessLevel && ! _.contains(Assessment.get("cleanlinessLevels"), updateAttrs.cleanlinessLevel))
-        ) {
+        if (updateAttrs.status && !Assessment.isValidStatus(updateAttrs.status)) {
             throw createError(400);
         }
 
@@ -236,9 +228,6 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
     if (assessment.signedDate) {
         throw createError(400, 'Assessment already signed');
     }
-    if (assessment.signToken !== signToken) {
-        throw createError(400, 'wrong token');
-    }
 
     let outputAssessment;
 
@@ -253,6 +242,14 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
 
         // create an assessment only if this is a process with two steps
         const { ASSESSMENTS } = startBooking.listingType.properties;
+        const config = startBooking.listingType.config;
+
+        if (config.assessment.useConfirmationCode) {
+            if (assessment.signToken !== signToken) {
+                throw createError(400, 'wrong token');
+            }
+        }
+
         if (ASSESSMENTS === 'TWO_STEPS') {
             outputAssessment = await createOutputAssessment(assessment, startBooking);
         // set the completed date if this is a one-step assessment
@@ -266,6 +263,14 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
             error.assessmentId = assessment.id;
             error.bookingId    = assessment.endBookingId;
             throw error;
+        }
+
+        const config = endBooking.listingType.config;
+
+        if (config.assessment.useConfirmationCode) {
+            if (assessment.signToken !== signToken) {
+                throw createError(400, 'wrong token');
+            }
         }
 
         await Booking.updateBookingEndState(endBooking, now);
@@ -282,10 +287,6 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
     const updateAttrs = {
         signedDate: now
     };
-
-    // refresh snapshots to have the last version before freezing the assessment
-    const snapshots = await Assessment.getSnapshots(assessment);
-    _.assign(updateAttrs, Assessment.getSnapshotsIds(snapshots));
 
     assessment = await Assessment.updateOne(assessment.id, updateAttrs);
 

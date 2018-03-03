@@ -87,10 +87,6 @@ async function sign(req, res) {
     var signToken = req.param('signToken');
     var access    = 'self';
 
-    if (! signToken) {
-        return res.badRequest();
-    }
-
     try {
         const assessment = await AssessmentService.signAssessment(id, signToken, {
             userId: req.user.id,

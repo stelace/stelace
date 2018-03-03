@@ -251,6 +251,17 @@ module.exports = {
             columnType: 'varchar(255)',
             allowNull: true,
         },
+
+        contractData: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields,

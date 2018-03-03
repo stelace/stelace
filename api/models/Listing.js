@@ -418,7 +418,7 @@ async function getBookings(listingsIds, {
     minEndDate,
     maxEndDate,
     finishAfterDate,
-}) {
+} = {}) {
     var findAttrs = {};
 
     if (finishAfterDate) {

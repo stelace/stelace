@@ -4,13 +4,12 @@
         <div class="plain-card">
             <div class="plain-card__divider">
                 <h2 ng-switch="vm.filter">
-                    <span ng-switch-when="transactions">Mes transactions et contrats</span>
-                    <span ng-switch-default>Boite de réception</span>
+                    <span ng-switch-when="transactions" data-translate="inbox.transactions_label"></span>
+                    <span ng-switch-default data-translate="inbox.inbox_label"></span>
                 </h2>
             </div>
             <div class="inbox__conversations">
-                <div ng-if="vm.noConversation">
-                    Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s'afficheront ici.
+                <div ng-if="vm.noConversation" data-translate="inbox.empty_inbox">
                 </div>
                 <a class="flex-container flex--align-center"
                     ng-repeat="conv in vm.conversations"
@@ -30,29 +29,38 @@
                         </div>
                         <div class="show-for-small-only text--small ellipsis text--light">
                             <div class="text--semibold"
-                                ng-if="(conv.inputAssessmentId || conv.outputAssessmentId)"
+                                ng-if="conv.showAssessmentLabel"
                                 ng-hide="conv.agreementStatus === 'cancelled'"
-                                ng-class=" {'text--orange': ! conv.signedAssessment}">
-                                État des lieux
-                                <span ng-if="conv.inputAssessment && ! conv.outputAssessment">initial</span>
-                                <span ng-if="conv.outputAssessment">final</span>
-                                <span ng-show="conv.signedAssessment">signé</span>
-                                <span ng-hide="conv.signedAssessment">à signer</span>
+                                ng-class=" {'text--orange': ! conv.signedAssessment}"
+                                data-translate="assessment.assessment_action"
+                                data-translate-values="{ step: conv.assessmentStep, toConfirm: !conv.signedAssessment }"
+                            >
                             </div>
-                            <div ng-if="(! vm.filter || vm.filter !== 'transactions') || ! (conv.inputAssessmentId || conv.outputAssessmentId)">
-                                {{::(conv.privateContent || 'Conversation avec ' + conv.interlocutor.displayName)}}
+                            <div ng-if="(! vm.filter || vm.filter !== 'transactions') || ! (conv.inputAssessmentId || conv.outputAssessmentId)"
+                                ng-switch="!!conv.privateContent"
+                            >
+                                <span ng-switch-when="true">{{::conv.privateContent}}</span>
+                                <span ng-switch-when="false"
+                                    data-translate="inbox.conversation_with"
+                                    data-translate-values="{ interlocutorName: conv.interlocutor.displayName }"
+                                >
+                                </span>
                             </div>
                         </div>
-                        <div class="inbox__conversation-date text--small">
-                            {{::conv.lastDateString}}
+                        <div class="inbox__conversation-date text--small"
+                            data-translate="time.date_long"
+                            data-translate-values="{ date: conv.lastDate }"
+                        >
                         </div>
                         <div class="show-for-small-only text--small text--semibold">
-                            <span ng-class="{'text--orange': conv.statusWarning}">
-                                {{vm.statusMap[conv.agreementStatus] || 'Information'}}
+                            <span ng-class="{'text--orange': conv.statusWarning}"
+                                data-translate="{{vm.statusMapKey[conv.agreementStatus] || vm.statusMapKey.information}}"
+                            >
                             </span>
                             <span ng-if="conv.countdown || conv.countdownWarning">
-                                <span class="inbox__conversation-countdown">&nbsp;&bull;&nbsp;{{conv.countdown ? conv.countdown + "s" : ""}}</span>
-                                {{ conv.countdownWarning || "pour accepter"}}
+                                <span class="inbox__conversation-countdown">&nbsp;&bull;&nbsp;{{conv.countdown ? conv.countdown : ""}}</span>
+                                <span ng-if="conv.impendingCancellation" data-translate="booking.impending_cancellation"></span>
+                                <span ng-if="!conv.impendingCancellation" data-translate="booking.remaining_time_to_accept"></span>
                             </span>
                         </div>
                     </div>
@@ -62,34 +70,52 @@
                             <span class="text--semibold">
                                 {{::conv.listing.name}}
                             </span>
-                            <span class="text--light">
-                                {{::((conv.bookingDates) ? '(' + conv.bookingDates + ')' : '')}}
+                            <span class="text--light" ng-if="conv.startDate">
+                                <span>(</span>
+                                <span ng-if="(conv.displayStartDate && !conv.displayEndDate) || (conv.displayStartDate === conv.displayEndDate)"
+                                    data-translate="inbox.booking_date"
+                                    data-translate-values="{ date: conv.displayStartDate }"
+                                >
+                                </span>
+                                <span ng-if="conv.displayStartDate && conv.displayEndDate"
+                                    data-translate="inbox.booking_dates"
+                                    data-translate-values="{ startDate: conv.displayStartDate, endDate: conv.displayEndDate }"
+                                >
+                                </span>
+                                <span>)</span>
                             </span>
                         </div>
                         <div class="text--small ellipsis text--light">
                             <div class="text--semibold"
-                                ng-if="(conv.inputAssessmentId || conv.outputAssessmentId)"
+                                ng-if="conv.showAssessmentLabel"
                                 ng-hide="conv.agreementStatus === 'cancelled'"
-                                ng-class=" {'text--orange': ! conv.signedAssessment}">
-                                État des lieux
-                                <span ng-if="conv.inputAssessment && ! conv.outputAssessment">initial</span>
-                                <span ng-if="conv.outputAssessment">final</span>
-                                <span ng-show="conv.signedAssessment">signé</span>
-                                <span ng-hide="conv.signedAssessment">à signer</span>
+                                ng-class=" {'text--orange': ! conv.signedAssessment}"
+                                data-translate="assessment.assessment_action"
+                                data-translate-values="{ step: conv.assessmentStep, toConfirm: !conv.signedAssessment }"
+                            >
                             </div>
-                            <div ng-if="(! vm.filter || vm.filter !== 'transactions') || ! (conv.inputAssessmentId || conv.outputAssessmentId)">
-                                {{::(conv.privateContent || 'Conversation avec ' + conv.interlocutor.displayName)}}
+                            <div ng-if="(! vm.filter || vm.filter !== 'transactions') || ! (conv.inputAssessmentId || conv.outputAssessmentId)"
+                                ng-switch="!!conv.privateContent"
+                            >
+                                <span ng-switch-when="true">{{::conv.privateContent}}</span>
+                                <span ng-switch-when="false"
+                                    data-translate="inbox.conversation_with"
+                                    data-translate-values="{ interlocutorName: conv.interlocutor.displayName }"
+                                >
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <div class="inbox__conversation-info text--semibold show-for-medium text-center">
-                        <div ng-class="{ 'text--orange': conv.statusWarning}">
-                            {{vm.statusMap[conv.agreementStatus] || 'Information'}}
+                        <div ng-class="{ 'text--orange': conv.statusWarning}"
+                            data-translate="{{vm.statusMapKey[conv.agreementStatus] || vm.statusMapKey.information}}"
+                        >
                         </div>
                         <div class="text--vsmall" ng-if="conv.countdown || conv.countdownWarning">
-                            <div class="inbox__conversation-countdown">{{conv.countdown ? conv.countdown + "s" : ""}}</div>
-                            <div>{{ conv.countdownWarning || "pour accepter"}}</div>
+                            <div class="inbox__conversation-countdown">{{conv.countdown ? conv.countdown : ""}}</div>
+                            <div ng-if="conv.impendingCancellation" data-translate="booking.impending_cancellation"></div>
+                            <div ng-if="!conv.impendingCancellation" data-translate="booking.remaining_time_to_accept"></div>
                         </div>
                     </div>
                 </a>

@@ -23,15 +23,15 @@
         var activated;
 
         var vm = this;
-        vm.statusMap = {
-            "automatic": "Accepté",
-            "agreed": "Accepté",
-            "rejected": "Rejeté",
-            "rejected-by-other": "Rejeté",
-            "pending": "En attente",
-            "pending-giver": "En attente",
-            "cancelled": "Annulé",
-            "recall": "Rappel"
+        vm.statusMapKey = {
+            'information': 'booking.status.information',
+            'automatic': 'booking.status.accepted',
+            'agreed': 'booking.status.accepted',
+            'rejected': 'booking.status.rejected',
+            'rejected-by-other': 'booking.status.rejected',
+            'pending': 'booking.status.pending',
+            'pending-giver': 'booking.status.pending',
+            'cancelled': 'booking.status.cancelled'
         };
 
 
@@ -40,8 +40,6 @@
 
 
         function activate() {
-            moment.locale("fr");
-
             if (typeof $stateParams.f !== "undefined") {
                 if ($stateParams.f === "t") { // transactions that require user attention (bookingId)
                     vm.filter = "transactions";
@@ -67,10 +65,6 @@
                 });
                 throttledRefresh.cancel();
             });
-        }
-
-        function _displayDate(date) {
-            return moment(date).format("Do MMMM");
         }
 
         function _refreshInbox() {
@@ -119,25 +113,7 @@
 
 
             function populateConversation(conversation) {
-                if (conversation.inputAssessmentId) {
-                    if (conversation.inputAssessment.signedDate) {
-                        conversation.signedAssessment = true;
-                    }
-                    // Manage cancelled status
-                    if (conversation.inputAssessment.cancellationId
-                     && ! conversation.outputAssessment
-                     && conversation.agreementStatus !== "rejected"
-                    ) {
-                        conversation.agreementStatus = "cancelled";
-                    }
-                }
-                if (conversation.outputAssessmentId) {
-                    if (conversation.outputAssessment.signedDate) {
-                        conversation.signedAssessment = true;
-                    } else {
-                        conversation.signedAssessment = false;
-                    }
-                }
+                _setAssessmentState(conversation);
 
                 // TODO: ratings (to prompt user if needed)
 
@@ -148,11 +124,17 @@
                 interlocutor.displayName       = interlocutor.firstname || interlocutor.fullname;
                 conversation.interlocutor      = interlocutor;
                 conversation.interlocutorMedia = interlocutorMedia;
-                conversation.lastDateString    = _displayDate(conversation.newContentDate);
+                conversation.lastDate          = conversation.newContentDate;
 
-                if (conversation.startDate && conversation.endDate) {
-                    conversation.bookingDates = (conversation.startDate !== conversation.endDate)
-                     ? _displayDate(conversation.startDate) + ' - ' + _displayDate(conversation.endDate) : _displayDate(conversation.endDate);
+                var TIME = conversation.booking.listingType.properties.TIME;
+                if (TIME !== 'NONE') {
+                    if (conversation.startDate) {
+                        conversation.displayStartDate = conversation.startDate;
+                    }
+                    if (conversation.endDate) {
+                        // TODO: find a generic way to do with other time units (here day time unit)
+                        conversation.displayEndDate = getDisplayEndDate(conversation.endDate);
+                    }
                 }
 
                 var isSender   = currentUser.id === conversation.senderId;
@@ -196,7 +178,6 @@
 
                 var secondsLeft = timeLeft / 1000;
 
-
                 if (secondsLeft > 0) {
                     hours = Math.floor(secondsLeft / 3600);
                     secondsLeft = secondsLeft % 3600;
@@ -209,10 +190,9 @@
                      + tools.fillByCharacter(seconds, 2);
                 } else if (secondsLeft >= -43200) { // 12 hours more to accept
                     countdown = "";
-                    conversation.countdownWarning = "Annulation imminente";
+                    conversation.impendingCancellation = true;
                 } else if (secondsLeft < -43200) {
                     countdown = "";
-                    conversation.countdownWarning = "";
                 }
 
                 conversation.countdown = countdown;
@@ -221,6 +201,53 @@
             intervals.push(conversation.countdownInterval);
         }
 
+        function _setAssessmentState(conversation) {
+            if (conversation.inputAssessmentId) {
+                if (conversation.inputAssessment.signedDate) {
+                    conversation.signedAssessment = true;
+                }
+                // Manage cancelled status
+                if (conversation.inputAssessment.cancellationId
+                 && ! conversation.outputAssessment
+                 && conversation.agreementStatus !== "rejected"
+                ) {
+                    conversation.agreementStatus = "cancelled";
+                }
+            }
+            if (conversation.outputAssessmentId) {
+                if (conversation.outputAssessment.signedDate) {
+                    conversation.signedAssessment = true;
+                } else {
+                    conversation.signedAssessment = false;
+                }
+            }
+
+            conversation.showAssessmentLabel = false;
+
+            if (!conversation.inputAssessmentId && ! conversation.outputAssessmentId) {
+                return;
+            }
+
+            var ASSESSMENTS = conversation.booking.listingType.properties.ASSESSMENTS;
+
+            if (ASSESSMENTS !== 'NONE') {
+                conversation.showAssessmentLabel = true;
+            }
+
+            if (ASSESSMENTS === 'ONE_STEP') {
+                conversation.assessmentStep = null;
+            } else if (ASSESSMENTS === 'TWO_STEPS') {
+                if (conversation.outputAssessmentId) {
+                    conversation.assessmentStep = 'end';
+                } else {
+                    conversation.assessmentStep = 'start';
+                }
+            }
+        }
+
+        function getDisplayEndDate(date) {
+            return moment(date).add({ d: -1 }).format('YYYY-MM-DD') + 'T00:00:00.000Z';
+        }
     }
 
 })();

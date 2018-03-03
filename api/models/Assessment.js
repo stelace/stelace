@@ -1,4 +1,4 @@
-/* global Assessment, Conversation, GeneratorService, Listing, ListingHistoryService, Location, MicroService, ModelSnapshot, User */
+/* global Assessment, Conversation, GeneratorService, ListingHistoryService, MicroService */
 
 /**
 * Assessment.js
@@ -25,13 +25,7 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
         },
-        workingLevel: { // not required because we want to generate an empty assessment
-            type: 'string',
-            columnType: 'varchar(255) CHARACTER SET utf8mb4',
-            allowNull: true,
-            maxLength: 255,
-        },
-        cleanlinessLevel: { // not required because we want to generate an empty assessment
+        status: { // not required because we want to generate an empty assessment
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
             allowNull: true,
@@ -48,12 +42,6 @@ module.exports = {
             allowNull: true,
         },
         listingId: {
-            type: 'number',
-            columnType: 'int',
-            allowNull: true,
-            // index: true,
-        },
-        listingSnapshotId: {
             type: 'number',
             columnType: 'int',
             allowNull: true,
@@ -77,31 +65,7 @@ module.exports = {
             allowNull: true,
             // index: true,
         },
-        ownerSnapshotId: {
-            type: 'number',
-            columnType: 'int',
-            allowNull: true,
-            // index: true,
-        },
-        ownerMainLocationSnapshotId: {
-            type: 'number',
-            columnType: 'int',
-            allowNull: true,
-            // index: true,
-        },
         takerId: {
-            type: 'number',
-            columnType: 'int',
-            allowNull: true,
-            // index: true,
-        },
-        takerSnapshotId: {
-            type: 'number',
-            columnType: 'int',
-            allowNull: true,
-            // index: true,
-        },
-        takerMainLocationSnapshotId: {
             type: 'number',
             columnType: 'int',
             allowNull: true,
@@ -125,64 +89,57 @@ module.exports = {
             allowNull: true,
             // index: true,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields,
-    get,
     beforeCreate,
     isAccessSelf,
+    isValidStatus,
     getLastSigned,
     getBookingState,
     getRealTakerId,
     getRealGiverId,
-    getSnapshots,
-    getSnapshotsIds,
     getPrefilledStateFields,
-    getAssessmentLevel,
     filterConversationAssessments,
     exposeBeforeAssessment,
     needBeforeAssessments,
 
 };
 
-var params = {
-    workingLevels: ["good", "average", "bad"],
-    cleanlinessLevels: ["good", "average", "bad"]
-};
-
 const _ = require('lodash');
-const Promise = require('bluebird');
-const createError = require('http-errors');
 
 function getAccessFields(access) {
     var accessFields = {
         self: [ // req.user.id in (ownerId || takerId)
-            "id",
-            "workingLevel",
-            "cleanlinessLevel",
-            "comment",
-            "commentDiff",
-            "listingId",
-            "listingSnapshotId",
-            "startBookingId",
-            "endBookingId",
-            "ownerId",
-            "ownerSnapshotId",
-            "takerId",
-            "takerSnapshotId",
-            "signedDate",
-            "cancellationId"
+            'id',
+            'status',
+            'comment',
+            'commentDiff',
+            'listingId',
+            'listingSnapshotId',
+            'startBookingId',
+            'endBookingId',
+            'ownerId',
+            'ownerSnapshotId',
+            'takerId',
+            'takerSnapshotId',
+            'signedDate',
+            'cancellationId',
         ],
         others: [
-            "id",
-            "workingLevel",
-            "cleanlinessLevel",
-            "comment",
-            "commentDiff",
-            "listingId",
-            "listingSnapshotId",
-            "signedDate",
-            "cancellationId"
+            'id',
+            'status',
+            'comment',
+            'commentDiff',
+            'listingId',
+            'listingSnapshotId',
+            'signedDate',
+            'cancellationId',
         ]
     };
 
@@ -190,19 +147,10 @@ function getAccessFields(access) {
 }
 
 var beforeAssessmentFields = [
-    "workingLevel",
-    "cleanlinessLevel",
-    "comment",
-    "commentDiff"
+    'status',
+    'comment',
+    'commentDiff'
 ];
-
-function get(prop) {
-    if (prop) {
-        return params[prop];
-    } else {
-        return params;
-    }
-}
 
 function beforeCreate(values, next) {
     Assessment.beforeCreateDates(values);
@@ -213,37 +161,39 @@ function beforeCreate(values, next) {
 
 function isAccessSelf(assessment, user) {
     var selfFields = [
-        "ownerId",
-        "takerId"
+        'ownerId',
+        'takerId'
     ];
 
     return _.contains(_.pick(assessment, selfFields), user.id);
 }
 
-function getLastSigned(listingIdOrIds) {
-    return Promise.coroutine(function* () {
-        var onlyOne;
-        var listingsIds;
+function isValidStatus(status) {
+    return _.includes(['good', 'bad'], status);
+}
 
-        if (_.isArray(listingIdOrIds)) {
-            listingsIds = _.uniq(listingIdOrIds);
-            onlyOne = false;
-        } else {
-            listingsIds = [listingIdOrIds];
-            onlyOne = true;
-        }
+async function getLastSigned(listingIdOrIds) {
+    let onlyOne;
+    let listingsIds;
 
-        const listingHistories = yield ListingHistoryService.getListingHistories(listingsIds);
+    if (_.isArray(listingIdOrIds)) {
+        listingsIds = _.uniq(listingIdOrIds);
+        onlyOne = false;
+    } else {
+        listingsIds = [listingIdOrIds];
+        onlyOne = true;
+    }
 
-        if (onlyOne) {
-            return listingHistories[listingIdOrIds].getLastSignedAssessment();
-        } else {
-            return _.reduce(listingHistories, (memo, listingHistory, listingId) => {
-                memo[listingId] = listingHistory.getLastSignedAssessment();
-                return memo;
-            }, {});
-        }
-    })();
+    const listingHistories = await ListingHistoryService.getListingHistories(listingsIds);
+
+    if (onlyOne) {
+        return listingHistories[listingIdOrIds].getLastSignedAssessment();
+    } else {
+        return _.reduce(listingHistories, (memo, listingHistory, listingId) => {
+            memo[listingId] = listingHistory.getLastSignedAssessment();
+            return memo;
+        }, {});
+    }
 }
 
 /**
@@ -285,97 +235,20 @@ function getRealGiverId(assessment) {
     }
 }
 
-function getSnapshots(assessment) {
-    return Promise.coroutine(function* () {
-        var usersIds = [assessment.ownerId, assessment.takerId];
-
-        usersIds = _.uniq(usersIds);
-
-        var results;
-
-        results = yield Promise.props({
-            listing: Listing.findOne({ id: assessment.listingId }),
-            users: User.find({ id: usersIds })
-        });
-
-        var listing  = results.listing;
-        var users = results.users;
-
-        var owner = _.find(users, { id: assessment.ownerId });
-        var taker = _.find(users, { id: assessment.takerId });
-
-        if (! listing
-            || ! owner
-            || ! taker
-        ) {
-            throw createError(404);
-        }
-
-        results = yield Promise.props({
-            listingSnapshot: ModelSnapshot.getSnapshot("listing", listing),
-            ownerSnapshot: ModelSnapshot.getSnapshot("user", owner),
-            takerSnapshot: ModelSnapshot.getSnapshot("user", taker),
-            ownerLocSnapshot: Location.getMainLocationSnapshot(owner.id),
-            takerLocSnapshot: Location.getMainLocationSnapshot(taker.id),
-        });
-
-        return {
-            listingSnapshot: results.listingSnapshot,
-            ownerSnapshot: results.ownerSnapshot,
-            takerSnapshot: results.takerSnapshot,
-            ownerMainLocationSnapshot: results.ownerLocSnapshot,
-            takerMainLocationSnapshot: results.takerLocSnapshot,
-        };
-    })();
-}
-
-function getSnapshotsIds(snapshots) {
-    return {
-        listingSnapshotId: snapshots.listingSnapshot.id,
-        ownerSnapshotId: snapshots.ownerSnapshot.id,
-        takerSnapshotId: snapshots.takerSnapshot.id,
-        ownerMainLocationSnapshotId: snapshots.ownerMainLocationSnapshot ? snapshots.ownerMainLocationSnapshot.id : null,
-        takerMainLocationSnapshotId: snapshots.takerMainLocationSnapshot ? snapshots.takerMainLocationSnapshot.id : null
-    };
-}
-
 function getPrefilledStateFields(assessment) {
-    var comment = null;
+    let comment = null;
 
     if (assessment.comment) {
         comment = assessment.comment;
     }
     if (assessment.commentDiff) {
-        comment = (comment || "") + "\n\n" + assessment.commentDiff;
+        comment = (comment || '') + '\n\n' + assessment.commentDiff;
     }
 
     return {
-        workingLevel: assessment.workingLevel,
-        cleanlinessLevel: assessment.cleanlinessLevel,
-        comment: comment
+        status: assessment.status,
+        comment,
     };
-}
-
-function getAssessmentLevel(type, level) {
-    var levelTypes = {
-        working: {
-            good: "Fonctionnel",
-            average: "Moyen",
-            bad: "Non fonctionnel"
-        },
-        cleanliness: {
-            good: "Propre",
-            average: "Moyen",
-            bad: "Sale"
-        }
-    };
-
-    var levelType = levelTypes[type];
-    if (levelType) {
-        return levelType[level];
-    }
-
-    return "";
 }
 
 /**

@@ -173,7 +173,9 @@
         }
     },
     "time": {
-        "short_date": "{date, date, short}"
+        "date_short": "{date, date, short}",
+        "date_long": "{date, date, long}",
+        "date_full": "{date, date, full}"
     },
     "user": {
         "is_level": "{level} user",
@@ -287,7 +289,27 @@
             "minimum_duration": "The duration must be {timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } at least.",
             "maximum_duration": "The duration must be {timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } at the maximum."
         },
-        "login_first": "Please login before going further."
+        "login_first": "Please login before going further.",
+        "impending_cancellation": "Impending cancellation",
+        "remaining_time_to_accept": "To accept",
+        "status": {
+            "accepted": "Accepted",
+            "rejected": "Rejected",
+            "pending": "Pending",
+            "cancelled": "Cancelled",
+            "information": "Information"
+        }
+    },
+    "inbox": {
+        "inbox_label": "Inbox",
+        "transactions_label": "My transactions",
+        "empty_inbox": "When you will send or receive messages and reservation requests, the messages will display here.",
+        "conversation_with": "Conversation with {interlocutorName}",
+        "booking_date": "{date, date, long}",
+        "booking_dates": "{startDate, date, long} - {endDate, date, long}"
+    },
+    "assessment": {
+        "assessment_action": "{step, select, start{Initial transaction} end{Final transaction} other{Transaction}} confirmation {toConfirm, select, true{to complete} false{completed} other{}}"
     },
     "pricing": {
         "price_with_currency": "{price, number, currency}",

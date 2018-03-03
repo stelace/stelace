@@ -1,5 +1,5 @@
 /* global
-    AppUrlService, Assessment, EmailUtmService, PricingService, ToolsService,
+    AppUrlService, EmailUtmService, PricingService, ToolsService,
     UrlService, User
 */
 
@@ -15,7 +15,6 @@ module.exports = {
     getListingDescription: getListingDescription,
     shrinkString: shrinkString,
     formatDate: formatDate,
-    getAssessmentLevel: getAssessmentLevel,
     getGamificationLevel: getGamificationLevel,
     getHumanReadDuration: getHumanReadDuration,
     getAppUrl: getAppUrl,
@@ -173,10 +172,6 @@ function formatDate(date, type) {
     }
 
     return moment(date).format(types[type]);
-}
-
-function getAssessmentLevel() {
-    return Assessment.getAssessmentLevel.apply(null, arguments);
 }
 
 function getGamificationLevel(levelId) {

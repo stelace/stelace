@@ -329,6 +329,7 @@ function getConversations(req, res) {
                         // custom exposition
                         conversation.booking = {
                             id: booking.id,
+                            listingType: booking.listingType,
                             takerId: booking.takerId,
                             paidDate: booking.paidDate,
                             acceptedDate: booking.acceptedDate

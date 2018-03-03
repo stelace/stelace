@@ -173,7 +173,9 @@
         }
     },
     "time": {
-        "date_short": "{date, date, short}"
+        "date_short": "{date, date, short}",
+        "date_long": "{date, date, long}",
+        "date_full": "{date, date, full}"
     },
     "user": {
         "is_level": "Membre {level}",
@@ -287,7 +289,27 @@
             "minimum_duration": "La durée doit être de {timeUnit, select, d{ {nbTimeUnits, plural, one{# jour} other{# jours}} } n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} } h{ {nbTimeUnits, plural, one{# heure} other{# heures}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } au minimum.",
             "maximum_duration": "La durée doit être de {timeUnit, select, d{ {nbTimeUnits, plural, one{# jour} other{# jours}} } n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} } h{ {nbTimeUnits, plural, one{# heure} other{# heures}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } au maximum."
         },
-        "login_first": "Nous vous invitons à vous connecter avant de continuer."
+        "login_first": "Nous vous invitons à vous connecter avant de continuer.",
+        "impending_cancellation": "Annulation imminente",
+        "remaining_time_to_accept": "Pour accepter",
+        "status": {
+            "accepted": "Accepté",
+            "rejected": "Rejeté",
+            "pending": "En attente",
+            "cancelled": "Annulé",
+            "information": "Information"
+        }
+    },
+    "inbox": {
+        "inbox_label": "Boîte de réception",
+        "transactions_label": "Mes transactions",
+        "empty_inbox": "Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s'afficheront ici.",
+        "conversation_with": "Conversation avec {interlocutorName}",
+        "booking_date": "{date, date, long}",
+        "booking_dates": "{startDate, date, long} - {endDate, date, long}"
+    },
+    "assessment": {
+        "assessment_action": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}} {toConfirm, select, true{à saisir} false{effectuée} other{}}"
     },
     "pricing": {
         "price_with_currency": "{price, number, currency}",
