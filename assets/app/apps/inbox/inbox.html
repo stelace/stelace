@@ -60,7 +60,7 @@
                             <span ng-if="conv.countdown || conv.countdownWarning">
                                 <span class="inbox__conversation-countdown">&nbsp;&bull;&nbsp;{{conv.countdown ? conv.countdown : ""}}</span>
                                 <span ng-if="conv.impendingCancellation" data-translate="booking.impending_cancellation"></span>
-                                <span ng-if="!conv.impendingCancellation" data-translate="booking.remaining_time_to_accept"></span>
+                                <span ng-if="!conv.impendingCancellation" data-translate="booking.to_accept_suffix"></span>
                             </span>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
                         <div class="text--vsmall" ng-if="conv.countdown || conv.countdownWarning">
                             <div class="inbox__conversation-countdown">{{conv.countdown ? conv.countdown : ""}}</div>
                             <div ng-if="conv.impendingCancellation" data-translate="booking.impending_cancellation"></div>
-                            <div ng-if="!conv.impendingCancellation" data-translate="booking.remaining_time_to_accept"></div>
+                            <div ng-if="!conv.impendingCancellation" data-translate="booking.to_accept_suffix"></div>
                         </div>
                     </div>
                 </a>

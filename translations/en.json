@@ -175,7 +175,9 @@
     "time": {
         "date_short": "{date, date, short}",
         "date_long": "{date, date, long}",
-        "date_full": "{date, date, full}"
+        "date_full": "{date, date, full}",
+        "time_short": "{time, time, short}",
+        "time_full": "{time, time, full}"
     },
     "user": {
         "is_level": "{level} user",
@@ -185,7 +187,8 @@
         "verified_email_label": "Verified",
         "phone_number_label": "Phone number",
         "verified_phone_number_label": "Verified",
-        "no_verified_info_public_text": "{user} has no verified info yet."
+        "no_verified_info_public_text": "{user} has no verified info yet.",
+        "picture_title": "Picture of {user}"
     },
     "landing": {
         "homepage": {
@@ -245,6 +248,8 @@
         "post_listing_short_button_2": "New listing",
         "continue_button": "Continue",
         "save_button": "Save",
+        "cancel_button": "Cancel",
+        "send_button": "Send",
         "search": {
             "query_placeholder": "You’re looking for…",
             "near_location_placeholder": "Near…",
@@ -291,13 +296,49 @@
         },
         "login_first": "Please login before going further.",
         "impending_cancellation": "Impending cancellation",
-        "remaining_time_to_accept": "To accept",
+        "to_accept_suffix": "to accept",
+        "remaining_time_to_accept": "{remainingTime} remaining to accept.",
+        "coming_cancellation_message": "Please accept or reject the request from {userName} or contact us if there is any problem.",
+        "impending_cancellation_message": "The booking cancellation is impending. Please accept or reject the request from {userName} or contact us if there is any problem.",
+        "on_date": "on {date, date, short}",
+        "from_start_date_to_end_date": "from {startDate, date, short} to {endDate, date, short}",
+        "acceptance_deadline_message": "After a booking, you have 36h to accept or reject it. After that deadline, the booking can be automatically cancelled.",
+        "summary_title": {
+            "request_for_information": "Request for information",
+            "booking_request": "Booking request",
+            "information_required": "Information required"
+        },
+        "summary": {
+            "base_price_as_taker": "Price set by owner: {price, number, currency}",
+            "base_price_as_owner": "Applied price: {price, number, currency}",
+            "owner_net_amount": "Net amount for you: {price, number, currency}",
+            "taker_fees": "Service fees: {price, select, 0{Free} other{{price, number, currency}}}",
+            "owner_fees": "Payment fees{price, select, 0{} other{ included}}: {price, select, 0{Free} other{{price, number, currency}}}",
+            "security_deposit": "Security deposit: {price, number, currency}"
+        },
         "status": {
             "accepted": "Accepted",
             "rejected": "Rejected",
             "pending": "Pending",
             "cancelled": "Cancelled",
             "information": "Information"
+        },
+        "status_message": {
+            "cancelled": "The booking has been cancelled.",
+            "updated": "A more recent booking has been made.",
+            "paid_and_accepted": "A booking has been accepted and paid on {date, date, short}.",
+            "paid_as_taker": "Your payment has took place on {payDate, date, short}.",
+            "paid_as_owner": "The booking has been paid by {userName}.",
+            "accepted_as_taker": "The booking has been accepted by {userName} on {acceptedDate, date, short}.",
+            "accepted_as_owner": "You accepted the booking."
+        },
+        "prompt": {
+            "view_contract": "View my online contract",
+            "show_banking_details": "Show my banking details",
+            "hide_banking_details": "Hide my banking details",
+            "accept_button": "Accept the booking",
+            "reject_button": "Reject",
+            "confirm_rejection_button": "Confirm the rejection"
         }
     },
     "inbox": {
@@ -305,8 +346,31 @@
         "transactions_label": "My transactions",
         "empty_inbox": "When you will send or receive messages and reservation requests, the messages will display here.",
         "conversation_with": "Conversation with {interlocutorName}",
+        "message_to": "Message to {interlocutorName}:",
+        "acceptance_or_rejection_placeholder": "Please provider some details...",
+        "required_message": "Please write your message to {interlocutorName}",
+        "rejection_required_message": "Please explain your rejection in few words",
         "booking_date": "{date, date, long}",
-        "booking_dates": "{startDate, date, long} - {endDate, date, long}"
+        "booking_dates": "{startDate, date, long} - {endDate, date, long}",
+        "private_question_helper": "You can reply to {interlocutorName}'s private message below:",
+        "private_question_placeholder": "Write your private message...",
+        "public_question_helper": "You also can reply publicly to the requests on your listing. Your message will be displayed in the description section of your listing page:",
+        "public_question_placeholder": "Write your public message...",
+        "public_message_context": "About the listing:",
+        "message_obfuscate_info": "For security reasons, your contact details will be hidden in your message.",
+        "send_message_button": "Send a message",
+        "message_sent_success": "Message sent",
+        "message_sent_duplicate_title": "Message already sent",
+        "message_sent_duplicate_message": "You recently sent a message with an identical content.",
+        "missing_message_title": "Empty message",
+        "missing_message_message": "Please write your message before sending it.",
+        "new_message_notification_message": "You have a new message",
+        "contact_details_hidden_title": "Contact details protected",
+        "self_contact_details_hidden_message": "Your contact details are hidden before the acceptance of that booking as a security measure.",
+        "interlocutor_contact_details_hidden_message": "{interlocutorName} contact details are hidden before the acceptance of that booking as a security measure. They will be sent to you by e-mail.",
+        "booking_acceptance_success_title": "Booking request accepted",
+        "booking_acceptance_success_message": "Thanks! We have informed {userName} you accepted.",
+        "booking_rejection_success_message": "Booking request rejected"
     },
     "assessment": {
         "assessment_action": "{step, select, start{Initial transaction} end{Final transaction} other{Transaction}} confirmation {toConfirm, select, true{to complete} false{completed} other{}}"

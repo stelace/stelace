@@ -2,7 +2,10 @@
     <div class="header-space"></div>
     <div class="conversation-container fluid-content space">
         <h2>
-            Conversation avec {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}
+            <span data-translate="inbox.conversation_with"
+                data-translate-values="{ interlocutorName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
+            >
+            </span>
             <!-- No one-time binding here to reveal when appropriate -->
             <span class="hide-for-desktop inline text--light" ng-if="vm.interlocutor.showPhone">
                 ({{vm.interlocutor.phonePart}})
@@ -19,7 +22,11 @@
                         name="vm.forms.conversationForm"
                         ng-submit="vm.resetConversationForm()"
                         novalidate>
-                        <label for="private-message" class="margin-top margin-bottom text-justify" ng-if="vm.promptPublic">Vous pouvez répondre au message privé de {{::vm.interlocutor.fullname}} ci-dessous&nbsp;:</label>
+                        <label for="private-message" class="margin-top margin-bottom text-justify" ng-if="vm.promptPublic"
+                            data-translate="inbox.private_question_helper"
+                            data-translate-values="{ interlocutorName: vm.interlocutor.fullname }"
+                        >
+                        </label>
                         <textarea name="privateMessage"
                             id="private-message"
                             rows="5"
@@ -27,11 +34,14 @@
                             ng-model-options="{ debounce: 500 }"
                             ng-change="vm.saveMessageTmp();vm.shouldObfuscateMessage('private')"
                             ng-maxlength="2000"
-                            placeholder="{{vm.promptPublic ? 'Question privée:\n' + vm.messages[0].privateContent.substr(0, 128) + '...' : 'Commencez votre message personnel...'}}"
                             ng-required="! vm.promptPublic"
+                            data-translate-attr="{ placeholder: 'inbox.private_question_placeholder' }"
                             sip-textarea-auto-adjust>
                         </textarea>
-                        <label class="margin-bottom text-justify" ng-if="vm.promptPublic">Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.listing.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:</label>
+                        <label class="margin-bottom text-justify" ng-if="vm.promptPublic"
+                            data-translate="inbox.public_question_helper"
+                        >
+                        </label>
                         <textarea name="publicMessage"
                             rows="5"
                             ng-if="vm.promptPublic"
@@ -39,17 +49,19 @@
                             ng-model-options="{ debounce: 500 }"
                             ng-change="vm.shouldObfuscateMessage('public')"
                             ng-maxlength="2000"
-                            placeholder="{{'Question publique:\n' + vm.messages[0].publicContent.substr(0, 128) + '...'}}"
+                            data-translate-attr="{ placeholder: 'inbox.public_question_placeholder' }"
                             sip-textarea-auto-adjust>
                         </textarea>
-                        <div class="text--semibold text--blue pull-t margin-bottom" uib-collapse="!vm.showShouldObfuscateMessage">
-                            Par sécurité, vos coordonnées seront masquées dans votre message.
+                        <div class="text--semibold text--blue pull-t margin-bottom" uib-collapse="!vm.showShouldObfuscateMessage"
+                            data-translate="inbox.message_obfuscate_info"
+                        >
                         </div>
                         <button class="button"
                             type="submit"
                             ng-click="vm.sendMessage()"
-                            ng-disabled="conversationForm.privateMessage.$invalid || conversationForm.publicMessage.$invalid">
-                            Envoyer un message
+                            ng-disabled="conversationForm.privateMessage.$invalid || conversationForm.publicMessage.$invalid"
+                            data-translate="inbox.send_message_button"
+                        >
                         </button>
                     </form>
                 </div>
@@ -202,19 +214,36 @@
                                 {{::message.privateContent}}
                             </div>
                             <div class="padding-top" ng-if="::message.publicContent">
-                                <span class="text--semibold">Concernant l'objet&nbsp;:</span><br>
+                                <span class="text--semibold" data-translate="inbox.public_message_context"></span><br>
                                 {{::message.publicContent}}
                             </div>
                             <div class="message__date"
-                                ng-if="::message.createdDate">
-                                {{::vm.displayDate(message.createdDate)}}
+                                ng-if="::message.createdDate"
+                            >
+                                <span ng-if="message.showDisplayDate">
+                                    <span
+                                        data-translate="time.date_long"
+                                        data-translate-values="{ date: message.createdDate }"
+                                    >
+                                    </span>
+                                    <span>,&nbsp;</span>
+                                </span>
+                                <span data-translate="time.time_short"
+                                    data-translate-values="{ time: message.createdDate }"
+                                >
+                                </span>
                             </div>
                         </div>
                         <div class="small-2 medium-1 message__interlocutor-thumbnail-wrapper">
                             <a class="profile__image"
                                 ui-sref="user({ id: vm.interlocutor.id })"
                                 ng-if="::(message.senderId === vm.interlocutor.id)">
-                                <sip-img class="webkit-render-fix" ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}" alt="Photo de {{::vm.interlocutor.fullname}}" rounded="true"></sip-img>
+                                <sip-img class="webkit-render-fix" ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}"
+                                    data-translate-attr="{ alt: 'user.picture_title' }"
+                                    data-translate-values="{ user: vm.interlocutor.fullname }"
+                                    rounded="true"
+                                >
+                                </sip-img>
                             </a>
                         </div>
                     </div>
@@ -225,7 +254,10 @@
                 <div class="conversation__helper-wrapper plain-card">
                     <div class="grid-block conversation__interlocutor">
                         <a ui-sref="user({ id: vm.interlocutor.id })">
-                            <img ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}" alt="Photo de {{::vm.interlocutor.fullname}}">
+                            <img ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}"
+                                data-translate-attr="{ alt: 'user.picture_title' }"
+                                data-translate-values="{ user: vm.interlocutor.fullname }"
+                            >
                         </a>
                         <div>
                             <h3 class="interlocutor-name"

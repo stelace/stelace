@@ -10,10 +10,13 @@
                                 $rootScope,
                                 $scope,
                                 $timeout,
+                                $translate,
                                 BookingService,
                                 cache,
+                                ContentService,
                                 finance,
                                 KycService,
+                                ListingTypeService,
                                 LocationService,
                                 map,
                                 Restangular,
@@ -33,7 +36,7 @@
         var paymentAccounts;
 
         var vm = this;
-        vm.ctaTitle              = "";
+        vm.listingTypeProperties = null;
         vm.missingAddress        = false;
         vm.badIban               = false;
         vm.isGoogleMapSDKReady   = cache.get("isGoogleMapSDKReady") || false;
@@ -46,7 +49,6 @@
         vm.contractUrl           = null;
         vm.contractTarget        = "_blank";
         vm.isNoTime              = false;
-        vm.bookingStatus         = "";
 
         // Google Places ngAutocomplete options
         vm.ngAutocompleteOptions = {
@@ -66,8 +68,13 @@
         activate();
 
         function activate() {
+            $translate('booking.acceptance_deadline_message')
+                .then(function (message) {
+                    vm.acceptanceDeadlineMessage = message;
+                });
+
             // conversation bookingStatus is more accurate since updated
-            vm.ctaTitle = _getCtaTitle((vm.conversation && vm.conversation.bookingStatus) || vm.message.bookingStatus);
+            vm.ctaTitleKey = _getCtaTitleKey((vm.conversation && vm.conversation.bookingStatus) || vm.message.bookingStatus);
 
             vm.paymentProvider = StelaceConfig.getPaymentProvider();
 
@@ -75,9 +82,18 @@
             if (vm.booking) {
                 vm.booking = Restangular.restangularizeElement(null, vm.booking, "booking");
 
-                vm.isNoTime = BookingService.isNoTime(vm.booking);
+                vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
 
-                if (!vm.isNoTime) {
+                if (vm.booking.startDate) {
+                    vm.displayStartDate = vm.booking.startDate;
+                }
+                if (vm.booking.endDate) {
+                    vm.displayEndDate = _getDisplayEndDate(vm.booking.endDate);
+                }
+
+                var config = vm.booking.listingType.config;
+
+                if (config.hasBookingContract) {
                     // get contract url
                     vm.booking
                         .getContractToken()
@@ -91,16 +107,6 @@
                 if (! vm.isNoTime) {
                     vm.startDate = moment(vm.booking.startDate).format(displayFormatDate);
                     vm.endDate   = moment(vm.booking.endDate).format(displayFormatDate);
-                } else {
-                    if (vm.isOwner) {
-                        if (vm.booking.takerPrice) {
-                            vm.bookingStatus = "Vente";
-                        } else {
-                            vm.bookingStatus = "Don";
-                        }
-                    } else {
-                        vm.bookingStatus = "Achat";
-                    }
                 }
 
                 _setBookingState();
@@ -389,7 +395,11 @@
                         }
                     })
                     .catch(function (err) {
-                        toastr.warning("Nous sommes désolés, veuillez réessayez plus tard.", "Oups, une erreur est survenue.");
+                        ContentService.showNotification({
+                            titleKey: 'error.unknown_happened_title',
+                            messageKey: 'unknown_happened_message',
+                            type: 'warning'
+                        });
                         return $q.reject(err);
                     });
                 })
@@ -443,7 +453,7 @@
             vm.hasBankAccount        = true;
             vm.bankAccountActive     = false;
             vm.showBankAccountToggle = true;
-            _getCtaTitle();
+            vm.ctaTitleKey = _getCtaTitleKey();
             toastr.success("Merci\xa0! Nous pourrons vous transférer le montant de la location après signature de l'état des lieux initial.",
                 "Coordonnées bancaires enregistrées");
         }
@@ -465,30 +475,26 @@
                 vm.bookingState = "updated";
             } else if (vm.booking.acceptedDate && vm.booking.paidDate) {
                 vm.bookingState = "paidAndValidated";
-                vm.payDate      = moment(vm.booking.paidDate).format(displayFormatDate);
             } else if (vm.booking.paidDate) {
                 vm.bookingState = "paid";
-                vm.payDate      = moment(vm.booking.paidDate).format(displayFormatDate);
             } else if (vm.booking.acceptedDate) {
                 vm.bookingState = "validated";
-                vm.acceptDate   = moment(vm.booking.acceptedDate).format(displayFormatDate);
             }
         }
 
-        function _getCtaTitle(bookingStatus) {
+        function _getCtaTitleKey(bookingStatus) {
+            var needPaymentDetails = vm.booking && vm.booking.acceptedDate && vm.isOwner && ! vm.hasBankAccount;
+            if (needPaymentDetails) {
+                return 'booking.summary_title.information_required';
+            }
+
             switch (bookingStatus) {
                 case "info":
                 case "pre-booking":
-                    if (vm.booking && vm.booking.acceptedDate && vm.isOwner && ! vm.hasBankAccount) {
-                        return "Coordonnées requises";
-                    }
-                    return "Demande d'information";
+                    return 'booking.summary_title.request_for_information';
 
                 default:
-                    if (vm.booking && vm.booking.acceptedDate && vm.isOwner && ! vm.hasBankAccount) {
-                        return "Coordonnées requises";
-                    }
-                    return "Demande de réservation";
+                    return 'booking.summary_title.booking_request';
             }
         }
 
@@ -497,10 +503,11 @@
 
             vm.listingBasePrice = priceResult.ownerPriceAfterRebate;
             vm.ownerNetIncome  = priceResult.ownerNetIncome;
-            vm.ownerFeesString = vm.booking.ownerFees ? vm.booking.ownerFees + "€" : "Offerts";
-            vm.takerFeesString = vm.booking.takerFees ? vm.booking.takerFees + "€" : "Offerts";
         }
 
+        function _getDisplayEndDate(date) {
+            return moment(date).add({ d: -1 }).format('YYYY-MM-DD') + 'T00:00:00.000Z';
+        }
     }
 
 })();

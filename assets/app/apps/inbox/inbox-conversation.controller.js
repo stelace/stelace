@@ -13,10 +13,13 @@
                                             $state,
                                             $stateParams,
                                             $timeout,
+                                            $translate,
                                             BookingService,
+                                            ContentService,
                                             ezfb,
                                             finance,
                                             ListingService,
+                                            ListingTypeService,
                                             loggerToServer,
                                             map,
                                             MessageService,
@@ -80,9 +83,12 @@
                     _populateConversation()
                         .then(function () {
                             if (oldMessagesCount < messages.length) {
-                                toastr.info("Vous avez un nouveau message.", {
-                                    timeOut: 0, // will sitck
-                                    closeButton: true
+                                ContentService.showNotification({
+                                    messageKey: 'inbox.new_message_notification_message',
+                                    options: {
+                                        timeOut: 0, // will sitck
+                                        closeButton: true
+                                    }
                                 });
                             }
                             return _populateAssessments(); // refreshInbox emited after signing input assessment
@@ -107,7 +113,11 @@
 
             return _populateConversation()
                 .then(function () {
-                    var title    = "Conversation avec " + (vm.interlocutor.firstname || vm.interlocutor.fullname) + " - Sharinplace";
+                    return $translate('inbox.conversation_with', {
+                        interlocutorName: vm.interlocutor.firstname || vm.interlocutor.fullname
+                    });
+                })
+                .then(function (title) {
                     var shareUtm = {
                         utmSource: "facebook",
                         utmMedium: "social",
@@ -208,20 +218,34 @@
                     conversation.booking = Restangular.restangularizeElement(null, conversation.booking, "booking");
                     vm.booking = conversation.booking;
                     vm.isTaker = (vm.booking.takerId === currentUser.id);
+                    vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
                 }
+
+                var now = new Date().toISOString();
+                _.forEach(messages, function (message) {
+                    message.showDisplayDate = !moment(message.createdDate).isSame(now, 'd');
+                });
 
                 // Show a toast for contact details obfuscation
                 var isLastMessageObfuscated = lastMessage.privateContent && lastMessage.privateContent.indexOf("▒") >= 0; // UTF8 HTML Hex: &#x2592;
                 if (isLastMessageObfuscated && lastMessage.senderId === currentUser.id) {
-                    toastr.info("Vos coordonnées sont masquées par mesure de sécurité avant la validation de cette réservation.",
-                        "Coordonnées protégées", {
-                        timeOut: 15000
+                    ContentService.showNotification({
+                        titleKey: 'inbox.contact_details_hidden_title',
+                        messageKey: 'inbox.self_contact_details_hidden_message',
+                        options: {
+                            timeOut: 15000
+                        }
                     });
                 } else if (isLastMessageObfuscated && lastMessage.receiverId === currentUser.id) {
-                    toastr.info("Les coordonnées de " + (vm.interlocutor.firstname || vm.interlocutor.fullname)
-                        + " sont masquées par mesure de sécurité avant la validation de cette réservation. Elles vous seront alors transmises par email.",
-                        "Coordonnées protégées", {
+                    ContentService.showNotification({
+                        titleKey: 'inbox.contact_details_hidden_title',
+                        messageKey: 'inbox.self_contact_details_hidden_message',
+                        messageValues: {
+                            interlocutorName: vm.interlocutor.firstname || vm.interlocutor.fullname
+                        },
+                        options: {
                             timeOut: 15000
+                        }
                     });
                 }
 
@@ -419,7 +443,7 @@
                 return;
             }
 
-            var countdown, countdownWarning, hours, minutes, seconds;
+            var countdown, showWarning, isImpending, hours, minutes, seconds;
 
             countdownInterval = $interval(function () {
                 var targetDate = moment(vm.booking.paidDate).add(36, "h");
@@ -440,17 +464,18 @@
                      + tools.fillByCharacter(seconds, 2);
                 } else if (secondsLeft >= -43200) { // 12 hours more to accept
                     countdown = "";
-                    countdownWarning = "L'annulation de cette réservation est imminente. Merci d'accepter ou de refuser rapidement "
-                     + "la demande de " + vm.interlocutor.fullname + " ou de nous contacter en cas de difficultés.";
+                    showWarning = true;
+                    isImpending = true;
                 } else if (secondsLeft < -43200) {
                     countdown = "";
-                    countdownWarning = "Merci d'accepter ou de refuser rapidement "
-                     + "la demande de " + vm.interlocutor.fullname + " ou de nous contacter en cas de difficultés.";
+                    showWarning = true;
+                    isImpending = false;
                 }
 
                 vm.countdown = {
                     text: countdown,
-                    warning: countdownWarning
+                    showWarning: showWarning,
+                    isImpending: isImpending
                 };
             }, 1000);
 
@@ -460,7 +485,11 @@
         function acceptBooking(message, booking, afterAcceptance) {
             if (! message && ! _.find(vm.messages, { senderId: vm.conversation.receiverId })) {
                 // Force user to leave a message if no answer yet
-                toastr.warning("Veuillez saisir un message.");
+                ContentService.showNotification({
+                    titleKey: 'inbox.missing_message_title',
+                    messageKey: 'inbox.missing_message_message',
+                    type: 'warning'
+                });
                 afterAcceptance("missingMessage"); // must stop spinner
                 return;
             }
@@ -493,10 +522,14 @@
                 .then(function (b) {
                     booking.acceptedDate = b.acceptedDate;
 
-                    toastr.success("Merci ! Nous avons informé " + vm.interlocutor.fullname + " de votre acceptation.",
-                        "Demande de réservation acceptée", {
+                    ContentService.showNotification({
+                        titleKey: 'inbox.booking_acceptance_success_title',
+                        messageKey: 'inbox.booking_acceptance_success_message',
+                        type: 'success',
+                        options: {
                             timeOut: 0,
                             closeButton: true
+                        }
                     });
 
                     if (_.isEmpty(messageCreateAttrs)) { // manual update needed when no message is created
@@ -526,7 +559,11 @@
 
         function rejectBooking(message, booking, afterReject) {
             if (! message) {
-                toastr.warning("Veuillez saisir un message.");
+                ContentService.showNotification({
+                    titleKey: 'inbox.missing_message_title',
+                    messageKey: 'inbox.missing_message_message',
+                    type: 'warning'
+                })
                 afterReject("missingMessage");
                 return;
             }
@@ -552,9 +589,13 @@
                 .then(function (b) {
                     booking.cancellationId = b.cancellationId;
 
-                    toastr.success("Demande de réservation rejetée", {
-                        timeOut: 0,
-                        closeButton: true
+                    ContentService.showNotification({
+                        messageKey: 'inbox.booking_rejection_success_message',
+                        type: 'success',
+                        options: {
+                            timeOut: 0,
+                            closeButton: true
+                        }
                     });
                 })
                 .finally(function () {
@@ -568,7 +609,11 @@
 
                     return _populateConversation()
                         .catch(function (err) {
-                            toastr.warning("Nous sommes désolés et cherchons à résoudre le problème.", "Oups, une erreur est survenue.");
+                            ContentService.showNotification({
+                                titleKey: 'unknown_happened_title',
+                                messageKey: 'unknown_happened_message',
+                                type: 'warning'
+                            });
                             loggerToServer.error(err);
                         });
                 });
@@ -579,11 +624,17 @@
             manualMessages = _.defaults(manualMessages || {}, { privateMessage: "", publicMessage: "" });
 
             if (afterMessage && ! manualMessages.privateMessage && ! manualMessages.publicMessage) {
-                toastr.info("Veuillez rédiger un message avant l'envoi.", "Message vide");
+                ContentService.showNotification({
+                    titleKey: 'inbox.missing_message_title',
+                    messageKey: 'inbox.missing_message_message'
+                });
                 afterMessage("missingMessage");
                 return;
             } else if (! vm.privateMessage && ! vm.publicMessage && ! manualMessages.privateMessage && ! manualMessages.publicMessage) {
-                toastr.info("Veuillez rédiger un message avant l'envoi.", "Message vide");
+                ContentService.showNotification({
+                    titleKey: 'inbox.missing_message_title',
+                    messageKey: 'inbox.missing_message_message'
+                });
                 return;
             }
 
@@ -616,9 +667,15 @@
                     vm.privateMessage = null;
                     vm.publicMessage  = null;
                     if (! isDuplicate) {
-                        toastr.success("Message envoyé");
+                        ContentService.showNotification({
+                            messageKey: 'inbox.message_sent_success',
+                            type: 'success'
+                        });
                     } else {
-                        toastr.info("Vous avez déjà envoyé un message avec un contenu identique récemment.", "Message déjà envoyé");
+                        ContentService.showNotification({
+                            titleKey: 'inbox.message_sent_duplicate_title',
+                            messageKey: 'inbox.message_sent_duplicate_message'
+                        });
                     }
 
                     return setMainMessageTmp(currentUser.id, conversation.id);
@@ -630,7 +687,11 @@
                     return _populateConversation();
                 })
                 .catch(function (err) {
-                    toastr.warning("Nous sommes désolés et cherchons à résoudre le problème.", "Oups, une erreur s'est produite lors de l'envoi");
+                    ContentService.showNotification({
+                        titleKey: 'unknown_happened_title',
+                        messageKey: 'unknown_happened_message',
+                        type: 'warning'
+                    });
                     loggerToServer.error(err);
                 })
                 .finally(function () {

@@ -14,6 +14,7 @@
                                     AssessmentService,
                                     BookingService,
                                     gamification,
+                                    ListingTypeService,
                                     RatingService,
                                     Restangular,
                                     toastr,
@@ -104,7 +105,11 @@
 
                 vm.isOwner = (vm.listing.ownerId === currentUser.id);
 
-                if (!BookingService.isNoTime(vm.booking)) {
+                vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
+
+                var config = vm.booking.listingType.config;
+
+                if (config.hasBookingContract) {
                     var booking = Restangular.restangularizeElement(null, vm.booking, "booking");
 
                     // get contract url
@@ -132,8 +137,7 @@
 
         function _save() {
             if (! vm.assessment
-             || ! vm.assessment.workingLevel
-             || ! vm.assessment.cleanlinessLevel
+             || ! vm.assessment.status
             ) {
                 toastr.warning("Merci de renseigner l'état de fonctionnement et la propreté de l'objet.", "État de fonctionnement / Propreté");
                 return;

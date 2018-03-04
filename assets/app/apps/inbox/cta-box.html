@@ -2,8 +2,7 @@
     <div class="medium-1"></div>
     <div class="small-12 medium-10 plain-card">
         <div class="plain-card__divider">
-            <h3>
-                {{vm.ctaTitle}}
+            <h3 data-translate="{{vm.ctaTitleKey}}">
             </h3>
         </div>
         <div class="message__content">
@@ -11,29 +10,67 @@
                 <div ng-if="vm.message.bookingStatus !== 'info'">
                     <span class="text--semibold">
                         <a ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id })">{{vm.listing.name}}</a>
-                        <span ng-show="vm.booking && ! vm.isNoTime">du {{vm.startDate}} au {{vm.endDate}}</span>
-                        <span ng-show="vm.booking && vm.bookingStatus">
-                            - {{vm.bookingStatus}}
+                        <span ng-if="vm.booking">
+                            <span> (</span>
+                            <span ng-if="vm.listingTypeProperties.isTimeFlexible"
+                                data-translate="booking.from_start_date_to_end_date"
+                                data-translate-values="{ startDate: vm.displayStartDate, endDate: vm.displayEndDate }"
+                            >
+                            </span>
+                            <span ng-if="vm.listingTypeProperties.isTimePredefined"
+                                data-translate="booking.on_date"
+                                data-translate-values="{ date: vm.displayStartDate }"
+                            >
+                            </span>
+                            <span>)</span>
                         </span>
                     </span>
                     <br>
                     <span class="text--vsmall text--fade"
                         ng-show="vm.booking && vm.isOwner">
-                        Prix appliqué&nbsp;: {{vm.listingBasePrice}}€&nbsp;&bull;
-                        <span ng-show="vm.booking.ownerFees">Dont</span>
-                        Frais de paiement&nbsp;: {{vm.ownerFeesString}}
-                        <span ng-if="vm.booking.deposit">&nbsp;&bull;Caution&nbsp;: {{vm.booking.deposit}}€</span>
+                        <span data-translate="booking.summary.base_price_as_owner"
+                            data-translate-values="{ price: vm.listingBasePrice }"
+                        >
+                        </span>
+                        &nbsp;&bull;
+                        <span data-translate="booking.summary.owner_fees"
+                            data-translate-values="{ price: vm.booking.ownerFees }"
+                        >
+                        </span>
+                        <span ng-if="vm.booking.deposit">
+                            &nbsp;&bull;
+                            <span data-translate="booking.summary.security_deposit"
+                                data-translate-values="{ price: vm.booking.deposit }"
+                            >
+                            </span>
+                        </span>
                     </span>
                     <span class="text--vsmall text--semibold"
                         ng-show="vm.booking && vm.isOwner">
                         <br>
-                        Montant net vous revenant&nbsp;: {{vm.ownerNetIncome}}€
+                        <span data-translate="booking.summary.owner_net_amount"
+                            data-translate-values="{ price: vm.ownerNetIncome }"
+                        >
+                        </span>
                     </span>
                     <span class="text--vsmall text--fade"
                         ng-show="vm.booking && ! vm.isOwner">
-                        Prix fixé par le propriétaire&nbsp;: {{vm.listingBasePrice}}€&nbsp;&bull;
-                        Frais de service&nbsp;: {{vm.takerFeesString}}
-                        <span ng-if="vm.booking.deposit">&nbsp;&bull;Caution&nbsp;: {{vm.booking.deposit}}€</span>
+                        <span data-translate="booking.summary.base_price_as_taker"
+                            data-translate-values="{ price: vm.listingBasePrice }"
+                        >
+                        </span>
+                        &nbsp;&bull;
+                        <span data-translate="booking.summary.taker_fees"
+                            data-translate-values="{ price: vm.booking.takerFees }"
+                        >
+                        </span>
+                        <span ng-if="vm.booking.deposit">
+                            &nbsp;&bull;
+                            <span data-translate="booking.summary.security_deposit"
+                                data-translate-values="{ price: vm.booking.deposit }"
+                            >
+                            </span>
+                        </span>
                     </span>
                 </div>
                 <div ng-if="vm.message.bookingStatus === 'info'">
@@ -42,61 +79,97 @@
             </div>
             <div class="cta__action" ng-show="vm.booking">
                 <div ng-switch="vm.bookingState">
-                    <div class="action-done" ng-switch-when="cancelled">
-                        La réservation a été annulée.
+                    <div class="action-done" ng-switch-when="cancelled"
+                        data-translate="booking.status_message.cancelled"
+                    >
                     </div>
-                    <div class="action-done" ng-switch-when="updated">
-                        Une réservation plus récente a été effectuée.
+                    <div class="action-done" ng-switch-when="updated"
+                        data-translate="booking.status_message.updated"
+                    >
                     </div>
-                    <div class="action-done" ng-switch-when="paidAndValidated">
-                        Cette réservation a été acceptée et payée le {{vm.payDate}}.
-                        <!-- {{! vm.isTaker ? "Restez en contact avec " + vm.interlocutor.fullname + " pour lui remettre l'objet." : "" }} -->
+                    <div class="action-done" ng-switch-when="paidAndValidated"
+                        data-translate="booking.status_message.paid_and_accepted"
+                        data-translate-values="{ date: vm.booking.paidDate }"
+                    >
                     </div>
                     <div class="action-done" ng-switch-when="paid">
-                        {{vm.isTaker ? "Votre paiement a bien été enregistré le " + vm.payDate + "." : "Cette réservation a été payée par " + vm.interlocutor.fullname }}
+                        <span ng-if="vm.isTaker"
+                            data-translate="booking.status_message.paid_as_taker"
+                            data-translate-values="{ date: vm.booking.paidDate }"
+                        >
+                        </span>
+                        <span ng-if="!vm.isTaker"
+                            data-translate="booking.status_message.paid_as_owner"
+                            data-translate-values="{ userName: vm.interlocutor.fullname }"
+                        >
+                        </span>
                         <div class="margin-top"
-                            ng-if="! vm.isTaker && vm.countdown && (vm.countdown.text || vm.countdown.warning)">
-                            <span class="text--semibold" ng-if="vm.countdown.text">
-                                Il ne vous reste que&nbsp;{{vm.countdown.text}}
-                            </span>
-                            <span class="user-generated"
-                                ng-class="{ 'text--semibold': vm.countdown.warning }">
-                                {{ vm.countdown.warning || "pour l'accepter."}}
+                            ng-if="! vm.isTaker && vm.countdown && (vm.countdown.text || vm.countdown.showWarning)">
+                            <span class="text--semibold" ng-if="vm.countdown.text"
+                                data-translate="booking.remaining_time_to_accept",
+                                data-translate-values="{ remainingTime: vm.countdown.text }"
+                            >
+                        </span>
+                            <span class="user-generated" ng-if="vm.countdown.showWarning"
+                                ng-class="{ 'text--semibold': vm.countdown.showWarning }"
+                                ng-switch="vm.countdown.isImpending">
+                                <span ng-switch-when="true" data-translate="booking.impending_cancellation_message"
+                                    data-translate-values="{ userName: vm.interlocutor.fullname }"
+                                >
+                                </span>
+                                <span ng-switch-when="false" data-translate="booking.coming_cancellation_message"
+                                    data-translate-values="{ userName: vm.interlocutor.fullname }"
+                                >
+                                </span>
                             </span>
                             <span class="badge tooltip-badge"
-                                ng-if="vm.countdown.text"
+                                ng-if="vm.countdown.text && vm.acceptanceDeadlineMessage"
                                 data-tooltip-placement="auto top"
                                 data-tooltip-trigger="mouseenter outsideClick"
                                 data-tooltip-append-to-body="true"
-                                uib-tooltip="Après une réservation, vous disposez de 36h pour l'accepter ou la refuser. Passé ce délai, la réservation est susceptible d'être annulée automatiquement.">
+                                uib-tooltip="{{vm.acceptanceDeadlineMessage}}">
                                 ?
                             </span>
                         </div>
                     </div>
                     <div class="action-done" ng-switch-when="validated">
-                        {{vm.isTaker ? "La réservation a été acceptée par " + vm.interlocutor.fullname + " le " + vm.acceptDate + "." : "Vous avez accepté cette réservation" }}
+                        <span ng-if="vm.isTaker"
+                            data-translate="booking.status_message.accepted_as_taker"
+                            data-translate-values="{ userName: vm.interlocutor.fullname }"
+                        >
+                        </span>
+                        <span ng-if="!vm.isTaker"
+                            data-translate="booking.status_message.accepted_as_owner"
+                        >
+                        </span>
                     </div>
                 </div>
 
                 <a class="contract-link link--underline"
                     ng-href="{{vm.contractUrl}}"
                     target="{{vm.contractTarget}}"
-                    ng-if="vm.showContract" >
-                    Consulter mon contrat électronique.
+                    ng-if="vm.showContract"
+                    data-translate="booking.prompt.view_contract"
+                >
                 </a>
 
                 <div ng-show="! vm.booking.cancellationId && ! vm.listing.snapshot && vm.message.isCtaActive">
                     <div ng-if="vm.isTaker && ! vm.booking.paidDate">
                         <button class="button brightblue"
-                            ui-sref="bookingPayment({id: vm.booking.id})">
-                            Confirmer ma réservation
+                            ui-sref="bookingPayment({id: vm.booking.id})"
+                            data-translate="booking.prompt.view_contract"
+                        >
                         </button>
                     </div>
                     <div ng-show="! vm.booking.acceptedDate && vm.isOwner">
                         <form class="form--control"
                             name="ctaBookingForm"
                             novalidate>
-                            <label for="cta-answer-message">Message à {{vm.interlocutor.firstname || vm.interlocutor.fullname}}&nbsp;:</label>
+                            <label for="cta-answer-message"
+                                data-translate="inbox.message_to"
+                                data-translate-values="{ interlocutorName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
+                            >
+                            </label>
                             <textarea id="cta-answer-message"
                                 name="ctaAnswerMessage"
                                 ng-class="{ 'force-invalid': vm.missingCtaAnswerMessage && (! vm.ctaAnswerMessage || vm.ctaAnswerMessage.length < 5) }"
@@ -104,18 +177,20 @@
                                 ng-maxlength="2000"
                                 ng-model="vm.ctaAnswerMessage"
                                 ng-model-options="{ debounce: 300 }"
-                                placeholder="Veuillez apporter quelques précisions..."
+                                data-translate-attr="{ placeholder: 'inbox.acceptance_or_rejection_placeholder' }"
                                 sip-textarea-auto-adjust>
                             </textarea>
                             <!-- We do not know if message is required beforehand -->
                             <div class="form-warning text--semibold"
                                 uib-collapse="! vm.missingCtaAnswerMessage || (vm.ctaAnswerMessage && vm.ctaAnswerMessage.length >= 5)">
-                                <span ng-hide="vm.rejectCollapse">Merci d'expliquer votre refus en quelques mots, cela réconfortera</span>
-                                <span ng-show="vm.rejectCollapse">Merci d'écrire quelques premiers mots à</span>
-                                {{vm.interlocutor.fullname}}
+                                <span ng-hide="vm.rejectCollapse" data-translate="inbox.rejection_required_message"></span>
+                                <span ng-show="vm.rejectCollapse"
+                                    data-translate="inbox.required_message"
+                                    data-translate-values="{ interlocutorName: vm.interlocutor.fullname }"
+                                >
+                                </span>
                             </div>
-                            <p class="margin-bottom text-justify" ng-if="vm.publicQuestion">
-                                Vous pouvez également répondre publiquement aux demandes de précisions sur votre {{::vm.listing.name}}. Ce que vous écrirez ci-dessous viendra enrichir sa page de description&nbsp;:
+                            <p class="margin-bottom text-justify" ng-if="vm.publicQuestion" data-translate="inbox.public_question_helper">
                             </p>
                             <textarea name="publicMessage"
                                 rows="5"
@@ -128,32 +203,33 @@
                             </textarea>
                             <button class="button brightblue"
                                 ng-click="vm.accept()"
-                                ng-class="{disabled: ! vm.rejectCollapse}">
-                                Accepter la
-                                <span ng-show="vm.isOwner">réservation</span>
-                                <span ng-hide="vm.isOwner">demande</span>
+                                ng-class="{disabled: ! vm.rejectCollapse}"
+                                data-translate="booking.prompt.accept_button"
+                            >
                             </button>
                             <button class="button gray"
                                 ng-click="vm.reveal('reject')"
-                                ng-class="{disabled: ! vm.rejectCollapse}">
-                                Refuser
+                                ng-class="{disabled: ! vm.rejectCollapse}"
+                                data-translate="booking.prompt.reject_button"
+                            >
                             </button>
                             <span class="cursor-pointer text--fade link--underline"
                                 ng-show="vm.rejectCollapse"
-                                ng-click="vm.onMessage({ privateMessage: vm.ctaAnswerMessage, publicMessage: vm.ctaPublicMessage }, vm.afterMessage)">
-                                Envoyer
+                                ng-click="vm.onMessage({ privateMessage: vm.ctaAnswerMessage, publicMessage: vm.ctaPublicMessage }, vm.afterMessage)"
+                                data-translate="prompt.send_button"
+                            >
                             </span>
                             <span class="spinner-container" ng-if="vm.rejectCollapse">
                                 <span data-us-spinner="{scale: 0.5}" data-spinner-key="booking-validation-spinner"></span>
                             </span>
                             <div uib-collapse="vm.rejectCollapse">
                                 <button class="button"
-                                    ng-click="vm.currentRequest = true; vm.onReject(vm.ctaAnswerMessage, vm.booking, vm.afterReject)">
-                                    Confirmer le refus
+                                    ng-click="vm.currentRequest = true; vm.onReject(vm.ctaAnswerMessage, vm.booking, vm.afterReject)"
+                                    data-translate="booking.prompt.confirm_rejection_button"
+                                >
                                 </button>
                                 <span class="cursor-pointer text--fade link--underline"
-                                    ng-click="vm.reveal('none')">
-                                    Annuler
+                                    ng-click="vm.reveal('none')" data-translate="prompt.cancel_button">
                                 </span>
                                 <span class="spinner-container" ng-if="! vm.rejectCollapse">
                                     <span data-us-spinner="{scale: 0.5}" data-spinner-key="booking-validation-spinner"></span>
@@ -168,8 +244,10 @@
                             ng-show="vm.showBankAccountForm">
                             <div class="cursor-pointer link--underline text--light"
                                 ng-click="vm.bankAccountActive = ! vm.bankAccountActive"
-                                ng-if="vm.showBankAccountToggle">
-                                {{vm.bankAccountActive ? "Masquer" : "Consulter"}} mes informations bancaires
+                                ng-if="vm.showBankAccountToggle"
+                                ng-switch="vm.bankAccountActive">
+                                <span ng-switch-when="true" data-translate="booking.prompt.hide_banking_details"></span>
+                                <span ng-switch-when="false" data-translate="booking.prompt.show_banking_details"></span>
                             </div>
                             <div uib-collapse="! vm.bankAccountActive">
                                 <p ng-hide="vm.hasBankAccount">

@@ -175,7 +175,9 @@
     "time": {
         "date_short": "{date, date, short}",
         "date_long": "{date, date, long}",
-        "date_full": "{date, date, full}"
+        "date_full": "{date, date, full}",
+        "time_short": "{time, time, short}",
+        "time_full": "{time, time, full}"
     },
     "user": {
         "is_level": "Membre {level}",
@@ -185,7 +187,8 @@
         "verified_email_label": "Vérifiée",
         "phone_number_label": "Numéro de téléphone",
         "verified_phone_number_label": "Vérifié",
-        "no_verified_info_public_text": "{user} n’a pas encore validé ses coordonnées."
+        "no_verified_info_public_text": "{user} n’a pas encore validé ses coordonnées.",
+        "picture_title": "Photo de {user}"
     },
     "landing": {
         "homepage": {
@@ -245,6 +248,8 @@
         "post_listing_short_button_2": "Déposer une annonce",
         "continue_button": "Continuer",
         "save_button": "Enregistrer",
+        "cancel_button": "Annuler",
+        "send_button": "Envoyer",
         "search": {
             "query_placeholder": "Que recherchez-vous ?",
             "near_location_placeholder": "À proximité de…",
@@ -291,13 +296,49 @@
         },
         "login_first": "Nous vous invitons à vous connecter avant de continuer.",
         "impending_cancellation": "Annulation imminente",
-        "remaining_time_to_accept": "Pour accepter",
+        "to_accept_suffix": "pour accepter",
+        "remaining_time_to_accept": "Il ne vous reste que {remainingTime} pour accepter.",
+        "coming_cancellation_message": "Merci d'accepter ou de refuser rapidement la demande de {userName} ou de nous contacter en cas de difficultés.",
+        "impending_cancellation_message": "L'annulation de cette réservation est imminente. Merci d'accepter ou de refuser rapidement la demande de {userName} ou de nous contacter en cas de difficultés.",
+        "on_date": "le {date, date, short}",
+        "from_start_date_to_end_date": "du {startDate, date, short} au {endDate, date, short}",
+        "acceptance_deadline_message": "Après une réservation, vous disposez de 36h pour l'accepter ou la refuser. Passé ce délai, la réservation est susceptible d'être annulée automatiquement.",
+        "summary_title": {
+            "request_for_information": "Demande d'information",
+            "booking_request": "Demande de réservation",
+            "information_required": "Coordonnées requises"
+        },
+        "summary": {
+            "base_price_as_taker": "Prix fixé par le propriétaire : {price, number, currency}",
+            "base_price_as_owner": "Prix appliqué : {price, number, currency}",
+            "owner_net_amount": "Montant net vous revenant : {price, number, currency}",
+            "taker_fees": "Frais de service : {price, select, 0{Offerts} other{{price, number, currency}}}",
+            "owner_fees": "{price, select, 0{Frais} other{Dont frais}} de paiement : {price, select, 0{Offerts} other{{price, number, currency}}}",
+            "security_deposit": "Caution : {price, number, currency}"
+        },
         "status": {
             "accepted": "Accepté",
             "rejected": "Rejeté",
             "pending": "En attente",
             "cancelled": "Annulé",
             "information": "Information"
+        },
+        "status_message": {
+            "cancelled": "La réservation a été annulée.",
+            "updated": "Une réservation plus récente a été effectuée.",
+            "paid_and_accepted": "Cette réservation a été acceptée et payée le {date, date, short}.",
+            "paid_as_taker": "Votre paiement a été enregistré le {payDate, date, short}.",
+            "paid_as_owner": "Cette réservation a été payée par {userName}.",
+            "accepted_as_taker": "La réservation a été acceptée par {userName} le {acceptedDate, date, short}.",
+            "accepted_as_owner": "Vous avez accepté cette réservation."
+        },
+        "prompt": {
+            "view_contract": "Consulter mon contract électronique",
+            "show_banking_details": "Consulter mes informations bancaires",
+            "hide_banking_details": "Masquer mes informations bancaires",
+            "accept_button": "Accepter la réservation",
+            "reject_button": "Refuser",
+            "confirm_rejection_button": "Confirmer le refus"
         }
     },
     "inbox": {
@@ -305,8 +346,31 @@
         "transactions_label": "Mes transactions",
         "empty_inbox": "Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s'afficheront ici.",
         "conversation_with": "Conversation avec {interlocutorName}",
+        "message_to": "Message à {interlocutorName} :",
+        "acceptance_or_rejection_placeholder": "Veuillez apporter quelques précisions...",
+        "required_message": "Merci d'écrire quelques mots à {interlocutorName}",
+        "rejection_required_message": "Merci d'expliquer votre refus en quelques mots",
         "booking_date": "{date, date, long}",
-        "booking_dates": "{startDate, date, long} - {endDate, date, long}"
+        "booking_dates": "{startDate, date, long} - {endDate, date, long}",
+        "private_question_helper": "Vous pouvez répondre au message privé de {interlocutorName} ci-dessous :",
+        "private_question_placeholder": "Écrivez votre message personnel...",
+        "public_question_helper": "Vous pouvez également répondre publiquement aux demandes de précisions sur votre annonce. Ce que vous écrirez ci-dessous viendra enrichir sa page de description :",
+        "public_question_placeholder": "Écrivez votre message publique...",
+        "public_message_context": "Concernant l'annonce :",
+        "message_obfuscate_info": "Par sécurité, vos coordonnées seront masquées dans votre message.",
+        "send_message_button": "Envoyer un message",
+        "message_sent_success": "Message envoyé",
+        "message_sent_duplicate_title": "Message déjà envoyé",
+        "message_sent_duplicate_message": "Vous avez déjà envoyé un message avec un contenu identique récemment.",
+        "missing_message_title": "Message vide",
+        "missing_message_message": "Veuillez rédiger un message avant l'envoi.",
+        "new_message_notification_message": "Vous avez un nouveau message",
+        "contact_details_hidden_title": "Coordonnées protégées",
+        "self_contact_details_hidden_message": "Vos coordonnées sont masquées par mesure de sécurité avant la validation de cette réservation.",
+        "interlocutor_contact_details_hidden_message": "Les coordonnées de {interlocutorName} sont masquées par mesure de sécurité avant la validation de cette réservation. Elles vous seront alors transmises par email.",
+        "booking_acceptance_success_title": "Demande de réservation acceptée",
+        "booking_acceptance_success_message": "Merci ! Nous avons informé {userName} de votre acceptation.",
+        "booking_rejection_success_message": "Demande de réservation rejetée"
     },
     "assessment": {
         "assessment_action": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}} {toConfirm, select, true{à saisir} false{effectuée} other{}}"
