@@ -370,10 +370,76 @@
         "interlocutor_contact_details_hidden_message": "Les coordonnées de {interlocutorName} sont masquées par mesure de sécurité avant la validation de cette réservation. Elles vous seront alors transmises par email.",
         "booking_acceptance_success_title": "Demande de réservation acceptée",
         "booking_acceptance_success_message": "Merci ! Nous avons informé {userName} de votre acceptation.",
-        "booking_rejection_success_message": "Demande de réservation rejetée"
+        "booking_rejection_success_message": "Demande de réservation rejetée",
+        "error_refresh_page_message": "Veuillez rafraîchir la page pour faire apparaître la confirmation de la transaction"
     },
     "assessment": {
-        "assessment_action": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}} {toConfirm, select, true{à saisir} false{effectuée} other{}}"
+        "assessment_action": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}} {toConfirm, select, true{à saisir} false{effectuée} other{}}",
+        "assessment_title": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}}{showRatings, select, true{ / Commentaires} other{}}",
+        "transaction_confirmation_question": "Est-ce conforme par rapport à la description de l'annonce ?",
+        "transaction_confirmation_question_return": "Constatez-vous des différences par rapport à l'état d'origine ?",
+        "transaction_confirmation_status_placeholder": "Conformité*",
+        "transaction_confirmation_status_good": "Conforme",
+        "transaction_confirmation_status_bad": "Non conforme",
+        "transaction_confirmation_status_return_placeholder": "Différence*",
+        "transaction_confirmation_status_return_good": "Non",
+        "transaction_confirmation_status_return_bad": "Oui",
+        "transaction_bad_message": "En choisissant cette option, l'administrateur du site sera notifié et étudiera votre cas pour un éventuel remboursement.",
+        "previous_comment": "Précédent commentaire :",
+        "comment_placeholder": "Veuillez décrire les problèmes rencontrés...",
+        "comment_diff_helper": "Remarques sur les différences par rapport à l'état d'origine :",
+        "comment_diff_placeholder": "Décrivez les différences...",
+        "comment_separator": "Observations lors de la restitution:",
+        "sign_code_helper": "Nous vous invitons à confirmer la transaction en présence de {userName}. Il vous suffit de saisir ci-dessous le code qu'il/elle doit vous remettre à l'issue de la transaction.",
+        "sign_code_label": "Code remis par {userName}",
+        "sign_code_missing_message": "Veuillez saisir le code remis par {userName} si vous souhaitez confirmer cette transaction.",
+        "sign_code_missing_instructions": "Il est indispensable que {userName} confirme que la transaction s'est bien déroulée dans son propre compte grâce à votre code secret. Vous pourrez alors laisser un commentaire à {userName}.",
+        "transaction_confirmed_with_date": "Transaction confirmée le {date, date, long} à {time, time, short}.",
+        "sign_code_missing_draft_message": "Un brouillon sera enregistré si vous ne saisissez pas encore{missingBankAccount, select, true{ vos coordonnées bancaires et} other{}} le code remis par {userName}.",
+        "notification": {
+            "missing_fields_title": "Champ requis",
+            "missing_fields_message": "Merci de renseigner la conformité de l'annonce",
+            "missing_comment_title": "Commentaire requis",
+            "missing_comment_message": "Merci de renseigner un commentaire",
+            "missing_code_title": "Brouillon enregistré",
+            "missing_code_message": "Pour confirmer la transaction, vous devez saisir le code remis par {userName}",
+            "missing_banking_details_title": "Informations bancaires requises",
+            "missing_banking_details_message": "Avant de pouvoir confirmer la transaction, vous devez renseigner vos coordonnées bancaires pour recevoir votre virement.",
+            "transaction_confirmed_message": "Transaction confirmée",
+            "invalid_code_title": "Code erroné",
+            "invalid_code_message": "Veuillez vérifier le code transmis par {userName}. Les autres champs ont été sauvegardés."
+        }
+    },
+    "rating": {
+        "incentive_message": "{userName} a laissé une évaluation. Laissez votre propre évaluation pour voir son commentaire !",
+        "rating_question": "Êtes-vous satisfaits de votre transaction avec {userName} ?",
+        "rating_label": "Avis :",
+        "rating_saved_messsage": "Votre évaluation est enregistrée. Vous pouvez la mettre à jour si vous le souhaitez.",
+        "rating_placeholder": "Avis*",
+        "your_rating_label": "Votre avis",
+        "rating_given_user_label": "Évaluation laissée par {userName}",
+        "rating_no_update_message": "Vous ne pouvez plus modifier vos avis et commentaires.",
+        "score": {
+            "good": "Positif",
+            "quite_good": "Assez positif",
+            "mean": "Moyen",
+            "negative": "Négatif",
+            "very_negative": "Très négatif"
+        },
+        "rating_comment_on_user_placeholder": "Qu'avez-vous globalement pensé de cet échange avec {userName}?",
+        "rating_comment_on_listing_placeholder": "Merci de laisser un commentaire sur l'annonce pour aider les autres membres à faire leur choix",
+        "rating_missing_comment_message": "Vous devriez laisser un commentaire...",
+        "comment_label": "Commentaire :",
+        "comment_on_user": "Commentaire sur {userName}",
+        "comment_on_listing": "Commentaire sur l'annonce :",
+        "comment_on_listing_with_name": "Commentaire sur l'annonce : {listingName}",
+        "notification": {
+            "missing_score_title": "Note manquante",
+            "missing_score_message": "Il manque votre note pour enregistrer votre évaluation.",
+            "rating_saved_message": "Évaluation enregistrée",
+            "remaining_comment_title": "Note enregistrée",
+            "remaining_comment_message": "N'oubliez pas d'écrire dès que possible un commentaire à {userName}."
+        }
     },
     "pricing": {
         "price_with_currency": "{price, number, currency}",

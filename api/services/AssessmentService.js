@@ -220,9 +220,7 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
     if (Assessment.getRealGiverId(assessment) !== userId) {
         throw createError(403);
     }
-    if (! assessment.workingLevel
-        || ! assessment.cleanlinessLevel
-    ) {
+    if (!assessment.status) {
         throw createError(400, 'Assessment missing required fields');
     }
     if (assessment.signedDate) {
@@ -232,6 +230,10 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
     let outputAssessment;
 
     if (assessment.startBookingId) {
+        if (assessment.status !== 'good' && !assessment.comment) {
+            throw createError(400, 'Required comment');
+        }
+
         const startBooking = await Booking.findOne({ id: assessment.startBookingId });
         if (! startBooking) {
             const error = new Error('Assessment start booking not found');
@@ -244,10 +246,8 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
         const { ASSESSMENTS } = startBooking.listingType.properties;
         const config = startBooking.listingType.config;
 
-        if (config.assessment.useConfirmationCode) {
-            if (assessment.signToken !== signToken) {
-                throw createError(400, 'wrong token');
-            }
+        if (_useConfirmationCode(config) && assessment.signToken !== signToken) {
+            throw createError(400, 'wrong token');
         }
 
         if (ASSESSMENTS === 'TWO_STEPS') {
@@ -257,6 +257,10 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
             await Booking.update({ id: startBooking.id }, { completedDate: now });
         }
     } else if (assessment.endBookingId) {
+        if (assessment.status !== 'good' && !assessment.commentDiff) {
+            throw createError(400, 'Required comment diff');
+        }
+
         const endBooking = await Booking.findOne({ id: assessment.endBookingId });
         if (! endBooking) {
             var error = new Error("Assessment end booking not found");
@@ -266,11 +270,8 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
         }
 
         const config = endBooking.listingType.config;
-
-        if (config.assessment.useConfirmationCode) {
-            if (assessment.signToken !== signToken) {
-                throw createError(400, 'wrong token');
-            }
+        if (_useConfirmationCode(config) && assessment.signToken !== signToken) {
+            throw createError(400, 'wrong token');
         }
 
         await Booking.updateBookingEndState(endBooking, now);
@@ -293,6 +294,10 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
     AssessmentGamificationService.afterAssessmentSigned(assessment, logger, req);
 
     return assessment;
+}
+
+function _useConfirmationCode(config) {
+    return !!_.get(config, 'assessment.useConfirmationCode');
 }
 
 function createOutputAssessment(assessment, startBooking) {

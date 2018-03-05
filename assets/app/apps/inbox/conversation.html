@@ -155,27 +155,31 @@
                 <div ng-if="vm.showAssessment">
                     <sip-assessment
                         ng-if="vm.assessmentOutput.assessment"
-                        heading="vm.assessmentOutput.heading"
                         previous-assessment="vm.assessmentOutput.previousAssessment"
                         assessment="vm.assessmentOutput.assessment"
+                        step-type="vm.assessmentOutput.stepType"
                         booking="vm.booking"
                         listing="vm.listing"
                         interlocutor="vm.interlocutor"
                         ratings="vm.assessmentOutput.ratings"
-                        show-form="vm.assessmentOutput.showForm">
+                        show-form="vm.assessmentOutput.showForm"
+                        show-ratings-only="vm.assessmentOutput.showRatingsOnly"
+                    >
                     </sip-assessment>
 
                     <sip-assessment
                         ng-if="vm.assessmentInput.assessment"
-                        heading="vm.assessmentInput.heading"
                         previous-assessment="vm.assessmentInput.previousAssessment"
                         assessment="vm.assessmentInput.assessment"
+                        step-type="vm.assessmentInput.stepType"
                         booking="vm.booking"
                         bank-account-missing="vm.bankAccountMissing"
                         listing="vm.listing"
                         interlocutor="vm.interlocutor"
                         ratings="vm.assessmentInput.ratings"
-                        show-form="vm.assessmentInput.showForm">
+                        show-form="vm.assessmentInput.showForm"
+                        show-ratings-only="vm.assessmentInput.showRatingsOnly"
+                    >
                     </sip-assessment>
                 </div>
                 <div ng-repeat="message in vm.messages | orderBy : 'createdDate' : true track by message.id">

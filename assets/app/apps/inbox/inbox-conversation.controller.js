@@ -58,7 +58,6 @@
 
         vm.sendMessage             = sendMessage;
         vm.resetConversationForm   = resetConversationForm;
-        vm.displayDate             = displayDate;
         vm.acceptBooking           = acceptBooking;
         vm.rejectBooking           = rejectBooking;
         vm.saveMessageTmp          = saveMessageTmp;
@@ -357,79 +356,79 @@
             var input  = {};
             var output = {};
 
-            if ((! conversation.inputAssessmentId
-             && ! conversation.outputAssessmentId)
-            ) {
+            if (!conversation.booking) return;
+
+            // only show ratings if there is no assessments
+            if (vm.listingTypeProperties.isAssessmentNone) {
+                return RatingService.getFromBooking(conversation.bookingId)
+                    .then(function (ratings) {
+                        input.showRatingsOnly = true;
+                        input.ratings = ratings;
+
+                        vm.assessmentInput = input;
+                        vm.showAssessment = true;
+                    });
+            }
+
+            // stop the process if there is no assessment ids
+            if (! conversation.inputAssessmentId && ! conversation.outputAssessmentId) {
                 return;
             }
 
-            return AssessmentService
-            .getAssociatedToConversation(conversation.id)
-            .then(function (conversationAssessments) {
-                var inputAssessment        = conversationAssessments.inputAssessment;
-                var outputAssessment       = conversationAssessments.outputAssessment;
-                var beforeInputAssessment  = conversationAssessments.beforeInputAssessment;
-                var beforeOutputAssessment = conversationAssessments.beforeOutputAssessment;
+            return AssessmentService.getAssociatedToConversation(conversation.id)
+                .then(function (conversationAssessments) {
+                    var inputAssessment        = conversationAssessments.inputAssessment;
+                    var outputAssessment       = conversationAssessments.outputAssessment;
+                    var beforeInputAssessment  = conversationAssessments.beforeInputAssessment;
+                    var beforeOutputAssessment = conversationAssessments.beforeOutputAssessment;
 
-                if (inputAssessment) {
-                    input.assessment         = inputAssessment;
-                    input.previousAssessment = beforeInputAssessment;
+                    if (inputAssessment) {
+                        input.assessment         = inputAssessment;
+                        input.previousAssessment = beforeInputAssessment;
 
-                    input.showForm = !! inputAssessment.signedDate
-                        || AssessmentService.getRealGiverId(inputAssessment) === currentUser.id;
-                }
-                if (outputAssessment) {
-                    output.assessment         = outputAssessment;
-                    output.previousAssessment = inputAssessment || beforeOutputAssessment;
+                        input.showForm = !! inputAssessment.signedDate
+                            || AssessmentService.getRealGiverId(inputAssessment) === currentUser.id;
+                    }
+                    if (outputAssessment) {
+                        output.assessment         = outputAssessment;
+                        output.previousAssessment = inputAssessment || beforeOutputAssessment;
 
-                    output.showForm = !! outputAssessment.signedDate
-                        || AssessmentService.getRealGiverId(outputAssessment) === currentUser.id;
-                }
+                        output.showForm = !! outputAssessment.signedDate
+                            || AssessmentService.getRealGiverId(outputAssessment) === currentUser.id;
+                    }
 
-                input.heading = "État des lieux initial";
-                output.heading = "État des lieux final";
+                    var showRating = (input.showForm && inputAssessment && !!inputAssessment.signedDate)
+                        || (output.showForm && outputAssessment && !!outputAssessment.signedDate);
 
-                var showRating = (input.showForm && inputAssessment && !!inputAssessment.signedDate)
-                    || (output.showForm && outputAssessment && !!outputAssessment.signedDate);
-                var bookingId;
-
-                if (showRating) {
-                    bookingId = conversation.bookingId;
-                }
-
-                return $q.all({
-                    inputAssessment: inputAssessment,
-                    outputAssessment: outputAssessment,
-                    ratings: bookingId ? RatingService.getFromBooking(bookingId) : null
-                });
-            })
-            .then(function (results) {
-                var inputAssessment  = results.inputAssessment;
-                var outputAssessment = results.outputAssessment;
-                var ratings          = results.ratings;
-
-                vm.assessmentInput  = input;
-                vm.assessmentOutput = output;
-
-                if (outputAssessment) {
-                    output.ratings = ratings;
-                } else if (inputAssessment) {
-                    // there is no output assessment for purchase booking
-                    if (BookingService.isNoTime(vm.booking)) {
+                    if (showRating) {
+                        return RatingService.getFromBooking(conversation.bookingId);
+                    }
+                })
+                .then(function (ratings) {
+                    if (output.assessment) {
+                        output.ratings = ratings;
+                    } else if (input.assessment && vm.listingTypeProperties.isAssessmentOneStep) {
                         input.ratings = ratings;
                     }
-                }
 
-                var isTaker = input.assessment && input.assessment.takerId && (input.assessment.takerId === currentUser.id);
-                // Do not show assessment to taker if booking has not been paid yet to improve conversion
-                if (isTaker && ! _.find(messages, function (message) {
-                    return (message.booking && message.booking.paidDate);
-                })) {
-                    vm.showAssessment = false;
-                } else {
-                    vm.showAssessment = true;
-                }
-            });
+                    var isTaker = input.assessment && input.assessment.takerId && (input.assessment.takerId === currentUser.id);
+                    // Do not show assessment to taker if booking has not been paid yet to improve conversion
+                    if (isTaker && ! _.find(messages, function (message) {
+                        return (message.booking && message.booking.paidDate);
+                    })) {
+                        vm.showAssessment = false;
+                    } else {
+                        vm.showAssessment = true;
+                    }
+
+                    if (vm.listingTypeProperties.isAssessmentTwoSteps) {
+                        input.stepType = 'start';
+                        output.stepType = 'end';
+                    }
+
+                    vm.assessmentInput  = input;
+                    vm.assessmentOutput = output;
+                });
         }
 
         function _setCountdown() {
@@ -549,9 +548,16 @@
                             return _populateAssessments();
                         })
                         .catch(function (err) {
-                            var errMsg = (booking.acceptedDate && booking.paidDate) ? "Veuillez rafraîchir la page pour faire apparaître l'état des lieux."
-                             : "Nous sommes désolés et cherchons à résoudre le problème.";
-                            toastr.warning(errMsg, "Oups, une erreur est survenue.");
+                            var messageKey = 'error.unknown_happened_message';
+                            if (booking.acceptedDate && booking.paidDate) {
+                                messageKey = 'inbox.error_refresh_page_message';
+                            }
+
+                            ContentService.showNotification({
+                                titleKey: 'error.unknown_happened_title',
+                                messageKey: messageKey,
+                                type: 'warning'
+                            });
                             loggerToServer.error(err);
                         });
                 });
@@ -702,11 +708,6 @@
         function resetConversationForm() {
             vm.forms.conversationForm.$setPristine();
             vm.forms.conversationForm.$setUntouched();
-        }
-
-        function displayDate(date) {
-            var m = moment(date);
-            return (m.isSame(moment(), 'd') ? m.format("HH:mm") : m.format("Do MMMM HH:mm"));
         }
 
         function _displaySeniority(date) {

@@ -11,8 +11,10 @@
                                     $rootScope,
                                     $scope,
                                     $timeout,
+                                    $translate,
                                     AssessmentService,
                                     BookingService,
+                                    ContentService,
                                     gamification,
                                     ListingTypeService,
                                     RatingService,
@@ -28,14 +30,15 @@
         var collapseTimeout;
 
         var vm = this;
-        vm.showSaveButton = false;
+        vm.showAssessmentSaveButton = false;
+        vm.showRatingSaveButton = false;
         vm.isOwner        = false;
         vm.scoreMap       = {
-            1: "Très négatif",
-            2: "Négatif",
-            3: "Moyen",
-            4: "Assez positif",
-            5: "Positif"
+            1: $translate.instant("rating.score.very_negative"),
+            2: $translate.instant("rating.score.negative"),
+            3: $translate.instant("rating.score.mean"),
+            4: $translate.instant("rating.score.quite_good"),
+            5: $translate.instant("rating.score.good")
         };
         vm.scoreMapSelect = _(vm.scoreMap)
             .map(function (value, key) {
@@ -56,7 +59,7 @@
 
         vm.save       = save;
         vm.sign       = sign;
-        vm.ratingSave = ratingSave;
+        vm.saveRating = saveRating;
 
         activate();
 
@@ -136,10 +139,27 @@
         }
 
         function _save() {
+            if (vm.listingTypeProperties.isAssessmentNone) {
+                return saveRating();
+            }
+
             if (! vm.assessment
              || ! vm.assessment.status
             ) {
-                toastr.warning("Merci de renseigner l'état de fonctionnement et la propreté de l'objet.", "État de fonctionnement / Propreté");
+                ContentService.showNotification({
+                    titleKey: 'assessment.notification.missing_fields_title',
+                    messageKey: 'assessment.notification.missing_fields_message',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            if (_isMissingComment()) {
+                ContentService.showNotification({
+                    titleKey: 'assessment.notification.missing_comment_title',
+                    messageKey: 'assessment.notification.missing_comment_message',
+                    type: 'warning'
+                });
                 return;
             }
 
@@ -158,64 +178,69 @@
                     return vm.assessment.save();
                 })
                 .then(function () {
-                    if (! vm.assessment.signedDate && ! vm.signToken) {
-                        toastr.info("Pour valider définitivement l'état des lieux, vous devez "
-                            + (vm.bankAccountMissing ? "renseigner vos coordonnées bancaires pour recevoir le virement et " : "")
-                            + "saisir le code remis par " + vm.interlocutor.fullname,
-                            "Brouillon enregistré", {
+                    if (!vm.assessment.signedDate && vm.bankAccountMissing) {
+                        ContentService.showNotification({
+                            titleKey: 'assessment.notification.missing_banking_details_title',
+                            messageKey: 'assessment.notification.missing_banking_details_message',
+                            options: {
                                 timeOut: 0,
                                 closeButton: true
+                            }
                         });
-                    }
-
-                    if (! vm.assessment.signedDate && vm.signToken && vm.bankAccountMissing) {
-                        toastr.info("Avant de pouvoir signer cet état des lieux, vous devez "
-                            + "renseigner vos coordonnées bancaires pour recevoir votre virement.",
-                            "Informations bancaires requises", {
+                    } else if (!vm.assessment.signedDate && !vm.signToken) {
+                        ContentService.showNotification({
+                            titleKey: 'assessment.notification.missing_code_title',
+                            messageKey: 'assessment.notification.missing_code_message',
+                            messageValues: {
+                                userName: vm.interlocutor.fullname
+                            },
+                            options: {
                                 timeOut: 0,
                                 closeButton: true
+                            }
                         });
-                        vm.signToken = null;
-                    } else if (vm.signToken && ! vm.assessment.signedDate) {
-                        return sign();
+                    } else {
+                        return sign()
+                            .then(function () {
+                                if (vm.onSave && vm.assessment) {
+                                    vm.onSave(vm.assessment);
+                                }
+                            });
                     }
 
                     return;
                 })
                 .then(function () {
-                    if (vm.myRating && ! vm.ratingsVisible) {
-                        return ratingSave();
-                    }
-
-                    return;
+                    return saveRating();
                 })
-                .then(function (newRating) {
-                    if (newRating && vm.assessment.signedDate) {
-                        if (vm.myRating && ! vm.myRating.comment) {
-                            toastr.success("N'oubliez pas d'écrire dès que possible un petit commentaire à " + vm.interlocutor.fullname + " pour le remercier.", "Avis enregistré", {
-                                timeOut: 10000
-                            });
-                        } else {
-                            toastr.success("Merci !", "Évaluation enregistrée");
-                        }
-                    }
-
+                .then(function () {
                     _setShowButton();
-
-                    if (vm.onSave) {
-                        vm.onSave(vm.assessment);
-                    }
                 })
                 .finally(function () {
                     usSpinnerService.stop('save-assessment-spinner');
                 });
         }
 
+        function _isMissingComment() {
+            if (vm.assessment.status === 'good') {
+                return false;
+            }
+
+            if (vm.stepType !== 'end' && !vm.assessment.comment) {
+                return true;
+            } else if (vm.stepType === 'end' && !vm.assessment.commentDiff) {
+                return true;
+            }
+
+            return false;
+        }
+
         function sign() {
-            if (! vm.assessment.id
-             || ! vm.assessment.workingLevel
-             || ! vm.assessment.cleanlinessLevel
-            ) {
+            if (! vm.assessment.id || ! vm.assessment.status) {
+                return;
+            }
+
+            if (_isMissingComment()) {
                 return;
             }
 
@@ -234,33 +259,84 @@
                     // refresh the inbox in case there is an output assessment after signing input assessment
                     $rootScope.$emit("refreshInbox");
 
-                    // when ratings are relevant, only collapse assessment if user has written a comment
-                    if (! vm.ratings || (vm.ratings && vm.myRating.comment)) {
-                    // Second vm.ratings expression is just there for clarity's sake. vm.myRating is then always defined in _setRatings
-                        collapseTimeout = $timeout(function () {
-                            vm.collapse = true;
-                        }, 500);
+                    if (vm.listingTypeProperties.isAssessmentOneStep) {
+                        vm.ratings = vm.ratings || {};
+                    } else {
+                        // when ratings are relevant, only collapse assessment if user has written a comment
+                        if (! vm.ratings || (vm.ratings && vm.myRating.comment)) {
+                        // Second vm.ratings expression is just there for clarity's sake. vm.myRating is then always defined in _setRatings
+                            collapseTimeout = $timeout(function () {
+                                vm.collapse = true;
+                            }, 500);
+                        }
                     }
 
-                    toastr.success("État des lieux signé et enregistré.", "Parfait !", {
-                        timeOut: 0,
-                        closeButton: true
+                    ContentService.showNotification({
+                        messageKey: 'assessment.notification.transaction_confirmed_message',
+                        type: 'success',
+                        options: {
+                            timeOut: 0,
+                            closeButton: true
+                        }
                     });
                 })
                 .catch(function (err) {
                     if (err.status === 400 && err.data && err.data.message === "wrong token") {
-                        toastr.warning("Veuillez vérifier le code transmis par " + vm.interlocutor.fullname
-                            + " en échange de l'objet. Les autres champs ont été sauvegardés.", "Code erroné");
+                        ContentService.showNotification({
+                            titleKey: 'invalid_code_title',
+                            messageKey: 'invalid_code_message',
+                            messageValues: {
+                                userName: vm.interlocutor.fullname
+                            },
+                            type: 'warning'
+                        });
                     }
                 });
         }
 
-        function ratingSave() {
+        function saveRating() {
+            if (!vm.ratings || vm.ratingsVisible) return;
+
+            return $q.when(true)
+                .then(function () {
+                    return _saveRating();
+                })
+                .then(function () {
+                    if (!vm.myRating) {
+                        return;
+                    }
+
+                    if (! vm.myRating.comment) {
+                        ContentService.showNotification({
+                            titleKey: 'rating.notification.remaining_comment_title',
+                            messageKey: 'rating.notification.remaining_comment_message',
+                            messageValues: {
+                                userName: vm.interlocutor.fullname
+                            },
+                            type: 'success',
+                            options: {
+                                timeOut: 10000
+                            }
+                        });
+                    } else {
+                        ContentService.showNotification({
+                            messageKey: 'rating.notification.rating_saved_message',
+                            type: 'success'
+                        });
+                    }
+                });
+        }
+
+        function _saveRating() {
             if (! vm.myRating) {
                 return;
             }
             if (! vm.myRating.score) {
-                toastr.warning("Il manque votre note pour enregistrer votre évaluation.", "Note manquante");
+                ContentService.showNotification({
+                    titleKey: 'rating.notification.missing_score_title',
+                    messageKey: 'rating.notification.missing_score_message',
+                    type: 'warning'
+                });
                 return;
             }
 
@@ -287,27 +363,20 @@
 
         function _preFillAssessment(assessment) {
             var preFilledAssessment = {};
-            var comment = null;
 
-            if (assessment.comment) {
-                comment = assessment.comment;
-            }
-            if (assessment.commentDiff) {
-                comment += "\n\n" + assessment.commentDiff;
-            }
-
-            preFilledAssessment.workingLevel     = assessment.workingLevel;
-            preFilledAssessment.cleanlinessLevel = assessment.cleanlinessLevel;
-            preFilledAssessment.comment          = comment;
+            preFilledAssessment.status  = assessment.status;
+            preFilledAssessment.comment = assessment.comment;
 
             return preFilledAssessment;
         }
 
         function _setSignInfo() {
             if (vm.assessment && vm.assessment.signedDate) {
-                var signedDate = moment(vm.assessment.signedDate);
-                vm.assessment.signedDateDisplay = signedDate.format("DD/MM/YYYY") + " à " + signedDate.format("HH:mm");
-                vm.assessment.globalComment = (vm.assessment.comment || "") + (vm.assessment.commentDiff ? "\n\nObservations lors de la restitution:\n" + vm.assessment.commentDiff : "");
+                $translate('assesment.comment_separator')
+                    .then(function (separator) {
+                        vm.assessment.globalComment = (vm.assessment.comment || "")
+                            + (vm.assessment.commentDiff ? "\n\n" + separator + "\n" + vm.assessment.commentDiff : "");
+                    });
             }
         }
 
@@ -345,7 +414,8 @@
         }
 
         function _setShowButton() {
-            vm.showSaveButton = (! vm.assessment || ! vm.assessment.signedDate || (vm.ratings && ! vm.ratingsVisible));
+            vm.showAssessmentSaveButton = ! vm.assessment || ! vm.assessment.signedDate;
+            vm.showRatingSaveButton = vm.ratings && ! vm.ratingsVisible;
         }
     }
 

@@ -529,8 +529,8 @@ function getDueDate(booking, type) {
 
     if (TIME === 'NONE') {
         dueDate = getLaunchDate(booking);
-        dueDate = moment(dueDate).add(2, "d").format("YYYY-MM-DD");
-    } else if (TIME === 'TIME_FLEXIBLE') {
+        dueDate = moment(dueDate).add(2, "d").toISOString();
+    } else if (TIME === 'TIME_PREDEFINED') {
         dueDate = booking.startDate;
     } else {
         if (type === "start") {

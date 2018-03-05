@@ -241,9 +241,6 @@ function getPrefilledStateFields(assessment) {
     if (assessment.comment) {
         comment = assessment.comment;
     }
-    if (assessment.commentDiff) {
-        comment = (comment || '') + '\n\n' + assessment.commentDiff;
-    }
 
     return {
         status: assessment.status,

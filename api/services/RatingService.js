@@ -154,7 +154,9 @@ async function createRating({
         throw createError(400, 'existing rating'); // cannot create two ratings from the same user for one booking
     }
 
-    const visibleDate = Rating.getDefaultVisibleDate(booking);
+    const config = booking.listingType.config;
+
+    const visibleDate = Rating.getDefaultVisibleDate(booking, config.rating.remainingTimeToRateAfterBookingCompletion);
     if (visibleDate < now) {
         throw createError(400, `rating can't be created anymore`);
     }
@@ -169,7 +171,7 @@ async function createRating({
     classifiedRatings.my = rating;
 
     try {
-        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings);
+        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings, config.rating.remainingTimeToUpdateAfterAllRatings);
     } catch (e) { /* do nothing */ }
 
     afterRatingActionGamification(user, rating, logger, req);
@@ -227,6 +229,13 @@ async function updateRating(ratingId, {
         userId: user.id,
     });
 
+    const booking = await Booking.findOne({ id: rating.bookingId });
+    if (!booking) {
+        throw new Error('Booking not found');
+    }
+
+    const config = booking.listingType.config;
+
     const scoreDiff = updateAttrs.score - rating.score;
 
     rating = await Rating.updateOne(rating.id, updateAttrs);
@@ -237,7 +246,7 @@ async function updateRating(ratingId, {
     } catch (e) { /* do nothing */ }
 
     try {
-        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings);
+        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings, config.rating.remainingTimeToUpdateAfterAllRatings);
     } catch (e) { /* do nothing */ }
 
     afterRatingActionGamification(user, rating, logger, req);

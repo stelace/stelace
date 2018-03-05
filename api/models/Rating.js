@@ -276,11 +276,9 @@ function getRoles(booking, userId) {
     return roles;
 }
 
-function getDefaultVisibleDate(booking) {
-    var nbDays = Rating.get("nbDaysAfterBookingEndDateToCreate");
-
+function getDefaultVisibleDate(booking, delay) {
     var date = Booking.getDueDate(booking, 'end');
-    return moment(date).add(nbDays, "d").toISOString();
+    return moment(date).add(delay).toISOString();
 }
 
 function isCompleteRating(rating) {
@@ -326,8 +324,8 @@ function exposeClassifiedRatings(classifiedRatings, now) {
 }
 
 // if the ratings from the two parts are complete,
-function updateRatingsVisibleDate(classifiedRatings, visibleDate) {
-    visibleDate = visibleDate || moment().add(Rating.get("nbDaysToUpdateAfterBothCompletion"), "d").toISOString();
+function updateRatingsVisibleDate(classifiedRatings, visibleDate, delay) {
+    visibleDate = visibleDate || moment().add(delay).toISOString();
 
     return Promise.coroutine(function* () {
         // if there aren't 2 complete ratings

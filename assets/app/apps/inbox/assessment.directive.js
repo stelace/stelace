@@ -8,16 +8,17 @@
         return {
             restrict: "EA",
             scope: {
-                heading: "=",
                 previousAssessment: "=",
                 assessment: "=",
+                stepType: '=',
                 booking: "=",
                 bankAccountMissing: "=", // to show appropriate warnings to owner
                 interlocutor: "=",
                 listing: "=",
                 ratings: "=", // only for final assessment
                 onSave: "=",
-                showForm: "="
+                showForm: "=",
+                showRatingsOnly: '='
             },
             templateUrl: "/assets/app/apps/inbox/assessment.html",
             controller: "AssessmentController",

@@ -35,7 +35,10 @@
                 isTimeFlexible: properties.TIME === 'TIME_FLEXIBLE',
                 isAvailabilityNone: properties.AVAILABILITY === 'NONE',
                 isAvailabilityUnique: properties.AVAILABILITY === 'UNIQUE',
-                isAvailabilityStock: properties.AVAILABILITY === 'STOCK'
+                isAvailabilityStock: properties.AVAILABILITY === 'STOCK',
+                isAssessmentNone: properties.ASSESSMENTS === 'NONE',
+                isAssessmentOneStep: properties.ASSESSMENTS === 'ONE_STEP',
+                isAssessmentTwoSteps: properties.ASSESSMENTS === 'TWO_STEPS'
             };
           }
 
