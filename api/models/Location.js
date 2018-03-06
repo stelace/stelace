@@ -75,6 +75,12 @@ module.exports = {
         },
         country: {
             type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
+            allowNull: true,
+            maxLength: 255,
+        },
+        countryISO: {
+            type: 'string',
             columnType: 'varchar(255)',
             allowNull: true,
             maxLength: 255,
@@ -162,6 +168,7 @@ function getAccessFields(access) {
             "department",
             "region",
             "country",
+            "countryISO",
             "latitude",
             "longitude",
             "main",
@@ -180,6 +187,7 @@ function getAccessFields(access) {
             "department",
             "region",
             "country",
+            "countryISO",
             "latitude",
             "longitude",
             "main",

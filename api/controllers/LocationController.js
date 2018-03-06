@@ -1,4 +1,4 @@
-/* global GamificationService, Listing, Location, User, IPService, MapService */
+/* global CountryService, GamificationService, Listing, Location, User, IPService, MapService */
 
 /**
  * LocationController
@@ -46,6 +46,7 @@ function create(req, res) {
         "department",
         "region",
         "country",
+        "countryISO",
         "latitude",
         "longitude",
         "establishment",
@@ -61,6 +62,8 @@ function create(req, res) {
      || ! createAttrs.city
      || ! createAttrs.latitude
      || ! createAttrs.longitude
+     || ! createAttrs.country
+     || ! createAttrs.countryISO || !CountryService.isCountry(createAttrs.countryISO)
      || ! createAttrs.provider || ! _.contains(Location.get("providers"), createAttrs.provider)
      || ! createAttrs.remoteId
     ) {
@@ -83,6 +86,8 @@ function create(req, res) {
             if (identicalLocation) {
                 throw createError(400, 'Identical location');
             }
+
+            createAttrs.countryISO = createAttrs.countryISO.toUpperCase();
 
             // if no location, assign the first to be the main
             if (! locations.length) {
@@ -121,6 +126,7 @@ function update(req, res) {
         "department",
         "region",
         "country",
+        "countryISO",
         "latitude",
         "longitude",
         "establishment",
@@ -133,6 +139,8 @@ function update(req, res) {
      || ! updateAttrs.city
      || ! updateAttrs.latitude
      || ! updateAttrs.longitude
+     || ! updateAttrs.country
+     || ! updateAttrs.countryISO || !CountryService.isCountry(updateAttrs.countryISO)
      || ! updateAttrs.provider || ! _.contains(Location.get("providers"), updateAttrs.provider)
      || ! updateAttrs.remoteId
     ) {
@@ -142,6 +150,8 @@ function update(req, res) {
     return Promise
         .resolve()
         .then(() => {
+            updateAttrs.countryISO = updateAttrs.countryISO.toUpperCase();
+
             return Location.updateOne(
                 {
                     id: id,

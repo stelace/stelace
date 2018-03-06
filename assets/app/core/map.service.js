@@ -70,6 +70,7 @@
                 if (p.city
                     && p.department
                     && p.region
+                    && p.country
                 ) {
                     return resolve(p); // resolve does not end function. Need to return.
                 }
@@ -134,14 +135,22 @@
                 street    : "route",
                 streetNum : "street_number"
             };
+            var countryISO;
 
             _.forEach(place.address_components, function (component) {
                 _.forEach(associationKeys, function (googleKey, key) {
                     if (_.contains(component.types, googleKey)) {
                         p[key] = component.long_name;
+                        if (key === 'country') {
+                            countryISO = component.short_name;
+                        }
                     }
                 });
             });
+
+            if (countryISO) {
+                p.countryISO = countryISO;
+            }
 
             if (! p.establishment) {
                 p.name = getPlaceName(p);
