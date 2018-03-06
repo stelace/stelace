@@ -327,7 +327,7 @@
             "cancelled": "The booking has been cancelled.",
             "updated": "A more recent booking has been made.",
             "paid_and_accepted": "A booking has been accepted and paid on {date, date, short}.",
-            "paid_as_taker": "Your payment has took place on {payDate, date, short}.",
+            "paid_as_taker": "Your payment has taken place on {date, date, short}.",
             "paid_as_owner": "The booking has been paid by {userName}.",
             "accepted_as_taker": "The booking has been accepted by {userName} on {acceptedDate, date, short}.",
             "accepted_as_owner": "You accepted the booking."
@@ -374,17 +374,20 @@
         "error_refresh_page_message": "Please refresh the page to display the transaction confirmation"
     },
     "assessment": {
-        "assessment_action": "{step, select, start{Initial transaction} end{Final transaction} other{Transaction}} confirmation {toConfirm, select, true{to complete} false{completed} other{}}",
-        "assessment_title": "{step, select, start{Initial transaction} end{Final transaction} other{Transaction}} confirmation{showRatings, select, true{ / Reviews} other{}}",
-        "transaction_confirmation_question": "Is it faithful compared to the listing description?",
-        "transaction_confirmation_question_return": "Do you observe any difference compared to the original state?",
-        "transaction_confirmation_status_placeholder": "Faithfulness*",
-        "transaction_confirmation_status_good": "Faithful",
-        "transaction_confirmation_status_bad": "Not faithful",
-        "transaction_confirmation_status_return_placeholder": "Difference*",
-        "transaction_confirmation_status_return_good": "No",
-        "transaction_confirmation_status_return_bad": "Yes",
-        "transaction_bad_message": "By choosing that option, the website administrator will get notified and will study you case for a potential reimbursement.",
+        "assessment_action": "{toConfirm, select, true{Validation needed} other{Completed}}",
+        "assessment_title": "{showRatingsOnly, select, true{Reviews} other{{step, select, start{Initial validation} end{Final validation} other{Validation}}{showRatings, select, true{ / Reviews} other{}}}}",
+        "validation": {
+            "question": "Was it consistent with the listing description?",
+            "status_placeholder": "Fitting*",
+            "status_good": "Yes",
+            "status_bad": "No",
+            "status_bad_message": "By choosing that option, the website administrator will get notified and will study you case for a potential reimbursement.",
+            "question_return": "Do you observe any damage compared to the original state?",
+            "status_return_placeholder": "Damage*",
+            "status_return_good": "No",
+            "status_return_bad": "Yes",
+            "status_return_bad_message": "By choosing that option, the website administrator will get notified and will study you case for a potential compensation."
+        },
         "previous_comment": "Previous comment:",
         "comment_placeholder": "Please describe the encountered problems...",
         "comment_diff_helper": "Notes on differences compared to the original state:",
@@ -394,10 +397,10 @@
         "sign_code_label": "Code given by {userName}",
         "sign_code_missing_message": "Please enter the code given by {userName} if you want to confirm the transaction.",
         "sign_code_missing_instructions": "It is necessary that {userName} confirms the transaction took place in his account with your secret code. You might leave {userName} a comment.",
-        "transaction_confirmed_with_date": "Transaction confirmed on {date, date, long} at {time, time, short}.",
+        "transaction_validated_with_date": "Transaction validated on {date, date, long} at {time, time, short}.",
         "sign_code_missing_draft_message": "A draft will be saved if you haven't enter {missingBankAccount, select, true{ your banking details and} other{}} the code given by {userName}.",
         "notification": {
-            "missing_fields_title": "Requied field",
+            "missing_fields_title": "Required field",
             "missing_fields_message": "Please enter the faithfulness of the listing",
             "missing_comment_title": "Comment required",
             "missing_comment_message": "Please leave a comment",
@@ -405,7 +408,7 @@
             "missing_code_message": "To confirm the transaction, you have to enter the code given by {userName}",
             "missing_banking_details_title": "Banking details required",
             "missing_banking_details_message": "Before confirming the transactions, you have to enter your banking details to receive your bank transfer.",
-            "transaction_confirmed_message": "Transaction confirmed",
+            "transaction_validated_message": "Transaction validated",
             "invalid_code_title": "Invalid code",
             "invalid_code_message": "Please check the code given by {userName}. The other fields are saved."
         }
@@ -422,7 +425,7 @@
         "score": {
             "good": "Good",
             "quite_good": "Quite good",
-            "mean": "Mean",
+            "average": "Average",
             "negative": "Bad",
             "very_negative": "Very bad"
         },

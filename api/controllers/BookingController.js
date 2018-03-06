@@ -210,14 +210,14 @@ async function accept(req, res) {
             );
         }
 
-        const data = {
-            booking,
-            assessment,
-            giverMessage,
-            logger: req.logger,
-        };
+        // const data = {
+        //     booking,
+        //     assessment,
+        //     giverMessage,
+        //     logger: req.logger,
+        // };
 
-        await _sendBookingConfirmedEmailsSms(data);
+        // await _sendBookingConfirmedEmailsSms(data); // TODO: rework email (assessment not always created now)
 
         // cancel other bookings that overlaps this booking that is paid and accepted by owner
         if (booking.paidDate) {

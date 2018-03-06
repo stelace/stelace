@@ -397,7 +397,7 @@
                     .catch(function (err) {
                         ContentService.showNotification({
                             titleKey: 'error.unknown_happened_title',
-                            messageKey: 'unknown_happened_message',
+                            messageKey: 'error.unknown_happened_message',
                             type: 'warning'
                         });
                         return $q.reject(err);

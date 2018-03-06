@@ -387,14 +387,14 @@
                         input.previousAssessment = beforeInputAssessment;
 
                         input.showForm = !! inputAssessment.signedDate
-                            || AssessmentService.getRealGiverId(inputAssessment) === currentUser.id;
+                            || AssessmentService.getRealTakerId(inputAssessment) === currentUser.id;
                     }
                     if (outputAssessment) {
                         output.assessment         = outputAssessment;
                         output.previousAssessment = inputAssessment || beforeOutputAssessment;
 
                         output.showForm = !! outputAssessment.signedDate
-                            || AssessmentService.getRealGiverId(outputAssessment) === currentUser.id;
+                            || AssessmentService.getRealTakerId(outputAssessment) === currentUser.id;
                     }
 
                     var showRating = (input.showForm && inputAssessment && !!inputAssessment.signedDate)
@@ -405,7 +405,7 @@
                     }
                 })
                 .then(function (ratings) {
-                    if (output.assessment) {
+                    if (output.assessment && output.assessment.signedDate) {
                         output.ratings = ratings;
                     } else if (input.assessment && vm.listingTypeProperties.isAssessmentOneStep) {
                         input.ratings = ratings;
@@ -524,6 +524,9 @@
                     ContentService.showNotification({
                         titleKey: 'inbox.booking_acceptance_success_title',
                         messageKey: 'inbox.booking_acceptance_success_message',
+                        messageValues: {
+                            userName: vm.interlocutor.firstname || vm.interlocutor.fullname
+                        },
                         type: 'success',
                         options: {
                             timeOut: 0,
@@ -616,8 +619,8 @@
                     return _populateConversation()
                         .catch(function (err) {
                             ContentService.showNotification({
-                                titleKey: 'unknown_happened_title',
-                                messageKey: 'unknown_happened_message',
+                                titleKey: 'error.unknown_happened_title',
+                                messageKey: 'error.unknown_happened_message',
                                 type: 'warning'
                             });
                             loggerToServer.error(err);
@@ -694,8 +697,8 @@
                 })
                 .catch(function (err) {
                     ContentService.showNotification({
-                        titleKey: 'unknown_happened_title',
-                        messageKey: 'unknown_happened_message',
+                        titleKey: 'error.unknown_happened_title',
+                        messageKey: 'error.unknown_happened_message',
                         type: 'warning'
                     });
                     loggerToServer.error(err);

@@ -8,7 +8,7 @@
         var service = Restangular.all("assessment");
         service.getLast                     = getLast;
         service.getAssociatedToConversation = getAssociatedToConversation;
-        // service.getRealTakerId              = getRealTakerId;
+        service.getRealTakerId              = getRealTakerId;
         service.getRealGiverId              = getRealGiverId;
 
         Restangular.extendModel("assessment", function (obj) {
@@ -40,13 +40,13 @@
                 });
         }
 
-        // function getRealTakerId(assessment) {
-        //     if (assessment.startBookingId) {
-        //         return assessment.takerId;
-        //     } else { // assessment.endBookingId
-        //         return assessment.ownerId;
-        //     }
-        // }
+        function getRealTakerId(assessment) {
+            if (assessment.startBookingId) {
+                return assessment.takerId;
+            } else { // assessment.endBookingId
+                return assessment.ownerId;
+            }
+        }
 
         function getRealGiverId(assessment) {
             if (assessment.startBookingId) {

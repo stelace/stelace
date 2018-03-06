@@ -154,7 +154,7 @@
 
                 <div ng-if="vm.showAssessment">
                     <sip-assessment
-                        ng-if="vm.assessmentOutput.assessment"
+                        ng-if="vm.assessmentOutput.assessment && vm.assessmentOutput.showForm"
                         previous-assessment="vm.assessmentOutput.previousAssessment"
                         assessment="vm.assessmentOutput.assessment"
                         step-type="vm.assessmentOutput.stepType"
@@ -163,12 +163,11 @@
                         interlocutor="vm.interlocutor"
                         ratings="vm.assessmentOutput.ratings"
                         show-form="vm.assessmentOutput.showForm"
-                        show-ratings-only="vm.assessmentOutput.showRatingsOnly"
                     >
                     </sip-assessment>
 
                     <sip-assessment
-                        ng-if="vm.assessmentInput.assessment"
+                        ng-if="vm.assessmentInput.showRatingsOnly || (vm.assessmentInput.assessment && vm.assessmentInput.showForm)"
                         previous-assessment="vm.assessmentInput.previousAssessment"
                         assessment="vm.assessmentInput.assessment"
                         step-type="vm.assessmentInput.stepType"

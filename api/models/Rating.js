@@ -227,7 +227,7 @@ function propagateRatingChange(rating, scoreDiff, isNewRating) {
 
         yield Promise.props({
             targetUser: User.updateOne(targetUser.id, userUpdateAttrs),
-            // Increment listing.nbRatings only when appriopriate (no listing rating per se. listing is associated with owner)
+            // Increment listing.nbRatings only when appropriate (no listing rating per se. listing is associated with owner)
             listing: listing.ownerId === targetUser.id ? Listing.updateOne(listing.id, listingUpdateAttrs) : null
         });
     })();

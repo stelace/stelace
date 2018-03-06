@@ -36,7 +36,7 @@
         vm.scoreMap       = {
             1: $translate.instant("rating.score.very_negative"),
             2: $translate.instant("rating.score.negative"),
-            3: $translate.instant("rating.score.mean"),
+            3: $translate.instant("rating.score.average"),
             4: $translate.instant("rating.score.quite_good"),
             5: $translate.instant("rating.score.good")
         };
@@ -66,6 +66,10 @@
 
 
         function activate() {
+            if (vm.showRatingsOnly) {
+                vm.assessment = {};
+            }
+
             // avoid to show an inactive save button
             showButtonInterval = $interval(_setShowButton, 600000);
 
@@ -84,6 +88,9 @@
             if (vm.previousAssessment && (! vm.assessment || ! vm.assessment.id)) {
                 vm.assessment = _.defaults(vm.assessment || {}, _preFillAssessment(vm.previousAssessment));
             }
+
+            // set to the good status by default
+            vm.assessment.status = vm.assessment.status || 'good';
 
             if (vm.assessment && vm.assessment.signedDate
              && (! vm.ratings || (vm.ratings.my && vm.ratings.my.comment))
@@ -107,6 +114,7 @@
                 currentUser = results.currentUser;
 
                 vm.isOwner = (vm.listing.ownerId === currentUser.id);
+                vm.isTaker = (vm.booking.takerId === currentUser.id);
 
                 vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
 
@@ -178,37 +186,12 @@
                     return vm.assessment.save();
                 })
                 .then(function () {
-                    if (!vm.assessment.signedDate && vm.bankAccountMissing) {
-                        ContentService.showNotification({
-                            titleKey: 'assessment.notification.missing_banking_details_title',
-                            messageKey: 'assessment.notification.missing_banking_details_message',
-                            options: {
-                                timeOut: 0,
-                                closeButton: true
-                            }
-                        });
-                    } else if (!vm.assessment.signedDate && !vm.signToken) {
-                        ContentService.showNotification({
-                            titleKey: 'assessment.notification.missing_code_title',
-                            messageKey: 'assessment.notification.missing_code_message',
-                            messageValues: {
-                                userName: vm.interlocutor.fullname
-                            },
-                            options: {
-                                timeOut: 0,
-                                closeButton: true
-                            }
-                        });
-                    } else {
-                        return sign()
-                            .then(function () {
-                                if (vm.onSave && vm.assessment) {
-                                    vm.onSave(vm.assessment);
-                                }
-                            });
+                    return sign();
+                })
+                .then(function () {
+                    if (vm.onSave && vm.assessment) {
+                        vm.onSave(vm.assessment);
                     }
-
-                    return;
                 })
                 .then(function () {
                     return saveRating();
@@ -239,12 +222,14 @@
             if (! vm.assessment.id || ! vm.assessment.status) {
                 return;
             }
-
             if (_isMissingComment()) {
                 return;
             }
+            if (vm.assessment.signedDate) {
+                return;
+            }
 
-            return vm.assessment.sign({ signToken: vm.signToken })
+            return vm.assessment.sign()
                 .then(function (newAssessment) {
                     gamification.checkStats();
                     vm.assessment.signedDate = newAssessment.signedDate;
@@ -259,20 +244,16 @@
                     // refresh the inbox in case there is an output assessment after signing input assessment
                     $rootScope.$emit("refreshInbox");
 
-                    if (vm.listingTypeProperties.isAssessmentOneStep) {
-                        vm.ratings = vm.ratings || {};
-                    } else {
-                        // when ratings are relevant, only collapse assessment if user has written a comment
-                        if (! vm.ratings || (vm.ratings && vm.myRating.comment)) {
-                        // Second vm.ratings expression is just there for clarity's sake. vm.myRating is then always defined in _setRatings
-                            collapseTimeout = $timeout(function () {
-                                vm.collapse = true;
-                            }, 500);
-                        }
+                    if (vm.listingTypeProperties.isAssessmentOneStep && !vm.ratings) {
+                        vm.ratings = {};
+                        _setRatings();
+                    } else if (vm.listingTypeProperties.isAssessmentTwoSteps && vm.stepType === 'end' && !vm.ratings) {
+                        vm.ratings = {};
+                        _setRatings();
                     }
 
                     ContentService.showNotification({
-                        messageKey: 'assessment.notification.transaction_confirmed_message',
+                        messageKey: 'assessment.notification.transaction_validated_message',
                         type: 'success',
                         options: {
                             timeOut: 0,
@@ -280,17 +261,12 @@
                         }
                     });
                 })
-                .catch(function (err) {
-                    if (err.status === 400 && err.data && err.data.message === "wrong token") {
-                        ContentService.showNotification({
-                            titleKey: 'invalid_code_title',
-                            messageKey: 'invalid_code_message',
-                            messageValues: {
-                                userName: vm.interlocutor.fullname
-                            },
-                            type: 'warning'
-                        });
-                    }
+                .catch(function () {
+                    ContentService.showNotification({
+                        titleKey: 'error.unknown_happened_title',
+                        messageKey: 'error.unknown_happened_message',
+                        type: 'warning'
+                    });
                 });
         }
 
@@ -349,7 +325,7 @@
                         gamification.checkStats();
                         vm.myRating = newRating;
                         vm.hasRated = true;
-                        if (vm.assessment && vm.assessment.signedDate && vm.myRating.comment) {
+                        if (vm.myRating.comment) {
                             collapseTimeout = $timeout(function () {
                                 vm.collapse = true;
                             }, 500);

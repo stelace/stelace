@@ -10,7 +10,7 @@
                 <div ng-if="vm.message.bookingStatus !== 'info'">
                     <span class="text--semibold">
                         <a ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id })">{{vm.listing.name}}</a>
-                        <span ng-if="vm.booking">
+                        <span ng-if="vm.booking && !vm.listingTypeProperties.isTimeNone">
                             <span> (</span>
                             <span ng-if="vm.listingTypeProperties.isTimeFlexible"
                                 data-translate="booking.from_start_date_to_end_date"

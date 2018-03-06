@@ -5,13 +5,13 @@
             ng-class="{'cursor-pointer': vm.showForm}"
             ng-click="vm.collapse = ! vm.collapse">
             <h3 data-translate="assessment.assessment_title"
-                data-translate-values="{ step: vm.stepType, showRatings: !!vm.ratings }"
+                data-translate-values="{ step: vm.stepType, showRatings: !!vm.ratings, showRatingsOnly: vm.showRatingsOnly }"
             >
             </h3>
-            <div class="collapse-arrow" ng-if="vm.showForm && ! vm.collapse">
+            <div class="collapse-arrow" ng-if="(vm.showForm || !!vm.ratings) && ! vm.collapse">
                 &#x25B2;
             </div>
-            <div class="collapse-arrow" ng-if="vm.showForm && vm.collapse">
+            <div class="collapse-arrow" ng-if="(vm.showForm || !!vm.ratings) && vm.collapse">
                 &#x25BC;
             </div>
         </div>
@@ -24,12 +24,12 @@
 
                 <h4 class="text--semibold no-margin-top margin-bottom"
                     ng-if="vm.assessment.endBookingId"
-                    data-translate="assessment.transaction_confirmation_question_return"
+                    data-translate="assessment.validation.question_return"
                 >
                 </h4>
                 <h4 class="text--semibold no-margin-top margin-bottom"
                     ng-if="vm.assessment.startBookingId"
-                    data-translate="assessment.transaction_confirmation_question"
+                    data-translate="assessment.validation.question"
                 >
                 </h4>
 
@@ -37,22 +37,30 @@
                     ng-model="vm.assessment.status"
                     ng-if="vm.assessment.startBookingId"
                     ng-disabled="vm.assessment.signedDate">
-                    <option value="" selected disabled="disabled" data-translate="assessment.transaction_confirmation_status_placeholder"></option>
-                    <option value="good" data-translate="assessment.transaction_confirmation_status_good"></option>
-                    <option value="bad" data-translate="assessment.transaction_confirmation_status_bad"></option>
+                    <option value="" selected disabled="disabled" data-translate="assessment.validation.status_placeholder"></option>
+                    <option value="good" data-translate="assessment.validation.status_good"></option>
+                    <option value="bad" data-translate="assessment.validation.status_bad"></option>
                 </select>
 
                 <select id="select-status"
                     ng-model="vm.assessment.status"
                     ng-if="vm.assessment.endBookingId"
                     ng-disabled="vm.assessment.signedDate">
-                    <option value="" selected disabled="disabled" data-translate="assessment.transaction_confirmation_status_return_placeholder"></option>
-                    <option value="good" data-translate="assessment.transaction_confirmation_status_return_good"></option>
-                    <option value="bad" data-translate="assessment.transaction_confirmation_status_return_bad"></option>
+                    <option value="" selected disabled="disabled" data-translate="assessment.validation.status_return_placeholder"></option>
+                    <option value="good" data-translate="assessment.validation.status_return_good"></option>
+                    <option value="bad" data-translate="assessment.validation.status_return_bad"></option>
                 </select>
 
-                <div class="text--vsmall margin-bottom-plus pull-t" ng-show="vm.assessment.status === 'bad'"
-                    data-translate="assessment.transaction_bad_message"
+                <div class="text--vsmall margin-bottom-plus pull-t"
+                    ng-if="vm.assessment.startBookingId"
+                    ng-show="vm.assessment.status === 'bad'"
+                    data-translate="assessment.validation.status_bad_message"
+                >
+                </div>
+                <div class="text--vsmall margin-bottom-plus pull-t"
+                    ng-if="vm.assessment.endBookingId"
+                    ng-show="vm.assessment.status === 'bad'"
+                    data-translate="assessment.validation.status_return_bad_message"
                 >
                 </div>
 
@@ -73,7 +81,7 @@
                 <textarea id="state-comment"
                     rows="6"
                     ng-maxlength="2000"
-                    ng-if="! vm.assessment.signedDate && vm.isOwner && (vm.assessment.status && vm.assessment.status !== 'good')"
+                    ng-if="! vm.assessment.signedDate && vm.isTaker && (vm.assessment.status && vm.assessment.status !== 'good')"
                     ng-model="vm.assessment.comment"
                     ng-model-options="{ debounce: 300 }"
                     data-translate-attr="{ placeholder: 'assessment.comment_placeholder' }"
@@ -81,7 +89,7 @@
                     sip-textarea-auto-adjust>
                 </textarea>
 
-                <div ng-if="! vm.assessment.signedDate && !vm.isOwner && vm.stepType === 'end' && vm.assessment.status !== 'good'">
+                <div ng-if="! vm.assessment.signedDate && !vm.isTaker && vm.stepType === 'end' && vm.assessment.status !== 'good'">
                     <label for="state-comment-diff" data-translate="assessment.comment_diff_helper">
                     </label>
                     <textarea id="state-comment-diff"
@@ -96,38 +104,6 @@
                     </textarea>
                 </div>
 
-                <div ng-if="! vm.assessment.signedDate">
-                    <div class="margin-bottom text--vsmall"
-                        data-translate="assessment.sign_code_helper"
-                        data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
-                    >
-                    </div>
-                    <label for="sign-code">
-                        <span
-                            data-translate="assessment.sign_code_label"
-                            data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
-                        >
-                        </span>
-                        <span>*</span>
-                    </label>
-                    <input id="sign-code" name="signToken" class=""
-                        type="text"
-                        placeholder="Code"
-                        spellcheck="false"
-                        autocorrect="off"
-                        autocomplete="off"
-                        autocapitalize="none"
-                        ng-model="vm.signToken"
-                        ng-minlength="9"
-                        required>
-                    <div class="form-warning text--semibold"
-                        uib-collapse="!(assessmentForm.$submitted && assessmentForm.ratingComment.$invalid) && (! assessmentForm.signToken.$touched || ! assessmentForm.signToken.$invalid)"
-                        data-translate="assessment.sign_code_missing_message"
-                        data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
-                    >
-                    </div>
-                </div>
-
                 <a class="contract-link margin-bottom"
                     ng-href="{{vm.contractUrl}}"
                     target="{{vm.contractTarget}}"
@@ -137,7 +113,7 @@
                 </a>
 
                 <div class="text--semibold margin-bottom-plus" ng-if="vm.assessment.signedDate"
-                    data-translate="assessment.transaction_confirmed_with_date"
+                    data-translate="assessment.transaction_validated_with_date"
                     data-translate-values="{ date: vm.assessment.signedDate, time: vm.assessment.signedDate }"
                 >
                 </div>
@@ -151,12 +127,6 @@
                     <span class="spinner-container">
                         <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-assessment-spinner"></span>
                     </span>
-                </div>
-                <div class="text--vsmall text-fade"
-                    ng-if="assessmentForm.signToken.$invalid"
-                    data-translate="assessment.sign_code_missing_draft_message"
-                    data-translate-values="{ missingBankAccount: vm.bankAccountMissing, userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
-                >
                 </div>
             </form>
 
@@ -225,11 +195,13 @@
                     >
                     </div>
                     <label for="rating-comment"
+                        ng-if="!vm.isTaker"
                         data-translate="rating.comment_on_user"
                         data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
                     >
                     </label>
                     <textarea id="rating-comment" name="ratingComment"
+                        ng-if="!vm.isTaker"
                         rows="4"
                         ng-maxlength="2000"
                         data-translate-attr="{ placeholder: 'rating.rating_comment_on_user_placeholder' }"
@@ -298,17 +270,7 @@
                     </span>
                 </div>
             </div>
-
-            <div class="message__content"
-                ng-if="!vm.showForm && !vm.showRatingsOnly">
-                <div class="text--light"
-                    data-translate="assessment.sign_code_missing_instructions"
-                    data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
-                >
-                </div>
-            </div>
         </div>
-
 
     </div>
     <div class="medium-1"></div>

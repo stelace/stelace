@@ -187,8 +187,8 @@ function updateAssessment(assessmentId, updateAttrs, userId) {
         if (! assessment) {
             throw createError(404);
         }
-        // the user that can edit assessment is the one that gives the listing
-        if (Assessment.getRealGiverId(assessment) !== userId) {
+        // the user that can edit assessment is the one that takes the listing
+        if (Assessment.getRealTakerId(assessment) !== userId) {
             throw createError(403);
         }
         if (assessment.signedDate) {
@@ -216,8 +216,8 @@ async function signAssessment(assessmentId, signToken, { userId, logger, req } =
     if (! assessment) {
         throw createError(404);
     }
-    // the user that can sign assessment is the one that gives the listing
-    if (Assessment.getRealGiverId(assessment) !== userId) {
+    // the user that can sign assessment is the one that takes the listing
+    if (Assessment.getRealTakerId(assessment) !== userId) {
         throw createError(403);
     }
     if (!assessment.status) {

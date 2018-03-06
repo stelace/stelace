@@ -327,7 +327,7 @@
             "cancelled": "La réservation a été annulée.",
             "updated": "Une réservation plus récente a été effectuée.",
             "paid_and_accepted": "Cette réservation a été acceptée et payée le {date, date, short}.",
-            "paid_as_taker": "Votre paiement a été enregistré le {payDate, date, short}.",
+            "paid_as_taker": "Votre paiement a été enregistré le {date, date, short}.",
             "paid_as_owner": "Cette réservation a été payée par {userName}.",
             "accepted_as_taker": "La réservation a été acceptée par {userName} le {acceptedDate, date, short}.",
             "accepted_as_owner": "Vous avez accepté cette réservation."
@@ -374,17 +374,20 @@
         "error_refresh_page_message": "Veuillez rafraîchir la page pour faire apparaître la confirmation de la transaction"
     },
     "assessment": {
-        "assessment_action": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}} {toConfirm, select, true{à saisir} false{effectuée} other{}}",
-        "assessment_title": "Confirmation de la transaction {step, select, start{initiale} end{finale} other{}}{showRatings, select, true{ / Commentaires} other{}}",
-        "transaction_confirmation_question": "Est-ce conforme par rapport à la description de l'annonce ?",
-        "transaction_confirmation_question_return": "Constatez-vous des différences par rapport à l'état d'origine ?",
-        "transaction_confirmation_status_placeholder": "Conformité*",
-        "transaction_confirmation_status_good": "Conforme",
-        "transaction_confirmation_status_bad": "Non conforme",
-        "transaction_confirmation_status_return_placeholder": "Différence*",
-        "transaction_confirmation_status_return_good": "Non",
-        "transaction_confirmation_status_return_bad": "Oui",
-        "transaction_bad_message": "En choisissant cette option, l'administrateur du site sera notifié et étudiera votre cas pour un éventuel remboursement.",
+        "assessment_action": "{toConfirm, select, true{Validation requise} other{Validé}}",
+        "assessment_title": "{showRatingsOnly, select, true{Commentaires} other{Validation {step, select, start{initiale} end{finale} other{}}{showRatings, select, true{ / Commentaires} other{}}}}",
+        "validation": {
+            "question": "Est-ce conforme par rapport à la description de l'annonce ?",
+            "status_placeholder": "Conforme*",
+            "status_good": "Oui",
+            "status_bad": "Non",
+            "status_bad_message": "En choisissant cette option, l'administrateur du site sera notifié et étudiera votre cas pour un éventuel remboursement.",
+            "question_return": "Constatez-vous des dégâts par rapport à l'état d'origine ?",
+            "status_return_placeholder": "Dégradation*",
+            "status_return_good": "Non",
+            "status_return_bad": "Oui",
+            "status_return_bad_message": "En choisissant cette option, l'administrateur du site sera notifié et étudiera votre cas pour un dédommagement."
+        },
         "previous_comment": "Précédent commentaire :",
         "comment_placeholder": "Veuillez décrire les problèmes rencontrés...",
         "comment_diff_helper": "Remarques sur les différences par rapport à l'état d'origine :",
@@ -394,7 +397,7 @@
         "sign_code_label": "Code remis par {userName}",
         "sign_code_missing_message": "Veuillez saisir le code remis par {userName} si vous souhaitez confirmer cette transaction.",
         "sign_code_missing_instructions": "Il est indispensable que {userName} confirme que la transaction s'est bien déroulée dans son propre compte grâce à votre code secret. Vous pourrez alors laisser un commentaire à {userName}.",
-        "transaction_confirmed_with_date": "Transaction confirmée le {date, date, long} à {time, time, short}.",
+        "transaction_validated_with_date": "Transaction validée le {date, date, long} à {time, time, short}.",
         "sign_code_missing_draft_message": "Un brouillon sera enregistré si vous ne saisissez pas encore{missingBankAccount, select, true{ vos coordonnées bancaires et} other{}} le code remis par {userName}.",
         "notification": {
             "missing_fields_title": "Champ requis",
@@ -405,7 +408,7 @@
             "missing_code_message": "Pour confirmer la transaction, vous devez saisir le code remis par {userName}",
             "missing_banking_details_title": "Informations bancaires requises",
             "missing_banking_details_message": "Avant de pouvoir confirmer la transaction, vous devez renseigner vos coordonnées bancaires pour recevoir votre virement.",
-            "transaction_confirmed_message": "Transaction confirmée",
+            "transaction_validated_message": "Transaction validée",
             "invalid_code_title": "Code erroné",
             "invalid_code_message": "Veuillez vérifier le code transmis par {userName}. Les autres champs ont été sauvegardés."
         }
@@ -422,7 +425,7 @@
         "score": {
             "good": "Positif",
             "quite_good": "Assez positif",
-            "mean": "Moyen",
+            "average": "Moyen",
             "negative": "Négatif",
             "very_negative": "Très négatif"
         },
