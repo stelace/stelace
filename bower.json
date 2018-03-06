@@ -51,7 +51,7 @@
     "lodash": "3.10.1",
     "messageformat": "1.0.2",
     "modernizr": "2.8.3",
-    "moment": "2.11.2",
+    "moment": "2.21.0",
     "ng-redux": "3.5.2",
     "ng-stats": "2.5.2",
     "ngAutocomplete": "1.0.0",

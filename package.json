@@ -87,7 +87,7 @@
     "mangopay2-nodejs-sdk": "1.7.0",
     "mkdirp": "0.5.1",
     "mobitel-iso-4217-currencies": "1.1.1",
-    "moment": "2.11.2",
+    "moment": "2.21.0",
     "node-cache": "3.2.1",
     "nodemailer": "0.7.1",
     "passport": "0.3.2",
