@@ -814,7 +814,7 @@
                     vm[detailBox].data.locationsString          = vm[detailBox].data.locationsString.length > 35
                         ? vm[detailBox].data.locationsString.substr(0, 35) + "..." : vm[detailBox].data.locationsString;
                     vm[detailBox].data.closestLocationShortName = LocationService.getShortName(vm[detailBox].data.listing.loc)
-                        || vm.queryLocation.city || vm.queryLocation.name;
+                        || (vm.queryLocation && (vm.queryLocation.city || vm.queryLocation.name));
                 }
 
                 $timeout(function () { // show on next tick to allow google maps to pan if necessary to show detailBox.
