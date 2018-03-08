@@ -82,8 +82,20 @@ function getClient() {
     return esClient;
 }
 
+function getIndexLabel() {
+    let label = 'catalog';
+
+    const stelaceId = sails.config.stelace.stelaceId;
+    if (stelaceId) {
+        label = stelaceId + '_' + label;
+    }
+
+    return label;
+}
+
 async function syncListings() {
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     const [
         listings,
@@ -106,17 +118,17 @@ async function syncListings() {
     });
 
     const indexExists = await client.indices.exists({
-        index: 'catalog',
+        index: indexLabel,
     });
 
     if (indexExists) {
         await client.indices.delete({
-            index: 'catalog',
+            index: indexLabel,
         });
     }
 
     await client.indices.create({
-        index: 'catalog',
+        index: indexLabel,
     });
 
     await createCustomFrenchAnalyzer();
@@ -127,7 +139,7 @@ async function syncListings() {
     for (let i = 0, l = normalizedListings.length; i < l; i++) {
         const listing = normalizedListings[i];
 
-        body.push({ update: { _index: 'catalog', _type: 'listing', _id: listing.id } });
+        body.push({ update: { _index: indexLabel, _type: 'listing', _id: listing.id } });
         body.push({ doc: _.omit(listing, 'id'), doc_as_upsert: true });
 
         if (i !== 0 && i % maxDocPerBulk === 0) {
@@ -143,9 +155,10 @@ async function syncListings() {
 
 async function createCustomFrenchAnalyzer() {
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     await client.indices.close({
-        index: 'catalog',
+        index: indexLabel,
     });
 
     const body = {
@@ -208,20 +221,21 @@ async function createCustomFrenchAnalyzer() {
     };
 
     await client.indices.putSettings({
-        index: 'catalog',
+        index: indexLabel,
         body,
     });
 
     await client.indices.open({
-        index: 'catalog',
+        index: indexLabel,
     });
 }
 
 async function createTypeListingMapping() {
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     await client.indices.putMapping({
-        index: 'catalog',
+        index: indexLabel,
         type: 'listing',
         body: {
             listing: {
@@ -297,6 +311,7 @@ async function searchListings(query, {
     miniShouldMatch = '2<90%',
 } = {}) {
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     // https://stackoverflow.com/questions/22695749/how-to-use-minimum-should-match-to-search-in-multiple-fields
     const body = {
@@ -320,7 +335,7 @@ async function searchListings(query, {
     };
 
     return await client.search({
-        index: 'catalog',
+        index: indexLabel,
         type: 'listing',
         body: body,
     });
@@ -328,11 +343,12 @@ async function searchListings(query, {
 
 async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes = false }) {
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     const like = [];
     _.forEach(listingsIds, listingId => {
         like.push({
-            _index: 'catalog',
+            _index: indexLabel,
             _type: 'listing',
             _id: listingId,
         });
@@ -362,7 +378,7 @@ async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes
     };
 
     return await client.search({
-        index: 'catalog',
+        index: indexLabel,
         type: 'listing',
         body,
     });
@@ -370,9 +386,10 @@ async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes
 
 async function getListing(listingId) {
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     return await client.get({
-        index: 'catalog',
+        index: indexLabel,
         type: 'listing',
         id: listingId,
     });
@@ -451,6 +468,7 @@ async function triggerSyncListings() {
     listingsIdsToSync = [];
 
     const client = getClient();
+    const indexLabel = getIndexLabel();
 
     try {
         listingsIds = MicroService.escapeListForQueries(listingsIds);
@@ -493,10 +511,10 @@ async function triggerSyncListings() {
 
             // if the listing is not found or is not validated, remove it from Elastic search
             if (! listing || ! listing.validated) {
-                body.push({ delete: { _index: 'catalog', _type: 'listing', _id: listingId } });
+                body.push({ delete: { _index: indexLabel, _type: 'listing', _id: listingId } });
             } else {
                 const normalizedListing = normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
-                body.push({ update: { _index: 'catalog', _type: 'listing', _id: normalizedListing.id } });
+                body.push({ update: { _index: indexLabel, _type: 'listing', _id: normalizedListing.id } });
                 body.push({ doc: _.omit(normalizedListing, 'id'), doc_as_upsert: true });
             }
 
