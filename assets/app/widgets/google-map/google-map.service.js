@@ -6,12 +6,7 @@
         .module("app.widgets")
         .factory("GoogleMap", GoogleMap);
 
-    function GoogleMap($timeout, tools, map) {
-        var defaultCenter = { // Paris
-            latitude: 48.858238,
-            longitude: 2.347317
-        };
-
+    function GoogleMap($timeout, tools, map, StelaceConfig) {
         /**
          * @param  {[object]} args
          * - center
@@ -48,9 +43,17 @@
         function _initialize(config, args) {
             args = args || {};
 
+            var stelaceConfig = StelaceConfig.getConfig();
+
+            config.defaultCenter = {
+                latitude: _.isFinite(stelaceConfig.map__default_lat) ? stelaceConfig.map__default_lat :  0,
+                longitude: _.isFinite(stelaceConfig.map__default_lng) ? stelaceConfig.map__default_lng : 0
+            };
+            config.defaultZoom = stelaceConfig.map__default_search_zoom || 11;
+
             config.map = {
-                center: args.center || defaultCenter,
-                zoom: args.zoom || 11,
+                center: args.center || config.defaultCenter,
+                zoom: args.zoom || config.defaultZoom,
                 bounds: {}
             };
             config.searchbox = {
@@ -67,21 +70,16 @@
                 },
                 options: {
                     // only for maps' self inputs such as in location view
-                    bounds: new google.maps.LatLngBounds(
-                        // Approximately France bounds
-                        new google.maps.LatLng(42, -5),
-                        new google.maps.LatLng(51.2, 9)
-                    )
+                    // bounds: new google.maps.LatLngBounds(
+                    //     // Approximately France bounds
+                    //     new google.maps.LatLng(42, -5),
+                    //     new google.maps.LatLng(51.2, 9)
+                    // )
                 }
-                // Google Maps autocomplete breaks binding with the gmap-map-control button in location
-                // options: {
-                //     autocomplete : true,
-                //     componentRestrictions: {country: 'fr'}
-                // }
             };
             config.options = _.defaultsDeep(args.options || {}, {
-                minZoom: 6,
-                maxZoom: 17,
+                minZoom: 2, // world view
+                maxZoom: 17, // Central Park NYC entirely covers the map
                 mapTypeControl: false,
                 streetViewControl: false, // streetView pegman
                 zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP } // default changed from TOP_LEFT to RIGHT_BOTTOM with 3.22
@@ -96,16 +94,9 @@
         }
 
         function setCenter(center) {
-            if (! center) {
-                center = {
-                    latitude: defaultCenter.latitude,
-                    longitude: defaultCenter.longitude
-                };
-            }
-
             this.config.map.center = {
-                latitude: center.latitude,
-                longitude: center.longitude
+                latitude: (center && center.latitude) || this.config.defaultCenter.latitude,
+                longitude: (center && center.longitude) || this.config.defaultCenter.longitude
             };
         }
 
@@ -190,7 +181,7 @@
 
         function refreshMap(center) {
             var useDefaultCenter = ! (center && center.latitude && center.longitude);
-            var tmpCenter = (useDefaultCenter ? defaultCenter : center);
+            var tmpCenter = (useDefaultCenter ? this.config.defaultCenter : center);
 
             this.config.control.refresh({
                 latitude: tmpCenter.latitude,
@@ -256,9 +247,9 @@
 
             // Default map if no active marker
             if (bounds.isEmpty()) {
-                var DefaultCenterPosition = new google.maps.LatLng(parseFloat(defaultCenter.latitude), parseFloat(defaultCenter.longitude));
+                var DefaultCenterPosition = new google.maps.LatLng(parseFloat(this.config.defaultCenter.latitude), parseFloat(this.config.defaultCenter.longitude));
                 bounds.extend(DefaultCenterPosition);
-                service.setZoom(10);
+                service.setZoom(this.config.defaultZoom);
                 service.setCenter(); // DefaultCenter
                 return bounds;
             }

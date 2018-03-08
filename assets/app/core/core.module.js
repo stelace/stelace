@@ -22,7 +22,6 @@
             "credit-cards",
             "ezfb",
             "uiGmapgoogle-maps",
-            "ngAutocomplete",
             "foundation",
             "angularLazyImg",
             "ngRedux",

@@ -38,12 +38,6 @@
         vm.facebookPagePlugin  = $rootScope.facebookUser;
         vm.isSmall             = mqSmall.matches;
 
-        // Google Places ngAutocomplete options
-        vm.ngAutocompleteOptions = {
-            country: 'fr',
-            watchEnter: true
-        };
-
         vm.search  = search;
 
         activate();

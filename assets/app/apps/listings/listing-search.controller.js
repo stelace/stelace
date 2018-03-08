@@ -95,11 +95,6 @@
             last: "▶▶"
         };
 
-        // Google Places ngAutocomplete options
-        vm.ngAutocompleteOptions = {
-            country: 'fr',
-            watchEnter: true
-        };
 
         vm.search              = search;
         vm.addLocation         = addLocation;
@@ -295,7 +290,6 @@
                 }
 
                 googleMap = new GoogleMap({
-                    zoom: 10,
                     events: {
                         click: _closeDetailBox,
                         tilesloaded: _stopMapSpinner

@@ -43,8 +43,7 @@
         vm.disableAddLocationButton = true;
         // Google Places ngAutocomplete options
         vm.ngAutocompleteOptions    = {
-            country: 'fr',
-            watchEnter: true
+            forceGlobalSearch: true
         };
         vm.showGamification   = StelaceConfig.isFeatureActive('GAMIFICATION');
         vm.incomeReportActive = StelaceConfig.isFeatureActive('INCOME_REPORT');

@@ -37,6 +37,13 @@ const schema = {
         stripe_publishKey: {
             type: ['string', 'null'],
         },
+        listings_in_unique_country: {
+            type: ['string', 'null'],
+            country: true,
+        },
+        listings_in_unique_country__active: {
+            type: ['boolean', 'null']
+        },
         google_analytics_trackingId: {
             type: ['string', 'null'],
         },
@@ -54,6 +61,15 @@ const schema = {
         },
         google_maps_apiKey: {
             type: ['string', 'null'],
+        },
+        map__default_lat: {
+            type: ['number', 'null'],
+        },
+        map__default_lng: {
+            type: ['number', 'null'],
+        },
+        map__default_search_zoom:{
+            type: ['number', 'null']
         },
         stripe_complete: {
             type: ['boolean', 'null'],

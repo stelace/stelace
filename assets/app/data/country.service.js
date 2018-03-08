@@ -302,6 +302,11 @@
                     fr: "Costa Rica"
                 },
                 {
+                    alpha2: "CU",
+                    en: "Cuba",
+                    fr: "Cuba"
+                },
+                {
                     alpha2: "CV",
                     en: "Cabo Verde",
                     fr: "Cap-Vert"
@@ -582,6 +587,11 @@
                     fr: "Irak"
                 },
                 {
+                    alpha2: "IR",
+                    en: "Iran",
+                    fr: "Iran"
+                },
+                {
                     alpha2: "IS",
                     en: "Iceland",
                     fr: "Islande"
@@ -640,6 +650,11 @@
                     alpha2: "KN",
                     en: "Saint Kitts and Nevis",
                     fr: "Saint-Kitts-et-Nevis"
+                },
+                {
+                    alpha2: "KP",
+                    en: "North Korea",
+                    fr: "Corée du Nord"
                 },
                 {
                     alpha2: "KR",
@@ -1012,6 +1027,11 @@
                     fr: "Seychelles"
                 },
                 {
+                    alpha2: "SD",
+                    en: "Sudan",
+                    fr: "Soudan"
+                },
+                {
                     alpha2: "SE",
                     en: "Sweden",
                     fr: "Suède"
@@ -1085,6 +1105,11 @@
                     alpha2: "SX",
                     en: "Sint Maarten (Dutch part)",
                     fr: "Saint-Martin (partie néerlandaise)"
+                },
+                {
+                    alpha2: "SY",
+                    en: "Syria",
+                    fr: "Syrie"
                 },
                 {
                     alpha2: "SZ",

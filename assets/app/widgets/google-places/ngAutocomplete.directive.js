@@ -4,6 +4,8 @@
  * A directive for adding google places autocomplete to a text box
  * google places autocomplete info: https://developers.google.com/maps/documentation/javascript/places
  *
+ * Credit to @wpalahnuk https://github.com/wpalahnuk/ngAutocomplete
+ *
  * Usage:
  *
  * <input type="text"  ng-autocomplete ng-model="autocomplete" options="options" details="details/>
@@ -17,7 +19,7 @@
  *       + types: type,        String, values can be 'geocode', 'establishment', '(regions)', or '(cities)'
  *       + bounds: bounds,     Google maps LatLngBounds Object, biases results to bounds, but may return results outside these bounds
  *       + country: country    String, ISO 3166-1 Alpha-2 compatible country code. examples; 'ca', 'us', 'gb'
- *       + watchEnter:         Boolean, true; on Enter select top autocomplete result. false(default); enter ends autocomplete
+ *       + watchEnter:         Boolean, true(default); on Enter select top autocomplete result. false; enter ends autocomplete
  *
  * example:
  *
@@ -27,8 +29,8 @@
  *    }
 **/
 
-angular.module( "ngAutocomplete", [])
-  .directive('ngAutocomplete', function() {
+angular.module('app.widgets')
+  .directive('ngAutocomplete', function(StelaceConfig) {
     return {
       require: 'ngModel',
       scope: {
@@ -38,10 +40,18 @@ angular.module( "ngAutocomplete", [])
       },
 
       link: function(scope, element, attrs, controller) {
-
         //options for autocomplete
-        var opts
-        var watchEnter = false
+        var opts;
+        var watchEnter = false;
+        var config = StelaceConfig.getConfig();
+
+        //watch options provided to directive
+        scope.watchOptions = function () {
+          return scope.options;
+        };
+        scope.$watch(scope.watchOptions, function () {
+          initOpts();
+        }, true);
 
         // Add some clean up...
         scope.$on('$destroy', function () {
@@ -57,16 +67,27 @@ angular.module( "ngAutocomplete", [])
           }
         });
 
-        //convert options provided to opts
+        // convert options provided to opts
         function initOpts() {
 
-          opts = {}
-          if (scope.options) {
+          var country = (config.listings_in_unique_country__active && config.listings_in_unique_country)
+            || (scope.options && scope.options.country);
+          opts = {};
 
-            if (scope.options.watchEnter !== true) {
-              watchEnter = false
-            } else {
+          if (country && ! (scope.options && scope.options.forceGlobalSearch)) {
+            opts.componentRestrictions = {
+              country: country
+            };
+            scope.gPlace.setComponentRestrictions(opts.componentRestrictions)
+          } else {
+            scope.gPlace.setComponentRestrictions(null)
+          }
+
+          if (scope.options) {
+            if (scope.options.watchEnter !== false) {
               watchEnter = true
+            } else {
+              watchEnter = false
             }
 
             if (scope.options.types) {
@@ -82,15 +103,6 @@ angular.module( "ngAutocomplete", [])
               scope.gPlace.setBounds(opts.bounds)
             } else {
               scope.gPlace.setBounds(null)
-            }
-
-            if (scope.options.country) {
-              opts.componentRestrictions = {
-                country: scope.options.country
-              }
-              scope.gPlace.setComponentRestrictions(opts.componentRestrictions)
-            } else {
-              scope.gPlace.setComponentRestrictions(null)
             }
           }
         }
@@ -168,14 +180,6 @@ angular.module( "ngAutocomplete", [])
           var location = controller.$viewValue;
           element.val(location);
         };
-
-        //watch options provided to directive
-        scope.watchOptions = function () {
-          return scope.options
-        };
-        scope.$watch(scope.watchOptions, function () {
-          initOpts()
-        }, true);
 
       }
     };

@@ -43,8 +43,7 @@
             wrongCount: 0,
             step: 1,
             ngAutocompleteOptions: { // Google Places ngAutocomplete options
-                country: 'fr',
-                watchEnter: true
+                forceGlobalSearch: true
             },
             emailChecked: false
         };

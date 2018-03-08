@@ -50,8 +50,7 @@
 
         // Google Places ngAutocomplete options
         vm.ngAutocompleteOptions = {
-            country: 'fr',
-            watchEnter: true
+            forceGlobalSearch: true
         };
 
         vm.onChangeBirthday = onChangeBirthday;
