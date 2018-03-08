@@ -24,6 +24,8 @@ module.exports = {
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
+const i18nCompile = require('i18n-compile');
+const yaml = require('js-yaml');
 const Promise = require('bluebird');
 
 Promise.promisifyAll(fs);
@@ -35,6 +37,10 @@ const defaultLang = 'en';
 const availableLangs = ['en', 'fr'];
 
 const translationFolder = path.join(__dirname, '../../translations');
+
+const sourceFilepath = path.join(translationFolder, './source/main.yaml');
+const sourceModifiedFilepath = path.join(translationFolder, './modified/main-modified.yaml');
+const sourceModifiedDeltaFilepath = path.join(translationFolder, './modified/main-modified-delta.yaml');
 
 let cachedDefaultTranslations = {};
 let cachedUserTranslations = {};
@@ -117,7 +123,7 @@ async function updateTranslations(lang, newTranslations) {
 
     const filteredKeys = _.intersection(keys, existingKeys);
 
-    const updatingTranslations = Object.assign({}, existingTranslations);
+    const updatingTranslations = {};
 
     filteredKeys.forEach(key => {
         _.set(updatingTranslations, key, _.get(newTranslations, key));
@@ -175,19 +181,86 @@ async function fetchDefaultTranslations(lang) {
         return cachedDefaultTranslations[lang];
     }
 
-    const filepath = path.join(translationFolder, `${lang}.json`);
-    const rawTranslations = await fs.readFileAsync(filepath, 'utf8');
-    const translations = JSON.parse(rawTranslations);
+    const [
+        rawSourceContent,
+        rawSourceModifiedDeltaContent,
+    ] = await Promise.all([
+        fs.readFileAsync(sourceFilepath, 'utf8'),
+        fs.readFileAsync(sourceModifiedDeltaFilepath, 'utf8').catch(_handleNotFoundError),
+    ]);
 
-    cachedDefaultTranslations[lang] = translations;
+    const sourceTranslations = i18nCompile.fromString(rawSourceContent);
+    const sourceModifiedDeltaTranslations = rawSourceModifiedDeltaContent ? i18nCompile.fromString(rawSourceModifiedDeltaContent) : {};
+
+    const mergedSourceTranslations = _.merge({}, sourceTranslations, sourceModifiedDeltaTranslations);
+
+    const langs = Object.keys(mergedSourceTranslations);
+
+    await Promise.each(langs, lang => _dumpTranslationLang(lang, mergedSourceTranslations[lang]));
+
+    langs.forEach(lang => {
+        cachedDefaultTranslations[lang] = mergedSourceTranslations[lang];
+    });
+
     return cachedDefaultTranslations[lang];
 }
 
 async function updateDefaultTranslations(lang, translations) {
-    const filepath = path.join(translationFolder, `${lang}.json`);
-    await fs.writeFileAsync(filepath, JSON.stringify(translations, null, 4), 'utf8');
+    const [
+        rawSourceContent,
+        rawSourceModifiedContent,
+        rawSourceModifiedDeltaContent,
+    ] = await Promise.all([
+        fs.readFileAsync(sourceFilepath, 'utf8'),
+        fs.readFileAsync(sourceModifiedFilepath, 'utf8').catch(_handleNotFoundError),
+        fs.readFileAsync(sourceModifiedDeltaFilepath, 'utf8').catch(_handleNotFoundError),
+    ]);
 
-    cachedDefaultTranslations[lang] = translations;
+    const source = yaml.safeLoad(rawSourceContent);
+    const sourceModified = rawSourceModifiedContent ? yaml.safeLoad(rawSourceModifiedContent) : {};
+    const sourceModifiedDelta = rawSourceModifiedDeltaContent ? yaml.safeLoad(rawSourceModifiedDeltaContent) : {};
+
+    const keys = getAllKeys(translations);
+
+    const mergedSourceModified = _.merge({}, source, sourceModified);
+
+    keys.forEach(key => {
+        const keyLang = `${key}.${lang}`;
+        _.set(mergedSourceModified, keyLang, _.get(translations, key));
+        _.set(sourceModifiedDelta, keyLang, _.get(translations, key));
+    });
+
+    const yamlOptions = {
+        indent: 4,
+        lineWidth: 10000, // a big number that can't be reached in practice
+    };
+
+    const sourceModifiedYaml = yaml.safeDump(mergedSourceModified, yamlOptions);
+    const sourceModifiedDeltaYaml = yaml.safeDump(sourceModifiedDelta, yamlOptions);
+
+    await fs.writeFileAsync(sourceModifiedDeltaFilepath, sourceModifiedDeltaYaml, 'utf8');
+    await fs.writeFileAsync(sourceModifiedFilepath, sourceModifiedYaml, 'utf8');
+
+    const mergedSourceModifiedTranslations = i18nCompile.fromString(sourceModifiedYaml);
+
+    await _dumpTranslationLang(lang, mergedSourceModifiedTranslations[lang]);
+    cachedDefaultTranslations[lang] = mergedSourceModifiedTranslations[lang];
+}
+
+async function _dumpTranslationLang(lang, translations) {
+    if (sails.config.noJsonTranslationsFiles) {
+        return;
+    }
+
+    const filepath = path.join(translationFolder, `./build/${lang}.json`);
+    await fs.writeFileAsync(filepath, JSON.stringify(translations, null, 2), 'utf8');
+}
+
+function _handleNotFoundError(err) {
+    if (err.code === 'ENOENT') {
+        return null;
+    }
+    throw err;
 }
 
 async function fetchUserTranslations(lang) {

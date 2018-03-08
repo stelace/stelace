@@ -132,7 +132,9 @@ phantomjs
 html-validate-result.json
 emailTests/**/*
 !emailTests/.gitkeep
-translations/**/*
-!translations/**/user_example.yaml
+translations/build/**/*
+!translations/build/.gitkeep
+translations/modified/**/*
+!translations/modified/.gitkeep
 external-files/**/*
 !external-files/.gitkeep

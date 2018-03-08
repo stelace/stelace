@@ -91,6 +91,7 @@ module.exports = {
 
     highlightTranslations: false, // enable translated strings highlighting
     useCacheTranslations: true, // enable cache for translations
+    noJsonTranslationsFiles: false, // if true, generate translation json files for debug
 
 
 
