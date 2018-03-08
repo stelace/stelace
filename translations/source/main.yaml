@@ -1,440 +1,1404 @@
 stelace:
     powered_by:
-        en: "We run on"
-        fr: "Technologie conçue par"
-        context: "Platform provider’s branding"
+        en: We run on
+        fr: Technologie conçue par
+        context: Platform provider’s branding
     name:
-        en: "Stelace"
-        fr: "Stelace"
-        context: "Unlocalized provider’s name should be “Stelace”."
+        en: Stelace
+        fr: Stelace
+        context: Unlocalized provider’s name should be “Stelace”.
     smart_marketplace:
-        en: "Smart marketplace launcher"
-        fr: "Lanceur de marketplaces intelligentes"
+        en: Smart marketplace launcher
+        fr: Lanceur de marketplaces intelligentes
 service:
     meta_description:
-        en: "{SERVICE_NAME} runs on {provider_name}."
-        fr: "{SERVICE_NAME} est une communauté propulsé par {provider_name}"
+        en: '{SERVICE_NAME} runs on {provider_name}.'
+        fr: '{SERVICE_NAME} est une communauté propulsé par {provider_name}'
 authentication:
     log_in_button:
-        en: "Log In"
-        fr: "Connexion"
+        en: Log In
+        fr: Connexion
+    log_out_button:
+        en: Log Out
+        fr: Déconnexion
     sign_up_button:
-        en: "Sign Up"
-        fr: "Inscription"
+        en: Sign Up
+        fr: Inscription
     lost_password_button:
-        en: "Forgot password?"
-        fr: "Mot de passe oublié"
+        en: Forgot password?
+        fr: Mot de passe oublié
     lost_password_message:
-        en: "Please enter the email address associated with your account. We’ll email you a link to reset your password."
-        fr: "Veuillez renseigner votre adresse email afin de redéfinir votre mot de passe."
+        en: Please enter the email address associated with your account. We’ll email you a link to reset your password.
+        fr: Veuillez renseigner votre adresse email afin de redéfinir votre mot de passe.
     lost_password_email_sent:
-        en: "A password reset link has just been sent to you."
-        fr: "Un email contenant un lien de redéfinition de mot de passe vient de vous être envoyé."
+        en: A password reset link has just been sent to you.
+        fr: Un email contenant un lien de redéfinition de mot de passe vient de vous être envoyé.
     log_in_required_message:
-        en: "Please connect to {SERVICE_NAME} to continue."
-        fr: "Veuillez renseigner vos identifiants {SERVICE_NAME} pour continuer."
+        en: 'Please connect to {SERVICE_NAME} to continue.'
+        fr: 'Veuillez renseigner vos identifiants {SERVICE_NAME} pour continuer.'
     no_account_message:
-        en: "Don’t have an account?"
-        fr: "Vous n’avez pas de compte ?"
+        en: Don’t have an account?
+        fr: "Vous n’avez pas de compte\_?"
     existing_account_message:
-        en: "Already have an account?"
-        fr: "Déjà inscrit(e) ?"
+        en: Already have an account?
+        fr: "Déjà inscrit(e)\_?"
     sign_up_greeting:
-        en: "Create your {SERVICE_NAME} account in no time."
-        fr: "Créez votre compte {SERVICE_NAME} en quelques secondes."
+        en: 'Create your {SERVICE_NAME} account in no time.'
+        fr: 'Créez votre compte {SERVICE_NAME} en quelques secondes.'
     terms_optin:
-        en: "I agree to the Terms of Service applicable on {SERVICE_NAME}."
-        fr: "J’accepte les conditions d’utilisation de {SERVICE_NAME}."
+        en: 'I agree to the Terms of Service applicable on {SERVICE_NAME}.'
+        fr: 'J’accepte les conditions d’utilisation de {SERVICE_NAME}.'
     or_social_auth_separator:
-        en: "Or"
-        fr: "Ou"
-        context: "Separator between standard (email) authentication and social authentication (such as Facebook)"
+        en: Or
+        fr: Ou
+        context: Separator between standard (email) authentication and social authentication (such as Facebook)
     social_auth_button:
-        en: "Continue {network_name, select,
-            Google{with Google}
-            Facebook{with Facebook}
-            other{}
-        }"
-        fr: "Se connecter {network_name, select,
-            Google{avec Google}
-            Facebook{avec Facebook}
-            other{}
-        }"
+        en: |
+            Continue {network_name, select,
+                Google{with Google}
+                Facebook{with Facebook}
+                other{}
+            }
+        fr: |
+            Se connecter {network_name, select,
+                Google{avec Google}
+                Facebook{avec Facebook}
+                other{}
+            }
     placeholder:
         email:
-            en: "Email Address"
-            fr: "Adresse e-mail"
+            en: Email Address
+            fr: Adresse e-mail
         password:
-            en: "Password"
-            fr: "Mot de passe"
+            en: Password
+            fr: Mot de passe
         create_password:
-            en: "Create a password"
-            fr: "Choisissez votre mot de passe"
-            context: "Password placeholder showed when user is signing up."
+            en: Create a password
+            fr: Choisissez votre mot de passe
+            context: Password placeholder showed when user is signing up.
     email_checked:
-        en: "Your email address is now verified."
-        fr: "Votre adresse email a bien été validée."
+        en: Your email address is now verified.
+        fr: Votre adresse email a bien été validée.
     password_reset:
         message:
-            en: "Please enter your new password."
-            fr: "Veuillez indiquer votre nouveau mot de passe."
+            en: Please enter your new password.
+            fr: Veuillez indiquer votre nouveau mot de passe.
         already_reset:
-            en: "You’ve already reset your password with this link."
-            fr: "Ce lien de redéfinition de mot de passe a déjà été utilisé."
+            en: You’ve already reset your password with this link.
+            fr: Ce lien de redéfinition de mot de passe a déjà été utilisé.
         link_expired:
-            en: "This reset link has expired."
-            fr: "Ce lien de redéfinition de mot de passe n'est plus valable."
+            en: This reset link has expired.
+            fr: Ce lien de redéfinition de mot de passe n'est plus valable.
         success:
-            en: "You can now log in with your new password."
-            fr: "Vous pouvez désormais vous connecter avec votre nouveau mot de passe."
+            en: You can now log in with your new password.
+            fr: Vous pouvez désormais vous connecter avec votre nouveau mot de passe.
     error:
         missing:
-            en: "Please fill in your credentials."
-            fr: "Veuillez renseigner vos identifiants."
+            en: Please fill in your credentials.
+            fr: Veuillez renseigner vos identifiants.
         incorrect:
-            en: "Please check your email address/password."
-            fr: "Votre email/mot de passe est erroné."
+            en: Please check your email address/password.
+            fr: Votre email/mot de passe est erroné.
         cancelled_social_auth:
-            en: "Authentication cancelled. No account has been created."
-            fr: "Connexion annulée. Votre profil n’a pas été créé."
-            context: "User has just refused to complete social authentication she started."
+            en: Authentication cancelled. No account has been created.
+            fr: Connexion annulée. Votre profil n’a pas été créé.
+            context: User has just refused to complete social authentication she started.
+        invalid_email:
+            en: Please enter an valid email address.
+            fr: Veuillez renseigner une adresse email valide.
 listing:
     overview_title:
-        en: "Overview"
-        fr: "Aperçu"
+        en: Overview
+        fr: Aperçu
+    title_label:
+        en: Title
+        fr: Titre
+    listing_type_label:
+        en: Listing type
+        fr: Type d'annonce
+    category_label:
+        en: Category
+        fr: Catégorie
+    subcategory_label:
+        en: Subcategory
+        fr: Sous-Catégorie
     description_label:
-        en: "Description"
-        fr: "Description"
+        en: Description
+        fr: Description
     accessories_label:
-        en: "Accessories"
-        fr: "Accessoires"
+        en: Accessories
+        fr: Accessoires
+    quantity_label:
+        en: Quantity
+        fr: Quantité
     condition_label:
-        en: "Condition"
-        fr: "État"
+        en: Condition
+        fr: État
     security_deposit_label:
-        en: "Security deposit"
-        fr: "Dépôt de garantie"
+        en: Security deposit
+        fr: Dépôt de garantie
     security_deposit_helper:
-        en: "Booking secured by deposit"
-        fr: "Un dépôt de garantie permet de sécuriser les échanges liés à cette annonce."
+        en: Booking secured by deposit
+        fr: Un dépôt de garantie permet de sécuriser les échanges liés à cette annonce.
+    price_per_time_unit_label:
+        en: |
+            Price per {timeUnit, select
+                d{day}
+                n{night}
+                h{hour}
+                m{minute}
+                other{}
+            }
+        fr: |
+            Prix par {timeUnit, select
+                d{jour}
+                n{nuit}
+                h{heure}
+                m{minute}
+                other{}
+            }
     booking_instructions_label:
-        en: "Booking instructions"
-        fr: "Indications sur les réservations"
+        en: Booking instructions
+        fr: Indications sur les réservations
     related_documents_title:
-        en: "Know more"
-        fr: "En savoir plus"
+        en: Know more
+        fr: En savoir plus
     see_map_action:
-        en: "See map"
-        fr: "Voir la carte"
+        en: See map
+        fr: Voir la carte
     comments:
-        en: "Comments"
-        fr: "Commentaires"
-        context: "Comments or questions & answers about current listing."
+        en: Comments
+        fr: Commentaires
+        context: Comments or questions & answers about current listing.
     contact_owner_action:
-        en: "Contact {owner}"
-        fr: "Contacter {owner}"
+        en: 'Contact {owner}'
+        fr: 'Contacter {owner}'
     owner_info_title:
-        en: "Offered by {owner}"
-        fr: "Informations sur {owner}"
+        en: 'Offered by {owner}'
+        fr: 'Informations sur {owner}'
     response_rate_label:
-        en: "Response rate:"
-        fr: "Taux de réponse :"
+        en: 'Response rate:'
+        fr: "Taux de réponse\_:"
     response_time_label:
-        en: "Response time:"
-        fr: "Temps de réponse :"
+        en: 'Response time:'
+        fr: "Temps de réponse\_:"
     validated_info_title:
-        en: "Account validation"
-        fr: "Confiance et vérification du profil"
+        en: Account validation
+        fr: Confiance et vérification du profil
     reviews_title:
-        en: "Listing reviews"
-        fr: "Évaluations de l’annonce"
+        en: Listing reviews
+        fr: Évaluations de l’annonce
     keywords_title:
-        en: "Related keywords"
-        fr: "Mots-clés"
+        en: Related keywords
+        fr: Mots-clés
     similar_title:
-        en: "Similar listings"
-        fr: "Annonces similaires"
+        en: Similar listings
+        fr: Annonces similaires
+    prompt:
+        add_listing_message:
+            en: Add your listing
+            fr: Ajouter votre annonce
+        view_listing_message:
+            en: |
+                View your listings{nbListings, plural
+                    0{}
+                    other{ (#)}
+                }
+            fr: |
+                Voir vos annonces{nbListings, plural
+                    0{}
+                    other{ (#)}
+                }
     trust_helper:
         payments:
-            en: "Secured payment {payment_gateway, select, stripe{with Stripe} mangopay{with Mangopay} other{}}"
-            fr: "Paiement sécurisé {payment_gateway, select, stripe{par Stripe} mangopay{par Mangopay} other{}}"
+            en: |
+                Secured payment {payment_gateway, select,
+                    stripe{with Stripe}
+                    mangopay{with Mangopay}
+                    other{}
+                }
+            fr: |
+                Paiement sécurisé {payment_gateway, select,
+                    stripe{par Stripe}
+                    mangopay{par Mangopay}
+                    other{}
+                }
         online_validation:
-            en: "Online validation & signature"
-            fr: "Validation et signature en ligne"
+            en: Online validation & signature
+            fr: Validation et signature en ligne
         service_assistance:
-            en: "{SERVICE_NAME} assistance"
-            fr: "Assistance {SERVICE_NAME}"
+            en: '{SERVICE_NAME} assistance'
+            fr: 'Assistance {SERVICE_NAME}'
     time:
         from_day_label:
-            en: "From"
-            fr: "Du"
+            en: From
+            fr: Du
         to_day_label:
-            en: "To"
-            fr: "Au"
+            en: To
+            fr: Au
         unit_label:
-            en: "{timeUnit, select,
-            D{ {nbUnits, plural, one{Per day} other{# days}} }
-            N{ {nbUnits, plural, one{Per night} other{# nights}} }
-            H{ {nbUnits, plural, one{Per hour} other{# hours}} }
-            M{ {nbUnits, plural, one{Per minute} other{# minutes}} }
-            other{}
-            }"
-            fr: "{timeUnit, select,
-            D{ {nbUnits, plural, one{Par jour} other{# jours}} }
-            N{ {nbUnits, plural, one{Par nuit} other{# nuits}} }
-            H{ {nbUnits, plural, one{Par heure} other{# heures}} }
-            M{ {nbUnits, plural, one{Par minute} other{# minutes}} }
-            other{}
-            }"
+            en: |
+                {timeUnit, select,
+                    d{ {nbUnits, plural, one{Per day} other{# days}} }
+                    n{ {nbUnits, plural, one{Per night} other{# nights}} }
+                    h{ {nbUnits, plural, one{Per hour} other{# hours}} }
+                    m{ {nbUnits, plural, one{Per minute} other{# minutes}} }
+                    other{}
+                }
+            fr: |
+                {timeUnit, select,
+                    d{ {nbUnits, plural, one{Par jour} other{# jours}} }
+                    n{ {nbUnits, plural, one{Par nuit} other{# nuits}} }
+                    h{ {nbUnits, plural, one{Par heure} other{# heures}} }
+                    m{ {nbUnits, plural, one{Par minute} other{# minutes}} }
+                    other{}
+                }
+        date_label:
+            en: Date
+            fr: Date
     checkout_action:
-        en: "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}"
-        fr: "{timeDimension, select, TIME_FLEXIBLE{Réserver} NONE{Commander} other{Commander}}"
+        en: |
+            {timeDimension, select,
+                TIME_FLEXIBLE{Book}
+                NONE{Order}
+                other{Order}
+            }
+        fr: |
+            {timeDimension, select,
+                TIME_FLEXIBLE{Réserver}
+                NONE{Commander}
+                other{Commander}
+            }
     edit_my_listing_action:
-        en: "Edit my listing"
-        fr: "Modifier mon annonce"
+        en: Edit my listing
+        fr: Modifier mon annonce
     not_available_now:
-        en: "Not available for now"
-        fr: "Indisponible pour le moment"
+        en: Not available for now
+        fr: Indisponible pour le moment
     charge_if_owner_accepts:
-        en: "You will be charged only if {owner} accepts the transaction"
-        fr: "Vous ne serez débité qu'en cas de confirmation de {owner}"
+        en: 'You will be charged only if {owner} accepts the transaction'
+        fr: 'Vous ne serez débité qu''en cas de confirmation de {owner}'
     price_label:
-        en: "Price"
-        fr: "Prix"
+        en: Price
+        fr: Prix
     buy_now:
         title:
-            en: "Buy now"
-            fr: "Achat immédiat"
+            en: Buy now
+            fr: Achat immédiat
         text:
-            en: "Buy now from {owner} at {price}."
-            fr: "Saisissez cette offre de {owner} dès maintenant pour {price}."
+            en: 'Buy now from {owner} at {price}.'
+            fr: 'Saisissez cette offre de {owner} dès maintenant pour {price}.'
     free:
-        en: "Free"
-        fr: "Gratuit"
+        en: Free
+        fr: Gratuit
+    remove_action:
+        en: Remove
+        fr: Supprimer
+    remove_tooltip:
+        en: Definitely remove your listing
+        fr: Supprimer définitivement votre annonce
+    pause_action:
+        en: Pause
+        fr: Mettre en pause
+    pause_tooltip:
+        en: Deactivate your listing when you are unavailable
+        fr: Suspendez votre annonce en cas d'indisponibilité
+    publish_again_action:
+        en: Publish again
+        fr: Re-publier
+    paused:
+        en: Paused
+        fr: En pause
+    edition:
+        new_listing_header:
+            en: Here is your new listing
+            fr: Voici votre nouvelle annonce
+        new_listing_header__EDITOR_LABEL:
+            en: Main header of your listing creation page
+            fr: En-tête principal de la page création d'annonce
+        new_listing_subheader:
+            en: ''
+            fr: ''
+        new_listing_subheader__EDITOR_LABEL:
+            en: Subheader of your listing creation page
+            fr: En-tête secondaire de la page création d'annonce
+        new_listing_section_title:
+            en: Create a listing in no time
+            fr: Créez votre annonce en un clin d'oeil
+        new_listing_section_title__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        my_listing_header:
+            en: |
+                Post {hasListings, select,
+                    true{a new}
+                    other{your}
+                } listing
+            fr: |
+                Publiez {hasListings, select,
+                    true{une nouvelle}
+                    other{votre}
+                } annonce
+        my_listing_header__EDITOR_LABEL:
+            en: Main header of your listing edition page
+            fr: En-tête principal de la page édition d'annonce
+        my_listing_subheader:
+            en: Enjoy its free distribution
+            fr: Profitez de sa diffusion gratuite
+        my_listing_subheader__EDITOR_LABEL:
+            en: Subheader of your listing edition page
+            fr: En-tête secondaire de la page édition d'annonce
+        my_listing_section_title:
+            en: I update my listing
+            fr: Je mets à jour mon annonce
+        my_listing_section_title__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        additional_content:
+            en: ''
+            fr: ''
+        additional_content__EDITOR_LABEL:
+            en: Additional content for the new listing page
+            fr: Contenu additionel d'une page de création d'annonce
+        show_my_editing_listing:
+            en: Show my editing listing
+            fr: Voir mon annonce à modifier
+        show_my_other_listings:
+            en: Show my other listings
+            fr: Voir mes autres annonces
+        image_title:
+            en: Beautiful pictures make difference...
+            fr: De belles photos font la différence...
+        image_title__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        security_deposit_message:
+            en: Amount automatically blocked by security on the taker credit card.
+            fr: Montant automatiquement bloqué par sécurité sur la carte bancaire des utilisateurs.
+        security_deposit_message__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        security_deposit_max_error:
+            en: 'The security deposit by credit card is limited to {max_deposit, number, currency}.'
+            fr: 'La caution par carte bancaire est limitée à {max_deposit, number, currency}.'
+        security_deposit_max_error__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        save_button:
+            en: Save my listing
+            fr: Enregistrer mon annonce
+        trust_message:
+            en: 'If there is a transaction, the price amount will be transferred to your account in the days following your confirmation. Easy and secure!'
+            fr: "En cas de réservation, le prix sera transféré sur votre compte dans les jours qui suivront votre confirmation. Facile et sécurisé\_!"
+        my_listings_label:
+            en: |
+                My {hasOther, select,
+                    true{other}
+                    other{}
+                } listings
+            fr: |
+                Mes {hasOther, select,
+                    true{autres}
+                    other{}
+                } annonces
+        change_image_order:
+            en: Change picture order
+            fr: Changer l'ordre des photos
+        add_remove_images:
+            en: Add / remove pictures
+            fr: Ajouter / supprimer des photos
+        longer_duration_title:
+            en: Longer durations
+            fr: Personnalisation des tarifs longue durée
+        longer_duration_title__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        longer_duration_breakpoint_label:
+            en: Duration breakpoints
+            fr: Exemple de durée
+        longer_duration_breakpoint_label__EDITOR_LABEL:
+            en: ''
+            fr: Exemple de durée
+        longer_duration_total_price_label:
+            en: Total price
+            fr: Prix total
+        longer_duration_total_price_label__EDITOR_LABEL:
+            en: ''
+            fr: Prix total
+        description_required_message:
+            en: Please give a description.
+            fr: Veuillez renseigner une description.
+        locations_label:
+            en: I select my listing locations
+            fr: Je choisis les lieux de disponibilité de mon annonce
+        locations_label__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        no_locations_available_message:
+            en: No locations entered for now.
+            fr: Aucun lieu favori n'est actuellement renseigné.
+        no_locations_available_message__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        add_locations_message:
+            en: Add locations into your account.
+            fr: Ajoutez des lieux favoris à votre compte.
+        add_locations_message__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        activate_locations_message:
+            en: Activate them on the current page to increase the listing visibility.
+            fr: Activez-les sur cette page afin d'augmenter la visibilité de votre annonce.
+        activate_locations_message__EDITOR_LABEL:
+            en: ''
+            fr: ''
+    error:
+        missing_title_title:
+            en: Required title
+            fr: Titre requis
+        missing_title_message:
+            en: Please enter the listing title. A clear and specific title draw other members' attention.
+            fr: Veuillez renseigner un titre pour votre annonce. Un titre clair et précis attirera l'attention des membres.
+        missing_price_title:
+            en: Missing price
+            fr: Prix manquant
+        missing_price_message:
+            en: Please enter the listing price.
+            fr: Veuillez renseigner le prix de votre annonce.
+        missing_time_unit_price_title:
+            en: Missing price
+            fr: Prix manquant
+        missing_time_unit_price_message:
+            en: Please enter the listing price.
+            fr: Veuillez renseigner le prix de votre annonce.
+        missing_description_title:
+            en: Required description
+            fr: Description requise
+        missing_description_message:
+            en: Please give a description. That will encourage other members to contact you.
+            fr: Veuillez renseigner une description. Ceci encouragera les autres membres à vous contacter.
+        missing_image_title:
+            en: Missing picture
+            fr: Photographie manquante
+        missing_image_message:
+            en: A beautiful picture make your listing more attractive.
+            fr: Une belle photo rend votre annonce plus attractive.
+        missing_location_title:
+            en: Required address or city
+            fr: Adresse ou ville requise
+        missing_location_message:
+            en: A listing cannot be saved without location.
+            fr: Une annonce ne peut être enregistrée sans localisation.
+        missing_email_title:
+            en: Missing email address
+            fr: Adresse email manquante
+        missing_email_message:
+            en: The listing cannot be saved without email address.
+            fr: L'annonce ne peut être enregistrée sans email.
+        account_required_title:
+            en: Required account
+            fr: Compte requis
+        account_required_message:
+            en: Please create an account in no time or please log in to post your listing.
+            fr: Veuillez créez un compte en quelques secondes ou vous connecter pour publier votre annonce.
+    social:
+        share_listing_title:
+            en: Your friends can show interest for your offers!
+            fr: "Vos offres peuvent intéresser vos amis\_!"
+        share_listing_title__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        share_listing_select_message:
+            en: 'Select your most beautiful listing:'
+            fr: "Choisissez votre plus belle annonce\_:"
+        share_listing_select_message__EDITOR_LABEL:
+            en: ''
+            fr: ''
+        share_listing_content:
+            en: 'Posted in no time by {ownerName}'
+            fr: 'Ajouté en un instant par {ownerName}'
+        share_listing_content__EDITOR_LABEL:
+            en: ''
+            fr: ''
+    notification:
+        removed_success_message:
+            en: Removed listing
+            fr: Annonce supprimée
+        activated_success_message:
+            en: Listing activated
+            fr: Annonce activée
+        deactivated_success_message:
+            en: Listing paused
+            fr: Annonce désactivée
+time:
+    date_short:
+        en: '{date, date, short}'
+        fr: '{date, date, short}'
+    date_long:
+        en: '{date, date, long}'
+        fr: '{date, date, long}'
+    date_full:
+        en: '{date, date, full}'
+        fr: '{date, date, full}'
+    time_short:
+        en: '{time, time, short}'
+        fr: '{time, time, short}'
+    time_full:
+        en: '{time, time, full}'
+        fr: '{time, time, full}'
 user:
     is_level:
-        en: "{level} user"
-        fr: "Membre {level}"
+        en: '{level} user'
+        fr: 'Membre {level}'
     service_admin_account:
-        en: "{SERVICE_NAME}’s account"
-        fr: "Compte officiel {SERVICE_NAME}"
+        en: '{SERVICE_NAME}’s account'
+        fr: 'Compte officiel {SERVICE_NAME}'
     join_month:
-        en: "Joined in {month_year}"
-        fr: "Membre depuis {month_year}"
+        en: 'Joined in {month_year}'
+        fr: 'Membre depuis {month_year}'
     email_label:
-        en: "Email address"
-        fr: "Adresse email"
+        en: Email address
+        fr: Adresse email
     verified_email_label:
-        en: "Verified"
-        fr: "Vérifiée"
+        en: Verified
+        fr: Vérifiée
     phone_number_label:
-        en: "Phone number"
-        fr: "Numéro de téléphone"
+        en: Phone number
+        fr: Numéro de téléphone
     verified_phone_number_label:
-        en: "Verified"
-        fr: "Vérifié"
+        en: Verified
+        fr: Vérifié
     no_verified_info_public_text:
-        en: "{user} has no verified info yet."
-        fr: "{user} n’a pas encore validé ses coordonnées."
+        en: '{user} has no verified info yet.'
+        fr: '{user} n’a pas encore validé ses coordonnées.'
+    picture_title:
+        en: 'Picture of {user}'
+        fr: 'Photo de {user}'
 landing:
     homepage:
         title:
-            en: "Welcome to {SERVICE_NAME}"
-            fr: "Bienvenue sur {SERVICE_NAME}"
-            context: "Default website title"
+            en: 'Welcome to {SERVICE_NAME}'
+            fr: 'Bienvenue sur {SERVICE_NAME}'
+            context: Default website title
         title__EDITOR_LABEL:
-            en: "Title of your website"
-            fr: "Titre de votre site"
+            en: Title of your website
+            fr: Titre de votre site
         title__EDITOR_HELPER:
-            en: "As shown in Web browser and search engine results such as Google."
-            fr: "Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google."
+            en: As shown in Web browser and search engine results such as Google.
+            fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
         header:
-            en: "Welcome to {SERVICE_NAME}"
-            fr: "Bienvenue sur {SERVICE_NAME}"
-            context: "Default homepage header (H1)"
+            en: 'Welcome to {SERVICE_NAME}'
+            fr: 'Bienvenue sur {SERVICE_NAME}'
+            context: Default homepage header (H1)
         header__EDITOR_LABEL:
-            en: "Main header of your homepage"
-            fr: "En-tête principal de votre page d’accueil"
+            en: Main header of your homepage
+            fr: En-tête principal de votre page d’accueil
         header__EDITOR_HELPER:
-            en: "Try to describe your activity precisely to improve your SEO."
-            fr: "Essayez de décrire votre activité précisément pour améliorer votre référencement."
+            en: Try to describe your activity precisely to improve your SEO.
+            fr: Essayez de décrire votre activité précisément pour améliorer votre référencement.
         subheader:
-            en: "Your community"
-            fr: "Votre communauté"
+            en: Your community
+            fr: Votre communauté
         subheader__EDITOR_LABEL:
-            en: "Subheader of your website"
-            fr: "En-tête secondaire"
+            en: Subheader of your website
+            fr: En-tête secondaire
         main_cta:
-            en: "New listing"
-            fr: "Publiez votre annonce"
+            en: New listing
+            fr: Publiez votre annonce
         main_cta__EDITOR_LABEL:
-            en: "Homepage call-to-action (new listing)"
-            fr: "Action principale proposée (création d’annonce)"
+            en: Homepage call-to-action (new listing)
+            fr: Action principale proposée (création d’annonce)
         content_cta_header:
-            en: "Create your first listing in a minute."
-            fr: "Enregistrez votre première annonce en quelques instants."
+            en: Create your first listing in a minute.
+            fr: Enregistrez votre première annonce en quelques instants.
         content_cta_header__EDITOR_LABEL:
-            en: "Home content prompt header"
-            fr: "En-tête incitatif dans le contenu"
+            en: Home content prompt header
+            fr: En-tête incitatif dans le contenu
         content_cta_button:
-            en: "Post my listing"
-            fr: "Je crée mon annonce"
+            en: Post my listing
+            fr: Je crée mon annonce
         content_cta_button__EDITOR_LABEL:
-            en: "Home content call-to-action"
-            fr: "Bouton de conversion dans le contenu"
+            en: Home content call-to-action
+            fr: Bouton de conversion dans le contenu
         main_text_content:
-            en: ""
-            fr: ""
+            en: ''
+            fr: ''
         main_text_content__EDITOR_LABEL:
-            en: "Main content of your homepage"
-            fr: "Contenu principal de votre page d’accueil"
+            en: Main content of your homepage
+            fr: Contenu principal de votre page d’accueil
     help:
         header:
-            en: "Help center"
-            fr: "Centre d’aide"
+            en: Help center
+            fr: Centre d’aide
         content:
-            en: "Writing in progress"
-            fr: "En cours de rédaction"
-            context: &LANDING_CONTENT_PLACEHOLDER_CONTEXT "Default placeholder, pending for administrator content"
+            en: Writing in progress
+            fr: En cours de rédaction
+            context: 'Default placeholder, pending for administrator content'
     terms:
         header:
-            en: "Terms of use"
-            fr: "Conditions générales de service et d’utilisation"
+            en: Terms of use
+            fr: Conditions générales de service et d’utilisation
         last_update_date:
-            en: "Last Updated: {date}"
-            fr: "Dernière mise à jour : {date}"
+            en: 'Last Updated: {date}'
+            fr: "Dernière mise à jour\_: {date}"
         content:
-            en: "Writing in progress"
-            fr: "En cours de rédaction"
-            context: *LANDING_CONTENT_PLACEHOLDER_CONTEXT
+            en: Writing in progress
+            fr: En cours de rédaction
+            context: 'Default placeholder, pending for administrator content'
     contact:
         header:
-            en: "Contact us"
-            fr: "Contactez-nous"
+            en: Contact us
+            fr: Contactez-nous
         header__EDITOR_LABEL:
-            en: "Contact page title"
-            fr: "Titre de la page Contact"
+            en: Contact page title
+            fr: Titre de la page Contact
         content:
-            en: ""
-            fr: ""
-            context: *LANDING_CONTENT_PLACEHOLDER_CONTEXT
+            en: ''
+            fr: ''
+            context: 'Default placeholder, pending for administrator content'
         content__EDITOR_LABEL:
-            en: "Contact page text"
-            fr: "Contenu de la page Contact"
+            en: Contact page text
+            fr: Contenu de la page Contact
 navigation:
     home:
-        en: "Home"
-        fr: "Accueil"
+        en: Home
+        fr: Accueil
     faq:
-        en: "FAQ"
-        fr: "Comment ça marche ?"
+        en: FAQ
+        fr: "Comment ça marche\_?"
     new_listing:
-        en: "New listing"
-        fr: "Publiez votre annonce"
+        en: New listing
+        fr: Publiez votre annonce
     new_listing__EDITOR_LABEL:
-        en: "New listing link"
-        fr: "Lien de publication d’annonce"
+        en: New listing link
+        fr: Lien de publication d’annonce
     contact_us:
-        en: "Contact us"
-        fr: "Contactez-nous"
+        en: Contact us
+        fr: Contactez-nous
     terms:
-        en: "Terms"
-        fr: "Conditions Générales"
+        en: Terms
+        fr: Conditions Générales
     search:
-        en: "Search"
-        fr: "Rechercher"
-        context: "Action required to find listings"
+        en: Search
+        fr: Rechercher
+        context: Action required to find listings
     back_top_of_page:
-        en: "Back to top"
-        fr: "Retour en haut de page"
+        en: Back to top
+        fr: Retour en haut de page
     back:
-        en: "Back"
-        fr: "Retour"
-        context: "Back to previous view button"
+        en: Back
+        fr: Retour
+        context: Back to previous view button
     menu:
-        en: "Menu"
-        fr: "Menu"
-        context: "Navigation menu label"
+        en: Menu
+        fr: Menu
+        context: Navigation menu label
+    profile:
+        en: Profile
+        fr: Profil
+    invite:
+        en: Invite
+        fr: Parrainer
+    inbox:
+        en: Inbox
+        fr: Boîte de réception
+    rewards:
+        en: Rewards
+        fr: Défis
+    public_profile:
+        en: Public profile
+        fr: Profil public
+    my_listings:
+        en: My listings
+        fr: Mes annonces
 prompt:
-    post_listing_short_button_1: &POST_LISTING_SHORT_BUTTON
-        en: "{timeDimension, select,
-            TIME_FLEXIBLE{New listing}
-            NONE{New listing}
-            other{New listing}
-        }"
-        fr: "{timeDimension, select,
-            TIME_FLEXIBLE{Nouvelle annonce}
-            NONE{Nouvelle annonce}
-            other{Nouvelle annonce}
-        }"
-    post_listing_short_button_2: *POST_LISTING_SHORT_BUTTON
+    post_listing_short_button_1:
+        en: New listing
+        fr: Déposer une annonce
+    post_listing_short_button_2:
+        en: New listing
+        fr: Déposer une annonce
     continue_button:
-        en: "Continue"
-        fr: "Continuer"
-        context: "Used in any context where a process is pending user action."
+        en: Continue
+        fr: Continuer
+        context: Used in any context where a process is pending user action.
     save_button:
-        en: "Save"
-        fr: "Enregistrer"
-        context: "General purpose button to save new content or setting."
+        en: Save
+        fr: Enregistrer
+        context: General purpose button to save new content or setting.
+    cancel_button:
+        en: Cancel
+        fr: Annuler
+    send_button:
+        en: Send
+        fr: Envoyer
     search:
         query_placeholder:
-            en: "You’re looking for…"
-            fr: "Que recherchez-vous ?"
+            en: You’re looking for…
+            fr: "Que recherchez-vous\_?"
         near_location_placeholder:
-            en: "Near…"
-            fr: "À proximité de…"
+            en: Near…
+            fr: À proximité de…
+        near_location_placeholder_active_locations:
+            en: |
+                Near…{nbActiveLocations, plural,
+                    =0{}
+                    one{ (1 active location)}
+                    other{ (# active locations)}
+                }
+            fr: |
+                À proximité de…{nbActiveLocations, plural,
+                    =0{}
+                    one{ (1 lieu activé)}
+                    other{ (# lieux activés)}
+                }
     see_more:
-        en: "See more"
-        fr: "En voir plus"
+        en: See more
+        fr: En voir plus
     hide:
-        en: "Hide"
-        fr: "Masquer"
+        en: Hide
+        fr: Masquer
     details:
-        en: "Details"
-        fr: "Détail"
+        en: Details
+        fr: Détail
     login_to_manage_map_locations:
-        en: "Login to manage your locations"
-        fr: "Connectez-vous pour gérer vos lieux favoris"
+        en: Login to manage your locations
+        fr: Connectez-vous pour gérer vos lieux favoris
+    booking:
+        choose_date:
+            en: Choose a date
+            fr: Choisissez une date
 ratings:
     see_more:
-        en: "See more ratings"
-        fr: "Voir plus d’évaluations"
+        en: See more ratings
+        fr: Voir plus d’évaluations
     user_ratings_title:
-        en: "{user} ratings"
-        fr: "Évaluations reçues par {user}"
-        context: "General introduction to ratings, without count"
+        en: '{user} ratings'
+        fr: 'Évaluations reçues par {user}'
+        context: 'General introduction to ratings, without count'
     other_ratings_received:
-        en: "Other ratings granted to {user}"
-        fr: "Autres évaluations reçues par {user}"
-        context: "Used when filtering ratings received by user according to context (e.g. ratings received as owner vs. buyer)"
+        en: 'Other ratings granted to {user}'
+        fr: 'Autres évaluations reçues par {user}'
+        context: Used when filtering ratings received by user according to context (e.g. ratings received as owner vs. buyer)
     average_label:
-        en: "Score:"
-        fr: "Note :"
+        en: 'Score:'
+        fr: "Note\_:"
     count:
-        en: "{nbRatings, plural, one{# rating} other{# ratings}}"
-        fr: "{nbRatings, plural, one{# évaluation} other{# évaluations}}"
+        en: |
+            {nbRatings, plural,
+                one{# rating}
+                other{# ratings}
+            }
+        fr: |
+            {nbRatings, plural,
+                one{# évaluation}
+                other{# évaluations}
+            }
     review_count:
-        en: "{nbReviews, plural, one{# review} other{# reviews}}"
-        fr: "{nbReviews, plural, one{# commentaire} other{# commentaires}}"
-        context: "Reviews are ratings with a text comment."
+        en: |
+            {nbReviews, plural,
+                one{# review}
+                other{# reviews}
+            }
+        fr: |
+            {nbReviews, plural,
+                one{# commentaire}
+                other{# commentaires}
+            }
+        context: Reviews are ratings with a text comment.
 places:
     near_place:
-        en: "Near {place}"
-        fr: "{place} & environs"
+        en: 'Near {place}'
+        fr: '{place} & environs'
 social:
     join_us:
-        en: "Join us"
-        fr: "Rejoignez-nous"
+        en: Join us
+        fr: Rejoignez-nous
+    share_on_facebook:
+        en: Share on Facebook
+        fr: Partagez sur Facebook
 greeting:
-    en: "Hello"
-    fr: "Bonjour"
+    en: Hello
+    fr: Bonjour
 error:
     unknown_happened_title:
-        en: "An error has happened."
-        fr: "Une erreur s'est produite."
+        en: An error has happened.
+        fr: Une erreur s'est produite.
     unknown_happened_message:
-        en: "We’re sorry about this and will do our best to fix the issue. Please retry later."
-        fr: "Nous sommes désolés et cherchons à résoudre le problème. Nous vous invitons à réessayer plus tard."
+        en: We’re sorry about this and will do our best to fix the issue. Please retry later.
+        fr: Nous sommes désolés et cherchons à résoudre le problème. Nous vous invitons à réessayer plus tard.
     invalid_link:
-        en: "This link is invalid"
-        fr: "Ce lien est invalide"
+        en: This link is invalid
+        fr: Ce lien est invalide
+    map_loading_error_title:
+        en: Map service unavailable
+        fr: Carte indisponible
+    map_loading_error_message:
+        en: 'We’re sorry, the page map didn''t load for the moment.'
+        fr: 'Nous sommes désolés, la carte de la page n''a pas pu être chargée pour le moment.'
+    sending_message_fail:
+        en: Sending message fail
+        fr: Erreur lors de l'envoi
+booking:
+    error:
+        incorrect_dates:
+            en: The dates are incorrect.
+            fr: Les dates sont incorrectes.
+        own_listing_booking:
+            en: You cannot book your own listing.
+            fr: Vous ne pouvez pas réserver pour votre propre annonce.
+        minimum_duration:
+            en: |
+                The duration must be {timeUnit, select,
+                    d{ {nbTimeUnits, plural, one{# day} other{# days}} }
+                    n{ {nbTimeUnits, plural, one{# night} other{# nights}} }
+                    h{ {nbTimeUnits, plural, one{# hour} other{# hours}} }
+                    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }
+                    other{}
+                } at least.
+            fr: |
+                La durée doit être de {timeUnit, select,
+                    d{ {nbTimeUnits, plural, one{# jour} other{# jours}} }
+                    n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} }
+                    h{ {nbTimeUnits, plural, one{# heure} other{# heures}} }
+                    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }
+                    other{}
+                } au minimum.
+        maximum_duration:
+            en: |
+                The duration must be {timeUnit, select,
+                    d{ {nbTimeUnits, plural, one{# day} other{# days}} }
+                    n{ {nbTimeUnits, plural, one{# night} other{# nights}} }
+                    h{ {nbTimeUnits, plural, one{# hour} other{# hours}} }
+                    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }
+                    other{}
+                } at the maximum.
+            fr: |
+                La durée doit être de {timeUnit, select,
+                    d{ {nbTimeUnits, plural, one{# jour} other{# jours}} }
+                    n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} }
+                    h{ {nbTimeUnits, plural, one{# heure} other{# heures}} }
+                    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}}
+                } other{} } au maximum.
+    login_first:
+        en: Please login before going further.
+        fr: Nous vous invitons à vous connecter avant de continuer.
+    impending_cancellation:
+        en: Impending cancellation
+        fr: Annulation imminente
+    to_accept_suffix:
+        en: to accept
+        fr: pour accepter
+    remaining_time_to_accept:
+        en: '{remainingTime} remaining to accept.'
+        fr: "Il ne vous reste que\_{remainingTime} pour accepter."
+    coming_cancellation_message:
+        en: 'Please accept or reject the request from {userName} or contact us if there is any problem.'
+        fr: 'Merci d''accepter ou de refuser rapidement la demande de {userName} ou de nous contacter en cas de difficultés.'
+    impending_cancellation_message:
+        en: 'The booking cancellation is impending. Please accept or reject the request from {userName} or contact us if there is any problem.'
+        fr: 'L''annulation de cette réservation est imminente. Merci d''accepter ou de refuser rapidement la demande de {userName} ou de nous contacter en cas de difficultés.'
+    on_date:
+        en: 'on {date, date, short}'
+        fr: 'le {date, date, short}'
+    from_start_date_to_end_date:
+        en: 'from {startDate, date, short} to {endDate, date, short}'
+        fr: 'du {startDate, date, short} au {endDate, date, short}'
+    acceptance_deadline_message:
+        en: 'After a booking, you have 36h to accept or reject it. After that deadline, the booking can be automatically cancelled.'
+        fr: 'Après une réservation, vous disposez de 36h pour l''accepter ou la refuser. Passé ce délai, la réservation est susceptible d''être annulée automatiquement.'
+    summary_title:
+        request_for_information:
+            en: Request for information
+            fr: Demande d'information
+        booking_request:
+            en: Booking request
+            fr: Demande de réservation
+        information_required:
+            en: Information required
+            fr: Coordonnées requises
+    summary:
+        base_price_as_taker:
+            en: 'Price set by owner: {price, number, currency}'
+            fr: "Prix fixé par le propriétaire\_: {price, number, currency}"
+        base_price_as_owner:
+            en: 'Applied price: {price, number, currency}'
+            fr: "Prix appliqué\_: {price, number, currency}"
+        owner_net_amount:
+            en: 'Net amount for you: {price, number, currency}'
+            fr: "Montant net vous revenant\_: {price, number, currency}"
+        taker_fees:
+            en: |
+                Service fees: {price, select,
+                    0{Free}
+                    other{{price, number, currency}}
+                }
+            fr: |
+                Frais de service : {price, select,
+                    0{Offerts}
+                    other{{price, number, currency}}
+                }
+        owner_fees:
+            en: |
+                Payment fees{price, select,
+                    0{}
+                    other{ included}
+                }: {price, select,
+                    0{Free}
+                    other{{price, number, currency}}
+                }
+            fr: |
+                {price, select,
+                    0{Frais}
+                    other{Dont frais}
+                } de paiement : {price, select,
+                    0{Offerts}
+                    other{{price, number, currency}}
+                }
+        security_deposit:
+            en: 'Security deposit: {price, number, currency}'
+            fr: "Caution\_: {price, number, currency}"
+    status:
+        accepted:
+            en: Accepted
+            fr: Accepté
+        rejected:
+            en: Rejected
+            fr: Rejeté
+        pending:
+            en: Pending
+            fr: En attente
+        cancelled:
+            en: Cancelled
+            fr: Annulé
+        information:
+            en: Information
+            fr: Information
+    status_message:
+        cancelled:
+            en: The booking has been cancelled.
+            fr: La réservation a été annulée.
+        updated:
+            en: A more recent booking has been made.
+            fr: Une réservation plus récente a été effectuée.
+        paid_and_accepted:
+            en: 'A booking has been accepted and paid on {date, date, short}.'
+            fr: 'Cette réservation a été acceptée et payée le {date, date, short}.'
+        paid_as_taker:
+            en: 'Your payment has taken place on {date, date, short}.'
+            fr: 'Votre paiement a été enregistré le {date, date, short}.'
+        paid_as_owner:
+            en: 'The booking has been paid by {userName}.'
+            fr: 'Cette réservation a été payée par {userName}.'
+        accepted_as_taker:
+            en: 'The booking has been accepted by {userName} on {acceptedDate, date, short}.'
+            fr: 'La réservation a été acceptée par {userName} le {acceptedDate, date, short}.'
+        accepted_as_owner:
+            en: You accepted the booking.
+            fr: Vous avez accepté cette réservation.
+    prompt:
+        view_contract:
+            en: View my online contract
+            fr: Consulter mon contract électronique
+        show_banking_details:
+            en: Show my banking details
+            fr: Consulter mes informations bancaires
+        hide_banking_details:
+            en: Hide my banking details
+            fr: Masquer mes informations bancaires
+        accept_button:
+            en: Accept the booking
+            fr: Accepter la réservation
+        reject_button:
+            en: Reject
+            fr: Refuser
+        confirm_rejection_button:
+            en: Confirm the rejection
+            fr: Confirmer le refus
+inbox:
+    inbox_label:
+        en: Inbox
+        fr: Boîte de réception
+    transactions_label:
+        en: My transactions
+        fr: Mes transactions
+    empty_inbox:
+        en: 'When you will send or receive messages and reservation requests, the messages will display here.'
+        fr: 'Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s''afficheront ici.'
+    conversation_with:
+        en: 'Conversation with {interlocutorName}'
+        fr: 'Conversation avec {interlocutorName}'
+    message_to:
+        en: 'Message to {interlocutorName}:'
+        fr: "Message à {interlocutorName}\_:"
+    acceptance_or_rejection_placeholder:
+        en: Please provider some details...
+        fr: Veuillez apporter quelques précisions...
+    required_message:
+        en: 'Please write your message to {interlocutorName}'
+        fr: 'Merci d''écrire quelques mots à {interlocutorName}'
+    rejection_required_message:
+        en: Please explain your rejection in few words
+        fr: Merci d'expliquer votre refus en quelques mots
+    booking_date:
+        en: '{date, date, long}'
+        fr: '{date, date, long}'
+    booking_dates:
+        en: '{startDate, date, long} - {endDate, date, long}'
+        fr: '{startDate, date, long} - {endDate, date, long}'
+    private_question_helper:
+        en: 'You can reply to {interlocutorName}''s private message below:'
+        fr: "Vous pouvez répondre au message privé de {interlocutorName} ci-dessous\_:"
+    private_question_placeholder:
+        en: Write your private message...
+        fr: Écrivez votre message personnel...
+    public_question_helper:
+        en: 'You also can reply publicly to the requests on your listing. Your message will be displayed in the description section of your listing page:'
+        fr: "Vous pouvez également répondre publiquement aux demandes de précisions sur votre annonce. Ce que vous écrirez ci-dessous viendra enrichir sa page de description\_:"
+    public_question_placeholder:
+        en: Write your public message...
+        fr: Écrivez votre message publique...
+    public_message_context:
+        en: 'About the listing:'
+        fr: "Concernant l'annonce\_:"
+    message_obfuscate_info:
+        en: 'For security reasons, your contact details will be hidden in your message.'
+        fr: 'Par sécurité, vos coordonnées seront masquées dans votre message.'
+    send_message_button:
+        en: Send a message
+        fr: Envoyer un message
+    message_sent_success:
+        en: Message sent
+        fr: Message envoyé
+    message_sent_duplicate_title:
+        en: Message already sent
+        fr: Message déjà envoyé
+    message_sent_duplicate_message:
+        en: You recently sent a message with an identical content.
+        fr: Vous avez déjà envoyé un message avec un contenu identique récemment.
+    missing_message_title:
+        en: Empty message
+        fr: Message vide
+    missing_message_message:
+        en: Please write your message before sending it.
+        fr: Veuillez rédiger un message avant l'envoi.
+    new_message_notification_message:
+        en: You have a new message
+        fr: Vous avez un nouveau message
+    contact_details_hidden_title:
+        en: Contact details protected
+        fr: Coordonnées protégées
+    self_contact_details_hidden_message:
+        en: Your contact details are hidden before the acceptance of that booking as a security measure.
+        fr: Vos coordonnées sont masquées par mesure de sécurité avant la validation de cette réservation.
+    interlocutor_contact_details_hidden_message:
+        en: '{interlocutorName} contact details are hidden before the acceptance of that booking as a security measure. They will be sent to you by e-mail.'
+        fr: 'Les coordonnées de {interlocutorName} sont masquées par mesure de sécurité avant la validation de cette réservation. Elles vous seront alors transmises par email.'
+    booking_acceptance_success_title:
+        en: Booking request accepted
+        fr: Demande de réservation acceptée
+    booking_acceptance_success_message:
+        en: 'Thanks! We have informed {userName} you accepted.'
+        fr: "Merci\_! Nous avons informé {userName} de votre acceptation."
+    booking_rejection_success_message:
+        en: Booking request rejected
+        fr: Demande de réservation rejetée
+    error_refresh_page_message:
+        en: Please refresh the page to display the transaction confirmation
+        fr: Veuillez rafraîchir la page pour faire apparaître la confirmation de la transaction
+assessment:
+    assessment_action:
+        en: '{toConfirm, select, true{Validation needed} other{Completed}}'
+        fr: '{toConfirm, select, true{Validation requise} other{Validé}}'
+    assessment_title:
+        en: |
+            {showRatingsOnly, select,
+                true{Reviews}
+                other{{step, select,
+                    start{Initial validation}
+                    end{Final validation}
+                    other{Validation}
+                }{showRatings, select,
+                    true{ / Reviews}
+                    other{}
+                }}
+            }
+        fr: |
+            {showRatingsOnly, select,
+                true{Commentaires}
+                other{Validation {step, select,
+                    start{initiale}
+                    end{finale}
+                    other{}
+                }{showRatings, select,
+                    true{ / Commentaires}
+                    other{}}
+                }
+            }
+    validation:
+        question:
+            en: Was it consistent with the listing description?
+            fr: "Est-ce conforme par rapport à la description de l'annonce\_?"
+        status_placeholder:
+            en: Fitting*
+            fr: Conforme*
+        status_good:
+            en: 'Yes'
+            fr: Oui
+        status_bad:
+            en: 'No'
+            fr: Non
+        status_bad_message:
+            en: 'By choosing that option, the website administrator will get notified and will study you case for a potential reimbursement.'
+            fr: 'En choisissant cette option, l''administrateur du site sera notifié et étudiera votre cas pour un éventuel remboursement.'
+        question_return:
+            en: Do you observe any damage compared to the original state?
+            fr: "Constatez-vous des dégâts par rapport à l'état d'origine\_?"
+        status_return_placeholder:
+            en: Damage*
+            fr: Dégradation*
+        status_return_good:
+            en: 'No'
+            fr: Non
+        status_return_bad:
+            en: 'Yes'
+            fr: Oui
+        status_return_bad_message:
+            en: 'By choosing that option, the website administrator will get notified and will study you case for a potential compensation.'
+            fr: 'En choisissant cette option, l''administrateur du site sera notifié et étudiera votre cas pour un dédommagement.'
+    previous_comment:
+        en: 'Previous comment:'
+        fr: "Précédent commentaire\_:"
+    comment_placeholder:
+        en: Please describe the encountered problems...
+        fr: Veuillez décrire les problèmes rencontrés...
+    comment_diff_helper:
+        en: 'Notes on differences compared to the original state:'
+        fr: "Remarques sur les différences par rapport à l'état d'origine\_:"
+    comment_diff_placeholder:
+        en: Describe the differences...
+        fr: Décrivez les différences...
+    comment_separator:
+        en: 'Remarks during the return:'
+        fr: 'Observations lors de la restitution:'
+    sign_code_helper:
+        en: 'Please confirm the transaction in attendance of {userName}. You only need to enter the code that he/she gives you after the transaction.'
+        fr: 'Nous vous invitons à confirmer la transaction en présence de {userName}. Il vous suffit de saisir ci-dessous le code qu''il/elle doit vous remettre à l''issue de la transaction.'
+    sign_code_label:
+        en: 'Code given by {userName}'
+        fr: 'Code remis par {userName}'
+    sign_code_missing_message:
+        en: 'Please enter the code given by {userName} if you want to confirm the transaction.'
+        fr: 'Veuillez saisir le code remis par {userName} si vous souhaitez confirmer cette transaction.'
+    sign_code_missing_instructions:
+        en: 'It is necessary that {userName} confirms the transaction took place in his account with your secret code. You might leave {userName} a comment.'
+        fr: 'Il est indispensable que {userName} confirme que la transaction s''est bien déroulée dans son propre compte grâce à votre code secret. Vous pourrez alors laisser un commentaire à {userName}.'
+    transaction_validated_with_date:
+        en: 'Transaction validated on {date, date, long} at {time, time, short}.'
+        fr: 'Transaction validée le {date, date, long} à {time, time, short}.'
+    sign_code_missing_draft_message:
+        en: 'A draft will be saved if you haven''t enter {missingBankAccount, select, true{ your banking details and} other{}} the code given by {userName}.'
+        fr: 'Un brouillon sera enregistré si vous ne saisissez pas encore{missingBankAccount, select, true{ vos coordonnées bancaires et} other{}} le code remis par {userName}.'
+    notification:
+        missing_fields_title:
+            en: Required field
+            fr: Champ requis
+        missing_fields_message:
+            en: Please enter the faithfulness of the listing
+            fr: Merci de renseigner la conformité de l'annonce
+        missing_comment_title:
+            en: Comment required
+            fr: Commentaire requis
+        missing_comment_message:
+            en: Please leave a comment
+            fr: Merci de renseigner un commentaire
+        missing_code_title:
+            en: Draft saved
+            fr: Brouillon enregistré
+        missing_code_message:
+            en: 'To confirm the transaction, you have to enter the code given by {userName}'
+            fr: 'Pour confirmer la transaction, vous devez saisir le code remis par {userName}'
+        missing_banking_details_title:
+            en: Banking details required
+            fr: Informations bancaires requises
+        missing_banking_details_message:
+            en: 'Before confirming the transactions, you have to enter your banking details to receive your bank transfer.'
+            fr: 'Avant de pouvoir confirmer la transaction, vous devez renseigner vos coordonnées bancaires pour recevoir votre virement.'
+        transaction_validated_message:
+            en: Transaction validated
+            fr: Transaction validée
+        invalid_code_title:
+            en: Invalid code
+            fr: Code erroné
+        invalid_code_message:
+            en: 'Please check the code given by {userName}. The other fields are saved.'
+            fr: 'Veuillez vérifier le code transmis par {userName}. Les autres champs ont été sauvegardés.'
+rating:
+    incentive_message:
+        en: '{userName} rated you. Please rate him/her to see him/her comment!'
+        fr: "{userName} a laissé une évaluation. Laissez votre propre évaluation pour voir son commentaire\_!"
+    rating_question:
+        en: 'Are you satisfied by the transaction with {userName}?'
+        fr: "Êtes-vous satisfaits de votre transaction avec {userName}\_?"
+    rating_label:
+        en: 'Rating:'
+        fr: "Avis\_:"
+    rating_saved_messsage:
+        en: Your rating is saved. You can update it if you wish.
+        fr: Votre évaluation est enregistrée. Vous pouvez la mettre à jour si vous le souhaitez.
+    rating_placeholder:
+        en: Rating*
+        fr: Avis*
+    your_rating_label:
+        en: Your rating
+        fr: Votre avis
+    rating_given_user_label:
+        en: 'Rating given by {userName}'
+        fr: 'Évaluation laissée par {userName}'
+    rating_no_update_message:
+        en: You cannot update your rating or your comment anymore.
+        fr: Vous ne pouvez plus modifier vos avis et commentaires.
+    score:
+        good:
+            en: Good
+            fr: Positif
+        quite_good:
+            en: Quite good
+            fr: Assez positif
+        average:
+            en: Average
+            fr: Moyen
+        negative:
+            en: Bad
+            fr: Négatif
+        very_negative:
+            en: Very bad
+            fr: Très négatif
+    rating_comment_on_user_placeholder:
+        en: 'What do you think of that transaction with {userName}'
+        fr: 'Qu''avez-vous globalement pensé de cet échange avec {userName}?'
+    rating_comment_on_listing_placeholder:
+        en: Please leave a comment on the listing to help other members to make their choice
+        fr: Merci de laisser un commentaire sur l'annonce pour aider les autres membres à faire leur choix
+    rating_missing_comment_message:
+        en: You should leave him/her a comment...
+        fr: Vous devriez laisser un commentaire...
+    comment_label:
+        en: 'Comment:'
+        fr: "Commentaire\_:"
+    comment_on_user:
+        en: 'Comment on {userName}'
+        fr: 'Commentaire sur {userName}'
+    comment_on_listing:
+        en: 'Comment on the listing:'
+        fr: "Commentaire sur l'annonce\_:"
+    comment_on_listing_with_name:
+        en: 'Comment on the listing: {listingName}'
+        fr: "Commentaire sur l'annonce\_: {listingName}"
+    notification:
+        missing_score_title:
+            en: Missing score
+            fr: Note manquante
+        missing_score_message:
+            en: Your score is missing before saving the rating.
+            fr: Il manque votre note pour enregistrer votre évaluation.
+        rating_saved_message:
+            en: Rating saved
+            fr: Évaluation enregistrée
+        remaining_comment_title:
+            en: Score saved
+            fr: Note enregistrée
+        remaining_comment_message:
+            en: 'Don''t forget to write to {userName} a comment as soon as possible.'
+            fr: 'N''oubliez pas d''écrire dès que possible un commentaire à {userName}.'
+pricing:
+    price_with_currency:
+        en: '{price, number, currency}'
+        fr: '{price, number, currency}'
+    price_with_currency_per_unit_time_short:
+        en: '{price, number, currency}{timeUnit, select, d{/d} n{/night} h{/h} m{/min} other{} }'
+        fr: '{price, number, currency}{timeUnit, select, d{/j} n{/nuit} h{/h} m{/min} other{} }'
+    price:
+        en: Price
+        fr: Prix
+    nb_unit_label:
+        en: |
+            {timeUnit, select,
+                d{ {nbTimeUnits, plural, one{# day} other{# days}} }
+                n{ {nbTimeUnits, plural, one{# night} other{# nights}} }
+                h{ {nbTimeUnits, plural, one{# hour} other{# hours}} }
+                m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }
+                other{}
+            }
+        fr: |
+            {timeUnit, select,
+                d{ {nbTimeUnits, plural, one{# jour} other{# jours}} }
+                n{ {nbTimeUnits, plural, one{# nuit} other{# nuits}} }
+                h{ {nbTimeUnits, plural, one{# heure} other{# heures}} }
+                m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }
+                other{}
+            }
+    duration_discount:
+        en: Duration discount
+        fr: Réduction sur la durée
+    service_fees:
+        en: Service fees
+        fr: Frais de service
+    free:
+        en: Free
+        fr: Gratuit
+    total:
+        en: Total
+        fr: Total
+    quantity:
+        en: Quantity
+        fr: Quantité
+fraction:
+    less_than_percent:
+        en: 'Less than {nbUnits, number, percent}'
+        fr: 'Moins de {nbUnits, number, percent}'
+    percent:
+        en: '{nbUnits, number, percent}'
+        fr: '{nbUnits, number, percent}'
+delay:
+    few_minutes:
+        en: Few minutes
+        fr: Quelques minutes
+    less_than_one_hour:
+        en: Less than one hour
+        fr: Moins d'une heure
+    few_hours:
+        en: Few hours
+        fr: Quelques heures
+    in_the_day:
+        en: In the day
+        fr: Dans la journée
+    less_than_one_day:
+        en: Less than one day
+        fr: Moins de 24 heures
+    less_than_two_days:
+        en: One or two days
+        fr: Un à deux jours
+    more_than_two_days:
+        en: More than two days
+        fr: Plus de 48 heures
+location:
+    from_distance_separator:
+        en: from
+        fr: de
+search:
+    listing_types_filter:
+        en: Listing types
+        fr: Type d'annonce
+    search_types_filter:
+        en: Search types
+        fr: Type de recherche
+    locations_filter:
+        en: Favorite locations
+        fr: Mes lieux favoris
+    reset_search_results:
+        en: Reset your search parameters
+        fr: Réinitialiser vos paramètres de recherche
+    results_near_location:
+        en: 'Results near {locationName}'
+        fr: 'Résultats près de {locationName}'

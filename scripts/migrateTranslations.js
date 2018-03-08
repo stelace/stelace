@@ -31,11 +31,11 @@ Sails.load(getConfig(), async function (err, sails) {
 
         const newSourceJson = {};
         keys.forEach(key => {
-            if (typeof _.get(jsonFrContent, key) !== 'undefined') {
-                _.set(newSourceJson, `${key}.fr`, _.get(jsonFrContent, key));
-            }
             if (typeof _.get(jsonEnContent, key) !== 'undefined') {
                 _.set(newSourceJson, `${key}.en`, _.get(jsonEnContent, key));
+            }
+            if (typeof _.get(jsonFrContent, key) !== 'undefined') {
+                _.set(newSourceJson, `${key}.fr`, _.get(jsonFrContent, key));
             }
             if (typeof _.get(jsonContextContent, key) !== 'undefined') {
                 _.set(newSourceJson, `${key}.context`, _.get(jsonContextContent, key));
