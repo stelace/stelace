@@ -319,8 +319,8 @@ async function searchListings(query, {
             multi_match: {
                 query,
                 minimum_should_match: miniShouldMatch,
-                fuzziness: 1,
-                prefix_length: 3,
+                fuzziness: 'auto',
+                prefix_length: 2,
                 fields: [
                     'name^4',
                     'description^2',
