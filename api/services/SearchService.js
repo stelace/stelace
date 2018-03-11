@@ -159,7 +159,7 @@ async function getListingsFromQuery(searchQuery, type) {
 }
 
 async function getMatchedListingCategoriesIds(listingCategoryId) {
-    const listingCategories = await ListingCategory.getChildrenCategories(listingCategoryId, true);
+    const listingCategories = await ListingCategory.getChildrenCategories(listingCategoryId);
     return _.pluck(listingCategories, 'id');
 }
 

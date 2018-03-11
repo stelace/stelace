@@ -1,4 +1,4 @@
-/* global ListingCategory, ListingCategoryService, TokenService */
+/* global ListingCategory, ListingCategoryService, StelaceConfigService, TokenService */
 
 /**
  * ListingCategoryController
@@ -22,28 +22,28 @@ const createError = require('http-errors');
 async function find(req, res) {
     const access = 'others';
 
-    try {
-        const listingCategories = await ListingCategory.find();
-        res.json(ListingCategory.exposeAll(listingCategories, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const config = await StelaceConfigService.getConfig();
+
+    const locale = config.lang;
+    const fallbackLocale = config.lang;
+
+    let listingCategories = await ListingCategory.find();
+    listingCategories = ListingCategory.sortListingCategories(listingCategories, { locale, fallbackLocale });
+    res.json(ListingCategory.exposeAll(listingCategories, access, { locale, fallbackLocale }));
 }
 
 async function findOne(req, res) {
     const id = req.param('id');
     const access = 'others';
 
-    try {
-        const listingCategory = await ListingCategory.findOne({ id });
-        if (!listingCategory) {
-            throw createError(404);
-        }
+    const config = await StelaceConfigService.getConfig();
 
-        res.json(ListingCategory.expose(listingCategory, access));
-    } catch (err) {
-        res.sendError(err);
+    const listingCategory = await ListingCategory.findOne({ id });
+    if (!listingCategory) {
+        throw createError(404);
     }
+
+    res.json(ListingCategory.expose(listingCategory, access, { locale: config.lang, fallbackLocale: config.lang }));
 }
 
 async function create(req, res) {
@@ -56,12 +56,12 @@ async function create(req, res) {
         return res.forbidden();
     }
 
-    try {
-        const listingCategory = await ListingCategoryService.createListingCategory({ name, parentId });
-        res.json(ListingCategory.expose(listingCategory, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const config = await StelaceConfigService.getConfig();
+    const locale = config.lang;
+    const fallbackLocale = config.lang;
+
+    const listingCategory = await ListingCategoryService.createListingCategory({ name, parentId }, { locale, fallbackLocale });
+    res.json(ListingCategory.expose(listingCategory, access, { locale, fallbackLocale }));
 }
 
 async function update(req, res) {
@@ -74,12 +74,12 @@ async function update(req, res) {
         return res.forbidden();
     }
 
-    try {
-        const listingCategory = await ListingCategoryService.updateListingCategory(id, { name });
-        res.json(ListingCategory.expose(listingCategory, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const config = await StelaceConfigService.getConfig();
+    const locale = config.lang;
+    const fallbackLocale = config.lang;
+
+    const listingCategory = await ListingCategoryService.updateListingCategory(id, { name }, { locale, fallbackLocale });
+    res.json(ListingCategory.expose(listingCategory, access, { locale, fallbackLocale }));
 }
 
 async function destroy(req, res) {
@@ -90,11 +90,7 @@ async function destroy(req, res) {
         return res.forbidden();
     }
 
-    try {
-        await ListingCategoryService.removeListingCategory(id, { fallbackCategoryId });
-        res.json({ id });
-    } catch (err) {
-        res.sendError(err);
-    }
+    await ListingCategoryService.removeListingCategory(id, { fallbackCategoryId });
+    res.json({ id });
 }
 

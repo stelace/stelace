@@ -47,7 +47,7 @@ function find(req, res) {
                 .resolve()
                 .then(() => {
                     return [
-                        ListingCategory.getParentCategories(listingCategoryId, true),
+                        ListingCategory.getParentCategories(listingCategoryId),
                         Brand.find()
                     ];
                 })

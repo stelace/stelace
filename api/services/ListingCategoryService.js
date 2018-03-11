@@ -11,29 +11,24 @@ module.exports = {
 };
 
 const createError = require('http-errors');
+const _ = require('lodash');
 
 /**
  * @param {String} name
  * @param {Number} [parentId] - specify the parent category if needed
+ * @param {Object} options
+ * @param {String} options.locale
+ * @param {String} options.fallbackLocale
  * @result {Object} created listing category
  */
-async function createListingCategory({ name, parentId }) {
-    const [
-        existingListingCategory,
-        parentCategory,
-    ] = await Promise.all([
-        ListingCategory.find({ name }).limit(1).then(cats => cats[0]),
-        parentId ? ListingCategory.findOne({ id: parentId }) : null,
-    ]);
+async function createListingCategory({ name, parentId }, { locale, fallbackLocale } = {}) {
+    const parentCategory = parentId ? await ListingCategory.findOne({ id: parentId }) : null;
 
-    if (existingListingCategory) {
-        throw createError(400, 'Category already exists');
-    }
     if (parentId && ! parentCategory) {
         throw createError(400, 'Parent category does not exist');
     }
 
-    const listingCategory = await ListingCategory.createListingCategory({ name, parentId });
+    const listingCategory = await ListingCategory.createListingCategory({ name, parentId }, { locale, fallbackLocale });
     return listingCategory;
 }
 
@@ -41,17 +36,27 @@ async function createListingCategory({ name, parentId }) {
  * @param {Number} listingCategoryId
  * @param {Object} attrs
  * @param {String} attrs.name
+ * @param {Object} options
+ * @param {String} options.locale
+ * @param {String} options.fallbackLocale
  * @result {Object} updated listing category
  */
-async function updateListingCategory(listingCategoryId, { name }) {
+async function updateListingCategory(listingCategoryId, { name }, { locale, fallbackLocale } = {}) {
     if (!name) {
         throw createError(400);
     }
 
-    const listingCategory = await ListingCategory.updateOne(listingCategoryId, { name });
+    let listingCategory = await ListingCategory.findOne({ id: listingCategoryId });
     if (!listingCategory) {
         throw createError(404);
     }
+
+    let updateAttrs = { name };
+
+    const modelDelta = ListingCategory.getI18nModelDelta(listingCategory, updateAttrs, { locale, fallbackLocale });
+    updateAttrs = _.merge({}, updateAttrs, modelDelta);
+
+    listingCategory = await ListingCategory.updateOne(listingCategoryId, updateAttrs);
 
     return listingCategory;
 }
