@@ -34,6 +34,11 @@ module.exports = {
             required: true,
             maxLength: 255,
         },
+        namesI18n: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
         nameURLSafe: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
@@ -66,6 +71,11 @@ module.exports = {
             columnType: 'longtext CHARACTER SET utf8mb4',
             allowNull: true,
             maxLength: 3000,
+        },
+        descriptionsI18n: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
         },
         stateComment: {
             type: 'string',
@@ -222,6 +232,8 @@ module.exports = {
     },
 
     getAccessFields,
+    getI18nMap,
+
     beforeCreate,
     afterCreate,
     afterUpdate,
@@ -366,6 +378,13 @@ function getAccessFields(access) {
     };
 
     return accessFields[access];
+}
+
+function getI18nMap() {
+    return {
+        name: 'namesI18n',
+        description: 'descriptionsI18n',
+    };
 }
 
 function beforeCreate(values, next) {

@@ -2,7 +2,8 @@
     Assessment, AssessmentService, Booking, BookingService, BookingGamificationService,
     Cancellation, CancellationService, ContractService, Conversation,
     EmailTemplateService, FileCachingService, GeneratorService, Listing, Location, Message,
-    ModelSnapshot, PaymentMangopayService, PaymentService, SmsTemplateService, StelaceEventService, Token, TransactionService, User
+    ModelSnapshot, PaymentMangopayService, PaymentService, SmsTemplateService,
+    StelaceConfigService, StelaceEventService, Token, TransactionService, User
 */
 
 /**
@@ -63,45 +64,44 @@ function find(req, res) {
     return res.forbidden();
 }
 
-function findOne(req, res) {
+async function findOne(req, res) {
     var id = req.param("id");
     var access;
 
-    return Promise.coroutine(function* () {
-        var booking = yield Booking.findOne({ id: id });
-        if (! booking) {
-            throw createError(404);
-        }
+    var booking = await Booking.findOne({ id: id });
+    if (! booking) {
+        throw createError(404);
+    }
 
-        var result = yield Promise.props({
-            listingSnapshot: ModelSnapshot.fetch(booking.listingSnapshotId),
-            cancellation: booking.cancellationId ? Cancellation.findOne({ id: booking.cancellationId }) : null
-        });
+    const config = await StelaceConfigService.getConfig();
 
-        var listingSnapshot = result.listingSnapshot;
-        var cancellation = result.cancellation;
+    var result = await Promise.props({
+        listingSnapshot: ModelSnapshot.fetch(booking.listingSnapshotId),
+        cancellation: booking.cancellationId ? Cancellation.findOne({ id: booking.cancellationId }) : null
+    });
 
-        if (! listingSnapshot
-            || (booking.cancellationId && ! cancellation)
-        ) {
-            throw createError(404);
-        }
+    var listingSnapshot = result.listingSnapshot;
+    var cancellation = result.cancellation;
 
-        if (booking.ownerId === req.user.id) {
-            access = "owner";
-        } else if (booking.takerId === req.user.id) {
-            access = "self";
-        }
+    if (! listingSnapshot
+        || (booking.cancellationId && ! cancellation)
+    ) {
+        throw createError(404);
+    }
 
-        var b = Booking.expose(booking, access);
-        b.listingSnapshot = Listing.expose(listingSnapshot, "others");
-        if (cancellation) {
-            b.cancellation = Cancellation.expose(cancellation, "others");
-        }
+    if (booking.ownerId === req.user.id) {
+        access = "owner";
+    } else if (booking.takerId === req.user.id) {
+        access = "self";
+    }
 
-        res.json(b);
-    })()
-    .catch(res.sendError);
+    var b = Booking.expose(booking, access);
+    b.listingSnapshot = Listing.expose(listingSnapshot, "others", { locale: config.lang, fallbackLocale: config.lang });
+    if (cancellation) {
+        b.cancellation = Cancellation.expose(cancellation, "others");
+    }
+
+    res.json(b);
 }
 
 async function create(req, res) {

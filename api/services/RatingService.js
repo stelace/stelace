@@ -1,4 +1,4 @@
-/* global Booking, GamificationService, Listing, Media, Rating, User */
+/* global Booking, GamificationService, Listing, Media, Rating, StelaceConfigService, User */
 
 module.exports = {
 
@@ -37,6 +37,8 @@ async function getClassifiedRatings({ bookingId, userId }) {
 async function populateRatings(ratings, access = 'others', populateListings = false) {
     const modelAccess = 'others';
 
+    const config = await StelaceConfigService.getConfig();
+
     const [
         users,
         listings,
@@ -56,7 +58,7 @@ async function populateRatings(ratings, access = 'others', populateListings = fa
         rating.userMedia = Media.expose(userMedias[rating.userId], modelAccess);
 
         if (populateListings) {
-            rating.listing = Listing.expose(indexedListings[rating.listingId], modelAccess);
+            rating.listing = Listing.expose(indexedListings[rating.listingId], modelAccess, { locale: config.lang, fallbackLocale: config.lang });
         }
 
         return rating;

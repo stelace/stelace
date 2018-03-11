@@ -57,6 +57,8 @@ async function getListingsFromQuery(searchQuery, type) {
         similarToListingsIds,
     } = searchQuery;
 
+    const config = await StelaceConfigService.getConfig();
+
     const categoryActive = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
 
     const listingCategoriesIds = listingCategoryId && categoryActive ? await getMatchedListingCategoriesIds(listingCategoryId) : null;
@@ -149,6 +151,8 @@ async function getListingsFromQuery(searchQuery, type) {
         fromLocations: locations,
         hashLocations,
         hashJourneys,
+        locale: config.lang,
+        fallbackLocale: config.lang,
     });
 
     return listings;
@@ -502,6 +506,8 @@ async function getListingsExtraInfo({ listings, getMedia }) {
  * @param  {object}   fromLocations
  * @param  {object}   hashLocations
  * @param  {object}   hashJourneys
+ * @param  {String}   locale
+ * @param  {String}   fallbackLocale
  * @return {object[]} exposed listings
  */
 function getExposedListings({
@@ -513,6 +519,8 @@ function getExposedListings({
     fromLocations,
     hashLocations,
     hashJourneys,
+    locale,
+    fallbackLocale,
 }) {
     let journeysDurations;
     const pricingHash = getPricingHash(listings);
@@ -523,7 +531,7 @@ function getExposedListings({
     }
 
     const exposedListings = _.map(listings, listing => {
-        listing             = Listing.expose(listing, 'others');
+        listing             = Listing.expose(listing, 'others', { locale, fallbackLocale });
         listing.medias      = Media.exposeAll(listingsMedias[listing.id], 'others');
         listing.ownerRating = _.pick(indexedOwners[listing.ownerId], ['nbRatings', 'ratingScore']);
         listing.pricing     = pricingHash[listing.pricingId];

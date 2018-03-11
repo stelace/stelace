@@ -1,6 +1,6 @@
 /*
     global CustomFieldService, Listing, ListingAvailability, ListingTypeService, Location, Media, MicroService, PricingService,
-    StelaceEventService, Tag, TimeService, ToolsService
+    StelaceConfigService, StelaceEventService, Tag, TimeService, ToolsService
 */
 
 module.exports = {
@@ -74,7 +74,7 @@ async function createListing(attrs, { req, res } = {}) {
         'deposit',
         'acceptFree',
     ];
-    const createAttrs = _.pick(attrs, filteredAttrs);
+    let createAttrs = _.pick(attrs, filteredAttrs);
 
     if (! createAttrs.name
         || !createAttrs.ownerId
@@ -100,6 +100,8 @@ async function createListing(attrs, { req, res } = {}) {
         throw createError(400);
     }
 
+    const config = await StelaceConfigService.getConfig();
+
     const listingType = listingTypes[0];
     const { TIME, AVAILABILITY } = listingType.properties;
 
@@ -113,6 +115,12 @@ async function createListing(attrs, { req, res } = {}) {
     if (AVAILABILITY === 'NONE' || AVAILABILITY === 'UNIQUE') {
         createAttrs.quantity = 1;
     }
+
+    const modelDelta = Listing.getI18nModelDelta(null, createAttrs, {
+        locale: config.lang,
+        fallbackLocale: config.lang,
+    });
+    createAttrs = _.merge({}, createAttrs, modelDelta);
 
     if (createAttrs.recurringDatesPattern) {
         const listingType = listingTypes[0];
@@ -244,7 +252,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         'acceptFree',
         'data',
     ];
-    const updateAttrs = _.pick(attrs, filteredAttrs);
+    let updateAttrs = _.pick(attrs, filteredAttrs);
 
     if ((updateAttrs.tags && ! MicroService.checkArray(updateAttrs.tags, 'id'))
         || (updateAttrs.locations && ! MicroService.checkArray(updateAttrs.locations, 'id'))
@@ -269,6 +277,8 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     if (typeof updateAttrs.deposit === "number") {
         updateAttrs.deposit = PricingService.roundPrice(updateAttrs.deposit);
     }
+
+    const config = await StelaceConfigService.getConfig();
 
     const listing = await Listing.findOne({ id: listingId });
     if (! listing) {
@@ -331,6 +341,12 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
     ) {
         throw createError(400);
     }
+
+    const modelDelta = Listing.getI18nModelDelta(listing, updateAttrs, {
+        locale: config.lang,
+        fallbackLocale: config.lang,
+    });
+    updateAttrs = _.merge({}, updateAttrs, modelDelta);
 
     if (typeof updateAttrs.name !== "undefined" && !listing.validated) {
         updateAttrs.nameURLSafe = ToolsService.getURLStringSafe(updateAttrs.name);

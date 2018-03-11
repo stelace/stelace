@@ -2,7 +2,7 @@
 
 const { expect } = require('chai');
 
-describe.only('BookingService', () => {
+describe('BookingService', () => {
     describe('.getAvailabilityPeriodGraph()', () => {
         it('returns no dates if there is no bookings', () => {
             const futureBookings = [];

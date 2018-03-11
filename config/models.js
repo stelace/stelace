@@ -1,3 +1,5 @@
+/* global ModelService */
+
 /**
  * Default model settings
  * (sails.config.models)
@@ -36,9 +38,15 @@ module.exports.models = {
     beforeCreateDates,
     beforeUpdateDates,
     getAccessFields,
+
     expose,
     exposeAll,
     exposeTransform,
+
+    getI18nModel,
+    getI18nModelDelta,
+    setI18nModel,
+
     updateOne,
     getCollection,
     getDefinition,
@@ -101,10 +109,14 @@ function getAccessFields(access) {
     return accessFields[access];
 }
 
-function expose(element, access = 'others') {
+function expose(element, access = 'others', { locale, fallbackLocale } = {}) {
     const model = this;
 
-    const object = _.cloneDeep(element);
+    let object = _.cloneDeep(element);
+
+    if (locale && typeof model.getI18nMap === 'function') {
+        object = model.getI18nModel(object, { locale, fallbackLocale });
+    }
 
     if (access === 'admin') {
         return object;
@@ -125,7 +137,7 @@ function expose(element, access = 'others') {
     }
 }
 
-function exposeAll(elements, access) {
+function exposeAll(elements, access, { locale, fallbackLocale } = {}) {
     const model = this;
 
     if (! _.isArray(elements)) {
@@ -133,13 +145,49 @@ function exposeAll(elements, access) {
     }
 
     return _.reduce(elements, (memo, element) => {
-        memo.push(model.expose(element, access));
+        memo.push(model.expose(element, access, { locale, fallbackLocale }));
         return memo;
     }, []);
 }
 
 function exposeTransform(/* element, field, access */) {
     // do nothing (only for template, exposeTransform on model override)
+}
+
+function getI18nModel(element, { locale, fallbackLocale }) {
+    const model = this;
+
+    if (typeof model.getI18nMap !== 'function') {
+        throw new Error('Expected i18n map');
+    }
+
+    const i18nMap = model.getI18nMap();
+
+    return ModelService.getI18nModel(element, { i18nMap, locale, fallbackLocale });
+}
+
+function getI18nModelDelta(element, attrs, { locale, fallbackLocale }) {
+    const model = this;
+
+    if (typeof model.getI18nMap !== 'function') {
+        throw new Error('Expected i18n map');
+    }
+
+    const i18nMap = model.getI18nMap();
+
+    return ModelService.getI18nModelDelta(element, attrs, { i18nMap, locale, fallbackLocale });
+}
+
+function setI18nModel(element, attrs, { locale, fallbackLocale }) {
+    const model = this;
+
+    if (typeof model.getI18nMap !== 'function') {
+        throw new Error('Expected i18n map');
+    }
+
+    const i18nMap = model.getI18nMap();
+
+    ModelService.setI18nModel(element, attrs, { i18nMap, locale, fallbackLocale });
 }
 
 async function updateOne(queryIdOrObj, updateAttrs) {
