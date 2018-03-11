@@ -472,7 +472,7 @@ gulp.task('linker:dev', function () {
             "assets/build/js/app-template.js",
             "assets/build/js/app.js"
         ], { read: false }), { name: "app" }))
-        .pipe($$.inject(gulp.src("assets/build/js/app-lang.js", { read: false }), { name: "app-lang" }))
+        // .pipe($$.inject(gulp.src("assets/build/js/app-lang.js", { read: false }), { name: "app-lang" }))
         .pipe($$.inject(gulp.src(scssConfig.linker.app, { read: false }), { name: "app" }))
         .pipe(gulp.dest("views/layouts"));
 });
@@ -487,10 +487,10 @@ gulp.task('linker:prod', function () {
             name: "app",
             transform: transformScript
         }))
-        .pipe($$.inject(gulp.src("assets/build/js/app-lang.js", { read: false }), {
-            name: "app-lang",
-            transform: transformScript
-        }))
+        // .pipe($$.inject(gulp.src("assets/build/js/app-lang.js", { read: false }), {
+        //     name: "app-lang",
+        //     transform: transformScript
+        // }))
         .pipe($$.inject(gulp.src(scssConfig.linker.app, { read: false }), {
             name: "app",
             transform: transformStyle
