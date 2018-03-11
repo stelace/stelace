@@ -142,7 +142,7 @@ listing:
         fr: Un dépôt de garantie permet de sécuriser les échanges liés à cette annonce.
     price_per_time_unit_label:
         en: |
-            Price per {timeUnit, select
+            Price per {timeUnit, select,
                 d{day}
                 n{night}
                 h{hour}
@@ -150,7 +150,7 @@ listing:
                 other{}
             }
         fr: |
-            Prix par {timeUnit, select
+            Prix par {timeUnit, select,
                 d{jour}
                 n{nuit}
                 h{heure}
