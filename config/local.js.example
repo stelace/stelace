@@ -3,35 +3,36 @@ module.exports = {
     // STELACE
     stelace: {
         hello: {
-            email: "",
-            name: ""
+            email: '',
+            name: '',
         },
         smtp: {
-            host: "",
+            host: '',
             port: 587,
-            user: "",
-            password: ""
+            user: '',
+            password: '',
         },
         token: {
-            authSecret: "<secret>", // must replace it
+            authSecret: '<secret>', // must replace it with random characters
             forceRefreshInHours: 2,
-            authExpirationInDays: 14
+            authExpirationInDays: 14,
         },
-        secret: "<secret>", // must replace it
-        url: "", // like 'https://example.com'
+        secret: '<secret>', // must replace it with random characters (different from `token.authSecret`)
+        url: 'http://localhost:3000', // like 'https://example.com'
 
         // CONFIG
         defaultFeatures: {
-            GAMIFICATION: true,
-            TAGS: true,
+            GAMIFICATION: false,
+            TAGS: false,
             EVENTS: true,
             SOCIAL_LOGIN: true,
-            INCOME_REPORT: true,
+            INCOME_REPORT: false,
+            LISTING_CATEGORIES: false,
             SMS: true,
             MAP: true,
         },
         defaultConfig: {
-            SERVICE_NAME: null,
+            SERVICE_NAME: 'MyStelace',
         },
 
         // Stelace SaaS or custom dashboard base url
@@ -45,23 +46,24 @@ module.exports = {
 
     // SERVER
     port: process.env.PORT || 1337,
-    environment: process.env.NODE_ENV || 'development',
-    http: { trustProxy: false },
+    environment: process.env.NODE_ENV || 'development', // replace 'development' with 'production' for production environment
+    http: { trustProxy: false }, // replace with `trustProxy: true` if the project runs behind a proxy
     hookTimeout: 600000, // 10 minutes
-    // basicAuth: "", // ('username:password' in Base64)
+    // basicAuth: '', // ('username:password' in Base64)
 
 
 
     // EXTERNAL ASSETS
-    tmpDir: "", // e.g. "/home/user/stelace-external/tmp"
-    uploadDir: "", // "/home/user/stelace-external/upload"
-    snapshotsDir: "", // "/home/user/stelace-external/snapshot"
+    tmpDir: '', // e.g. '/home/user/stelace-external/tmp'
+    uploadDir: '', // '/home/user/stelace-external/upload'
+    snapshotsDir: '', // '/home/user/stelace-external/snapshot'
 
 
 
     // DATABASE
     models: {
-        migrate: "safe"
+        migrate: 'alter', // use 'alter' if you want to migrate the database
+        // migrate: 'safe', // use 'safe' if you want to skip the automatic migration (faster start)
     },
 
     datastores: {
@@ -71,7 +73,7 @@ module.exports = {
             user: '',
             password: '',
             database: '',
-        }
+        },
     },
 
     elasticsearch: {
@@ -86,55 +88,42 @@ module.exports = {
 
     // DEBUGGING
     localEmailResult: false,
-    // copyMail: "", // debug@example.com
-    debugMail: "", // debug@example.com
-    debugSms: "" // debug@example.com
+    // copyMail: '', // debug@example.com
+    debugMail: '', // debug@example.com
+    debugSms: '', // debug@example.com
 
-    highlightTranslations: false, // enable translated strings highlighting
-    useCacheTranslations: true, // enable cache for translations
-    noJsonTranslationsFiles: false, // if true, generate translation json files for debug
+    highlightTranslations: false, // enable translated strings highlighting (doesn't depend on the environment)
+    useCacheTranslations: false, // enable cache for translations (doesn't depend on the environment)
+    noJsonTranslationsFiles: false, // if false, generate translation json files for debug (doesn't depend on the environment)
 
 
 
     // SOCIAL AUTHENTICATION
     passport: {
-        // replace null by the object config if there are social authentication
-
-        facebook: null,
-        // facebook: {
-        //     options: {
-        //         callbackURL: "<service_url>/auth/facebook/callback"
-        //     }
-        // },
-
-        google: null,
-        // google: {
-        //     options: {
-        //         callbackURL: "<service_url>/auth/google/callback"
-        //     }
-        // }
+        // facebook: null, // uncomment to disable Facebook social login
+        // google: null, // uncomment to disable Google social login
     },
 
 
 
     // API
     nexmo: {
-        apiKey: "",
-        apiSecret: ""
+        apiKey: '',
+        apiSecret: '',
     },
 
     // mandrill: {
-    //     apiKey: "",
+    //     apiKey: '',
     //     webhook: {
-    //         key: "",
-    //         url: "<service_url>/webhook/mandrill"
-    //     }
+    //         key: '',
+    //         url: '<service_url>/webhook/mandrill',
+    //     },
     // },
 
     paymentProvider: '', // 'mangopay' or 'stripe'
 
     mangopay: {
-        workspace: "sandbox" // change to production if ready
+        workspace: 'sandbox', // change to production if ready
     },
 
     sparkpost: {
@@ -150,17 +139,14 @@ module.exports = {
         url: '',
     },
 
-    facebookAppId: '',
-    googleMapApiKey: "",
-
     odoo: {
         connection: {
-            protocol: "http:",
-            host: "localhost",
+            protocol: 'http:',
+            host: 'localhost',
             port: 8069,
-            database: "odoo",
-            username: "",
-            password: ""
+            database: 'odoo',
+            username: '',
+            password: '',
         },
 
         enabled: false,
@@ -224,20 +210,13 @@ module.exports = {
         // labels: {
         //     fr: {
         //         accountTaxes: {
-        //             collectedSaleVAT20: "TVA collectée (vente) 20,0% TTC"
+        //             collectedSaleVAT20: 'TVA collectée (vente) 20,0% TTC'
         //         }
         //     }
         // }
     },
 
-    clientTracking: {
-        // facebook: "dev", // Facebook pixel: "dev" for debugging, or false in non prod environment
-        google: false,
-        facebookPixelId: '',
-        googleAnalyticsId: '',
-    },
-
-    osrmUrl: "localhost",
+    osrmUrl: 'localhost',
     osrmPort: 5000,
     osrmMock: true,
 

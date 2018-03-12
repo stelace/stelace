@@ -42,12 +42,12 @@ function getDefaultConfig() {
 function getDefaultFeatures() {
     if (!defaultFeatures) {
         defaultFeatures = sails.config.stelace.defaultFeatures || {
-            GAMIFICATION: true,
-            TAGS: true,
+            GAMIFICATION: false,
+            TAGS: false,
             EVENTS: true,
             SOCIAL_LOGIN: true,
-            INCOME_REPORT: true,
-            LISTING_CATEGORIES: true,
+            INCOME_REPORT: false,
+            LISTING_CATEGORIES: false,
             SMS: true,
             MAP: true,
         };

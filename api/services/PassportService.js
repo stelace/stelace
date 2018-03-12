@@ -434,7 +434,7 @@ function getFacebookStrategyConfig(secretData) {
 
     const clientID = secretData.socialLogin_facebook_clientId;
     const clientSecret = secretData.socialLogin_facebook_clientSecret;
-    const callbackURL = _.get(facebookConfig, 'options.callbackURL');
+    const callbackURL = sails.config.stelace.url + '/auth/facebook/callback';
 
     if (!isValidStrategyCredentials({ clientID, clientSecret, callbackURL })) {
         return;
@@ -460,7 +460,7 @@ function getGoogleStrategyConfig(secretData) {
 
     const clientID = secretData.socialLogin_google_clientId;
     const clientSecret = secretData.socialLogin_google_clientSecret;
-    const callbackURL = _.get(googleConfig, 'options.callbackURL');
+    const callbackURL = sails.config.stelace.url + '/auth/google/callback';
 
     if (!isValidStrategyCredentials({ clientID, clientSecret, callbackURL })) {
         return;
