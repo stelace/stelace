@@ -369,6 +369,9 @@
                     }
 
                     _generateListQuantities(maxQuantity);
+                    if (maxQuantity === 0) {
+                        _setQuantity(0);
+                    }
                 }
 
                 vm.calendarReady = true;
@@ -526,7 +529,11 @@
         }
 
         function _generateListQuantities(maxQuantity) {
-            vm.listQuantities = _.range(1, maxQuantity + 1);
+            if (maxQuantity === 0) {
+                vm.listQuantities = [0];
+            } else {
+                vm.listQuantities = _.range(1, maxQuantity + 1);
+            }
         }
 
         function _setQuantity(quantity) {
