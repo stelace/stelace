@@ -605,13 +605,13 @@
                         </p>
                         <div class="signin-form-container margin-bottom-plus" ng-if="vm.showSocialLogin">
                             <span class="text--emphasize">Ou&nbsp;</span>:
-                            <div class="social-signin fb cursor-pointer" ng-click="vm.socialLogin('facebook')">
+                            <div class="social-signin fb cursor-pointer" ng-if="config.socialLogin_facebook_complete" ng-click="vm.socialLogin('facebook')">
                                 <svg class="icon">
                                     <use xlink:href="/assets/build/icons/sprite.svg#face"/>
                                 </svg>
                                 &nbsp;Utiliser mon compte Facebook
                             </div>
-                            <div class="social-signin gpl cursor-pointer" ng-click="vm.socialLogin('google')">
+                            <div class="social-signin gpl cursor-pointer" ng-if="config.socialLogin_google_complete" ng-click="vm.socialLogin('google')">
                                 <svg class="icon">
                                     <use xlink:href="/assets/build/icons/sprite.svg#g-pl"/>
                                 </svg>

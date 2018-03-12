@@ -193,8 +193,13 @@
         function isSocialLoginAllowed() {
             var isIE = useragent.detectIE();
             var enable = StelaceConfig.isFeatureActive('SOCIAL_LOGIN');
+            var config = StelaceConfig.getConfig();
 
-            return enable && (! isIE && Modernizr.localstorage && cookie.isCompatible());
+            return enable
+                && (! isIE && Modernizr.localstorage && cookie.isCompatible())
+                && (config.socialLogin_facebook_complete
+                    || config.socialLogin_google_complete
+                );
         }
 
         function logout() {

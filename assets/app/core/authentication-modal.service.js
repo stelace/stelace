@@ -19,7 +19,6 @@
                                     FoundationApi,
                                     Modal,
                                     referral,
-                                    StelaceConfig,
                                     StelaceEvent,
                                     storage,
                                     toastr,
@@ -35,9 +34,7 @@
         var scrollClass = "modal-opened" + (isIOS ? " lock-both" : "");
         // modal "controller" functions and properties
 
-        var config = StelaceConfig.getConfig();
-        var showSocialLogin = authentication.isSocialLoginAllowed()
-            && (config.socialLogin_facebook_complete || config.socialLogin_google_complete);
+        var showSocialLogin = authentication.isSocialLoginAllowed();
 
         var vm          = {
             showSocialLogin: showSocialLogin,
