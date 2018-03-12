@@ -1,4 +1,4 @@
-/* global ImageService, Listing, Media, MicroService */
+/* global ImageService, Listing, Media, MicroService, StelaceConfigService */
 
 module.exports = {
 
@@ -219,8 +219,8 @@ async function _getServedImageFilepath({ media, size, displayType, threshold }) 
         const fileWithLogo = await _getImageWithLogo({
             media,
             filepath,
-            size: resizedObj.size,
-            displayType: resizedObj.displayType,
+            size: resizedObj ? resizedObj.size : null,
+            displayType: resizedObj ? resizedObj.displayType : null,
         });
         return fileWithLogo;
     } catch (err) {
@@ -332,13 +332,17 @@ async function _getImageWithLogo({ media, filepath, size, displayType }) {
         return filepath;
     }
 
-    const logoSizeName = Media.getLogoSizeName(imgSize.width);
-    const logoPath = Media.get('logoPaths')[logoSizeName];
-    if (!logoPath) {
-        throw new Error('Logo path not found');
-    }
+    const config = await StelaceConfigService.getConfig();
+    if (!config.logoMediaId) return;
 
-    const logoSize = await ImageService.getSize(logoPath);
+    const logoMedia = await Media.findOne({ id: config.logoMediaId });
+    if (!logoMedia) return;
+
+    const logoPath = path.join(sails.config.uploadDir, Media.getStorageFilename(logoMedia));
+    const logoSize = {
+        width: logoMedia.width,
+        height: logoMedia.height,
+    };
 
     const newLogoSize = Media.getLogoNewSize(imgSize, logoSize);
     const geometry = Media.getGeometry(imgSize, newLogoSize, Media.get('logoMargin'));

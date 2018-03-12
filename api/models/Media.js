@@ -112,7 +112,6 @@ module.exports = {
     getAllowedImageSize,
     getThresholdData,
     getSmartDisplayType,
-    getLogoSizeName,
     getGeometry,
     getLogoNewSize,
 
@@ -194,14 +193,6 @@ const params = {
         }
     ],
     serveImageWithLogo: true,
-    logoPaths: {
-        small: path.join(__dirname, "../assets/img", "Sharinplace-logo-allwhite-small-shadow.png"),
-        normal: path.join(__dirname, "../assets/img", "Sharinplace-logo-allwhite-shadow.png"),
-    },
-    logoBreakpoints: {
-        small: 2400, // use the small logo for images whose width is below this value
-        normal: null,
-    },
     mediaMinSizeForLogo: { width: 600, height: 240 },
     logoMargin: { bottom: 10, right: 20 },
 };
@@ -386,31 +377,6 @@ function getSmartDisplayType(media, threshold) {
 }
 
 /**
- * Based on the image width, return the appropriate logo name
- * @param {Number} width
- */
-function getLogoSizeName(width) {
-    let logoBreakpoints = Media.get('logoBreakpoints');
-    let sizeName;
-
-    _.forEach(logoBreakpoints, (breakpoint, name) => {
-        if (sizeName) {
-            return;
-        }
-
-        if (breakpoint && width <= breakpoint) {
-            sizeName = name;
-        }
-    });
-
-    if (! sizeName) {
-        sizeName = _.last(_.keys(logoBreakpoints));
-    }
-
-    return sizeName;
-}
-
-/**
  * Get the Graphics Magick geometry to put the logo at the bottom right of the image
  * @param {Object} imgSize
  * @param {Number} imgSize.width
@@ -460,7 +426,7 @@ function getLogoNewSize(imgSize, logoSize) {
         height: logoSize.height,
     };
 
-    let scale = 1;
+    let scale = 0.1;
 
     if (600 <= imgSize.width && imgSize.width < 1200) {
         scale = 0.2;
