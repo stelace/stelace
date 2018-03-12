@@ -37,6 +37,9 @@ const schema = {
         stripe_publishKey: {
             type: ['string', 'null'],
         },
+        listings_validation_automatic: {
+            type: ['boolean', 'null'],
+        },
         listings_in_unique_country: {
             type: ['string', 'null'],
             country: true,

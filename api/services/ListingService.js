@@ -183,6 +183,10 @@ async function createListing(attrs, { req, res } = {}) {
         createAttrs.locations = _.pluck(userLocations, 'id');
     }
 
+    if (config.listings_validation_automatic) {
+        createAttrs.validated = true;
+    }
+
     let listing = await Listing.create(Object.assign({}, createAttrs));
 
     if (createAttrs.tags) {
