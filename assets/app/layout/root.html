@@ -166,13 +166,15 @@
                             ng-blur="header.searchFocus = !header.searchFocus">
                         <div class="logo-overlay"
                             ng-hide="header.searchFocus || searchParams.query" ng-switch="{{!!config.logoUrl}}">
-                            <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logoUrl}}">
-                            <svg class="company-logo small" ng-switch-when="false">
-                                <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
-                            </svg>
-                            <svg class="icon icon--inline">
-                                <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
-                            </svg>
+                            <div class="company-logo-container">
+                                <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logoUrl}}">
+                                <svg class="company-logo small" ng-switch-when="false">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
+                                </svg>
+                                <svg class="icon icon--inline">
+                                    <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -236,13 +238,15 @@
                         ng-hide="header.searchFocus || searchParams.query"
                         ng-if="! header.isDesktop"
                         ng-switch="{{!!config.logoUrl}}">
-                        <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logoUrl}}">
-                        <svg class="company-logo small" ng-switch-when="false">
-                            <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
-                        </svg>
-                        <svg class="icon icon--inline">
-                            <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
-                        </svg>
+                        <div class="company-logo-container">
+                            <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logoUrl}}">
+                            <svg class="company-logo small" ng-switch-when="false">
+                                <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
+                            </svg>
+                            <svg class="icon icon--inline">
+                                <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </form>

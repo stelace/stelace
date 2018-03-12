@@ -159,15 +159,21 @@ $header-height: 3rem;
         .logo-container {
             height: 100%;
             a {
-                display: block;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: $header-height;
+                @media #{$mq-from-desktop} {
+                    width: 11rem;
+                }
             }
         }
         .company-logo {
-            height: $header-height;
             padding: 2px 0;
-            @media #{$mq-from-desktop} {
-                width: 11rem;
-            }
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
         }
 
         .message-badge {
@@ -188,10 +194,18 @@ $header-height: 3rem;
         .icon {
             width: 1.25rem;
         }
-        .company-logo {
+        .company-logo-container {
             height: 2rem;
-            width: 8rem;
-            vertical-align: middle;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+        }
+        .company-logo {
+            max-width: 8rem;
+            max-height: 100%;
+            width: auto;
+            height: auto;
         }
     }
 
