@@ -111,7 +111,6 @@ async function findRatings({
  * @param  {object} attrs
  * @param  {number} attrs.score
  * @param  {string} attrs.comment
- * @param  {string} attrs.listingComment
  * @param  {number} attrs.bookingId
  * @param  {object} user
  * @param  {object} [logger] - useful for gamification
@@ -129,7 +128,6 @@ async function createRating({
     const filteredAttrs = [
         'score',
         'comment',
-        'listingComment',
         'bookingId'
     ];
 
@@ -173,7 +171,7 @@ async function createRating({
     classifiedRatings.my = rating;
 
     try {
-        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings, config.rating.remainingTimeToUpdateAfterAllRatings);
+        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings, { delay: config.rating.remainingTimeToUpdateAfterAllRatings });
     } catch (e) { /* do nothing */ }
 
     afterRatingActionGamification(user, rating, logger, req);
@@ -187,7 +185,6 @@ async function createRating({
  * @param  {object} attrs
  * @param  {number} attrs.score
  * @param  {string} attrs.comment
- * @param  {string} attrs.listingComment
  * @param  {object} user
  * @param  {object} [logger] - useful for gamification
  * @param  {object} [req] - useful for gamification
@@ -204,7 +201,6 @@ async function updateRating(ratingId, {
     const filteredAttrs = [
         "score",
         "comment",
-        "listingComment"
     ];
 
     const updateAttrs = _.pick(attrs, filteredAttrs);
@@ -248,7 +244,7 @@ async function updateRating(ratingId, {
     } catch (e) { /* do nothing */ }
 
     try {
-        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings, config.rating.remainingTimeToUpdateAfterAllRatings);
+        classifiedRatings = await Rating.updateRatingsVisibleDate(classifiedRatings, { delay: config.rating.remainingTimeToUpdateAfterAllRatings });
     } catch (e) { /* do nothing */ }
 
     afterRatingActionGamification(user, rating, logger, req);

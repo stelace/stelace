@@ -1329,7 +1329,7 @@ function _getConfig() {
         cf.actions.checks.FIRST_RATING = function (user, data) {
             var rating = data.rating;
 
-            return rating.comment || rating.listingComment;
+            return rating.comment;
         };
 
         cf.actions.customApplies.FIRST_RATING = function (createAttrs, user, data) {

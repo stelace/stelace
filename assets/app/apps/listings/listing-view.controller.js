@@ -861,7 +861,7 @@
 
                     rating.currentListing = (vm.listing.id === rating.listingId);
 
-                    if (rating.comment || rating.listingComment) {
+                    if (rating.comment) {
                         rating.isReview = true;
                         return (rating.currentListing ? listingNbReviews++ : otherListingsNbReviews++);
                     }

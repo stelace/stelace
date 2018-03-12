@@ -64,12 +64,7 @@ function isPureDate(date) {
         throw new Error('Expected a valid date');
     }
 
-    const m = moment(date);
-
-    return m.hours() === 0
-        && m.minutes() === 0
-        && m.seconds() === 0
-        && m.milliseconds() === 0;
+    return date.slice(11) === '00:00:00.000Z';
 }
 
 function getPureDate(date) {

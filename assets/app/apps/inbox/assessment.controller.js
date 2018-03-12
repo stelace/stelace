@@ -194,9 +194,6 @@
                     }
                 })
                 .then(function () {
-                    return saveRating();
-                })
-                .then(function () {
                     _setShowButton();
                 })
                 .finally(function () {

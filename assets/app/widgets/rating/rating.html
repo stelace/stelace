@@ -38,23 +38,6 @@
             itemprop="reviewBody">
             {{::rating.comment}}
         </div>
-        <div class="margin-top"
-            ng-if="::(rating.listingComment && rating.listing)">
-            <div class="margin-bottom text--light user-generated">
-                À propos de "{{::rating.listing.name}}"&nbsp;:
-            </div>
-            <div class="no-margin-bottom user-generated"
-                ng-if="::!rating.comment"
-                itemprop="reviewBody">
-                {{::rating.listingComment}}
-            </div>
-            <!-- No better solution than using name (or description as in schema.org doc) so far to extend reviewBody -->
-            <div class="no-margin-bottom user-generated"
-                ng-if="::rating.comment"
-                itemprop="name">
-                {{::rating.listingComment}}
-            </div>
-        </div>
     </div>
     <!-- No Microdata -->
     <div ng-switch-default>
@@ -80,15 +63,6 @@
         <div class="no-margin-bottom padded-sides user-generated"
             ng-if="::rating.comment">
             {{::rating.comment}}
-        </div>
-        <div class="margin-top"
-            ng-if="::(rating.listingComment && rating.listing)">
-            <div class="margin-bottom text--light user-generated">
-                À propos de "{{::rating.listing.name}}"&nbsp;:
-            </div>
-            <div class="no-margin-bottom user-generated">
-                {{::rating.listingComment}}
-            </div>
         </div>
     </div>
     <hr class="small-8 medium-6 small-offset-2 medium-offset-3" ng-if="::(! last)">

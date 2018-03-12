@@ -131,7 +131,9 @@
             </form>
 
             <!-- rating -->
-            <div class="message__content no-padding-top" ng-if="vm.ratings">
+            <form class="message__content form--control webkit-render-fix" ng-if="vm.ratings" name="ratingForm"
+                ng-class="{ 'no-padding-top': vm.showForm && !vm.showRatingsOnly }"
+            >
                 <div>
                     <div class="margin-bottom text--semibold" ng-if="(vm.otherRatingCreated || vm.otherRatingComplete) && ! vm.myRating.id"
                         data-translate="rating.incentive_message"
@@ -164,10 +166,6 @@
                             <span data-translate="rating.comment_label"></span>
                             <span>{{::vm.otherRating.comment}}</span>
                         </div>
-                        <div ng-if="::vm.otherRating.listingComment">
-                            <span data-translate="rating.comment_on_listing"></span>
-                            <span>{{::vm.otherRating.listingComment}}</span>
-                        </div>
                     </div>
                     <div class="text--vsmall margin-bottom"
                         ng-if="vm.hasRated && ! vm.ratingsVisible"
@@ -195,53 +193,40 @@
                     >
                     </div>
                     <label for="rating-comment"
-                        ng-if="!vm.isTaker"
+                        ng-if="vm.isOwner"
                         data-translate="rating.comment_on_user"
                         data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
                     >
                     </label>
+                    <label for="rating-comment"
+                        ng-if="vm.isTaker"
+                        data-translate="rating.comment_on_listing_with_name"
+                        data-translate-values="{ listingName: vm.listing.name }"
+                    >
+                    </label>
                     <textarea id="rating-comment" name="ratingComment"
-                        ng-if="!vm.isTaker"
                         rows="4"
                         ng-maxlength="2000"
-                        data-translate-attr="{ placeholder: 'rating.rating_comment_on_user_placeholder' }"
+                        data-translate-attr="{ placeholder: vm.isOwner ? 'rating.rating_comment_on_user_placeholder' : 'rating.rating_comment_on_listing_placeholder' }"
                         data-translate-values="{ userName: vm.interlocutor.firstname || vm.interlocutor.fullname }"
                         ng-model="vm.myRating.comment"
                         ng-model-options="{ debounce: 300 }"
                         ng-disabled="vm.ratingsVisible"
                         ng-class="{'force-invalid': (vm.hasRated && ! vm.myRating.comment)}"
-                        sip-textarea-auto-adjust
-                        required>
+                        sip-textarea-auto-adjust>
                     </textarea>
                     <!-- Show warning when : saving assessment without comment OR leaving empty comment after touching OR rating previously saved without comment -->
                     <div class="form-warning text--semibold webkit-render-fix"
                         ng-if="! vm.ratingsVisible"
                         uib-collapse="!(
-                            ((assessmentForm.$submitted && assessmentForm.ratingComment.$invalid)
-                                || (assessmentForm.ratingComment.$touched && assessmentForm.ratingComment.$invalid)
+                            ((ratingForm.$submitted && ratingForm.ratingComment.$invalid)
+                                || (ratingForm.ratingComment.$touched && ratingForm.ratingComment.$invalid)
                                 || (vm.hasRated && ! vm.myRating.comment))
-                            && !assessmentForm.ratingComment.$error.maxlength
+                            && !ratingForm.ratingComment.$error.maxlength
                         )"
                         data-translate="rating.rating_missing_comment_message"
                     >
                     </div>
-                    <label for="rating-listing-comment"
-                        ng-if="! vm.isOwner"
-                        data-translate="rating.comment_on_listing_with_name"
-                        data-translate-values="{ listingName: vm.listing.name }"
-                    >
-                    </label>
-                    <textarea id="rating-listing-comment"
-                        rows="3"
-                        ng-maxlength="2000"
-                        data-translate-attr="{ placeholder: 'rating.rating_comment_on_listing_placeholder' }"
-                        ng-model="vm.myRating.listingComment"
-                        ng-model-options="{ debounce: 300 }"
-                        ng-disabled="vm.ratingsVisible"
-                        ng-if="! vm.isOwner"
-                        required
-                        sip-textarea-auto-adjust>
-                    </textarea>
                 </div>
                 <div class="fb-page__container margin-top-plus"
                     ng-if="vm.ratings && vm.facebookPagePlugin">
@@ -261,7 +246,7 @@
                 <div class="text-center spinner-button-container margin-top">
                     <button class="button sip-button spinner-button--center" type="submit"
                         ng-if="vm.showRatingSaveButton"
-                        ng-click="vm.save()"
+                        ng-click="vm.saveRating()"
                         data-translate="prompt.save_button"
                     >
                     </button>
@@ -269,7 +254,7 @@
                         <span data-us-spinner="{scale: 0.5}" data-spinner-key="save-assessment-spinner"></span>
                     </span>
                 </div>
-            </div>
+            </form>
         </div>
 
     </div>

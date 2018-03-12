@@ -158,7 +158,7 @@
                     } else {
                         rating.userMedia = { url: platform.getDefaultProfileImageUrl() };
                     }
-                    rating.isReview = !! (rating.comment || rating.listingComment);
+                    rating.isReview = !!rating.comment;
                 });
                 ratings = _.sortByOrder(ratings, ["isReview", "createdDate"], ["desc", "desc"]);
                 ratings = _.pairs(_.groupBy(ratings, function (rating) {

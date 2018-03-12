@@ -36,13 +36,7 @@ module.exports = {
             allowNull: true,
             maxLength: 2000,
         },
-        listingComment: {
-            type: 'string',
-            columnType: 'longtext CHARACTER SET utf8mb4',
-            allowNull: true,
-            maxLength: 2000,
-        },
-        listingId: { // when listingComment, makes matching easier on listing page (not necessary to get booking)
+        listingId: { // makes matching easier on listing page (not necessary to get booking)
             type: 'number',
             columnType: 'int',
             allowNull: true,
@@ -121,7 +115,6 @@ function getAccessFields(access) {
             "id",
             "score",
             "comment",
-            "listingComment",
             "listingId",
             "userId",
             "userType",
@@ -136,7 +129,6 @@ function getAccessFields(access) {
             "id",
             "score",
             "comment",
-            "listingComment",
             "listingId",
             "userId",
             "userType",
@@ -278,11 +270,11 @@ function getRoles(booking, userId) {
 
 function getDefaultVisibleDate(booking, delay) {
     var date = Booking.getDueDate(booking, 'end');
-    return moment(date).add(delay).toISOString();
+    return TimeService.getPureDate(moment(date).add(delay).toDate());
 }
 
 function isCompleteRating(rating) {
-    return rating.score && (rating.comment || rating.listingComment);
+    return rating.score && rating.comment;
 }
 
 // the comments of ratings are hidden if visible date isn't passed
@@ -290,7 +282,6 @@ function hideCommentsWhenNotVisible(ratings, now) {
     return _.map(ratings, rating => {
         if (rating.visibleDate > now) {
             rating.comment     = null;
-            rating.listingComment = null;
         }
 
         return rating;
@@ -324,7 +315,7 @@ function exposeClassifiedRatings(classifiedRatings, now) {
 }
 
 // if the ratings from the two parts are complete,
-function updateRatingsVisibleDate(classifiedRatings, visibleDate, delay) {
+function updateRatingsVisibleDate(classifiedRatings, { visibleDate, delay } = {}) {
     visibleDate = visibleDate || moment().add(delay).toISOString();
 
     return Promise.coroutine(function* () {
