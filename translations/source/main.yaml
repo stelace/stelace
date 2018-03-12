@@ -200,12 +200,12 @@ listing:
             fr: Ajouter votre annonce
         view_listing_message:
             en: |
-                View your listings{nbListings, plural
+                View your listings{nbListings, plural,
                     0{}
                     other{ (#)}
                 }
             fr: |
-                Voir vos annonces{nbListings, plural
+                Voir vos annonces{nbListings, plural,
                     0{}
                     other{ (#)}
                 }
