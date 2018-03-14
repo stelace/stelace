@@ -12,6 +12,7 @@
                                     $timeout,
                                     authentication,
                                     cache,
+                                    ContentService,
                                     gamification,
                                     ListingService,
                                     ListingTypeService,
@@ -24,7 +25,6 @@
                                     Restangular,
                                     StelaceConfig,
                                     StelaceEvent,
-                                    toastr,
                                     tools,
                                     uiGmapGoogleMapApi,
                                     UserService) {
@@ -220,7 +220,7 @@
                         $rootScope.$emit("updateWelcomeMessage", vm.currentUser.firstname);
                     }
                     if (_.isEqual(_.pick(vm.editingCurrentUser, checkAttrs), _.pick(vm.currentUser, checkAttrs))) {
-                        toastr.success("Information mise à jour", {
+                        ContentService.showSaved({
                             timeOut: 2500,
                         });
                     }
@@ -235,9 +235,13 @@
             sendingCheckEmail = true;
 
             return authentication.emailNew(vm.currentUser.email)
-                .catch(function () {
-                    toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.");
+                .then(function () {
+                    ContentService.showNotification({
+                        messageKey: 'user.account.email_validation_link_sent',
+                        type: 'success'
+                    });
                 })
+                .catch(ContentService.showError)
                 .finally(function () {
                     sendingCheckEmail = false;
                 });
@@ -246,7 +250,7 @@
         function updateEmail() {
             vm.dummyEmail = null;
 
-            promptInfoModal.ask(["emailNew"]);
+            promptInfoModal.ask(["emailNew"], { isListingOwner: true });
         }
 
         function updateRealPhone() {
@@ -259,7 +263,7 @@
             vm.currentUser
                 .updatePhone(vm.editingPhone)
                 .then(function () {
-                    toastr.success("Information mise à jour", {
+                    ContentService.showSaved({
                         timeOut: 2500,
                     });
                 });
@@ -270,17 +274,13 @@
                 return;
             }
 
-            var promptType = (vm.currentUser.phone && ! vm.currentUser.phoneCheck) ? "phone" : "phoneNew";
+            var promptType = (! vm.currentUser.phone || ! vm.currentUser.phoneCheck) ? "phone" : "phoneNew";
 
             vm.dummyPhone = null;
 
-            promptInfoModal.ask([promptType])
+            promptInfoModal.ask([promptType], { isListingOwner: true })
                 .then(function (promptResults) {
                     if (promptResults.allInfoOk === true) {
-                    //     toastr.info("Échec de la validation de votre numéro");
-                    // } else if (promptResults.noPrompt === true) {
-                    //     toastr.info("Votre numéro de téléphone est déjà validé.");
-                    // } else { // successful prompt
                         // Display phone without refresh
                         vm.currentUser.phone             = promptResults.phone;
                         vm.currentUser.phoneCheck        = true;
@@ -295,14 +295,17 @@
             vm.currentUser
                 .updatePassword(newPassword, oldPassword)
                 .then(function () {
-                    toastr.success("Mot de passe mis à jour");
+                    ContentService.showSaved();
                     vm.needOldPassword = true;
                 })
                 .catch(function (err) {
                     if (err.data && err.data.message === "BadOldPassword") {
-                        toastr.warning("Ancien mot de passe incorrect");
+                        ContentService.showNotification({
+                            messageKey: 'user.account.incorrect_current_password',
+                            type: 'warning'
+                        });
                     } else {
-                        toastr.warning("Nous n'avons pas pu mettre à jour votre mot de passe, veuillez réessayer plus tard.", "Oups, une erreur s'est produite.");
+                        ContentService.showError(err);
                     }
                 })
                 .finally(function () {
@@ -345,9 +348,13 @@
                     .catch(function (err) {
                         if (err.data) {
                             if (err.data.message === "max locations reached") {
-                                toastr.info("Vous avez atteint le nombre maximal de lieux favoris");
+                                ContentService.showNotification({
+                                    messageKey: 'user.account.max_number_locations_reached'
+                                });
                             } else if (err.data.message === "identical location") {
-                                toastr.info("Vous avez déjà enregistré ce lieu favori");
+                                ContentService.showNotification({
+                                    messageKey: 'user.account.location_already_saved'
+                                });
                             }
 
                             LocationService.getMine(true)
@@ -360,11 +367,13 @@
                                     _setMaxLocationsView();
                                 });
                         } else {
-                            toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.");
+                            ContentService.showError(err);
                         }
                     });
             } else {
-                toastr.info("Ce lieu est déjà dans votre liste de lieux favoris");
+                ContentService.showNotification({
+                    messageKey: 'user.account.location_already_saved'
+                });
             }
         }
 
@@ -377,9 +386,7 @@
 
                     ListingService.clearMyListings();
                 })
-                .catch(function () {
-                    toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.");
-                });
+                .catch(ContentService.showError);
         }
 
         function updateLocation(location) {
@@ -409,9 +416,7 @@
         function updateLocationAlias(location) {
             if (location.aliasEdit !== location.alias) {
                 location.alias = location.aliasEdit;
-                location.patch().then(function () {
-                    toastr.success("Enregistré");
-                });
+                location.patch().then(ContentService.showSaved);
             }
         }
 

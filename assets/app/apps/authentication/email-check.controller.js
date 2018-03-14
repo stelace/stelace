@@ -4,7 +4,7 @@
         .module("app.authentication")
         .controller("EmailCheckController", EmailCheckController);
 
-    function EmailCheckController($location, $state, $translate, authentication, platform, toastr) {
+    function EmailCheckController($location, $state, $translate, authentication, ContentService, platform, toastr) {
         var searchParams = $location.search();
         var email        = searchParams.e;
         var tokenId      = searchParams.i;
@@ -40,7 +40,7 @@
                         toastr.success(message);
                     });
                 })
-                .catch(platform.showErrorMessage)
+                .catch(ContentService.showError)
                 .finally(function () {
                     _redirectToHome();
                 });

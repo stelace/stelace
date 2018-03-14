@@ -5,7 +5,7 @@
         data-translate="authentication.lost_password_message">
     </p>
     <p class="sign__text" ng-if="vm.authForm === 'register'"
-        data-translate="authentication.sign_up_greeting"
+        data-translate="{{vm.greetingKey}}"
         data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
     </p>
     <input type="email"

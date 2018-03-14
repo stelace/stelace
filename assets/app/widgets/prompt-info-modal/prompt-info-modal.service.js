@@ -10,13 +10,14 @@
                                 $q,
                                 $rootScope,
                                 $timeout,
+                                $translate,
                                 authentication,
+                                ContentService,
                                 FoundationApi,
                                 LocationService,
                                 loggerToServer,
                                 map,
                                 Modal,
-                                toastr,
                                 tools,
                                 UserService,
                                 usSpinnerService) {
@@ -79,6 +80,7 @@
          * @param {array} fields - Type of form ("login" or "register")
          * @param {object} [options] - Options related to auth process and additional modals' chaining
          * @param {object} [options.greeting] - Custom greeting messages object for modal steps
+         * @param {object} [options.isListingOwner] - Greeting may be customized for owner of listings
          * @returns {object} Promise object
          */
         function ask(fields, options) {
@@ -109,7 +111,7 @@
                                 return (!! promptResults.mainLocation);
                             });
                     } else {
-                        return true; // we don't mind if user has no adress here
+                        return true; // we don't mind if user has no address here
                     }
                 })
                 .then(function (hasMainLocation) {
@@ -138,14 +140,15 @@
             vm.autofocus             = true; // enable autofocus directive for inputs
             // Greeting can include several custom messages as attributes
             vm.greeting              = _.defaults(options.greeting || {}, {
-                // defaultGreeting: "Merci de renseigner les informations requises avant de poursuivre:",
-                mainLocation: "À quel endroit votre objet sera-t-il disponible?",
-                secondLocation: "Souhaitez-vous ajouter un autre lieu près duquel vous passez fréquemment pour rendre votre objet plus accessible? Lieu de travail, gare...",
-                phone: "Saisissez votre numéro de téléphone pour être prévenu(e) gratuitement par SMS en cas de demande ou de réservation.",
-                phoneNew: "Saisissez votre nouveau numéro de téléphone pour être prévenu(e) gratuitement par SMS en cas de demande ou de réservation.",
-                email: "Veuillez renseigner votre adresse email pour être prévenu(e) en cas de demande ou de réservation.",
-                emailNew: (promptedUser.email && (promptedUser.email + " n'est plus valable\xa0? "))
-                    + "Renseignez votre nouvelle adresse email\xa0:"
+                mainLocation: $translate.instant('user.prompt.main_location_helper', { is_listing_owner: options.isListingOwner || null }),
+                secondLocation: $translate.instant('user.prompt.second_location_helper', { is_listing_owner: options.isListingOwner || null }),
+                phone: $translate.instant('user.prompt.SMS_notifications', { phone_update: 'no_existing_phone' }),
+                phoneNew: $translate.instant('user.prompt.SMS_notifications', { phone_update: 'phone_number_updated' }),
+                email: $translate.instant('user.prompt.fill_in_email'),
+                emailNew: promptedUser.email ?
+                    $translate.instant('user.prompt.update_old_email', {
+                        old_email: promptedUser.email
+                    }) :$translate.instant('user.prompt.fill_in_email')
             });
 
             $rootScope.noGamificationDistraction = true; // Do not open gamification popover
@@ -271,24 +274,18 @@
                                     vm.autofocus = true;
                                     // Effectively trigger sipAutofocus directive's watch (in next digest loop)
                                 });
-                                // toastr.success("Adresse ajoutée", "Merci !");
                             } else {
                                 _fieldCompleted("mainLocation");
-                                toastr.success("Vous pourrez modifier ou ajouter vos lieux favoris dans votre compte.", "Lieux favori ajouté");
+                                ContentService.showSaved();
                             }
                         });
                 })
-                .catch(function (err) {
-                    toastr.warning("Nous sommes désolés, une erreur s'est produite.");
-                    loggerToServer.error(err);
-                });
+                .catch(ContentService.showError);
         }
 
         function bypassLocation() {
             // user does not want to add another location but we already have one
             _fieldCompleted("mainLocation");
-            toastr.success("Vous pourrez ajouter d'autres lieux favoris dans votre compte.", "Lieux favori ajouté");
-            // toastr.info("Vous pourrez ajouter des lieux favoris plus tard dans votre compte.", "Lieux favoris");
         }
 
         function phoneCheck() {
@@ -325,24 +322,27 @@
                             _fieldCompleted("phone");
                         }
 
-                        toastr.success("Merci !", "Numéro déjà validé");
+                        ContentService.showNotification({
+                            messageKey: 'notification.already_validated',
+                            type: 'info'
+                        });
                         vm.signCode = null;
                         return true; // for sanity
                     } else if (res.providerStatusCode === "10") { // No concurrent verifications
                         vm.step++;
-                        toastr.info("Merci de saisir le code envoyé précédemment.", "Vérification précédente interrompue");
+                        ContentService.showNotification({
+                            messageKey: 'notification.validation_code_already_sent'
+                        });
                     } else {
                         vm.phoneVerifyId = res.verifyId;
                         vm.step++;
-                        toastr.success("Un code de validation vient de vous être envoyé par SMS.", "Validation de votre numéro");
                     }
                     vm.phoneVerifyId = res.verifyId;
                     return vm.step;
                 })
                 .catch(function (err) {
                     _setFormAnimationError();
-                    toastr.warning("Une erreur s'est produite, merci de vérifier votre numéro");
-                    loggerToServer.error(err);
+                    ContentService.showError(err);
                 })
                 .finally(function () {
                     usSpinnerService.stop('phone-verify-spinner');
@@ -369,7 +369,7 @@
                             _fieldCompleted("phone");
                         }
 
-                        toastr.success("Merci !", "Numéro validé");
+                        ContentService.showSaved();
                         vm.signCode = null;
                         return true; // for sanity
                     } else if (res.verifyStatus === "16" || res.verifyStatus === "17") {  // wrong code or to many failed attempts
@@ -377,13 +377,19 @@
                         vm.displayPhoneCodeError = true;
                         vm.signCode = null;
                         if (++vm.wrongCount <= 1 && res.verifyStatus !== "17") {
-                            toastr.warning("Veuillez réessayer.", "Code erroné");
                             return false;
                         } else if (vm.wrongCount === 2 && res.verifyStatus !== "17") {
-                            toastr.warning("Attention, plus qu'un essai.", "Code erroné");
+                            ContentService.showNotification({
+                                messageKey: 'notification.validation_last_attempt'
+                            });
                             return false;
                         } else {
-                            toastr.warning("Merci de réessayer plus tard.", "Tentatives erronées");
+                            ContentService.showNotification({
+                                messageKey: 'notification.validation_failed',
+                                messageValues: {
+                                    retry: 'later'
+                                }
+                            });
                             // ok while no other info needed
                             FoundationApi.publish(modalId, "close");
                             vm.wrongCount = 0;
@@ -393,15 +399,13 @@
                         var err = new Error("Phone verify check code error (status code: " + res.verifyStatus + ")");
                         _setFormAnimationError();
                         vm.signCode = null;
-                        toastr.warning("Une erreur inconnue s'est produite. Veuillez réessayer plus tard.", "Oups");
-                        loggerToServer.error(err);
+                        ContentService.showError(err);
                         return null;
                     }
                 })
                 .catch(function (err) {
                     _setFormAnimationError();
-                    toastr.warning("Une erreur s'est produite.");
-                    loggerToServer.error(err);
+                    ContentService.showError(err);
                 })
                 .finally(function () {
                     usSpinnerService.stop('phone-verify-spinner');
@@ -410,7 +414,7 @@
 
         function updateEmail() {
             if (! tools.isEmail(vm.email)) {
-                toastr.warning("Veuillez renseigner une adresse email valide.");
+                _showInvalidEmailError();
                 return;
             }
 
@@ -420,10 +424,9 @@
                 })
                 .catch(function (err) {
                     if (err.status === 400) {
-                        toastr.warning("Veuillez renseigner une adresse email valide.");
+                        _showInvalidEmailError();
                     } else {
-                        toastr.warning("Une erreur s'est produite.");
-                        loggerToServer.error(err);
+                        ContentService.showError(err);
                     }
 
                     _setFormAnimationError();
@@ -436,19 +439,23 @@
             authentication
                 .emailNew(vm.emailNew)
                 .then(function () {
-                    toastr.success("Un lien de confirmation vient d'être envoyé à " + vm.emailNew + ". Vous pourrez revenir sur cette page une fois votre adresse confirmée.");
+                    ContentService.showNotification({
+                        messageKey: 'user.account.email_validation_link_sent',
+                        type: 'success'
+                    });
                     _fieldCompleted("emailNew");
                 })
                 .catch(function (err) {
                     if (err.status === 400) {
-                        if (err.data && err.data.message === "existing email") {
-                            toastr.warning("L'email renseigné est déjà utilisé par un autre membre.");
+                        if (err.data && err.data.message === "Existing email") {
+                            ContentService.showNotification({
+                                messageKey: 'authentication.error.email_already_used'
+                            })
                         } else {
-                            toastr.warning("Veuillez renseigner une adresse email valide.");
+                            _showInvalidEmailError();
                         }
                     } else {
-                        toastr.warning("Une erreur s'est produite.");
-                        loggerToServer.error(err);
+                        ContentService.showError(err);
                     }
 
                     _setFormAnimationError();
@@ -465,6 +472,13 @@
             $timeout(function () {
                 vm.formAnimationError = false;
             }, 500);
+        }
+
+        function _showInvalidEmailError() {
+            return ContentService.showNotification({
+                messageKey: 'authentication.error.invalid_email',
+                type: 'info'
+            });
         }
 
         function _fieldCompleted(field) {

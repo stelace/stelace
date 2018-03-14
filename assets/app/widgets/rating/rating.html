@@ -14,7 +14,7 @@
                 itemtype="http://schema.org/Person">
                 <span itemprop="name">{{::(rating.user.firstname || rating.user.username)}}</span>,&nbsp;
             </span>
-            <span itemprop="datePublished" content="{{::isoDate}}">{{::displayMonth}}</span>
+            <span itemprop="datePublished" content="{{::isoDate}}" data-translate="time.date_fullmonth" data-translate-values="{ date: isoDate }"></span>
             <br>
             <a class="text--light text--italic"
                 ng-if="::(rating.listing && ! isCurrent)"
@@ -45,7 +45,7 @@
             <span ui-sref="user(::{ id: rating.userId })">
                 {{::(rating.user.firstname || rating.user.username)}},&nbsp;
             </span>
-            {{::displayMonth}}
+            <span data-translate="time.date_fullmonth" data-translate-values="{ date: isoDate }"></span>
             <br>
             <a class="text--light text--italic"
                 ng-if="::(rating.listing && ! isCurrent)"

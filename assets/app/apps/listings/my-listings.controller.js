@@ -1042,7 +1042,7 @@
             return $q.when(isAuthenticated)
                 .then(function (isAuthenticated) {
                     if (isAuthenticated) {
-                        return promptInfoModal.ask(["email", "mainLocation", "phone"]);
+                        return promptInfoModal.ask(["email", "mainLocation", "phone"], { isListingOwner: true });
                     } else {
                         return $q.reject("not authenticated");
                     }

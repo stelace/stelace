@@ -50,7 +50,7 @@
 
         memberLinks = memberLinks.concat([
             {
-                labelKey: 'navigation.profile',
+                labelKey: 'navigation.account',
                 color: "blue",
                 icon: "home",
                 sref: "account"

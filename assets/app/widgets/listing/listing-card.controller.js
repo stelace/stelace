@@ -12,7 +12,6 @@
 
         var vm              = this;
         vm.listing          = $scope.listing;
-        vm.isMyListing      = $scope.isMyListing;
         vm.position         = $scope.position;
 
         activate();

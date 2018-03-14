@@ -4,7 +4,7 @@
         .module("app.widgets")
         .directive("sipRatingStars", sipRatingStars);
 
-    function sipRatingStars() {
+    function sipRatingStars($translate) {
         return {
             restrict: "EA",
             scope: {
@@ -14,7 +14,6 @@
                 listingRatings: "@",
                 // itemprop: "@", // along with count, affects markup
                 name: "@",
-                isMyListing: "@", // idem
                 count: "@",
                 noTooltip: "@",
                 tooltipMsg: "@", // overrides default
@@ -59,20 +58,10 @@
 
 
             if (! scope.noTooltip) {
-                var tooltipRole;
-
-                if (scope.isMyListing) {
-                    tooltipRole = "Vous\xa0avez";
-                } else {
-                    tooltipRole = "Le\xa0propriétaire a";
-                }
-
-                scope.tooltipMsg = scope.tooltipMsg
-                 || ((scope.name || tooltipRole)
-                    + "\xa0reçu " + userRatings + "\xa0évaluation"
-                    + (userRatings > 1 ?  "s" : "")
-                    + (listingScore ? (" dont " + listingRatings + " pour cet objet.") : ".")
-                );
+                scope.tooltipMsg = $translate.instant('ratings.ratings_received_including_this_listing', {
+                    nb_ratings: userRatings || 0,
+                    for_this_listing: listingRatings || null
+                });
             }
 
             function _setStars(score, nbRatings) {

@@ -4,7 +4,7 @@
         .module("app.core")
         .factory("ContentService", ContentService);
 
-    function ContentService($ngRedux, $q, $translate, toastr) {
+    function ContentService($ngRedux, $q, $translate, loggerToServer, toastr) {
         var homeHeroBgStyle;
 
         var service = {};
@@ -12,6 +12,8 @@
         service.setHomeHeroBackground = setHomeHeroBackground;
         service.setLogo = setLogo;
         service.showNotification = showNotification;
+        service.showError = showError;
+        service.showSaved = showSaved;
 
         return service;
 
@@ -79,6 +81,27 @@
             })
             .catch(function (missingKey) {
                 throw new Error('Missing notification translation key: ' + missingKey);
+            });
+        }
+
+        function showError(err, options) {
+            if (err) {
+                loggerToServer.error(err);
+            }
+
+            return showNotification({
+                titleKey: 'error.unknown_happened_title',
+                messageKey: 'error.unknown_happened_message',
+                type: 'warning',
+                options: options
+            });
+        }
+
+        function showSaved(options) {
+            return showNotification({
+                messageKey: 'notification.saved',
+                type: 'success',
+                options: options
             });
         }
     }

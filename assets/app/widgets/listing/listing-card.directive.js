@@ -9,7 +9,6 @@
             restrict: "EA",
             scope: {
                 listing: "=",
-                isMyListing: "=",
                 onDelete: "=",
                 displayDuration: "@",
                 locname: "@",

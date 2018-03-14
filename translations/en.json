@@ -20,7 +20,7 @@
         "sign_up_greeting": "Create your {SERVICE_NAME} account in no time.",
         "terms_optin": "I agree to the Terms of Service applicable on {SERVICE_NAME}.",
         "or_social_auth_separator": "Or",
-        "social_auth_button": "Continue {network_name, select, Google{with Google} Facebook{with Facebook} other{} }",
+        "social_auth_button": "Continue {network_name, select,\n    Google{with Google}\n    Facebook{with Facebook}\n    other{}\n}\n",
         "placeholder": {
             "email": "Email Address",
             "password": "Password",
@@ -52,7 +52,7 @@
         "condition_label": "Condition",
         "security_deposit_label": "Security deposit",
         "security_deposit_helper": "Booking secured by deposit",
-        "price_per_time_unit_label": "Price per {timeUnit, select, d{day} n{night} h{hour} m{minute} other{} }",
+        "price_per_time_unit_label": "Price per {timeUnit, select,\n    d{day}\n    n{night}\n    h{hour}\n    m{minute}\n    other{}\n}\n",
         "booking_instructions_label": "Booking instructions",
         "related_documents_title": "Know more",
         "see_map_action": "See map",
@@ -67,20 +67,20 @@
         "similar_title": "Similar listings",
         "prompt": {
             "add_listing_message": "Add your listing",
-            "view_listing_message": "View your listings{nbListings, plural, 0{} other{ (#)}}"
+            "view_listing_message": "View your listings{nbListings, plural\n    0{}\n    other{ (#)}\n}\n"
         },
         "trust_helper": {
-            "payments": "Secured payment {payment_gateway, select, stripe{with Stripe} mangopay{with Mangopay} other{}}",
+            "payments": "Secured payment {payment_gateway, select,\n    stripe{with Stripe}\n    mangopay{with Mangopay}\n    other{}\n}\n",
             "online_validation": "Online validation & signature",
             "service_assistance": "{SERVICE_NAME} assistance"
         },
         "time": {
             "from_day_label": "From",
             "to_day_label": "To",
-            "unit_label": "{timeUnit, select, d{ {nbUnits, plural, one{Per day} other{# days}} } n{ {nbUnits, plural, one{Per night} other{# nights}} } h{ {nbUnits, plural, one{Per hour} other{# hours}} } m{ {nbUnits, plural, one{Per minute} other{# minutes}} } other{} }",
+            "unit_label": "{timeUnit, select,\n    d{ {nbUnits, plural, one{Per day} other{# days}} }\n    n{ {nbUnits, plural, one{Per night} other{# nights}} }\n    h{ {nbUnits, plural, one{Per hour} other{# hours}} }\n    m{ {nbUnits, plural, one{Per minute} other{# minutes}} }\n    other{}\n}\n",
             "date_label": "Date"
         },
-        "checkout_action": "{timeDimension, select, TIME_FLEXIBLE{Book} NONE{Order} other{Order}}",
+        "checkout_action": "{timeDimension, select,\n    TIME_FLEXIBLE{Book}\n    NONE{Order}\n    other{Order}\n}\n",
         "edit_my_listing_action": "Edit my listing",
         "not_available_now": "Not available for now",
         "charge_if_owner_accepts": "You will be charged only if {owner} accepts the transaction",
@@ -103,7 +103,7 @@
             "new_listing_subheader__EDITOR_LABEL": "Subheader of your listing creation page",
             "new_listing_section_title": "Create a listing in no time",
             "new_listing_section_title__EDITOR_LABEL": "",
-            "my_listing_header": "Post {hasListings, select, true{a new} other{your}} listing",
+            "my_listing_header": "Post {hasListings, select,\n    true{a new}\n    other{your}\n} listing\n",
             "my_listing_header__EDITOR_LABEL": "Main header of your listing edition page",
             "my_listing_subheader": "Enjoy its free distribution",
             "my_listing_subheader__EDITOR_LABEL": "Subheader of your listing edition page",
@@ -121,7 +121,7 @@
             "security_deposit_max_error__EDITOR_LABEL": "",
             "save_button": "Save my listing",
             "trust_message": "If there is a transaction, the price amount will be transferred to your account in the days following your confirmation. Easy and secure!",
-            "my_listings_label": "My {hasOther, select, true{other} other{}} listings",
+            "my_listings_label": "My {hasOther, select,\n    true{other}\n    other{}\n} listings\n",
             "change_image_order": "Change picture order",
             "add_remove_images": "Add / remove pictures",
             "longer_duration_title": "Longer durations",
@@ -190,6 +190,9 @@
         "no_verified_info_public_text": "{user} has no verified info yet.",
         "picture_title": "Picture of {user}"
     },
+    "account": {
+        "greeting": "Welcome back {firstname}"
+    },
     "landing": {
         "homepage": {
             "title": "Welcome to {SERVICE_NAME}",
@@ -244,8 +247,8 @@
         "my_listings": "My listings"
     },
     "prompt": {
-        "post_listing_short_button_1": "New listing",
-        "post_listing_short_button_2": "New listing",
+        "post_listing_short_button_1": "Let’s sell",
+        "post_listing_short_button_2": "Let’s rent",
         "continue_button": "Continue",
         "save_button": "Save",
         "cancel_button": "Cancel",
@@ -253,7 +256,7 @@
         "search": {
             "query_placeholder": "You’re looking for…",
             "near_location_placeholder": "Near…",
-            "near_location_placeholder_active_locations": "Near…{nbActiveLocations, plural, =0{} one{ (1 active location)} other{ (# active locations)}}"
+            "near_location_placeholder_active_locations": "Near…{nbActiveLocations, plural,\n    =0{}\n    one{ (1 active location)}\n    other{ (# active locations)}\n}\n"
         },
         "see_more": "See more",
         "hide": "Hide",
@@ -268,8 +271,8 @@
         "user_ratings_title": "{user} ratings",
         "other_ratings_received": "Other ratings granted to {user}",
         "average_label": "Score:",
-        "count": "{nbRatings, plural, one{# rating} other{# ratings}}",
-        "review_count": "{nbReviews, plural, one{# review} other{# reviews}}"
+        "count": "{nbRatings, plural,\n    one{# rating}\n    other{# ratings}\n}\n",
+        "review_count": "{nbReviews, plural,\n    one{# review}\n    other{# reviews}\n}\n"
     },
     "places": {
         "near_place": "Near {place}"
@@ -291,8 +294,8 @@
         "error": {
             "incorrect_dates": "The dates are incorrect.",
             "own_listing_booking": "You cannot book your own listing.",
-            "minimum_duration": "The duration must be {timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } at least.",
-            "maximum_duration": "The duration must be {timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} } at the maximum."
+            "minimum_duration": "The duration must be {timeUnit, select,\n    d{ {nbTimeUnits, plural, one{# day} other{# days}} }\n    n{ {nbTimeUnits, plural, one{# night} other{# nights}} }\n    h{ {nbTimeUnits, plural, one{# hour} other{# hours}} }\n    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }\n    other{}\n} at least.\n",
+            "maximum_duration": "The duration must be {timeUnit, select,\n    d{ {nbTimeUnits, plural, one{# day} other{# days}} }\n    n{ {nbTimeUnits, plural, one{# night} other{# nights}} }\n    h{ {nbTimeUnits, plural, one{# hour} other{# hours}} }\n    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }\n    other{}\n} at the maximum.\n"
         },
         "login_first": "Please login before going further.",
         "impending_cancellation": "Impending cancellation",
@@ -312,8 +315,8 @@
             "base_price_as_taker": "Price set by owner: {price, number, currency}",
             "base_price_as_owner": "Applied price: {price, number, currency}",
             "owner_net_amount": "Net amount for you: {price, number, currency}",
-            "taker_fees": "Service fees: {price, select, 0{Free} other{{price, number, currency}}}",
-            "owner_fees": "Payment fees{price, select, 0{} other{ included}}: {price, select, 0{Free} other{{price, number, currency}}}",
+            "taker_fees": "Service fees: {price, select,\n    0{Free}\n    other{{price, number, currency}}\n}\n",
+            "owner_fees": "Payment fees{price, select,\n    0{}\n    other{ included}\n}: {price, select,\n    0{Free}\n    other{{price, number, currency}}\n}\n",
             "security_deposit": "Security deposit: {price, number, currency}"
         },
         "status": {
@@ -375,7 +378,7 @@
     },
     "assessment": {
         "assessment_action": "{toConfirm, select, true{Validation needed} other{Completed}}",
-        "assessment_title": "{showRatingsOnly, select, true{Reviews} other{{step, select, start{Initial validation} end{Final validation} other{Validation}}{showRatings, select, true{ / Reviews} other{}}}}",
+        "assessment_title": "{showRatingsOnly, select,\n    true{Reviews}\n    other{{step, select,\n        start{Initial validation}\n        end{Final validation}\n        other{Validation}\n    }{showRatings, select,\n        true{ / Reviews}\n        other{}\n    }}\n}\n",
         "validation": {
             "question": "Was it consistent with the listing description?",
             "status_placeholder": "Fitting*",
@@ -448,7 +451,7 @@
         "price_with_currency": "{price, number, currency}",
         "price_with_currency_per_unit_time_short": "{price, number, currency}{timeUnit, select, d{/d} n{/night} h{/h} m{/min} other{} }",
         "price": "Price",
-        "nb_unit_label": "{timeUnit, select, d{ {nbTimeUnits, plural, one{# day} other{# days}} } n{ {nbTimeUnits, plural, one{# night} other{# nights}} } h{ {nbTimeUnits, plural, one{# hour} other{# hours}} } m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} } other{} }",
+        "nb_unit_label": "{timeUnit, select,\n    d{ {nbTimeUnits, plural, one{# day} other{# days}} }\n    n{ {nbTimeUnits, plural, one{# night} other{# nights}} }\n    h{ {nbTimeUnits, plural, one{# hour} other{# hours}} }\n    m{ {nbTimeUnits, plural, one{# minute} other{# minutes}} }\n    other{}\n}\n",
         "duration_discount": "Duration discount",
         "service_fees": "Service fees",
         "free": "Free",

@@ -601,8 +601,8 @@
                                             data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                                         </span>
                                         <span ng-switch-default
-                                            data-translate="user.join_month"
-                                            data-translate-values="{ month_year: vm.listing.owner.seniority }"></span>
+                                            data-translate="user.joined_in_month"
+                                            data-translate-values="{ subscription_date: vm.listing.owner.createdDate }"></span>
                                     </div>
                                 </div>
                                 <div class="medium-6 flex-container flex--column" ng-if="vm.ownerMessageStats.answerRate">
@@ -650,7 +650,7 @@
                             </div>
                             <div>
                                 <p class="margin-top-plus margin-bottom text--semibold"
-                                    data-translate="listing.validated_info_title">
+                                    data-translate="user.validated_info_title">
                                 </p>
                                 <div
                                     ng-if="::vm.listing.owner"
@@ -686,11 +686,11 @@
                         itemtype="http://schema.org/AggregateRating">
                         <span itemprop="reviewCount" content="{{::vm.listing.nbRatings}}"
                             data-translate="ratings.count"
-                            data-translate-values="{ nbRatings: vm.listing.nbRatings }">
+                            data-translate-values="{ nb_ratings: vm.listing.nbRatings }">
                         </span>
                         ·
                         <span data-translate="ratings.review_count"
-                            data-translate-values="{ nbReviews: vm.listingNbReviews }"></span>
+                            data-translate-values="{ nb_reviews: vm.listingNbReviews }"></span>
                         <br>
                         <span data-translate="ratings.average_label"></span>
                         <span itemprop="ratingValue">{{vm.listingAvgRating}}</span>/5
@@ -727,7 +727,7 @@
                             data-translate-values="{ user: vm.listing.owner.firstname || vm.listing.owner.fullname }"></span>
                         <span ng-hide="::vm.listingRatings.length"
                             data-translate="ratings.user_ratings_title"
-                            data-translate-values="{ user: vm.listing.owner.firstname || vm.listing.owner.fullname }"></span>
+                            data-translate-values="{ user: vm.listing.owner.firstname || vm.listing.owner.fullname, as_role: '' }"></span>
                     </h3>
                     <!-- Limit potential duplicate content across owner's listings with filter -->
                     <div ng-repeat="rating in vm.otherListingsRatings | limitTo: (vm.othersFirstRatings + 10) track by rating.id">
