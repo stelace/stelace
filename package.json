@@ -108,6 +108,7 @@
     "useragent": "2.1.8",
     "util": "0.10.3",
     "uuid": "2.0.1",
+    "virgen-acl": "0.0.22",
     "yargs": "4.1.0"
   },
   "devDependencies": {

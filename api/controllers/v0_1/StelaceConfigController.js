@@ -1,4 +1,4 @@
-/* global StelaceConfigService */
+/* global ApiService, StelaceConfigService */
 
 module.exports = {
 
@@ -7,8 +7,11 @@ module.exports = {
 
 };
 
+const createError = require('http-errors');
 
 async function findOne(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'settings', 'view');
+
     const config = await StelaceConfigService.getConfig();
     const features = await StelaceConfigService.getListFeatures();
     const secretData = await StelaceConfigService.getSecretData();
@@ -16,11 +19,16 @@ async function findOne(req, res) {
     res.json({
         config,
         features,
-        secretData,
+        secretData: allowed ? secretData : {},
     });
 }
 
 async function update(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'settings', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const { config, features, secretData } = req.allParams();
 
     const result = {};

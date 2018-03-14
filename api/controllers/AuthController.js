@@ -243,7 +243,7 @@ function loginAs(req, res) {
             userAgent: userAgent,
             original: {
                 id: (originalUser && originalUser.id) || req.user.id,
-                role: (originalUser && originalUser.role) || req.user.role
+                roles: (originalUser && originalUser.roles) || req.user.roles
             }
         });
 

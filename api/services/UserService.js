@@ -50,7 +50,7 @@ async function findUser(userId, { populateMedia = false } = {}) {
  * @param {String} [attrs.lastname]
  * @param {String} [attrs.phone]
  * @param {String} [attrs.description]
- * @param {String} [attrs.role = 'user']
+ * @param {String[]} [attrs.roles = ['user', 'seller']]
  * @param {Boolean} [attrs.newsletter = true]
  * @param {String} [attrs.password]
  * @param {Object} [options]
@@ -68,7 +68,7 @@ async function createUser(attrs, options = {}) {
         lastname,
         phone,
         description,
-        role = 'user',
+        roles = ['user', 'seller'],
         newsletter = true,
         password,
     } = attrs;
@@ -115,7 +115,7 @@ async function createUser(attrs, options = {}) {
             lastname,
             phone,
             description,
-            role,
+            roles,
             newsletter,
         });
     } catch (err) {

@@ -15,12 +15,8 @@ const maxNbWebhooks = 2;
 async function find(req, res) {
     const access = 'api';
 
-    try {
-        const webhooks = await Webhook.find({ apiKeyId: req.apiKey.id });
-        res.json(Webhook.exposeAll(webhooks, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const webhooks = await Webhook.find({ apiKeyId: req.apiKey.id });
+    res.json(Webhook.exposeAll(webhooks, access));
 }
 
 async function create(req, res) {
@@ -32,34 +28,26 @@ async function create(req, res) {
         return res.badRequest();
     }
 
-    try {
-        const webhooks = await Webhook.find({ apiKeyId: req.apiKey.id });
-        if (webhooks.length >= maxNbWebhooks) {
-            throw createError(400);
-        }
-
-        const webhook = await Webhook.create({
-            apiKeyId: req.apiKey.id,
-            url,
-        });
-
-        res.json(Webhook.expose(webhook, access));
-    } catch (err) {
-        res.sendError(err);
+    const webhooks = await Webhook.find({ apiKeyId: req.apiKey.id });
+    if (webhooks.length >= maxNbWebhooks) {
+        throw createError(400);
     }
+
+    const webhook = await Webhook.create({
+        apiKeyId: req.apiKey.id,
+        url,
+    });
+
+    res.json(Webhook.expose(webhook, access));
 }
 
 async function destroy(req, res) {
     const id = req.param('id');
 
-    try {
-        await Webhook.destroy({
-            apiKeyId: req.apiKey.id,
-            id,
-        });
+    await Webhook.destroy({
+        apiKeyId: req.apiKey.id,
+        id,
+    });
 
-        res.sendStatus(200);
-    } catch (err) {
-        res.sendError(err);
-    }
+    res.sendStatus(200);
 }

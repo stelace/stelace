@@ -59,7 +59,7 @@ function createAuthToken(user, data) {
         loggedAt: loggedAt,
         toRefreshAt: toRefreshAt,
         userId: user.id,
-        role: user.role
+        roles: user.roles,
     });
 
     encodingToken.s = getSecret(userAgent);
@@ -91,7 +91,7 @@ function populateReqAuthToken(req, decodedToken, rawToken) {
 
     req.user = {
         id: decodedToken.userId,
-        role: decodedToken.role
+        roles: decodedToken.roles
     };
     req.user.hasSameId = function (id) {
         return User.hasSameId(req.user, id);

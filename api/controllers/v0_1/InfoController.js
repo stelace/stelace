@@ -1,8 +1,9 @@
-/* global User */
+/* global AclService, User */
 
 module.exports = {
 
     me,
+    getMyPermissions,
 
 };
 
@@ -21,4 +22,13 @@ async function me(req, res) {
     }
 
     res.json(result);
+}
+
+async function getMyPermissions(req, res) {
+    if (req.apiKey) {
+        return {};
+    }
+
+    const permissions = await AclService.getUserPermissions(req.user);
+    res.json(permissions);
 }

@@ -1,4 +1,4 @@
-/* global ContentEntriesService */
+/* global ApiService, ContentEntriesService */
 
 module.exports = {
 
@@ -9,6 +9,8 @@ module.exports = {
     updateDefault,
 
 };
+
+const createError = require('http-errors');
 
 async function findEditable(req, res) {
     const attrs = req.allParams();
@@ -26,6 +28,12 @@ async function findEditable(req, res) {
 }
 
 async function updateEditable(req, res) {
+    const allowedTranslation = await ApiService.isAllowed(req, 'translation', 'edit');
+    const allowedEditor = await ApiService.isAllowed(req, 'editor', 'view');
+    if (!allowedTranslation || !allowedEditor) {
+        throw createError(403);
+    }
+
     const attrs = req.allParams();
 
     const lang = ContentEntriesService.getBestLang(attrs.locale);
@@ -45,6 +53,12 @@ async function findDefault(req, res) {
 }
 
 async function updateDefault(req, res) {
+    const allowedTranslation = await ApiService.isAllowed(req, 'translation', 'edit');
+    const allowedAdminEditor = await ApiService.isAllowed(req, 'adminEditor', 'view');
+    if (!allowedTranslation || !allowedAdminEditor) {
+        throw createError(403);
+    }
+
     if (!sails.config.stelace.superAdmin) {
         return res.forbidden();
     }

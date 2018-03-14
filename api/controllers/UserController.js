@@ -1,5 +1,5 @@
 /* global
-    AuthService, EmailTemplateService, GamificationService, GeneratorService,
+    AclService, AuthService, EmailTemplateService, GamificationService, GeneratorService,
     IncomeReportService, Location, Media, MicroService, Passport, StelaceConfigService, StelaceEventService, Token, TokenService, ToolsService, User, UserService
 */
 
@@ -21,6 +21,7 @@ module.exports = {
     me,
     params,
     getAuthMeans,
+    getMyPermissions,
     updateAddress,
     updatePassword,
     updateEmail,
@@ -282,6 +283,11 @@ async function getAuthMeans(req, res) {
     } catch (err) {
         res.sendError(err);
     }
+}
+
+async function getMyPermissions(req, res) {
+    const permissions = await AclService.getUserPermissions(req.user);
+    res.json(permissions);
 }
 
 function updateAddress(req, res) {

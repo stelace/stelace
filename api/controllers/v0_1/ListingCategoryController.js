@@ -74,6 +74,11 @@ async function findOne(req, res) {
 }
 
 async function create(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingCategory', 'create');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const name = req.param('name');
     const parentId = req.param('parentId');
 
@@ -88,6 +93,11 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingCategory', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
     const name = req.param('name');
 
@@ -102,6 +112,11 @@ async function update(req, res) {
 }
 
 async function destroy(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingCategory', 'remove');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
     const fallbackCategoryId = req.param('fallbackCategoryId');
 
@@ -110,6 +125,11 @@ async function destroy(req, res) {
 }
 
 async function assignListings(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingCategory', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const fromListingCategoryId = req.param('fromListingCategoryId');
     const toListingCategoryId = req.param('toListingCategoryId');
 

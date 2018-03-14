@@ -118,7 +118,7 @@ async function isInstallationComplete() {
     const hasConfig = await hasStelaceConfig();
     if (!hasConfig) return false;
 
-    const users = await User.find({ role: 'admin' });
+    const users = await User.find();
     if (!users.length) return false;
 
     return true;
@@ -153,7 +153,7 @@ async function install(params) {
     }
 
     await createStelaceConfig({ config: { SERVICE_NAME: serviceName, lang } });
-    await UserService.createUser({ email, password, role: 'admin' }, { passwordRequired: true });
+    await UserService.createUser({ email, password, roles: ['admin', 'user', 'seller'] }, { passwordRequired: true });
 }
 
 async function _fetchStelaceConfig() {

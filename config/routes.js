@@ -158,6 +158,7 @@ module.exports.routes = {
     // UserController
     'get /api/user/params': "UserController.params",
     "get /api/user/me": "UserController.me",
+    "get /api/user/my-permissions": "UserController.getMyPermissions",
     "get /api/user/getAuthMeans": "UserController.getAuthMeans",
     "get /api/user/payment-accounts": "UserController.getPaymentAccounts",
     'put /api/user/:id/password': "UserController.updatePassword",
@@ -190,6 +191,7 @@ module.exports.routes = {
     'patch /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.updateDefault', cors: apiCors },
 
     'get /api/v0.1/info/me': { target: 'v0_1/InfoController.me', cors: apiCors },
+    'get /api/v0.1/info/my-permissions': { target: 'v0_1/InfoController.getMyPermissions', cors: apiCors },
 
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
     'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },
