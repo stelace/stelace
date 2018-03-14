@@ -189,6 +189,8 @@ module.exports.routes = {
     'get /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.findDefault', cors: apiCors },
     'patch /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.updateDefault', cors: apiCors },
 
+    'get /api/v0.1/info/me': { target: 'v0_1/InfoController.me', cors: apiCors },
+
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
     'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },
     'get /api/v0.1/listings/:id': { target: 'v0_1/ListingController.findOne', cors: apiCors },

@@ -196,6 +196,10 @@ module.exports.policies = {
         'findDefault': true,
     },
 
+    'v0_1/InfoController': {
+        '*': ['isApiAuthenticated'],
+    },
+
     'v0_1/ListingController': {
         '*': ['isApiAuthenticated'],
     },

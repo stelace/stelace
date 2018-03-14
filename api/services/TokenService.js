@@ -15,6 +15,9 @@ module.exports = {
     getIncomeReportToken: getIncomeReportToken,
     getUrlSafeToken: getUrlSafeToken,
 
+    createMinimalAuthToken,
+    checkMinimalAuthToken,
+
 };
 
 var CryptoJS = require('crypto-js');
@@ -283,4 +286,22 @@ function getUrlSafeToken(length = 6) {
     let token = randomNb.toString(36);
     token = _.padLeft(token, length, '0');
     return token;
+}
+
+function createMinimalAuthToken(userId) {
+    const tokenConfig = sails.config.stelace.token;
+
+    const encodingToken = {
+        u_id: userId,
+    };
+
+    const token = jwt.sign(encodingToken, tokenConfig.authSecret, {
+        expiresIn: tokenConfig.authExpirationInDays * 24 * 3600,
+    });
+    return token;
+}
+
+async function checkMinimalAuthToken(token) {
+    const decodedToken = await jwt.verifyAsync(token, sails.config.stelace.token.authSecret);
+    return decodedToken;
 }
