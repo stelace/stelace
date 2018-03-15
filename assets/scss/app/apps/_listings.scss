@@ -36,6 +36,11 @@ body.listings {
             max-width: 100%;
             color: #006eb3;
             font-weight: 600;
+            // ellipsis styles
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: text-bottom;
         }
         .icon {
             display: inline-block;
@@ -144,10 +149,6 @@ body.listings {
             height: $infobox-height - 2 * $infobox-big-triangle-size - 45px - 10px; // stelace-listing__image (45) and padding (2*5)
             > div {
                 padding-top: 3px;
-                &:last-child {
-                    position: absolute;
-                    bottom: 0;
-                }
             }
         }
         .stelace-listing__journeys .flex-container .icon {

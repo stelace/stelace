@@ -243,7 +243,7 @@
                                 ng-if="::(message.senderId === vm.interlocutor.id)">
                                 <sip-img class="webkit-render-fix" ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}"
                                     data-translate-attr="{ alt: 'user.picture_title' }"
-                                    data-translate-values="{ user: vm.interlocutor.fullname }"
+                                    data-translate-values="{ user: vm.interlocutor.fullname || null }"
                                     rounded="true"
                                 >
                                 </sip-img>
@@ -259,7 +259,7 @@
                         <a ui-sref="user({ id: vm.interlocutor.id })">
                             <img ng-src="{{vm.interlocutor.media.url + '?size=128x128'}}"
                                 data-translate-attr="{ alt: 'user.picture_title' }"
-                                data-translate-values="{ user: vm.interlocutor.fullname }"
+                                data-translate-values="{ user: vm.interlocutor.fullname || null }"
                             >
                         </a>
                         <div>

@@ -1770,7 +1770,12 @@
             _.forEach(listingLocations, function (listingLocation, index) {
                 var markerId     = _.uniqueId("marker_");
                 var marker       = {};
-                var placeholders = ["Ici", "Et là", "Là", "Ou là", "Ou là", "Ou là", "Ou là", "Ou là"];
+                var placeholders = [
+                    $translate.instant('places.here_marker_label'),
+                    $translate.instant('places.or_here_marker_label'),
+                    $translate.instant('places.or_there_marker_label'),
+                    $translate.instant('places.over_there_marker_label')
+                ];
 
                 listingLocation.markerId = markerId;
 

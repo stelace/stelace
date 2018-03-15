@@ -61,9 +61,10 @@
             }, false);
         }
 
+        // TODO: internationalize durations
         function getDurationString(nbSeconds, shortened) {
             if (nbSeconds < 300) {
-                return (shortened ? "5 min." : "moins de 5 minutes");
+                return (shortened ? "5 min." : "< 5 min.");
             } else if (nbSeconds < 3600) {
                 return parseInt(nbSeconds / 60, 10) + (shortened ? " min." : " minutes");
             } else {

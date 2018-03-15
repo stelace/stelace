@@ -120,6 +120,10 @@ listing:
     listing_type_label:
         en: Listing type
         fr: Type d'annonce
+    available_in_places:
+        en: 'Available in {places}'
+        fr: 'Disponible à {places}'
+        context: Introduce a list of places where listing is available.
     category_label:
         en: Category
         fr: Catégorie
@@ -361,8 +365,8 @@ listing:
             en: Subheader of your listing edition page
             fr: En-tête secondaire de la page édition d'annonce
         my_listing_section_title:
-            en: I update my listing
-            fr: Je mets à jour mon annonce
+            en: Update my listing
+            fr: Mettre mon annonce à jour
         my_listing_section_title__EDITOR_LABEL:
             en: ''
             fr: ''
@@ -441,8 +445,8 @@ listing:
             en: Please give a description.
             fr: Veuillez renseigner une description.
         locations_label:
-            en: I select my listing locations
-            fr: Je choisis les lieux de disponibilité de mon annonce
+            en: Select my listing locations
+            fr: Choisir les lieux de disponibilité de mon annonce
         locations_label__EDITOR_LABEL:
             en: ''
             fr: ''
@@ -618,8 +622,8 @@ user:
         en: Your contact details will not be displayed publicly.
         fr: Le détail de vos coordonnées n’apparaîtra pas publiquement.
     picture_title:
-        en: 'Picture of {user}'
-        fr: 'Photo de {user}'
+        en: '{user, select, null {Profile picture} other {Picture of {user}}}'
+        fr: 'Photo {user, select, null {du profil} other {de {user}}}'
     account:
         greeting:
             en: Welcome back {firstname, select, null {} other {{firstname}}}
@@ -1148,11 +1152,34 @@ places:
     from_distance_separator:
         en: from
         fr: de
+    distance_from_location:
+        en: '<span class="location-distance">{distance}</span> from <span class="location-name">{location_name}</span>'
+        fr: 'À <span class="location-distance">{distance}</span> de <span class="location-name">{location_name}</span>'
+        context: Can be emphasized with CSS styles. Distance and location name are always defined.
+    from_search_locations_title:
+        en: From your search locations
+        fr: Depuis vos lieux favoris
+    here_marker_label:
+        en: Here
+        fr: Ici
+        context: Several markers can appear on the map if listing is available in several places.
+    or_here_marker_label:
+        en: Or here
+        fr: Ou ici
+        context: Another way to label a map location marker.
+    or_there_marker_label:
+        en: Or there
+        fr: Ou là
+        context: A third way to label a location marker on a map.
+    over_there_marker_label:
+        en: Over there
+        fr: Et là
+        context: A final way to label a location marker on a map.
     location_examples:
         en: Address, city, station…
         fr: Adresse, ville, gare…
         context: Illustrate search locations with some obvious examples
-    address_placehoder:
+    address_placeholder:
         en: Address
         fr: Adresse
 social:
