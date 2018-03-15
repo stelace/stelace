@@ -246,12 +246,6 @@ listing:
             en: '{SERVICE_NAME} assistance'
             fr: 'Assistance {SERVICE_NAME}'
     time:
-        from_day_label:
-            en: From
-            fr: Du
-        to_day_label:
-            en: To
-            fr: Au
         unit_label:
             en: |
                 {timeUnit, select,
@@ -318,7 +312,7 @@ listing:
         fr: Mettre en pause
     pause_tooltip:
         en: Deactivate your listing when you are unavailable
-        fr: Suspendez votre annonce en cas d'indisponibilité
+        fr: Suspendez votre annonce en cas d’indisponibilité
     publish_again_action:
         en: Publish again
         fr: Re-publier
@@ -359,8 +353,8 @@ listing:
             en: Main header of your listing edition page
             fr: En-tête principal de la page édition d'annonce
         my_listing_subheader:
-            en: Enjoy its free distribution
-            fr: Profitez de sa diffusion gratuite
+            en: ''
+            fr: ''
         my_listing_subheader__EDITOR_LABEL:
             en: Subheader of your listing edition page
             fr: En-tête secondaire de la page édition d'annonce
@@ -468,6 +462,15 @@ listing:
         activate_locations_message__EDITOR_LABEL:
             en: ''
             fr: ''
+        temporary_unavailability_title:
+            en: My listing will be unavailable for some time
+            fr: Mon annonce sera temporairement indisponible
+        unavailability_periods:
+            en: Unavailability periods
+            fr: Périodes d’indisponibilité
+        pause_listings_helper:
+            en: You can also pause your listings for a while <a href="/my-listings">here</a>.
+            fr: Vous pourrez également mettre vos annonces en pause prolongée <a href="/my-listings">ici</a>.
     error:
         missing_title_title:
             en: Required title
@@ -568,6 +571,18 @@ time:
     year_label:
         en: Year
         fr: Année
+    from_day_label:
+        en: From
+        fr: Du
+    to_day_label:
+        en: To
+        fr: Au
+    start_label:
+        en: Start
+        fr: Début
+    end_label:
+        en: End
+        fr: Fin
 user:
     is_level:
         en: '{level} user'

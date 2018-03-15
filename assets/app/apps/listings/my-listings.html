@@ -457,14 +457,16 @@
                         </div>
                     </div>
                     <div uib-collapse="!vm.showPeriodAvailability" class="margin-bottom-plus">
-                        <div class="margin-bottom-plus text--semibold">
-                            Je peux définir des périodes où mon objet ne sera pas disponible&nbsp;:
+                        <div class="margin-bottom text--semibold"
+                            data-translate="listing.edition.temporary_unavailability_title">
                         </div>
-
+                        <div class="text--small text--light pull-t margin-bottom-plus"
+                            ng-hide="vm.viewCreate"
+                            data-translate="listing.edition.pause_listings_helper"></div>
                         <div class="flex-container flex--space">
                             <div>
                                 <label for="popup-start-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
-                                    data-translate="listing.time.from_day_label">
+                                    data-translate="time.from_day_label">
                                 </label>
                                 <div class="input__inner-icon-container stelace-listing__availability-calendar">
                                     <input id="popup-start-date"
@@ -478,7 +480,7 @@
                                         data-datepicker-append-to-body="false"
                                         data-is-open="vm.startDateOpened"
                                         data-show-button-bar="false"
-                                        placeholder="jj/mm/aaaa"
+                                        data-translate-attr="{ placeholder: 'time.start_label' }"
                                         readonly
                                         data-sip-autoblur="vm.iOS">
                                     <div class="input__inner-icon icon-right cursor-pointer"
@@ -492,7 +494,7 @@
                             </div>
                             <div>
                                 <label for="popup-end-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
-                                    data-translate="listing.time.to_day_label">
+                                    data-translate="time.to_day_label">
                                 </label>
                                 <div class="input__inner-icon-container stelace-listing__availability-calendar">
                                     <input id="popup-end-date"
@@ -505,7 +507,7 @@
                                         data-datepicker-append-to-body="false"
                                         data-is-open="vm.endDateOpened"
                                         data-show-button-bar="false"
-                                        placeholder="jj/mm/aaaa"
+                                        data-translate-attr="{ placeholder: 'time.end_label' }"
                                         readonly
                                         data-sip-autoblur="vm.iOS">
                                     <div class="input__inner-icon icon-right cursor-pointer"
@@ -519,23 +521,22 @@
                             </div>
                             <div>
                                 <label>&nbsp;</label>
-                                <a class="link--blue-underline cursor-pointer" ng-click="vm.addTimeAvailability()">Ajouter</a>
+                                <a class="link--blue-underline cursor-pointer" ng-click="vm.addTimeAvailability()" data-translate="prompt.generic_add_button"></a>
                             </div>
                         </div>
 
                         <div uib-collapse="!vm.editingListingAvailabilities.length">
-                            <div class="margin-bottom">
-                                Liste de mes périodes&nbsp;:
+                            <div class="margin-bottom text--semibold" data-translate="listing.edition.unavailability_periods">
                             </div>
 
                             <div class="flex-container flex--center stelace-listing__availability-period" ng-repeat="listingAvailability in vm.editingListingAvailabilities track by listingAvailability.id">
-                                <div class="stelace-listing__availability-period-label" data-translate="listing.time.from_day_label"></div>
+                                <div class="stelace-listing__availability-period-label" data-translate="time.from_day_label"></div>
                                 <div class="stelace-listing__availability-period-label"
                                     data-translate="time.date_short"
                                     data-translate-values="{ date: listingAvailability.displayStartDate }"
                                 >
                                 </div>
-                                <div class="stelace-listing__availability-period-label" data-translate="listing.time.to_day_label"></div>
+                                <div class="stelace-listing__availability-period-label" data-translate="time.to_day_label"></div>
                                 <div class="stelace-listing__availability-period-label"
                                     data-translate="time.date_short"
                                     data-translate-values="{ date: listingAvailability.displayEndDate }"
