@@ -68,13 +68,23 @@ authentication:
     placeholder:
         email:
             en: Email Address
-            fr: Adresse e-mail
+            fr: Adresse email
         password:
             en: Password
             fr: Mot de passe
         create_password:
-            en: Create a password
-            fr: Choisissez votre mot de passe
+            en: |
+                Create a password {min_number_of_characters, select,
+                    undefined {}
+                    null {}
+                    other {(min. {min_number_of_characters} characters)}
+                }
+            fr: |
+                Choisissez votre mot de passe {min_number_of_characters, select,
+                    undefined {}
+                    null {}
+                    other {({min_number_of_characters} caractères minimum)}
+                }
             context: Password placeholder showed when user is signing up.
     email_checked:
         en: Your email address is now verified.
@@ -603,7 +613,7 @@ user:
         en: Last name
         fr: Nom
     email_label:
-        en: Email address
+        en: Email Address
         fr: Adresse email
     verified_email_label:
         en: Verified
@@ -1021,6 +1031,10 @@ prompt:
         en: Later
         fr: Plus tard
         context: User can postpone an action with this button.
+    click_here_sentence:
+        en: Click here.
+        fr: Cliquez ici.
+        context: Generic internal navigation label as a sentence.
     search:
         query_placeholder:
             en: You’re looking for…
@@ -1081,6 +1095,10 @@ notification:
     validation_failed:
         en: Validation failed{retry, select, later {, please retry later.} other {}}
         fr: Échec de la validation{retry, select, later {, veuillez réessayer plus tard.} other {}}
+form:
+    min_characters:
+        fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
+        en: '{min_number_of_characters, plural, one {This can’t be empty.} other {Minimum # characters}}'
 ratings:
     see_more:
         en: See more ratings
