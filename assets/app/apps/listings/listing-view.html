@@ -74,7 +74,7 @@
                                         <meta itemprop="latitude" content="{{::location.latitude}}">
                                     </span>
                                 </span>
-                                <a href="#mobile-map-title"
+                                <a href="#mobile-map-container"
                                     ng-if="vm.showMap && vm.mqMobileTablet"
                                     data-translate="listing.see_map_action">
                                 </a>
@@ -757,7 +757,7 @@
         <div id="mobile-map-container"
             ng-if="vm.showMap && vm.mqMobileTablet">
             <div ng-include="'/assets/app/templates/listing-view-map.html'"></div>
-            <p class="text-right padded-sides margin-top pull-bottom">
+            <p class="text-right padded-sides padding-bottom margin-top pull-b">
                 <a class="padding-bottom" href="#top"
                     data-translate="navigation.back_top_of_page"></a>
             </p>
