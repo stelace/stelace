@@ -4,6 +4,9 @@ module.exports = {
 
     findOne,
     update,
+    updatePlan,
+
+    refresh,
 
 };
 
@@ -15,11 +18,13 @@ async function findOne(req, res) {
     const config = await StelaceConfigService.getConfig();
     const features = await StelaceConfigService.getListFeatures();
     const secretData = await StelaceConfigService.getSecretData();
+    const plan = await StelaceConfigService.getPlan();
 
     res.json({
         config,
         features,
         secretData: allowed ? secretData : {},
+        plan: allowed ? plan : {},
     });
 }
 
@@ -44,4 +49,25 @@ async function update(req, res) {
     }
 
     res.json(result);
+}
+
+async function updatePlan(req, res) {
+    const { plan, planDiff } = req.allParams();
+
+    const result = {};
+
+    if (typeof plan === 'object') {
+        result.plan = await StelaceConfigService.updatePlan(plan);
+    }
+    if (typeof planDiff === 'object') {
+        result.planDiff = await StelaceConfigService.updatePlanDiff(planDiff);
+    }
+
+    res.json(result);
+}
+
+function refresh(req, res) {
+    StelaceConfigService.refreshStelaceConfig();
+
+    res.json({ ok: true });
 }

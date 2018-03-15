@@ -23,16 +23,21 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
         },
-        apiKeyId: {
-            type: 'number',
-            columnType: 'int',
+        name: {
+            type: 'string',
+            columnType: 'varchar(255) CHARACTER SET utf8mb4',
             required: true,
+            maxLength: 255,
         },
         url: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
             required: true,
             maxLength: 255,
+        },
+        events: {
+            type: 'json',
+            columnType: 'json',
         },
     },
 
@@ -44,7 +49,9 @@ function getAccessFields(access) {
     const accessFields = {
         api: [
             'id',
+            'name',
             'url',
+            'events',
             'createdDate',
         ],
     };

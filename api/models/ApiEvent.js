@@ -23,11 +23,15 @@ module.exports = {
             columnType: 'varchar(255)',
             maxLength: 255,
         },
-        key: {
-            type: 'string',
-            columnType: 'varchar(255) CHARACTER SET utf8mb4',
-            required: true,
-            maxLength: 255,
+        userId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        apiKeyId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
         },
         url: {
             type: 'string',

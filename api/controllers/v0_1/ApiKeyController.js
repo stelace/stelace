@@ -1,36 +1,57 @@
-/* global ApiKey, Webhook */
+/* global ApiKey, ApiService */
 
 module.exports = {
 
+    findMain,
     create,
     destroy,
 
 };
 
-async function create(req, res) {
-    const key = req.param('key');
+const createError = require('http-errors');
 
-    if (!key) {
-        return res.badRequest();
+async function findMain(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'apiKey', 'view');
+    if (!allowed) {
+        throw createError(403);
     }
 
-    await ApiKey.create({ key });
-    res.sendStatus(200);
+    const access = 'api';
+
+    let [apiKey] = await ApiKey
+        .find({ revokedDate: { '!=': null } })
+        .limit(1);
+
+    if (!apiKey) {
+        throw createError(404);
+    }
+
+    res.json(ApiKey.expose(apiKey, access));
+}
+
+async function create(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'apiKey', 'create');
+    if (!allowed) {
+        throw createError(403);
+    }
+
+    const access = 'api';
+
+    const key = ApiKey.generateKey();
+
+    const apiKey = await ApiKey.create({ key });
+    res.json(ApiKey.expose(apiKey, access));
 }
 
 async function destroy(req, res) {
-    const key = req.param('key');
-
-    if (!key) {
-        return res.badRequest();
+    const allowed = await ApiService.isAllowed(req, 'apiKey', 'remove');
+    if (!allowed) {
+        throw createError(403);
     }
 
-    const apiKey = await ApiKey.findOne({ key });
+    const id = req.param('id');
 
-    if (apiKey) {
-        await Webhook.destroy({ apiKeyId: apiKey.id });
-        await ApiKey.destroy({ key });
-    }
+    await ApiKey.updateOne(id, { revokedDate: new Date().toISOString() });
 
     res.sendStatus(200);
 }

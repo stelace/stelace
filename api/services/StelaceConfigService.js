@@ -1,4 +1,4 @@
-/* global MicroService, PassportService, PaymentMangopayService, PaymentStripeService, StelaceConfig, User, UserService */
+/* global AclService, MicroService, PassportService, PaymentMangopayService, PaymentStripeService, StelaceConfig, User, UserService */
 
 module.exports = {
 
@@ -9,8 +9,11 @@ module.exports = {
     hasStelaceConfig,
     isInstallationComplete,
     install,
+    refreshStelaceConfig,
     getConfig,
     getSecretData,
+    getPlan,
+    getPlanDiff,
 
     getListFeatures,
     isFeatureActive,
@@ -19,6 +22,8 @@ module.exports = {
     updateConfig,
     updateFeatures,
     updateSecretData,
+    updatePlan,
+    updatePlanDiff,
 
 };
 
@@ -83,6 +88,8 @@ let stelaceConfigId;
 let features;
 let config;
 let secretData;
+let plan;
+let planDiff;
 
 const timeGranularities = [
     'm', // minutes
@@ -156,6 +163,15 @@ async function install(params) {
     await UserService.createUser({ email, password, roles: ['admin', 'user', 'seller'] }, { passwordRequired: true });
 }
 
+function refreshStelaceConfig() {
+    PassportService.unsetPassportInstance();
+    PaymentMangopayService.unsetMangopayInstance();
+    PaymentStripeService.unsetStripeInstance();
+    AclService.refresh();
+
+    cached = false;
+}
+
 async function _fetchStelaceConfig() {
     if (cached) return;
 
@@ -174,6 +190,10 @@ async function _updateCache(stelaceConfig) {
     _loadConfig(stelaceConfig);
     _loadFeatures(stelaceConfig);
     _loadSecretData(stelaceConfig);
+
+    plan = stelaceConfig.plan;
+    planDiff = stelaceConfig.diff;
+
     stelaceConfigId = stelaceConfig.id;
 }
 
@@ -190,6 +210,16 @@ async function getConfig() {
 async function getSecretData() {
     await _fetchStelaceConfig();
     return secretData;
+}
+
+async function getPlan() {
+    await _fetchStelaceConfig();
+    return plan;
+}
+
+async function getPlanDiff() {
+    await _fetchStelaceConfig();
+    return planDiff;
 }
 
 async function _loadFeatures(stelaceConfig) {
@@ -316,6 +346,42 @@ async function updateSecretData(updatedSecretData) {
     }
 
     return secretData;
+}
+
+async function updatePlan(plan) {
+    await _fetchStelaceConfig();
+
+    const valid = stelaceConfigHelper.plan.validate(plan);
+    if (!valid) {
+        throw createError(400);
+    }
+
+    const updateAttrs = {
+        plan,
+    };
+
+    const stelaceConfig = await StelaceConfig.updateOne(stelaceConfigId, updateAttrs);
+    _updateCache(stelaceConfig);
+
+    return plan;
+}
+
+async function updatePlanDiff(planDiff) {
+    await _fetchStelaceConfig();
+
+    const valid = stelaceConfigHelper.plan.validate(planDiff);
+    if (!valid) {
+        throw createError(400);
+    }
+
+    const updateAttrs = {
+        planDiff,
+    };
+
+    const stelaceConfig = await StelaceConfig.updateOne(stelaceConfigId, updateAttrs);
+    _updateCache(stelaceConfig);
+
+    return planDiff;
 }
 
 function _computeNewConfig({ config, secretData }) {

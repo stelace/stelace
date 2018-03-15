@@ -130,7 +130,8 @@ async function isAllowed(req, resource, action) {
         const allowed = await AclService.isAllowed(req.user.roles, resource, action);
         return allowed;
     } else if (req.apiKey) {
-        return true;
+        const allowed = await AclService.isAllowed('admin', resource, action);
+        return allowed;
     } else {
         return false;
     }

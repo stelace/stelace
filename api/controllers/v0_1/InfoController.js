@@ -4,6 +4,7 @@ module.exports = {
 
     me,
     getMyPermissions,
+    getPlanPermissions,
 
 };
 
@@ -25,10 +26,18 @@ async function me(req, res) {
 }
 
 async function getMyPermissions(req, res) {
-    if (req.apiKey) {
-        return {};
+    let permissions;
+
+    if (req.user) {
+        permissions = await AclService.getUserPermissions(req.user);
+    } else {
+        permissions = await AclService.getApiKeyPermissions(req.apiKey);
     }
 
-    const permissions = await AclService.getUserPermissions(req.user);
     res.json(permissions);
+}
+
+async function getPlanPermissions(req, res) {
+    const planPermissions = await AclService.getPlanPermissions();
+    res.json(planPermissions);
 }

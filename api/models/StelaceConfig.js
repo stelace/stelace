@@ -38,6 +38,14 @@ module.exports = {
             columnType: 'json',
             defaultsTo: {},
         },
+        plan: {
+            type: 'json',
+            columnType: 'json',
+        },
+        planDiff: {
+            type: 'json',
+            columnType: 'json',
+        },
     },
 
 };
