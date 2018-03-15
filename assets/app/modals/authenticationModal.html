@@ -23,6 +23,7 @@
             required>
         <input type="password"
             data-translate-attr="{ placeholder: 'authentication.placeholder.create_password' }"
+            data-translate-values="{ min_number_of_characters: 6 }"
             ng-model="vm.password"
             ng-switch-when="register"
             ng-minlength="6"

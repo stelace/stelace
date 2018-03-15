@@ -80,12 +80,12 @@ authentication:
                     other {(min. {min_number_of_characters} characters)}
                 }
             fr: |
-                Choisissez votre mot de passe {min_number_of_characters, select,
+                Mot de passe {min_number_of_characters, select,
                     undefined {}
                     null {}
                     other {({min_number_of_characters} caractères minimum)}
                 }
-            context: Password placeholder showed when user is signing up.
+            context: Password placeholder showed when user is signing up. Should be short enough to fit in a small input.
     email_checked:
         en: Your email address is now verified.
         fr: Votre adresse email a bien été validée.
