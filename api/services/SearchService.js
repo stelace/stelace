@@ -23,10 +23,10 @@ module.exports = {
 };
 
 var NodeCache = require('node-cache');
-var CryptoJS  = require('crypto-js');
+var CryptoJS = require('crypto-js');
 var useragent = require('useragent');
-var moment    = require('moment');
-var geolib    = require('geolib');
+var moment = require('moment');
+var geolib = require('geolib');
 const _ = require('lodash');
 const Promise = require('bluebird');
 
@@ -90,8 +90,8 @@ async function getListingsFromQuery(searchQuery, type) {
     }
 
     const hasLocations = locations && locations.length;
-    const displayLocation = hasLocations && queryMode !== 'relevance';
-    if (displayLocation) {
+    const displayJourneys = hasLocations && queryMode !== 'relevance';
+    if (displayJourneys) {
         // remove listings that are too far from given source locations
         const {
             nearListingsDurationInSeconds,
@@ -102,7 +102,7 @@ async function getListingsFromQuery(searchQuery, type) {
         // console.log('near listings', listings.length);
 
         hashLocations = refreshHashLocations(hashLocations, _.pluck(listings, 'id'));
-        hashJourneys = await getJourneysDuration(locations, hashLocations);
+        hashJourneys = await getJourneysInfo(locations, hashLocations);
     }
 
     let combinedMetrics;
@@ -140,14 +140,14 @@ async function getListingsFromQuery(searchQuery, type) {
         listingsMedias,
         ownersMedias,
     } = await getListingsExtraInfo({ listings, getMedia: false });
-        // set getMedia to true when using owner media in search results
+    // set getMedia to true when using owner media in search results
 
     listings = getExposedListings({
         listings,
         owners,
         listingsMedias,
         ownersMedias,
-        displayDuration: displayLocation,
+        displayJourneys,
         fromLocations: locations,
         hashLocations,
         hashJourneys,
@@ -349,12 +349,11 @@ function refreshHashLocations(hashLocations, listingsIds) {
  * @param  {object[]} listingsRelevance
  * @return {object[]} res - combined metrics listings
  * @return {number}   res.id - listing id
- * @return {number}   res.duration
+ * @return {number}   res.distance
  * @return {float}    res.score
  */
 function combineMetrics({ listings, hashJourneys, listingsRelevance }) {
     const indexedListingsRelevance = listingsRelevance ? _.indexBy(listingsRelevance, 'id') : null;
-    const longDuration = 8 * 3600; // 8 hours
 
     return _.map(listings, listing => {
         const obj = {
@@ -369,9 +368,9 @@ function combineMetrics({ listings, hashJourneys, listingsRelevance }) {
         if (hashJourneys) {
             const journeys = hashJourneys[listing.id];
             if (journeys && journeys.length) {
-                obj.duration = _.first(journeys).durationSeconds;
+                obj.distance = _.first(journeys).distanceMeters;
             } else {
-                obj.duration = longDuration;
+                obj.distance = Infinity;
             }
         }
 
@@ -439,16 +438,16 @@ function clusterByRelevance(combinedMetrics, listingsRelevanceMeta) {
 }
 
 function sortByDistance(combinedMetrics) {
-    return _.sortBy(combinedMetrics, metrics => metrics.duration);
+    return _.sortBy(combinedMetrics, metrics => metrics.distance);
 }
 
 /**
- * Get journeys durations from hash locations, indexed by listing id
+ * Get journeys info from hash locations, indexed by listing id
  * @param  {object[]} fromLocations - user locations
  * @param  {object} hashLocations
  * @return {object} hashJourneys
  */
-async function getJourneysDuration(fromLocations, hashLocations) {
+async function getJourneysInfo(fromLocations, hashLocations) {
     const listingsIds = _.keys(hashLocations);
     const hashJourneys = {};
 
@@ -458,9 +457,9 @@ async function getJourneysDuration(fromLocations, hashLocations) {
             return;
         }
 
-        const journeys = await MapService.getOsrmJourneys(fromLocations, hashLocations[listingId]);
-        // sort by shortest duration first
-        hashJourneys[listingId] = _.sortBy(journeys, journey => journey.durationSeconds);
+        const journeys = MapService.getDistanceTable(fromLocations, hashLocations[listingId]);
+        // sort by shortest distance first
+        hashJourneys[listingId] = _.sortBy(journeys, journey => journey.distanceMeters);
     });
 
     return hashJourneys;
@@ -473,7 +472,7 @@ async function getJourneysDuration(fromLocations, hashLocations) {
  * @return {object} extraInfo
  */
 async function getListingsExtraInfo({ listings, getMedia }) {
-    const ownersIds  = MicroService.escapeListForQueries(_.pluck(listings, 'ownerId'));
+    const ownersIds = MicroService.escapeListForQueries(_.pluck(listings, 'ownerId'));
     let infoPromises = [Listing.getMedias(listings)];
     let owners;
 
@@ -502,7 +501,7 @@ async function getListingsExtraInfo({ listings, getMedia }) {
  * @param  {object[]} owners
  * @param  {object}   listingsMedias
  * @param  {object}   ownersMedias
- * @param  {boolean}  displayDuration
+ * @param  {boolean}  displayJourneys
  * @param  {object}   fromLocations
  * @param  {object}   hashLocations
  * @param  {object}   hashJourneys
@@ -515,34 +514,34 @@ function getExposedListings({
     owners,
     listingsMedias,
     ownersMedias,
-    displayDuration,
+    displayJourneys,
     fromLocations,
     hashLocations,
     hashJourneys,
     locale,
     fallbackLocale,
 }) {
-    let journeysDurations;
+    let journeys;
     const indexedOwners = _.indexBy(owners, 'id');
 
-    if (displayDuration) {
-        journeysDurations = convertOsrmDurations(fromLocations, hashJourneys, hashLocations);
+    if (displayJourneys) {
+        journeys = convertJourneys(fromLocations, hashJourneys, hashLocations);
     }
 
     const exposedListings = _.map(listings, listing => {
-        listing             = Listing.expose(listing, 'others', { locale, fallbackLocale });
-        listing.medias      = Media.exposeAll(listingsMedias[listing.id], 'others');
+        listing = Listing.expose(listing, 'others', { locale, fallbackLocale });
+        listing.medias = Media.exposeAll(listingsMedias[listing.id], 'others');
         listing.ownerRating = _.pick(indexedOwners[listing.ownerId], ['nbRatings', 'ratingScore']);
         listing.completeLocations = _.map(hashLocations[listing.id], location => {
             return Location.expose(location, 'others');
         });
 
-        if (ownersMedias && ! _.isEmpty(ownersMedias)) {
-            listing.ownerMedia  = Media.expose(ownersMedias[listing.ownerId], 'others');
+        if (ownersMedias && !_.isEmpty(ownersMedias)) {
+            listing.ownerMedia = Media.expose(ownersMedias[listing.ownerId], 'others');
         }
 
-        if (displayDuration) {
-            listing.journeysDurations = journeysDurations[listing.id];
+        if (displayJourneys) {
+            listing.journeys = journeys[listing.id];
         }
 
         return listing;
@@ -551,14 +550,15 @@ function getExposedListings({
     return exposedListings;
 }
 
-function convertOsrmDurations(fromLocations, hashJourneys, hashLocations) {
+function convertJourneys(fromLocations, hashJourneys, hashLocations) {
     return _.reduce(_.keys(hashJourneys), (memo, listingId) => {
         memo[listingId] = _.map(hashJourneys[listingId], journey => {
             return {
                 index: journey.fromIndex,
                 fromLocation: fromLocations[journey.fromIndex],
                 toLocation: Location.expose(hashLocations[listingId][journey.toIndex], "others"),
-                durationSeconds: journey.durationSeconds
+                distanceMeters: journey.distanceMeters,
+                durationSeconds: journey.durationSeconds,
             };
         });
 
@@ -578,7 +578,7 @@ function filterListingsWithinDistance(fromLocations, listings, hashLocations, wi
     return _.reduce(listings, (memo, listing) => {
         // security in case listings has no locations
         var toLocations = hashLocations[listing.id];
-        if (! toLocations || ! toLocations.length) {
+        if (!toLocations || !toLocations.length) {
             return memo;
         }
 

@@ -9,16 +9,16 @@
 
 module.exports = {
 
-    find: find,
-    findOne: findOne,
-    create: create,
-    update: update,
-    destroy: destroy,
+    find,
+    findOne,
+    create,
+    update,
+    destroy,
 
-    my: my,
-    updateMain: updateMain,
-    getJourneysDuration: getJourneysDuration,
-    getGeoInfo: getGeoInfo
+    my,
+    updateMain,
+    getJourneysInfo,
+    getGeoInfo,
 
 };
 
@@ -297,25 +297,23 @@ function my(req, res) {
         .catch(res.sendError);
 }
 
-function getJourneysDuration(req, res) {
-    var from = req.param("from");
-    var to   = req.param("to");
+async function getJourneysInfo(req, res) {
+    let { from, to } = req.allParams();
 
     try {
         from = JSON.parse(from);
         to   = JSON.parse(to);
     } catch (e) {
-        return res.badRequest();
+        throw createError(400);
     }
 
-    if (! MapService.isValidGpsPts(from) || ! MapService.isValidGpsPts(to)) {
-        return res.badRequest();
+    if (!MapService.isValidGpsPts(from) || !MapService.isValidGpsPts(to)) {
+        throw createError(400);
     }
 
-    return MapService
-        .getOsrmJourneys(from, to)
-        .then(journeys => res.json(journeys))
-        .catch(res.sendError);
+    const journeys = MapService.getDistanceTable(from, to);
+
+    res.json(journeys);
 }
 
 function getGeoInfo(req, res) {

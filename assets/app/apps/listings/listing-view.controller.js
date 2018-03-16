@@ -1202,7 +1202,7 @@
 
         function _populateSimilarListings(similarListings) {
             _.forEach(similarListings, function (listing) {
-                var shortestJourney  = listing.journeysDurations[0]; // sorted by server (ListingController, MapService)
+                var shortestJourney  = listing.journeys[0]; // sorted by server (ListingController, MapService)
                 var shortestLocation = _.find(vm.searchFromLocations, function (location, index) {
                     return shortestJourney.index === index;
                 });
@@ -1534,10 +1534,10 @@
                     return $q.when();
                 }
 
-                return LocationService.getJourneysDuration(myLocations, listingLocations);
+                return LocationService.getJourneysInfo(myLocations, listingLocations);
             }).then(function (table) {
                 journeys = table;
-                sortedJourneys = _.sortBy(journeys, "durationSeconds");
+                sortedJourneys = _.sortBy(journeys, 'distanceMeters');
 
                 if (googleMap && refreshMap) {
                     googleMap.unsetMarkers();
@@ -1796,7 +1796,7 @@
                 if (! myLocations.length || vm.isOwner) {
                     marker.content  = placeholders[index];
                 } else {
-                    var toLocationSortedJourneys = _.sortBy(_.filter(sortedJourneys, { toIndex: index }), "durationSeconds");
+                    var toLocationSortedJourneys = _.sortBy(_.filter(sortedJourneys, { toIndex: index }), 'distanceMeters');
                     _.forEach(toLocationSortedJourneys, function (journey) {
                         journey.durationString    = time.getDurationString(journey.durationSeconds, true);
                         journey.fromLocationAlias = myLocations[journey.fromIndex].alias || myLocations[journey.fromIndex].shortName;

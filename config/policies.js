@@ -112,7 +112,7 @@ module.exports.policies = {
         update: ["isAuthenticated", "getUserInfo"],
         updateMain: ["isAuthenticated", "getUserInfo"],
         my: ["gracefulDismissNoToken", "isAuthenticated"],
-        getJourneysDuration: true,
+        getJourneysInfo: true,
         getGeoInfo: true
     },
 

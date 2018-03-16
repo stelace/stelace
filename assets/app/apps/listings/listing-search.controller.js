@@ -841,16 +841,16 @@
                 var markerId = _.uniqueId("marker_");
                 var marker   = {};
 
-                if (listing.journeysDurations) {
-                    shortestJourney  = listing.journeysDurations[0]; // sorted by server (ListingController, MapService)
+                if (listing.journeys) {
+                    shortestJourney  = listing.journeys[0]; // sorted by server (ListingController, MapService)
                     shortestLocation = _.find(fromLocations, function (location, index) {
                         return shortestJourney.index === index;
                     });
 
                     listing.loc                = shortestLocation;
                     listing.toLoc              = shortestJourney.toLocation;
-                    listing.populatedLocations = _.pluck(_.uniq(listing.journeysDurations, "toLocation.city"), "toLocation"); // keeps sorted order
-                    shortestLocation.index  = listing.journeysDurations[0].index;
+                    listing.populatedLocations = _.pluck(_.uniq(listing.journeys, "toLocation.city"), "toLocation"); // keeps sorted order
+                    shortestLocation.index  = listing.journeys[0].index;
                     listing.minDurationString  = time.getDurationString(shortestJourney.durationSeconds);
 
                     marker.toLocation    = shortestJourney.toLocation;

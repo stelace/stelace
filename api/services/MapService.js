@@ -2,22 +2,60 @@
 
 module.exports = {
 
-    getOsrmJourneys: getOsrmJourneys,
-    sortUniqueOsrmJourneys: sortUniqueOsrmJourneys,
+    getDistanceTable,
+    getOsrmJourneys,
+    sortUniqueOsrmJourneys,
 
-    isValidGpsPt: isValidGpsPt,
-    isValidGpsPts: isValidGpsPts
+    isValidGpsPt,
+    isValidGpsPts,
 
 };
 
-var request      = require('request');
-var NodeCache    = require('node-cache');
+const request      = require('request');
+const NodeCache    = require('node-cache');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const geolib = require('geolib');
 
 Promise.promisifyAll(request, { multiArgs: true });
 
 var OsrmJourneysCache = new NodeCache({ stdTTL: 24 * 60 * 60 }); // 1 day
+
+/**
+ * @param {Object[]} fromGpsPts
+ * @param {Number} fromGpsPts[i].longitude
+ * @param {Number} fromGpsPts[i].latitude
+ * @param {Object[]} toGpsPts
+ * @param {Number} toGpsPts[i].longitude
+ * @param {Number} toGpsPts[i].latitude
+ * @return {Object[]} journeys
+ * @return {Number} journeys[i].fromIndex
+ * @return {Number} journeys[i].toIndex
+ * @return {Number} journeys[i].distanceMeters
+ * @return {Number} journeys[i].durationSeconds
+ */
+function getDistanceTable(fromGpsPts, toGpsPts, { speedMeterPerSecond } = {}) {
+    if (! isValidGpsPts(fromGpsPts) || ! isValidGpsPts(toGpsPts)) {
+        throw new Error('Array of gps points expected');
+    }
+
+    const journeys = [];
+
+    _.forEach(fromGpsPts, (fromGpsPt, i) => {
+        _.forEach(toGpsPts, (toGpsPt, j) => {
+            const distanceMeters = geolib.getDistance(fromGpsPt, toGpsPt);
+
+            journeys.push({
+                fromIndex: i,
+                toIndex: j,
+                distanceMeters,
+                durationSeconds: convertMetersToSeconds(distanceMeters, { speedMeterPerSecond }),
+            });
+        });
+    });
+
+    return journeys;
+}
 
 // example output:
 // [ { fromIndex: 0, toIndex: 0, durationSeconds: 22014 },
@@ -188,4 +226,9 @@ function isValidGpsPts(entries) {
         }
         return memo;
     }, true);
+}
+
+// 17 m per second ~ 60 km per hour
+function convertMetersToSeconds(meters, { speedMeterPerSecond = 17 } = {}) {
+    return Math.round(meters / speedMeterPerSecond);
 }

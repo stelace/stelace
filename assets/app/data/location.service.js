@@ -16,7 +16,7 @@
         service.getMainLocation     = getMainLocation;
         service.getMaxLocations     = getMaxLocations;
         service.getShortName        = getShortName;
-        service.getJourneysDuration = getJourneysDuration;
+        service.getJourneysInfo     = getJourneysInfo;
         service.getGeoInfo          = getGeoInfo;
 
         Restangular.extendModel("location", function (obj) {
@@ -186,8 +186,8 @@
             }
         }
 
-        function getJourneysDuration(from, to) {
-            return service.customGET("journeysDuration", {
+        function getJourneysInfo(from, to) {
+            return service.customGET("journeys-info", {
                 from: JSON.stringify(_.map(from, function (f) {
                     return _.pick(f, ["latitude", "longitude"]);
                 })),

@@ -122,7 +122,7 @@ module.exports.routes = {
     // LocationController
     'get /api/location/my': "LocationController.my",
     'put /api/location/main': "LocationController.updateMain",
-    'get /api/location/journeysDuration': "LocationController.getJourneysDuration",
+    'get /api/location/journeys-info': "LocationController.getJourneysInfo",
     'get /api/location/getGeoInfo': "LocationController.getGeoInfo",
 
     // MediaController
