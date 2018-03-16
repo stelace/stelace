@@ -1,31 +1,35 @@
-/* global Listing, ListingCategory, ListingXTag, LoggerService, MicroService, StelaceConfigService, Tag */
+/* global Listing, ListingCategory, LoggerService, MicroService, StelaceConfigService */
 
 module.exports = {
 
-    syncListings: syncListings,
+    syncListings,
 
-    searchListings: searchListings,
-    getSimilarListings: getSimilarListings,
-    getListing: getListing,
+    searchListings,
+    getSimilarListings,
+    getListing,
 
-    shouldSyncListings: shouldSyncListings,
+    shouldSyncListings,
 
-    getClient: getClient,
+    getClient,
 
 };
 
 const elasticsearch = require('elasticsearch');
+const Promise = require('bluebird');
 const _ = require('lodash');
+
+const { initializeIndex } = require('./elasticsearch');
 
 const LISTING_FIELDS = [
     'id',
     'name',
     'description',
-    'stateComment',
-    'bookingPreferences',
-    'ownerId',
-    'reference',
     'listingCategoryId',
+];
+
+const langs = [
+    'en',
+    'fr',
 ];
 
 let listingsIdsToSync = [];
@@ -82,65 +86,72 @@ function getClient() {
     return esClient;
 }
 
-function getIndexLabel() {
-    let label = 'catalog';
+function getIndex(lang) {
+    let index = 'catalog';
 
     const stelaceId = sails.config.stelace.stelaceId;
     if (stelaceId) {
-        label = stelaceId + '_' + label;
+        index = stelaceId + '__' + index;
     }
 
-    return label;
+    index += '_' + lang;
+
+    return index;
 }
 
 async function syncListings() {
     const client = getClient();
-    const indexLabel = getIndexLabel();
 
     const [
         listings,
         listingCategories,
-        tags,
-        listingsXTags,
     ] = await Promise.all([
         Listing.find({ validated: true }),
         ListingCategory.find(),
-        Tag.find(),
-        ListingXTag.find(),
     ]);
 
-    const indexedCategories = _.indexBy(listingCategories, 'id');
-    const indexedTags = _.indexBy(tags, 'id');
-    const indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'listingId');
+    let indexedCategories;
 
-    const normalizedListings = _.map(listings, listing => {
-        return normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
-    });
-
-    const indexExists = await client.indices.exists({
-        index: indexLabel,
-    });
-
-    if (indexExists) {
-        await client.indices.delete({
-            index: indexLabel,
-        });
+    const activeListingCategories = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
+    if (activeListingCategories) {
+        indexedCategories = _.indexBy(listingCategories, 'id');
+    } else {
+        indexedCategories = {};
     }
 
-    await client.indices.create({
-        index: indexLabel,
-    });
+    await Promise.each(langs, async (lang) => {
+        const index = getIndex(lang);
+        await initializeIndex({ client, index, lang, dropIfExists: true });
 
-    await createCustomFrenchAnalyzer();
-    await createTypeListingMapping();
+        await syncListingsByLanguage({
+            client,
+            lang,
+            listings,
+            indexedCategories,
+        }).catch(() => null);
+    });
+}
+
+async function syncListingsByLanguage({
+    client,
+    lang,
+    listings,
+    indexedCategories,
+}) {
+    const index = getIndex(lang);
+
+    const normalizedListings = _.map(listings, listing => {
+        return normalizeListing(listing, { lang, indexedCategories });
+    });
 
     let body = [];
 
     for (let i = 0, l = normalizedListings.length; i < l; i++) {
         const listing = normalizedListings[i];
-
-        body.push({ update: { _index: indexLabel, _type: 'listing', _id: listing.id } });
-        body.push({ doc: _.omit(listing, 'id'), doc_as_upsert: true });
+        if (listing.name) { // can be undefined for some languages
+            body.push({ update: { _index: index, _type: 'listing', _id: listing.id } });
+            body.push({ doc: _.omit(listing, 'id'), doc_as_upsert: true });
+        }
 
         if (i !== 0 && i % maxDocPerBulk === 0) {
             await client.bulk({ body });
@@ -153,165 +164,50 @@ async function syncListings() {
     }
 }
 
-async function createCustomFrenchAnalyzer() {
-    const client = getClient();
-    const indexLabel = getIndexLabel();
+async function syncDeltaListingsByLanguage({
+    client,
+    lang,
+    listingsIds,
+    indexedListings,
+    indexedCategories,
+}) {
+    const index = getIndex(lang);
 
-    await client.indices.close({
-        index: indexLabel,
-    });
+    let body = [];
 
-    const body = {
-        analysis: {
-            filter: {
-                french_elision: {
-                    type: 'elision',
-                    articles_case: true,
-                    articles: [
-                        'l', 'm', 't', 'qu', 'n', 's',
-                        'j', 'd', 'c', 'jusqu', 'quoiqu',
-                        'lorsqu', 'puisqu',
-                    ],
-                },
-                french_stop: {
-                    type: 'stop',
-                    stopwords: '_french_',
-                },
-                custom_french_stop: {
-                    type: 'stop',
-                    stopwords: [
-                        'a', // add it because 'à' is a stop word and with asciifolding, it's transformed into 'a'
-                        'location',
-                        'louer',
-                        'vendre',
-                        'vente',
-                        'euro',
-                        'renseignement',
-                        'contact',
-                    ],
-                },
-                // french_keywords: {
-                //     type: 'keyword_marker',
-                //     keywords: [], // use this fields if some words must be protected from stemming
-                // },
-                french_stemmer: {
-                    type: 'stemmer',
-                    language: 'light_french',
-                },
-                custom_asciifolder: {
-                    type: 'asciifolding',
-                    preserve_original: true,
-                }
-            },
-            analyzer: {
-                custom_french: {
-                    tokenizer: 'standard',
-                    filter: [
-                        'french_elision',
-                        'lowercase',
-                        'french_stop',
-                        'custom_french_stop',
-                        'custom_asciifolder',
-                        // 'french_keywords',
-                        'french_stemmer',
-                    ],
-                },
-            },
-        },
-    };
+    for (let i = 0, l = listingsIds.length; i < l; i++) {
+        const listingId = listingsIds[i];
+        const listing = indexedListings[listingId];
 
-    await client.indices.putSettings({
-        index: indexLabel,
-        body,
-    });
+        // if the listing is not found or is not validated, remove it from ElasticSearch
+        if (! listing || ! listing.validated) {
+            body.push({ delete: { _index: index, _type: 'listing', _id: listingId } });
+        } else {
+            const normalizedListing = normalizeListing(listing, { lang, indexedCategories });
+            if (normalizedListing.name) { // can be undefined for some languages
+                body.push({ update: { _index: index, _type: 'listing', _id: normalizedListing.id } });
+                body.push({ doc: _.omit(normalizedListing, 'id'), doc_as_upsert: true });
+            }
+        }
 
-    await client.indices.open({
-        index: indexLabel,
-    });
-}
+        if (i !== 0 && i % maxDocPerBulk === 0) {
+            await client.bulk({ body });
+            body = [];
+        }
+    }
 
-async function createTypeListingMapping() {
-    const client = getClient();
-    const indexLabel = getIndexLabel();
-
-    await client.indices.putMapping({
-        index: indexLabel,
-        type: 'listing',
-        body: {
-            listing: {
-                properties: {
-                    name: {
-                        type: 'text',
-                        analyzer: 'custom_french',
-                        fields: {
-                            keyword: {
-                                type: 'keyword',
-                                ignore_above: 256,
-                            },
-                        },
-                    },
-                    description: {
-                        type: 'text',
-                        analyzer: 'custom_french',
-                        fields: {
-                            keyword: {
-                                type: 'keyword',
-                                ignore_above: 256,
-                            },
-                        },
-                    },
-                    listingCategoryLabel: {
-                        type: 'text',
-                        analyzer: 'custom_french',
-                        fields: {
-                            keyword: {
-                                type: 'keyword',
-                                ignore_above: 256,
-                            },
-                        },
-                    },
-                    tags: {
-                        type: 'text',
-                        analyzer: 'custom_french',
-                        fields: {
-                            keyword: {
-                                type: 'keyword',
-                                ignore_above: 256,
-                            },
-                        },
-                    },
-                    bookingPreferences: {
-                        type: 'text',
-                        analyzer: 'custom_french',
-                        fields: {
-                            keyword: {
-                                type: 'keyword',
-                                ignore_above: 256,
-                            },
-                        },
-                    },
-                    stateComment: {
-                        type: 'text',
-                        analyzer: 'custom_french',
-                        fields: {
-                            keyword: {
-                                type: 'keyword',
-                                ignore_above: 256,
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    });
+    if (body.length) {
+        await client.bulk({ body });
+    }
 }
 
 async function searchListings(query, {
     attributes = false,
     miniShouldMatch = '2<90%',
+    lang,
 } = {}) {
     const client = getClient();
-    const indexLabel = getIndexLabel();
+    const index = getIndex(lang);
 
     // https://stackoverflow.com/questions/22695749/how-to-use-minimum-should-match-to-search-in-multiple-fields
     const body = {
@@ -325,8 +221,6 @@ async function searchListings(query, {
                     'name^4',
                     'description^2',
                     'listingCategoryLabel^2',
-                    'stateComment',
-                    'tags',
                 ],
             },
         },
@@ -335,20 +229,20 @@ async function searchListings(query, {
     };
 
     return await client.search({
-        index: indexLabel,
+        index,
         type: 'listing',
         body: body,
     });
 }
 
-async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes = false }) {
+async function getSimilarListings({ listingsIds = [], texts = [], lang }, { attributes = false }) {
     const client = getClient();
-    const indexLabel = getIndexLabel();
+    const index = getIndex(lang);
 
     const like = [];
     _.forEach(listingsIds, listingId => {
         like.push({
-            _index: indexLabel,
+            _index: index,
             _type: 'listing',
             _id: listingId,
         });
@@ -363,13 +257,12 @@ async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes
                 fields: [
                     'name',
                     'listingCategoryLabel',
-                    'tags',
                 ],
                 like,
                 min_term_freq : 1,
                 max_query_terms : 12,
 
-                // set min_doc_freq to 1 because words with accent aren't "stemmed" to its form without accent
+                // set min_doc_freq to 1 because words with accent aren't 'stemmed' to its form without accent
                 // for the frequency calculation
                 min_doc_freq: 1,
             },
@@ -378,41 +271,38 @@ async function getSimilarListings({ listingsIds = [], texts = [] }, { attributes
     };
 
     return await client.search({
-        index: indexLabel,
+        index,
         type: 'listing',
         body,
     });
 }
 
-async function getListing(listingId) {
+async function getListing(listingId, { lang } = {}) {
     const client = getClient();
-    const indexLabel = getIndexLabel();
+    const index = getIndex(lang);
 
     return await client.get({
-        index: indexLabel,
+        index,
         type: 'listing',
         id: listingId,
     });
 }
 
-function normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId }) {
+function normalizeListing(listing, { lang, indexedCategories }) {
+    listing = Listing.getI18nModel(listing, { locale: lang, useOnlyLocale: false });
     const transformedListing = _.pick(listing, LISTING_FIELDS);
 
-    transformedListing.mediasIds = transformedListing.mediasIds || [];
-    transformedListing.instructionsMediasIds = transformedListing.instructionsMediasIds || [];
-    transformedListing.locations = transformedListing.locations || [];
-    transformedListing.listingCategoryLabel = getCategoryLabel(listing, { indexedCategories });
-    transformedListing.tags = getTags(listing, { indexedTags, indexedListingsXTagsByListingId });
+    transformedListing.listingCategoryLabel = getCategoryLabel(listing, { lang, indexedCategories });
 
     return transformedListing;
 }
 
-function getCategoryLabel(listing, { indexedCategories }) {
+function getCategoryLabel(listing, { lang, indexedCategories }) {
     if (! listing.listingCategoryId) {
         return null;
     }
 
-    const childCategory = indexedCategories[listing.listingCategoryId];
+    let childCategory = indexedCategories[listing.listingCategoryId];
     if (! childCategory) {
         return null;
     }
@@ -425,31 +315,18 @@ function getCategoryLabel(listing, { indexedCategories }) {
     }
 
     if (parentCategory) {
-        label += `${parentCategory.name} > `;
+        parentCategory = ListingCategory.getI18nModel(parentCategory, { locale: lang, useOnlyLocale: false });
+        if (parentCategory.name) {
+            label += `${parentCategory.name} > `;
+        }
     }
 
-    label += `${childCategory.name}`;
+    childCategory = ListingCategory.getI18nModel(childCategory, { locale: lang, useOnlyLocale: false });
+    if (childCategory.name) {
+        label += `${childCategory.name}`;
+    }
 
     return label;
-}
-
-function getTags(listing, { indexedTags, indexedListingsXTagsByListingId }) {
-    const listingsXTags = indexedListingsXTagsByListingId[listing.id];
-
-    if (! listingsXTags || ! listingsXTags.length) {
-        return [];
-    }
-
-    const tags = [];
-
-    _.forEach(listingsXTags, listingXTag => {
-        const tag = indexedTags[listingXTag.tagId];
-        if (tag) {
-            tags.push(tag.name);
-        }
-    });
-
-    return tags;
 }
 
 function shouldSyncListings(listingsIds) {
@@ -468,7 +345,6 @@ async function triggerSyncListings() {
     listingsIdsToSync = [];
 
     const client = getClient();
-    const indexLabel = getIndexLabel();
 
     try {
         listingsIds = MicroService.escapeListForQueries(listingsIds);
@@ -476,57 +352,35 @@ async function triggerSyncListings() {
         const [
             listings,
             listingCategories,
-            tags,
-            listingsXTags,
         ] = await Promise.all([
             Listing.find({ id: listingsIds }),
             ListingCategory.find(),
-            Tag.find(),
-            ListingXTag.find(),
         ]);
 
         let indexedCategories;
-        let indexedTags;
-        let indexedListingsXTagsByListingId;
 
         const activeListingCategories = await StelaceConfigService.isFeatureActive('LISTING_CATEGORIES');
-        const activeTags = await StelaceConfigService.isFeatureActive('TAGS');
 
         if (activeListingCategories) {
             indexedCategories = _.indexBy(listingCategories, 'id');
+        } else {
+            indexedCategories = {};
         }
-        if (activeTags) {
-            indexedTags = _.indexBy(tags, 'id');
-            indexedListingsXTagsByListingId = _.groupBy(listingsXTags, 'listingId');
-        }
-
 
         const indexedListings = _.indexBy(listings, 'id');
 
-        let body = [];
+        await Promise.each(langs, async (lang) => {
+            const index = getIndex(lang);
+            await initializeIndex({ client, index, lang }); // create the index if it doesn't exist
 
-        for (let i = 0, l = listingsIds.length; i < l; i++) {
-            const listingId = listingsIds[i];
-            const listing = indexedListings[listingId];
-
-            // if the listing is not found or is not validated, remove it from Elastic search
-            if (! listing || ! listing.validated) {
-                body.push({ delete: { _index: indexLabel, _type: 'listing', _id: listingId } });
-            } else {
-                const normalizedListing = normalizeListing(listing, { indexedCategories, indexedTags, indexedListingsXTagsByListingId });
-                body.push({ update: { _index: indexLabel, _type: 'listing', _id: normalizedListing.id } });
-                body.push({ doc: _.omit(normalizedListing, 'id'), doc_as_upsert: true });
-            }
-
-            if (i !== 0 && i % maxDocPerBulk === 0) {
-                await client.bulk({ body });
-                body = [];
-            }
-        }
-
-        if (body.length) {
-            await client.bulk({ body });
-        }
+            await syncDeltaListingsByLanguage({
+                client,
+                lang,
+                listingsIds,
+                indexedListings,
+                indexedCategories,
+            }).catch(() => null);
+        });
     } catch (e) {
         // do nothing
     } finally {

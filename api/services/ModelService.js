@@ -15,6 +15,7 @@ function getI18nModel(model, {
     i18nMap = {},
     locale,
     fallbackLocale,
+    useOnlyLocale,
 }) {
     const obj = _.cloneDeep(model);
 
@@ -28,6 +29,7 @@ function getI18nModel(model, {
             fieldI18n: i18nMap[key],
             locale,
             fallbackLocale,
+            useOnlyLocale,
         });
     });
 
@@ -92,16 +94,21 @@ function getI18nValue(model, {
     fieldI18n,
     locale,
     fallbackLocale,
+    useOnlyLocale = false,
 }) {
     model[fieldI18n] = model[fieldI18n] || {};
 
     const localeValue = model[fieldI18n][locale];
-    if (typeof localeValue !== 'undefined') {
+    if (useOnlyLocale) {
+        return localeValue;
+    }
+
+    if (typeof localeValue !== 'undefined' && localeValue !== null) {
         return localeValue;
     }
 
     const fallbackValue = model[fieldI18n][fallbackLocale];
-    if (typeof fallbackValue !== 'undefined') {
+    if (typeof fallbackValue !== 'undefined' && fallbackValue !== null) {
         return fallbackValue;
     }
 

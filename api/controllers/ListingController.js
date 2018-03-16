@@ -385,6 +385,10 @@ async function search(req, res) {
 
         const searchStartDate = new Date();
 
+        const config = await StelaceConfigService.getConfig();
+        const lang = config.lang;
+        searchQuery.lang = lang;
+
         // retrieve the search query from the cache and use if it exists
         const cacheKey = SearchService.getQueryHash(searchQuery);
         let listings = SearchService.getListingsFromCache(cacheKey);

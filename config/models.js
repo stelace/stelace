@@ -154,7 +154,7 @@ function exposeTransform(/* element, field, access */) {
     // do nothing (only for template, exposeTransform on model override)
 }
 
-function getI18nModel(element, { locale, fallbackLocale }) {
+function getI18nModel(element, { locale, fallbackLocale, useOnlyLocale }) {
     const model = this;
 
     if (typeof model.getI18nMap !== 'function') {
@@ -163,7 +163,7 @@ function getI18nModel(element, { locale, fallbackLocale }) {
 
     const i18nMap = model.getI18nMap();
 
-    return ModelService.getI18nModel(element, { i18nMap, locale, fallbackLocale });
+    return ModelService.getI18nModel(element, { i18nMap, locale, fallbackLocale, useOnlyLocale });
 }
 
 function getI18nModelDelta(element, attrs, { locale, fallbackLocale }) {

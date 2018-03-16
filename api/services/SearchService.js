@@ -78,10 +78,10 @@ async function getListingsFromQuery(searchQuery, type) {
             throw new Error('Missing similar to listings ids');
         }
 
-        const similarListings = await getSimilarListings({ listingsIds: similarToListingsIds });
+        const similarListings = await getSimilarListings({ listingsIds: similarToListingsIds, lang: config.lang });
         listings = mergePublishedAndQueryListings(listings, similarListings);
     } else if (query) {
-        listingsRelevance = await getListingsRelevance(query);
+        listingsRelevance = await getListingsRelevance(query, config.lang);
         // console.log('relevant listings', listingsRelevance.length);
         listingsRelevanceMeta = getListingsRelevanceMeta(listingsRelevance);
         listings = mergePublishedAndQueryListings(listings, listingsRelevance);
@@ -216,22 +216,21 @@ async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
 /**
  * Get listings by relevance
  * @param  {string}   query
- * @param  {boolean}  getSimilar
  * @return {object[]} results
  * @return {number}   results.id - listing id
  * @return {float}    results.score - relevance score
  */
-async function getListingsRelevance(query) {
-    const params = { attributes: [] };
+async function getListingsRelevance(query, lang) {
+    const params = { attributes: [], lang };
 
     const res = await ElasticsearchService.searchListings(query, params);
     return formatElasticsearchResults(res);
 }
 
-async function getSimilarListings({ listingsIds, texts }) {
+async function getSimilarListings({ listingsIds, texts, lang }) {
     const params = { attributes: [] };
 
-    const res = await ElasticsearchService.getSimilarListings({ listingsIds, texts }, params);
+    const res = await ElasticsearchService.getSimilarListings({ listingsIds, texts, lang }, params);
     return formatElasticsearchResults(res);
 }
 
