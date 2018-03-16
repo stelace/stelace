@@ -80,15 +80,15 @@
             startingDay: 1,
             showWeeks: false,
             maxMode: "day",
-            initDate: todayDate // required since 1.1.2 update
+            initDate: todayDate
             // Bug with use of datepicker-options for inline datepickers if initDate is not set
         };
 
         var vm = this;
-        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
+        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readonly status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
         // See http://stackoverflow.com/questions/25928605/in-ios8-safari-readonly-inputs-are-handled-incorrectly
-        // Also see angular-ui pull request, rejected for accesibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
+        // Also see angular-ui pull request, rejected for accessibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
         vm.iOS                   = tools.isIOS();
 
         vm.activeTags           = StelaceConfig.isFeatureActive('TAGS');
@@ -1176,18 +1176,9 @@
             ]);
 
             vm.listingMedias           = mediasSelector.getMedias();
-            var indexedConfigMedias = _.indexBy(vm.configMedias, "id");
             var uploadMediasManager = ListingService.getUploadMediasManager({
                 medias: vm.listingMedias,
-                notify: function (totalProgress, configProgress) {
-                    vm.totalMediaUpload = totalProgress;
-
-                    _.forEach(configProgress, function (obj) {
-                        indexedConfigMedias[obj.id].progress = obj.progress;
-                    });
-
-                    $scope.$digest();
-                }
+                notify: _refreshMediaProgressBar
             });
 
             var validationFields = _.filter(listingValidationFields, function (field) {
@@ -1329,18 +1320,9 @@
 
         function _updateListing() {
             vm.listingMedias           = mediasSelector.getMedias();
-            var indexedConfigMedias = _.indexBy(vm.configMedias, "id");
             var uploadMediasManager = ListingService.getUploadMediasManager({
                 medias: vm.listingMedias,
-                notify: function (totalProgress, configProgress) {
-                    vm.totalMediaUpload = totalProgress;
-
-                    _.forEach(configProgress, function (obj) {
-                        indexedConfigMedias[obj.id].progress = obj.progress;
-                    });
-
-                    $scope.$digest();
-                }
+                notify: _refreshMediaProgressBar
             });
 
             return $q.when(vm.listing)
@@ -1409,6 +1391,19 @@
                     _initListing();
                     toastr.success("Objet modifié");
                 });
+        }
+
+        // See ListingService.getUploadMediasManager for info about parameters
+        function _refreshMediaProgressBar(totalProgress, configProgress) {
+            var indexedConfigMedias = _.indexBy(vm.configMedias, "id");
+
+            vm.totalMediaUpload = totalProgress;
+
+            _.forEach(configProgress, function (obj) {
+                indexedConfigMedias[obj.id].progress = obj.progress;
+            });
+
+            $scope.$digest();
         }
 
         function _createNewTags() {

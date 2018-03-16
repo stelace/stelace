@@ -795,6 +795,9 @@ user:
                     other{Ajouter mon image}
                 }
             context: Same button is used to cancel upload during process.
+        profile_image_trust_factor:
+            en: Profile images let users of {SERVICE_NAME} interact with greater trust. Add yours in no time.
+            fr: Les photos de profil permettent aux autres utilisateurs {SERVICE_NAME} d’interagir avec plus de confiance. Ajoutez la vôtre en quelques secondes.
         update_profile_button:
             en: Update my profile
             fr: Compléter mon profil
@@ -846,10 +849,16 @@ user:
         SMS_validation_code_sent:
             en: Please fill in the SMS validation code we have just sent to you.
             fr: Merci de saisir le code de validation SMS que nous venons de vous envoyer.
-        validation_code_placeholder:
-            en: Validation code
-            fr: Code de validation
-            context: Can be used in many contexts such as phone or transaction validation.
+        phone_validation_button:
+            en: Validate my number
+            fr: Vérifier mon numéro
+            context: Give the user a hint about upcoming validation process once phone number has been filled in.
+        phone_validation_context:
+            en: '{SERVICE_NAME} can notify you of important transaction updates by SMS. Your number will be communicated to a given user only once you’ve accepted her request.'
+            fr: '{SERVICE_NAME} vous prévient gratuitement de toute demande par SMS afin que vous ne ratiez aucune occasion. Votre numéro ne sera jamais communiqué à un autre membre tant que vous n’aurez pas accepté sa demande.'
+        phone_validation_trust_factor:
+            en: A verified phone number inspires confidence and increase you chances of completing transactions.
+            fr: Un numéro vérifié est un gage de confiance et augmente vos chances de recevoir des demandes.
     profile:
         greeting:
             en: |
@@ -1016,7 +1025,11 @@ prompt:
     continue_button:
         en: Continue
         fr: Continuer
-        context: Used in any context where a process is pending user action.
+        context: Used in any context where a multi-step process is pending user action.
+    confirm_button:
+        en: Confirm
+        fr: Confirmer
+        context: Prompt user to complete ongoing process or confirm input.
     save_button:
         en: Save
         fr: Enregistrer
@@ -1076,6 +1089,14 @@ prompt:
     login_to_know_more_about_listing:
         en: Login to know more about this listing.
         fr: Connectez-vous pour en savoir plus sur cette annonce.
+    inspire_confidence:
+        en: Inspiring confidence
+        fr: Inspirez confiance
+        context: Can prompt user to complete her profile and increase trust.
+    making_your_life_easier:
+        en: Making your life easier
+        fr: Facilitez-vous la vie
+        context: Can be used to introduce contact details form such as phone/SMS and allow user to get important updates about ongoing transactions.
 notification:
     saved:
         en: Saved
@@ -1099,6 +1120,14 @@ form:
     min_characters:
         fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
         en: '{min_number_of_characters, plural, one {This can’t be empty.} other {Minimum # characters}}'
+    validation_code_placeholder:
+        en: Validation code
+        fr: Code de validation
+        context: Can be used in many contexts such as phone or transaction validation.
+    uploading_images:
+        en: Uploading images…
+        fr: Chargement des images en cours…
+        context: Displayed until upload to servers is complete.
 ratings:
     see_more:
         en: See more ratings
@@ -1754,11 +1783,11 @@ pricing:
         fr: Quantité
 fraction:
     less_than_percent:
-        en: 'Less than {nbUnits, number, percent}'
-        fr: 'Moins de {nbUnits, number, percent}'
+        en: 'Less than {hundredth, number, percent}'
+        fr: 'Moins de {hundredth, number, percent}'
     percent:
-        en: '{nbUnits, number, percent}'
-        fr: '{nbUnits, number, percent}'
+        en: '{hundredth, number, percent}'
+        fr: '{hundredth, number, percent}'
 delay:
     few_minutes:
         en: Few minutes

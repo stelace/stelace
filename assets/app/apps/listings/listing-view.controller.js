@@ -126,10 +126,10 @@
         vm.selectedQuantity    = 1;
         vm.timeUnit = null;
 
-        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
+        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readonly status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
         // See http://stackoverflow.com/questions/25928605/in-ios8-safari-readonly-inputs-are-handled-incorrectly
-        // Also see angular-ui pull request, rejected for accesibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
+        // Also see angular-ui pull request, rejected for accessibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
         vm.iOS                   = tools.isIOS();
         vm.iOSSafari             = tools.isIOSSafari();
         // Inline datepicker is not used anymore with touch agnostic policy

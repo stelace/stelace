@@ -1,23 +1,21 @@
 <div ng-form="phoneForm"
     class="prompt-phone"
     uib-collapse="vm.newValidPhone">
-    <label for="taker-phone">Numéro de téléphone</label>
+    <!-- <label for="taker-phone" data-translate="'user.phone_number_label"></label> -->
     <div class="flex-container small-vertical">
         <div class="medium-6 s-medium-5 desktop-6">
             <input id="taker-phone" class="phone-input" name="takerPhone" type="tel"
                 ng-disabled="vm.promptCode"
                 ng-model="vm.phone"
-                ng-minlength="10"
-                ng-maxlength="10"
-                placeholder="0612..."
-                required>
+                required
+                data-translate-attr="{ placeholder: 'user.phone_number_label' }">
         </div>
         <div class="medium-6">
             <button class="button"
                 ng-disabled="phoneForm.takerPhone.$invalid || vm.promptCode || vm.currentRequest"
                 ng-class="{disabled: phoneForm.takerPhone.$invalid || vm.promptCode || vm.currentRequest}"
-                ng-click="vm.sendCode()">
-                Vérifier mon numéro
+                ng-click="vm.sendCode()"
+                data-translate="user.prompt.phone_validation_button">
             </button>
             <span class="spinner-container">
                 <span data-us-spinner="{scale: 0.5}" data-spinner-key="phone-submit-spinner"></span>
@@ -25,7 +23,7 @@
         </div>
     </div>
     <div uib-collapse="! vm.promptCode">
-        <label for="taker-phone-code">Code de validation</label>
+        <label for="taker-phone-code" data-translate="form.validation_code_placeholder"></label>
         <div class="flex-container small-vertical">
             <div class="medium-6 s-medium-5 desktop-6">
                 <div>
@@ -41,8 +39,8 @@
             <div class="medium-6">
                 <button class="button" ng-click="vm.checkCode()"
                     ng-disabled="phoneForm.takerPhoneCode.$invalid || vm.currentRequest"
-                    ng-class="{disabled: phoneForm.takerPhoneCode.$invalid || vm.currentRequest}">
-                    Valider le code
+                    ng-class="{disabled: phoneForm.takerPhoneCode.$invalid || vm.currentRequest}"
+                    data-translate="prompt.confirm_button">
                 </button>
                 <span class="spinner-container">
                     <span data-us-spinner="{scale: 0.5}" data-spinner-key="code-submit-spinner"></span>

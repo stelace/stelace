@@ -625,38 +625,38 @@
                         ng-if="vm.isAuthenticated && (! vm.existingPhone || vm.noImage)">
                         <hr class="small-6 small-offset-3">
                         <div class="small-12" ng-if="! vm.existingPhone">
-                            <h2>
-                                Facilitez-vous la vie
+                            <h2 data-translate="prompt.making_your_life_easier">
                             </h2>
-                            <p class="text--small">
-                                Sharinplace vous prévient gratuitement de toute demande par SMS afin que vous ne ratiez aucune occasion. Votre numéro ne sera jamais communiqué à un autre membre tant que vous n'aurez pas accepté sa demande.
+                            <p class="text--small"
+                                data-translate="user.prompt.phone_validation_context"
+                                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                             </p>
                             <data-sip-prompt-phone
                                 ng-class="{'prompt-highlight': vm.promptPhoneHighlight}"
                                 prompt-highlight="vm.promptPhoneHighlight">
                             </data-sip-prompt-phone>
-                            <p class="text--small">
-                                Un numéro vérifié est un gage de confiance sur la plateforme et augmente vos chances de recevoir des demandes.
+                            <p class="text--small"
+                            data-translate="user.prompt.phone_validation_trust_factor">
                             </p>
                             <hr class="small-6 small-offset-3" ng-if="vm.noImage">
                         </div>
                         <div class="small-12" ng-if="vm.noImage">
-                            <h2>
-                                Inspirez confiance
+                            <h2 data-translate="prompt.inspire_confidence">
                             </h2>
-                            <p class="text--small">
-                                Les photos de profil permettent aux membres Sharinplace de se reconnaître lorsqu'ils se recontrent pour échanger des objets et sont un gage de confiance supplémentaire. Ajoutez la vôtre en quelques secondes.
+                            <p class="text--small" data-translate="user.prompt.profile_image_trust_factor"
+                                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME  }">
                             </p>
                             <data-sip-prompt-image></data-sip-prompt-image>
                         </div>
                         <hr class="small-6 small-offset-3">
                     </div>
                     <div ng-if="vm.showTotalMediaUpload" class="margin-top-plus">
-                        <p class="margin-bottom text-center">Progression du chargement des photos...</p>
+                        <p class="margin-bottom text-center" data-translate="form.uploading_images"></p>
                         <div class="total-upload-progress small-offset-3 small-6"
                             data-uib-progressbar
-                            data-value=vm.totalMediaUpload>
-                            {{vm.totalMediaUpload}}%
+                            data-value="vm.totalMediaUpload">
+                            <span data-translate="fraction.percent"
+                                data-translate-values="{ hundredth: vm.totalMediaUpload / 100 }"></span>
                         </div>
                     </div>
                     <div class="text-center spinner-button-container save-button-container">

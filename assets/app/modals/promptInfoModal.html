@@ -9,8 +9,6 @@
             </p>
             <input type="tel"
                 ng-model="vm.phone"
-                ng-minlength="10"
-                ng-maxlength="10"
                 required
                 data-sip-autofocus="vm.autofocus"
                 data-translate-attr="{ placeholder: 'user.phone_number_label' }">
@@ -28,7 +26,7 @@
                 ng-pattern="/^[0-9]{4}$/"
                 required
                 data-sip-autofocus="vm.autofocus"
-                data-translate-attr="{ placeholder: 'user.prompt.validation_code_placeholder' }">
+                data-translate-attr="{ placeholder: 'form.validation_code_placeholder' }">
         </div>
         <div class="text-center spinner-button-container">
             <button class="button sip-button spinner-button--center margin-top"
