@@ -12,7 +12,6 @@
 
         var vm              = this;
         vm.listing          = $scope.listing;
-        vm.isMyListing      = $scope.isMyListing;
         vm.position         = $scope.position;
 
         activate();
@@ -33,9 +32,7 @@
                 // durationString is defined in view controller
                 // Only show if fromLocation and toLocation are not in the same city
                 if (vm.listing.loc && vm.listing.toLoc
-                    && ((vm.listing.loc.city === vm.listing.toLoc.city)
-                    || (vm.listing.loc.department === vm.listing.toLoc.department && vm.listing.loc.department === "Paris") // Ignore Paris' Arrondissements...
-                    )
+                    && (vm.listing.loc.city === vm.listing.toLoc.city)
                 ) {
                     vm.durationString = null;
                 } else {
@@ -58,7 +55,6 @@
                 vm.locationCity   = vm.listing.vLocations[0].city || null;
                 vm.locationRegion = vm.listing.vLocations[0].region || null;
                 // vm.postalCode     = vm.listing.vLocations[0].postalCode || "";
-                // var department    = vm.postalCode ? ("(" + vm.postalCode.substr(0, 2) + ")") : "";
             }
         }
 

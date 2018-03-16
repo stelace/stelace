@@ -112,6 +112,26 @@
                     }
 
                     return new Intl.NumberFormat(lc, params).format(v);
+                },
+                // See https://github.com/messageformat/messageformat.js/blob/master/lib/index.js#L149
+                date: function(v, lc, p) {
+                    var o = {day:'numeric', month:'short', year:'numeric'};
+
+                    switch (p) {
+                        case 'full':
+                            o.weekday = 'long';
+                        case 'fullmonth': // eslint-disable-line
+                            delete(o.day);
+                            delete(o.weekday);
+                        case 'long': // eslint-disable-line
+                            o.month = 'long';
+                            break;
+                        case 'short':
+                            o.month = 'numeric';
+                            break;
+                    }
+
+                    return (new Date(v)).toLocaleDateString(lc, o)
                 }
             });
         });

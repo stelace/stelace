@@ -13,7 +13,7 @@ stelace:
 service:
     meta_description:
         en: '{SERVICE_NAME} runs on {provider_name}.'
-        fr: '{SERVICE_NAME} est une communauté propulsé par {provider_name}'
+        fr: '{SERVICE_NAME} s’appuie sur {provider_name}'
 authentication:
     log_in_button:
         en: Log In
@@ -35,7 +35,7 @@ authentication:
         fr: Un email contenant un lien de redéfinition de mot de passe vient de vous être envoyé.
     log_in_required_message:
         en: 'Please connect to {SERVICE_NAME} to continue.'
-        fr: 'Veuillez renseigner vos identifiants {SERVICE_NAME} pour continuer.'
+        fr: 'Veuillez vous connecter à {SERVICE_NAME} pour continuer.'
     no_account_message:
         en: Don’t have an account?
         fr: "Vous n’avez pas de compte\_?"
@@ -68,14 +68,24 @@ authentication:
     placeholder:
         email:
             en: Email Address
-            fr: Adresse e-mail
+            fr: Adresse email
         password:
             en: Password
             fr: Mot de passe
         create_password:
-            en: Create a password
-            fr: Choisissez votre mot de passe
-            context: Password placeholder showed when user is signing up.
+            en: |
+                Create a password {min_number_of_characters, select,
+                    undefined {}
+                    null {}
+                    other {(min. {min_number_of_characters} characters)}
+                }
+            fr: |
+                Mot de passe {min_number_of_characters, select,
+                    undefined {}
+                    null {}
+                    other {({min_number_of_characters} caractères minimum)}
+                }
+            context: Password placeholder showed when user is signing up. Should be short enough to fit in a small input.
     email_checked:
         en: Your email address is now verified.
         fr: Votre adresse email a bien été validée.
@@ -104,8 +114,12 @@ authentication:
             fr: Connexion annulée. Votre profil n’a pas été créé.
             context: User has just refused to complete social authentication she started.
         invalid_email:
-            en: Please enter an valid email address.
+            en: Please enter a valid email address.
             fr: Veuillez renseigner une adresse email valide.
+        email_already_used:
+            en: This email address is already used by another account.
+            fr: L’adresse renseignée est déjà utilisée par un autre compte.
+            context: This can be useful to multi-account users trying to update their email address.
 listing:
     overview_title:
         en: Overview
@@ -116,6 +130,10 @@ listing:
     listing_type_label:
         en: Listing type
         fr: Type d'annonce
+    available_in_places:
+        en: 'Available in {places}'
+        fr: 'Disponible à {places}'
+        context: Introduce a list of places where listing is available.
     category_label:
         en: Category
         fr: Catégorie
@@ -182,9 +200,6 @@ listing:
     response_time_label:
         en: 'Response time:'
         fr: "Temps de réponse\_:"
-    validated_info_title:
-        en: Account validation
-        fr: Confiance et vérification du profil
     reviews_title:
         en: Listing reviews
         fr: Évaluations de l’annonce
@@ -196,19 +211,30 @@ listing:
         fr: Annonces similaires
     prompt:
         add_listing_message:
-            en: Add your listing
-            fr: Ajouter votre annonce
-        view_listing_message:
+            en: Add a new listing
+            fr: Créer une annonce
+        view_own_listings:
             en: |
-                View your listings{nbListings, plural,
-                    0{}
-                    other{ (#)}
+                View my {nb_listings, plural,
+                    =0 {listings}
+                    one {listing}
+                    other {# listings}
                 }
             fr: |
-                Voir vos annonces{nbListings, plural,
-                    0{}
-                    other{ (#)}
+                Voir {nb_listings, plural,
+                    =0 {mes annonce}
+                    one {mon annonce}
+                    other {# annonces}
                 }
+        first_listing_cta:
+            en: Let’s create your first listing
+            fr: Publions votre première annonce
+        first_listing_cta__EDITOR_LABEL:
+            en: First listing call-to-action
+            fr: Message incitant à créer une première annonce
+        first_listing_cta_img_alt:
+            en: Create your own listing on {SERVICE_NAME}
+            fr: Créez votre propre annonce sur {SERVICE_NAME}
     trust_helper:
         payments:
             en: |
@@ -230,12 +256,6 @@ listing:
             en: '{SERVICE_NAME} assistance'
             fr: 'Assistance {SERVICE_NAME}'
     time:
-        from_day_label:
-            en: From
-            fr: Du
-        to_day_label:
-            en: To
-            fr: Au
         unit_label:
             en: |
                 {timeUnit, select,
@@ -302,7 +322,7 @@ listing:
         fr: Mettre en pause
     pause_tooltip:
         en: Deactivate your listing when you are unavailable
-        fr: Suspendez votre annonce en cas d'indisponibilité
+        fr: Suspendez votre annonce en cas d’indisponibilité
     publish_again_action:
         en: Publish again
         fr: Re-publier
@@ -343,14 +363,14 @@ listing:
             en: Main header of your listing edition page
             fr: En-tête principal de la page édition d'annonce
         my_listing_subheader:
-            en: Enjoy its free distribution
-            fr: Profitez de sa diffusion gratuite
+            en: ''
+            fr: ''
         my_listing_subheader__EDITOR_LABEL:
             en: Subheader of your listing edition page
             fr: En-tête secondaire de la page édition d'annonce
         my_listing_section_title:
-            en: I update my listing
-            fr: Je mets à jour mon annonce
+            en: Update my listing
+            fr: Mettre mon annonce à jour
         my_listing_section_title__EDITOR_LABEL:
             en: ''
             fr: ''
@@ -429,8 +449,8 @@ listing:
             en: Please give a description.
             fr: Veuillez renseigner une description.
         locations_label:
-            en: I select my listing locations
-            fr: Je choisis les lieux de disponibilité de mon annonce
+            en: Select my listing locations
+            fr: Choisir les lieux de disponibilité de mon annonce
         locations_label__EDITOR_LABEL:
             en: ''
             fr: ''
@@ -441,7 +461,7 @@ listing:
             en: ''
             fr: ''
         add_locations_message:
-            en: Add locations into your account.
+            en: Add locations to your account.
             fr: Ajoutez des lieux favoris à votre compte.
         add_locations_message__EDITOR_LABEL:
             en: ''
@@ -452,6 +472,15 @@ listing:
         activate_locations_message__EDITOR_LABEL:
             en: ''
             fr: ''
+        temporary_unavailability_title:
+            en: My listing will be unavailable for some time
+            fr: Mon annonce sera temporairement indisponible
+        unavailability_periods:
+            en: Unavailability periods
+            fr: Périodes d’indisponibilité
+        pause_listings_helper:
+            en: You can also pause your listings for a while <a href="/my-listings">here</a>.
+            fr: Vous pourrez également mettre vos annonces en pause prolongée <a href="/my-listings">ici</a>.
     error:
         missing_title_title:
             en: Required title
@@ -487,7 +516,7 @@ listing:
             en: Required address or city
             fr: Adresse ou ville requise
         missing_location_message:
-            en: A listing cannot be saved without location.
+            en: A listing cannot be saved without any location.
             fr: Une annonce ne peut être enregistrée sans localisation.
         missing_email_title:
             en: Missing email address
@@ -503,13 +532,13 @@ listing:
             fr: Veuillez créez un compte en quelques secondes ou vous connecter pour publier votre annonce.
     social:
         share_listing_title:
-            en: Your friends can show interest for your offers!
+            en: Your friends can show interest in your offers!
             fr: "Vos offres peuvent intéresser vos amis\_!"
         share_listing_title__EDITOR_LABEL:
             en: ''
             fr: ''
         share_listing_select_message:
-            en: 'Select your most beautiful listing:'
+            en: 'Select your best listing:'
             fr: "Choisissez votre plus belle annonce\_:"
         share_listing_select_message__EDITOR_LABEL:
             en: ''
@@ -537,6 +566,9 @@ time:
     date_long:
         en: '{date, date, long}'
         fr: '{date, date, long}'
+    date_fullmonth:
+        en: '{date, date, fullmonth}'
+        fr: '{date, date, fullmonth}'
     date_full:
         en: '{date, date, full}'
         fr: '{date, date, full}'
@@ -546,6 +578,21 @@ time:
     time_full:
         en: '{time, time, full}'
         fr: '{time, time, full}'
+    year_label:
+        en: Year
+        fr: Année
+    from_day_label:
+        en: From
+        fr: Du
+    to_day_label:
+        en: To
+        fr: Au
+    start_label:
+        en: Start
+        fr: Début
+    end_label:
+        en: End
+        fr: Fin
 user:
     is_level:
         en: '{level} user'
@@ -553,27 +600,275 @@ user:
     service_admin_account:
         en: '{SERVICE_NAME}’s account'
         fr: 'Compte officiel {SERVICE_NAME}'
-    join_month:
-        en: 'Joined in {month_year}'
-        fr: 'Membre depuis {month_year}'
+    validated_info_title:
+        en: Account validation
+        fr: Vérification du profil
+    joined_in_month:
+        en: 'Joined in {subscription_date, date, fullmonth}'
+        fr: 'Membre depuis  {subscription_date, date, fullmonth}'
+    firstname_label:
+        en: First name
+        fr: Prénom
+    lastname_label:
+        en: Last name
+        fr: Nom
     email_label:
-        en: Email address
+        en: Email Address
         fr: Adresse email
     verified_email_label:
         en: Verified
         fr: Vérifiée
+    not_verified_email_label:
+        en: Not Verified
+        fr: Non Vérifiée
     phone_number_label:
         en: Phone number
         fr: Numéro de téléphone
     verified_phone_number_label:
         en: Verified
         fr: Vérifié
+    not_verified_phone_number_label:
+        en: Not Verified
+        fr: Non Vérifié
     no_verified_info_public_text:
-        en: '{user} has no verified info yet.'
-        fr: '{user} n’a pas encore validé ses coordonnées.'
+        en: |
+            {user, select,
+                null {This user}
+                other {{user}}
+            }
+            has no verified info yet.
+        fr: |
+            {user, select,
+                null {Cet utilisateur}
+                other {{user}}
+            }
+            n’a pas encore validé ses coordonnées.'
+    contact_info_kept_private:
+        en: Your contact details will not be displayed publicly.
+        fr: Le détail de vos coordonnées n’apparaîtra pas publiquement.
     picture_title:
-        en: 'Picture of {user}'
-        fr: 'Photo de {user}'
+        en: '{user, select, null {Profile picture} other {Picture of {user}}}'
+        fr: 'Photo {user, select, null {du profil} other {de {user}}}'
+    account:
+        greeting:
+            en: Welcome back {firstname, select, null {} other {{firstname}}}
+            fr: Bienvenue sur {SERVICE_NAME} {firstname, select, null {} other {{firstname}}}
+            context: User can have no name yet.
+        greeting__EDITOR_LABEL:
+            en: Greeting message of account page
+            fr: Message d’accueil du compte utilisateur
+        greeting_subtitle:
+            en: Keep your account info up-to-date and don’t miss a single opportunity.
+            fr: Maintenez vos informations à jour pour ne rien rater.
+        greeting_subtitle__EDITOR_LABEL:
+            en: Account page subtitle
+            fr: "Sous-titre de la page «\_Mon Compte\_»"
+        inbox_notice_title:
+            en: Updates
+            fr: Nouvelles
+            context: Shows up only when there are new messages (questions or answers).
+        inbox_notice_details:
+            en: |
+                You {new_messages, plural,
+                    0 {have no new message}
+                    one {have a new message}
+                    other {have {new_messages} new messages}
+                }
+                in your inbox.
+            fr: |
+                Vous {new_messages, plural,
+                    0 {n’avez pas de nouveau message}
+                    one {avez un nouveau message}
+                    other {avez {new_messages} nouveaux messages}
+                }
+                dans votre boite de réception.
+        contact_info_title:
+            en: My contact info
+            fr: Mes coordonnées
+        dynamic_email_placeholder:
+            en: |
+                {email_placeholder, select,
+                    null {Your email address}
+                    other {{email_placeholder}}
+                }
+            fr: |
+                {email_placeholder, select,
+                    null {Votre adresse électronique}
+                    other {{email_placeholder}}
+                }
+            context: This mixed placeholder can also show input email if applicable
+        email_validation_link_sent:
+            en: A validation link has been sent to your email address. Please open it to verify your address.
+            fr: Un lien de confirmation de votre adresse courriel a été envoyé. Merci de l’ouvrir pour valider votre adresse.
+        dynamic_phone_placeholder:
+            en: |
+                {phone_placeholder, select,
+                    null {Transactions notified by SMS}
+                    other {{phone_placeholder}}
+                }
+            fr: |
+                {phone_placeholder, select,
+                    null {Recevez vos demandes par SMS}
+                    other {{phone_placeholder}}
+                }
+            context: This mixed placeholder can also show input phone if applicable
+        my_description_label:
+            en: My description
+            fr: Ma description
+            context: Description allow users to introduce themselves and communicate about their interests.
+        my_description_label__EDITOR_HELPER:
+            en: A short description allow your users to introduce themselves and increase trust.
+            fr: Une courte description permet à vos utilisateurs de se présenter et d’inspirer confiance.
+        my_locations_title:
+            en: My search locations
+            fr: Mes lieux de recherche
+            context: Users can add and search listings near several favorite locations
+        my_locations_helper:
+            en: Add favorite places to promote your listings and make search easier.
+            fr: Ajoutez des lieux favoris pour améliorer vos recherches et rendre vos annonces plus visibles.
+        max_number_locations_reached:
+            en: Please update or delete one of your current locations to save a new place.
+            fr: Vous avez atteint le nombre maximum de lieux favoris. Il vous suffit d'en supprimer pour les remplacer par de nouveaux.
+        location_already_saved:
+            en: You have already saved this place.
+            fr: Vous avez déjà enregistré ce lieu favori.
+        location_placeholder:
+            en: Add a favorite place
+            fr: Ajoutez un lieu favori
+        location_name_placeholder:
+            en: Place name
+            fr: Nom de l’adresse
+            context: "User can give a name to each of her favorite places in these inputs"
+        my_listings_title:
+            en: My listings
+            fr: Mes annonces
+        my_password_title:
+            en: My password
+            fr: Mon mot de passe
+            context: Section where user can update her password
+        no_password_helper:
+            en: Connect instantly to {SERVICE_NAME}.
+            fr: Pour me connecter à {SERVICE_NAME} plus facilement.
+        current_password_label:
+            en: Current password
+            fr: Mot de passe actuel
+        current_password_placeholder:
+            en: To be replaced
+            fr: Sera remplacé
+        new_password_label:
+            en: New password
+            fr: Nouveau mot de passe
+        new_password_placeholder:
+            en: |
+                {existing_password, select,
+                    has_password {New password}
+                    other {Password}
+                }
+            fr: |
+                {existing_password, select,
+                    has_password {Nouveau mot de passe}
+                    other {Mot de passe}
+                }
+        incorrect_current_password:
+            en: Your current password does not match, please check your input.
+            fr: La saisie de votre ancien mot de passe est erronée.
+        income_statement_title:
+            en: Income reports
+            fr: Mes revenus
+            context: In this section, user can download annual income report on platform to fill in tax returns.
+        income_statement_download:
+            en: Download annual statement
+            fr: "Consulter mon récapitulatif annuel de revenus\_:"
+            context: Followed by year selection.
+    prompt:
+        change_profile_image_button:
+            en: |
+                {existing_image, select,
+                    has_image{Change my image}
+                    upcoming_upload{Cancel}
+                    other{Add my image}
+                }
+            fr: |
+                {existing_image, select,
+                    has_image{Changer mon image}
+                    upcoming_upload{Annuler}
+                    other{Ajouter mon image}
+                }
+            context: Same button is used to cancel upload during process.
+        update_profile_button:
+            en: Update my profile
+            fr: Compléter mon profil
+        fill_in_email:
+            en: Please fill in your email address to receive updates about your listings and transactions.
+            fr: Veuillez renseigner votre adresse email pour être informé en cas de demandes concernant vos annonces ou pendant vos transactions.
+        update_old_email:
+            en: '{old_email} is not valid anymore? Please fill in your new email address.'
+            fr: "{old_email} n’est plus valable ?Veuillez renseigner votre nouvelle adresse email."
+        main_location_helper:
+            en: |
+                {is_listing_owner, select,
+                    owner {Where is located your listing?}
+                    other {What is your main search location?}
+                }
+            fr: |
+                {is_listing_owner, select,
+                    owner {À quel lieu votre annonce doit-elle être visible ?}
+                    other {Quel est votre principal lieu de recherche ?}
+                }
+        second_location_helper:
+            en: |
+                {is_listing_owner, select,
+                    owner {Would you like your listing to appear somewhere else too?}
+                    other {Do you want to save another search location?}
+                }
+            fr: |
+                {is_listing_owner, select,
+                    owner {Souhaitez-vous associer un autre lieu à cette annonce ?}
+                    other {Souhaitez-vous enregistrer un autre lieu de recherche ?}
+                }
+        SMS_notifications:
+            en: |
+                Get notified of new questions or transactions by SMS{phone_update, select,
+                    phone_number_updated { with this new phone number}
+                    other {}
+                }
+                for free.
+            fr: |
+                Saisissez votre{phone_update, select,
+                    phone_number_updated { nouveau}
+                    other {}
+                }
+                numéro de téléphone pour être prévenu(e) gratuitement par SMS en cas de demande ou de réservation.
+            context: Prompt user to save phone number to get notified of new bookings and requests.
+        SMS_validation_code_helper:
+            en: Keep your phone at hand to get your SMS validation code.
+            fr: Conservez votre téléphone à portée de main avant de poursuivre, afin de recevoir un code de validation à 4 chiffres.
+        SMS_validation_code_sent:
+            en: Please fill in the SMS validation code we have just sent to you.
+            fr: Merci de saisir le code de validation SMS que nous venons de vous envoyer.
+        validation_code_placeholder:
+            en: Validation code
+            fr: Code de validation
+            context: Can be used in many contexts such as phone or transaction validation.
+    profile:
+        greeting:
+            en: |
+                Welcome {user, select,
+                    null {}
+                    other {, I’m {user}}
+                }
+            fr: |
+                Bienvenue{user, select,
+                    null {}
+                    other {, je suis {user}}
+                }
+        greeting__EDITOR_LABEL:
+            en: Public profile page title
+            fr: Titre de la page de profil public
+        public_info_title:
+            en: Public profile
+            fr: Mes informations publiques
+            context: Helps user to make distinction between public profile information and private account information.
 landing:
     homepage:
         title:
@@ -609,8 +904,8 @@ landing:
             en: Homepage call-to-action (new listing)
             fr: Action principale proposée (création d’annonce)
         content_cta_header:
-            en: Create your first listing in a minute.
-            fr: Enregistrez votre première annonce en quelques instants.
+            en: Create your own listing in a minute.
+            fr: Créez votre propre annonce en quelques instants.
         content_cta_header__EDITOR_LABEL:
             en: Home content prompt header
             fr: En-tête incitatif dans le contenu
@@ -693,9 +988,9 @@ navigation:
         en: Menu
         fr: Menu
         context: Navigation menu label
-    profile:
-        en: Profile
-        fr: Profil
+    account:
+        en: Account
+        fr: Mon compte
     invite:
         en: Invite
         fr: Parrainer
@@ -732,6 +1027,14 @@ prompt:
     send_button:
         en: Send
         fr: Envoyer
+    later_button:
+        en: Later
+        fr: Plus tard
+        context: User can postpone an action with this button.
+    click_here_sentence:
+        en: Click here.
+        fr: Cliquez ici.
+        context: Generic internal navigation label as a sentence.
     search:
         query_placeholder:
             en: You’re looking for…
@@ -761,47 +1064,116 @@ prompt:
     details:
         en: Details
         fr: Détail
+    generic_add_button:
+        en: Add
+        fr: Ajouter
     login_to_manage_map_locations:
         en: Login to manage your locations
         fr: Connectez-vous pour gérer vos lieux favoris
-    booking:
-        choose_date:
-            en: Choose a date
-            fr: Choisissez une date
+    login_to_make_search_easier:
+        en: Login to make search even easier.
+        fr: Connectez-vous pour faciliter vos recherches.
+    login_to_know_more_about_listing:
+        en: Login to know more about this listing.
+        fr: Connectez-vous pour en savoir plus sur cette annonce.
+notification:
+    saved:
+        en: Saved
+        fr: Enregistré
+        context: Displayed once various user input or action has been saved.
+    already_validated:
+        en: Already validated
+        fr: Validation déjà effectuée
+        context: Can be used in any validation process such as phone or transaction.
+    validation_code_already_sent:
+        en: Please use the code that has already been sent to you.
+        fr: Merci de saisir le code envoyé précédemment.
+    validation_last_attempt:
+        en: Last attempt
+        fr: Dernier essai
+        context: Displayed when user has just failed to complete a process and is offered one last try, generally for security reasons.
+    validation_failed:
+        en: Validation failed{retry, select, later {, please retry later.} other {}}
+        fr: Échec de la validation{retry, select, later {, veuillez réessayer plus tard.} other {}}
+form:
+    min_characters:
+        fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
+        en: '{min_number_of_characters, plural, one {This can’t be empty.} other {Minimum # characters}}'
 ratings:
     see_more:
         en: See more ratings
         fr: Voir plus d’évaluations
     user_ratings_title:
-        en: '{user} ratings'
-        fr: 'Évaluations reçues par {user}'
-        context: 'General introduction to ratings, without count'
+        en: |
+            {user, select,
+                null {Ratings}
+                other {{user} ratings}
+            }
+            {as_role, select,
+                as_owner { for own listings }
+                as_taker { received for other users’ listings}
+                other {}
+            }
+        fr: |
+            Évaluations reçues {user, select,
+                null {}
+                other {par {user}}
+            }
+            {as_role, select,
+                as_owner { pour ses propres annonces}
+                as_taker { pour des annonces d’autres utilisateurs}
+                other {}
+            }
+        context: 'General introduction to ratings, without count. Can be restricted to listings received as listing “owner”, or as “buyer”. Use phrases as general as possible though, suited to any type of marketplace.'
     other_ratings_received:
         en: 'Other ratings granted to {user}'
         fr: 'Autres évaluations reçues par {user}'
         context: Used when filtering ratings received by user according to context (e.g. ratings received as owner vs. buyer)
+    ratings_received_including_this_listing:
+        en: |
+            {nb_ratings, plural,
+                =0 {}
+                one {# rating}
+                other {# ratings{for_this_listing, select,
+                    null {}
+                    other {
+                        including {for_this_listing} for this listing
+                    }
+                }}
+            }
+        fr: |
+            {nb_ratings, plural,
+                =0 {}
+                one {# évaluation}
+                other {# évaluations{for_this_listing, select,
+                    null {}
+                    other {
+                        dont {for_this_listing} pour cette annonce
+                    }
+                }}
+            }
     average_label:
         en: 'Score:'
         fr: "Note\_:"
     count:
         en: |
-            {nbRatings, plural,
+            {nb_ratings, plural,
                 one{# rating}
                 other{# ratings}
             }
         fr: |
-            {nbRatings, plural,
+            {nb_ratings, plural,
                 one{# évaluation}
                 other{# évaluations}
             }
     review_count:
         en: |
-            {nbReviews, plural,
+            {nb_reviews, plural,
                 one{# review}
                 other{# reviews}
             }
         fr: |
-            {nbReviews, plural,
+            {nb_reviews, plural,
                 one{# commentaire}
                 other{# commentaires}
             }
@@ -810,6 +1182,39 @@ places:
     near_place:
         en: 'Near {place}'
         fr: '{place} & environs'
+    from_distance_separator:
+        en: from
+        fr: de
+    distance_from_location:
+        en: '<span class="location-distance">{distance}</span> from <span class="location-name">{location_name}</span>'
+        fr: 'À <span class="location-distance">{distance}</span> de <span class="location-name">{location_name}</span>'
+        context: Can be emphasized with CSS styles. Distance and location name are always defined.
+    from_search_locations_title:
+        en: From your search locations
+        fr: Depuis vos lieux favoris
+    here_marker_label:
+        en: Here
+        fr: Ici
+        context: Several markers can appear on the map if listing is available in several places.
+    or_here_marker_label:
+        en: Or here
+        fr: Ou ici
+        context: Another way to label a map location marker.
+    or_there_marker_label:
+        en: Or there
+        fr: Ou là
+        context: A third way to label a location marker on a map.
+    over_there_marker_label:
+        en: Over there
+        fr: Et là
+        context: A final way to label a location marker on a map.
+    location_examples:
+        en: Address, city, station…
+        fr: Adresse, ville, gare…
+        context: Illustrate search locations with some obvious examples
+    address_placeholder:
+        en: Address
+        fr: Adresse
 social:
     join_us:
         en: Join us
@@ -828,8 +1233,11 @@ error:
         en: We’re sorry about this and will do our best to fix the issue. Please retry later.
         fr: Nous sommes désolés et cherchons à résoudre le problème. Nous vous invitons à réessayer plus tard.
     invalid_link:
-        en: This link is invalid
-        fr: Ce lien est invalide
+        en: This link is invalid.
+        fr: Ce lien est invalide.
+    invalid_code:
+        en: This code is invalid.
+        fr: Ce code est erroné.
     map_loading_error_title:
         en: Map service unavailable
         fr: Carte indisponible
@@ -880,9 +1288,6 @@ booking:
                     h{ {nbTimeUnits, plural, one{# heure} other{# heures}} }
                     m{ {nbTimeUnits, plural, one{# minute} other{# minutes}}
                 } other{} } au maximum.
-    login_first:
-        en: Please login before going further.
-        fr: Nous vous invitons à vous connecter avant de continuer.
     impending_cancellation:
         en: Impending cancellation
         fr: Annulation imminente
@@ -930,29 +1335,29 @@ booking:
         taker_fees:
             en: |
                 Service fees: {price, select,
-                    0{Free}
+                    =0{Free}
                     other{{price, number, currency}}
                 }
             fr: |
                 Frais de service : {price, select,
-                    0{Offerts}
+                    =0{Offerts}
                     other{{price, number, currency}}
                 }
         owner_fees:
             en: |
                 Payment fees{price, select,
-                    0{}
+                    =0{}
                     other{ included}
                 }: {price, select,
-                    0{Free}
+                    =0{Free}
                     other{{price, number, currency}}
                 }
             fr: |
                 {price, select,
-                    0{Frais}
+                    =0{Frais}
                     other{Dont frais}
                 } de paiement : {price, select,
-                    0{Offerts}
+                    =0{Offerts}
                     other{{price, number, currency}}
                 }
         security_deposit:
@@ -1064,9 +1469,6 @@ inbox:
     message_obfuscate_info:
         en: 'For security reasons, your contact details will be hidden in your message.'
         fr: 'Par sécurité, vos coordonnées seront masquées dans votre message.'
-    send_message_button:
-        en: Send a message
-        fr: Envoyer un message
     message_sent_success:
         en: Message sent
         fr: Message envoyé
@@ -1227,9 +1629,6 @@ assessment:
         transaction_validated_message:
             en: Transaction validated
             fr: Transaction validée
-        invalid_code_title:
-            en: Invalid code
-            fr: Code erroné
         invalid_code_message:
             en: 'Please check the code given by {userName}. The other fields are saved.'
             fr: 'Veuillez vérifier le code transmis par {userName}. Les autres champs ont été sauvegardés.'
@@ -1382,10 +1781,6 @@ delay:
     more_than_two_days:
         en: More than two days
         fr: Plus de 48 heures
-location:
-    from_distance_separator:
-        en: from
-        fr: de
 search:
     listing_types_filter:
         en: Listing types
@@ -1402,3 +1797,7 @@ search:
     results_near_location:
         en: 'Results near {locationName}'
         fr: 'Résultats près de {locationName}'
+referral:
+    prompt:
+        en: Invite your friends
+        fr: Parrainez vos amis

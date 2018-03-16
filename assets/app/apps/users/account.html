@@ -1,59 +1,52 @@
 <div class="account">
     <div class="header-space"></div>
     <div class="text-center stelace-hero space padded-sides">
-        <h1 class="stelace-hero__title">
-            Bienvenue sur Sharinplace {{ vm.currentUser.firstname }}
+        <h1 class="stelace-hero__title"
+            data-translate="user.account.greeting"
+            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME, firstname: vm.currentUser.firstname || null }">
         </h1>
-        <div class="stelace-hero__subtitle">
-            Maintenez vos informations à jour pour ne rien rater.
+        <div class="stelace-hero__subtitle"
+            data-translate="user.account.greeting_subtitle">
         </div>
     </div>
     <div class="fluid-content text-center sticky-helper__flex-container">
         <div class="small-12 desktop-8">
             <div class="accont__new-message"
                 ng-if="vm.newMessagesCount">
-                <h2>
-                    Nouvelle demande
-                </h2>
+                <h2 data-translate="user.account.inbox_notice_title"></h2>
 
-                <p class="margin-bottom">
-                    Vous avez <span class="text--semibold">{{vm.newMessagesCount + (vm.newMessagesCount > 1 ? ' nouveaux messages' : ' nouveau message')}}</span> dans votre
-                    <a class="link--blue-underline text--semibold" ui-sref="inbox">boîte de réception</a>.
+                <p class="margin-bottom link--blue-underline text--semibold" ui-sref="inbox"
+                data-translate="user.account.inbox_notice_details"
+                data-translate-values="{ new_messages: vm.newMessagesCount || 0 }">
                 </p>
                 <hr class="small-6 small-offset-3">
             </div>
 
             <div class="account__contact-info">
-                <h2>
-                    Mes coordonnées
+                <h2 data-translate="user.account.contact_info_title">
                 </h2>
 
                 <div class="flex-container flex-form-line text-left">
                     <div class="small-6">
-                        <label for="user-firstname">
-                            Prénom
+                        <label for="user-firstname" data-translate="user.firstname_label">
                         </label>
                         <input id="user-firstname" type="text"
                             ng-model="vm.editingCurrentUser.firstname"
                             ng-blur="vm.updateUser()"
-                            placeholder="Prénom"
-                            title="Mon prénom">
+                            data-translate-attr="{ placeholder: 'user.firstname_label' }">
                     </div>
                     <div class="small-6">
-                        <label for="user-lastname">
-                            Nom
+                        <label for="user-lastname" data-translate="user.lastname_label">
                         </label>
                         <input id="user-lastname" type="text"
                             ng-model="vm.editingCurrentUser.lastname"
                             ng-blur="vm.updateUser()"
-                            placeholder="Nom"
-                            title="Mon nom de famille">
+                            data-translate-attr="{ placeholder: 'user.lastname_label' }">
                     </div>
                 </div>
                 <div class="flex-container flex--wrap flex-form-line text-left">
                     <div class="small-12 medium-7">
-                        <label for="user-email">
-                            Email
+                        <label for="user-email" data-translate="user.email_label">
                         </label>
                         <div class="label-action text--small margin-left"
                             ng-if="vm.currentUser.email"
@@ -63,21 +56,22 @@
                                 tabindex="0"
                                 ng-click="vm.checkEmail()"
                                 ng-switch-when="false">
-                                À Vérifier
+                                <span data-translate="user.not_verified_email_label"></span>
                                 <svg class="icon icon--inline red">
                                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#exclamation"></use>
                                 </svg>
                             </span>
                             <span class="text--success"
                                 ng-switch-default>
-                                Vérifié
+                                <span data-translate="user.verified_email_label"></span>
                                 <svg class="icon icon--inline success">
                                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
                                 </svg>
                             </span>
                         </div>
                         <input id="user-email" type="text"
-                            placeholder="{{ vm.currentUser.email || 'Votre adresse électronique' }}"
+                            data-translate-attr="{ placeholder: 'user.account.dynamic_email_placeholder' }"
+                            data-translate-values="{ email_placeholder: vm.currentUser.email || null }"
                             ng-class="{ 'data-placeholder': vm.currentUser.email }"
                             ng-model="vm.dummyEmail"
                             data-sip-action-key
@@ -85,9 +79,7 @@
                             ng-click="vm.updateEmail()">
                     </div>
                     <div class="small-12 medium-5">
-                        <label for="user-phone">
-                            Téléphone
-                        </label>
+                        <label for="user-phone" data-translate="user.phone_number_label"></label>
                         <div class="label-action text--small margin-left"
                             ng-if="vm.currentUser.phone && vm.isSmsActive"
                             ng-switch="vm.currentUser.phoneCheck">
@@ -96,14 +88,14 @@
                                 tabindex="0"
                                 ng-click="vm.updatePhone()"
                                 ng-switch-when="false">
-                                À Vérifier
+                                <span data-translate="user.not_verified_phone_number_label"></span>
                                 <svg class="icon icon--inline red">
                                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#exclamation"></use>
                                 </svg>
                             </span>
                             <span class="text--success"
                                 ng-switch-default>
-                                Vérifié
+                                <span data-translate="user.verified_phone_number_label"></span>
                                 <svg class="icon icon--inline success">
                                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/assets/build/icons/sprite.svg#check-mark"></use>
                                 </svg>
@@ -116,7 +108,8 @@
                                 ng-blur="vm.updateRealPhone()"
                                 ng-switch-when="false">
                             <input id="user-phone" type="text"
-                                placeholder="{{ vm.currentUser.phone || 'Recevez vos demandes par SMS' }}"
+                                data-translate-attr="{ placeholder: 'user.account.dynamic_phone_placeholder' }"
+                                data-translate-values="{ phone_placeholder: vm.currentUser.phone || null }"
                                 ng-class="{ 'data-placeholder': vm.currentUser.phone }"
                                 ng-model="vm.dummyPhone"
                                 data-sip-action-key
@@ -135,12 +128,11 @@
                 </div>
                 <div class="text-left"
                     ng-if="vm.currentUser.phone || vm.currentUser.emailCheck">
-                    <label for="user-description">
-                        Ma description
+                    <label for="user-description"
+                        data-translate="user.account.my_description_label">
                     </label>
                     <textarea id="user-description"
                         class=""
-                        placeholder="Présentez-vous en quelques mots ou décrivez le type d'objet que vous recherchez ou proposez."
                         rows="4"
                         ng-blur="vm.updateUser()"
                         ng-model="vm.editingCurrentUser.description"
@@ -155,29 +147,29 @@
             </div>
 
             <div class="account__locations">
-                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer"
-                    ng-switch="vm.collapseLocations">
+                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer">
                     <span tabindex="0"
                         ng-click="vm.collapseLocations = ! vm.collapseLocations"
                         data-sip-action-key>
-                        Mes lieux de recherche
-                        <span ng-switch-when="false">
-                            ▲
-                        </span>
-                        <span ng-switch-default>
-                            ▼
+                        <span data-translate="user.account.my_locations_title"></span>
+                        <!-- Trouble with nesting Angular translate in ng-switch-->
+                        <span ng-switch="vm.collapseLocations">
+                            <span ng-switch-when="false">
+                                ▲
+                            </span>
+                            <span ng-switch-default>
+                                ▼
+                            </span>
                         </span>
                     </span>
                 </h2>
                 <div data-uib-collapse="vm.collapseLocations">
-                    <p class="margin-bottom">
-                        Ajoutez vos lieux favoris pour améliorer vos recherches et rendre vos annonces plus visibles.
-                    </p>
+                    <p class="margin-bottom" data-translate="user.account.my_locations_helper"></p>
                     <div ng-if="vm.isGoogleMapSDKReady"
                         ng-show="! vm.maxLocationsReached">
                         <label for="account__location-input"
-                            class="no-margin-bottom">
-                            Adresse, ville, gare…
+                            class="no-margin-bottom"
+                            data-translate="places.location_examples">
                         </label>
                         <div class="flex-container flex--center flex--wrap">
                             <input id="account__location-input"
@@ -187,19 +179,18 @@
                                 ng-autocomplete
                                 data-options="vm.ngAutocompleteOptions"
                                 data-details="vm.locationSearchObject"
-                                placeholder="Un nouveau lieu favori">
+                                data-translate-attr="{ placeholder: 'user.account.location_placeholder' }">
                             <div class="small-3 padded-sides">
                                 <button
                                     class="button button--highlight margin-top margin-bottom-plus"
                                     ng-class="{ disabled: vm.disableAddLocationButton }"
-                                    ng-click="vm.addLocation()">
-                                    Ajouter
+                                    ng-click="vm.addLocation()"
+                                    data-translate="prompt.generic_add_button">
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <p ng-show="vm.maxLocationsReached">
-                        Vous avez atteint le maximum de quatre lieux favoris. Il vous suffit d'en supprimer pour les remplacer par de nouveaux.<br>
+                    <p ng-hide="vm.maxLocationsReached" data-translate="user.account.max_number_locations_reached">
                     </p>
                     <div class="small-10 small-offset-1 text-left padding-bottom"
                         ng-repeat="location in vm.myLocations">
@@ -207,7 +198,8 @@
                             <span class="success badge">
                                 {{$index+1}}
                             </span>
-                            <input class="input--subtle text--semibold" type="text" ng-model="location.aliasEdit" ng-blur="vm.updateLocationAlias(location)" placeholder="Je nomme ce lieu...">
+                            <input class="input--subtle text--semibold" type="text" ng-model="location.aliasEdit" ng-blur="vm.updateLocationAlias(location)"
+                            data-translate-attr="{ placeholder: 'user.account.location_name_placeholder' }">
                             <a class="text-control padded-sides"
                                 tabindex="0"
                                 data-sip-action-key
@@ -233,42 +225,40 @@
             </div>
 
             <div ng-if="vm.showGamification">
-                <h2>
-                    Parrainez vos amis
-                </h2>
-                <p class="margin-bottom">
-                    <a class="link--blue-underline text--semibold" ui-sref="invite">Cliquez ici pour parrainer vos amis.</a>
-                </p>
+                <a ui-sref="invite">
+                    <h2 class="link--blue-underline text--semibold" data-translate="referral.prompt">
+                    </h2>
+                </a>
                 <hr class="small-6 small-offset-3">
             </div>
 
             <div class="margin-bottom account__income-reports"
                 ng-if="vm.showIncomeReport">
-                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer"
-                    ng-switch="vm.collapseIncomeReports">
+                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer">
                     <span tabindex="0"
                         ng-click="vm.collapseIncomeReports = ! vm.collapseIncomeReports"
                         data-sip-action-key>
-                        Mes revenus
-                        <span ng-switch-when="false">
-                            ▲
-                        </span>
-                        <span ng-switch-default>
-                            ▼
+                        <span data-translate="user.account.income_statement_title"></span>
+                        <span ng-switch="vm.collapseIncomeReports">
+                            <span ng-switch-when="false">
+                                ▲
+                            </span>
+                            <span ng-switch-default>
+                                ▼
+                            </span>
                         </span>
                     </span>
                 </h2>
                 <div data-uib-collapse="vm.collapseIncomeReports">
-                    <label for="income-report-select">
-                        Consulter mon récapitulatif annuel de revenus&nbsp;:&nbsp;
-                    </label>
+                    <label for="income-report-select" data-translate="user.account.income_statement_download">
+                    </label>&nbsp;
                     <select id="income-report-select"
                         class="mahgin-bottom padding-bottom"
                         ng-model="vm.selectedIncomeReport"
                         ng-options="report.year for report in vm.incomeReportYears"
                         ng-click="vm.selectIncomeReportYear()"> <!-- use ng-click instead of ng-change because window.open() is blocked on Firefox -->
-                        <option value="" selected disabled="disabled">
-                            Année
+                        <option value="" selected disabled="disabled"
+                        data-translate="time.year_label">
                         </option>
                     </select>
                 </div>
@@ -276,46 +266,48 @@
             </div>
 
             <div class="account__password">
-                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer"
-                    ng-switch="vm.showPasswordForm">
+                <h2 class="margin-bottom-plus link--blue-underline text--small text--semibold cursor-pointer">
                     <span tabindex="0"
                         ng-click="vm.showPasswordForm = ! vm.showPasswordForm"
                         data-sip-action-key>
-                        Mon mot de passe
-                        <span ng-switch-when="true">
-                            ▲
-                        </span>
-                        <span ng-switch-default>
-                            ▼
+                        <span data-translate="user.account.my_password_title"></span>
+                        <span ng-switch="vm.showPasswordForm">
+                            <span ng-switch-when="true">
+                                ▲
+                            </span>
+                            <span ng-switch-default>
+                                ▼
+                            </span>
                         </span>
                     </span>
                 </h2>
                 <div data-uib-collapse="! vm.showPasswordForm">
-                    <div ng-if="! vm.needOldPassword" class="margin-bottom">
-                        Pour me connecter à Sharinplace plus facilement.
+                    <div ng-if="! vm.needOldPassword" class="margin-bottom"
+                        data-translate="user.account.no_password_helper"
+                        data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                     </div>
                     <div class="flex-container flex--wrap flex-form-line text-left">
                         <div class="small-12 medium-6">
-                            <label for="old-password">
-                                Mot de passe actuel
+                            <label for="old-password" data-translate="user.account.current_password_label">
                             </label>
                             <input id="old-password" type="password"
                                 ng-if="vm.needOldPassword"
                                 ng-model="vm.oldPassword"
-                                placeholder="Mot de passe à remplacer">
+                                data-translate-attr="{ placeholder: 'user.account.current_password_label' }">
                         </div>
                         <div class="small-12 medium-6">
-                            <label for="new-password">
-                                Nouveau mot de passe
+                            <label for="new-password" data-translate="user.account.new_password_label">
                             </label>
                             <input id="new-password" type="password"
                                 ng-model="vm.newPassword"
-                                placeholder="{{ vm.needOldPassword ? 'Nouveau mot de passe' : 'Mot de passe'}}">
+                                data-translate-attr="{ placeholder: 'user.account.new_password_label' }"
+                                data-translate-values="{ existing_password: vm.needOldPassword ? 'has_password' : 'no_password' }">
                         </div>
                     </div>
                     <button class="button text--semibold center"
-                        ng-click="vm.updatePassword(vm.newPassword, vm.oldPassword)">
-                        {{ vm.needOldPassword ? "Changer mon mot de passe" : "Enregistrer mon mot de passe" }}
+                        ng-click="vm.updatePassword(vm.newPassword, vm.oldPassword)"
+                        data-translate="prompt.save_button"
+                        ng-disabled="(vm.needOldPassword && ! vm.oldPassword) || ! vm.newPassword">
                     </button>
                 </div>
                 <hr class="small-6 small-offset-3">
@@ -323,8 +315,7 @@
 
             <div class="margin-bottom-plus"
                 ng-if="vm.myListings.length">
-                <h2 class="text-center margin-bottom-plus">
-                    Mes annonces
+                <h2 class="text-center margin-bottom-plus" data-translate="user.account.my_listings_title">
                 </h2>
                 <div id="my-items-list"
                     class="listing-grid grid-block small-vertical text-left">
@@ -347,8 +338,8 @@
                 data-sip-sticky-sidebar>
                 <div>
                     <h2 class="text-center"
-                        ng-hide="vm.myListings.length">
-                        Publions votre première annonce
+                        ng-hide="vm.myListings.length"
+                        data-translate="listing.prompt.first_listing_cta">
                     </h2>
                     <!-- listing-card like CTA -->
                     <div class="listing-grid padded-sides listing-grid__listing-wrapper">
@@ -358,7 +349,8 @@
                             <div class="listing-grid__listing flex-container listing-grid__listing--highlight">
                                 <div class="listing-grid__image-container">
                                     <div class="ar-content">
-                                        <img class="img--cover" src="/assets/img/app/default/search-listing-image-cta.png"  alt="Louez vos objets sur Sharinplace">
+                                        <img class="img--cover" src="/assets/img/app/default/search-listing-image-cta.png"  data-translate-attr="{ alt: 'listing.prompt.first_listing_cta_img_alt'}"
+                                        data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME}">
                                     </div>
                                 </div>
                                 <div class="listing-grid__description flex-item--grow-auto hide-for-small-only">
@@ -371,8 +363,8 @@
                     <a class="button brightblue button--highlight"
                         ng-if="vm.myListings.length"
                         ui-sref="myListings"
-                        data-translate="listing.prompt.view_listing_message"
-                        data-translate-values="{ nbListings: vm.myListings.length }"
+                        data-translate="listing.prompt.view_own_listings"
+                        data-translate-values="{ nb_listings: vm.myListings && vm.myListings.length || 0 }"
                     >
                     </a>
                 </div>

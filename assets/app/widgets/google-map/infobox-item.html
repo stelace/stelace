@@ -2,28 +2,27 @@
     <div class="fluid-width">
         <div class="listing-thumbnail__image-container">
             <div class="ar-content">
-                <img class="img--cover-vertical" ng-src="{{::parameter.data.listing.url + '?size=450x300'}}"  alt="{{::parameter.data.listing.name + ' à louer sur Sharinplace'}}">
+                <img class="img--cover-vertical" ng-src="{{::parameter.data.listing.url + '?size=450x300'}}"  alt="{{::parameter.data.listing.name}}">
             </div>
             <div class="listing-thumbnail__price">
-                <span>{{::parameter.data.listing.timeUnitPrice}}<sup>€</sup></span>
+                <span data-translate="pricing.price_with_currency"
+                    data-translate-values="{ price: parameter.data.listing.timeUnitPrice }"
+                ></span>
             </div>
             <div class="listing-thumbnail__owner profile__image">
-                <sip-img class="webkit-render-fix" ng-src="{{::parameter.data.listing.ownerMedia.url + '?size=128x128'}}" alt="Photo du propriétaire" rounded="true"></sip-img>
+                <sip-img class="webkit-render-fix" ng-src="{{::parameter.data.listing.ownerMedia.url + '?size=128x128'}}" type="background" rounded="true"></sip-img>
             </div>
         </div>
-        <!-- TODO : align distance display with listing-card rework (no duration if item is in same city as user's closest location) -->
-        <!-- Might need to create a controller for infobox, or rework duration string from the ground -->
         <div class="listing-thumbnail__description flex-item--grow text-center">
             <h3 class="listing-name ellipsis">{{::parameter.data.listing.name}}</h3>
-            <div class="ellipsis">
-                À <span class="text--semibold">{{parameter.data.listing.minDurationString}}</span> de
+            <div ng-if="parameter.data.listing.minDurationString && parameter.data.closestLocationShortName"
+                data-translate="places.distance_from_location"
+                data-translate-values="{ distance: parameter.data.listing.minDurationString, location_name: parameter.data.closestLocationShortName }">
             </div>
-            <div class="location-name ellipsis">
-                {{parameter.data.closestLocationShortName}}
-            </div>
-            <p class="listing-thumbnail__places fluid-width">
-                <span class="text--semibold">Disponible à</span>
-                {{::parameter.data.locationsString}}
+            <p class="listing-thumbnail__places fluid-width"
+                ng-if="::parameter.data.locationsString"
+                data-translate="listing.available_in_places"
+                data-translate-values="{ places: parameter.data.locationsString }">
             </p>
         </div>
     </div>

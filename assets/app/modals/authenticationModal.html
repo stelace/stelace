@@ -5,7 +5,7 @@
         data-translate="authentication.lost_password_message">
     </p>
     <p class="sign__text" ng-if="vm.authForm === 'register'"
-        data-translate="authentication.sign_up_greeting"
+        data-translate="{{vm.greetingKey}}"
         data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
     </p>
     <input type="email"
@@ -23,6 +23,7 @@
             required>
         <input type="password"
             data-translate-attr="{ placeholder: 'authentication.placeholder.create_password' }"
+            data-translate-values="{ min_number_of_characters: 6 }"
             ng-model="vm.password"
             ng-switch-when="register"
             ng-minlength="6"

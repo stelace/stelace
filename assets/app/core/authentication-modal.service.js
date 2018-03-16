@@ -15,13 +15,13 @@
                                     $timeout,
                                     $document,
                                     authentication,
+                                    ContentService,
                                     crossTabCommunication,
                                     FoundationApi,
                                     Modal,
                                     referral,
                                     StelaceEvent,
                                     storage,
-                                    toastr,
                                     tools,
                                     UserService) {
 
@@ -51,8 +51,6 @@
             className: "smaller signin-form-container",
             templateUrl: "/assets/app/modals/authenticationModal.html",
             overlayClose: true,
-            // animationIn: "slideInRight", // animation-in doesnt not work see https://github.com/zurb/foundation-apps/issues/616
-            // animationOut: "slideOutLeft",
             contentScope: {
                 vm: vm
             }
@@ -74,15 +72,6 @@
                     authentication.setAuthenticated(true);
 
                     FoundationApi.publish(modalId, "close");
-                    toastr.success("<a href='/s?reset=tag'>Cherchez des objets</a> à emprunter près de vos <a href='/location'>lieux favoris</a> "
-                        + "ou <a href='/my-listings'>déposez des annonces</a> dans votre compte pour louer vos propres objets.",
-                        "Bienvenue !", {
-                            timeOut: 20000,
-                            extendedTimeOut: 20000,
-                            closeButton: true,
-                            allowHtml: true,
-                            tapToDismiss: false
-                    });
                 }
             });
         }
@@ -91,7 +80,7 @@
          * Open authentication modal if needed to login or register
          * @param {string} [formType = "login"] Type of form ("login" or "register")
          * @param {object} [options] - Options related to auth process and additional modals' chaining
-         * @param {string} [options.greeting] - Custom greeting message in auth modal
+         * @param {string} [options.greetingKey] - Custom greeting message translation key in auth modal
          * @param {boolean} [options.preventSubscriptionRedirect = false] - Prevent redirection after registration
          * @returns {object} Promise object
          */
@@ -118,7 +107,7 @@
 
         function _openModal(formType, options) {
             vm.authForm          = formType ? formType.toString() : "login";
-            vm.greeting          = (typeof options.greeting === "string" && options.greeting) || "";
+            vm.greetingKey       = (typeof options.greetingKey === "string" && options.greetingKey.indexOf(" ") <= 0 && options.greetingKey) || "authentication.sign_up_greeting";
             vm.displayLoginError = false;
             vm.autofocus         = true;
             vm.preventRedirect   = options.preventSubscriptionRedirect;
@@ -229,7 +218,7 @@
 
                     if (vm.preventRedirect) {
                         // Must opt out redirect for ongoing process such as booking
-                        return; // Also avoid too many toasts in this case
+                        return;
                     }
 
                     $state.go("account");
@@ -247,7 +236,10 @@
             authentication
                 .lostPassword(email)
                 .then(function () {
-                    toastr.success("Un email vient de vous être envoyé à l'adresse " + email, "Nouveau mot de passe");
+                    ContentService.showNotification({
+                        messageKey: "authentication.lost_password_email_sent",
+                        type: "success"
+                    });
                     FoundationApi.publish(modalId, "close");
                 });
         }

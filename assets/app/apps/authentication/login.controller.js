@@ -12,6 +12,7 @@
                                 $translate,
                                 $location,
                                 authentication,
+                                ContentService,
                                 platform,
                                 cache,
                                 crossTabCommunication,
@@ -51,7 +52,7 @@
             }
 
             if ($stateParams.error === "access_denied") {
-                platform.showErrorMessage();
+                ContentService.showError();
             } else if ($stateParams.error === "user_denied") {
                 $translate("authentication.error.cancelled_social_auth")
                     .then(toastr.info);

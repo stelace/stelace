@@ -207,7 +207,7 @@
                         <img
                             ng-src="{{::marker.media + '?size=75x50'}}"
                             ng-click="$parent.vm.toggleDetailBox($parent.marker.id, 'listingBox','open', $event)"
-                            alt="{{::vm.listing.name + ' à louer sur Sharinplace'}}">
+                            alt="{{::marker.data.name + ' - ' + config.SERVICE_NAME }}">
                     </ui-gmap-window>
                     <!-- ng-if to avoid memory leak when reopening a given infobox -->
                     <ui-gmap-window

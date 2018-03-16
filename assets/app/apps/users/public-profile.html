@@ -3,27 +3,22 @@
     <div id="user-profile-container" class="fluid-content">
         <div id="user__introduction"
             ng-class="{ 'pull-bottom': vm.listingsOnly }">
-            <h1>
-                <span ng-hide="vm.isCurrentUser && ! vm.showPublicLayout">
-                    Bienvenue sur ma page<span ng-if="::vm.user.displayName">, je suis</span>
-                </span>
-                <span ng-show="vm.isCurrentUser && ! vm.showPublicLayout">
-                    Voici votre page{{ vm.showGamification ? " et vos défis" : "" }}
-                </span>
-                {{::vm.user.displayName}}&nbsp;!
+            <h1 data-translate="user.profile.greeting"
+            data-translate-values="{ user: vm.user.displayName || null }">
             </h1>
             <div class="text--small text--semibold"
-                ng-if="::vm.user.createdDate">
-                Membre depuis {{::vm.displayMonth(vm.user.createdDate)}}
+                ng-if="::vm.user.createdDate"
+                data-translate="user.joined_in_month"
+                data-translate-values="{ subscription_date: vm.user.createdDate }">
             </div>
         </div>
         <div class="flex-container small-vertical desktop-horizontal">
             <div id="user__content" class="desktop-8"
                 ng-class="{ 'user__content--items-only': vm.listingsOnly }">
                 <div id="user__game-stats" class="user__content-section margin-bottom-plus"
-                    ng-if="vm.isCurrentUser || vm.hasMedal">
+                    ng-if="vm.showGamification && (vm.isCurrentUser || vm.hasMedal)">
                     <div class="user__awards text-center"
-                        ng-if="vm.hasMedal && vm.showGamification">
+                        ng-if="vm.hasMedal">
                         <span class="user__medal"
                             uib-popover="{{vm.medalsLabels[vm.userLvl]}}"
                             data-popover-placement="auto bottom"
@@ -34,7 +29,7 @@
                             </svg>
                         </span>
                     </div>
-                    <div class="user__progress text-center margin-bottom-plus" ng-if="vm.showGamification">
+                    <div class="user__progress text-center margin-bottom-plus">
                         <span class="user__medal-label">
                             Membre {{vm.levelMap[vm.userLvl || "none"]}}
                         </span>
@@ -60,7 +55,7 @@
                         </span>
                     </div>
                     <div ng-if="vm.isCurrentUser"
-                        uib-collapse="vm.showPublicLayout || !vm.showGamification">
+                        uib-collapse="vm.showPublicLayout">
                         <h2>
                             Défis à relever pour obtenir des récompenses
                         </h2>
@@ -157,10 +152,10 @@
                         </div>
                         <hr class="small-6 small-offset-3">
                     </div>
-                    <div ng-if="vm.isCurrentUser && vm.showGamification">
+                    <div ng-if="vm.isCurrentUser">
                         <h2 class="pull-t text--small"
-                            ng-hide="vm.showPublicLayout">
-                            Mes informations publiques
+                            ng-hide="vm.showPublicLayout"
+                            data-translate="user.profile.public_info_title">
                         </h2>
                         <div class="text--small pull-t"
                             ng-click="vm.showPublicLayout = ! vm.showPublicLayout"
@@ -183,8 +178,7 @@
                 <div class="user__content-box user__content-section"
                     ng-if="::(vm.user.nbRatings && vm.user.ratingScore)">
                     <div>
-                        <h2>
-                            {{::vm.user.nbRatings}} évaluation<span ng-show="::vm.user.nbRatings > 1">s</span> reçue<span ng-show="::vm.user.nbRatings > 1">s</span>
+                        <h2 data-translate="ratings.count" data-translate-values="{ nb_ratings: vm.user.nbRatings  }">
                         </h2>
                         &nbsp;
                         <span
@@ -197,12 +191,10 @@
                     <!-- vm.ratings : [["owner", ownerRatingsArray], ["taker", takerRatingsArray]] -->
                     <div class="margin-top-plus padding-bottom"
                         ng-repeat="ratings in ::vm.ratings">
-                        <p ng-switch="::ratings[0]" class="text--semibold">
-                            <span>Évaluation<span ng-show="::ratings[1].length > 1">s</span> reçue<span ng-show="::ratings[1].length > 1">s</span></span>
-                            <span ng-switch-when="owner">en tant que propriétaire</span>
-                            <span ng-switch-default></span>
+                        <p class="text--semibold" data-translate="ratings.user_ratings_title"
+                        data-translate-values="{ user: vm.user.fullname || null, as_role: ratings[0] === 'owner' ? 'as_owner' : '' }">
                         </p>
-                        <!-- Adapt ng-repeat limit insted of using ng-show here since this view is not SEO oriented -->
+                        <!-- Adapt ng-repeat limit instead of using ng-show here since this view is not SEO oriented -->
                         <!-- Must remove one-time binding in ng-repeat -->
                         <div class="text-center text--small single-rating"
                             ng-repeat="rating in ratings[1] | limitTo: vm.firstRatings[ratings[0]] track by rating.id"
@@ -215,17 +207,16 @@
                                 ng-if="vm.firstRatings[ratings[0]] < ratings[1].length"
                                 ng-click="vm.firstRatings[ratings[0]] = vm.firstRatings[ratings[0]] + 3;"
                                 tabindex="0"
-                                data-sip-action-key>
-                                Voir d'autres avis
+                                data-sip-action-key
+                                data-translate="ratings.see_more">
                             </span>
                         </div>
                     </div>
                 </div>
                 <div class="margin-top-plus user__content-section user__listings"
                     ng-if="::vm.listings.length">
-                    <h2>
-                        <span ng-show="::vm.listings.length === 1">Mon annonce</span>
-                        <span ng-show="::vm.listings.length > 1">Mes annonces</span>
+                    <h2 data-translate="listing.prompt.view_own_listings"
+                    data-translate-values="{ nb_listings: vm.listings && vm.listings.length || 0 }">
                     </h2>
                     <div id="user-items"
                         class="listing-grid grid-block small-up-1 medium-up-2"
@@ -257,7 +248,7 @@
                         data-bound-id="user-profile-container"
                         data-sip-sticky-sidebar>
                         <div class="plain-card__divider">
-                            <h3>Vérification du profil</h3>
+                            <h3 data-translate="user.validated_info_title"></h3>
                         </div>
                         <div class="card-section">
                             <div
@@ -270,8 +261,8 @@
                             <div class="margin-top text-center">
                                 <a class="button brightblue"
                                     ui-sref="account"
-                                    ng-show="vm.isCurrentUser && ! vm.showPublicLayout">
-                                    Compléter mon profil
+                                    ng-show="vm.isCurrentUser && ! vm.showPublicLayout"
+                                    data-translate="user.prompt.update_profile_button">
                                 </a>
                             </div>
                         </div>

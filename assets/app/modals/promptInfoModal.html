@@ -8,28 +8,27 @@
                 {{vm.greeting[vm.info]}}
             </p>
             <input type="tel"
-                placeholder="0612..."
                 ng-model="vm.phone"
                 ng-minlength="10"
                 ng-maxlength="10"
                 required
-                data-sip-autofocus="vm.autofocus">
+                data-sip-autofocus="vm.autofocus"
+                data-translate-attr="{ placeholder: 'user.phone_number_label' }">
             <p class="sign__text">
-                <span ng-if="promptModalForm.$invalid">Votre numéro ne sera jamais affiché publiquement.</span>
-                <span ng-if="promptModalForm.$valid">Conservez votre téléphone à portée de main avant de poursuivre, afin de recevoir un code de validation à 4 chiffres.</span>
+                <span ng-if="promptModalForm.$invalid" data-translate="user.contact_info_kept_private"></span>
+                <span ng-if="promptModalForm.$valid" data-translate="user.prompt.SMS_validation_code_helper"></span>
             </p>
         </div>
         <div ng-switch-when="2">
-            <p class="sign__text">
-                Nous venons de vous envoyer un code de validation à 4 chiffres par SMS. Veuillez le saisir ci-dessous&nbsp;:
+            <p class="sign__text" data-translate="user.prompt.SMS_validation_code_sent">
             </p>
             <!-- Use ng-pattern instead of type number to avoid dropping leading zeros -->
             <input type="tel"
-                placeholder="Code de validation"
                 ng-model="vm.signCode"
                 ng-pattern="/^[0-9]{4}$/"
                 required
-                data-sip-autofocus="vm.autofocus">
+                data-sip-autofocus="vm.autofocus"
+                data-translate-attr="{ placeholder: 'user.prompt.validation_code_placeholder' }">
         </div>
         <div class="text-center spinner-button-container">
             <button class="button sip-button spinner-button--center margin-top"
@@ -37,15 +36,15 @@
                     ng-class="{disabled: promptModalForm.$invalid}"
                     ng-click="vm.action()">
                 <span ng-switch="vm.step">
-                    <span ng-switch-when="1">Confirmer</span>
-                    <span ng-switch-when="2">Valider</span>
+                    <span ng-switch-when="1" data-translate="prompt.send_button"></span>
+                    <span ng-switch-when="2" data-translate="prompt.continue_button"></span>
                 </span>
             </button>
             <span class="spinner-container">
                 <span data-us-spinner="{scale: 0.5}" data-spinner-key="phone-verify-spinner"></span>
             </span>
         </div>
-        <p class="sign__text sign__error" ng-if="vm.displayPhoneCodeError">Ce code est erroné.</p>
+        <p class="sign__text sign__error" ng-if="vm.displayPhoneCodeError" data-translate="error.invalid_code"></p>
     </div>
     <!-- Locations -->
     <div class="margin-bottom" ng-if="vm.info === 'mainLocation'" ng-switch="vm.step">
@@ -54,27 +53,27 @@
             <span ng-switch-when="2">{{vm.greeting.secondLocation}}</span>
         </p>
         <input type="text"
-            placeholder="Adresse"
             ng-model="vm.locationSearchInput"
             ng-autocomplete
             data-options="vm.ngAutocompleteOptions"
             data-details="vm.locationSearchObject"
-            data-sip-autofocus="vm.autofocus">
+            data-sip-autofocus="vm.autofocus"
+            data-translate-attr="{ placeholder: 'places.address_placeholder' }">
         <p class="sign__text"
-            ng-switch-when="1">
-            Votre adresse complète ne sera jamais affichée publiquement.
+            ng-switch-when="1" data-translate="user.contact_info_kept_private">
         </p>
         <button class="button sip-button center margin-top"
                 ng-disabled="! vm.locationSearchObject"
                 ng-class="{disabled: ! vm.locationSearchObject}"
                 ng-click="vm.action()">
             <span ng-switch="vm.step">
-                <span ng-switch-when="1">Enregistrer</span>
-                <span ng-switch-when="2">Ajouter</span>
+                <span ng-switch-when="1" data-translate="prompt.save_button"></span>
+                <span ng-switch-when="2" data-translate="prompt.generic_add_button"></span>
             </span>
         </button>
         <p ng-switch-when="2" class="sign__text no-margin-bottom">
-            <a class=" link--grey" ng-click="vm.bypassLocation()">Plus tard</a>
+            <a class=" link--grey" ng-click="vm.bypassLocation()"
+            data-translate="prompt.later_button"></a>
         </p>
     </div>
     <!-- Email -->
@@ -83,15 +82,15 @@
             <span>{{vm.greeting.email}}</span>
         </p>
         <input type="email"
-            placeholder="Email"
             spellcheck="false"
             ng-model="vm.email"
-            required>
+            required
+            data-translate-attr="{ placeholder: 'authentication.placeholder.email' }">
         <button class="button sip-button center margin-top"
                 ng-disabled="! vm.email"
                 ng-class="{disabled: ! vm.email}"
-                ng-click="vm.action()">
-            <span>Enregistrer</span>
+                ng-click="vm.action()"
+                data-translate="prompt.save_button">
         </button>
     </div>
     <!-- Email new -->
@@ -103,20 +102,18 @@
         </p>
         <input id="prompt-info-modal__email-new-input"
             type="email"
-            placeholder="Email"
             spellcheck="false"
             ng-model="vm.emailNew"
             data-sip-autofocus="vm.autofocus"
-            required>
-        <p class="margin-bottom text--small text-center">
-            Rendez-vous dans votre boîte de réception pour valider votre nouvelle adresse&nbsp;;)
+            required
+            data-translate-attr="{ placeholder: 'authentication.placeholder.email' }">
         </p>
         <div class="text-center spinner-button-container">
             <button class="button sip-button spinner-button--center margin-top"
                     ng-disabled="! vm.emailNew"
                     ng-class="{disabled: ! vm.emailNew}"
-                    ng-click="vm.action()">
-                <span>Confirmer</span>
+                    ng-click="vm.action()"
+                    data-translate="prompt.save_button">
             </button>
             <span class="spinner-container">
                 <span data-us-spinner="{scale: 0.5}" data-spinner-key="email-new-check-spinner"></span>

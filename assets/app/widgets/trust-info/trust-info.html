@@ -37,7 +37,7 @@
         </div>
         <div>
             <div data-translate="ratings.count"
-                data-translate-values="{ nbRatings: user.nbRatings }"></div>
+                data-translate-values="{ nbRatings: user.nb_ratings }"></div>
             <div class="text--light">
                 <span data-translate="ratings.average_label"></span>
                 <span
@@ -51,6 +51,6 @@
     </li>
     <li ng-if="::(! user.emailCheck && ! user.phoneCheck && ! ratingTrust)"
         data-translate="user.no_verified_info_public_text"
-        data-translate-values="::{ user: user.firstname || user.fullname }">
+        data-translate-values="::{ user: user.firstname || user.fullname || null }">
     </li>
 </ul>

@@ -19,10 +19,9 @@
         };
 
         function link(scope/*, element, attrs*/) {
-            scope.displayMonth = moment(scope.rating.createdDate).format("MMMM YYYY");
+            scope.isoDate  = moment(scope.rating.createdDate).format("YYYY-MM-DD");
             if (scope.isCurrent) {
                 scope.itemprop = "review";
-                scope.isoDate  = moment(scope.rating.createdDate).format("YYYY-MM-DD");
             }
         }
     }

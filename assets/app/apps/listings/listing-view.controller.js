@@ -70,6 +70,8 @@
             initDate: todayDate // required since 1.1.2 update
             // Bug with use of datepicker-options for inline datepickers if initDate is not set
         };
+        var stlConfig = StelaceConfig.getConfig();
+
         var listingId;
         var listing;
         // var brands;
@@ -325,7 +327,6 @@
                 });
 
                 listing.owner.fullname       = User.getFullname.call(listing.owner);
-                listing.owner.seniority      = displayMonth(listing.owner.createdDate);
                 vm.nbPictures             = listing.medias.length;
 
                 listingLocations = ownerListingLocations;
@@ -669,10 +670,6 @@
 
         function displayFullDate(date) {
             return moment(date).format("LL");
-        }
-
-        function displayMonth(date) {
-            return moment(date).format("MMMM YYYY");
         }
 
         // Not using inline datepicker anymore: touch-agnostic policy
@@ -1232,7 +1229,6 @@
         function _displayListingSnapshot() {
             vm.listing              = listing;
             listing.owner.fullname  = User.getFullname.call(listing.owner);
-            listing.owner.seniority = displayMonth(listing.owner.createdDate);
             vm.nbPictures        = listing.medias.length;
             vm.ownerLvl          = listing.owner.levelId && listing.owner.levelId.toLowerCase();
             vm.ownerHasMedal     = gamification.hasMedal(vm.ownerLvl);
@@ -1365,13 +1361,7 @@
                 });
             }
 
-            var questionGreeting  = "Connectez-vous en quelques secondes pour envoyer votre demande à "
-                + vm.listing.owner.fullname;
-            var promptInfoOptions = {
-                greeting: {
-                    email: "Veuillez renseigner votre adresse email pour être prévenu(e) en cas de réponse à votre question."
-                }
-            };
+            var questionGreetingKey = "prompt.login_to_know_more_about_listing";
 
             StelaceEvent.sendEvent("Listing view question", {
                 listingId: listingId,
@@ -1379,7 +1369,7 @@
                 data: { receiver: toUser || "owner" }
             });
 
-            return _checkAuth(questionGreeting)
+            return _checkAuth(questionGreetingKey)
                 .then(function (isAuthenticated) {
                     if (isAuthenticated) {
                         return UserService.getCurrentUser();
@@ -1389,15 +1379,18 @@
                         _setRole(currentUser);
 
                         if (toUser === "owner" && vm.isOwner) {
-                            toastr.warning("Vous ne pouvez pas envoyer de question à vous-même ;)", "Oups");
                             return;
                         }
 
-                        return promptInfoModal.ask(["email"], promptInfoOptions)
+                        return promptInfoModal.ask(["email"])
                             .then(function (promptResults) {
                                 if (! promptResults.email) {
-                                    toastr.info("Nous vous invitons à renseigner votre adresse email afin d'envoyer votre question.", "Adresse email requise");
-                                    return;
+                                    return ContentService.showNotification({
+                                        messageKey: 'authentication.log_in_required_message',
+                                        messageValues: {
+                                            SERVICE_NAME: stlConfig.SERVICE_NAME
+                                        }
+                                    });
                                 }
 
                                 vm.questionModalOpened = true;
@@ -1467,12 +1460,22 @@
             vm.disableBookingButton = vm.listing.locked || vm.showIncorrectDates;
         }
 
-        function _checkAuth(customGreeting) {
-            return authenticationModal.process("register")
+        function _checkAuth(customGreetingKey) {
+            var authModalOptions = { preventSubscriptionRedirect: true };
+
+            if (customGreetingKey) {
+                authModalOptions.greetingKey = customGreetingKey;
+            }
+
+            return authenticationModal.process("register", authModalOptions)
                 .then(function (isAuthenticated) {
                     // promise resolved to true or false only
-                    if (isAuthenticated === false && ! customGreeting) {
-                        ContentService.showNotification({ messageKey: 'booking.login_first' });
+                    if (isAuthenticated === false) {
+                        ContentService.showNotification({ messageKey: 'authentication.log_in_required_message',
+                        messageValues: {
+                            SERVICE_NAME: stlConfig.SERVICE_NAME
+                        }
+                    });
                     }
 
                     if (isAuthenticated) {
@@ -1698,38 +1701,25 @@
         }
 
         function myLocationCta() {
-            var alreadyhasLocations  = !! vm.currentUser && !! myLocations.length; // consider autenticated user locations only
-            var promptInfoOptions    = {
-                greeting: {
-                    mainLocation: "Quel est le principal lieu près duquel vous aimeriez trouver des objets?",
-                    secondLocation: "Souhaitez-vous ajouter un autre lieu près duquel vous passez fréquemment pour améliorer vos futures recherches? Lieu de travail, gare..."
-                }
-            };
+            var authGreetingKey = "prompt.login_to_make_search_easier";
+            var alreadyhasLocations  = !! vm.currentUser && !! myLocations.length; // consider authenticated user locations only
 
-            return _checkAuth("Créez un compte Sharinplace en quelques secondes pour améliorer vos recherches.")
+            return _checkAuth(authGreetingKey)
                 .then(function (isAuthenticated) {
                     if (isAuthenticated) {
-                        return promptInfoModal.ask(["mainLocation"], promptInfoOptions);
+                        return promptInfoModal.ask(["mainLocation"]);
                     } else {
                         return false;
                     }
                 }).then(function (promptResults) {
                     var ok = promptResults.allInfoOk || false; /// true if user has at least one location
 
-                    if (ok === false && ! vm.currentUser) {
-                        toastr.info("La création d'un compte vous permettra de trouver facilement les objets qu'il vous faut.", "Recherche avancée");
-                        return false;
-                    } else if (ok === false && vm.currentUser) { // currentUser can have been populated lately if user has just authed during checkAuth
-                        toastr.info("L'ajout de lieux favoris dans votre compte vous permettra de trouver facilement les objets qu'il vous faut.", "Recherche avancée");
-                        return false;
-                    } else if (ok === true && alreadyhasLocations) { // promptResults.noPrompt
+                    if (ok === true && alreadyhasLocations) { // promptResults.noPrompt
                         // already authenticated user with existing locations has not been prompted so far, so ok to redirect
                         $state.go("account");
-                    } else { // if (ok === true && ! alreadyhasLocations) {
+                    } else if (ok === true && ! alreadyhasLocations) {
                         // a new user has given an adress or an old user with at least one location reconnects (refresh map)
-                        return _fetchUserInfo(true).then(function () {
-                            toastr.success("Les trajets depuis vos lieux favoris indiqués ont été mis à jour", "Carte mise à jour");
-                        });
+                        return _fetchUserInfo(true).then(ContentService.showSaved);
                     }
                 });
         }
@@ -1780,7 +1770,12 @@
             _.forEach(listingLocations, function (listingLocation, index) {
                 var markerId     = _.uniqueId("marker_");
                 var marker       = {};
-                var placeholders = ["Ici", "Et là", "Là", "Ou là", "Ou là", "Ou là", "Ou là", "Ou là"];
+                var placeholders = [
+                    $translate.instant('places.here_marker_label'),
+                    $translate.instant('places.or_here_marker_label'),
+                    $translate.instant('places.or_there_marker_label'),
+                    $translate.instant('places.over_there_marker_label')
+                ];
 
                 listingLocation.markerId = markerId;
 
@@ -2026,7 +2021,7 @@
                 "og:description": description
             };
 
-            // Default's Sharinplace header is better than listing image placeholder
+            // Default's header is better than listing image placeholder
             if (vm.listing.medias && vm.listing.medias[0]) {
                 og["og:image"]            = imgUrl;
                 og["og:image:secure_url"] = imgUrl;

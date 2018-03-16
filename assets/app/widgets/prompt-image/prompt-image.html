@@ -10,9 +10,9 @@
         data-on-select="vm.uploadImage(file)"
         data-custom-disabled-action="vm.cancelUploadImage()"
         data-accept="image/*">
-        {{vm.imageToUpload ? (vm.noImage ? "Choisir une image" : "Changer mon image") : "Annuler"}}
+        {{vm.buttonText}}
     </div>
     <span class="spinner-container">
-        <span data-us-spinner="{scale: 0.5}" data-spinner-key="my-img-upload-spinner"></span>
+        <span data-us-spinner="{scale: 0.5}" data-spinner-key="my-img-upload-spin   ner"></span>
     </span>
 </div>

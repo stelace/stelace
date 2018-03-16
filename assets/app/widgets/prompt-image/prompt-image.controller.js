@@ -7,6 +7,7 @@
     function PromptImageController($q,
                                     $rootScope,
                                     $scope,
+                                    $translate,
                                     MediaService,
                                     platform,
                                     Restangular,
@@ -34,6 +35,8 @@
                 vm.imageSrc = results.myImage.url;
                 oldMedia    = results.myImage;
                 vm.noImage  = (results.myImage.url === platform.getDefaultProfileImageUrl());
+
+                return updateButtonText();
             });
         }
 
@@ -72,6 +75,7 @@
                     $rootScope.$emit("updateProfileImage");
                 })
                 .finally(function () {
+                    updateButtonText();
                     delete vm.profileMediaProgress;
                     usSpinnerService.stop('my-img-upload-spinner');
                 });
@@ -91,7 +95,16 @@
                     vm.imageToUpload = true;
 
                     $rootScope.$emit("updateProfileImage");
-                });
+                })
+                .finally(updateButtonText);
+        }
+
+        function updateButtonText() {
+            return $translate('user.prompt.change_profile_image_button', {
+                existing_image: vm.imageToUpload ? (vm.noImage ? 'no_image' : 'has_image') : 'upcoming_upload'
+            }).then(function (text) {
+                vm.buttonText = text;
+            });
         }
 
     }
