@@ -38,10 +38,6 @@ const SEARCH_QUERY_DEFAULTS = {
     limit: 20,
     sorting: 'creationDate',
 };
-const SEARCH_CONFIG = {
-    nearListingsDurationInSeconds: 2 * 3600, // 2 hours
-    meanDistanceMetersPerHour: 60 * 1000, // 60km
-};
 const queryModes = [
     'default',
     'relevance',
@@ -55,6 +51,7 @@ async function getListingsFromQuery(searchQuery, type) {
         queryMode,
         locations,
         similarToListingsIds,
+        distanceLimitMeters,
     } = searchQuery;
 
     const config = await StelaceConfigService.getConfig();
@@ -67,6 +64,8 @@ async function getListingsFromQuery(searchQuery, type) {
 
     let hashLocations = await getListingsLocations(listings);
     let hashJourneys;
+
+    // TODO: do not remove if PLACE === 'NONE'
     listings = removeEmptyLocationListings(listings, hashLocations);
 
     // console.log('published and no empty location listings', listings.length);
@@ -91,14 +90,10 @@ async function getListingsFromQuery(searchQuery, type) {
 
     const hasLocations = locations && locations.length;
     const displayJourneys = hasLocations && queryMode !== 'relevance';
-    if (displayJourneys) {
-        // remove listings that are too far from given source locations
-        const {
-            nearListingsDurationInSeconds,
-            meanDistanceMetersPerHour,
-        } = SEARCH_CONFIG;
-        const distanceLimit = Math.round(nearListingsDurationInSeconds / 3600 * meanDistanceMetersPerHour);
-        listings = filterListingsWithinDistance(locations, listings, hashLocations, distanceLimit);
+
+    // remove listings that are too far from given source locations
+    if (hasLocations && distanceLimitMeters) {
+        listings = filterListingsWithinDistance(locations, listings, hashLocations, distanceLimitMeters);
         // console.log('near listings', listings.length);
 
         hashLocations = refreshHashLocations(hashLocations, _.pluck(listings, 'id'));
@@ -108,7 +103,7 @@ async function getListingsFromQuery(searchQuery, type) {
     let combinedMetrics;
 
     // perform a sort only if query or source locations are provided
-    if (query || hasLocations) {
+    if (type !== 'similar' && (query || hasLocations)) {
         combinedMetrics = combineMetrics({ listings, hashJourneys, listingsRelevance });
         if (query) {
             combinedMetrics = removeIrrelevantResults(combinedMetrics, listingsRelevanceMeta);
@@ -166,7 +161,6 @@ async function getMatchedListingCategoriesIds(listingCategoryId) {
 async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
     const {
         listingTypeId,
-        // onlyFree,
         withoutIds,
         sorting,
     } = searchQuery;
@@ -617,32 +611,32 @@ function setListingsToCache(cacheKey, listings) {
 
 /**
  * Normalize the search parameters
- * @param {object}   params
- * @param {number}   [params.listingCategoryId]
- * @param {string}   [params.query]
- * @param {string}   [params.listingTypeId]
- * @param {boolean}  [params.onlyFree] // disabled for now
- * @param {string}   [params.queryMode] - allowed values: ['relevance', 'default', 'distance']
- * @param {string}   [params.locationsSource] - indicate where the locations come from
- * @param {object[]} [params.locations]
- * @param {float}    params.locations.latitude
- * @param {float}    params.locations.longitude
- * @param {string}   [params.sorting]
- * @param {number[]} [params.withoutIds] - filter out listings with this ids (useful for similar listings)
- * @param {number[]} [params.similarToListingsIds]
- * @param {number}   [params.page]
- * @param {number}   [params.limit]
- * @param {number}   [params.timestamp] - useful to prevent requests racing from client-side
+ * @param {Object}   params
+ * @param {Number}   [params.listingCategoryId]
+ * @param {String}   [params.query]
+ * @param {String}   [params.listingTypeId]
+ * @param {String}   [params.queryMode] - allowed values: ['relevance', 'default', 'distance']
+ * @param {String}   [params.locationsSource] - indicate where the locations come from
+ * @param {Object[]} [params.locations]
+ * @param {Float}    params.locations[i].latitude
+ * @param {Float}    params.locations[i].longitude
+ * @param {Number}   [params.distanceLimitMeters] - drop any results beyond this limit
+ * @param {String}   [params.sorting]
+ * @param {Number[]} [params.withoutIds] - filter out listings with this ids (useful for similar listings)
+ * @param {Number[]} [params.similarToListingsIds]
+ * @param {Number}   [params.page]
+ * @param {Number}   [params.limit]
+ * @param {Number}   [params.timestamp] - useful to prevent requests racing from client-side
  */
 function normalizeSearchQuery(params) {
     var searchFields = [
         'listingCategoryId',
         'query',
         'listingTypeId',
-        // 'onlyFree',
         'queryMode',
         'locationsSource',
         'locations',
+        'distanceLimitMeters',
         'sorting',
         'withoutIds',
         'similarToListingsIds',
@@ -681,12 +675,9 @@ function normalizeSearchQuery(params) {
                 isValid = MicroService.checkArray(value, 'id');
                 break;
 
-            // case 'onlyFree':
-            //     isValid = typeof value === 'boolean';
-            //     break;
-
             case 'page':
             case 'limit':
+            case 'distanceLimitMeters':
                 isValid = (!isNaN(value) && value >= 1);
                 break;
 
