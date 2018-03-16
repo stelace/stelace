@@ -1,5 +1,5 @@
 /**
- * Webhook.js
+ * Role.js
  *
  * @description :: A model definition.  Represents a database table/collection/etc.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
@@ -29,32 +29,28 @@ module.exports = {
             required: true,
             maxLength: 255,
         },
-        url: {
+        namesI18n: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
+        value: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
             required: true,
             maxLength: 255,
         },
-        events: {
+        parentId: {
+            type: 'number',
+            columnType: 'int',
+            allowNull: true,
+        },
+        permissions: {
             type: 'json',
             columnType: 'json',
+            defaultsTo: [],
         },
     },
 
-    getAccessFields,
-
 };
 
-function getAccessFields(access) {
-    const accessFields = {
-        api: [
-            'id',
-            'name',
-            'url',
-            'events',
-            'createdDate',
-        ],
-    };
-
-    return accessFields[access];
-}

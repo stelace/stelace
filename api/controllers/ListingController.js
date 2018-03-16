@@ -1,5 +1,5 @@
 /* global
-    BookingService, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, MicroService,
+    AclService, BookingService, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, MicroService,
     PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceConfigService, TokenService, User
 */
 
@@ -233,6 +233,11 @@ async function findOne(req, res) {
 }
 
 async function create(req, res) {
+    const allowed = await AclService.isAllowed(req.user.roles, 'listing', 'create');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const attrs = req.allParams();
     attrs.ownerId = req.user.id;
 

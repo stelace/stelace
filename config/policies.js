@@ -183,7 +183,11 @@ module.exports.policies = {
     // API ROUTES
 
     'v0_1/ApiKeyController': {
-        '*': ['isProvider'],
+        '*': ['isApiAuthenticated'],
+    },
+
+    'v0_1/ApiEventController': {
+        '*': ['isApiAuthenticated'],
     },
 
     'v0_1/BookingController': {
@@ -194,6 +198,10 @@ module.exports.policies = {
         '*': ['isApiAuthenticated'],
         'findEditable': true,
         'findDefault': true,
+    },
+
+    'v0_1/InfoController': {
+        '*': ['isApiAuthenticated'],
     },
 
     'v0_1/ListingController': {
@@ -220,6 +228,7 @@ module.exports.policies = {
 
     'v0_1/StelaceConfigController': {
         '*': ['isApiAuthenticated'],
+        'updatePlan': ['isProvider'],
     },
 
     'v0_1/UserController': {

@@ -1,4 +1,4 @@
-/* global MicroService */
+/* global AclService, MicroService */
 
 module.exports = {
 
@@ -8,6 +8,8 @@ module.exports = {
     parseSearchQuery,
     parseEntityIds,
     getPaginationMeta,
+
+    isAllowed,
 
 };
 
@@ -121,4 +123,16 @@ function getPaginationMeta({ totalResults, limit, allResults = false }) {
         totalResults,
         totalPages,
     };
+}
+
+async function isAllowed(req, resource, action) {
+    if (req.user) {
+        const allowed = await AclService.isAllowed(req.user.roles, resource, action);
+        return allowed;
+    } else if (req.apiKey) {
+        const allowed = await AclService.isAllowed('admin', resource, action);
+        return allowed;
+    } else {
+        return false;
+    }
 }

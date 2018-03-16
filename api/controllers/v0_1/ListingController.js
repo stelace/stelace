@@ -17,6 +17,11 @@ const _ = require('lodash');
 const createError = require('http-errors');
 
 async function find(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'view');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const attrs = req.allParams();
     const sortFields = [
         'id',
@@ -93,6 +98,11 @@ async function find(req, res) {
 }
 
 async function findOne(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'view');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
     const attrs = req.allParams();
     const access = 'api';
@@ -118,6 +128,11 @@ async function findOne(req, res) {
 }
 
 async function create(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'create');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const attrs = req.allParams();
 
     const access = 'api';
@@ -129,6 +144,11 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
     const attrs = req.allParams();
 
@@ -141,32 +161,34 @@ async function update(req, res) {
 }
 
 async function destroy(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'remove');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
 
-    try {
-        await ListingService.destroyListing(id, {
-            keepCommittedBookings: false,
-            trigger: 'admin',
-        }, { req, res });
+    await ListingService.destroyListing(id, {
+        keepCommittedBookings: false,
+        trigger: 'admin',
+    }, { req, res });
 
-        res.json({ id });
-    } catch (err) {
-        res.sendError(err);
-    }
+    res.json({ id });
 }
 
 async function getPricing(req, res) {
     const pricingId = req.param('pricingId');
 
-    try {
-        const pricing = ListingService.getPricing(pricingId);
-        res.json(pricing);
-    } catch (err) {
-        res.sendError(err);
-    }
+    const pricing = ListingService.getPricing(pricingId);
+    res.json(pricing);
 }
 
 async function validate(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
 
     const access = 'api';
@@ -178,14 +200,15 @@ async function validate(req, res) {
 }
 
 async function updateMedias(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingList', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = req.param('id');
     const mediasIds = req.param('mediasIds');
     const mediaType = req.param('mediaType');
 
-    try {
-        await ListingService.updateListingMedias(id, { mediasIds, mediaType });
-        res.json({ id });
-    } catch (err) {
-        res.sendError(err);
-    }
+    await ListingService.updateListingMedias(id, { mediasIds, mediaType });
+    res.json({ id });
 }

@@ -30,7 +30,34 @@ module.exports = {
             maxLength: 191,
             required: true,
         },
+        revokedDate: {
+            type: 'string',
+            columnType: 'varchar(255)',
+            allowNull: true,
+            maxLength: 255,
+        },
     },
+
+    getAccessFields,
+    generateKey,
 
 };
 
+const Uuid = require('uuid');
+
+function getAccessFields(access) {
+    var accessFields = {
+        api: [
+            'id',
+            'key',
+            'createdDate',
+            'revokedDate',
+        ],
+    };
+
+    return accessFields[access];
+}
+
+function generateKey() {
+    return Uuid.v4();
+}

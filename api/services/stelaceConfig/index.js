@@ -28,5 +28,6 @@ module.exports = {
 
     config: require('./config')(ajv),
     secretData: require('./secretData')(ajv),
+    plan: require('./plan')(ajv),
 
 };

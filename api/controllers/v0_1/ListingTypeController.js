@@ -1,4 +1,4 @@
-/* global ListingType, ListingTypeService */
+/* global ApiService, ListingType, ListingTypeService */
 
 module.exports = {
 
@@ -49,6 +49,11 @@ async function findOne(req, res) {
 }
 
 async function create(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingType', 'create');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const attrs = req.allParams();
     const access = 'api';
 
@@ -62,6 +67,11 @@ async function create(req, res) {
 }
 
 async function update(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingType', 'edit');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = parseInt(req.param('id'), 10);
     const attrs = req.allParams();
     const access = 'api';
@@ -76,6 +86,11 @@ async function update(req, res) {
 }
 
 async function destroy(req, res) {
+    const allowed = await ApiService.isAllowed(req, 'listingType', 'remove');
+    if (!allowed) {
+        throw createError(403);
+    }
+
     const id = parseInt(req.param('id'), 10);
 
     try {

@@ -4,6 +4,7 @@ const jwt    = require('jsonwebtoken');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const createError = require('http-errors');
+const moment = require('moment');
 
 Promise.promisifyAll(jwt);
 
@@ -41,6 +42,8 @@ function logout(req, res) {
             resetUser: true,
             type: 'core',
         });
+
+        res.clearCookie('stl_id');
 
         // TODO: revoke token
         res.sendStatus(200);
@@ -110,6 +113,12 @@ async function callback(req, res) {
     const userAgent = req.headers['user-agent'];
     const authToken = TokenService.createAuthToken(user, {
         userAgent: userAgent
+    });
+
+    const minimalAuthToken = TokenService.createMinimalAuthToken(user.id);
+    res.cookie('stl_id', minimalAuthToken, {
+        expires: moment().add(1, 'y').toDate(),
+        httpOnly: true,
     });
 
     _updateGamificationWhenLoggedIn(user, userAgent, req.logger, req);
@@ -234,7 +243,7 @@ function loginAs(req, res) {
             userAgent: userAgent,
             original: {
                 id: (originalUser && originalUser.id) || req.user.id,
-                role: (originalUser && originalUser.role) || req.user.role
+                roles: (originalUser && originalUser.roles) || req.user.roles
             }
         });
 

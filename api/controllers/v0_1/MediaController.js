@@ -21,12 +21,8 @@ async function update(req, res) {
         return res.badRequest();
     }
 
-    try {
-        const media = await MediaService.updateMedia(id, { name });
-        res.json(Media.expose(media, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const media = await MediaService.updateMedia(id, { name });
+    res.json(Media.expose(media, access));
 }
 
 async function get(req, res) {
@@ -36,21 +32,17 @@ async function get(req, res) {
     const displayType = req.param('displayType');
     const threshold = req.param('threshold');
 
-    try {
-        const serveResult = await MediaService.getFileToServe({
-            mediaId: id,
-            uuid,
-            size,
-            displayType,
-            threshold,
-        });
+    const serveResult = await MediaService.getFileToServe({
+        mediaId: id,
+        uuid,
+        size,
+        displayType,
+        threshold,
+    });
 
-        const headers = MediaService.getServeFileHeaders(serveResult);
+    const headers = MediaService.getServeFileHeaders(serveResult);
 
-        res.set(headers).sendFile(serveResult.filepath);
-    } catch (err) {
-        res.sendError(err);
-    }
+    res.set(headers).sendFile(serveResult.filepath);
 }
 
 async function getRedirect(req, res) {
@@ -59,20 +51,16 @@ async function getRedirect(req, res) {
         uuid,
     } = req.allParams();
 
-    try {
-        const media = await Media.findOne({ id, uuid });
-        if (!media) {
-            throw createError(404);
-        }
-
-        const parsedUrl = Url.parse(req.url);
-
-        // add the media extension and redirect
-        const redirectedUrl = `${req.path}.${media.extension}${parsedUrl.search || ""}`;
-        res.redirect(redirectedUrl);
-    } catch (err) {
-        res.sendError(err);
+    const media = await Media.findOne({ id, uuid });
+    if (!media) {
+        throw createError(404);
     }
+
+    const parsedUrl = Url.parse(req.url);
+
+    // add the media extension and redirect
+    const redirectedUrl = `${req.path}.${media.extension}${parsedUrl.search || ""}`;
+    res.redirect(redirectedUrl);
 }
 
 async function download(req, res) {
@@ -101,14 +89,10 @@ async function upload(req, res) {
         userId = parseInt(userId, 10);
     }
 
-    try {
-        const media = await MediaService.uploadMedia(
-            { field, targetId, name, url },
-            { req, res, userId },
-        );
+    const media = await MediaService.uploadMedia(
+        { field, targetId, name, url },
+        { req, res, userId },
+    );
 
-        res.json(Media.expose(media, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    res.json(Media.expose(media, access));
 }

@@ -158,6 +158,7 @@ module.exports.routes = {
     // UserController
     'get /api/user/params': "UserController.params",
     "get /api/user/me": "UserController.me",
+    "get /api/user/my-permissions": "UserController.getMyPermissions",
     "get /api/user/getAuthMeans": "UserController.getAuthMeans",
     "get /api/user/payment-accounts": "UserController.getPaymentAccounts",
     'put /api/user/:id/password': "UserController.updatePassword",
@@ -177,8 +178,11 @@ module.exports.routes = {
 
     // API ROUTES
 
-    'post /api/v0.1/api-key': { target: 'v0_1/ApiKeyController.create', cors: apiCors },
-    'delete /api/v0.1/api-key': { target: 'v0_1/ApiKeyController.destroy', cors: apiCors },
+    'get /api/v0.1/api-events/count': { target: 'v0_1/ApiEventController.getCount', cors: apiCors },
+
+    'get /api/v0.1/api-keys/main': { target: 'v0_1/ApiKeyController.findMain', cors: apiCors },
+    'post /api/v0.1/api-keys': { target: 'v0_1/ApiKeyController.create', cors: apiCors },
+    'delete /api/v0.1/api-keys/:id': { target: 'v0_1/ApiKeyController.destroy', cors: apiCors },
 
     'get /api/v0.1/bookings': { target: 'v0_1/BookingController.find', cors: apiCors },
     'get /api/v0.1/bookings/:id': { target: 'v0_1/BookingController.findOne', cors: apiCors },
@@ -188,6 +192,10 @@ module.exports.routes = {
     'patch /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.updateEditable', cors: apiCors },
     'get /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.findDefault', cors: apiCors },
     'patch /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.updateDefault', cors: apiCors },
+
+    'get /api/v0.1/info/me': { target: 'v0_1/InfoController.me', cors: apiCors },
+    'get /api/v0.1/info/my-permissions': { target: 'v0_1/InfoController.getMyPermissions', cors: apiCors },
+    'get /api/v0.1/info/plan-permissions': { target: 'v0_1/InfoController.getPlanPermissions', cors: apiCors },
 
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
     'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },
@@ -223,6 +231,7 @@ module.exports.routes = {
 
     'get /api/v0.1/stelace/config': { target: 'v0_1/StelaceConfigController.findOne', cors: apiCors },
     'patch /api/v0.1/stelace/config': { target: 'v0_1/StelaceConfigController.update', cors: apiCors },
+    'post /api/v0.1/stelace/config/refresh': { target: 'v0_1/StelaceConfigController.refresh', cors: apiCors },
 
     'get /api/v0.1/users': { target: 'v0_1/UserController.find', cors: apiCors },
     'get /api/v0.1/users/:id': { target: 'v0_1/UserController.findOne', cors: apiCors },
@@ -232,6 +241,7 @@ module.exports.routes = {
 
     'get /api/v0.1/webhooks': { target: 'v0_1/WebhookController.find', cors: apiCors },
     'post /api/v0.1/webhooks': { target: 'v0_1/WebhookController.create', cors: apiCors },
+    'patch /api/v0.1/webhooks/:id': { target: 'v0_1/WebhookController.update', cors: apiCors },
     'delete /api/v0.1/webhooks/:id': { target: 'v0_1/WebhookController.destroy', cors: apiCors },
 
 
