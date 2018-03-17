@@ -42,7 +42,6 @@
                                 StelaceEvent,
                                 TagService,
                                 time,
-                                toastr,
                                 tools,
                                 uiGmapGoogleMapApi,
                                 User,
@@ -126,10 +125,10 @@
         vm.selectedQuantity    = 1;
         vm.timeUnit = null;
 
-        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readony status
+        // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readonly status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
         // See http://stackoverflow.com/questions/25928605/in-ios8-safari-readonly-inputs-are-handled-incorrectly
-        // Also see angular-ui pull request, rejected for accesibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
+        // Also see angular-ui pull request, rejected for accessibility reasons: https://github.com/angular-ui/bootstrap/pull/3720
         vm.iOS                   = tools.isIOS();
         vm.iOSSafari             = tools.isIOSSafari();
         // Inline datepicker is not used anymore with touch agnostic policy
@@ -1016,11 +1015,7 @@
                     $state.go("bookingPayment", { id: newBooking.id });
                 }).catch(function (err) {
                     if (err !== "not authenticated") {
-                        ContentService.showNotification({
-                            titleKey: 'error.unknown_happened_title',
-                            messageKey: 'error.unknown_happened_message',
-                            type: 'warning'
-                        });
+                        ContentService.showError(err);
                     }
                 });
         }
@@ -1313,7 +1308,10 @@
                     return MessageService.post(createAttrs);
                 })
                 .then(function () {
-                    toastr.success("Nous vous préviendrons de la réponse à votre message par email", "Demande envoyée");
+                    ContentService.showNotification({
+                        messageKey: 'inbox.message_sent_success',
+                        type: 'success'
+                    });
                 })
                 .catch(function (/* err */) {
                     ContentService.showNotification({

@@ -47,7 +47,7 @@
                 </span>
             </div>
             <form class="form--control text-center"
-                name="myListingsEditor"
+                name="vm.forms.myListingsEditor"
                 uib-collapse="! vm.viewCreate && ! vm.showListingEditor"
                 novalidate>
                 <div ng-if="vm.viewCreate">
@@ -146,11 +146,11 @@
                         required>
                     <!-- Do not show form-warning when invalid-maxlength -->
                     <div class="form-warning text--semibold"
-                        uib-collapse="! myListingsEditor.listingName.$touched || ! myListingsEditor.listingName.$invalid || myListingsEditor.listingName.$error.maxlength">
-                        Veuillez rédiger le titre de votre annonce avant de poursuivre (marque, modèle...).
+                        uib-collapse="! vm.forms.myListingsEditor.listingName.$touched || ! vm.forms.myListingsEditor.listingName.$invalid || vm.forms.myListingsEditor.listingName.$error.maxlength"
+                        data-translate="listing.error.missing_title_title">
                     </div>
                     <sip-maxlength class="text--small"
-                        data-content="myListingsEditor.listingName.$viewValue"
+                        data-content="vm.forms.myListingsEditor.listingName.$viewValue"
                         data-maxlength="75"
                         data-threshold="50">
                     </sip-maxlength>
@@ -182,23 +182,24 @@
                                     data-spinner-theme="fiveColors"
                                     data-spinner-key="price-recommendation-spinner"></span>
                                 <div class="spinner-label"
-                                    ng-switch-when="pending">
-                                    Calcul du prix adapté
+                                    ng-switch-when="pending"
+                                    data-translate="listing.edition.price_recommendation_pending">
                                 </div>
                                 <div class="spinner-label"
                                     ng-switch-when="ok">
-                                    Suggestion&nbsp;:
-                                    <span class="text--success text--nofade">
-                                        {{ vm.pricingSlider.options.ticksArray[1] + "€ à " + vm.pricingSlider.options.ticksArray[2] + "€" }}
+                                    <span data-translate="listing.edition.price_recommendation_result_label"></span>
+                                    <span class="text--success text--nofade"
+                                        data-translate="pricing.price_range"
+                                        data-translate-values="{ lower_price: vm.pricingSlider.options.ticksArray[1], upper_price: vm.pricingSlider.options.ticksArray[2] }">
                                     </span>
                                 </div>
                                 <div class="spinner-label"
-                                    ng-switch-when="fail">
-                                    Aucune suggestion de prix adapté à ce titre&nbsp;:(
+                                    ng-switch-when="fail"
+                                    data-translate="listing.edition.price_recommendation_failed">
                                 </div>
                                 <div class="spinner-label"
-                                    ng-switch-default>
-                                    Glisser pour modifier
+                                    ng-switch-default
+                                    data-translate="form.slider_helper">
                                 </div>
                             </div>
                         </div>
@@ -306,7 +307,7 @@
                             data-sip-textarea-auto-adjust>
                         </textarea>
                         <div class="form-warning text--semibold"
-                            uib-collapse="! myListingsEditor.listingDescription.$touched || ! myListingsEditor.listingDescription.$invalid || myListingsEditor.listingDescription.$error.maxlength"
+                            uib-collapse="! vm.forms.myListingsEditor.listingDescription.$touched || ! vm.forms.myListingsEditor.listingDescription.$invalid || vm.forms.myListingsEditor.listingDescription.$error.maxlength"
                             data-translate="listing.edition.description_required_message">
                         </div>
 
@@ -328,11 +329,11 @@
                                 ng-click="vm.showRentingPricingDetails = ! vm.showRentingPricingDetails"
                                 tabindex="0"
                                 data-sip-action-key>
-                                <span data-translate="listing.edition.longer_duration_title">
+                                    <span data-translate="listing.edition.longer_duration_title">
+                                    </span>
+                                    <span ng-if="! vm.showRentingPricingDetails">▼</span>
+                                    <span ng-if="vm.showRentingPricingDetails">▲</span>
                                 </span>
-                                <span ng-if="! vm.showRentingPricingDetails">▼</span>
-                                <span ng-if="vm.showRentingPricingDetails">▲</span>
-                            </span>
                             </p>
                             <div data-uib-collapse="! vm.showRentingPricingDetails">
                                 <table class="stelace-listing__pricing-table text-center margin-bottom-plus">
@@ -348,12 +349,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- <tr class="stelace-listing__pricing-table-row--first">
-                                            <td>1&nbsp;jour</td>
-                                            <td>{{ vm.listing.timeUnitPrice || vm.defaultTimeUnitPrice }}</td>
-                                        </tr> -->
                                         <tr ng-repeat="bookingPrice in vm.listingBookingPrices track by bookingPrice.day">
-                                            <td><label for="listing-price--{{bookingPrice.day}}">{{bookingPrice.day}}&nbsp;jours</label></td>
+                                            <td>
+                                                <!-- TODO: integrate all time units -->
+                                                <label for="listing-price--{{bookingPrice.day}}"
+                                                data-translate="pricing.nb_unit_label"
+                                                data-translate-values="{ nbTimeUnits: bookingPrice.day, timeUnit: 'd' }"></label></td>
                                             <td>
                                                 <input id="listing-price--{{bookingPrice.day}}"
                                                     type="number"
@@ -400,10 +401,10 @@
 
                     <div class="margin-bottom-plus"
                         ng-if="vm.showTags">
-                        <label for="listing-tags">
-                            Mots-clés (Niveau avancé)&nbsp;:
+                        <label for="listing-tags"
+                            data-translate="listing.edition.tags_label">
                         </label>
-                        <!-- ng-if because the input doesn't all the available if hidden by ng-show and doesn't render again when shown -->
+                        <!-- ng-if because the input doesn't render all values again when shown -->
                         <ui-select
                             class="text-left margin-top stelace-listing-editor__tags"
                             tagging="vm.tagTransform"
@@ -412,8 +413,8 @@
                             multiple
                             ng-model="vm.listingTags"
                             ng-change="vm.saveLocal('tags')"
-                            ng-if="vm.selectedListingCategoryLvl1">
-                            <ui-select-match placeholder="Mes mots-clés">{{$item.name}}</ui-select-match>
+                            ng-if="vm.step2">
+                            <ui-select-match>{{$item.name}}</ui-select-match>
                             <ui-select-choices
                                 refresh="vm.getTags($select.search)" refresh-delay="300"
                                 repeat="tag in vm.tags | filter: $select.search">
@@ -456,110 +457,127 @@
                             </p>
                         </div>
                     </div>
-                    <div uib-collapse="!vm.showPeriodAvailability" class="margin-bottom-plus">
-                        <div class="margin-bottom text--semibold"
-                            data-translate="listing.edition.temporary_unavailability_title">
-                        </div>
-                        <div class="text--small text--light pull-t margin-bottom-plus"
-                            ng-hide="vm.viewCreate"
-                            data-translate="listing.edition.pause_listings_helper"></div>
-                        <div class="flex-container flex--space">
-                            <div>
-                                <label for="popup-start-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
-                                    data-translate="time.from_day_label">
-                                </label>
-                                <div class="input__inner-icon-container stelace-listing__availability-calendar">
-                                    <input id="popup-start-date"
-                                        name="startDate"
-                                        type="text"
-                                        ng-model="vm.startDate"
-                                        ng-click="vm.openDatepicker('start')"
-                                        ng-focus="vm.openDatepicker('start')"
-                                        uib-datepicker-popup="{{vm.formatDate}}"
-                                        data-datepicker-options="vm.startDateOptions"
-                                        data-datepicker-append-to-body="false"
-                                        data-is-open="vm.startDateOpened"
-                                        data-show-button-bar="false"
-                                        data-translate-attr="{ placeholder: 'time.start_label' }"
-                                        readonly
-                                        data-sip-autoblur="vm.iOS">
-                                    <div class="input__inner-icon icon-right cursor-pointer"
-                                        ng-class="{active: vm.startDateOpened}"
-                                        ng-click="vm.startDateOpened = ! vm.startDateOpened;">
-                                        <svg class="icon">
-                                            <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label for="popup-end-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
-                                    data-translate="time.to_day_label">
-                                </label>
-                                <div class="input__inner-icon-container stelace-listing__availability-calendar">
-                                    <input id="popup-end-date"
-                                        type="text"
-                                        ng-model="vm.endDate"
-                                        ng-click="vm.openDatepicker('end')"
-                                        ng-focus="vm.openDatepicker('end')"
-                                        uib-datepicker-popup="{{vm.formatDate}}"
-                                        data-datepicker-options="vm.endDateOptions"
-                                        data-datepicker-append-to-body="false"
-                                        data-is-open="vm.endDateOpened"
-                                        data-show-button-bar="false"
-                                        data-translate-attr="{ placeholder: 'time.end_label' }"
-                                        readonly
-                                        data-sip-autoblur="vm.iOS">
-                                    <div class="input__inner-icon icon-right cursor-pointer"
-                                        ng-class="{active: vm.endDateOpened}"
-                                        ng-click="vm.endDateOpened = ! vm.endDateOpened;">
-                                        <svg class="icon">
-                                            <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label>&nbsp;</label>
-                                <a class="link--blue-underline cursor-pointer" ng-click="vm.addTimeAvailability()" data-translate="prompt.generic_add_button"></a>
-                            </div>
-                        </div>
 
-                        <div uib-collapse="!vm.editingListingAvailabilities.length">
-                            <div class="margin-bottom text--semibold" data-translate="listing.edition.unavailability_periods">
-                            </div>
-
-                            <div class="flex-container flex--center stelace-listing__availability-period" ng-repeat="listingAvailability in vm.editingListingAvailabilities track by listingAvailability.id">
-                                <div class="stelace-listing__availability-period-label" data-translate="time.from_day_label"></div>
-                                <div class="stelace-listing__availability-period-label"
-                                    data-translate="time.date_short"
-                                    data-translate-values="{ date: listingAvailability.displayStartDate }"
-                                >
-                                </div>
-                                <div class="stelace-listing__availability-period-label" data-translate="time.to_day_label"></div>
-                                <div class="stelace-listing__availability-period-label"
-                                    data-translate="time.date_short"
-                                    data-translate-values="{ date: listingAvailability.displayEndDate }"
-                                >
-                                </div>
-                                <span class="text-control"
-                                    tabindex="0"
-                                    data-sip-action-key
-                                    data-sip-autoblur
-                                    data-translate-attr="{ title: 'listing.remove_action' }"
-                                    ng-click="vm.removeListingAvailability(listingAvailability.id)">
-                                    <svg class="icon icon--inline">
-                                        <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
-                                    </svg>
+                    <div class="margin-bottom text--semibold">
+                        <span class="link--blue-underline cursor-pointer"
+                            ng-click="vm.showAvailabilitySettings = ! vm.showAvailabilitySettings"
+                            tabindex="0"
+                            data-sip-action-key>
+                                <span data-translate="listing.edition.temporary_unavailability_title">
                                 </span>
-                                <!-- <button class="button brightblue" ng-click="vm.removeListingAvailability(listingAvailability.id)">Supprimer</button> -->
+                                <span ng-if="! vm.showAvailabilitySettings">▼</span>
+                                <span ng-if="vm.showAvailabilitySettings">▲</span>
+                            </span>
+                    </div>
+                    <div data-uib-collapse="! vm.showAvailabilitySettings" class="margin-bottom-plus">
+                        <div ng-if="vm.showPeriodAvailability">
+                            <div class="text--small text--light margin-bottom"
+                                ng-hide="vm.viewCreate"
+                                data-translate="listing.edition.pause_listings_helper"></div>
+                            <div class="flex-container flex--space flex--align-center">
+                                <div>
+                                    <label for="popup-start-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
+                                        data-translate="time.from_day_label">
+                                    </label>
+                                    <div class="input__inner-icon-container stelace-listing__availability-calendar">
+                                        <input id="popup-start-date"
+                                            name="startDate"
+                                            type="text"
+                                            ng-model="vm.startDate"
+                                            ng-click="vm.openDatepicker('start')"
+                                            ng-focus="vm.openDatepicker('start')"
+                                            uib-datepicker-popup="{{vm.formatDate}}"
+                                            data-datepicker-options="vm.startDateOptions"
+                                            data-datepicker-append-to-body="false"
+                                            data-is-open="vm.startDateOpened"
+                                            data-show-button-bar="false"
+                                            data-translate-attr="{ placeholder: 'time.start_label' }"
+                                            readonly
+                                            data-sip-autoblur="vm.iOS">
+                                        <div class="input__inner-icon icon-right cursor-pointer"
+                                            ng-class="{active: vm.startDateOpened}"
+                                            ng-click="vm.startDateOpened = ! vm.startDateOpened;">
+                                            <svg class="icon">
+                                                <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="popup-end-date" class="stelace-listing__availability-calendar-label text-left text--small margin-b"
+                                        data-translate="time.to_day_label">
+                                    </label>
+                                    <div class="input__inner-icon-container stelace-listing__availability-calendar">
+                                        <input id="popup-end-date"
+                                            type="text"
+                                            ng-model="vm.endDate"
+                                            ng-click="vm.openDatepicker('end')"
+                                            ng-focus="vm.openDatepicker('end')"
+                                            uib-datepicker-popup="{{vm.formatDate}}"
+                                            data-datepicker-options="vm.endDateOptions"
+                                            data-datepicker-append-to-body="false"
+                                            data-is-open="vm.endDateOpened"
+                                            data-show-button-bar="false"
+                                            data-translate-attr="{ placeholder: 'time.end_label' }"
+                                            readonly
+                                            data-sip-autoblur="vm.iOS">
+                                        <div class="input__inner-icon icon-right cursor-pointer"
+                                            ng-class="{active: vm.endDateOpened}"
+                                            ng-click="vm.endDateOpened = ! vm.endDateOpened;">
+                                            <svg class="icon">
+                                                <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="button margin-top margin-bottom"
+                                        ng-click="vm.addTimeAvailability()"
+                                        ng-disabled="!vm.startDate || !vm.endDate || (vm.endDate < vm.startDate)"
+                                        data-translate="prompt.generic_add_button"></button>
+                                </div>
+                            </div>
+                            <p class="text--semibold" ng-show="vm.incorrectAvailabilityDates"
+                                data-translate="time.error.incorrect_dates"></p>
+
+                            <div uib-collapse="!vm.editingListingAvailabilities.length">
+                                <div class="margin-bottom text--semibold" data-translate="listing.edition.unavailability_periods">
+                                </div>
+
+                                <div class="flex-container flex--center stelace-listing__availability-period" ng-repeat="listingAvailability in vm.editingListingAvailabilities track by listingAvailability.id">
+                                    <div class="stelace-listing__availability-period-label" data-translate="time.from_day_label"></div>
+                                    <div class="stelace-listing__availability-period-label"
+                                        data-translate="time.date_short"
+                                        data-translate-values="{ date: listingAvailability.displayStartDate }"
+                                    >
+                                    </div>
+                                    <div class="stelace-listing__availability-period-label" data-translate="time.to_day_label"></div>
+                                    <div class="stelace-listing__availability-period-label"
+                                        data-translate="time.date_short"
+                                        data-translate-values="{ date: listingAvailability.displayEndDate }"
+                                    >
+                                    </div>
+                                    <span class="text-control"
+                                        tabindex="0"
+                                        data-sip-action-key
+                                        data-sip-autoblur
+                                        data-translate-attr="{ title: 'listing.remove_action' }"
+                                        ng-click="vm.removeListingAvailability(listingAvailability.id)">
+                                        <svg class="icon icon--inline">
+                                            <use xlink:href="/assets/build/icons/sprite.svg#trash"/>
+                                        </svg>
+                                    </span>
+                                    <!-- <button class="button brightblue" ng-click="vm.removeListingAvailability(listingAvailability.id)">Supprimer</button> -->
+                                </div>
                             </div>
                         </div>
                     </div>
+
                     <div ng-if="! vm.isAuthenticated">
                         <hr>
                         <p class="margin-bottom"
-                            data-translate="authentication.sign_up_greeting">
+                            data-translate="authentication.sign_up_greeting"
+                            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                         </p>
                         <p class="text--small link--blue-force-underline cursor-pointer padding-bottom margin-bottom"
                             ng-click="vm.createAccount = ! vm.createAccount"
@@ -588,7 +606,7 @@
                             data-translate-attr=" { placeholder: vm.createAccount ? 'authentication.placeholder.create_password' : '' }"
                             data-translate-values="{ min_number_of_characters: 6 }">
                         <div class="form-warning text--semibold"
-                            uib-collapse="! myListingsEditor.newAccountPassword.$touched || ! myListingsEditor.newAccountPassword.$invalid"
+                            uib-collapse="! vm.forms.myListingsEditor.newAccountPassword.$touched || ! vm.forms.myListingsEditor.newAccountPassword.$invalid"
                             data-translate="form.min_characters"
                             data-translate-values="{ min_number_of_characters: 6 }">
                         </div>
@@ -606,7 +624,7 @@
                             data-translate="authentication.lost_password_button">
                         </p>
                         <div class="signin-form-container margin-bottom-plus" ng-if="vm.showSocialLogin">
-                            <span class="text--emphasize">Ou&nbsp;</span>:
+                            <span class="text--emphasize" data-translate="authentication.or_social_auth_separator"></span>
                             <div class="social-signin fb cursor-pointer" ng-if="config.socialLogin_facebook_complete" ng-click="vm.socialLogin('facebook')">
                                 <svg class="icon">
                                     <use xlink:href="/assets/build/icons/sprite.svg#face"/>
@@ -625,43 +643,44 @@
                         ng-if="vm.isAuthenticated && (! vm.existingPhone || vm.noImage)">
                         <hr class="small-6 small-offset-3">
                         <div class="small-12" ng-if="! vm.existingPhone">
-                            <h2>
-                                Facilitez-vous la vie
+                            <h2 data-translate="prompt.making_your_life_easier">
                             </h2>
-                            <p class="text--small">
-                                Sharinplace vous prévient gratuitement de toute demande par SMS afin que vous ne ratiez aucune occasion. Votre numéro ne sera jamais communiqué à un autre membre tant que vous n'aurez pas accepté sa demande.
+                            <p class="text--small"
+                                data-translate="user.prompt.phone_validation_context"
+                                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                             </p>
                             <data-sip-prompt-phone
                                 ng-class="{'prompt-highlight': vm.promptPhoneHighlight}"
                                 prompt-highlight="vm.promptPhoneHighlight">
                             </data-sip-prompt-phone>
-                            <p class="text--small">
-                                Un numéro vérifié est un gage de confiance sur la plateforme et augmente vos chances de recevoir des demandes.
+                            <p class="text--small"
+                            data-translate="user.prompt.phone_validation_trust_factor">
                             </p>
                             <hr class="small-6 small-offset-3" ng-if="vm.noImage">
                         </div>
                         <div class="small-12" ng-if="vm.noImage">
-                            <h2>
-                                Inspirez confiance
+                            <h2 data-translate="prompt.inspire_confidence">
                             </h2>
-                            <p class="text--small">
-                                Les photos de profil permettent aux membres Sharinplace de se reconnaître lorsqu'ils se recontrent pour échanger des objets et sont un gage de confiance supplémentaire. Ajoutez la vôtre en quelques secondes.
+                            <p class="text--small" data-translate="user.prompt.profile_image_trust_factor"
+                                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME  }">
                             </p>
                             <data-sip-prompt-image></data-sip-prompt-image>
                         </div>
                         <hr class="small-6 small-offset-3">
                     </div>
                     <div ng-if="vm.showTotalMediaUpload" class="margin-top-plus">
-                        <p class="margin-bottom text-center">Progression du chargement des photos...</p>
+                        <p class="margin-bottom text-center" data-translate="form.uploading_images"></p>
                         <div class="total-upload-progress small-offset-3 small-6"
                             data-uib-progressbar
-                            data-value=vm.totalMediaUpload>
-                            {{vm.totalMediaUpload}}%
+                            data-value="vm.totalMediaUpload">
+                            <span data-translate="fraction.percent"
+                                data-translate-values="{ hundredth: vm.totalMediaUpload / 100 }"></span>
                         </div>
                     </div>
                     <div class="text-center spinner-button-container save-button-container">
-                        <div ng-if="!vm.listing.quantity && vm.listingTypeProperties.isTimeNone">
-                            Cette offre a déjà trouvé preneur. Vous ne pouvez donc plus apporter de modifications à votre annonce.
+                        <div class="text--semibold"
+                            ng-show="!vm.listing.quantity && vm.listingTypeProperties.isTimeNone"
+                            data-translate="listing.edition.owner_sold_unique_product">
                         </div>
                         <button
                             class="button button--highlight brightblue spinner-button--center"
@@ -678,14 +697,6 @@
                         ng-if="vm.viewCreate"
                         data-translate="listing.edition.trust_message">
                     </div>
-                    <!-- <div class="text-center text--small">
-                    <svg class="icon icon--inline light-grey">
-                            <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
-                        </svg>
-                        <a class="link--underline link--grey" ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id })">
-                            Voir mon annonce
-                        </a>
-                    </div> -->
                 </div>
                 <!-- <uib-progressbar value="vm.stepProgress">
                     {{vm.stepProgress}}%

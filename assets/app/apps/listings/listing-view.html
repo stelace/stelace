@@ -296,7 +296,7 @@
 
                                 <p class="text-center margin-bottom" ng-show="vm.showIncorrectDates" ng-switch="vm.dateErrorObject.type">
                                     <span ng-switch-when="DEFAULT"
-                                        data-translate="booking.error.incorrect_dates">
+                                        data-translate="time.error.incorrect_dates">
                                     </span>
                                     <span ng-switch-when="BELOW_MIN_DURATION"
                                         data-translate="booking.error.minimum_duration"
@@ -346,7 +346,7 @@
                                     <div ng-if="! vm.isOwner && ! vm.disableBookingButton"
                                         class="booking-button-trust padding-top"
                                         data-translate="listing.charge_if_owner_accepts"
-                                        data-translate-values="{ owner: vm.listing.owner.firstname || vm.listing.owner.fullname }">
+                                        data-translate-values="{ owner: vm.listing.owner.firstname || vm.listing.owner.fullname || null }">
                                     </div>
                                     <button id="listing-book-sticky-button"
                                         class="button brightblue button--highlight sticky-button"
@@ -611,13 +611,13 @@
                                         <span class="text--semibold"
                                             ng-if="vm.ownerMessageStats.answerRate < 50"
                                             data-translate="fraction.percent"
-                                            data-translate-values="{ nbUnits: vm.ownerMessageStats.answerRate / 100 }"
+                                            data-translate-values="{ hundredth: vm.ownerMessageStats.answerRate / 100 }"
                                         >
                                         </span>
                                         <span class="text--semibold"
                                             ng-if="vm.ownerMessageStats.answerRate >= 50"
                                             data-translate="fraction.less_than_percent"
-                                            data-translate-values="{ nbUnits: vm.ownerMessageStats.answerRate / 100 }"
+                                            data-translate-values="{ hundredth: vm.ownerMessageStats.answerRate / 100 }"
                                         >
                                         </span>
                                     </div>
