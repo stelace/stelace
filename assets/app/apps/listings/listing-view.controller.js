@@ -42,7 +42,6 @@
                                 StelaceEvent,
                                 TagService,
                                 time,
-                                toastr,
                                 tools,
                                 uiGmapGoogleMapApi,
                                 User,
@@ -1309,7 +1308,10 @@
                     return MessageService.post(createAttrs);
                 })
                 .then(function () {
-                    toastr.success("Nous vous préviendrons de la réponse à votre message par email", "Demande envoyée");
+                    ContentService.showNotification({
+                        messageKey: 'inbox.message_sent_success',
+                        type: 'success'
+                    });
                 })
                 .catch(function (/* err */) {
                     ContentService.showNotification({

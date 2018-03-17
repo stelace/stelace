@@ -295,9 +295,12 @@ listing:
     not_available_now:
         en: Not available for now
         fr: Indisponible pour le moment
+    not_available_anymore:
+        en: This listing is not available anymore.
+        fr: Cette annonce n’est plus disponible.
     charge_if_owner_accepts:
-        en: 'You will be charged only if {owner} accepts the transaction'
-        fr: 'Vous ne serez débité qu''en cas de confirmation de {owner}'
+        en: 'You will be charged only if {owner, select, null {the seller} other {{owner}}} accepts the transaction'
+        fr: 'Vous ne serez débité qu’en cas de confirmation {owner, select, null {du vendeur} other {de {owner}}}'
     price_label:
         en: Price
         fr: Prix
@@ -386,6 +389,16 @@ listing:
         show_my_other_listings:
             en: Show my other listings
             fr: Voir mes autres annonces
+        price_recommendation_pending:
+            en: Finding the fair price…
+            fr: Calcul du prix adapté…
+            context: Displayed when automatic price recommendation is enabled during listing creation.
+        price_recommendation_failed:
+            en: No price suggestion found
+            fr: Aucune suggestion de prix disponible
+        price_recommendation_result_label:
+            en: "Suggestion:"
+            fr: "Suggestion\_:"
         image_title:
             en: Beautiful pictures make difference...
             fr: De belles photos font la différence...
@@ -407,6 +420,22 @@ listing:
         save_button:
             en: Save my listing
             fr: Enregistrer mon annonce
+        listing_saved:
+            en: Listing saved.
+            fr: Annonce enregistrée.
+        publication_status:
+            en: |
+                {published, select,
+                    after_validation {Your listing will be published after validation by {SERVICE_NAME}}
+                    now {Your listing is now online.}
+                    other {}
+                }
+            fr: |
+                {published, select,
+                    after_validation {Votre annonce sera publiée très prochainement après validation par {SERVICE_NAME}.}
+                    now {Votre annonce vient d’être publiée.}
+                    other {}
+                }
         trust_message:
             en: 'If there is a transaction, the price amount will be transferred to your account in the days following your confirmation. Easy and secure!'
             fr: "En cas de réservation, le prix sera transféré sur votre compte dans les jours qui suivront votre confirmation. Facile et sécurisé\_!"
@@ -428,8 +457,8 @@ listing:
             en: Add / remove pictures
             fr: Ajouter / supprimer des photos
         longer_duration_title:
-            en: Longer durations
-            fr: Personnalisation des tarifs longue durée
+            en: Longer durations pricing
+            fr: Tarifs longue durée
         longer_duration_title__EDITOR_LABEL:
             en: ''
             fr: ''
@@ -472,21 +501,27 @@ listing:
         activate_locations_message__EDITOR_LABEL:
             en: ''
             fr: ''
+        tags_label:
+            en: Tags
+            fr: Mots-clés
         temporary_unavailability_title:
-            en: My listing will be unavailable for some time
-            fr: Mon annonce sera temporairement indisponible
+            en: Set listing unavailability periods
+            fr: Définir des périodes d’indisponibilité
         unavailability_periods:
             en: Unavailability periods
             fr: Périodes d’indisponibilité
         pause_listings_helper:
             en: You can also pause your listings for a while <a href="/my-listings">here</a>.
             fr: Vous pourrez également mettre vos annonces en pause prolongée <a href="/my-listings">ici</a>.
+        owner_sold_unique_product:
+            en: You’ve found a buyer for this listing.
+            fr: Votre annonce a trouvé preneur.
     error:
         missing_title_title:
             en: Required title
             fr: Titre requis
         missing_title_message:
-            en: Please enter the listing title. A clear and specific title draw other members' attention.
+            en: Please enter the listing title. A clear and specific title draws other members' attention.
             fr: Veuillez renseigner un titre pour votre annonce. Un titre clair et précis attirera l'attention des membres.
         missing_price_title:
             en: Missing price
@@ -504,8 +539,8 @@ listing:
             en: Required description
             fr: Description requise
         missing_description_message:
-            en: Please give a description. That will encourage other members to contact you.
-            fr: Veuillez renseigner une description. Ceci encouragera les autres membres à vous contacter.
+            en: Please give a description to encourage other members to contact you.
+            fr: Veuillez renseigner une description pour encourager les autres membres à vous contacter.
         missing_image_title:
             en: Missing picture
             fr: Photographie manquante
@@ -593,6 +628,14 @@ time:
     end_label:
         en: End
         fr: Fin
+    error:
+        incorrect_dates:
+            en: Dates are incorrect.
+            fr: Les dates sont incorrectes.
+            context: Can be used in any context such as availability settings or booking.
+        overlapping_dates:
+            en: Please select a period not overlapping previous ones.
+            fr: Veuillez indiquer une période qui ne recouvre pas une autre période existante.
 user:
     is_level:
         en: '{level} user'
@@ -1116,6 +1159,10 @@ notification:
     validation_failed:
         en: Validation failed{retry, select, later {, please retry later.} other {}}
         fr: Échec de la validation{retry, select, later {, veuillez réessayer plus tard.} other {}}
+    shared:
+        en: Thank you for sharing!
+        fr: "Merci d’avoir partagé\_!"
+        context: Used to inform user that (social) link sharing is completed.
 form:
     min_characters:
         fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
@@ -1128,6 +1175,10 @@ form:
         en: Uploading images…
         fr: Chargement des images en cours…
         context: Displayed until upload to servers is complete.
+    slider_helper:
+        en: Slide to adjust
+        fr: Glisser pour modifier
+        context: Helps user using slider to set values in forms.
 ratings:
     see_more:
         en: See more ratings
@@ -1278,9 +1329,6 @@ error:
         fr: Erreur lors de l'envoi
 booking:
     error:
-        incorrect_dates:
-            en: The dates are incorrect.
-            fr: Les dates sont incorrectes.
         own_listing_booking:
             en: You cannot book your own listing.
             fr: Vous ne pouvez pas réserver pour votre propre annonce.
@@ -1749,6 +1797,9 @@ pricing:
     price:
         en: Price
         fr: Prix
+    price_range:
+        en: 'De {lower_price, number, currency} à {upper_price, number, currency}'
+        fr: 'Form {lower_price, number, currency} to {upper_price, number, currency}'
     nb_unit_label:
         en: |
             {timeUnit, select,

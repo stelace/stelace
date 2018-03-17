@@ -37,7 +37,6 @@
                                 StelaceEvent,
                                 TagService,
                                 time,
-                                toastr,
                                 tools,
                                 UserService,
                                 usSpinnerService) {
@@ -83,8 +82,13 @@
             initDate: todayDate
             // Bug with use of datepicker-options for inline datepickers if initDate is not set
         };
+        var stlConfig = StelaceConfig.getConfig();
+
 
         var vm = this;
+
+        vm.forms = {};
+
         // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readonly status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
         // See http://stackoverflow.com/questions/25928605/in-ios8-safari-readonly-inputs-are-handled-incorrectly
@@ -115,7 +119,6 @@
         vm.defaultDeposit       = initialDefaultDeposit;
         vm.maxDeposit           = 600; // EUR
         vm.listingBookingPrices    = _.map(breakpointDays, function (day) { return { day: day }; });
-        vm.myListingsEditor        = {};
         vm.tags                 = [];
         vm.myListings              = [];
         vm.selectedListingToSocialShare = null;
@@ -1051,13 +1054,7 @@
                     if (! promptResults.email) {
                         return $q.reject("missing email");
                     }
-                    // if (! promptResults.mainLocation) {
-                    //     toastr.warning("Vous devrez indiquer la localisation de votre objet dans votre compte afin de finaliser la création de votre annonce.",
-                    //         "Adresse ou ville requise", {
-                    //         timeOut: 0,
-                    //         closeButton: true
-                    //     });
-                    // }
+
                     return LocationService.getMine(refreshLocations);
                 })
                 .then(function (locations) {
@@ -1077,8 +1074,7 @@
                     } else {
                         ContentService.showNotification({
                             titleKey: 'listing.error.missing_location_title',
-                            messageKey: 'listing.error.missing_location_message',
-                            type: 'warning'
+                            messageKey: 'listing.error.missing_location_message'
                         });
                         return false;
                     }
@@ -1149,11 +1145,11 @@
             }, []);
 
             if (! attrs.locations.length) {
-                toastr.info("Votre annonce ne pourra malheureusement pas être publiée sans localisation. "
-                    + "Votre adresse complète n'apparaîtra jamais publiquement.",
-                    "Adresse ou ville requise", {
-                        timeOut: 20000
-                    });
+                ContentService.showNotification({
+                    titleKey: 'listing.error.missing_location_title',
+                    messageKey: 'listing.error.missing_location_message',
+                    timeOut: 20000
+                });
             }
         }
 
@@ -1236,7 +1232,8 @@
                             uploadMediasManager.stop();
 
                             if (result.uploadFail) {
-                                toastr.warning("Nous sommes désolés, veuillez réessayer d'ajouter les images manquantes un peu plus tard.", "Image(s) non enregistrée(s)");
+                                var mediaUploadError = new Error("Media upload failed during listing creation");
+                                ContentService.showError(mediaUploadError);
                             }
                             if (result.change) {
                                 mediasIds = _.union(mediasIds, result.mediasIds);
@@ -1249,7 +1246,8 @@
                 })
                 .then(function (myListings) {
                     if (vm.createAccount && ! vm.useSocialLogin) {
-                        toastr.success("Veuillez confirmer votre adresse " + vm.email + " en cliquant sur le lien que nous venons de vous envoyer par email.", "Vérification de votre adresse", {
+                        ContentService.showNotification({
+                            messageKey: 'user.account.email_validation_link_sent',
                             timeOut: 0,
                             closeButton: true
                         });
@@ -1275,9 +1273,15 @@
                     $rootScope.$emit("refreshStickySidebarPosition");
                     _resetMyListingsEditorState();
 
-                    toastr.success((createAttrs.validation ? "Votre annonce sera publiée très prochainement après validation." : "Votre annonce a bien été publiée."),
-                        "Bravo, objet ajouté\xa0!"
-                    );
+                    ContentService.showNotification({
+                        titleKey: 'listing.edition.listing_saved',
+                        messageKey: 'listing.edition.publication_status',
+                        messageValues: {
+                            published: createAttrs.validation ? 'after_validation' : 'now',
+                            SERVICE_NAME: stlConfig.SERVICE_NAME
+                        },
+                        type: 'success'
+                    });
 
                     // default listing creation: no medias
                     // so if none, do not perform update media
@@ -1355,7 +1359,8 @@
                             uploadMediasManager.stop();
 
                             if (result.uploadFail) {
-                                toastr.warning("Nous sommes désolés, veuillez réessayer d'ajouter les images manquantes un peu plus tard.", "Image(s) non enregistrée(s)");
+                                var mediaUploadError = new Error("Media upload failed during listing update");
+                                ContentService.showError(mediaUploadError);
                             }
                             if (result.change) {
                                 return vm.listing.updateMedias(result.mediasIds);
@@ -1384,7 +1389,7 @@
                 })
                 .then(function () {
                     _initListing();
-                    toastr.success("Objet modifié");
+                    ContentService.showSaved();
                 });
         }
 
@@ -1469,8 +1474,10 @@
                 })
                 .catch(function (/* err */) {
                     vm.password = null;
-                    toastr.warning("Veuillez vérifier vos identifiants. Vous pouvez réinitialiser votre mot de passe en cliquant sur \"Mot de passe oublié\".",
-                        "Adresse email ou mot de passe erronés");
+                    ContentService.showNotification({
+                        messageKey: 'authentication.error.incorrect',
+                        type: 'warning'
+                    });
                     return $q.reject("wrong password");
                 });
         }
@@ -1519,8 +1526,10 @@
                                 return true;
                             })
                             .catch(function (/* err */) {
-                                toastr.warning("Veuillez réessayer de saisir votre mot de passe. Vous pouvez également le réinitialiser en cliquant sur \"Mot de passe oublié\"",
-                                    "Mot de passe erroné");
+                                // Log user in if password is correct but help her to remember if not.
+                                ContentService.showNotification({
+                                    messageKey: 'authentication.error.email_already_used'
+                                });
                                 return $q.reject("wrong password");
                             });
                     } else {
@@ -1533,8 +1542,8 @@
         }
 
         function _resetMyListingsEditorState() {
-            vm.myListingsEditor.$setPristine();
-            vm.myListingsEditor.$setUntouched();
+            vm.forms.myListingsEditor.$setPristine();
+            vm.forms.myListingsEditor.$setUntouched();
         }
 
         function touchMedia(/* mediaId */) {
@@ -1622,7 +1631,7 @@
             var formField;
 
             _.forEach(fields, function (field) {
-                formField = vm.myListingsEditor["listing" + tools.toStartCase(field)];
+                formField = vm.forms.myListingsEditor["listing" + tools.toStartCase(field)];
 
                 if (formField && formField.$touched && formField.$invalid) {
                     stlEventData.completed[field] = "failed";
@@ -1700,7 +1709,9 @@
                 }, function (response) {
                     // In Graph API v2.8, response after effective sharing is []
                     if (response && ! response.error_code) { // error code only for fb authorized users
-                        toastr.success("Merci d'avoir partagé\xa0!");
+                        ContentService.showNotification({
+                            messageKey: 'notification.shared'
+                        });
                         stlEventData.success = true;
                         stlEvent.update({ data: stlEventData });
                     }
@@ -1941,11 +1952,9 @@
         function addTimeAvailability() {
             if (!vm.startDate
              || !vm.endDate
-            ) {
-                return toastr.info("Veuillez indiquer les dates de début et de fin de période.", "Dates requises");
-            }
-            if (vm.endDate < vm.startDate) {
-                return toastr.info("La date de fin doit être après la date de début.", "Dates incorrectes");
+             || vm.endDate < vm.startDate) {
+                vm.incorrectAvailabilityDates = true;
+                return;
             }
 
             var startDate = getISODate(vm.startDate);
@@ -1957,7 +1966,9 @@
             });
 
             if (isWithinRange) {
-                return toastr.info("Veuillez indiquer une période qui ne recouvre pas une autre période déjà sélectionnée", "Période incorrecte");
+                return ContentService.showNotification({
+                    messageKey: 'time.error.overlapping_dates'
+                });
             }
 
             vm.editingListingAvailabilities.push({

@@ -450,7 +450,7 @@
                         if (err.data && err.data.message === "Existing email") {
                             ContentService.showNotification({
                                 messageKey: 'authentication.error.email_already_used'
-                            })
+                            });
                         } else {
                             _showInvalidEmailError();
                         }
