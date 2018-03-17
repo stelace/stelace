@@ -251,11 +251,10 @@ function getPriceAfterRebateAndFees(booking) {
 }
 
 function getBookingValue(booking) {
-    return PricingService.getPrice({
-        config: booking.customPricingConfig || PricingService.getPricing(booking.pricingId).config,
-        dayOne: booking.timeUnitPrice,
-        nbDays: booking.nbTimeUnits,
-        custom: !! booking.customPricingConfig,
+    return PricingService.getDurationPrice({
+        customConfig: booking.customPricingConfig,
+        timeUnitPrice: booking.timeUnitPrice,
+        nbTimeUnits: booking.nbTimeUnits,
         array: false
     });
 }

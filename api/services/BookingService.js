@@ -405,11 +405,10 @@ async function getOwnerPriceValue({ listingType, listing, nbTimeUnits, quantity 
     let freeValue;
 
     if (listingType.properties.TIME === 'TIME_FLEXIBLE') {
-        const prices = PricingService.getPrice({
-            config: listing.customPricingConfig || PricingService.getPricing(listing.pricingId).config,
-            dayOne: listing.timeUnitPrice,
-            nbDays: nbTimeUnits,
-            custom: !! listing.customPricingConfig,
+        const prices = PricingService.getDurationPrice({
+            customConfig: listing.customPricingConfig,
+            timeUnitPrice: listing.timeUnitPrice,
+            nbTimeUnits,
             array: true
         });
         ownerPrice    = prices[nbTimeUnits - 1];

@@ -11,7 +11,6 @@ module.exports = {
     updateListingMedias,
     pauseListingToggle,
     validateListing,
-    getPricing,
     createListingAvailability,
     updateListingAvailability,
     removeListingAvailability,
@@ -84,7 +83,7 @@ async function createListing(attrs, { req, res } = {}) {
         || (typeof createAttrs.timeUnitPrice !== 'undefined' && (typeof createAttrs.timeUnitPrice !== 'number' || createAttrs.timeUnitPrice < 0))
         || (typeof createAttrs.deposit !== 'undefined' && (typeof createAttrs.deposit !== 'number' || createAttrs.deposit < 0))
         || (!createAttrs.listingTypesIds || !MicroService.checkArray(createAttrs.listingTypesIds, 'id') || !createAttrs.listingTypesIds.length)
-        || (createAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(createAttrs.customPricingConfig))
+        || (createAttrs.customPricingConfig && createAttrs.customPricingConfig.duration && ! PricingService.isValidCustomDurationConfig(createAttrs.customPricingConfig.duration))
         || (createAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(createAttrs.recurringDatesPattern))
         || (typeof createAttrs.quantity === 'number' && createAttrs.quantity < 0)
     ) {
@@ -153,9 +152,6 @@ async function createListing(attrs, { req, res } = {}) {
     createAttrs.sellingPrice = createAttrs.sellingPrice || 0;
     createAttrs.timeUnitPrice = createAttrs.timeUnitPrice || 0;
     createAttrs.deposit = createAttrs.deposit || 0;
-
-    const pricing = PricingService.getPricing();
-    createAttrs.pricingId = pricing.id;
 
     const [
         userLocations,
@@ -265,7 +261,7 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         || (updateAttrs.sellingPrice && (typeof updateAttrs.sellingPrice !== 'number' || updateAttrs.sellingPrice < 0))
         || (updateAttrs.timeUnitPrice && (typeof updateAttrs.timeUnitPrice !== 'number' || updateAttrs.timeUnitPrice < 0))
         || (updateAttrs.deposit && (typeof updateAttrs.deposit !== 'number' || updateAttrs.deposit < 0))
-        || (updateAttrs.customPricingConfig && ! PricingService.isValidCustomConfig(updateAttrs.customPricingConfig))
+        || (updateAttrs.customPricingConfig && updateAttrs.customPricingConfig.duration && ! PricingService.isValidCustomDurationConfig(updateAttrs.customPricingConfig.duration))
         || (updateAttrs.recurringDatesPattern && !TimeService.isValidCronPattern(updateAttrs.recurringDatesPattern))
         || (updateAttrs.quantity && (typeof updateAttrs.quantity !== 'number' || updateAttrs.quantity < 0))
     ) {
@@ -535,27 +531,6 @@ async function validateListing(listingId) {
 
     const validatedListing = await Listing.updateOne(listingId, { validated: true });
     return validatedListing;
-}
-
-/**
- *
- * @param {Number} [pricingId]
- */
-function getPricing(pricingId) {
-    const pricing = PricingService.getPricing(pricingId);
-    if (!pricing) {
-        throw createError(404);
-    }
-
-    return {
-        id: pricing.id,
-        config: pricing.config,
-        ownerFeesPercent: PricingService.get('ownerFeesPercent'),
-        takerFeesPercent: PricingService.get('takerFeesPercent'),
-        ownerFeesPurchasePercent: PricingService.get('ownerFeesPurchasePercent'),
-        takerFeesPurchasePercent: PricingService.get('takerFeesPurchasePercent'),
-        maxDiscountPurchasePercent: PricingService.get('maxDiscountPurchasePercent'),
-    };
 }
 
 /**

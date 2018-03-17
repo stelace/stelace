@@ -106,7 +106,6 @@ module.exports.routes = {
     'put /api/listing/:id/medias': "ListingController.updateMedias",
     'post /api/listing/search': 'ListingController.search',
     'get /api/listing/:id/locations': "ListingController.getLocations",
-    'get /api/listing/pricing': "ListingController.getPricing",
     'get /api/listing/price-recommendation': "ListingController.getRecommendedPrices",
     'post /api/listing/price-recommendation/time-unit-price': "ListingController.getTimeUnitPriceFromSellingPrice",
     'put /api/listing/:id/pause': "ListingController.pauseListingToggle",
@@ -198,7 +197,6 @@ module.exports.routes = {
     'get /api/v0.1/info/plan-permissions': { target: 'v0_1/InfoController.getPlanPermissions', cors: apiCors },
 
     'get /api/v0.1/listings': { target: 'v0_1/ListingController.find', cors: apiCors },
-    'get /api/v0.1/listings/pricing': { target: 'v0_1/ListingController.getPricing', cors: apiCors },
     'get /api/v0.1/listings/:id': { target: 'v0_1/ListingController.findOne', cors: apiCors },
     'post /api/v0.1/listings': { target: 'v0_1/ListingController.create', cors: apiCors },
     'patch /api/v0.1/listings/:id': { target: 'v0_1/ListingController.update', cors: apiCors },

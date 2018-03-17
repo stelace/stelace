@@ -46,6 +46,7 @@
                     </span>
                 </span>
             </div>
+            <!-- Use vm.myListingsEditor as form name to use it in the controller -->
             <form class="form--control text-center"
                 name="vm.forms.myListingsEditor"
                 uib-collapse="! vm.viewCreate && ! vm.showListingEditor"
@@ -349,14 +350,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="bookingPrice in vm.listingBookingPrices track by bookingPrice.day">
+                                        <tr ng-repeat="bookingPrice in vm.listingBookingPrices track by bookingPrice.nbUnits">
                                             <td>
-                                                <!-- TODO: integrate all time units -->
-                                                <label for="listing-price--{{bookingPrice.day}}"
-                                                data-translate="pricing.nb_unit_label"
-                                                data-translate-values="{ nbTimeUnits: bookingPrice.day, timeUnit: 'd' }"></label></td>
+                                                <label for="listing-price--{{bookingPrice.nbUnits}}"
+                                                    data-translate="pricing.nb_unit_label"
+                                                    data-translate-values="{ nbTimeUnits: bookingPrice.nbUnits, timeUnit: vm.listingType.config.bookingTime.timeUnit }"
+                                                >
+                                                </label>
+                                            </td>
                                             <td>
-                                                <input id="listing-price--{{bookingPrice.day}}"
+                                                <input id="listing-price--{{bookingPrice.nbUnits}}"
                                                     type="number"
                                                     class="stelace-listing__pricing-table-input"
                                                     ng-model="bookingPrice.price"

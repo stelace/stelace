@@ -110,17 +110,17 @@
                 }
 
                 var listingType = getListingType();
-                var nbDays;
+                var nbTimeUnits;
 
                 if (scope.booking) {
                     // no need to compute more than booking nb booked days
-                    nbDays = scope.booking.nbTimeUnits;
+                    nbTimeUnits = scope.booking.nbTimeUnits;
                 } else {
-                    nbDays = listingType.config.bookingTime.maxDuration || 100;
+                    nbTimeUnits = listingType.config.bookingTime.maxDuration || 100;
                 }
 
                 ListingService.populate(scope.listing, {
-                    nbDaysPricing: nbDays
+                    nbTimeUnits: nbTimeUnits
                 });
             }
 

@@ -7,11 +7,10 @@
     function pricing($http, $q, tools, apiBaseUrl) {
         var service = {};
         service.roundPrice                 = roundPrice;
-        service.getPrice                   = getPrice;
-        service.getPricing                 = getPricing;
+        service.getDurationPrice           = getDurationPrice;
         service.getPriceAfterRebateAndFees = getPriceAfterRebateAndFees;
         service.getDutyFreePrice           = getDutyFreePrice;
-        service.isValidCustomConfig        = isValidCustomConfig;
+        service.isValidCustomDurationConfig = isValidCustomDurationConfig;
         service.rentingPriceRecommendation = rentingPriceRecommendation;
 
         return service;
@@ -31,33 +30,38 @@
         }
 
         /**
-         * get price
-         * @param  {object}  args
-         * @param  {number}  args.nbDays
-         * @param  {object}  args.config
-         * @param  {number}  args.dayOne - required if custom is false
-         * @param  {boolean} [args.custom = false] - if true, use custom config
-         * @param  {boolean} [args.array = false] - if true, get array of prices
-         * @return {number|number[]} price or array of prices (price per day)
+         * Get price depending on duration
+         * @param {Object} args
+         * @param {Number} args.nbTimeUnits
+         * @param {Number} args.timeUnitPrice
+         * @param {Object} args.customConfig
+         * @param {Boolean} [args.array = false] - if true, get array of prices
+         * @return {Number|Number[]} price or array of prices
          */
-        function getPrice(args) {
-            args = args || {};
-            var nbDays = args.nbDays;
-            var custom = args.custom || false;
-            var array  = args.array || false;
+        function getDurationPrice(args) {
+            var nbTimeUnits = args.nbTimeUnits;
+            var timeUnitPrice = args.timeUnitPrice;
+            var customConfig = args.customConfig;
+            var array = args.array || false;
 
-            var it;
+            if (typeof nbTimeUnits !== 'number'
+             || typeof timeUnitPrice !== 'number'
+            ) {
+                throw new Error('Missing parameters');
+            }
 
-            if (! custom) {
-                it = _getRegressivePriceIterator(args);
+            var iterator;
+
+            if (customConfig && customConfig.duration) {
+                iterator = _getCustomDurationPriceIterator({ customConfig: customConfig });
             } else {
-                it = _getCustomPriceIterator(args);
+                iterator = _getDefaultDurationPriceIterator({ timeUnitPrice: timeUnitPrice });
             }
 
             var prices = [];
 
-            _.times(nbDays, function () {
-                var price = it.next().value;
+            _.times(nbTimeUnits, function () {
+                var price = iterator.next().value;
                 price     = roundPrice(price);
                 price     = (price >= 0 ? price : 0);
                 prices.push(price);
@@ -70,142 +74,72 @@
             }
         }
 
-        /**
-         * get regressive price iterator
-         * @param  {object}   args
-         * @param  {number}   args.dayOne
-         * @param  {number}   args.nbDays
-         *
-         * @param  {object}   args.config - config from _selectConfig()
-         * @param  {object[]} args.config.breakpoints
-         * @param  {number}   args.config.breakpoints.day
-         * @param  {number}   args.config.breakpoints.value
-         * @param  {number}   args.config.daily
-         *
-         * @return {object}   iterator
-         * @return {function} iterator.next
-         */
-        function _getRegressivePriceIterator(args) {
-            var dayOne = args.dayOne;
-            var nbDays = args.nbDays;
-            var config = args.config;
+        function _getDefaultDurationPriceIterator(args) {
+            var timeUnitPrice = args.timeUnitPrice;
 
-            if ((! dayOne && dayOne !== 0) // allow free
-             || ! nbDays
-             || ! config
-            ) {
-                throw new Error("Missing params");
-            }
+            var iterator = {
+                _nbUnits: 1,
+                _timeUnitPrice: timeUnitPrice,
+            };
 
-            var breakpoints = _.sortBy(config.breakpoints, function (breakpoint) {
-                return breakpoint.day;
-            });
-            var basisPricePerDay = dayOne * config.daily;
-
-            if (breakpoints[0].day !== 1) {
-                throw new Error("Bad config");
-            }
-
-            var PriceIterator = function (breakpoints) {
-                var price           = 0;
-                var dayNum          = 1;
-                var breakpointIndex = 0;
-                var lastBreakpoint  = _.last(breakpoints);
-                var currentBreakpoint;
-                var nextBreakpoint;
-
-                var setBreakpointState = function () {
-                    currentBreakpoint    = breakpoints[breakpointIndex];
-                    var isLastBreakpoint = (currentBreakpoint.day === lastBreakpoint.day);
-                    nextBreakpoint       = (! isLastBreakpoint ? breakpoints[breakpointIndex + 1] : null);
-                };
-
-                setBreakpointState();
-
-                var next = function () {
-                    if (dayNum === 1) {
-                        price = dayOne;
-                    } else {
-                        if (nextBreakpoint && nextBreakpoint.day === dayNum) {
-                            ++breakpointIndex;
-                            setBreakpointState();
-                        }
-
-                        price += basisPricePerDay * currentBreakpoint.value;
-                    }
-                    ++dayNum;
-
-                    return {
-                        value: price,
-                        done: false
-                    };
-                };
+            iterator.next = function () {
+                var value = iterator._nbUnits * iterator._timeUnitPrice;
+                iterator._nbUnits += 1;
 
                 return {
-                    next: next
+                    value: value,
+                    done: false,
                 };
             };
 
-            return new PriceIterator(breakpoints);
+            return iterator;
         }
 
-        /**
-         * get custom price iterator
-         * @param  {object}   args
-         * @param  {number}   args.nbDays
-         *
-         * @param  {object}   args.config - custom config
-         * @param  {object[]} args.config.breakpoints
-         * @param  {number}   args.config.breakpoints.day
-         * @param  {number}   args.config.breakpoints.price
-         *
-         * @return {object}   iterator
-         * @return {function} iterator.next
-         */
-        function _getCustomPriceIterator(args) {
-            var nbDays = args.nbDays;
-            var config = args.config;
+        function _getCustomDurationPriceIterator(args) {
+            var customConfig = args.customConfig;
 
-            if (! nbDays
-             || ! isValidCustomConfig(config)
-            ) {
-                throw new Error("Missing params");
+            if (!customConfig || !customConfig.duration) {
+                throw new Error('Missing duration config');
             }
 
-            var breakpoints = config.breakpoints;
+            var config = customConfig.duration;
+
+            if (! isValidCustomDurationConfig(config)) {
+                throw new Error('Invalid custom duration config');
+            }
 
             var PriceIterator = function (breakpoints) {
-                var dayNum          = 1;
-                var breakpointIndex = 0;
-                var price           = 0;
-                var deltaPrice      = 0;
-                var lastBreakpoint  = _.last(breakpoints);
+                var lastBreakpoint = _.last(breakpoints);
+                var currentNbUnits   = 1;
+                var breakpointIndex  = 0;
+                var price            = 0;
+                var deltaPrice       = 0;
                 var currentBreakpoint;
                 var nextBreakpoint;
 
                 var setBreakpointState = function () {
                     currentBreakpoint    = breakpoints[breakpointIndex];
-                    var isLastBreakpoint = (currentBreakpoint.day === lastBreakpoint.day);
+                    var isLastBreakpoint = (currentBreakpoint.nbUnits === lastBreakpoint.nbUnits);
                     nextBreakpoint       = (! isLastBreakpoint ? breakpoints[breakpointIndex + 1] : null);
 
                     if (nextBreakpoint) {
-                        deltaPrice = (nextBreakpoint.price - currentBreakpoint.price) / (nextBreakpoint.day - currentBreakpoint.day);
+                        deltaPrice = (nextBreakpoint.price - currentBreakpoint.price) / (nextBreakpoint.nbUnits - currentBreakpoint.nbUnits);
                     }
                 };
 
                 setBreakpointState();
 
                 var next = function () {
-                    if (dayNum === 1) {
+                    if (currentNbUnits === 1) {
                         price = currentBreakpoint.price;
-                    } else if (nextBreakpoint && nextBreakpoint.day === dayNum) {
+                    } else if (nextBreakpoint && nextBreakpoint.nbUnits === currentNbUnits) {
                         price = nextBreakpoint.price;
                         ++breakpointIndex;
                         setBreakpointState();
                     } else {
                         price += deltaPrice;
                     }
-                    ++dayNum;
+                    ++currentNbUnits;
 
                     return {
                         value: price,
@@ -213,22 +147,10 @@
                     };
                 };
 
-                return {
-                    next: next
-                };
+                return { next: next };
             };
 
-            return new PriceIterator(breakpoints);
-        }
-
-        function getPricing(pricingId) {
-            pricingId = parseInt(pricingId, 10);
-            var url = apiBaseUrl + "/listing/pricing" + (! isNaN(pricingId) ? "?pricingId=" + pricingId : "");
-
-            return $http.get(url)
-                .then(function (res) {
-                    return res.data;
-                });
+            return new PriceIterator(config.breakpoints);
         }
 
         /**
@@ -401,14 +323,14 @@
         }
 
         /**
-         * is valid custom config
-         * @param  {object}   config
-         * @param  {object[]} config.breakpoints
-         * @param  {number}   config.breakpoints.day
-         * @param  {number}   config.breakpoints.price
-         * @return {boolean}
+         * Check valid custom duration config
+         * @param  {Object}   config
+         * @param  {Object[]} config.breakpoints
+         * @param  {Number}   config.breakpoints.nbUnits
+         * @param  {Number}   config.breakpoints.price
+         * @return {Boolean}
          */
-        function isValidCustomConfig(config) {
+        function isValidCustomDurationConfig(config) {
             if (typeof config !== "object"
              || ! config
              || ! _.isArray(config.breakpoints)
@@ -429,13 +351,13 @@
                 }
 
                 if (index === 0) {
-                    // the first breakpoint must be day one
-                    if (breakpoint.day !== 1) {
+                    // the first breakpoint must be unit one
+                    if (breakpoint.nbUnits !== 1) {
                         return false;
                     }
                 } else {
-                    // the breakpoint day and price must be higher than the previous one
-                    if (breakpoint.day <= lastBreakpoint.day
+                    // the breakpoint nb units and price must be higher than the previous one
+                    if (breakpoint.nbUnits <= lastBreakpoint.nbUnits
                      || breakpoint.price < lastBreakpoint.price
                     ) {
                         return false;
@@ -449,11 +371,11 @@
         }
 
         function isCustomConfigBreakpoint(breakpoint) {
-            return typeof breakpoint === "object"
-                && typeof breakpoint.day === "number"
-                && typeof breakpoint.price === "number"
+            return typeof breakpoint === 'object'
+                && typeof breakpoint.nbUnits === 'number'
+                && typeof breakpoint.price === 'number'
                 && breakpoint
-                && breakpoint.day > 0
+                && breakpoint.nbUnits > 0
                 && breakpoint.price >= 0;
         }
     }

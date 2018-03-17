@@ -7,7 +7,6 @@ module.exports = {
     create,
     update,
     destroy,
-    getPricing,
     validate,
     updateMedias,
 
@@ -174,13 +173,6 @@ async function destroy(req, res) {
     }, { req, res });
 
     res.json({ id });
-}
-
-async function getPricing(req, res) {
-    const pricingId = req.param('pricingId');
-
-    const pricing = ListingService.getPricing(pricingId);
-    res.json(pricing);
 }
 
 async function validate(req, res) {

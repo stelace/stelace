@@ -92,7 +92,6 @@ module.exports.policies = {
         find: ["isAuthenticatedOptional"],
         findOne: ["isAuthenticatedOptional"],
         getLocations: true,
-        getPricing: true,
         search: ["isAuthenticatedOptional", "getUserInfo"],
         getRecommendedPrices: ["isAuthenticatedOptional"],
         getTimeUnitPriceFromSellingPrice: true,

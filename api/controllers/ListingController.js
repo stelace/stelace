@@ -1,6 +1,6 @@
 /* global
     AclService, BookingService, Listing, ListingAvailability, ListingService, ListingTypeService, Location, Media, MicroService,
-    PriceRecommendationService, PricingService, SearchEvent, SearchService, StelaceConfigService, TokenService, User
+    PriceRecommendationService, SearchEvent, SearchService, StelaceConfigService, TokenService, User
 */
 
 /**
@@ -23,7 +23,6 @@ module.exports = {
     updateMedias,
     search,
     getLocations,
-    getPricing,
     getRecommendedPrices,
     getTimeUnitPriceFromSellingPrice,
     pauseListingToggle,
@@ -187,7 +186,6 @@ async function findOne(req, res) {
 
     listing.owner              = User.expose(owner, access);
     listing.ownerMedia         = Media.expose(ownerMedia, access);
-    listing.pricing            = PricingService.getPricing(listing.pricingId);
     listing.medias             = Media.exposeAll(listingMedias, access);
     listing.instructionsMedias = Media.exposeAll(listingInstructionsMedias, access);
 
@@ -346,7 +344,6 @@ async function my(req, res) {
         const instructionsMedias = hashInstructionsMedias[listing.id];
 
         listing.medias             = _.map(medias, media => Media.expose(media, access));
-        listing.pricing            = PricingService.getPricing(listing.pricingId);
         listing.instructionsMedias = _.map(instructionsMedias, media => Media.expose(media, access));
     });
 
@@ -438,17 +435,6 @@ async function getLocations(req, res) {
 
         const locations = await Location.find({ id: MicroService.escapeListForQueries(listing.locations) });
         res.json(Location.exposeAll(locations, access));
-    } catch (err) {
-        res.sendError(err);
-    }
-}
-
-function getPricing(req, res) {
-    let pricingId = parseInt(req.param('pricingId'), 10);
-
-    try {
-        const pricing = PricingService.getPricing(pricingId);
-        res.json(pricing);
     } catch (err) {
         res.sendError(err);
     }

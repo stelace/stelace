@@ -41,7 +41,7 @@
         var wdw             = angular.element($window);
         var mapContainer    = $document[0].getElementById("map-container");
         var searchContent   = $document[0].getElementById("search-content");
-        var nbDaysPricing   = 7;
+        var nbTimeUnits   = 7;
         var mqSmall         = $window.matchMedia("(max-width: 639px)");
         var mqSMedium       = $window.matchMedia("(min-width: 768px)");
         var mqDesktop       = $window.matchMedia("(min-width: 1024px)");
@@ -587,7 +587,7 @@
                     }
 
                     ListingService.populate(listings, {
-                        nbDaysPricing: nbDaysPricing,
+                        nbTimeUnits: nbTimeUnits,
                         listingTypes: vm.listingTypes,
                     });
 

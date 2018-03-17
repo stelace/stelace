@@ -3,41 +3,41 @@
 const { expect } = require('chai');
 
 describe('PricingService', () => {
-    describe('.getPrice()', () => {
-        it('gets the correct price', () => {
+    describe('.getDurationPrice()', () => {
+        it('gets the price with custom duration config', () => {
             const config = {
-                daily: 0.6,
-                deposit: 14,
-                breakpoints: [
-                    { day: 1, value: 1, price: 10 },
-                    { day: 3, value: 0.8, price: 30 },
-                    { day: 7, value: 0.6, price: 70 },
-                    { day: 14, value: 0.4, price: 140 },
-                ],
+                duration: {
+                    breakpoints: [
+                        { nbUnits: 1, price: 10 },
+                        { nbUnits: 2, price: 20 },
+                        { nbUnits: 3, price: 60 },
+                    ],
+                },
             };
 
             const tests = [
                 {
                     input: {
-                        dayOne: 10,
-                        nbDays: 30,
+                        timeUnitPrice: 10,
+                        nbTimeUnits: 7,
+                        customConfig: config,
                         array: true,
-                        config,
                     },
-                    expected: [10, 16, 20, 25, 30, 35, 38, 42, 46, 49, 53, 56, 60, 62, 65, 67, 70, 72, 74, 77, 79, 82, 84, 86, 89, 91, 94, 96, 98, 101],
+                    expected: [10, 20, 60, 100, 140, 180, 220],
                 },
                 {
                     input: {
-                        dayOne: 10,
-                        nbDays: 30,
-                        config,
+                        timeUnitPrice: 10,
+                        nbTimeUnits: 7,
+                        customConfig: config,
+                        array: false,
                     },
-                    expected: 101,
+                    expected: 220,
                 },
             ];
 
             tests.forEach(test => {
-                expect(PricingService.getPrice(test.input)).to.deep.equal(test.expected);
+                expect(PricingService.getDurationPrice(test.input)).to.deep.equal(test.expected);
             });
         });
     });
@@ -65,4 +65,3 @@ describe('PricingService', () => {
         });
     });
 });
-

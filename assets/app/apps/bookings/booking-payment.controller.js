@@ -35,7 +35,7 @@
         var listeners = [];
         var debouncedAction = tools.debounceAction(_createPayment);
 
-        var nbDaysPricing = 28;
+        var nbTimeUnits = 28;
         var euroCountriesIsos = ["DE", "AT", "BE", "ES", "FI", "FR", "IE", "IT", "LU", "NL", "PT", "GR", "SL", "CY", "MT", "SK", "EE", "LV", "LT"];
         var currentUser;
         var bookingPaymentMessages;
@@ -227,7 +227,7 @@
                 }
                 ListingService.populate(listing, {
                     locations: results.listingLocations,
-                    nbDaysPricing: Math.max(nbDaysPricing, vm.booking.nbTimeUnits)
+                    nbTimeUnits: Math.max(nbTimeUnits, vm.booking.nbTimeUnits)
                 });
                 vm.bookingDuration  = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
 

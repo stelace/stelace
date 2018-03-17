@@ -152,7 +152,7 @@
             var brands         = args.brands ? _.indexBy(args.brands, "id") : null;
             var listingCategories = args.listingCategories ? _.indexBy(args.listingCategories, "id") : null;
             var locations      = args.locations ? _.indexBy(args.locations, "id") : null;
-            var nbDaysPricing  = args.nbDaysPricing;
+            var nbTimeUnits  = args.nbTimeUnits;
             var listingTypes   = args.listingTypes;
 
             var _populate = function (listing) {
@@ -191,12 +191,11 @@
                 } else {
                     listing.lastTakerMedia = { url: platform.getDefaultProfileImageUrl() };
                 }
-                if (nbDaysPricing) {
-                    listing.prices = pricing.getPrice({
-                        config: listing.customPricingConfig || listing.pricing.config,
-                        nbDays: nbDaysPricing,
-                        dayOne: listing.timeUnitPrice,
-                        custom: !! listing.customPricingConfig,
+                if (nbTimeUnits) {
+                    listing.prices = pricing.getDurationPrice({
+                        customConfig: listing.customPricingConfig,
+                        nbTimeUnits: nbTimeUnits,
+                        timeUnitPrice: listing.timeUnitPrice,
                         array: true
                     });
                 }

@@ -54,7 +54,7 @@
         // var mqLarge             = window.matchMedia("(min-width: 1024px)"); // IE10+ support
         var todayDate           = new Date();
         var formatDate          = "YYYY-MM-DD";
-        var nbDaysPricing       = 28;
+        var nbTimeUnits       = 28;
         var listeners           = [];
         var hoveredMarkers      = [];
         var mapDimensionsObject = {};
@@ -78,7 +78,6 @@
         var ownerListingLocations;
         var listingLocations;
         var myLocations;
-        var listingPricing;
         var questions;
         var journeys;
         var sortedJourneys;
@@ -254,7 +253,6 @@
                 listingTypes: ListingTypeService.cleanGetList(),
                 ownerListingLocations: ListingService.getLocations(listingId).catch(function () { return []; }),
                 myLocations: LocationService.getMine(),
-                listingPricing: pricing.getPricing(),
                 questions: MessageService.getPublicMessages(listingId),
                 searchConfig: _getSearchConfig()
             }).then(function (results) {
@@ -264,7 +262,6 @@
                 listingCategories  = results.listingCategories;
                 myLocations        = tools.clearRestangular(results.myLocations);
                 ownerListingLocations = tools.clearRestangular(results.ownerListingLocations);
-                listingPricing        = tools.clearRestangular(results.listingPricing);
                 questions          = results.questions;
                 searchConfig       = results.searchConfig;
                 vm.listingTypes    = results.listingTypes;
@@ -322,7 +319,7 @@
                     // brands: brands,
                     listingCategories: listingCategories,
                     locations: ownerListingLocations,
-                    nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
+                    nbTimeUnits: maxDurationBooking ? Math.max(nbTimeUnits, maxDurationBooking) : nbTimeUnits
                 });
 
                 listing.owner.fullname       = User.getFullname.call(listing.owner);
@@ -389,7 +386,6 @@
                 vm.pricingTableData.show          = false;
                 vm.pricingTableData.listing          = listing;
                 vm.pricingTableData.listingType   = vm.selectedListingType;
-                vm.pricingTableData.listingPricing   = listingPricing;
                 vm.pricingTableData.bookingParams = {
                     quantity: 1
                 };
@@ -409,7 +405,7 @@
                 var sellingPriceResult = pricing.getPriceAfterRebateAndFees({
                     ownerPrice: vm.listing.sellingPrice,
                     ownerFeesPercent: 0, // do not care about owner fees
-                    takerFeesPercent: UserService.isFreeFees(vm.currentUser) ? 0 : listingPricing.takerFeesPurchasePercent
+                    takerFeesPercent: UserService.isFreeFees(vm.currentUser) ? 0 : vm.selectedListingType.config.pricing.takerFeesPercent
                 });
                 vm.totalSellingPrice = _.get(sellingPriceResult, "takerPrice");
                 vm.sellingTakerFees  = _.get(sellingPriceResult, "takerFees");
@@ -1238,7 +1234,7 @@
 
             ListingService.populate(listing, {
                 listingCategories: listingCategories,
-                nbDaysPricing: maxDurationBooking ? Math.max(nbDaysPricing, maxDurationBooking) : nbDaysPricing
+                nbTimeUnits: maxDurationBooking ? Math.max(nbTimeUnits, maxDurationBooking) : nbTimeUnits
             });
 
             _populateQuestions();

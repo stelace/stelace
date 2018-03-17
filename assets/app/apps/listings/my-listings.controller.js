@@ -44,21 +44,18 @@
         var listeners               = [];
         var listingValidationFields    = ["title", "category", "description", "media", "price", "sellingPrice", "deposit"];
         var initialDefaultDeposit   = 50; // EUR
-        var nbDaysPricing           = 7;
-        var breakpointDays          = [3, 7, 14, 28];
-        var lastBreakpointDay       = _.last(breakpointDays);
+        var nbTimeUnits             = 7;
+        var timeUnitBreakpointsNbUnits = [3, 7, 14, 28];
+        var lastTimeUnitBreakpoint  = _.last(timeUnitBreakpointsNbUnits);
         var listingId               = parseInt($stateParams.id, 10);
         var listingTypeId           = parseInt($stateParams.listingTypeId, 10);
         var tags                    = [];  // save tag bindings until search
         var mediaSelectionInitiated = false;
         var savingListing              = false;
         var listingNameChanged         = false;
-        // var ratioDayOneSellingPrice = 25;
         var listing;
         var myListings;
-        // var brands;
         var listingCategories;
-        var listingPricing;
         var stepProgressDone;
         var myLocations;
         var isAdmin;
@@ -118,7 +115,7 @@
         vm.defaultTimeUnitPrice = 0;
         vm.defaultDeposit       = initialDefaultDeposit;
         vm.maxDeposit           = 600; // EUR
-        vm.listingBookingPrices    = _.map(breakpointDays, function (day) { return { day: day }; });
+        vm.listingBookingPrices    = _.map(timeUnitBreakpointsNbUnits, function (nbUnits) { return { nbUnits: nbUnits }; });
         vm.tags                 = [];
         vm.myListings              = [];
         vm.selectedListingToSocialShare = null;
@@ -249,7 +246,6 @@
                 currentUser: UserService.getCurrentUser(),
                 // brands: BrandService.getList(),
                 listingCategories: ListingCategoryService.cleanGetList(),
-                listingPricing: pricing.getPricing(),
                 tags: vm.activeTags ? TagService.cleanGetList() : [],
                 listingTypes: ListingTypeService.cleanGetList(),
                 newListingTmp: ListingService.getNewListingTmp(null)
@@ -259,7 +255,6 @@
                 currentUser           = results.currentUser;
                 listingCategories     = results.listingCategories;
                 myLocations           = tools.clearRestangular(results.myLocations);
-                listingPricing           = results.listingPricing;
                 tags                  = _.sortBy(results.tags, function (tag) {
                     return - (tag.timesSearched + tag.timesAdded);
                 }); // return most used and most searched tags first
@@ -393,7 +388,7 @@
                             // brands: brands,
                             listingCategories: listingCategories,
                             locations: myLocations,
-                            nbDaysPricing: nbDaysPricing,
+                            nbTimeUnits: nbTimeUnits,
                             listingTypes: vm.listingTypes
                         });
 
@@ -509,7 +504,7 @@
                     // brands: brands,
                     listingCategories: listingCategories,
                     locations: myLocations,
-                    nbDaysPricing: nbDaysPricing,
+                    nbTimeUnits: nbTimeUnits,
                     listingTypes: vm.listingTypes
                 });
 
@@ -882,19 +877,21 @@
                 });
             }
 
-            if (! vm.listing.customPricingConfig) {
+            if (!vm.listing.customPricingConfig
+             || !vm.listing.customPricingConfig.duration
+            ) {
                 return;
             }
 
-            var customPrices = pricing.getPrice({
-                config: vm.listing.customPricingConfig,
-                nbDays: _.last(vm.listingBookingPrices).day,
-                custom: true,
+            var customPrices = pricing.getDurationPrice({
+                customConfig: vm.listing.customPricingConfig,
+                timeUnitPrice: vm.listing.timeUnitPrice,
+                nbTimeUnits: _.last(vm.listingBookingPrices).nbUnits,
                 array: true
             });
 
             _.forEach(vm.listingBookingPrices, function (booking) {
-                var customPrice = customPrices[booking.day - 1];
+                var customPrice = customPrices[booking.nbUnits - 1];
                 if (booking.defaultPrice !== customPrice) {
                     booking.price = customPrice;
                 }
@@ -912,15 +909,14 @@
             } else if (vm.listingTypeProperties.isTimeFlexible && _.isFinite(timeUnitPrice)) {
                 vm.validPrice = true;
 
-                var prices = pricing.getPrice({
-                    dayOne: timeUnitPrice,
-                    nbDays: lastBreakpointDay,
-                    config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
+                var prices = pricing.getDurationPrice({
+                    timeUnitPrice: timeUnitPrice,
+                    nbTimeUnits: lastTimeUnitBreakpoint,
                     array: true
                 });
 
                 _.forEach(vm.listingBookingPrices, function (booking) {
-                    booking.defaultPrice = prices[booking.day - 1];
+                    booking.defaultPrice = prices[booking.nbUnits - 1];
                 });
 
                 vm.defaultDeposit = getDefaultDeposit(timeUnitPrice);
@@ -1134,7 +1130,9 @@
 
             if (vm.listingTypeProperties.isTimeFlexible) {
                 var customPricing = getCustomPricingConfig(timeUnitPrice);
-                attrs.customPricingConfig = customPricing;
+                attrs.customPricingConfig = {
+                    duration: customPricing
+                };
             }
 
             attrs.locations = _.reduce(vm.listing.listLocations, function (memo, location) {
@@ -1259,7 +1257,7 @@
                         // brands: brands,
                         listingCategories: listingCategories,
                         locations: myLocations,
-                        nbDaysPricing: nbDaysPricing,
+                        nbTimeUnits: nbTimeUnits,
                         listingTypes: vm.listingTypes
                     });
 
@@ -1306,10 +1304,10 @@
                         var fbTimeUnitPrice = ListingService.getFbTimeUnitPrice(createdListing);
                         var fbSellingPrice  = ListingService.getFbSellingPrice(createdListing);
                         if (typeof fbTimeUnitPrice === "number") {
-                            fbEventParams.stelace_renting_day_one_price = fbTimeUnitPrice;
+                            fbEventParams.stelace_time_unit_price = fbTimeUnitPrice;
                         }
                         if (typeof fbSellingPrice === "number") {
-                            fbEventParams.stelace_selling_price = fbSellingPrice;
+                            fbEventParams.stelace_price = fbSellingPrice;
                         }
 
                         fbq('trackCustom', 'AddListing', fbEventParams);
@@ -1381,7 +1379,7 @@
                         // brands: brands,
                         listingCategories: listingCategories,
                         locations: myLocations,
-                        nbDaysPricing: nbDaysPricing,
+                        nbTimeUnits: nbTimeUnits,
                         listingTypes: vm.listingTypes
                     });
 
@@ -1589,7 +1587,7 @@
             var customPricing = getCustomPricingConfig(timeUnitPrice);
 
             if (customPricing
-                && ! pricing.isValidCustomConfig(customPricing)
+                && ! pricing.isValidCustomDurationConfig(customPricing)
             ) {
                 var lastPrice;
 
@@ -1604,7 +1602,7 @@
                 });
 
                 _.forEach(vm.listingBookingPrices, function (bookingPrice, index) {
-                    // difference of index because bookingPrices doesn't include dayOne price
+                    // difference of index because bookingPrices doesn't include nbUnits=1 price
                     var correctPrice = customPricing.breakpoints[index + 1].price;
 
                     if (bookingPrice.defaultPrice !== correctPrice) {
@@ -1727,10 +1725,9 @@
                 return;
             }
 
-            var defaultPrices = pricing.getPrice({
-                dayOne: timeUnitPrice,
-                nbDays: lastBreakpointDay,
-                config: vm.listing.id ? vm.listing.pricing.config : listingPricing.config,
+            var defaultPrices = pricing.getDurationPrice({
+                timeUnitPrice: timeUnitPrice,
+                nbTimeUnits: lastTimeUnitBreakpoint,
                 array: true
             });
             var customPricing = {
@@ -1739,18 +1736,18 @@
             var customPrice = false;
 
             customPricing.breakpoints.push({
-                day: 1,
+                nbUnits: 1,
                 price: timeUnitPrice
             });
 
-            _.forEach(breakpointDays, function (breakpointDay) {
+            _.forEach(timeUnitBreakpointsNbUnits, function (nbUnits) {
                 var bookingPrice = _.find(vm.listingBookingPrices, function (bookingPrice) {
-                    return bookingPrice.day === breakpointDay;
+                    return bookingPrice.nbUnits === nbUnits;
                 });
                 var custom = (typeof bookingPrice.price !== "undefined" && bookingPrice.price !== null);
                 var newBreakpoint = {
-                    day: breakpointDay,
-                    price: custom ? bookingPrice.price : defaultPrices[breakpointDay - 1]
+                    nbUnits: nbUnits,
+                    price: custom ? bookingPrice.price : defaultPrices[nbUnits - 1]
                 };
 
                 if (custom) {

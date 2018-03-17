@@ -1,6 +1,6 @@
 /* global
     ElasticsearchService, Listing, ListingCategory, Location,
-    MapService, Media, MicroService, PricingService, SearchEvent,
+    MapService, Media, MicroService, SearchEvent,
     StelaceConfigService, StelaceEventService, UAService, User
 */
 
@@ -523,7 +523,6 @@ function getExposedListings({
     fallbackLocale,
 }) {
     let journeysDurations;
-    const pricingHash = getPricingHash(listings);
     const indexedOwners = _.indexBy(owners, 'id');
 
     if (displayDuration) {
@@ -534,7 +533,6 @@ function getExposedListings({
         listing             = Listing.expose(listing, 'others', { locale, fallbackLocale });
         listing.medias      = Media.exposeAll(listingsMedias[listing.id], 'others');
         listing.ownerRating = _.pick(indexedOwners[listing.ownerId], ['nbRatings', 'ratingScore']);
-        listing.pricing     = pricingHash[listing.pricingId];
         listing.completeLocations = _.map(hashLocations[listing.id], location => {
             return Location.expose(location, 'others');
         });
@@ -564,18 +562,6 @@ function convertOsrmDurations(fromLocations, hashJourneys, hashLocations) {
             };
         });
 
-        return memo;
-    }, {});
-}
-
-function getPricingHash(listings) {
-    const pricingIds = _.uniq(_.pluck(listings, 'pricingId'));
-
-    return _.reduce(pricingIds, (memo, pricingId) => {
-        const pricing = memo[pricingId];
-        if (! pricing) {
-            memo[pricingId] = PricingService.getPricing(pricingId);
-        }
         return memo;
     }, {});
 }
