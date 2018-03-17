@@ -346,7 +346,7 @@
                                     <div ng-if="! vm.isOwner && ! vm.disableBookingButton"
                                         class="booking-button-trust padding-top"
                                         data-translate="listing.charge_if_owner_accepts"
-                                        data-translate-values="{ owner: vm.listing.owner.firstname || vm.listing.owner.fullname || null }">
+                                        data-translate-values="{ owner: vm.listing.owner.firstname || vm.listing.owner.fullname || undefined }">
                                     </div>
                                     <button id="listing-book-sticky-button"
                                         class="button brightblue button--highlight sticky-button"

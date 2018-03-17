@@ -76,13 +76,11 @@ authentication:
             en: |
                 Create a password {min_number_of_characters, select,
                     undefined {}
-                    null {}
                     other {(min. {min_number_of_characters} characters)}
                 }
             fr: |
                 Mot de passe {min_number_of_characters, select,
                     undefined {}
-                    null {}
                     other {({min_number_of_characters} caractères minimum)}
                 }
             context: Password placeholder showed when user is signing up. Should be short enough to fit in a small input.
@@ -299,8 +297,8 @@ listing:
         en: This listing is not available anymore.
         fr: Cette annonce n’est plus disponible.
     charge_if_owner_accepts:
-        en: 'You will be charged only if {owner, select, null {the seller} other {{owner}}} accepts the transaction'
-        fr: 'Vous ne serez débité qu’en cas de confirmation {owner, select, null {du vendeur} other {de {owner}}}'
+        en: 'You will be charged only if {owner, select, undefined {the seller} other {{owner}}} accepts the transaction'
+        fr: 'Vous ne serez débité qu’en cas de confirmation {owner, select, undefined {du vendeur} other {de {owner}}}'
     price_label:
         en: Price
         fr: Prix
@@ -676,13 +674,13 @@ user:
     no_verified_info_public_text:
         en: |
             {user, select,
-                null {This user}
+                undefined {This user}
                 other {{user}}
             }
             has no verified info yet.
         fr: |
             {user, select,
-                null {Cet utilisateur}
+                undefined {Cet utilisateur}
                 other {{user}}
             }
             n’a pas encore validé ses coordonnées.'
@@ -690,12 +688,12 @@ user:
         en: Your contact details will not be displayed publicly.
         fr: Le détail de vos coordonnées n’apparaîtra pas publiquement.
     picture_title:
-        en: '{user, select, null {Profile picture} other {Picture of {user}}}'
-        fr: 'Photo {user, select, null {du profil} other {de {user}}}'
+        en: '{user, select, undefined {Profile picture} other {Picture of {user}}}'
+        fr: 'Photo {user, select, undefined {du profil} other {de {user}}}'
     account:
         greeting:
-            en: Welcome back {firstname, select, null {} other {{firstname}}}
-            fr: Bienvenue sur {SERVICE_NAME} {firstname, select, null {} other {{firstname}}}
+            en: Welcome back {firstname, select, undefined {} other {{firstname}}}
+            fr: Bienvenue sur {SERVICE_NAME} {firstname, select, undefined {} other {{firstname}}}
             context: User can have no name yet.
         greeting__EDITOR_LABEL:
             en: Greeting message of account page
@@ -731,12 +729,12 @@ user:
         dynamic_email_placeholder:
             en: |
                 {email_placeholder, select,
-                    null {Your email address}
+                    undefined {Your email address}
                     other {{email_placeholder}}
                 }
             fr: |
                 {email_placeholder, select,
-                    null {Votre adresse électronique}
+                    undefined {Votre adresse électronique}
                     other {{email_placeholder}}
                 }
             context: This mixed placeholder can also show input email if applicable
@@ -746,12 +744,12 @@ user:
         dynamic_phone_placeholder:
             en: |
                 {phone_placeholder, select,
-                    null {Transactions notified by SMS}
+                    undefined {Transactions notified by SMS}
                     other {{phone_placeholder}}
                 }
             fr: |
                 {phone_placeholder, select,
-                    null {Recevez vos demandes par SMS}
+                    undefined {Recevez vos demandes par SMS}
                     other {{phone_placeholder}}
                 }
             context: This mixed placeholder can also show input phone if applicable
@@ -853,23 +851,23 @@ user:
         main_location_helper:
             en: |
                 {is_listing_owner, select,
-                    owner {Where is located your listing?}
+                    is_owner {Where is located your listing?}
                     other {What is your main search location?}
                 }
             fr: |
                 {is_listing_owner, select,
-                    owner {À quel lieu votre annonce doit-elle être visible ?}
+                    is_owner {À quel lieu votre annonce doit-elle être visible ?}
                     other {Quel est votre principal lieu de recherche ?}
                 }
         second_location_helper:
             en: |
                 {is_listing_owner, select,
-                    owner {Would you like your listing to appear somewhere else too?}
+                    is_owner {Would you like your listing to appear somewhere else too?}
                     other {Do you want to save another search location?}
                 }
             fr: |
                 {is_listing_owner, select,
-                    owner {Souhaitez-vous associer un autre lieu à cette annonce ?}
+                    is_owner {Souhaitez-vous associer un autre lieu à cette annonce ?}
                     other {Souhaitez-vous enregistrer un autre lieu de recherche ?}
                 }
         SMS_notifications:
@@ -906,12 +904,12 @@ user:
         greeting:
             en: |
                 Welcome {user, select,
-                    null {}
+                    undefined {}
                     other {, I’m {user}}
                 }
             fr: |
                 Bienvenue{user, select,
-                    null {}
+                    undefined {}
                     other {, je suis {user}}
                 }
         greeting__EDITOR_LABEL:
@@ -1186,7 +1184,7 @@ ratings:
     user_ratings_title:
         en: |
             {user, select,
-                null {Ratings}
+                undefined {Ratings}
                 other {{user} ratings}
             }
             {as_role, select,
@@ -1196,7 +1194,7 @@ ratings:
             }
         fr: |
             Évaluations reçues {user, select,
-                null {}
+                undefined {}
                 other {par {user}}
             }
             {as_role, select,
@@ -1215,7 +1213,7 @@ ratings:
                 =0 {}
                 one {# rating}
                 other {# ratings{for_this_listing, select,
-                    null {}
+                    undefined {}
                     other {
                         including {for_this_listing} for this listing
                     }
@@ -1226,7 +1224,7 @@ ratings:
                 =0 {}
                 one {# évaluation}
                 other {# évaluations{for_this_listing, select,
-                    null {}
+                    undefined {}
                     other {
                         dont {for_this_listing} pour cette annonce
                     }

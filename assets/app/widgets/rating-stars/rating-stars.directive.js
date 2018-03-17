@@ -60,7 +60,7 @@
             if (! scope.noTooltip) {
                 scope.tooltipMsg = $translate.instant('ratings.ratings_received_including_this_listing', {
                     nb_ratings: userRatings || 0,
-                    for_this_listing: listingRatings || null
+                    for_this_listing: listingRatings || undefined
                 });
             }
 

@@ -51,6 +51,6 @@
     </li>
     <li ng-if="::(! user.emailCheck && ! user.phoneCheck && ! ratingTrust)"
         data-translate="user.no_verified_info_public_text"
-        data-translate-values="::{ user: user.firstname || user.fullname || null }">
+        data-translate-values="::{ user: user.firstname || user.fullname || undefined }">
     </li>
 </ul>
