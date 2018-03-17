@@ -617,14 +617,7 @@
                     ga('send', 'event', 'Listings', 'BookingValidation', gaLabel);
 
                     return _populateConversation()
-                        .catch(function (err) {
-                            ContentService.showNotification({
-                                titleKey: 'error.unknown_happened_title',
-                                messageKey: 'error.unknown_happened_message',
-                                type: 'warning'
-                            });
-                            loggerToServer.error(err);
-                        });
+                        .catch(ContentService.showError);
                 });
         }
 
@@ -695,14 +688,7 @@
                     }
                     return _populateConversation();
                 })
-                .catch(function (err) {
-                    ContentService.showNotification({
-                        titleKey: 'error.unknown_happened_title',
-                        messageKey: 'error.unknown_happened_message',
-                        type: 'warning'
-                    });
-                    loggerToServer.error(err);
-                })
+                .catch(ContentService.showError)
                 .finally(function () {
                     vm.sendingMessage = false;
                 });

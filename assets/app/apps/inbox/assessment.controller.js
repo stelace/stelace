@@ -258,13 +258,7 @@
                         }
                     });
                 })
-                .catch(function () {
-                    ContentService.showNotification({
-                        titleKey: 'error.unknown_happened_title',
-                        messageKey: 'error.unknown_happened_message',
-                        type: 'warning'
-                    });
-                });
+                .catch(ContentService.showError);
         }
 
         function saveRating() {

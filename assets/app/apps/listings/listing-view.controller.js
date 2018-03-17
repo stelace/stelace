@@ -1016,11 +1016,7 @@
                     $state.go("bookingPayment", { id: newBooking.id });
                 }).catch(function (err) {
                     if (err !== "not authenticated") {
-                        ContentService.showNotification({
-                            titleKey: 'error.unknown_happened_title',
-                            messageKey: 'error.unknown_happened_message',
-                            type: 'warning'
-                        });
+                        ContentService.showError(err);
                     }
                 });
         }

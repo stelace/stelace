@@ -395,11 +395,7 @@
                         }
                     })
                     .catch(function (err) {
-                        ContentService.showNotification({
-                            titleKey: 'error.unknown_happened_title',
-                            messageKey: 'error.unknown_happened_message',
-                            type: 'warning'
-                        });
+                        ContentService.showError(err);
                         return $q.reject(err);
                     });
                 })
