@@ -1165,6 +1165,32 @@ form:
     min_characters:
         fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
         en: '{min_number_of_characters, plural, one {This can’t be empty.} other {Minimum # characters}}'
+    characters_remaining:
+        en: |
+            {characters_remaining, plural,
+                =0 {No character left}
+                one {One character available}
+                other {# characters available}
+            }
+        fr: |
+            {characters_remaining, plural,
+                =0 {Aucun caractère restant}
+                one {Un caractère restant}
+                other {# caractères restants}
+            }
+    characters_exceeding:
+        en: |
+            {characters_exceeding, plural,
+                =0 {No character left}
+                one {One character exceeding}
+                other {# characters exceeding}
+            }
+        fr: |
+            {characters_exceeding, plural,
+                =0 {Aucun caractère restant}
+                one {Un caractère en trop}
+                other {# caractères en trop}
+            }
     validation_code_placeholder:
         en: Validation code
         fr: Code de validation
