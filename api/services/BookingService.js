@@ -69,7 +69,7 @@ async function createBooking({
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
     const currency = config.currency;
 
     if (!paymentProvider || !currency) {

@@ -52,7 +52,7 @@ async function createAccount(req, res) {
     } = req.allParams();
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
     const currency = config.currency;
 
     if (!currency) {
@@ -99,7 +99,7 @@ async function createBankAccount(req, res) {
     const access = 'self';
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     let bankAccount;
     if (paymentProvider === 'mangopay') {

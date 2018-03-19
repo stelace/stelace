@@ -1,8 +1,8 @@
 const nonEditableFields = [
     'stripe_complete',
     'mangopay_complete',
-    'socialLogin_facebook_complete',
-    'socialLogin_google_complete',
+    'social_login__facebook_complete',
+    'social_login__google_complete',
 ];
 
 const schema = {
@@ -10,16 +10,16 @@ const schema = {
         SERVICE_NAME: {
             type: ['string', 'null'],
         },
-        logoMediaId: {
+        logo__media_id: {
             type: ['number', 'null'],
         },
-        logoUrl: {
+        logo__url: {
             type: ['string', 'null'],
         },
-        homeHeroBgMediaId: {
+        hero_background__home__media_id: {
             type: ['number', 'null'],
         },
-        homeHeroBgUrl: {
+        hero_background__home__url: {
             type: ['string', 'null'],
         },
         lang: {
@@ -30,11 +30,11 @@ const schema = {
             type: ['string', 'null'],
             currency: true,
         },
-        paymentProvider: {
+        payment_provider: {
             type: ['string', 'null'],
             enum: ['stripe', 'mangopay', null],
         },
-        stripe_publishKey: {
+        stripe__publish_key: {
             type: ['string', 'null'],
         },
         listings_validation_automatic: {
@@ -47,22 +47,22 @@ const schema = {
         listings_in_unique_country__active: {
             type: ['boolean', 'null']
         },
-        google_analytics_trackingId: {
+        google_analytics__tracking_id: {
             type: ['string', 'null'],
         },
-        google_analytics_active: {
+        google_analytics__active: {
             type: ['boolean', 'null'],
         },
-        facebook_pixel_id: {
+        facebook_pixel__id: {
             type: ['string', 'null'],
         },
-        facebook_pixel_active: {
+        facebook_pixel__active: {
             type: ['boolean', 'null'],
         },
-        facebook_app_id: {
+        facebook_app__id: {
             type: ['string', 'null'],
         },
-        google_maps_apiKey: {
+        google_maps__api_key: {
             type: ['string', 'null'],
         },
         map__default_lat: {
@@ -80,10 +80,10 @@ const schema = {
         mangopay_complete: {
             type: ['boolean', 'null'],
         },
-        socialLogin_facebook_complete: {
+        social_login__facebook_complete: {
             type: ['boolean', 'null'],
         },
-        socialLogin_google_complete: {
+        social_login__google_complete: {
             type: ['boolean', 'null'],
         },
         twitter_url: {

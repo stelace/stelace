@@ -46,7 +46,7 @@ async function getStripeInstance() {
 
     const secretData = await StelaceConfigService.getSecretData();
 
-    const secretKey = secretData.stripe_secretKey;
+    const secretKey = secretData.stripe__secret_key;
     if (!secretKey) {
         throw createError('Missing Stripe secret key', { missingCredentials: true });
     }

@@ -41,7 +41,7 @@ async function create(req, res) {
     const access = 'self';
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     let card;
 

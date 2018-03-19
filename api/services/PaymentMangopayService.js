@@ -44,8 +44,8 @@ async function getMangopayInstance() {
 
     const secretData = await StelaceConfigService.getSecretData();
 
-    const clientId = secretData.mangopay_clientId
-    const passphrase = secretData.mangopay_passphrase;
+    const clientId = secretData.mangopay__client_id;
+    const passphrase = secretData.mangopay__passphrase;
 
     const workspace = sails.config.mangopay.workspace;
 

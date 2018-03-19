@@ -33,8 +33,8 @@
 
         function setLogo(scope) {
             var config = getConfig();
-            scope.hasLogo = !!config.logoUrl;
-            scope.logoUrl = config.logoUrl;
+            scope.hasLogo = !!config.logo__url;
+            scope.logoUrl = config.logo__url;
         }
     }
 

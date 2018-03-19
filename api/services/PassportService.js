@@ -432,8 +432,8 @@ function getFacebookStrategyConfig(secretData) {
     const facebookConfig = sails.config.passport.facebook;
     if (!facebookConfig) return;
 
-    const clientID = secretData.socialLogin_facebook_clientId;
-    const clientSecret = secretData.socialLogin_facebook_clientSecret;
+    const clientID = secretData.social_login__facebook__client_id;
+    const clientSecret = secretData.social_login__facebook__client_secret;
     const callbackURL = sails.config.stelace.url + '/auth/facebook/callback';
 
     if (!isValidStrategyCredentials({ clientID, clientSecret, callbackURL })) {
@@ -458,8 +458,8 @@ function getGoogleStrategyConfig(secretData) {
     const googleConfig = sails.config.passport.google;
     if (!googleConfig) return;
 
-    const clientID = secretData.socialLogin_google_clientId;
-    const clientSecret = secretData.socialLogin_google_clientSecret;
+    const clientID = secretData.social_login__google__client_id;
+    const clientSecret = secretData.social_login__google__client_secret;
     const callbackURL = sails.config.stelace.url + '/auth/google/callback';
 
     if (!isValidStrategyCredentials({ clientID, clientSecret, callbackURL })) {

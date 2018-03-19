@@ -165,9 +165,9 @@
                             ng-focus="header.searchFocus = !header.searchFocus"
                             ng-blur="header.searchFocus = !header.searchFocus">
                         <div class="logo-overlay"
-                            ng-hide="header.searchFocus || searchParams.query" ng-switch="{{!!config.logoUrl}}">
+                            ng-hide="header.searchFocus || searchParams.query" ng-switch="{{!!config.logo__url}}">
                             <div class="company-logo-container">
-                                <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logoUrl}}">
+                                <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logo__url}}">
                                 <svg class="company-logo small" ng-switch-when="false">
                                     <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                                 </svg>
@@ -197,8 +197,8 @@
             class="main-header main-header--desktop flex-container flex--space-between flex--align-center hide-for-small-only">
             <div class="logo-container"
                 ng-if="header.isDesktop">
-                <a id="desktop-main-header__logo-anchor" href="/" class="header-event" ng-switch="{{!!config.logoUrl}}">
-                    <img class="company-logo" ng-switch-when="true" ng-src="{{config.logoUrl}}">
+                <a id="desktop-main-header__logo-anchor" href="/" class="header-event" ng-switch="{{!!config.logo__url}}">
+                    <img class="company-logo" ng-switch-when="true" ng-src="{{config.logo__url}}">
                     <svg class="company-logo" ng-switch-when="false">
                         <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                     </svg>
@@ -237,9 +237,9 @@
                     <div class="logo-overlay"
                         ng-hide="header.searchFocus || searchParams.query"
                         ng-if="! header.isDesktop"
-                        ng-switch="{{!!config.logoUrl}}">
+                        ng-switch="{{!!config.logo__url}}">
                         <div class="company-logo-container">
-                            <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logoUrl}}">
+                            <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logo__url}}">
                             <svg class="company-logo small" ng-switch-when="false">
                                 <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                             </svg>

@@ -387,20 +387,20 @@ async function updatePlanDiff(planDiff) {
 function _computeNewConfig({ config, secretData }) {
     const newConfig = Object.assign({}, config);
 
-    newConfig.stripe_complete = !!(config.stripe_publishKey && secretData.stripe_secretKey);
-    newConfig.mangopay_complete = !!(secretData.mangopay_clientId && secretData.mangopay_passphrase);
-    newConfig.socialLogin_facebook_complete = !!(secretData.socialLogin_facebook_clientId && secretData.socialLogin_facebook_clientSecret);
-    newConfig.socialLogin_google_complete = !!(secretData.socialLogin_google_clientId && secretData.socialLogin_google_clientSecret);
+    newConfig.stripe_complete = !!(config.stripe__publish_key && secretData.stripe__secret_key);
+    newConfig.mangopay_complete = !!(secretData.mangopay__client_id && secretData.mangopay__passphrase);
+    newConfig.social_login__facebook_complete = !!(secretData.social_login__facebook__client_id && secretData.social_login__facebook__client_secret);
+    newConfig.social_login__google_complete = !!(secretData.social_login__google__client_id && secretData.social_login__google__client_secret);
 
     return newConfig;
 }
 
 function hasSocialLoginChanged(newSecretData, oldSecretData) {
     const fields = [
-        'socialLogin_facebook_clientId',
-        'socialLogin_facebook_clientSecret',
-        'socialLogin_google_clientId',
-        'socialLogin_google_clientSecret',
+        'social_login__facebook__client_id',
+        'social_login__facebook__client_secret',
+        'social_login__google__client_id',
+        'social_login__google__client_secret',
     ];
 
     return !_.isEqual(_.pick(newSecretData, fields), _.pick(oldSecretData, fields));
@@ -408,8 +408,8 @@ function hasSocialLoginChanged(newSecretData, oldSecretData) {
 
 function hasMangopayChanged(newSecretData, oldSecretData) {
     const fields = [
-        'mangopay_clientId',
-        'mangopay_passphrase',
+        'mangopay__client_id',
+        'mangopay__passphrase',
     ];
 
     return !_.isEqual(_.pick(newSecretData, fields), _.pick(oldSecretData, fields));
@@ -417,7 +417,7 @@ function hasMangopayChanged(newSecretData, oldSecretData) {
 
 function hasStripeChanged(newSecretData, oldSecretData) {
     const fields = [
-        'stripe_secretKey',
+        'stripe__secret_key',
     ];
 
     return !_.isEqual(_.pick(newSecretData, fields), _.pick(oldSecretData, fields));

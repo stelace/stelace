@@ -63,7 +63,8 @@
         }
 
         function getPaymentProvider() {
-            return window.dataFromServer.paymentProvider; // TODO: make this variable into config
+            var state = $ngRedux.getState();
+            return state.config.payment_provider;
         }
 
     }

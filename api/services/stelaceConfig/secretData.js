@@ -1,24 +1,24 @@
 const schema = {
     properties: {
-        stripe_secretKey: {
+        stripe__secret_key: {
             type: ['string', 'null'],
         },
-        mangopay_clientId: {
+        mangopay__client_id: {
             type: ['string', 'null'],
         },
-        mangopay_passphrase: {
+        mangopay__passphrase: {
             type: ['string', 'null'],
         },
-        socialLogin_facebook_clientId: {
+        social_login__facebook__client_id: {
             type: ['string', 'null'],
         },
-        socialLogin_facebook_clientSecret: {
+        social_login__facebook__client_secret: {
             type: ['string', 'null'],
         },
-        socialLogin_google_clientId: {
+        social_login__google__client_id: {
             type: ['string', 'null'],
         },
-        socialLogin_google_clientSecret: {
+        social_login__google__client_secret: {
             type: ['string', 'null'],
         },
     },

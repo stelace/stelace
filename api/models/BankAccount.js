@@ -189,7 +189,7 @@ function parseStripeData(rawJson) {
 
 async function fetchBankAccounts(user) {
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     let resourceOwnerId;
     if (paymentProvider === 'mangopay') {

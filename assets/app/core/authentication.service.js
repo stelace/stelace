@@ -197,8 +197,8 @@
 
             return enable
                 && (! isIE && Modernizr.localstorage && cookie.isCompatible())
-                && (config.socialLogin_facebook_complete
-                    || config.socialLogin_google_complete
+                && (config.social_login__facebook_complete
+                    || config.social_login__google_complete
                 );
         }
 

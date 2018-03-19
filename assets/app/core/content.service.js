@@ -5,11 +5,11 @@
         .factory("ContentService", ContentService);
 
     function ContentService($ngRedux, $q, $translate, loggerToServer, toastr) {
-        var homeHeroBgStyle;
+        var heroBgHomeStyle;
 
         var service = {};
         service.refreshTranslation = refreshTranslation;
-        service.setHomeHeroBackground = setHomeHeroBackground;
+        service.setHeroBackgroundHome = setHeroBackgroundHome;
         service.setLogo = setLogo;
         service.showNotification = showNotification;
         service.showError = showError;
@@ -23,14 +23,14 @@
             $translate.refresh();
         }
 
-        function setHomeHeroBackground(url) {
-            if (!homeHeroBgStyle) {
-                homeHeroBgStyle = document.createElement('style');
-                homeHeroBgStyle.id = _.uniqueId('style_');
-                document.body.appendChild(homeHeroBgStyle);
+        function setHeroBackgroundHome(url) {
+            if (!heroBgHomeStyle) {
+                heroBgHomeStyle = document.createElement('style');
+                heroBgHomeStyle.id = _.uniqueId('style_');
+                document.body.appendChild(heroBgHomeStyle);
             }
 
-            homeHeroBgStyle.innerHTML = [
+            heroBgHomeStyle.innerHTML = [
                 '.stelace-hero.stelace-hero__background {',
                     'background-image: url("' + url + '")',
                 '}'
@@ -40,7 +40,7 @@
         function setLogo(url) {
             var state = $ngRedux.getState();
             var config = state.config;
-            config.logoUrl = url;
+            config.logo__url = url;
             config = _.assign({}, config);
 
             $ngRedux.dispatch(window.actions.ConfigActions.setConfig(config));

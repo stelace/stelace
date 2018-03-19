@@ -628,13 +628,13 @@
                         </p>
                         <div class="signin-form-container margin-bottom-plus" ng-if="vm.showSocialLogin">
                             <span class="text--emphasize" data-translate="authentication.or_social_auth_separator"></span>
-                            <div class="social-signin fb cursor-pointer" ng-if="config.socialLogin_facebook_complete" ng-click="vm.socialLogin('facebook')">
+                            <div class="social-signin fb cursor-pointer" ng-if="config.social_login__facebook_complete" ng-click="vm.socialLogin('facebook')">
                                 <svg class="icon">
                                     <use xlink:href="/assets/build/icons/sprite.svg#face"/>
                                 </svg>
                                 <span data-translate="authentication.social_auth_button" data-translate-values="{ network_name: 'Facebook' }"></span>
                             </div>
-                            <div class="social-signin gpl cursor-pointer" ng-if="config.socialLogin_google_complete" ng-click="vm.socialLogin('google')">
+                            <div class="social-signin gpl cursor-pointer" ng-if="config.social_login__google_complete" ng-click="vm.socialLogin('google')">
                                 <svg class="icon">
                                     <use xlink:href="/assets/build/icons/sprite.svg#g-pl"/>
                                 </svg>

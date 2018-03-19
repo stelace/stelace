@@ -166,7 +166,7 @@ async function renewDeposit(booking, transactionManager) {
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     const renewDepositAmount = getRenewDepositAmount(booking);
 
@@ -234,7 +234,7 @@ async function cancelDeposit(booking, transactionManager) {
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     const transactionsToCancel = getDepositsToCancel(transactionManager);
 
@@ -269,7 +269,7 @@ async function cancelPreauthPayment(booking, transactionManager) {
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     const transaction = getNonCancelledPreauthPayment(transactionManager);
     const skipProcessWithUpdate = !transaction;
@@ -314,7 +314,7 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker]);
@@ -395,7 +395,7 @@ async function payinPayment(booking, transactionManager, taker, paymentValues) {
  */
 async function cancelPayinPayment(booking, transactionManager, taker, paymentValues) {
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker]);
@@ -481,7 +481,7 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker, owner]);
@@ -573,7 +573,7 @@ async function transferPayment(booking, transactionManager, taker, owner, paymen
  */
 async function cancelTransferPayment(booking, transactionManager, taker, paymentValues) {
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [taker]);
@@ -660,7 +660,7 @@ async function payoutPayment(booking, transactionManager, owner, paymentValues) 
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     if (paymentProvider === 'mangopay') {
         checkMangopayItems(booking, [owner]);

@@ -102,7 +102,7 @@ async function index(req, res) {
     // pre-load translations for client-side
     const translations = await ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
 
-    const paymentProvider = config.paymentProvider;
+    const paymentProvider = config.payment_provider;
 
     const dataFromServer = {
         config,
@@ -111,7 +111,7 @@ async function index(req, res) {
         currency,
         translations,
         paymentProvider,
-        stripePublishKey: config.stripe_publishKey,
+        stripePublishKey: config.stripe__publish_key,
     };
 
     let highlightTranslations;
@@ -128,12 +128,12 @@ async function index(req, res) {
         lang,
         metaRobotsTags: null,
         canonicalUrl: null,
-        facebookAppId: config.facebook_app_id,
-        facebookTracking: config.facebook_pixel_active,
-        facebookPixelId: config.facebook_pixel_id,
-        googleTracking: config.google_analytics_active,
-        googleAnalyticsId: config.google_analytics_trackingId,
-        googleMapApiKey: config.google_maps_apiKey,
+        facebookAppId: config.facebook_app__id,
+        facebookTracking: config.facebook_pixel__active,
+        facebookPixelId: config.facebook_pixel__id,
+        googleTracking: config.google_analytics__active,
+        googleAnalyticsId: config.google_analytics__tracking_id,
+        googleMapApiKey: config.google_maps__api_key,
         sessionId: stelaceSession ? stelaceSession.id : 0,
         sessionToken: stelaceSession ? stelaceSession.token : '',
         eventId: stelaceEvent ? stelaceEvent.id : 0,
