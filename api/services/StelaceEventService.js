@@ -199,7 +199,7 @@ function extractListingId(url, parsedUrl) {
         return;
     }
 
-    var listingViewField    = "/listing/:slug";
+    var listingViewField    = "/l/:slug";
     var myListingsViewField = "/my-listings/:id";
 
     var fields = [

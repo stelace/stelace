@@ -138,11 +138,11 @@ function getInviteUrl() {
 }
 
 function getListingNewUrl() {
-    return `/listing/new`;
+    return `/l/n`;
 }
 
 function getListingUrl(listing) {
-    return `/listing/${listing.nameURLSafe}-${listing.id}`;
+    return `/l/${listing.nameURLSafe}-${listing.id}`;
 }
 
 function getConversationUrl(conversation) {

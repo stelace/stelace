@@ -16,7 +16,7 @@
                 }
 
                 // TODO: expose only useful fields
-                if (new RegExp(reStr + "/listing/.*").test(url)) {
+                if (new RegExp(reStr + "/l/.*").test(url)) {
                     // return _.pick(element, [
                     //     "name",
                     //     "description"

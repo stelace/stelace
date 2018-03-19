@@ -369,7 +369,7 @@ async function index(req, res) {
                     resolve: true
                 },
                 {
-                    pattern: "/listing/new",
+                    pattern: "/l/n",
                     resolve: true
                 },
                 {
@@ -405,7 +405,7 @@ async function index(req, res) {
                     }
                 },
                 {
-                    pattern: "/listing/:slug",
+                    pattern: "/l/:slug",
                     resolve: tokens => {
                         var slugId = _.last(tokens.slug.split("-"));
                         slugId = parseInt(slugId, 10);
@@ -418,7 +418,7 @@ async function index(req, res) {
                             if (! listing) {
                                 return;
                             } else {
-                                return `/listing/${listing.nameURLSafe}-${slugId}`;
+                                return `/l/${listing.nameURLSafe}-${slugId}`;
                             }
                         })();
                     }

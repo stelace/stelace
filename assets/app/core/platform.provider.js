@@ -103,7 +103,7 @@
                 if (devEnv || ! listingSlug) {
                     listingShareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
                 } else {
-                    listingShareUrl = getBaseUrl() + "/listing/" + listingSlug;
+                    listingShareUrl = getBaseUrl() + "/l/" + listingSlug;
                 }
 
                 if (! _.isEmpty(utmTags) && ! devEnv) {
@@ -111,7 +111,7 @@
                     listingShareUrl = urlService.setUtmTags(listingShareUrl, utmTags);
                 }
 
-                debugDev("tagged listing url: ", urlService.setUtmTags(getBaseUrl() + "/listing/" + listingSlug, utmTags));
+                debugDev("tagged listing url: ", urlService.setUtmTags(getBaseUrl() + "/l/" + listingSlug, utmTags));
 
                 return listingShareUrl;
             }

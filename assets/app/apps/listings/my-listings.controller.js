@@ -282,7 +282,7 @@
 
                 return _fetchUserInfo();
             }).then(function () {
-                var urlCanonical = platform.getBaseUrl() + "/listing/new";
+                var urlCanonical = platform.getBaseUrl() + "/l/n";
                 var imgUrl       = platform.getBaseUrl() + "/assets/img/app/background/Janet_Ramsden_Attribution_Bokeh_Gift_Small.jpg";
                 var title        = "";
                 var description  = "Pour prolonger l'esprit de Noël, Sharinplace reverse à des associations 10% du montant des ventes"

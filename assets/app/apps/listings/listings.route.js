@@ -20,8 +20,8 @@
 
         $stateProvider
             .state("listingCreate", {
-                url: "/listing/new?listingTypeId",
-                urlWithoutParams: "/listing/new",
+                url: "/l/n?listingTypeId",
+                urlWithoutParams: "/l/n",
                 templateUrl: appsPath + "/listings/my-listings.html",
                 controller: "MyListingsController",
                 controllerAs: "vm",
@@ -52,8 +52,8 @@
                 title: "Modifier une annonce - Sharinplace"
             })
             .state("listing", {
-                url: "/listing/:slug",
-                urlWithoutParams: "/listing",
+                url: "/l/:slug",
+                urlWithoutParams: "/l",
                 templateUrl: appsPath + "/listings/listing-view.html",
                 controller: "ListingViewController",
                 controllerAs: "vm",

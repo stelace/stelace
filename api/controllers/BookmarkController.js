@@ -134,7 +134,7 @@ function destroyLink(req, res) {
                         if (! listing) {
                             res.redirect("/?destroy-bookmark=success");
                         } else {
-                            var redirectURL = sails.config.stelace.url + "/listing/" + listing.nameURLSafe + "-" + listing.id + "?destroy-bookmark=success";
+                            var redirectURL = sails.config.stelace.url + "/l/" + listing.nameURLSafe + "-" + listing.id + "?destroy-bookmark=success";
                             res.redirect(redirectURL);
                         }
                     });
