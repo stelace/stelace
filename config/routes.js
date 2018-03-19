@@ -189,6 +189,7 @@ module.exports.routes = {
 
     'get /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.findEditable', cors: apiCors },
     'patch /api/v0.1/contents/entries/editable': { target: 'v0_1/ContentEntriesController.updateEditable', cors: apiCors },
+    'patch /api/v0.1/contents/entries/editable/reset': { target: 'v0_1/ContentEntriesController.resetEditable', cors: apiCors },
     'get /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.findDefault', cors: apiCors },
     'patch /api/v0.1/contents/entries/default': { target: 'v0_1/ContentEntriesController.updateDefault', cors: apiCors },
 

@@ -13,6 +13,7 @@ module.exports = {
 
     updateTranslations,
     updateUserTranslations,
+    resetUserTranslations,
     refreshTranslations,
     getMetadata,
 
@@ -143,24 +144,78 @@ async function updateUserTranslations(lang, newTranslations) {
     const existingUserTranslations = await Translation.find({ lang, key: editableKeys });
     const indexedExistingUserTranslations = _.indexBy(existingUserTranslations, 'key');
 
+    const defaultTranslations = await fetchDefaultTranslations(lang);
+
+    const updatedTranslations = {};
+
     await Promise.map(editableKeys, async (key) => {
+        const defaultValue = _.get(defaultTranslations, key);
         const content = _.get(newTranslations, key);
 
         const existingUserTranslation = indexedExistingUserTranslations[key];
 
-        if (existingUserTranslation) {
-            await Translation.updateOne(existingUserTranslation.id, { content });
+        if (isTranslationEqual(defaultValue, content)) {
+            if (existingUserTranslation) {
+                await Translation.destroy({ id: existingUserTranslation.id });
+            }
+
+            _.set(updatedTranslations, key, defaultValue);
+            _.set(cachedUserTranslations[lang], key, null);
         } else {
-            await Translation.create({
-                lang,
-                namespace: 'default',
-                key,
-                content,
-            });
+            if (existingUserTranslation) {
+                await Translation.updateOne(existingUserTranslation.id, { content });
+            } else {
+                await Translation.create({
+                    lang,
+                    namespace: 'default',
+                    key,
+                    content,
+                });
+            }
+
+            _.set(updatedTranslations, key, content);
+            _.set(cachedUserTranslations[lang], key, content);
+        }
+    });
+
+    return updatedTranslations;
+}
+
+async function resetUserTranslations(lang, translationsKeys) {
+    const keys = translationsKeys;
+    const { metadata } = await _getTranslations(lang);
+
+    const editableKeys = _.intersection(keys, metadata.editableKeys); // filter out non valid editable keys
+
+    const existingUserTranslations = await Translation.find({ lang, key: editableKeys });
+    const indexedExistingUserTranslations = _.indexBy(existingUserTranslations, 'key');
+
+    const existingTranslationsIds = editableKeys.reduce((memo, key) => {
+        const existingUserTranslation = indexedExistingUserTranslations[key];
+
+        if (existingUserTranslation) {
+            memo.push(existingUserTranslation.id);
+        }
+        return memo;
+    }, []);
+
+    await Translation.destroy({ id: existingTranslationsIds });
+
+    const defaultTranslations = await fetchDefaultTranslations(lang);
+
+    const resetTranslations = {};
+
+    editableKeys.forEach(key => {
+        const defaultValue = _.get(defaultTranslations, key);
+        if (typeof defaultValue === 'undefined') {
+            return;
         }
 
-        _.set(cachedUserTranslations[lang], key, content);
+        _.set(resetTranslations, key, defaultValue);
+        _.set(cachedUserTranslations[lang], key, null);
     });
+
+    return resetTranslations;
 }
 
 async function refreshTranslations() {
@@ -372,6 +427,18 @@ function isKeyLabel(key) {
 
 function isKeyHelper(key) {
     return key.substr(-editableKeyHelperSuffix.length) === editableKeyHelperSuffix;
+}
+
+// escape unbreakable spaces
+function isTranslationEqual(value1, value2) {
+    if (typeof value1 !== 'string' || typeof value2 !== 'string') {
+      return false;
+    }
+
+    let escaped1 = value1.replace(/\xa0/gi, ' ');
+    let escaped2 = value2.replace(/\xa0/gi, ' ');
+
+    return escaped1 === escaped2;
 }
 
 /**

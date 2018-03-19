@@ -4,6 +4,7 @@ module.exports = {
 
     findEditable,
     updateEditable,
+    resetEditable,
 
     findDefault,
     updateDefault,
@@ -28,9 +29,8 @@ async function findEditable(req, res) {
 }
 
 async function updateEditable(req, res) {
-    const allowedTranslation = await ApiService.isAllowed(req, 'translation', 'edit');
     const allowedEditor = await ApiService.isAllowed(req, 'editor', 'view');
-    if (!allowedTranslation || !allowedEditor) {
+    if (!allowedEditor) {
         throw createError(403);
     }
 
@@ -38,9 +38,24 @@ async function updateEditable(req, res) {
 
     const lang = ContentEntriesService.getBestLang(attrs.locale);
 
-    await ContentEntriesService.updateUserTranslations(lang, attrs.translations);
+    const updatedTranslations = await ContentEntriesService.updateUserTranslations(lang, attrs.translations);
 
-    res.json({ ok: true });
+    res.json(updatedTranslations);
+}
+
+async function resetEditable(req, res) {
+    const allowedEditor = await ApiService.isAllowed(req, 'editor', 'view');
+    if (!allowedEditor) {
+        throw createError(403);
+    }
+
+    const attrs = req.allParams();
+
+    const lang = ContentEntriesService.getBestLang(attrs.locale);
+
+    const resetTranslations = await ContentEntriesService.resetUserTranslations(lang, attrs.translationsKeys);
+
+    res.json(resetTranslations);
 }
 
 async function findDefault(req, res) {
@@ -53,14 +68,9 @@ async function findDefault(req, res) {
 }
 
 async function updateDefault(req, res) {
-    const allowedTranslation = await ApiService.isAllowed(req, 'translation', 'edit');
     const allowedAdminEditor = await ApiService.isAllowed(req, 'adminEditor', 'view');
-    if (!allowedTranslation || !allowedAdminEditor) {
+    if (!allowedAdminEditor) {
         throw createError(403);
-    }
-
-    if (!sails.config.stelace.superAdmin) {
-        return res.forbidden();
     }
 
     const attrs = req.allParams();
