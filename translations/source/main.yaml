@@ -1,7 +1,7 @@
 stelace:
     powered_by:
         en: We run on
-        fr: Technologie conçue par
+        fr: Expérience conçue par
         context: Platform provider’s branding
     name:
         en: Stelace
@@ -274,6 +274,12 @@ listing:
         date_label:
             en: Date
             fr: Date
+        date_calendar_title:
+            en: Please pick your dates
+            fr: Veuillez choisir vos dates
+        date_calendar_title__EDITOR_LABEL:
+            en: Calendar prompt
+            fr: Introduction du calendrier
     checkout_action:
         en: |
             {timeDimension, select,
@@ -1532,11 +1538,22 @@ inbox:
         en: 'When you will send or receive messages and reservation requests, the messages will display here.'
         fr: 'Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s''afficheront ici.'
     conversation_with:
-        en: 'Conversation with {interlocutorName}'
-        fr: 'Conversation avec {interlocutorName}'
+        en: 'Conversation {interlocutorName, select, undefined {} other {with {interlocutorName}}}'
+        fr: 'Conversation {interlocutorName, select, undefined {} other {avec {interlocutorName}}}'
+    conversation_intro_taker:
+        en: ''
+        fr: ''
+        context: Explains which type of info could be useful to exchange during conversation, from buyer’s point of view.
+    conversation_intro_taker__EDITOR_LABEL:
+        en: 'Conversation context'
+        fr: 'Contexte de la conversation'
+    conversation_intro_owner:
+        en: ''
+        fr: ''
+        context: Explains which type of info could be useful to exchange during conversation, from owner’s point of view.
     message_to:
-        en: 'Message to {interlocutorName}:'
-        fr: "Message à {interlocutorName}\_:"
+        en: 'Message {interlocutorName, select, undefined {} other {to {interlocutorName}}}'
+        fr: 'Message {interlocutorName, select, undefined {} other {à {interlocutorName}}}'
     acceptance_or_rejection_placeholder:
         en: Please provider some details...
         fr: Veuillez apporter quelques précisions...
@@ -1556,17 +1573,20 @@ inbox:
         en: 'You can reply to {interlocutorName}''s private message below:'
         fr: "Vous pouvez répondre au message privé de {interlocutorName} ci-dessous\_:"
     private_question_placeholder:
-        en: Write your private message...
-        fr: Écrivez votre message personnel...
+        en: Your private message…
+        fr: Votre message personnel…
     public_question_helper:
         en: 'You also can reply publicly to the requests on your listing. Your message will be displayed in the description section of your listing page:'
         fr: "Vous pouvez également répondre publiquement aux demandes de précisions sur votre annonce. Ce que vous écrirez ci-dessous viendra enrichir sa page de description\_:"
     public_question_placeholder:
-        en: Write your public message...
-        fr: Écrivez votre message publique...
+        en: Your public message…
+        fr: Votre message public…
     public_message_context:
-        en: 'About the listing:'
-        fr: "Concernant l'annonce\_:"
+        en: About the listing
+        fr: Concernant l'annonce
+    message_odds_of_success:
+        en: Some info about you may improve the odds of a positive reply.
+        fr: Quelques précisions peuvent augmenter vos chances de recevoir une réponse favorable.
     message_obfuscate_info:
         en: 'For security reasons, your contact details will be hidden in your message.'
         fr: 'Par sécurité, vos coordonnées seront masquées dans votre message.'
