@@ -92,11 +92,13 @@ async function getListingsFromQuery(searchQuery, type) {
     const displayJourneys = hasLocations && queryMode !== 'relevance';
 
     // remove listings that are too far from given source locations
-    if (hasLocations && distanceLimitMeters) {
-        listings = filterListingsWithinDistance(locations, listings, hashLocations, distanceLimitMeters);
-        // console.log('near listings', listings.length);
+    if (hasLocations) {
+        if (distanceLimitMeters) {
+            listings = filterListingsWithinDistance(locations, listings, hashLocations, distanceLimitMeters);
+            // console.log('near listings', listings.length);
 
-        hashLocations = refreshHashLocations(hashLocations, _.pluck(listings, 'id'));
+            hashLocations = refreshHashLocations(hashLocations, _.pluck(listings, 'id'));
+        }
         hashJourneys = await getJourneysInfo(locations, hashLocations);
     }
 
