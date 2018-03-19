@@ -1,7 +1,7 @@
 stelace:
     powered_by:
         en: We run on
-        fr: Technologie conçue par
+        fr: Expérience conçue par
         context: Platform provider’s branding
     name:
         en: Stelace
@@ -76,13 +76,11 @@ authentication:
             en: |
                 Create a password {min_number_of_characters, select,
                     undefined {}
-                    null {}
                     other {(min. {min_number_of_characters} characters)}
                 }
             fr: |
                 Mot de passe {min_number_of_characters, select,
                     undefined {}
-                    null {}
                     other {({min_number_of_characters} caractères minimum)}
                 }
             context: Password placeholder showed when user is signing up. Should be short enough to fit in a small input.
@@ -276,6 +274,12 @@ listing:
         date_label:
             en: Date
             fr: Date
+        date_calendar_title:
+            en: Please pick your dates
+            fr: Veuillez choisir vos dates
+        date_calendar_title__EDITOR_LABEL:
+            en: Calendar prompt
+            fr: Introduction du calendrier
     checkout_action:
         en: |
             {timeDimension, select,
@@ -299,8 +303,8 @@ listing:
         en: This listing is not available anymore.
         fr: Cette annonce n’est plus disponible.
     charge_if_owner_accepts:
-        en: 'You will be charged only if {owner, select, null {the seller} other {{owner}}} accepts the transaction'
-        fr: 'Vous ne serez débité qu’en cas de confirmation {owner, select, null {du vendeur} other {de {owner}}}'
+        en: 'You will be charged only if {owner, select, undefined {the seller} other {{owner}}} accepts the transaction'
+        fr: 'Vous ne serez débité qu’en cas de confirmation {owner, select, undefined {du vendeur} other {de {owner}}}'
     price_label:
         en: Price
         fr: Prix
@@ -333,6 +337,13 @@ listing:
         en: Paused
         fr: En pause
     edition:
+        new_listing_title:
+            en: 'New listing - {SERVICE_NAME}'
+            fr: 'Nouvelle annonce {SERVICE_NAME}'
+            context: Window/Tab title (SEO).
+        new_listing_meta_description:
+            en: Create your own listing in no time.
+            fr: Créez votre propre annonce en quelques instants.
         new_listing_header:
             en: Here is your new listing
             fr: Voici votre nouvelle annonce
@@ -676,13 +687,13 @@ user:
     no_verified_info_public_text:
         en: |
             {user, select,
-                null {This user}
+                undefined {This user}
                 other {{user}}
             }
             has no verified info yet.
         fr: |
             {user, select,
-                null {Cet utilisateur}
+                undefined {Cet utilisateur}
                 other {{user}}
             }
             n’a pas encore validé ses coordonnées.'
@@ -690,12 +701,12 @@ user:
         en: Your contact details will not be displayed publicly.
         fr: Le détail de vos coordonnées n’apparaîtra pas publiquement.
     picture_title:
-        en: '{user, select, null {Profile picture} other {Picture of {user}}}'
-        fr: 'Photo {user, select, null {du profil} other {de {user}}}'
+        en: '{user, select, undefined {Profile picture} other {Picture of {user}}}'
+        fr: 'Photo {user, select, undefined {du profil} other {de {user}}}'
     account:
         greeting:
-            en: Welcome back {firstname, select, null {} other {{firstname}}}
-            fr: Bienvenue sur {SERVICE_NAME} {firstname, select, null {} other {{firstname}}}
+            en: Welcome back {firstname, select, undefined {} other {{firstname}}}
+            fr: Bienvenue sur {SERVICE_NAME} {firstname, select, undefined {} other {{firstname}}}
             context: User can have no name yet.
         greeting__EDITOR_LABEL:
             en: Greeting message of account page
@@ -731,12 +742,12 @@ user:
         dynamic_email_placeholder:
             en: |
                 {email_placeholder, select,
-                    null {Your email address}
+                    undefined {Your email address}
                     other {{email_placeholder}}
                 }
             fr: |
                 {email_placeholder, select,
-                    null {Votre adresse électronique}
+                    undefined {Votre adresse électronique}
                     other {{email_placeholder}}
                 }
             context: This mixed placeholder can also show input email if applicable
@@ -746,12 +757,12 @@ user:
         dynamic_phone_placeholder:
             en: |
                 {phone_placeholder, select,
-                    null {Transactions notified by SMS}
+                    undefined {Transactions notified by SMS}
                     other {{phone_placeholder}}
                 }
             fr: |
                 {phone_placeholder, select,
-                    null {Recevez vos demandes par SMS}
+                    undefined {Recevez vos demandes par SMS}
                     other {{phone_placeholder}}
                 }
             context: This mixed placeholder can also show input phone if applicable
@@ -853,23 +864,23 @@ user:
         main_location_helper:
             en: |
                 {is_listing_owner, select,
-                    owner {Where is located your listing?}
+                    is_owner {Where is located your listing?}
                     other {What is your main search location?}
                 }
             fr: |
                 {is_listing_owner, select,
-                    owner {À quel lieu votre annonce doit-elle être visible ?}
+                    is_owner {À quel lieu votre annonce doit-elle être visible ?}
                     other {Quel est votre principal lieu de recherche ?}
                 }
         second_location_helper:
             en: |
                 {is_listing_owner, select,
-                    owner {Would you like your listing to appear somewhere else too?}
+                    is_owner {Would you like your listing to appear somewhere else too?}
                     other {Do you want to save another search location?}
                 }
             fr: |
                 {is_listing_owner, select,
-                    owner {Souhaitez-vous associer un autre lieu à cette annonce ?}
+                    is_owner {Souhaitez-vous associer un autre lieu à cette annonce ?}
                     other {Souhaitez-vous enregistrer un autre lieu de recherche ?}
                 }
         SMS_notifications:
@@ -906,12 +917,12 @@ user:
         greeting:
             en: |
                 Welcome {user, select,
-                    null {}
+                    undefined {}
                     other {, I’m {user}}
                 }
             fr: |
                 Bienvenue{user, select,
-                    null {}
+                    undefined {}
                     other {, je suis {user}}
                 }
         greeting__EDITOR_LABEL:
@@ -933,6 +944,10 @@ landing:
         title__EDITOR_HELPER:
             en: As shown in Web browser and search engine results such as Google.
             fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
+        meta_description:
+            en: "Your community awaits you on {SERVICE_NAME}"
+            fr: "Rejoignez la communauté {SERVICE_NAME}"
+            context: This is a very generic default that should be replaced by admin before marketplace is online.
         header:
             en: 'Welcome to {SERVICE_NAME}'
             fr: 'Bienvenue sur {SERVICE_NAME}'
@@ -1167,6 +1182,32 @@ form:
     min_characters:
         fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
         en: '{min_number_of_characters, plural, one {This can’t be empty.} other {Minimum # characters}}'
+    characters_remaining:
+        en: |
+            {characters_remaining, plural,
+                =0 {No character left}
+                one {One character available}
+                other {# characters available}
+            }
+        fr: |
+            {characters_remaining, plural,
+                =0 {Aucun caractère restant}
+                one {Un caractère restant}
+                other {# caractères restants}
+            }
+    characters_exceeding:
+        en: |
+            {characters_exceeding, plural,
+                =0 {No character left}
+                one {One character exceeding}
+                other {# characters exceeding}
+            }
+        fr: |
+            {characters_exceeding, plural,
+                =0 {Aucun caractère restant}
+                one {Un caractère en trop}
+                other {# caractères en trop}
+            }
     validation_code_placeholder:
         en: Validation code
         fr: Code de validation
@@ -1186,7 +1227,7 @@ ratings:
     user_ratings_title:
         en: |
             {user, select,
-                null {Ratings}
+                undefined {Ratings}
                 other {{user} ratings}
             }
             {as_role, select,
@@ -1196,7 +1237,7 @@ ratings:
             }
         fr: |
             Évaluations reçues {user, select,
-                null {}
+                undefined {}
                 other {par {user}}
             }
             {as_role, select,
@@ -1215,7 +1256,7 @@ ratings:
                 =0 {}
                 one {# rating}
                 other {# ratings{for_this_listing, select,
-                    null {}
+                    undefined {}
                     other {
                         including {for_this_listing} for this listing
                     }
@@ -1226,7 +1267,7 @@ ratings:
                 =0 {}
                 one {# évaluation}
                 other {# évaluations{for_this_listing, select,
-                    null {}
+                    undefined {}
                     other {
                         dont {for_this_listing} pour cette annonce
                     }
@@ -1508,11 +1549,22 @@ inbox:
         en: 'When you will send or receive messages and reservation requests, the messages will display here.'
         fr: 'Lorsque vous enverrez ou recevrez des messages et demandes de réservation, les réponses reçues s''afficheront ici.'
     conversation_with:
-        en: 'Conversation with {interlocutorName}'
-        fr: 'Conversation avec {interlocutorName}'
+        en: 'Conversation {interlocutorName, select, undefined {} other {with {interlocutorName}}}'
+        fr: 'Conversation {interlocutorName, select, undefined {} other {avec {interlocutorName}}}'
+    conversation_intro_taker:
+        en: ''
+        fr: ''
+        context: Explains which type of info could be useful to exchange during conversation, from buyer’s point of view.
+    conversation_intro_taker__EDITOR_LABEL:
+        en: 'Conversation context'
+        fr: 'Contexte de la conversation'
+    conversation_intro_owner:
+        en: ''
+        fr: ''
+        context: Explains which type of info could be useful to exchange during conversation, from owner’s point of view.
     message_to:
-        en: 'Message to {interlocutorName}:'
-        fr: "Message à {interlocutorName}\_:"
+        en: 'Message {interlocutorName, select, undefined {} other {to {interlocutorName}}}'
+        fr: 'Message {interlocutorName, select, undefined {} other {à {interlocutorName}}}'
     acceptance_or_rejection_placeholder:
         en: Please provider some details...
         fr: Veuillez apporter quelques précisions...
@@ -1532,17 +1584,20 @@ inbox:
         en: 'You can reply to {interlocutorName}''s private message below:'
         fr: "Vous pouvez répondre au message privé de {interlocutorName} ci-dessous\_:"
     private_question_placeholder:
-        en: Write your private message...
-        fr: Écrivez votre message personnel...
+        en: Your private message…
+        fr: Votre message personnel…
     public_question_helper:
         en: 'You also can reply publicly to the requests on your listing. Your message will be displayed in the description section of your listing page:'
         fr: "Vous pouvez également répondre publiquement aux demandes de précisions sur votre annonce. Ce que vous écrirez ci-dessous viendra enrichir sa page de description\_:"
     public_question_placeholder:
-        en: Write your public message...
-        fr: Écrivez votre message publique...
+        en: Your public message…
+        fr: Votre message public…
     public_message_context:
-        en: 'About the listing:'
-        fr: "Concernant l'annonce\_:"
+        en: About the listing
+        fr: Concernant l'annonce
+    message_odds_of_success:
+        en: Some info about you may improve the odds of a positive reply.
+        fr: Quelques précisions peuvent augmenter vos chances de recevoir une réponse favorable.
     message_obfuscate_info:
         en: 'For security reasons, your contact details will be hidden in your message.'
         fr: 'Par sécurité, vos coordonnées seront masquées dans votre message.'

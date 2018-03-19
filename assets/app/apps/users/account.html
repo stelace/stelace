@@ -3,7 +3,7 @@
     <div class="text-center stelace-hero space padded-sides">
         <h1 class="stelace-hero__title"
             data-translate="user.account.greeting"
-            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME, firstname: vm.currentUser.firstname || null }">
+            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME, firstname: vm.currentUser.firstname || undefined }">
         </h1>
         <div class="stelace-hero__subtitle"
             data-translate="user.account.greeting_subtitle">
@@ -71,7 +71,7 @@
                         </div>
                         <input id="user-email" type="text"
                             data-translate-attr="{ placeholder: 'user.account.dynamic_email_placeholder' }"
-                            data-translate-values="{ email_placeholder: vm.currentUser.email || null }"
+                            data-translate-values="{ email_placeholder: vm.currentUser.email || undefined }"
                             ng-class="{ 'data-placeholder': vm.currentUser.email }"
                             ng-model="vm.dummyEmail"
                             data-sip-action-key
@@ -109,7 +109,7 @@
                                 ng-switch-when="false">
                             <input id="user-phone" type="text"
                                 data-translate-attr="{ placeholder: 'user.account.dynamic_phone_placeholder' }"
-                                data-translate-values="{ phone_placeholder: vm.currentUser.phone || null }"
+                                data-translate-values="{ phone_placeholder: vm.currentUser.phone || undefined }"
                                 ng-class="{ 'data-placeholder': vm.currentUser.phone }"
                                 ng-model="vm.dummyPhone"
                                 data-sip-action-key

@@ -140,8 +140,8 @@
             vm.autofocus             = true; // enable autofocus directive for inputs
             // Greeting can include several custom messages as attributes
             vm.greeting              = _.defaults(options.greeting || {}, {
-                mainLocation: $translate.instant('user.prompt.main_location_helper', { is_listing_owner: options.isListingOwner || null }),
-                secondLocation: $translate.instant('user.prompt.second_location_helper', { is_listing_owner: options.isListingOwner || null }),
+                mainLocation: $translate.instant('user.prompt.main_location_helper', { is_listing_owner: options.isListingOwner ? 'is_owner' : '' }),
+                secondLocation: $translate.instant('user.prompt.second_location_helper', { is_listing_owner: options.isListingOwner ? 'is_owner' : '' }),
                 phone: $translate.instant('user.prompt.SMS_notifications', { phone_update: 'no_existing_phone' }),
                 phoneNew: $translate.instant('user.prompt.SMS_notifications', { phone_update: 'phone_number_updated' }),
                 email: $translate.instant('user.prompt.fill_in_email'),

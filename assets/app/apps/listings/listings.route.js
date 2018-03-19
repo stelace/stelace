@@ -28,9 +28,9 @@
                 appClassName: "landings",
                 noAuthNeeded: true,
                 metaTags: {
-                    description: "Publiez gratuitement votre annonce de location en quelques clics. Bricolage, High-Tech, Electroménager..."
+                    description: "listing.edition.new_listing_meta_description"
                 },
-                title: "Louez vos objets entre particuliers sur Sharinplace"
+                title: "listing.edition.new_listing_title"
             })
             .state("myListings", {
                 url: "/my-listings",

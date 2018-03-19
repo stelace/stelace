@@ -37,6 +37,7 @@
             service.isSelfCanonical           = isSelfCanonical;
             service.setCanonicalLink          = setCanonicalLink;
             service.unsetCanonicalLink        = unsetCanonicalLink;
+            service.isTranslationKeyFormat    = isTranslationKeyFormat;
             service.getFacebookAppId          = getFacebookAppId;
             service.getDataFromServer         = getDataFromServer;
             service.getLang                   = getLang;
@@ -49,10 +50,9 @@
 
 
             function setTitle(title) {
-                return _checkMetaTranslationKey(title)
-                    .then(function (translationIds) {
-                        return _setTitle(translationIds[title]);
-                    })
+                var translation = _getTranslationFromKey(title)
+
+                return $q.when(_setTitle(translation));
 
                 function _setTitle(title) {
                     document.title = title;
@@ -158,7 +158,9 @@
                     if (metaTagContentOrAttrs && typeof metaTagContentOrAttrs === "object") {
                         _.assign(element, metaTagContentOrAttrs);
                     } else {
-                        element.content = metaTagContentOrAttrs;
+                        element.content =
+                            (isTranslationKeyFormat(metaTagContentOrAttrs) && _getTranslationFromKey(metaTagContentOrAttrs))
+                            || metaTagContentOrAttrs;
                     }
 
                     elements.push(element);
@@ -196,27 +198,20 @@
                     "og:image:height": head.querySelector("meta[property='og:image:height']"),
                     "og:description": head.querySelector("meta[property='og:description']")
                 };
+
+                // TODO: Use website config
                 var defaultOgContents = {
                     "og:type": "website",
-                    "og:title": "Smart marketplace launcher",
+                    "og:title": "landing.homepage.title",
                     "og:url": "https://stelace.com",
                     "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
                     "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
                     "og:image:width": 1200, // header dimensions, to update for any other image
                     "og:image:height": 630, // See https://developers.facebook.com/docs/sharing/best-practices#images
-                    "og:description": ""
+                    "og:description": "landing.homepage.meta_description"
                 };
 
-                _.forEach(existingOgTags, function (ogTag, property) {
-                    if (! ogTag) {
-                        return;
-                    }
-                    if (newOgTags && newOgTags[property]) {
-                        ogTag.content = newOgTags[property];
-                    } else {
-                        ogTag.content = defaultOgContents[property];
-                    }
-                });
+                _updateSocialMetaTags(newOgTags, existingOgTags, defaultOgContents);
             }
 
             function setTwitterCard(newOgTags) {
@@ -228,23 +223,38 @@
                     "twitter:description": head.querySelector("meta[name='twitter:description']"),
                     "twitter:image": head.querySelector("meta[name='twitter:image']")
                 };
+
+                // TODO: Use website config
                 var defaultOgContents = {
                     "twitter:card": "summary_large_image",
                     "twitter:site": "@stelaceAI",
-                    "twitter:title": "Smart marketplace launcher",
-                    "twitter:description": "",
+                    "twitter:title": "landing.homepage.title",
+                    "twitter:description": "landing.homepage.meta_description",
                     "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
                 };
 
+                _updateSocialMetaTags(newOgTags, existingOgTags, defaultOgContents);
+            }
+
+            function _updateSocialMetaTags(newOgTags, existingOgTags, defaultOgContents) {
                 _.forEach(existingOgTags, function (ogTag, property) {
                     if (! ogTag) {
                         return;
                     }
+
+                    var newContent;
+
                     if (newOgTags && newOgTags[property]) {
-                        ogTag.content = newOgTags[property];
+                        newContent = newOgTags[property];
                     } else {
-                        ogTag.content = defaultOgContents[property];
+                        newContent = defaultOgContents[property];
                     }
+
+                    if (isTranslationKeyFormat(newContent)) {
+                        newContent = _getTranslationFromKey(newContent);
+                    }
+
+                    ogTag.content = newContent;
                 });
             }
 
@@ -338,19 +348,24 @@
                 container.appendChild(frag);
             }
 
-            function _checkMetaTranslationKey(key) {
+            function _getTranslationFromKey(key) {
                 var $translate = $injector.get("$translate");
                 var $rootScope = $injector.get("$rootScope");
-                var mockedTranslation = {};
 
                 // Handling asynchronous translation from route.js files in an ugly way for now
-                // presume that strings with no space are not keys
-                if (typeof key === "string" && key.indexOf(" ") <= 0) {
-                    return $translate([key], { SERVICE_NAME: $rootScope.config.SERVICE_NAME }); // key is a translation key
+                if (isTranslationKeyFormat(key)) {
+                    return $translate.instant(key, { SERVICE_NAME: $rootScope.config.SERVICE_NAME }); // key is a translation key
                 }
 
-                mockedTranslation[key] = key; // not a real key
-                return $q.when(mockedTranslation);
+                return key;
+            }
+
+            // Reasonably assume that dot-namespaced lowercase strings with no space are translation keys
+            function isTranslationKeyFormat(keyCandidate) {
+                return typeof keyCandidate === "string"
+                    && keyCandidate.indexOf((".") >= 1) // namespace.subkey
+                    && keyCandidate.indexOf((" ") < 0)
+                    && keyCandidate.toLowerCase() === keyCandidate;
             }
         };
 

@@ -4,7 +4,7 @@
         <div id="user__introduction"
             ng-class="{ 'pull-bottom': vm.listingsOnly }">
             <h1 data-translate="user.profile.greeting"
-            data-translate-values="{ user: vm.user.displayName || null }">
+            data-translate-values="{ user: vm.user.displayName || undefined }">
             </h1>
             <div class="text--small text--semibold"
                 ng-if="::vm.user.createdDate"
@@ -192,7 +192,7 @@
                     <div class="margin-top-plus padding-bottom"
                         ng-repeat="ratings in ::vm.ratings">
                         <p class="text--semibold" data-translate="ratings.user_ratings_title"
-                        data-translate-values="{ user: vm.user.fullname || null, as_role: ratings[0] === 'owner' ? 'as_owner' : '' }">
+                        data-translate-values="{ user: vm.user.fullname || undefined, as_role: ratings[0] === 'owner' ? 'as_owner' : '' }">
                         </p>
                         <!-- Adapt ng-repeat limit instead of using ng-show here since this view is not SEO oriented -->
                         <!-- Must remove one-time binding in ng-repeat -->
