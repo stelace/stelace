@@ -337,6 +337,13 @@ listing:
         en: Paused
         fr: En pause
     edition:
+        new_listing_title:
+            en: 'New listing - {SERVICE_NAME}'
+            fr: 'Nouvelle annonce {SERVICE_NAME}'
+            context: Window/Tab title (SEO).
+        new_listing_meta_description:
+            en: Create your own listing in no time.
+            fr: Créez votre propre annonce en quelques instants.
         new_listing_header:
             en: Here is your new listing
             fr: Voici votre nouvelle annonce
@@ -937,6 +944,10 @@ landing:
         title__EDITOR_HELPER:
             en: As shown in Web browser and search engine results such as Google.
             fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
+        meta_description:
+            en: "Your community awaits you on {SERVICE_NAME}"
+            fr: "Rejoignez la communauté {SERVICE_NAME}"
+            context: This is a very generic default that should be replaced by admin before marketplace is online.
         header:
             en: 'Welcome to {SERVICE_NAME}'
             fr: 'Bienvenue sur {SERVICE_NAME}'

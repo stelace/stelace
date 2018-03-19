@@ -19,6 +19,7 @@
                                     crossTabCommunication,
                                     FoundationApi,
                                     Modal,
+                                    platform,
                                     referral,
                                     StelaceEvent,
                                     storage,
@@ -107,7 +108,7 @@
 
         function _openModal(formType, options) {
             vm.authForm          = formType ? formType.toString() : "login";
-            vm.greetingKey       = (typeof options.greetingKey === "string" && options.greetingKey.indexOf(" ") <= 0 && options.greetingKey) || "authentication.sign_up_greeting";
+            vm.greetingKey       = (platform.isTranslationKeyFormat(options.greetingKey) && options.greetingKey) || "authentication.sign_up_greeting";
             vm.displayLoginError = false;
             vm.autofocus         = true;
             vm.preventRedirect   = options.preventSubscriptionRedirect;
