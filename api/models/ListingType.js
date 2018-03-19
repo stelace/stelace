@@ -30,6 +30,11 @@ module.exports = {
             unique: true,
             maxLength: 191,
         },
+        namesI18n: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
         properties: {
             type: 'json',
             columnType: 'json',
@@ -53,6 +58,7 @@ module.exports = {
     },
 
     getAccessFields,
+    getI18nMap,
 
 };
 
@@ -78,7 +84,23 @@ function getAccessFields(access) {
             'createdDate',
             'updatedDate',
         ],
+        others: [
+            'id',
+            'name',
+            'properties',
+            'config',
+            'customFields',
+            'active',
+            'createdDate',
+            'updatedDate',
+        ],
     };
 
     return accessFields[access];
+}
+
+function getI18nMap() {
+    return {
+        name: 'namesI18n',
+    };
 }

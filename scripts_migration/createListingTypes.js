@@ -19,7 +19,11 @@ Sails.load(getConfig(), async function (err, sails) {
         try {
             const listingTypes = [
                 {
-                    name: 'RENTING',
+                    name: 'Renting',
+                    namesI18n: {
+                        en: 'Renting',
+                        fr: 'Location',
+                    },
                     properties: {
                         TIME: 'TIME_FLEXIBLE',
                         ASSESSMENTS: 'TWO_STEPS',
@@ -48,7 +52,11 @@ Sails.load(getConfig(), async function (err, sails) {
                     active: true,
                 },
                 {
-                    name: 'SELLING',
+                    name: 'Selling',
+                    namesI18n: {
+                        en: 'Selling',
+                        fr: 'Vente',
+                    },
                     properties: {
                         TIME: 'NONE',
                         ASSESSMENTS: 'ONE_STEP',

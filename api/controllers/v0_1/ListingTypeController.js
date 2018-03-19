@@ -1,4 +1,4 @@
-/* global ApiService, ListingType, ListingTypeService */
+/* global ApiService, ListingType, ListingTypeService, StelaceConfigService */
 
 module.exports = {
 
@@ -16,36 +16,32 @@ async function find(req, res) {
     const access = 'api';
     const attrs = req.allParams();
 
-    try {
-        let onlyActive = attrs.active === '1';
+    let onlyActive = attrs.active === '1';
 
-        let listingTypes;
-        if (onlyActive) {
-            listingTypes = await ListingTypeService.getListingTypes();
-        } else {
-            listingTypes = await ListingTypeService.getAllListingTypes();
-        }
+    const config = await StelaceConfigService.getConfig();
 
-        res.json(ListingType.exposeAll(listingTypes, access));
-    } catch (err) {
-        res.sendError(err);
+    let listingTypes;
+    if (onlyActive) {
+        listingTypes = await ListingTypeService.getListingTypes();
+    } else {
+        listingTypes = await ListingTypeService.getAllListingTypes();
     }
+
+    res.json(ListingType.exposeAll(listingTypes, access, { locale: config.lang, fallbackLocale: config.lang }));
 }
 
 async function findOne(req, res) {
     const id = req.param('id');
     const access = 'api';
 
-    try {
-        const listingType = await ListingType.findOne({ id });
-        if (!listingType) {
-            throw createError(404);
-        }
+    const config = await StelaceConfigService.getConfig();
 
-        res.json(ListingType.expose(listingType, access));
-    } catch (err) {
-        res.sendError(err);
+    const listingType = await ListingType.findOne({ id });
+    if (!listingType) {
+        throw createError(404);
     }
+
+    res.json(ListingType.expose(listingType, access, { locale: config.lang, fallbackLocale: config.lang }));
 }
 
 async function create(req, res) {
@@ -57,13 +53,13 @@ async function create(req, res) {
     const attrs = req.allParams();
     const access = 'api';
 
-    try {
-        const listingType = await ListingTypeService.createListingType(attrs);
+    const config = await StelaceConfigService.getConfig();
+    const locale = config.lang;
+    const fallbackLocale = config.lang;
 
-        res.json(ListingType.expose(listingType, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const listingType = await ListingTypeService.createListingType(attrs, { locale, fallbackLocale });
+
+    res.json(ListingType.expose(listingType, access, { locale, fallbackLocale }));
 }
 
 async function update(req, res) {
@@ -76,13 +72,13 @@ async function update(req, res) {
     const attrs = req.allParams();
     const access = 'api';
 
-    try {
-        const listingType = await ListingTypeService.updateListingType(id, attrs);
+    const config = await StelaceConfigService.getConfig();
+    const locale = config.lang;
+    const fallbackLocale = config.lang;
 
-        res.json(ListingType.expose(listingType, access));
-    } catch (err) {
-        res.sendError(err);
-    }
+    const listingType = await ListingTypeService.updateListingType(id, attrs, { locale, fallbackLocale });
+
+    res.json(ListingType.expose(listingType, access, { locale, fallbackLocale }));
 }
 
 async function destroy(req, res) {
@@ -93,10 +89,6 @@ async function destroy(req, res) {
 
     const id = parseInt(req.param('id'), 10);
 
-    try {
-        await ListingTypeService.destroyListingType(id);
-        res.json({ ok: true });
-    } catch (err) {
-        res.sendError(err);
-    }
+    await ListingTypeService.destroyListingType(id);
+    res.json({ ok: true });
 }

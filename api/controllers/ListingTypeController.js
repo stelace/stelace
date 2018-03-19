@@ -1,4 +1,4 @@
-/* global ListingTypeService */
+/* global ListingType, ListingTypeService, StelaceConfigService */
 
 /**
  * ListingTypeController
@@ -18,12 +18,15 @@ module.exports = {
 };
 
 async function find(req, res) {
-    try {
-        const listingTypes = await ListingTypeService.getListingTypes();
-        res.json(listingTypes);
-    } catch (err) {
-        res.sendError(err);
-    }
+    const access = 'others';
+
+    const config = await StelaceConfigService.getConfig();
+    const locale = config.lang;
+    const fallbackLocale = config.lang;
+
+    const listingTypes = await ListingTypeService.getListingTypes();
+
+    res.json(ListingType.exposeAll(listingTypes, access, { locale, fallbackLocale }));
 }
 
 function findOne(req, res) {

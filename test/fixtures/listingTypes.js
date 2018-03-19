@@ -7,7 +7,11 @@ const listingTypes = [
         id: 1,
         createdDate: escapeFixture(now),
         updatedDate: escapeFixture(now),
-        name: 'RENTING',
+        name: 'Renting',
+        namesI18n: escapeFixture({
+            en: 'Renting',
+            fr: 'Location',
+        }),
         properties: escapeFixture({
             TIME: 'TIME_FLEXIBLE',
             ASSESSMENTS: 'TWO_STEPS',
@@ -41,7 +45,11 @@ const listingTypes = [
         id: 2,
         createdDate: escapeFixture(now),
         updatedDate: escapeFixture(now),
-        name: 'SELLING',
+        name: 'Selling',
+        namesI18n: escapeFixture({
+            en: 'Selling',
+            fr: 'Vente',
+        }),
         properties: escapeFixture({
             TIME: 'NONE',
             ASSESSMENTS: 'ONE_STEP',
@@ -75,7 +83,11 @@ const listingTypes = [
         id: 3,
         createdDate: escapeFixture(now),
         updatedDate: escapeFixture(now),
-        name: 'CREATING',
+        name: 'Creating',
+        namesI18n: escapeFixture({
+            en: 'Creating',
+            fr: 'En création',
+        }),
         properties: escapeFixture({
             TIME: 'TIME_FLEXIBLE',
             ASSESSMENTS: 'TWO_STEPS',

@@ -232,11 +232,14 @@ async function filterListingTypes(listingTypesIds, { onlyActive = true } = {}) {
  * @param {Object[]} [params.customFields]
  * @param {Boolean} [params.active]
  * @param {Object} existingListingType
+ * @param {Object} options
+ * @param {String} options.locale
+ * @param {String} options.fallbackLocale
  * @return {Object} res
  * @return {Object} res.computedListingType
  * @return {String[]} res.errors
  */
-function getComputedListingType(params, existingListingType) {
+function getComputedListingType(params, existingListingType, { locale, fallbackLocale }) {
     const {
         name,
         properties,
@@ -248,20 +251,24 @@ function getComputedListingType(params, existingListingType) {
     const defaultProperties = getDefaultListingTypeProperties();
     const defaultConfig = getDefaultListingTypeConfig();
 
-    const computedListingType = {};
+    let computedListingType = {};
 
     if (existingListingType) {
-        computedListingType.name = typeof name !== 'undefined' ? name : existingListingType.name;
         computedListingType.properties = _.merge(existingListingType.properties, properties || {});
         computedListingType.config = _.merge(existingListingType.config, config || {});
         computedListingType.customFields = customFields ? customFields : existingListingType.customFields;
         computedListingType.active = (typeof active !== 'undefined' ? active : existingListingType.active);
+
+        const delta = ListingType.getI18nModelDelta(existingListingType, { name }, { locale, fallbackLocale });
+        computedListingType = _.merge({}, computedListingType, delta);
     } else {
-        computedListingType.name = name;
         computedListingType.properties = _.merge(defaultProperties, properties || {});
         computedListingType.config = _.merge(defaultConfig, config || {});
         computedListingType.customFields = customFields || [];
         computedListingType.active = (typeof active !== 'undefined' ? active : true);
+
+        const delta = ListingType.getI18nModelDelta(null, { name }, { locale, fallbackLocale });
+        computedListingType = _.merge({}, computedListingType, delta);
     }
 
     const errors = [];
@@ -295,6 +302,9 @@ function getComputedListingType(params, existingListingType) {
  * @param {Object} [params.config]
  * @param {Object[]} [params.customFields]
  * @param {Boolean} [params.active]
+ * @param {Object} options
+ * @param {String} options.locale
+ * @param {String} options.fallbackLocale
  */
 async function createListingType({
     name,
@@ -302,6 +312,9 @@ async function createListingType({
     config,
     customFields,
     active,
+} = {}, {
+    locale,
+    fallbackLocale,
 } = {}) {
     const { computedListingType, errors } = getComputedListingType({
         name,
@@ -309,7 +322,7 @@ async function createListingType({
         config,
         customFields,
         active,
-    });
+    }, null, { locale, fallbackLocale });
 
     if (errors.length) {
         throw createError(400, 'Bad params');
@@ -329,6 +342,9 @@ async function createListingType({
  * @param {Object} [params.config]
  * @param {Object[]} [params.customFields]
  * @param {Boolean} [params.active]
+ * @param {Object} options
+ * @param {String} options.locale
+ * @param {String} options.fallbackLocale
  */
 async function updateListingType(listingTypeId, {
     name,
@@ -336,6 +352,9 @@ async function updateListingType(listingTypeId, {
     config,
     customFields,
     active,
+} = {}, {
+    locale,
+    fallbackLocale,
 } = {}) {
     const listingType = await getListingType(listingTypeId, { onlyActive: false });
     if (!listingType) {
@@ -348,7 +367,7 @@ async function updateListingType(listingTypeId, {
         config,
         customFields,
         active,
-    }, listingType);
+    }, listingType, { locale, fallbackLocale });
 
     if (errors.length) {
         throw createError(400, 'Bad params');
