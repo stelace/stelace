@@ -202,7 +202,7 @@
                 // TODO: Use website config
                 var defaultOgContents = {
                     "og:type": "website",
-                    "og:title": "landing.homepage.title",
+                    "og:title": "landing.homepage.page_title",
                     "og:url": "https://stelace.com",
                     "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
                     "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
@@ -228,7 +228,7 @@
                 var defaultOgContents = {
                     "twitter:card": "summary_large_image",
                     "twitter:site": "@stelaceAI",
-                    "twitter:title": "landing.homepage.title",
+                    "twitter:title": "landing.homepage.page_title",
                     "twitter:description": "landing.homepage.meta_description",
                     "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
                 };

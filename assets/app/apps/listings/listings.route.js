@@ -8,14 +8,18 @@
         var appsPath = "/assets/app/apps";
         var appClassName = "listings";
 
-        var listingStateConfig = {
+        var listingSearchConfig = {
             url: "/s",
             urlWithoutParams: "/s",
             templateUrl: appsPath + "/listings/listing-search.html",
             controller: "ListingSearchController",
             controllerAs: "vm",
             appClassName: appClassName,
-            noAuthNeeded: true
+            noAuthNeeded: true,
+            metaTags: {
+                description: "search.meta_description"
+            },
+            title: "search.page_title"
         };
 
         $stateProvider
@@ -30,7 +34,7 @@
                 metaTags: {
                     description: "listing.edition.new_listing_meta_description"
                 },
-                title: "listing.edition.new_listing_title"
+                title: "listing.edition.new_listing_page_title"
             })
             .state("myListings", {
                 url: "/my-listings",
@@ -40,7 +44,7 @@
                 controllerAs: "vm",
                 appClassName: "landings",
                 noAuthNeeded: true,
-                title: "Mes objets - Sharinplace"
+                title: "listing.edition.my_listing_page_title"
             })
             .state("editListing", {
                 url: "/my-listings/:id",
@@ -49,7 +53,7 @@
                 controllerAs: "vm",
                 appClassName: "landings",
                 noAuthNeeded: true,
-                title: "Modifier une annonce - Sharinplace"
+                title: "listing.edition.my_listing_page_title"
             })
             .state("listing", {
                 url: "/l/:slug",
@@ -59,13 +63,14 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true
+                // no default meta tags: see controller
             })
             .state("search", _.defaults({
                 url: "/s?page&l&qm&t&free&reset"
-            }, listingStateConfig))
+            }, listingSearchConfig))
             .state("searchWithQuery", _.defaults({
                 url: "/s/:query?page&l&qm&t&free&reset&q"
-            }, listingStateConfig));
+            }, listingSearchConfig));
     }
 
 })();

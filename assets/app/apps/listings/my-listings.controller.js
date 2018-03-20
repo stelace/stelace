@@ -283,30 +283,6 @@
                 return _fetchUserInfo();
             }).then(function () {
                 var urlCanonical = platform.getBaseUrl() + "/l/n";
-                var imgUrl       = platform.getBaseUrl() + "/assets/img/app/background/Janet_Ramsden_Attribution_Bokeh_Gift_Small.jpg";
-                var title        = "";
-                var description  = "Pour prolonger l'esprit de Noël, Sharinplace reverse à des associations 10% du montant des ventes"
-                    + " entre particuliers et 1€ pour chaque annonce créée.";
-                var og           = {
-                    "og:title": title,
-                    "og:type": "website", // TODO: create custom namespace in facebook app
-                    "og:url": urlCanonical,
-                    "og:description": description
-                };
-
-                // Meta description and title are set in listings.route
-
-                og["og:image"]            = imgUrl;
-                og["og:image:secure_url"] = imgUrl;
-                og["og:image:width"]      = 1280;
-                og["og:image:height"]     = 850;
-
-                platform.setOpenGraph(og);
-                platform.setTwitterCard({
-                    "twitter:title": title,
-                    "twitter:description": description,
-                    "twitter:image": imgUrl
-                });
 
                 platform.setCanonicalLink(urlCanonical);
             });

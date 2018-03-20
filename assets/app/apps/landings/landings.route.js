@@ -16,7 +16,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                title: "landing.homepage.title",
+                title: "landing.homepage.page_title",
                 metaTags: {
                     description: "landing.homepage.meta_description"
                 },

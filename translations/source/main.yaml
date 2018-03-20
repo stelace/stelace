@@ -337,7 +337,7 @@ listing:
         en: Paused
         fr: En pause
     edition:
-        new_listing_title:
+        new_listing_page_title:
             en: 'New listing - {SERVICE_NAME}'
             fr: 'Nouvelle annonce {SERVICE_NAME}'
             context: Window/Tab title (SEO).
@@ -362,6 +362,9 @@ listing:
         new_listing_section_title__EDITOR_LABEL:
             en: ''
             fr: ''
+        my_listing_page_title:
+            en: 'My listings - {SERVICE_NAME}'
+            fr: 'Mes annonces - {SERVICE_NAME}'
         my_listing_header:
             en: |
                 Post {hasListings, select,
@@ -934,14 +937,14 @@ user:
             context: Helps user to make distinction between public profile information and private account information.
 landing:
     homepage:
-        title:
+        page_title:
             en: 'Welcome to {SERVICE_NAME}'
             fr: 'Bienvenue sur {SERVICE_NAME}'
             context: Default website title
-        title__EDITOR_LABEL:
+        page_title__EDITOR_LABEL:
             en: Title of your website
             fr: Titre de votre site
-        title__EDITOR_HELPER:
+        page_title__EDITOR_HELPER:
             en: As shown in Web browser and search engine results such as Google.
             fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
         meta_description:
@@ -1917,6 +1920,50 @@ delay:
         en: More than two days
         fr: Plus de 48 heures
 search:
+    page_title:
+        en: |
+            Search
+            {query, select,
+                undefined {}
+                other {{query}}
+            }
+            - {SERVICE_NAME}
+            {page, select,
+                undefined {}
+                other { - Page {page}}
+            }
+        fr: |
+            Recherche
+            {query, select,
+                undefined {}
+                other {{query}}
+            }
+            - {SERVICE_NAME}
+            {page, select,
+                undefined {}
+                other { - Page {page}}
+            }
+    meta_description:
+        en: |
+            {query, select,
+                undefined {}
+                other {{query}:}
+            }
+            Find what you need on {SERVICE_NAME}
+            {page, select,
+                undefined {}
+                other { - Page {page}}
+            }
+        fr: |
+            {query, select,
+                undefined {}
+                other {{query} :}
+            }
+            Trouvez ce qu’il vous faut sur {SERVICE_NAME}
+            {page, select,
+                undefined {}
+                other { - Page {page}}
+            }
     listing_types_filter:
         en: Listing types
         fr: Type d'annonce
