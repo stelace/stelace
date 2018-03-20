@@ -166,7 +166,9 @@
             $rootScope.searchFiltersConfig = $rootScope.searchFiltersConfig || { showAdvancedSearch: false };
             $rootScope.searchParams        = $rootScope.searchParams || {
                 queryMode: "default",
-                myLocations: []
+                myLocations: [],
+                listingTypesIds: [],
+                activeListingTypesIds: {},
             };
             $rootScope.showMap = vm.showMap;
 

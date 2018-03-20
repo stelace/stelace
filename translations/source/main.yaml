@@ -1102,6 +1102,12 @@ prompt:
         en: Later
         fr: Plus tard
         context: User can postpone an action with this button.
+    select_all_button:
+        en: Select all
+        fr: Tout sélectionner
+    deselect_all_button:
+        en: Deselect all
+        fr: Tout déselectionner
     click_here_sentence:
         en: Click here.
         fr: Cliquez ici.

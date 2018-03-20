@@ -6,54 +6,35 @@
     <form name="vm.searchFiltersForm"
         ng-if="! vm.destroyForm">
         <div class="margin-top-plus">
-            <div class="margin-bottom-plus">
+            <div class="margin-bottom-plus" uib-collapse="!(vm.fetchedListingTypes && !vm.selectedListingType)">
                 <div class="query-label" data-translate="search.listing_types_filter">
                 </div>
-                <!-- <select id="search__transaction-type"
-                    ng-model="vm.params.transactionType"
-                    ng-change="vm.config.searchOnChange && vm.search()"
-                    ng-options="type.value as type.label for type in vm.transactionTypes">
-                </select> -->
-                <div class="padding-top flex-container flex--center">
-                    <div class="padded-sides">
+                <div class="text-right margin-bottom">
+                    <span class="link--blue-underline text--small cursor-pointer"
+                        ng-click="vm.selectAllListingTypes()"
+                        data-translate="prompt.select_all_button"
+                    >
+                    </span>
+                    <span>&nbsp;/&nbsp;</span>
+                    <span class="link--blue-underline text--small cursor-pointer"
+                        ng-click="vm.deselectAllListingTypes()"
+                        data-translate="prompt.deselect_all_button"
+                    >
+                    </span>
+                </div>
+                <div class="padding-top grid-block wrap small-up-3 desktop-up-4">
+                    <div class="padded-sides" ng-repeat="listingType in vm.listingTypes track by listingType.id">
                         <span class="small switch switch--success">
-                            <input id="search__sale-type" type="checkbox"
-                                ng-model="vm.timeProperties.NONE"
-                                ng-change="vm.updateListingTime('NONE')">
-                            <label for="search__sale-type"></label>
+                            <input id="search__listing-type-{{listingType.id}}" type="checkbox"
+                                ng-model="vm.params.activeListingTypesIds[listingType.id]"
+                                ng-change="vm.updateListingTypes()">
+                            <label for="search__listing-type-{{listingType.id}}"></label>
                         </span>
                         <span>
-                            Vente
-                        </span>
-                    </div>
-                    <div class="padded-sides">
-                        <span class="small switch switch--success">
-                            <input id="search__rental-type" type="checkbox"
-                                ng-model="vm.timeProperties.TIME_FLEXIBLE"
-                                ng-change="vm.updateListingTime('TIME_FLEXIBLE')">
-                            <label for="search__rental-type"></label>
-                        </span>
-                        <span>
-                            Location
+                            {{listingType.name}}
                         </span>
                     </div>
                 </div>
-            </div>
-            <!-- <div class="">
-                <span class="location-tag ellipsis cursor-pointer"
-                    ng-class="{disabled: ! vm.onlyFree}"
-                    ng-click="vm.onlyFree = !vm.onlyFree">
-                    Gratuit
-                </span>
-            </div> -->
-            <div class="">
-                <div class="query-label" data-translate="search.search_types_filter">
-                </div>
-                <select class="search__query-mode"
-                    ng-model="vm.params.queryMode"
-                    ng-change="vm.config.searchOnChange && vm.search()"
-                    ng-options="mode.value as mode.label for mode in vm.queryModes">
-                </select>
             </div>
         </div>
         <div class="search__my-locations padding-bottom margin-bottom"

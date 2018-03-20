@@ -35,7 +35,6 @@
         service.getListingSlug             = getListingSlug;
         service.populate                = populate;
         service.search                  = search;
-        service.getSearchFilters        = getSearchFilters;
         service.getSearchConfig         = getSearchConfig;
         service.setSearchConfig         = setSearchConfig;
         service.getNewListingTmp           = getNewListingTmp;
@@ -241,18 +240,6 @@
 
                     return obj;
                 });
-        }
-
-        function getSearchFilters(filter) {
-            var filters = {
-                queryModes: [
-                    { label: "Optimisée", value: "default" },
-                    { label: "France entière", value: "relevance" },
-                    { label: "Près de chez moi", value: "distance" }
-                ]
-            };
-
-            return (typeof filter === "string") ? filters[filter] : filters;
         }
 
         function getSearchConfig(user) {

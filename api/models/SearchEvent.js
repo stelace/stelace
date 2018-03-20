@@ -39,10 +39,9 @@ module.exports = {
             columnType: 'json',
             defaultsTo: [],
         },
-        listingTypeId: {
-            type: 'number',
-            columnType: 'int',
-            allowNull: true,
+        listingTypesIds: {
+            type: 'json',
+            columnType: 'json',
         },
         query: {
             type: 'string',
@@ -107,7 +106,7 @@ function getAccessFields(access) {
             'type',
             'userId',
             'tagsIds',
-            'listingTypeId',
+            'listingTypesIds',
             'query',
             'page',
             'limit',

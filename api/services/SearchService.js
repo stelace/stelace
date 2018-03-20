@@ -162,7 +162,7 @@ async function getMatchedListingCategoriesIds(listingCategoryId) {
 
 async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
     const {
-        listingTypeId,
+        listingTypesIds,
         withoutIds,
         sorting,
     } = searchQuery;
@@ -199,13 +199,15 @@ async function fetchPublishedListings(searchQuery, { listingCategoriesIds }) {
 
     let listings = await modelQuery;
 
-    if (!listingTypeId) {
+    if (!listingTypesIds || !listingTypesIds.length) {
         return listings;
     }
 
+    const indexedListingTypesIds = _.indexBy(listingTypesIds);
+
     listings = _.filter(listings, listing => {
         return _.reduce(listing.listingTypesIds, (memo, id) => {
-            if (listingTypeId === id) {
+            if (indexedListingTypesIds[id]) {
                 return true;
             }
             return memo;
@@ -615,7 +617,7 @@ function setListingsToCache(cacheKey, listings) {
  * @param {Object}   params
  * @param {Number}   [params.listingCategoryId]
  * @param {String}   [params.query]
- * @param {String}   [params.listingTypeId]
+ * @param {String}   [params.listingTypesIds]
  * @param {String}   [params.queryMode] - allowed values: ['relevance', 'default', 'distance']
  * @param {String}   [params.locationsSource] - indicate where the locations come from
  * @param {Object[]} [params.locations]
@@ -633,7 +635,7 @@ function normalizeSearchQuery(params) {
     var searchFields = [
         'listingCategoryId',
         'query',
-        'listingTypeId',
+        'listingTypesIds',
         'queryMode',
         'locationsSource',
         'locations',
@@ -657,7 +659,6 @@ function normalizeSearchQuery(params) {
                 isValid = typeof value === 'string';
                 break;
 
-            case 'listingTypeId':
             case 'listingCategoryId':
             case 'timestamp':
                 isValid = !isNaN(value);
@@ -671,6 +672,7 @@ function normalizeSearchQuery(params) {
                 isValid = MapService.isValidGpsPts(value);
                 break;
 
+            case 'listingTypesIds':
             case 'withoutIds':
             case 'similarToListingsIds':
                 isValid = MicroService.checkArray(value, 'id');
@@ -732,7 +734,7 @@ async function createEvent({
         type,
         userAgent,
         userId: req.user && req.user.id,
-        listingTypeId: searchQuery.listingTypeId,
+        listingTypesIds: searchQuery.listingTypesIds,
         query: searchQuery.query,
         page: searchQuery.page,
         limit: searchQuery.limit,

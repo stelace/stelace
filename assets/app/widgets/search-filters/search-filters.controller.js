@@ -20,19 +20,18 @@
         var lockScrollClass = "modal-opened";
         var lockTarget;
         var currentUser;
-        var fetchedListingTypes = false;
 
         var vm = this;
-        vm.queryModes = ListingService.getSearchFilters("queryModes");
-        vm.timeProperties = {
-            NONE: true,
-            TIME_FLEXIBLE: true,
-        };
 
-        vm.search                = search;
-        vm.updateListingTime     = updateListingTime;
-        vm.toggleLocation        = toggleLocation;
-        vm.removeTmpLocation     = removeTmpLocation;
+        vm.fetchedListingTypes = false;
+        vm.listingTypes = [];
+
+        vm.search                  = search;
+        vm.toggleLocation          = toggleLocation;
+        vm.removeTmpLocation       = removeTmpLocation;
+        vm.selectAllListingTypes   = selectAllListingTypes;
+        vm.deselectAllListingTypes = deselectAllListingTypes;
+        vm.updateListingTypes = updateListingTypes;
 
 
         activate();
@@ -47,10 +46,10 @@
             }, true);
 
             $scope.$watch(function() {
-                return $rootScope.searchParams.listingTypeId;
+                return $rootScope.searchParams.listingTypesIds;
             }, function(newValue, oldValue) {
-                if (newValue !== oldValue) {
-                    _setTimeProperties(newValue);
+                if (!_.isEqual(newValue, oldValue)) {
+                    _setListingTypes(newValue);
                 }
             });
 
@@ -98,16 +97,19 @@
                     $rootScope.ipLocation  = results.ipLocation;
                     currentUser            = results.currentUser;
                     vm.listingTypes = results.listingTypes;
-                    vm.timeNoneListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.properties.TIME === 'NONE';
-                    });
-                    vm.timeFlexibleListingType = _.find(vm.listingTypes, function (listingType) {
-                        return listingType.properties.TIME === 'TIME_FLEXIBLE';
-                    });
 
-                    fetchedListingTypes = true;
+                    if (vm.listingTypes.length === 1) {
+                        vm.selectedListingType = vm.listingTypes[0];
+                        vm.params.listingTypesIds = [vm.selectedListingType.id];
+                    }
 
-                    _setTimeProperties($rootScope.searchParams.listingTypeId);
+                    vm.fetchedListingTypes = true;
+
+                    if ($rootScope.searchParams.listingTypesIds.length) {
+                        _setListingTypes($rootScope.searchParams.listingTypesIds);
+                    } else {
+                        selectAllListingTypes();
+                    }
 
                     vm.myLocations = results.myLocations;
                     vm.isAuthenticated = !! currentUser;
@@ -116,37 +118,27 @@
                 });
         }
 
-        function _setTimeProperties(listingTypeId) {
-            if (!fetchedListingTypes) {
+        function _setListingTypes(listingTypesIds) {
+            if (!vm.fetchedListingTypes) {
                 return;
             }
 
-            // all listing
-            if (!listingTypeId) {
-                vm.timeProperties = {
-                    NONE: true,
-                    TIME_FLEXIBLE: true
-                };
-            } else if (vm.timeNoneListingType.id === listingTypeId) {
-                vm.timeProperties = {
-                    NONE: true,
-                    TIME_FLEXIBLE: false
-                };
-            } else if (vm.timeFlexibleListingType.id === listingTypeId) {
-                vm.timeProperties = {
-                    NONE: false,
-                    TIME_FLEXIBLE: true
-                };
-            }
+            var indexedListingTypes = _.indexBy(listingTypesIds);
+
+            _.forEach(vm.listingTypes, function (listingType) {
+                var active = indexedListingTypes[listingType.id];
+
+                vm.params.activeListingTypesIds[listingType.id] = !!active;
+            });
         }
 
         function search() {
             return _saveSearchConfig()
                 .then(function () {
-                    if (vm.params.listingTypeId) {
-                        vm.params.t = vm.params.listingTypeId;
+                    if (!isAllListingTypesSelected(vm.params.listingTypesIds)) {
+                        vm.params.t = vm.params.listingTypesIds;
                     }
-                    vm.params.qm = vm.params.queryMode;
+                    vm.params.qm = 'default'; // TODO: allow users to change the query mode
 
                     platform.debugDev("Header advanced search params", vm.params);
 
@@ -158,24 +150,6 @@
                         $state.go("searchWithQuery", vm.params);
                     }
                 });
-        }
-
-        function updateListingTime(type) {
-            // force one type
-            if (!vm.timeProperties.TIME_FLEXIBLE && !vm.timeProperties.NONE) {
-                var field = (type === 'NONE' ? 'TIME_FLEXIBLE' : 'NONE');
-                vm.timeProperties[field] = true;
-            }
-
-            if (vm.timeProperties.TIME_FLEXIBLE && vm.timeProperties.NONE) {
-                vm.params.listingTypeId = null;
-            } else {
-                vm.params.listingTypeId = vm.timeProperties.TIME_FLEXIBLE ? vm.timeFlexibleListingType.id : vm.timeNoneListingType.id;
-            }
-
-            if (vm.config.searchOnChange) {
-                vm.search();
-            }
         }
 
         function manageScroll(lock) {
@@ -195,61 +169,94 @@
             vm.params.myLocations[locId] = ! vm.params.myLocations[locId];
         }
 
-        /**
-     * Load the old search from local storage of the browser
-     * @return {object|undefined} [res]
-     * @return {object} [res.urlLocation]
-     * @return {number[]} [res.activeLocations] - location ids that are active
-     * @return {object} [res.queryLocation]
-     */
-    function _loadSearchConfig() {
-        return ListingService.getSearchConfig(currentUser)
-            .then(function (searchConfig) {
-                if (! searchConfig) {
-                    return;
-                }
-
-                if (searchConfig.queryMode) {
-                    vm.params.queryMode = searchConfig.queryMode;
-                }
-
-                // compute the new hash of active locations from my locations and the old hash
-                if (searchConfig.activeLocations && $rootScope.myLocations) {
-                    vm.params.myLocations = {};
-
-                    var hashLocations = _.indexBy($rootScope.myLocations, "id");
-
-                    _.forEach(searchConfig.activeLocations, function (locationId) {
-                        if (hashLocations[locationId]) {
-                            vm.params.myLocations[locationId] = true;
-                        }
-                    });
+        function updateListingTypes() {
+            vm.params.listingTypesIds = [];
+            _.forEach(vm.params.activeListingTypesIds, function (active, listingTypeId) {
+                if (active) {
+                    vm.params.listingTypesIds.push(parseInt(listingTypeId, 10));
                 }
             });
-    }
 
-    function _saveSearchConfig() {
-        var searchConfig = {};
-
-        if (vm.params.myLocations) {
-            searchConfig.activeLocations = _.reduce(vm.params.myLocations, function (memo, active, id) {
-                if (active) {
-                    memo.push(id);
-                }
-                return memo;
-            }, []);
+            if (vm.config.searchOnChange) {
+                search();
+            }
         }
 
-        // if (_.isObject(vm.params.location)) {
-        //     searchConfig.queryLocation = paramsLocation;
-        // }
-
-        if (vm.params.queryMode) {
-            searchConfig.queryMode = vm.params.queryMode;
+        function selectAllListingTypes() {
+            vm.params.listingTypesIds = [];
+            _.forEach(vm.listingTypes, function (listingType) {
+                vm.params.activeListingTypesIds[listingType.id] = true;
+                vm.params.listingTypesIds.push(listingType.id);
+            });
         }
 
-        return ListingService.setSearchConfig(searchConfig, currentUser);
-    }
+        function deselectAllListingTypes() {
+            vm.params.listingTypesIds = [];
+            _.forEach(vm.listingTypes, function (listingType) {
+                vm.params.activeListingTypesIds[listingType.id] = false;
+            });
+        }
+
+        function isAllListingTypesSelected(listingTypesIds) {
+            return listingTypesIds.length === vm.listingTypes.length
+                || !listingTypesIds.length;
+        }
+
+        /**
+         * Load the old search from local storage of the browser
+         * @return {object|undefined} [res]
+         * @return {object} [res.urlLocation]
+         * @return {number[]} [res.activeLocations] - location ids that are active
+         * @return {object} [res.queryLocation]
+         */
+        function _loadSearchConfig() {
+            return ListingService.getSearchConfig(currentUser)
+                .then(function (searchConfig) {
+                    if (! searchConfig) {
+                        return;
+                    }
+
+                    // if (searchConfig.queryMode) {
+                    //     vm.params.queryMode = searchConfig.queryMode;
+                    // }
+
+                    // compute the new hash of active locations from my locations and the old hash
+                    if (searchConfig.activeLocations && $rootScope.myLocations) {
+                        vm.params.myLocations = {};
+
+                        var hashLocations = _.indexBy($rootScope.myLocations, "id");
+
+                        _.forEach(searchConfig.activeLocations, function (locationId) {
+                            if (hashLocations[locationId]) {
+                                vm.params.myLocations[locationId] = true;
+                            }
+                        });
+                    }
+                });
+        }
+
+        function _saveSearchConfig() {
+            var searchConfig = {};
+
+            if (vm.params.myLocations) {
+                searchConfig.activeLocations = _.reduce(vm.params.myLocations, function (memo, active, id) {
+                    if (active) {
+                        memo.push(id);
+                    }
+                    return memo;
+                }, []);
+            }
+
+            // if (_.isObject(vm.params.location)) {
+            //     searchConfig.queryLocation = paramsLocation;
+            // }
+
+            // if (vm.params.queryMode) {
+            //     searchConfig.queryMode = vm.params.queryMode;
+            // }
+
+            return ListingService.setSearchConfig(searchConfig, currentUser);
+        }
 
     }
 

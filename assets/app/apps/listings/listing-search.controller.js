@@ -130,8 +130,8 @@
             if (urlParams.queryMode) {
                 $rootScope.searchParams.queryMode = urlParams.queryMode;
             }
-            if (urlParams.listingTypeId) {
-                $rootScope.searchParams.listingTypeId = urlParams.listingTypeId;
+            if (urlParams.listingTypesIds) {
+                $rootScope.searchParams.listingTypesIds = urlParams.listingTypesIds;
             }
 
             // vm.onlyFree = urlParams.onlyFree;
@@ -346,8 +346,19 @@
             if ($stateParams.qm && _.includes(["default", "relevance", "distance"], $stateParams.qm)) {
                 urlParams.queryMode = $stateParams.qm;
             }
-            if ($stateParams.t && !isNaN($stateParams.t)) {
-                urlParams.listingTypeId = parseInt($stateParams.t, 10);
+            if ($stateParams.t) {
+                // url example: &t=1&t=2&t=3
+                if (_.isArray($stateParams.t)) {
+                    urlParams.listingTypesIds = _.reduce($stateParams.t, function (memo, listingTypeId) {
+                        if (!isNaN(listingTypeId)) {
+                            memo.push(parseInt(listingTypeId, 10));
+                        }
+                        return memo;
+                    }, []);
+                // url example: &t=1
+                } else if (!isNaN($stateParams.t)) {
+                    urlParams.listingTypesIds = [parseInt($stateParams.t, 10)];
+                }
             }
 
             // urlParams.onlyFree = $stateParams.free === "true";
@@ -504,8 +515,8 @@
                     searchParams.limit = vm.nbListingsPerPage;
                     searchParams.query = $rootScope.searchParams.query;
 
-                    if ($rootScope.searchParams.listingTypeId) {
-                        searchParams.listingTypeId = $rootScope.searchParams.listingTypeId;
+                    if ($rootScope.searchParams.listingTypesIds) {
+                        searchParams.listingTypesIds = $rootScope.searchParams.listingTypesIds;
                     }
 
                     searchTimestamp        = new Date().getTime();
@@ -646,8 +657,8 @@
                         stateName = "search";
                     }
 
-                    if ($rootScope.searchParams.listingTypeId) {
-                        stateParams.t = $rootScope.searchParams.listingTypeId;
+                    if (!isAllListingTypesSelected($rootScope.searchParams.listingTypesIds)) {
+                        stateParams.t = $rootScope.searchParams.listingTypesIds;
                     } else {
                         stateParams.t = null;
                     }
@@ -1221,6 +1232,11 @@
                     return url + "?page=" + num;
                 }
             }
+        }
+
+        function isAllListingTypesSelected(listingTypesIds) {
+            return listingTypesIds.length === vm.listingTypes.length
+                || !listingTypesIds.length;
         }
 
         function _setSEOPaginationLinks() {
