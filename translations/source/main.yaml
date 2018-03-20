@@ -330,6 +330,9 @@ listing:
     pause_tooltip:
         en: Deactivate your listing when you are unavailable
         fr: Suspendez votre annonce en cas d’indisponibilité
+    paused_until_tooltip:
+        en: 'Listing paused until {paused_until_date, date, short}: click to reactivate.'
+        fr: "Annonce en pause jusqu’au {paused_until_date, date, short}\_: cliquez ici pour réactiver."
     publish_again_action:
         en: Publish again
         fr: Re-publier
@@ -606,8 +609,26 @@ listing:
             en: Listing activated
             fr: Annonce activée
         deactivated_success_message:
-            en: Listing paused
-            fr: Annonce désactivée
+            en: |
+                Listing paused {paused_until_date, select,
+                    undefined {}
+                    other {until {paused_until_date, date, short}}
+                }
+            fr: |
+                Annonce désactivée {paused_until_date, select,
+                    undefined {}
+                    other {jusqu’au {paused_until_date, date, short}}
+                }
+        sold:
+            en: Sold
+            fr: Vendu
+    owner_stats:
+        views:
+            en: '{views, plural, =0 {No view} one {One view} other {# views}}'
+            fr: '{views, plural, =0 {Aucune vue} one {Une vue} other {# vues}}'
+        contacts:
+            en: '{contacts, plural, =0 {No contact} one {One contact} other {# contacts}} for this listing.'
+            fr: '{contacts, plural, =0 {Aucun contact} one {Un contact} other {# contacts}} pour cette annonce.'
 time:
     date_short:
         en: '{date, date, short}'

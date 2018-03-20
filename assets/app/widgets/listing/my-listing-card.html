@@ -4,9 +4,10 @@
         <div class="listing-grid__image-container">
         <div class="ar-content">
             <div class="my-listing-card__pause-overlay"
-                title="Annonce en pause jusqu'au {{ vm.pausedUntil }}: cliquez ici pour réactiver."
                 ng-if="vm.listingPaused && vm.listing.quantity"
-                ng-click="vm.togglePauseListing($event)">
+                ng-click="vm.togglePauseListing($event)"
+                data-translate-attr="{ title: 'listing.paused_until_tooltip' }"
+                data-translate-values="{ paused_until_date: (vm.listingPaused && vm.listing.pausedUntil) || undefined }">
                 <svg class="icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#play"/>
                 </svg>
@@ -16,20 +17,18 @@
                 </span>
             </div>
             <div class="my-listing-card__pause-overlay"
-                title="Objet vendu, bravo!"
                 ng-if="!vm.listing.quantity && vm.listing.listingTypesProperties.TIME.NONE">
                 <svg class="icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#check-mark"/>
                 </svg>
-                Vendu
+                <span data-translate="listing.notification.sold"></span>
             </div>
             <div class="my-listing-card__pause-overlay"
-                title="Annonce désactivée par Sharinplace"
                 ng-if="! vm.listingPaused && vm.listing.quantity && vm.listingLocked">
                 <svg class="icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#x"/>
                 </svg>
-                Désactivé
+                <span data-translate="listing.notification.deactivated_success_message"></span>
             </div>
             <img class="img--cover-vertical listing-grid__image" ng-src="{{::vm.listing.url + '?size=450x300'}}"  alt="{{::vm.imageAlt}}">
         </div>
@@ -72,7 +71,7 @@
                     ui-sref="listing({ slug: vm.listing.nameURLSafe + '-' + vm.listing.id })"
                     data-tooltip-placement="auto top"
                     data-tooltip-trigger="mouseenter"
-                    uib-tooltip="{{'Cette annonce a été consultée ' + vm.nbViews + ' fois.'}}"
+                    uib-tooltip="{{vm.nbViewsTooltip}}"
                     data-tooltip-append-to-body="true">
                     <svg class="icon icon--inline">
                         <use xlink:href="/assets/build/icons/sprite.svg#eye-open"/>
@@ -82,7 +81,7 @@
                 <span
                     data-tooltip-placement="auto top"
                     data-tooltip-trigger="mouseenter"
-                    uib-tooltip="{{'Vous avez été contacté(e) ' + vm.nbContacts + ' fois pour cette annonce.'}}"
+                    uib-tooltip="{{vm.nbContactsTooltip}}"
                     data-tooltip-append-to-body="true">
                     <svg class="icon icon--inline">
                         <use xlink:href="/assets/build/icons/sprite.svg#chat-bubble-two"/>

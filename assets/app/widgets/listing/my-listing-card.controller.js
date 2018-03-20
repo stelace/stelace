@@ -9,6 +9,7 @@
     function MyListingCardController($scope,
                                 $state,
                                 $timeout,
+                                $translate,
                                 ContentService,
                                 FoundationApi,
                                 ListingService,
@@ -52,6 +53,9 @@
             vm.nbContacts = vm.listing.nbContacts || 0;
             vm.nbViews = Math.max(vm.listing.nbViews || 0, vm.nbContacts);
             vm.showStats = (vm.nbViews >= 1);
+
+            vm.nbViewsTooltip    = $translate.instant('listing.owner_stats.views', { views: vm.nbViews });
+            vm.nbContactsTooltip = $translate.instant('listing.owner_stats.contacts', { contacts: vm.nbContacts });
         }
 
         function deleteListing(e) {
@@ -125,13 +129,13 @@
 
                     _showPauseState();
 
-                    if (listing.locked && vm.pausedUntil) {
-                        toastr.success(
-                        "Vous pouvez réactiver votre annonce plus tôt si vous le souhaitez.",
-                        "Annonce en pause jusqu'au " + vm.pausedUntil, {
+                    if (listing.locked && vm.listingPaused) {
+                        ContentService.showNotification({
+                            messageKey: 'listing.notification.deactivated_success_message',
+                            messageValues: { paused_until_date: vm.listing.pausedUntil },
                             timeOut: 15000
                         });
-                    } else if (listing.locked && ! vm.pausedUntil) {
+                    } else if (listing.locked && ! vm.listingPaused) {
                         ContentService.showNotification({ messageKey: 'listing.notification.deactivated_success_message' });
                     } else {
                         ContentService.showNotification({
@@ -155,7 +159,6 @@
             vm.pauseIcon  = platform.getSpriteSvgUrl(vm.listingPaused ? "play" : "pause");
             vm.pauseActionKey = vm.listingPaused ? 'listing.publish_again_action' : 'listing.pause_action';
             vm.daysPaused = pauseDate && Math.abs(moment().diff(vm.listing.pausedUntil, "d")) + 1;
-            vm.pausedUntil = pauseDate && moment(vm.listing.pausedUntil).format("DD/MM/YY");
         }
 
         function _spinPendingControlSpinner() {
