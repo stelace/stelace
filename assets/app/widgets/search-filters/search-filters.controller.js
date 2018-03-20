@@ -9,6 +9,7 @@
                                     $rootScope,
                                     $scope,
                                     $state,
+                                    $translate,
                                     ListingService,
                                     ListingTypeService,
                                     LocationService,
@@ -25,6 +26,7 @@
 
         vm.fetchedListingTypes = false;
         vm.listingTypes = [];
+        vm.locationHelperMessage = $translate.instant('prompt.search.activate_location_helper');
 
         vm.search                  = search;
         vm.toggleLocation          = toggleLocation;

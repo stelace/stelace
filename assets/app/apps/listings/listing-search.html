@@ -22,7 +22,7 @@
                             x
                         </span>
                         <span class="input__inner-icon cursor-pointer icon-left"
-                            title="Ajouter à mes lieux favoris"
+                            data-translate-attr="{ title: 'prompt.search.add_location_message' }"
                             ng-click="vm.addLocation()"
                             ng-if="vm.showAddLocationButton">
                             <svg class="icon">
@@ -83,7 +83,10 @@
                             <div class="listing-grid__listing flex-container listing-grid__listing--highlight">
                                 <div class="listing-grid__image-container">
                                     <div class="ar-content">
-                                        <img class="img--cover" src="/assets/img/app/default/search-listing-image-cta.png"  alt="Louez vos objets sur Sharinplace">
+                                        <img class="img--cover" src="/assets/img/app/default/search-listing-image-cta.png"
+                                            data-translate-attr="{ alt: 'search.cta_add_listing_message' }"
+                                            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }"
+                                        >
                                     </div>
                                 </div>
                                 <div class="listing-grid__description flex-item--grow-auto">

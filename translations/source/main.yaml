@@ -1132,6 +1132,12 @@ prompt:
                     one{ (1 lieu activé)}
                     other{ (# lieux activés)}
                 }
+        add_location_message:
+            en: Add to my favorite places
+            fr: Ajouter à mes lieux favoris
+        activate_location_helper:
+            en: Activate your search places to increase your search area. Each place can be toggled by a click.
+            fr: Activez plusieurs lieux favoris pour augmenter votre zone de recherche. Chaque lieu peut être activé/désactivé en un clic.
     see_more:
         en: See more
         fr: En voir plus
@@ -1938,6 +1944,9 @@ search:
     results_near_location:
         en: 'Results near {locationName}'
         fr: 'Résultats près de {locationName}'
+    cta_add_listing_message:
+        en: 'Post a listing on {SERVICE_NAME}'
+        fr: 'Déposez une annonce sur {SERVICE_NAME}'
 referral:
     prompt:
         en: Invite your friends
