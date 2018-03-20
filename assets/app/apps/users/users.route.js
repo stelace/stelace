@@ -15,21 +15,30 @@
                 controller: "PublicProfileController",
                 controllerAs: "vm",
                 appClassName: appClassName,
-                noAuthNeeded: true
+                noAuthNeeded: true,
+                title: 'user.profile.page_title',
+                metaTags: {
+                    description: 'user.profile.meta_description'
+                }
             })
             .state("userMe", {
                 url: "/user",
                 templateUrl: appsPath + "/users/public-profile.html",
                 controller: "PublicProfileController",
                 controllerAs: "vm",
-                appClassName: appClassName
+                appClassName: appClassName,
+                title: 'user.profile.page_title',
+                metaTags: {
+                    description: 'user.profile.meta_description'
+                }
             })
             .state("account", {
                 url: "/home",
                 templateUrl: appsPath + "/users/account.html",
                 controller: "AccountController",
                 controllerAs: "vm",
-                appClassName: appClassName
+                appClassName: appClassName,
+                title: 'user.account.page_title'
             });
     }
 

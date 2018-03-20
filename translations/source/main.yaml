@@ -728,6 +728,9 @@ user:
         en: '{user, select, undefined {Profile picture} other {Picture of {user}}}'
         fr: 'Photo {user, select, undefined {du profil} other {de {user}}}'
     account:
+        page_title:
+            en: 'My account - {SERVICE_NAME}'
+            fr: 'Mon compte {SERVICE_NAME}'
         greeting:
             en: Welcome back {firstname, select, undefined {} other {{firstname}}}
             fr: Bienvenue sur {SERVICE_NAME} {firstname, select, undefined {} other {{firstname}}}
@@ -938,6 +941,43 @@ user:
             en: A verified phone number inspires confidence and increase you chances of completing transactions.
             fr: Un numéro vérifié est un gage de confiance et augmente vos chances de recevoir des demandes.
     profile:
+        page_title:
+            en: |
+                {user, select,
+                    undefined {Profile}
+                    other {{user}’s profile}
+                }
+                - {SERVICE_NAME}
+            fr: |
+                {user, select,
+                    undefined {Profil}
+                    other {Profil de {user}}
+                }
+                - {SERVICE_NAME}
+        meta_description:
+            en: |
+                {user_description, select,
+                    undefined {
+                        {user, select,
+                            undefined {Joined}
+                            other {{user} joined}
+                        }
+                        {SERVICE_NAME} in {signup_date, date, fullmonth}.
+                    }
+                    other {{user_description}}
+                }
+            fr: |
+                {user_description, select,
+                    undefined {
+                        {user, select,
+                            undefined {Fait confiance à}
+                            other {{user} fait confiance à}
+                        }
+                        {SERVICE_NAME} depuis {signup_date, date, fullmonth}
+                    }
+                    other {{user_description}}
+                }
+            context: User can provide her own description.
         greeting:
             en: |
                 Welcome {user, select,

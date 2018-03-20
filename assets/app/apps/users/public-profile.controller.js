@@ -12,6 +12,7 @@
                                 $scope,
                                 $state,
                                 $stateParams,
+                                $translate,
                                 $window,
                                 gamification,
                                 ListingService,
@@ -29,6 +30,7 @@
                                 tools) {
         var userId    = parseInt($stateParams.id, 10);
         var listeners = [];
+        var stlConfig = StelaceConfig.getConfig();
         // var oldMedia;
         // var currentMedia;
         var user;
@@ -278,11 +280,18 @@
         }
 
         function _setSEOTags() {
-            var title        = vm.user.displayName ? ("Profil de " + vm.user.displayName + " - Sharinplace") : "Profil d'un membre Sharinplace";
-            var description  = (vm.user.description && tools.shrinkString(vm.user.description, 150))
-                || ((vm.user.displayName ? vm.user.displayName + " - " : "") + "Membre inscrit sur Sharinplace depuis " + vm.displayMonth(vm.user.createdDate));
-            var imgUrl       = platform.getBaseUrl() + vm.user.media.url + "?size=300x300";
+            var title        = $translate.instant('user.profile.page_title', {
+                user: vm.user.displayName || undefined,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            });
+            var description  = $translate.instant('user.profile.meta_description', {
+                user: vm.user.displayName || undefined,
+                user_description: (vm.user.description && tools.shrinkString(vm.user.description, 150)) || undefined,
+                signup_date: vm.user.createdDate,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            });
 
+            var imgUrl       = platform.getBaseUrl() + vm.user.media.url + "?size=300x300";
             var urlCanonical = $location.protocol() + "://" + $location.host() + "/" + $state.current.name + "/" + userId;
             // $location protocol and host methods do not return separators and port.
             // See https://docs.angularjs.org/guide/$location#browser-in-html5-mode
@@ -297,7 +306,7 @@
 
             platform.setMetaTags(metaTags);
             platform.setOpenGraph({
-                "og:title": "Découvrez le profil de " + (vm.user.displayName || "ce membre") + " sur Sharinplace",
+                "og:title": title,
                 "og:type": "profile",
                 "og:url": urlCanonical,
                 "og:image": imgUrl,
