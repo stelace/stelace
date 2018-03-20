@@ -1,5 +1,5 @@
 /*
-    global CustomFieldService, Listing, ListingAvailability, ListingTypeService, Location, Media, MicroService, PricingService,
+    global CustomAttributesService, Listing, ListingAvailability, ListingTypeService, Location, Media, MicroService, PricingService,
     StelaceConfigService, StelaceEventService, Tag, TimeService, ToolsService
 */
 
@@ -131,9 +131,9 @@ async function createListing(attrs, { req, res } = {}) {
 
     let data = createAttrs.data || {};
     _.forEach(listingTypes, listingType => {
-        const { newData, valid } = CustomFieldService.checkData(data, listingType.customFields);
+        const { newData, valid } = CustomAttributesService.checkData(data, listingType.customAttributes);
         if (!valid) {
-            throw createError(400, 'Incorrect custom fields');
+            throw createError(400, 'Incorrect custom attributes');
         }
         data = newData;
     });
@@ -295,13 +295,13 @@ async function updateListing(listingId, attrs = {}, { userId } = {}) {
         }
     }
 
-    // check custom fields even if there is no data (in case listing types custom fields changed)
+    // check custom attributes even if there is no data (in case listing types custom attributes changed)
     const listingTypes = await ListingTypeService.filterListingTypes(updateAttrs.listingTypesIds || listing.listingTypesIds);
     let data = _.merge(listing.data || {}, updateAttrs.data || {});
     _.forEach(listingTypes, listingType => {
-        const { newData, valid } = CustomFieldService.checkData(data, listingType.customFields);
+        const { newData, valid } = CustomAttributesService.checkData(data, listingType.customAttributes);
         if (!valid) {
-            throw createError(400, 'Incorrect custom fields');
+            throw createError(400, 'Incorrect custom attributes');
         }
         data = newData;
     });

@@ -1,4 +1,4 @@
-/* global CustomFieldService, ListingType, StelaceConfigService, ToolsService */
+/* global CustomAttributesService, ListingType, StelaceConfigService, ToolsService */
 
 module.exports = {
 
@@ -229,7 +229,7 @@ async function filterListingTypes(listingTypesIds, { onlyActive = true } = {}) {
  * @param {String} [params.name]
  * @param {Object} [params.properties]
  * @param {Object} [params.config]
- * @param {Object[]} [params.customFields]
+ * @param {Object[]} [params.customAttributes]
  * @param {Boolean} [params.active]
  * @param {Object} existingListingType
  * @param {Object} options
@@ -244,7 +244,7 @@ function getComputedListingType(params, existingListingType, { locale, fallbackL
         name,
         properties,
         config,
-        customFields,
+        customAttributes,
         active,
     } = params;
 
@@ -256,7 +256,7 @@ function getComputedListingType(params, existingListingType, { locale, fallbackL
     if (existingListingType) {
         computedListingType.properties = _.merge(existingListingType.properties, properties || {});
         computedListingType.config = _.merge(existingListingType.config, config || {});
-        computedListingType.customFields = customFields ? customFields : existingListingType.customFields;
+        computedListingType.customAttributes = customAttributes ? customAttributes : existingListingType.customAttributes;
         computedListingType.active = (typeof active !== 'undefined' ? active : existingListingType.active);
 
         const delta = ListingType.getI18nModelDelta(existingListingType, { name }, { locale, fallbackLocale });
@@ -264,7 +264,7 @@ function getComputedListingType(params, existingListingType, { locale, fallbackL
     } else {
         computedListingType.properties = _.merge(defaultProperties, properties || {});
         computedListingType.config = _.merge(defaultConfig, config || {});
-        computedListingType.customFields = customFields || [];
+        computedListingType.customAttributes = customAttributes || [];
         computedListingType.active = (typeof active !== 'undefined' ? active : true);
 
         const delta = ListingType.getI18nModelDelta(null, { name }, { locale, fallbackLocale });
@@ -282,8 +282,8 @@ function getComputedListingType(params, existingListingType, { locale, fallbackL
     if (!isValidConfig(computedListingType.config)) {
         errors.push('config');
     }
-    if (!CustomFieldService.isValidCustomFields(computedListingType.customFields)) {
-        errors.push('customFields');
+    if (!CustomAttributesService.isValidCustomAttributes(computedListingType.customAttributes)) {
+        errors.push('customAttributes');
     }
     if (typeof computedListingType.active !== 'boolean') {
         errors.push('active');
@@ -300,7 +300,7 @@ function getComputedListingType(params, existingListingType, { locale, fallbackL
  * @param {String} params.name
  * @param {Object} [params.properties]
  * @param {Object} [params.config]
- * @param {Object[]} [params.customFields]
+ * @param {Object[]} [params.customAttributes]
  * @param {Boolean} [params.active]
  * @param {Object} options
  * @param {String} options.locale
@@ -310,7 +310,7 @@ async function createListingType({
     name,
     properties,
     config,
-    customFields,
+    customAttributes,
     active,
 } = {}, {
     locale,
@@ -320,7 +320,7 @@ async function createListingType({
         name,
         properties,
         config,
-        customFields,
+        customAttributes,
         active,
     }, null, { locale, fallbackLocale });
 
@@ -340,7 +340,7 @@ async function createListingType({
  * @param {String} params.name
  * @param {Object} [params.properties]
  * @param {Object} [params.config]
- * @param {Object[]} [params.customFields]
+ * @param {Object[]} [params.customAttributes]
  * @param {Boolean} [params.active]
  * @param {Object} options
  * @param {String} options.locale
@@ -350,7 +350,7 @@ async function updateListingType(listingTypeId, {
     name,
     properties,
     config,
-    customFields,
+    customAttributes,
     active,
 } = {}, {
     locale,
@@ -365,7 +365,7 @@ async function updateListingType(listingTypeId, {
         name,
         properties,
         config,
-        customFields,
+        customAttributes,
         active,
     }, listingType, { locale, fallbackLocale });
 

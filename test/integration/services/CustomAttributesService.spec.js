@@ -1,8 +1,8 @@
-/* global CustomFieldService */
+/* global CustomAttributesService */
 
 const { expect } = require('chai');
 
-const customFields = [
+const customAttributes = [
     { name: 'height', label: 'Height', type: 'number', filter: false, visibility: 'admin', minValue: 10, maxValue: 654, defaultValue: 50 },
     { name: 'transport', label: 'Transport', type: 'boolean', filter: false, visibility: 'admin', defaultValue: false },
     { name: 'lastCheckDate', label: 'Last time checking', type: 'date', filter: false, visibility: 'admin' },
@@ -24,17 +24,17 @@ const customFields = [
     },
 ];
 
-describe('CustomFieldService', () => {
-    describe('.isValidCustomFields()', () => {
-        it('validates provided custom fields', () => {
-            const valid = CustomFieldService.isValidCustomFields(customFields);
+describe('CustomAttributesService', () => {
+    describe('.isValidCustomAttributes()', () => {
+        it('validates provided custom attributes', () => {
+            const valid = CustomAttributesService.isValidCustomAttributes(customAttributes);
             expect(valid).to.equal(true);
         });
 
-        it('must have unique custom field name', () => {
-            const cloneCustomFields = customFields.slice();
-            cloneCustomFields.push({ name: 'height', label: 'Height', type: 'number', filter: false, visibility: 'admin' });
-            const valid = CustomFieldService.isValidCustomFields(cloneCustomFields);
+        it('must have unique custom attribute name', () => {
+            const cloneCustomAttributes = customAttributes.slice();
+            cloneCustomAttributes.push({ name: 'height', label: 'Height', type: 'number', filter: false, visibility: 'admin' });
+            const valid = CustomAttributesService.isValidCustomAttributes(cloneCustomAttributes);
             expect(valid).to.equal(false);
         });
     });
@@ -48,7 +48,7 @@ describe('CustomFieldService', () => {
                 school: 'A',
             };
 
-            const res = CustomFieldService.checkData(data, customFields);
+            const res = CustomAttributesService.checkData(data, customAttributes);
             expect(typeof res.newData).to.equal('object');
             expect(res.valid).to.equal(true);
         });
@@ -58,7 +58,7 @@ describe('CustomFieldService', () => {
                 height: 20,
             };
 
-            const res = CustomFieldService.checkData(data, customFields);
+            const res = CustomAttributesService.checkData(data, customAttributes);
             expect(res.newData.transport).equal(false);
         });
     });

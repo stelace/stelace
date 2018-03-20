@@ -2,8 +2,8 @@
 
 module.exports = {
 
-  isValidCustomFields,
-  checkCustomField,
+  isValidCustomAttributes,
+  checkCustomAttribute,
 
   checkData,
   checkDataValue,
@@ -12,7 +12,7 @@ module.exports = {
 
 const _ = require('lodash');
 
-const customFieldTypes = [
+const customAttributeTypes = [
   'number',
   'boolean',
   'date',
@@ -26,11 +26,11 @@ function isEmptyValue(value) {
   return typeof value === 'undefined' || value === null;
 }
 
-function isValidCustomFields(customFields) {
-  if (!_.isArray(customFields)) return false;
+function isValidCustomAttributes(customAttributes) {
+  if (!_.isArray(customAttributes)) return false;
 
-  const valid = _.reduce(customFields, (memo, customField) => {
-      if (!checkCustomField(customField)) {
+  const valid = _.reduce(customAttributes, (memo, customAttribute) => {
+      if (!checkCustomAttribute(customAttribute)) {
           return false;
       }
       return memo;
@@ -38,7 +38,7 @@ function isValidCustomFields(customFields) {
 
   if (!valid) return false;
 
-  const names = _.pluck(customFields, 'name');
+  const names = _.pluck(customAttributes, 'name');
   const hasUniqueNames = names.length === _.uniq(names).length;
   if (!hasUniqueNames) return false;
 
@@ -46,28 +46,28 @@ function isValidCustomFields(customFields) {
 }
 
 /**
-* @param {Object} customField
-* @param {String} customField.name - name of the custom field
-* @param {String} customField.label - label to display to users
-* @param {String} customField.type - type of data
-* @param {Boolean} customField.filter - if true, can be used for search (otherwise it is only for display)
-* @param {String} customField.visibility - only two values possibles for now: ['admin', 'all']
-* @param {String} [customField.instructions] - help info
-* @param {Any} [customField.defaultValue] - if the custom field is null or undefined, set the default value
-* @param {Boolean} [customField.required] - if true, the custom field must be present
-* @param {Boolean} [customField.isInteger] - only for type corresponding to numbers
-* @param {String} [customField.placeholder] - display a placeholder for specific inputs
-* @param {Number} [customField.minValue] - only for type corresponding to numbers
-* @param {Number} [customField.maxValue] - only for type corresponding to numbers
-* @param {String} [customField.minLength] - only for type corresponding to texts
-* @param {String} [customField.maxLength] - only for type corresponding to texts
-* @param {Object[]} [customField.choices] - only for type with multiple pre-defined values
-* @param {String} customField.choices[i].value
-* @param {String} customField.choices[i].label - label to display besides the value
+* @param {Object} customAttribute
+* @param {String} customAttribute.name - name of the custom attribute
+* @param {String} customAttribute.label - label to display to users
+* @param {String} customAttribute.type - type of data
+* @param {Boolean} customAttribute.filter - if true, can be used for search (otherwise it is only for display)
+* @param {String} customAttribute.visibility - only two values possibles for now: ['admin', 'all']
+* @param {String} [customAttribute.instructions] - help info
+* @param {Any} [customAttribute.defaultValue] - if the custom attribute is null or undefined, set the default value
+* @param {Boolean} [customAttribute.required] - if true, the custom attribute must be present
+* @param {Boolean} [customAttribute.isInteger] - only for type corresponding to numbers
+* @param {String} [customAttribute.placeholder] - display a placeholder for specific inputs
+* @param {Number} [customAttribute.minValue] - only for type corresponding to numbers
+* @param {Number} [customAttribute.maxValue] - only for type corresponding to numbers
+* @param {String} [customAttribute.minLength] - only for type corresponding to texts
+* @param {String} [customAttribute.maxLength] - only for type corresponding to texts
+* @param {Object[]} [customAttribute.choices] - only for type with multiple pre-defined values
+* @param {String} customAttribute.choices[i].value
+* @param {String} customAttribute.choices[i].label - label to display besides the value
 * @return {Boolean}
 */
-function checkCustomField(customField) {
-  if (typeof customField !== 'object') return false;
+function checkCustomAttribute(customAttribute) {
+  if (typeof customAttribute !== 'object') return false;
 
   const {
       name,
@@ -85,7 +85,7 @@ function checkCustomField(customField) {
       minLength,
       maxLength,
       choices,
-  } = customField;
+  } = customAttribute;
 
   const isValidChoice = (choice) => {
     if (typeof choice !== 'object') return false;
@@ -103,7 +103,7 @@ function checkCustomField(customField) {
 
   if ((!name || typeof name !== 'string')
    || (!label || typeof label !== 'string')
-   || !_.includes(customFieldTypes, type)
+   || !_.includes(customAttributeTypes, type)
    || typeof filter !== 'boolean'
    || !_.includes(['admin', 'all'], visibility)
    || (!isEmptyValue(instructions) && typeof instructions !== 'string')
@@ -123,7 +123,7 @@ function checkCustomField(customField) {
   if (!isEmptyValue(minValue) && !isEmptyValue(maxValue) && maxValue < minValue) return false;
   if (!isEmptyValue(minLength) && !isEmptyValue(maxLength) && maxLength < minLength) return false;
   if (_.includes(['checkbox', 'select'], type) && isEmptyValue(choices)) return false;
-  if (!isEmptyValue(defaultValue) && !checkDataValue(defaultValue, customField)) return false;
+  if (!isEmptyValue(defaultValue) && !checkDataValue(defaultValue, customAttribute)) return false;
 
   return true;
 }
@@ -131,12 +131,12 @@ function checkCustomField(customField) {
 /**
  *
  * @param {Object} data
- * @param {Object[]} customFields
+ * @param {Object[]} customAttributes
  * @return {Object} res
  * @return {Object} res.newData - null if not valid
  * @return {Boolean} res.valid
  */
-function checkData(data, customFields) {
+function checkData(data, customAttributes) {
   const res = {
     newData: null,
     valid: true,
@@ -144,21 +144,21 @@ function checkData(data, customFields) {
 
   const newData = _.assign({}, data);
 
-  _.forEach(customFields, field => {
+  _.forEach(customAttributes, attr => {
     if (!res.valid) return; // stop the process if the data isn't valid
 
-    const value = data[field.name];
+    const value = data[attr.name];
 
     if (isEmptyValue(value)) {
-      if (field.required) {
-        res.valid = false; // required field but provide empty value
+      if (attr.required) {
+        res.valid = false; // required attribute but provide empty value
         return;
       }
-      if (!isEmptyValue(field.defaultValue)) { // use default value if defined for empty value
-        newData[field.name] = field.defaultValue;
+      if (!isEmptyValue(attr.defaultValue)) { // use default value if defined for empty value
+        newData[attr.name] = attr.defaultValue;
       }
     } else {
-      if (!checkDataValue(value, field)) {
+      if (!checkDataValue(value, attr)) {
         res.valid = false;
       }
     }
@@ -170,57 +170,57 @@ function checkData(data, customFields) {
   return res;
 }
 
-function checkDataValue(value, field) {
-  switch (field.type) {
+function checkDataValue(value, attr) {
+  switch (attr.type) {
     case 'number':
-      return checkDataNumber(value, field);
+      return checkDataNumber(value, attr);
 
     case 'boolean':
-      return checkDataBoolean(value, field);
+      return checkDataBoolean(value, attr);
 
     case 'date':
-      return checkDataDate(value, field);
+      return checkDataDate(value, attr);
 
     case 'text':
     case 'textarea':
-      return checkDataText(value, field);
+      return checkDataText(value, attr);
 
     case 'checkbox':
-      return checkDataCheckbox(value, field);
+      return checkDataCheckbox(value, attr);
 
     case 'select':
-      return checkDataSelect(value, field);
+      return checkDataSelect(value, attr);
 
     case 'default':
       return false;
   }
 }
 
-function checkDataNumber(value, field) {
-  if (field.isInteger) {
-    return ToolsService.isWithinIntegerRange(value, { min: field.minValue, max: field.maxValue });
+function checkDataNumber(value, attr) {
+  if (attr.isInteger) {
+    return ToolsService.isWithinIntegerRange(value, { min: attr.minValue, max: attr.maxValue });
   } else {
-    return ToolsService.isWithinNumberRange(value, { min: field.minValue, max: field.maxValue });
+    return ToolsService.isWithinNumberRange(value, { min: attr.minValue, max: attr.maxValue });
   }
 }
 
-function checkDataBoolean(value /*, field */) {
+function checkDataBoolean(value /*, attr */) {
   return typeof value === 'boolean';
 }
 
-function checkDataDate(value /*, field */) {
+function checkDataDate(value /*, attr */) {
   return TimeService.isDateString(value);
 }
 
-function checkDataText(value, field) {
+function checkDataText(value, attr) {
   if (typeof value !== 'string') return false;
-  return ToolsService.isWithinIntegerRange(value.length, { min: field.minLength, max: field.maxLength });
+  return ToolsService.isWithinIntegerRange(value.length, { min: attr.minLength, max: attr.maxLength });
 }
 
-function checkDataCheckbox(value, field) {
+function checkDataCheckbox(value, attr) {
   if (!_.isArray(value)) return false;
 
-  const possibleValues = _.pluck(field.choices, 'value');
+  const possibleValues = _.pluck(attr.choices, 'value');
   const indexedPossibleValues = _.indexBy(possibleValues);
 
   const valid = _.reduce(value, (memo, v) => {
@@ -239,9 +239,9 @@ function checkDataCheckbox(value, field) {
   return uniqueValues.length === value.length;
 }
 
-function checkDataSelect(value, field) {
+function checkDataSelect(value, attr) {
   if (typeof value !== 'string') return false;
 
-  const possibleValues = _.pluck(field.choices, 'value');
+  const possibleValues = _.pluck(attr.choices, 'value');
   return _.includes(possibleValues, value);
 }

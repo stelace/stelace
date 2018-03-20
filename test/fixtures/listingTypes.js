@@ -38,7 +38,7 @@ const listingTypes = [
                 remainingTimeToUpdateAfterAllRatings: { d: 1 },
             },
         }),
-        customFields: escapeFixture([]),
+        customAttributes: escapeFixture([]),
         active: true,
     },
     {
@@ -76,7 +76,7 @@ const listingTypes = [
                 remainingTimeToUpdateAfterAllRatings: { d: 1 },
             },
         }),
-        customFields: escapeFixture([]),
+        customAttributes: escapeFixture([]),
         active: true,
     },
     {
@@ -114,7 +114,7 @@ const listingTypes = [
                 remainingTimeToUpdateAfterAllRatings: { d: 1 },
             },
         }),
-        customFields: escapeFixture([]),
+        customAttributes: escapeFixture([]),
         active: false,
     },
 ];

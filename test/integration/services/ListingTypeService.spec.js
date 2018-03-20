@@ -69,8 +69,8 @@ describe('ListingTypeService', () => {
             expect(typeof createdListingType.properties).to.equal('object');
             expect(createdListingType.properties.TIME).to.equal('TIME_FLEXIBLE');
             expect(typeof createdListingType.config).to.equal('object', 'it creates a default config');
-            expect(Array.isArray(createdListingType.customFields)).to.equal(true);
-            expect(createdListingType.customFields.length).to.equal(0);
+            expect(Array.isArray(createdListingType.customAttributes)).to.equal(true);
+            expect(createdListingType.customAttributes.length).to.equal(0);
         });
 
         it('rejects if the parameters are incorrect', async () => {
@@ -93,7 +93,7 @@ describe('ListingTypeService', () => {
                 properties: {
                     TIME: 'NONE'
                 },
-                customFields: [
+                customAttributes: [
                     { name: 'height', label: 'Height', type: 'number', filter: false, visibility: 'all' },
                 ],
             };
@@ -103,8 +103,8 @@ describe('ListingTypeService', () => {
             expect(typeof updatedListingType.properties).to.equal('object');
             expect(updatedListingType.properties.TIME).to.equal('NONE');
             expect(typeof updatedListingType.config).to.equal('object');
-            expect(Array.isArray(updatedListingType.customFields)).to.equal(true);
-            expect(updatedListingType.customFields.length).to.equal(1);
+            expect(Array.isArray(updatedListingType.customAttributes)).to.equal(true);
+            expect(updatedListingType.customAttributes.length).to.equal(1);
         });
 
         it('rejects if the parameters are incorrect', async () => {
