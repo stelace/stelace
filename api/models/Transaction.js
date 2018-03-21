@@ -136,6 +136,11 @@ module.exports = {
             required: true,
             maxLength: 255,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     isPreauthorizationCancellable,

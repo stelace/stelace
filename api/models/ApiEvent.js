@@ -38,6 +38,11 @@ module.exports = {
             columnType: 'longtext CHARACTER SET utf8mb4',
             allowNull: true,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
 };

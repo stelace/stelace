@@ -98,6 +98,11 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields,

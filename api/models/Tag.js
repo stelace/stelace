@@ -67,6 +67,11 @@ module.exports = {
             columnType: 'int',
             defaultsTo: 0,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields,

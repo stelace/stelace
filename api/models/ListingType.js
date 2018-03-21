@@ -55,6 +55,11 @@ module.exports = {
             columnType: 'tinyint(1)',
             defaultsTo: true,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields,

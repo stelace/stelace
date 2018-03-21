@@ -57,6 +57,11 @@ module.exports = {
             maxLength: 255,
             required: true,
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
     getAccessFields,

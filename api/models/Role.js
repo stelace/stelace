@@ -50,6 +50,11 @@ module.exports = {
             columnType: 'json',
             defaultsTo: [],
         },
+        data: {
+            type: 'json',
+            columnType: 'json',
+            defaultsTo: {},
+        },
     },
 
 };
