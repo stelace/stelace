@@ -200,7 +200,7 @@ function refreshToken(req, res) {
             var newToken = TokenService.createAuthToken(
                 {
                     id: decodedToken.userId,
-                    role: decodedToken.role
+                    roles: decodedToken.roles
                 },
                 data
             );

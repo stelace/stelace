@@ -75,12 +75,6 @@ module.exports = {
             columnType: 'tinyint(1)',
             defaultsTo: false,
         },
-        role: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            defaultsTo: 'user',
-            maxLength: 255,
-        },
         roles: {
             type: 'json',
             columnType: 'json',

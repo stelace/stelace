@@ -213,15 +213,15 @@ function getSecret(userAgent) {
 }
 
 function isRole(req, role, type) {
-    var realUserRole     = req.user && req.user.role;
-    var originalUserRole = req.authToken && req.authToken.original && req.authToken.original.role;
+    var realUserRoles     = req.user && req.user.roles;
+    var originalUserRoles = req.authToken && req.authToken.original && req.authToken.original.roles;
 
     if (type === "real") {
-        return role === realUserRole;
+        return _.includes(realUserRoles, role);
     } else if (type === "original") {
-        return role === originalUserRole;
+        return _.includes(originalUserRoles, role);
     } else { // type === "all"
-        return role === realUserRole || role === originalUserRole;
+        return _.includes(realUserRoles, role) || _.includes(originalUserRoles, role);
     }
 }
 

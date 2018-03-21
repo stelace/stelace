@@ -166,7 +166,7 @@ async function createUser(attrs, options = {}) {
  * @param {String} [attrs.lastname]
  * @param {String} [attrs.phone]
  * @param {String} [attrs.description]
- * @param {String} [attrs.role]
+ * @param {String} [attrs.roles]
  * @param {Boolean} [attrs.newsletter]
  */
 async function updateUser(userId, attrs = {}) {
@@ -179,7 +179,7 @@ async function updateUser(userId, attrs = {}) {
         lastname,
         phone,
         description,
-        role,
+        // roles,
         newsletter,
     } = attrs;
 
@@ -204,7 +204,7 @@ async function updateUser(userId, attrs = {}) {
         lastname,
         phone,
         description,
-        role,
+        // roles, // TODO: enable roles after checking them
         newsletter,
     };
 

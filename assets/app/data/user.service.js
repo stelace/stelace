@@ -150,9 +150,9 @@
                     try {
                         var decodedToken = jwtHelper.decodeToken(token);
 
-                        if (decodedToken.role === "admin") {
+                        if (_.includes(decodedToken.roles, 'admin')) {
                             return "user";
-                        } else if ((decodedToken.original && decodedToken.original.role === "admin")) {
+                        } else if ((decodedToken.original && _.includes(decodedToken.original.roles, 'admin'))) {
                             return "originalUser";
                         } else {
                             return false;
@@ -169,7 +169,7 @@
                     currentUser: currentUser || getCurrentUser()
                 })
                 .then(function (results) {
-                    return (results.isAdmin && currentUser.role !== "admin");
+                    return (results.isAdmin && !_.includes(currentUser.roles, 'admin'));
                 });
         }
 

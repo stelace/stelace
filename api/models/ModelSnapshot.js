@@ -87,7 +87,7 @@ function getComparedFields(targetType) {
             "phone",
             "phoneCountryCode",
             "phoneCheck",
-            "role",
+            "roles",
             "email",
             "emailCheck",
             "mediaId",
