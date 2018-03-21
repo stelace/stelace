@@ -1,4 +1,4 @@
-/* global axios, Buefy, Vue */
+/* global axios, Buefy, CryptoJS, Vue */
 
 Vue.use(Buefy.default);
 
