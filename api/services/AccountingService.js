@@ -171,12 +171,12 @@ function getTransactionsData(startDate, endDate) {
             periodAttrs["<="] = endDate;
         }
         if (! _.isEmpty(periodAttrs)) {
-            findAttrs.mgpCreatedDate = periodAttrs;
+            findAttrs.providerCreatedDate = periodAttrs;
         }
 
         var transactions = yield Transaction
             .find(findAttrs)
-            .sort('mgpCreatedDate ASC');
+            .sort('providerCreatedDate ASC');
 
         var bookingsIds = MicroService.escapeListForQueries(_.pluck(transactions, "bookingId"));
         var bookings    = yield Booking.find({ id: bookingsIds });
@@ -212,9 +212,9 @@ function isCompleteBookingPayment(transactionManager) {
     var transfer = transactionManager.getTransferPayment();
     var payout   = transactionManager.getPayoutPayment();
 
-    var isPayinComplete    = !! (payin && payin.mgpCreatedDate && payin.executionDate);
-    var isTransferComplete = !! (transfer && transfer.mgpCreatedDate && transfer.executionDate);
-    var isPayoutComplete   = !! (payout && payout.mgpCreatedDate && payout.executionDate);
+    var isPayinComplete    = !! (payin && payin.providerCreatedDate && payin.executionDate);
+    var isTransferComplete = !! (transfer && transfer.providerCreatedDate && transfer.executionDate);
+    var isPayoutComplete   = !! (payout && payout.providerCreatedDate && payout.executionDate);
 
     if (! isPayinComplete || ! isTransferComplete) {
         return false;
@@ -407,7 +407,7 @@ function createTransfer(amount, userOdooId, transfer, invoiceId) {
         var paymentAttrs = {
             amount: amount,
             partnerId: userOdooId,
-            paymentDate: transfer.mgpCreatedDate,
+            paymentDate: transfer.providerCreatedDate,
             communication: getTransferCommunication(transfer.resourceId),
             invoiceId: invoiceId
         };
@@ -424,7 +424,7 @@ function createPayout(payout) {
         var params = {
             amount: payout.payoutAmount,
             partnerId: odooConfig.ids.partners.stelace,
-            paymentDate: payout.mgpCreatedDate,
+            paymentDate: payout.providerCreatedDate,
             communication: getPayoutCommunication(payout.resourceId)
         };
 
@@ -470,12 +470,12 @@ function generateInvoiceFromRole(args) {
         var payin    = transactionManager.getPayinPayment();
         var transfer = transactionManager.getTransferPayment();
 
-        var comment = "Paiement par carte bancaire le " + moment(payin.mgpCreatedDate).format("DD/MM/YYYY");
+        var comment = "Paiement par carte bancaire le " + moment(payin.providerCreatedDate).format("DD/MM/YYYY");
 
         user = yield User.syncOdooUser(user, { updateLocation: true });
         invoiceId = yield createInvoice(booking, user.odooId, role, {
             listing: listing,
-            invoiceDate: transfer.mgpCreatedDate,
+            invoiceDate: transfer.providerCreatedDate,
             invoiceFields: invoiceFields,
             comment: comment
         });

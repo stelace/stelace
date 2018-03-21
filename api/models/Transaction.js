@@ -112,12 +112,6 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
-        mgpCreatedDate: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
         executionDate: {
             type: 'string',
             columnType: 'varchar(255)',
@@ -216,7 +210,7 @@ async function createTransactionAccountings(transactionId, accountings) {
  * @param  {string} args.resourceType
  * @param  {string} args.resourceId
  * @param  {string} [args.preauthExpirationDate]
- * @param  {string} [args.mgpCreatedDate]
+ * @param  {string} [args.providerCreatedDate]
  * @param  {string} [args.executionDate]
  * @param  {number} [args.cancelTransactionId]
  * @param  {string} args.action
