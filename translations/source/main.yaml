@@ -723,7 +723,7 @@ user:
                 undefined {Cet utilisateur}
                 other {{user}}
             }
-            n’a pas encore validé ses coordonnées.'
+            n’a pas encore validé ses coordonnées.
     contact_info_kept_private:
         en: Your contact details will not be displayed publicly.
         fr: Le détail de vos coordonnées n’apparaîtra pas publiquement.
