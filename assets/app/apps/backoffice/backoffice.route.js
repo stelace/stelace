@@ -16,7 +16,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 resolve: platformProvider.getAdminResolve(),
-                title: "Backoffice - Sharinplace"
+                title: "service.page_title"
             });
     }
 

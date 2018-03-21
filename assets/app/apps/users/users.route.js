@@ -16,9 +16,9 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                title: 'user.profile.page_title',
+                title: 'pages.user_profile.page_title',
                 metaTags: {
-                    description: 'user.profile.meta_description'
+                    description: 'pages.user_profile.meta_description'
                 }
             })
             .state("userMe", {
@@ -27,9 +27,9 @@
                 controller: "PublicProfileController",
                 controllerAs: "vm",
                 appClassName: appClassName,
-                title: 'user.profile.page_title',
+                title: 'pages.user_profile.page_title',
                 metaTags: {
-                    description: 'user.profile.meta_description'
+                    description: 'pages.user_profile.meta_description'
                 }
             })
             .state("account", {

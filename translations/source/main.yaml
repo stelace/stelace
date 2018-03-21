@@ -11,6 +11,9 @@ stelace:
         en: Smart marketplace launcher
         fr: Lanceur de marketplaces intelligentes
 service:
+    page_title:
+        en: {SERVICE_NAME}
+        fr: {SERVICE_NAME}
     meta_description:
         en: '{SERVICE_NAME} runs on {provider_name}.'
         fr: '{SERVICE_NAME} s’appuie sur {provider_name}'
@@ -940,151 +943,6 @@ user:
         phone_validation_trust_factor:
             en: A verified phone number inspires confidence and increase you chances of completing transactions.
             fr: Un numéro vérifié est un gage de confiance et augmente vos chances de recevoir des demandes.
-    profile:
-        page_title:
-            en: |
-                {user, select,
-                    undefined {Profile}
-                    other {{user}’s profile}
-                }
-                - {SERVICE_NAME}
-            fr: |
-                {user, select,
-                    undefined {Profil}
-                    other {Profil de {user}}
-                }
-                - {SERVICE_NAME}
-        meta_description:
-            en: |
-                {user_description, select,
-                    undefined {
-                        {user, select,
-                            undefined {Joined}
-                            other {{user} joined}
-                        }
-                        {SERVICE_NAME} in {signup_date, date, fullmonth}.
-                    }
-                    other {{user_description}}
-                }
-            fr: |
-                {user_description, select,
-                    undefined {
-                        {user, select,
-                            undefined {Fait confiance à}
-                            other {{user} fait confiance à}
-                        }
-                        {SERVICE_NAME} depuis {signup_date, date, fullmonth}
-                    }
-                    other {{user_description}}
-                }
-            context: User can provide her own description.
-        greeting:
-            en: |
-                Welcome {user, select,
-                    undefined {}
-                    other {, I’m {user}}
-                }
-            fr: |
-                Bienvenue{user, select,
-                    undefined {}
-                    other {, je suis {user}}
-                }
-        greeting__EDITOR_LABEL:
-            en: Public profile page title
-            fr: Titre de la page de profil public
-        public_info_title:
-            en: Public profile
-            fr: Mes informations publiques
-            context: Helps user to make distinction between public profile information and private account information.
-landing:
-    homepage:
-        page_title:
-            en: 'Welcome to {SERVICE_NAME}'
-            fr: 'Bienvenue sur {SERVICE_NAME}'
-            context: Default website title
-        page_title__EDITOR_LABEL:
-            en: Title of your website
-            fr: Titre de votre site
-        page_title__EDITOR_HELPER:
-            en: As shown in Web browser and search engine results such as Google.
-            fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
-        meta_description:
-            en: "Your community awaits you on {SERVICE_NAME}"
-            fr: "Rejoignez la communauté {SERVICE_NAME}"
-            context: This is a very generic default that should be replaced by admin before marketplace is online.
-        header:
-            en: 'Welcome to {SERVICE_NAME}'
-            fr: 'Bienvenue sur {SERVICE_NAME}'
-            context: Default homepage header (H1)
-        header__EDITOR_LABEL:
-            en: Main header of your homepage
-            fr: En-tête principal de votre page d’accueil
-        header__EDITOR_HELPER:
-            en: Try to describe your activity precisely to improve your SEO.
-            fr: Essayez de décrire votre activité précisément pour améliorer votre référencement.
-        subheader:
-            en: Your community
-            fr: Votre communauté
-        subheader__EDITOR_LABEL:
-            en: Subheader of your website
-            fr: En-tête secondaire
-        main_cta:
-            en: New listing
-            fr: Publiez votre annonce
-        main_cta__EDITOR_LABEL:
-            en: Homepage call-to-action (new listing)
-            fr: Action principale proposée (création d’annonce)
-        content_cta_header:
-            en: Create your own listing in a minute.
-            fr: Créez votre propre annonce en quelques instants.
-        content_cta_header__EDITOR_LABEL:
-            en: Home content prompt header
-            fr: En-tête incitatif dans le contenu
-        content_cta_button:
-            en: Post my listing
-            fr: Je crée mon annonce
-        content_cta_button__EDITOR_LABEL:
-            en: Home content call-to-action
-            fr: Bouton de conversion dans le contenu
-        main_text_content:
-            en: ''
-            fr: ''
-        main_text_content__EDITOR_LABEL:
-            en: Main content of your homepage
-            fr: Contenu principal de votre page d’accueil
-    help:
-        header:
-            en: Help center
-            fr: Centre d’aide
-        content:
-            en: Writing in progress
-            fr: En cours de rédaction
-            context: 'Default placeholder, pending for administrator content'
-    terms:
-        header:
-            en: Terms of use
-            fr: Conditions générales de service et d’utilisation
-        last_update_date:
-            en: 'Last Updated: {date}'
-            fr: "Dernière mise à jour\_: {date}"
-        content:
-            en: Writing in progress
-            fr: En cours de rédaction
-            context: 'Default placeholder, pending for administrator content'
-    contact:
-        header:
-            en: Contact us
-            fr: Contactez-nous
-        header__EDITOR_LABEL:
-            en: Contact page title
-            fr: Titre de la page Contact
-        content:
-            en: ''
-            fr: ''
-            context: 'Default placeholder, pending for administrator content'
-        content__EDITOR_LABEL:
-            en: Contact page text
-            fr: Contenu de la page Contact
 navigation:
     home:
         en: Home
@@ -1603,6 +1461,9 @@ booking:
             en: Confirm the rejection
             fr: Confirmer le refus
 inbox:
+    page_title:
+        en: Inbox
+        fr: Boîte de réception
     inbox_label:
         en: Inbox
         fr: Boîte de réception
@@ -1980,67 +1841,218 @@ delay:
     more_than_two_days:
         en: More than two days
         fr: Plus de 48 heures
-search:
-    page_title:
-        en: |
-            Search
-            {query, select,
-                undefined {}
-                other {{query}}
-            }
-            - {SERVICE_NAME}
-            {page, select,
-                undefined {}
-                other { - Page {page}}
-            }
-        fr: |
-            Recherche
-            {query, select,
-                undefined {}
-                other {{query}}
-            }
-            - {SERVICE_NAME}
-            {page, select,
-                undefined {}
-                other { - Page {page}}
-            }
-    meta_description:
-        en: |
-            {query, select,
-                undefined {}
-                other {{query}:}
-            }
-            Find what you need on {SERVICE_NAME}
-            {page, select,
-                undefined {}
-                other { - Page {page}}
-            }
-        fr: |
-            {query, select,
-                undefined {}
-                other {{query} :}
-            }
-            Trouvez ce qu’il vous faut sur {SERVICE_NAME}
-            {page, select,
-                undefined {}
-                other { - Page {page}}
-            }
-    listing_types_filter:
-        en: Listing types
-        fr: Type d'annonce
-    search_types_filter:
-        en: Search types
-        fr: Type de recherche
-    locations_filter:
-        en: Favorite locations
-        fr: Mes lieux favoris
-    reset_search_results:
-        en: Reset your search parameters
-        fr: Réinitialiser vos paramètres de recherche
-    results_near_location:
-        en: 'Results near {locationName}'
-        fr: 'Résultats près de {locationName}'
 referral:
     prompt:
         en: Invite your friends
         fr: Parrainez vos amis
+pages:
+    homepage:
+        page_title:
+            en: 'Welcome to {SERVICE_NAME}'
+            fr: 'Bienvenue sur {SERVICE_NAME}'
+            context: Default website title
+        page_title__EDITOR_LABEL:
+            en: Title of your website
+            fr: Titre de votre site
+        page_title__EDITOR_HELPER:
+            en: As shown in Web browser and search engine results such as Google.
+            fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
+        meta_description:
+            en: "Your community awaits you on {SERVICE_NAME}"
+            fr: "Rejoignez la communauté {SERVICE_NAME}"
+            context: This is a very generic default that should be replaced by admin before marketplace is online.
+        header:
+            en: 'Welcome to {SERVICE_NAME}'
+            fr: 'Bienvenue sur {SERVICE_NAME}'
+            context: Default homepage header (H1)
+        header__EDITOR_LABEL:
+            en: Main header of your homepage
+            fr: En-tête principal de votre page d’accueil
+        header__EDITOR_HELPER:
+            en: Try to describe your activity precisely to improve your SEO.
+            fr: Essayez de décrire votre activité précisément pour améliorer votre référencement.
+        subheader:
+            en: Your community
+            fr: Votre communauté
+        subheader__EDITOR_LABEL:
+            en: Subheader of your website
+            fr: En-tête secondaire
+        main_cta:
+            en: New listing
+            fr: Publiez votre annonce
+        main_cta__EDITOR_LABEL:
+            en: Homepage call-to-action (new listing)
+            fr: Action principale proposée (création d’annonce)
+        content_cta_header:
+            en: Create your own listing in a minute.
+            fr: Créez votre propre annonce en quelques instants.
+        content_cta_header__EDITOR_LABEL:
+            en: Home content prompt header
+            fr: En-tête incitatif dans le contenu
+        content_cta_button:
+            en: Post my listing
+            fr: Je crée mon annonce
+        content_cta_button__EDITOR_LABEL:
+            en: Home content call-to-action
+            fr: Bouton de conversion dans le contenu
+        main_text_content:
+            en: ''
+            fr: ''
+        main_text_content__EDITOR_LABEL:
+            en: Main content of your homepage
+            fr: Contenu principal de votre page d’accueil
+    search:
+        page_title:
+            en: |
+                Search
+                {query, select,
+                    undefined {}
+                    other {{query}}
+                }
+                - {SERVICE_NAME}
+                {page, select,
+                    undefined {}
+                    other { - Page {page}}
+                }
+            fr: |
+                Recherche
+                {query, select,
+                    undefined {}
+                    other {{query}}
+                }
+                - {SERVICE_NAME}
+                {page, select,
+                    undefined {}
+                    other { - Page {page}}
+                }
+        meta_description:
+            en: |
+                {query, select,
+                    undefined {}
+                    other {{query}:}
+                }
+                Find what you need on {SERVICE_NAME}
+                {page, select,
+                    undefined {}
+                    other { - Page {page}}
+                }
+            fr: |
+                {query, select,
+                    undefined {}
+                    other {{query} :}
+                }
+                Trouvez ce qu’il vous faut sur {SERVICE_NAME}
+                {page, select,
+                    undefined {}
+                    other { - Page {page}}
+                }
+        listing_types_filter:
+            en: Listing types
+            fr: Type d'annonce
+        search_types_filter:
+            en: Search types
+            fr: Type de recherche
+        locations_filter:
+            en: Favorite locations
+            fr: Mes lieux favoris
+        reset_search_results:
+            en: Reset your search parameters
+            fr: Réinitialiser vos paramètres de recherche
+        results_near_location:
+            en: 'Results near {locationName}'
+            fr: 'Résultats près de {locationName}'
+    help:
+        header:
+            en: Help center
+            fr: Centre d’aide
+        content:
+            en: Writing in progress
+            fr: En cours de rédaction
+            context: 'Default placeholder, pending for administrator content'
+        content__EDITOR_LABEL:
+            en: Help page text
+            fr: Contenu de la page d’aide
+    terms:
+        header:
+            en: Terms of use
+            fr: Conditions générales de service et d’utilisation
+        last_update_date:
+            en: 'Last Updated: {date}'
+            fr: "Dernière mise à jour\_: {date}"
+        content:
+            en: Writing in progress
+            fr: En cours de rédaction
+            context: 'Default placeholder, pending for administrator content'
+        content__EDITOR_LABEL:
+            en: Terms page text
+            fr: Contenu des conditions et mentions légales
+    contact:
+        header:
+            en: Contact us
+            fr: Contactez-nous
+        header__EDITOR_LABEL:
+            en: Contact page title
+            fr: Titre de la page Contact
+        content:
+            en: ''
+            fr: ''
+            context: 'Default placeholder, pending for administrator content'
+        content__EDITOR_LABEL:
+            en: Contact page text
+            fr: Contenu de la page Contact
+    user_profile:
+        page_title:
+            en: |
+                {user, select,
+                    undefined {Profile}
+                    other {{user}’s profile}
+                }
+                - {SERVICE_NAME}
+            fr: |
+                {user, select,
+                    undefined {Profil}
+                    other {Profil de {user}}
+                }
+                - {SERVICE_NAME}
+        meta_description:
+            en: |
+                {user_description, select,
+                    undefined {
+                        {user, select,
+                            undefined {Joined}
+                            other {{user} joined}
+                        }
+                        {SERVICE_NAME} in {signup_date, date, fullmonth}.
+                    }
+                    other {{user_description}}
+                }
+            fr: |
+                {user_description, select,
+                    undefined {
+                        {user, select,
+                            undefined {Fait confiance à}
+                            other {{user} fait confiance à}
+                        }
+                        {SERVICE_NAME} depuis {signup_date, date, fullmonth}
+                    }
+                    other {{user_description}}
+                }
+            context: User can provide her own description.
+        greeting:
+            en: |
+                Welcome {user, select,
+                    undefined {}
+                    other {, I’m {user}}
+                }
+            fr: |
+                Bienvenue{user, select,
+                    undefined {}
+                    other {, je suis {user}}
+                }
+        greeting__EDITOR_LABEL:
+            en: Public profile page title
+            fr: Titre de la page de profil public
+        public_info_title:
+            en: Public profile
+            fr: Mes informations publiques
+            context: Helps user to make distinction between public profile information and private account information.

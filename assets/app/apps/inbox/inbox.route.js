@@ -15,7 +15,7 @@
                 controller: "InboxController",
                 controllerAs: "vm",
                 appClassName: appClassName,
-                title: "Ma boîte de réception - Sharinplace"
+                title: "inbox.page_title"
             })
             .state("conversation", {
                 url: "/inbox/:conversationId?register",
@@ -23,6 +23,7 @@
                 controller: "InboxConversationController",
                 controllerAs: "vm",
                 appClassName: appClassName
+                // title: see controller
             });
     }
 

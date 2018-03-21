@@ -49,26 +49,26 @@ describe('ContentEntriesService', () => {
         it('parses metadata', () => {
             const expected = {
                 editableKeys: [
-                    'landing.homepage.title',
-                    'landing.homepage.header',
-                    'landing.homepage.main_cta',
+                    'pages.homepage.title',
+                    'pages.homepage.header',
+                    'pages.homepage.main_cta',
                     'navigation.new_listing',
                 ],
                 keys: [
-                    'landing.homepage.title',
-                    'landing.homepage.header',
-                    'landing.homepage.subheader',
-                    'landing.homepage.main_cta',
-                    'landing.terms.header',
-                    'landing.terms.last_update_date',
-                    'landing.terms.content',
+                    'pages.homepage.title',
+                    'pages.homepage.header',
+                    'pages.homepage.subheader',
+                    'pages.homepage.main_cta',
+                    'pages.terms.header',
+                    'pages.terms.last_update_date',
+                    'pages.terms.content',
                     'navigation.home',
                     'navigation.new_listing',
                     'navigation.contact_us',
                 ],
                 helpers: [
-                    'landing.homepage.title__EDITOR_HELPER',
-                    'landing.homepage.header__EDITOR_HELPER',
+                    'pages.homepage.title__EDITOR_HELPER',
+                    'pages.homepage.header__EDITOR_HELPER',
                 ],
             };
 

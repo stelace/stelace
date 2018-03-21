@@ -280,11 +280,11 @@
         }
 
         function _setSEOTags() {
-            var title        = $translate.instant('user.profile.page_title', {
+            var title        = $translate.instant('pages.user_profile.page_title', {
                 user: vm.user.displayName || undefined,
                 SERVICE_NAME: stlConfig.SERVICE_NAME
             });
-            var description  = $translate.instant('user.profile.meta_description', {
+            var description  = $translate.instant('pages.user_profile.meta_description', {
                 user: vm.user.displayName || undefined,
                 user_description: (vm.user.description && tools.shrinkString(vm.user.description, 150)) || undefined,
                 signup_date: vm.user.createdDate,
