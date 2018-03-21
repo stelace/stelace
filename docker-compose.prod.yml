@@ -13,6 +13,7 @@ services:
       - ./emailTests:/usr/src/app/emailTests
       - ./logs:/usr/src/app/logs
       - ./external-files:/usr/src/app/external-files
+      - ./translations/modified:/usr/src/app/translations/modified
     environment:
       - NGINX_SERVER_NAME=${NGINX_SERVER_NAME}
       - VIRTUAL_HOST=${VIRTUAL_HOST}
