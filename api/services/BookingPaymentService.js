@@ -30,7 +30,7 @@ function getRenewDepositAmount(booking) {
 function addTransactionToManager(transactionManager, resultTransaction) {
     transactionManager.addTransaction(
         resultTransaction.transaction,
-        resultTransaction.transactionDetails
+        resultTransaction.transactionAccountings
     );
 }
 

@@ -1,4 +1,4 @@
-/* global BookingTransactionService, TimeService, Transaction, TransactionDetail */
+/* global BookingTransactionService, TimeService, Transaction, TransactionAccounting */
 
 module.exports = {
 
@@ -24,18 +24,18 @@ async function getTransactionsByBooking(bookingsIds) {
     const transactions = await Transaction.find({ bookingId: bookingsIds });
     const transactionsIds = _.pluck(transactions, 'id');
 
-    const transactionsDetails = await TransactionDetail.find({ transactionId: transactionsIds });
+    const transactionsAccountings = await TransactionAccounting.find({ transactionId: transactionsIds });
 
     const indexedTransactions = _.groupBy(transactions, 'bookingId');
-    const indexedTransactionsDetails = _.groupBy(transactionsDetails, 'transactionId');
+    const indexedTransactionsAccountings = _.groupBy(transactionsAccountings, 'transactionId');
 
     return _.reduce(bookingsIds, (memo, bookingId) => {
         const transactions = indexedTransactions[bookingId] || [];
 
         memo[bookingId] = {
             transactions: transactions,
-            transactionsDetails: _.reduce(transactions, (memo2, transaction) => {
-                memo2 = memo2.concat(indexedTransactionsDetails[transaction.id] || []);
+            transactionsAccountings: _.reduce(transactions, (memo2, transaction) => {
+                memo2 = memo2.concat(indexedTransactionsAccountings[transaction.id] || []);
                 return memo2;
             }, [])
         };
@@ -50,7 +50,7 @@ async function getBookingTransactionsManagers(bookingsIds) {
     return _.reduce(bookingsIds, (memo, bookingId) => {
         memo[bookingId] = BookingTransactionService.getBookingTransactionManager(
             res[bookingId].transactions,
-            res[bookingId].transactionsDetails
+            res[bookingId].transactionsAccountings
         );
         return memo;
     }, {});
@@ -65,7 +65,7 @@ async function getBookingTransactionsManagers(bookingsIds) {
  * @param {Object} [args.providerData = {}]
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function createPreauthorization(args) {
     const {
@@ -125,7 +125,7 @@ async function createPreauthorization(args) {
  * @param  {string} args.label
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function cancelPreauthorization(args) {
     const {
@@ -172,7 +172,7 @@ async function cancelPreauthorization(args) {
  * @param  {Number} [args.takerFees = 0]
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function createPayin(args) {
     const {
@@ -192,7 +192,7 @@ async function createPayin(args) {
         throw new Error('Missing params');
     }
 
-    const details = [
+    const accountings = [
         {
             payment: amount,
             cashing: 0,
@@ -201,7 +201,7 @@ async function createPayin(args) {
     ];
 
     if (takerFees) {
-        details.push({
+        accountings.push({
             credit: takerFees,
             debit: 0,
             payment: takerFees,
@@ -218,7 +218,7 @@ async function createPayin(args) {
         bookingId: booking.id,
         action: 'payin',
         label,
-        details,
+        accountings,
     };
 
     if (booking.paymentProvider === 'mangopay') {
@@ -257,7 +257,7 @@ async function createPayin(args) {
  * @param  {Number} [args.refundTakerFees = 0] - can be negative if fees are applied for this operation
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function cancelPayin(args) {
     const {
@@ -277,7 +277,7 @@ async function cancelPayin(args) {
         throw new Error('Missing params');
     }
 
-    const details = [
+    const accountings = [
         {
             payment: - amount,
             cashing: 0,
@@ -286,7 +286,7 @@ async function cancelPayin(args) {
     ];
 
     if (refundTakerFees) {
-        details.push({
+        accountings.push({
             credit: - refundTakerFees,
             debit: 0,
             payment: - refundTakerFees,
@@ -304,7 +304,7 @@ async function cancelPayin(args) {
         cancelTransactionId: transaction.id,
         action: 'refund payin',
         label,
-        details,
+        accountings,
     };
 
     if (transaction.paymentProvider === 'mangopay') {
@@ -341,7 +341,7 @@ async function cancelPayin(args) {
  * @param  {Number} [args.takerFees = 0]
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function createTransfer(args) {
     const {
@@ -362,7 +362,7 @@ async function createTransfer(args) {
         throw new Error('Missing params');
     }
 
-    const details = [
+    const accountings = [
         {
             payment: 0,
             cashing: amount,
@@ -371,7 +371,7 @@ async function createTransfer(args) {
     ];
 
     if (ownerFees) {
-        details.push({
+        accountings.push({
             credit: ownerFees,
             debit: 0,
             payment: 0,
@@ -380,7 +380,7 @@ async function createTransfer(args) {
         });
     }
     if (takerFees) {
-        details.push({
+        accountings.push({
             credit: takerFees,
             debit: 0,
             payment: 0,
@@ -397,7 +397,7 @@ async function createTransfer(args) {
         bookingId: booking.id,
         action: 'transfer',
         label,
-        details,
+        accountings,
     };
 
     if (booking.paymentProvider === 'mangopay') {
@@ -437,7 +437,7 @@ async function createTransfer(args) {
  * @param  {Number} [args.refundTakerFees = 0]
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function cancelTransfer(args) {
     const {
@@ -457,7 +457,7 @@ async function cancelTransfer(args) {
         throw new Error('Missing params');
     }
 
-    const details = [
+    const accountings = [
         {
             payment: 0,
             cashing: - amount,
@@ -466,7 +466,7 @@ async function cancelTransfer(args) {
     ];
 
     if (refundOwnerFees) {
-        details.push({
+        accountings.push({
             credit: - refundOwnerFees,
             debit: 0,
             payment: 0,
@@ -475,7 +475,7 @@ async function cancelTransfer(args) {
         });
     }
     if (refundTakerFees) {
-        details.push({
+        accountings.push({
             credit: - refundTakerFees,
             debit: 0,
             payment: 0,
@@ -493,7 +493,7 @@ async function cancelTransfer(args) {
         cancelTransactionId: transaction.id,
         action: 'refund transfer',
         label,
-        details,
+        accountings,
     };
 
     if (transaction.paymentProvider === 'mangopay') {
@@ -531,7 +531,7 @@ async function cancelTransfer(args) {
  * @param  {String} args.label
  * @return {Object} res
  * @return {Object} res.transaction
- * @return {Object[]} res.transactionDetails
+ * @return {Object[]} res.transactionAccountings
  */
 async function createPayout(args) {
     const {

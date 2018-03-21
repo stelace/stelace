@@ -37,13 +37,13 @@ var transactionTypes = {
     }
 };
 
-function getBookingTransactionManager(transactions, transactionsDetails) {
-    return new BookingTransactionManager(transactions, transactionsDetails);
+function getBookingTransactionManager(transactions, transactionsAccountings) {
+    return new BookingTransactionManager(transactions, transactionsAccountings);
 }
 
-function BookingTransactionManager(transactions, transactionsDetails) {
+function BookingTransactionManager(transactions, transactionsAccountings) {
     this.rawTransactions        = _.cloneDeep(transactions);
-    this.rawTransactionsDetails = _.cloneDeep(transactionsDetails);
+    this.rawTransactionsAccountings = _.cloneDeep(transactionsAccountings);
     this.hashCancelledBy = {};
 
     _.forEach(this.rawTransactions, transaction => {
@@ -65,8 +65,8 @@ BookingTransactionManager.prototype.getRawTransactions = function () {
     return _.cloneDeep(this.rawTransactions);
 };
 
-BookingTransactionManager.prototype.getRawTransactionsDetails = function () {
-    return _.cloneDeep(this.rawTransactionsDetails);
+BookingTransactionManager.prototype.getRawTransactionsAccountings = function () {
+    return _.cloneDeep(this.rawTransactionsAccountings);
 };
 
 
@@ -87,9 +87,9 @@ BookingTransactionManager.prototype.getCancelTransaction = function (transaction
     });
 };
 
-BookingTransactionManager.prototype.getTransactionDetails = function (transaction, filter) {
-    var indexedTransactionsDetails = _.groupBy(this.rawTransactionsDetails, "transactionId");
-    return _.filter(indexedTransactionsDetails[transaction.id] || [], filter);
+BookingTransactionManager.prototype.getTransactionAccountings = function (transaction, filter) {
+    var indexedTransactionsAccountings = _.groupBy(this.rawTransactionsAccountings, "transactionId");
+    return _.filter(indexedTransactionsAccountings[transaction.id] || [], filter);
 };
 
 
@@ -207,12 +207,12 @@ BookingTransactionManager.prototype.getNonCancelledPayoutPayment = function () {
 /////////////////////
 // ADD TRANSACTION //
 /////////////////////
-BookingTransactionManager.prototype.addTransaction = function (transaction, transactionDetails) {
+BookingTransactionManager.prototype.addTransaction = function (transaction, transactionAccountings) {
     var tmpTransaction = _.cloneDeep(transaction);
-    var tmpTransactionsDetails = _.cloneDeep(transactionDetails) || [];
+    var tmpTransactionsAccountings = _.cloneDeep(transactionAccountings) || [];
 
     this.rawTransactions.push(tmpTransaction);
-    this.rawTransactionsDetails = this.rawTransactionsDetails.concat(tmpTransactionsDetails);
+    this.rawTransactionsAccountings = this.rawTransactionsAccountings.concat(tmpTransactionsAccountings);
 
     this._addToHashCancelledBy(tmpTransaction);
 };

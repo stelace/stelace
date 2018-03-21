@@ -220,13 +220,13 @@ function isCompleteBookingPayment(transactionManager) {
         return false;
     }
 
-    var transferDetails = transactionManager.getTransactionDetails(transfer);
+    var transferAccountings = transactionManager.getTransactionAccountings(transfer);
 
-    if (! transferDetails.length) {
-        throw Error("The number of lines from transfer details must be greater than 0");
+    if (! transferAccountings.length) {
+        throw Error("The number of lines from transfer accountings must be greater than 0");
     }
 
-    var payment = _.find(transferDetails, { label: "main" });
+    var payment = _.find(transferAccountings, { label: "main" });
 
     // if there is a payment to owner, then there must be a complete payout
     if (payment && ! isPayoutComplete) {
@@ -244,9 +244,9 @@ function getInvoiceFields(booking, role, transactionManager) {
     var invoiceFields = {};
 
     var transfer        = transactionManager.getTransferPayment();
-    var transferDetails = transactionManager.getTransactionDetails(transfer);
-    var takerFees       = _.find(transferDetails, { label: "taker fees" });
-    var ownerFees       = _.find(transferDetails, { label: "owner fees" });
+    var transferAccountings = transactionManager.getTransactionAccountings(transfer);
+    var takerFees       = _.find(transferAccountings, { label: "taker fees" });
+    var ownerFees       = _.find(transferAccountings, { label: "owner fees" });
 
     if (role === "taker") {
         if (takerFees && takerFees.cashing) {

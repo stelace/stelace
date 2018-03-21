@@ -1,4 +1,4 @@
-/* global Transaction, TransactionDetail */
+/* global Transaction, TransactionAccounting */
 
 /**
 * Transaction.js
@@ -146,7 +146,7 @@ module.exports = {
 
     isPreauthorizationCancellable,
 
-    createTransactionDetails,
+    createTransactionAccountings,
     createTransaction,
 
 };
@@ -161,9 +161,9 @@ function isPreauthorizationCancellable(transaction) {
     return now < moment(transaction.preauthExpirationDate).subtract(5, 'm').toISOString();
 }
 
-function isValidTransactionsDetails(details) {
-    return _.reduce(details, (memo, detail) => {
-        if (! detail.label) {
+function isValidTransactionsAccountings(accountings) {
+    return _.reduce(accountings, (memo, accounting) => {
+        if (! accounting.label) {
             memo = memo && false;
         }
         return memo;
@@ -171,23 +171,23 @@ function isValidTransactionsDetails(details) {
 }
 
 /**
- * create transaction details
+ * create transaction accountings
  * @param  {number} transactionId
- * @param  {object} details
- * @param  {string} details.label
- * @param  {number} [details.credit = 0]
- * @param  {number} [details.debit = 0]
- * @param  {number} [details.payment = 0]
- * @param  {number} [details.cashing = 0]
+ * @param  {object} accountings
+ * @param  {string} accountings.label
+ * @param  {number} [accountings.credit = 0]
+ * @param  {number} [accountings.debit = 0]
+ * @param  {number} [accountings.payment = 0]
+ * @param  {number} [accountings.cashing = 0]
  * @return {Promise<Array[object]>}
  */
-async function createTransactionDetails(transactionId, details) {
-    if (! isValidTransactionsDetails(details)) {
-        throw new Error('Bad details');
+async function createTransactionAccountings(transactionId, accountings) {
+    if (! isValidTransactionsAccountings(accountings)) {
+        throw new Error('Bad accountings');
     }
 
-    const transactionDetails = await Promise.mapSeries(details, detail => {
-        const createAttrs = _.pick(detail, [
+    const transactionAccountings = await Promise.mapSeries(accountings, accounting => {
+        const createAttrs = _.pick(accounting, [
             'label',
             'credit',
             'debit',
@@ -196,10 +196,10 @@ async function createTransactionDetails(transactionId, details) {
         ]);
         createAttrs.transactionId = transactionId;
 
-        return TransactionDetail.create(createAttrs);
+        return TransactionAccounting.create(createAttrs);
     });
 
-    return transactionDetails;
+    return transactionAccountings;
 }
 
 /**
@@ -221,15 +221,15 @@ async function createTransactionDetails(transactionId, details) {
  * @param  {number} [args.cancelTransactionId]
  * @param  {string} args.action
  * @param  {string} args.label
- * @param  {object[]} [args.details = []]
- * @param  {string} args.details[].label
- * @param  {number} [args.details[].credit = 0]
- * @param  {number} [args.details[].debit = 0]
- * @param  {number} [args.details[].payment = 0]
- * @param  {number} [args.details[].cashing = 0]
+ * @param  {object[]} [args.accountings = []]
+ * @param  {string} args.accountings[].label
+ * @param  {number} [args.accountings[].credit = 0]
+ * @param  {number} [args.accountings[].debit = 0]
+ * @param  {number} [args.accountings[].payment = 0]
+ * @param  {number} [args.accountings[].cashing = 0]
  * @return {Promise<object>} res
  * @return {object}          res.transaction
- * @return {object[]}        res.transactionDetails
+ * @return {object[]}        res.transactionAccountings
  */
 async function createTransaction(args) {
     if (! args.fromUserId
@@ -237,23 +237,23 @@ async function createTransaction(args) {
      || ! args.resourceId
      || ! args.action
      || ! args.label
-     || (args.details && ! isValidTransactionsDetails(args.details))
+     || (args.accountings && ! isValidTransactionsAccountings(args.accountings))
     ) {
         throw new Error('Missing params');
     }
 
-    var financeInfo = _.reduce(args.details, (memo, detail) => {
-        if (typeof detail.credit === 'number') {
-            memo.credit += detail.credit;
+    var financeInfo = _.reduce(args.accountings, (memo, accounting) => {
+        if (typeof accounting.credit === 'number') {
+            memo.credit += accounting.credit;
         }
-        if (typeof detail.debit === 'number') {
-            memo.debit += detail.debit;
+        if (typeof accounting.debit === 'number') {
+            memo.debit += accounting.debit;
         }
-        if (typeof detail.payment === 'number') {
-            memo.payment += detail.payment;
+        if (typeof accounting.payment === 'number') {
+            memo.payment += accounting.payment;
         }
-        if (typeof detail.cashing === 'number') {
-            memo.cashing += detail.cashing;
+        if (typeof accounting.cashing === 'number') {
+            memo.cashing += accounting.cashing;
         }
         return memo;
     }, {
@@ -284,14 +284,14 @@ async function createTransaction(args) {
     createAttrs = _.assign(createAttrs, financeInfo);
 
     const transaction = await Transaction.create(createAttrs);
-    let transactionDetails;
+    let transactionAccountings;
 
-    if (args.details) {
-        transactionDetails = await createTransactionDetails(transaction.id, args.details);
+    if (args.accountings) {
+        transactionAccountings = await createTransactionAccountings(transaction.id, args.accountings);
     }
 
     return {
         transaction: transaction,
-        transactionDetails: transactionDetails || []
+        transactionAccountings: transactionAccountings || []
     };
 }
