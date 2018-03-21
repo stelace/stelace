@@ -3,7 +3,7 @@
     <div id="user-profile-container" class="fluid-content">
         <div id="user__introduction"
             ng-class="{ 'pull-bottom': vm.listingsOnly }">
-            <h1 data-translate="user.profile.greeting"
+            <h1 data-translate="pages.user_profile.greeting"
             data-translate-values="{ user: vm.user.displayName || undefined }">
             </h1>
             <div class="text--small text--semibold"
@@ -155,7 +155,7 @@
                     <div ng-if="vm.isCurrentUser">
                         <h2 class="pull-t text--small"
                             ng-hide="vm.showPublicLayout"
-                            data-translate="user.profile.public_info_title">
+                            data-translate="pages.user_profile.public_info_title">
                         </h2>
                         <div class="text--small pull-t"
                             ng-click="vm.showPublicLayout = ! vm.showPublicLayout"

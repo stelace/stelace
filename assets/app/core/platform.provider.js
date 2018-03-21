@@ -202,13 +202,13 @@
                 // TODO: Use website config
                 var defaultOgContents = {
                     "og:type": "website",
-                    "og:title": "landing.homepage.title",
+                    "og:title": "pages.homepage.page_title",
                     "og:url": "https://stelace.com",
                     "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
                     "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
                     "og:image:width": 1200, // header dimensions, to update for any other image
                     "og:image:height": 630, // See https://developers.facebook.com/docs/sharing/best-practices#images
-                    "og:description": "landing.homepage.meta_description"
+                    "og:description": "pages.homepage.meta_description"
                 };
 
                 _updateSocialMetaTags(newOgTags, existingOgTags, defaultOgContents);
@@ -228,8 +228,8 @@
                 var defaultOgContents = {
                     "twitter:card": "summary_large_image",
                     "twitter:site": "@stelaceAI",
-                    "twitter:title": "landing.homepage.title",
-                    "twitter:description": "landing.homepage.meta_description",
+                    "twitter:title": "pages.homepage.page_title",
+                    "twitter:description": "pages.homepage.meta_description",
                     "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
                 };
 

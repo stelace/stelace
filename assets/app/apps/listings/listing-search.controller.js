@@ -14,6 +14,7 @@
                                     $timeout,
                                     $state,
                                     $stateParams,
+                                    $translate,
                                     $window,
                                     authentication,
                                     // BrandService,
@@ -46,6 +47,8 @@
         var mqSMedium       = $window.matchMedia("(min-width: 768px)");
         var mqDesktop       = $window.matchMedia("(min-width: 1024px)");
         var mqXLarge        = $window.matchMedia("(min-width: 1440px)");
+
+        var stlConfig       = StelaceConfig.getConfig();
 
         var searchTimestamp;
         var urlParams;
@@ -1144,28 +1147,16 @@
         }
 
         function _setSEOTags() {
-            var query = vm.searchQuery.query;
+            var query = $rootScope.searchParams.query;
             var url = platform.getBaseUrl() + $state.current.urlWithoutParams;
-            var noParamsSearch = (! query && ! urlLocationName);
-            var title = "Location et partage d'objets";
+            var noParamsSearch = (! query && ! urlLocationName)
             var location = urlLocation || previousQueryLocation;
+            var title;
             var metaDesc;
 
-            if (noParamsSearch && ! location) {
-                metaDesc = "Recherche d'objets à louer, à vendre ou à partager entre particuliers.";
-            } else {
-                if (query) {
-                    title =  query + " - " + title;
-                    metaDesc = "Location / Vente" + query + " entre particuliers et matériel à partager";
-                    url += "/" + ListingService.encodeUrlQuery(query);
-                } else {
-                    metaDesc = "Recherche d'objets à louer ou à vendre entre particuliers";
-                }
-
-                metaDesc += ".";
+            if (query) {
+                url += "/" + ListingService.encodeUrlQuery(query);
             }
-
-            title += " sur Sharinplace";
 
             var paramsObj = {};
 
@@ -1189,8 +1180,6 @@
                 paginationLinks.prev = null;
             } else {
                 paginationLinks.prev = _getPaginationLink(absUrl, vm.currentPage - 1);
-                title += " - Page " + vm.currentPage;
-                metaDesc += " Page " + vm.currentPage;
             }
             // if it is the last page
             if (vm.nbTotalListings <= vm.currentPage * vm.nbListingsPerPage) {
@@ -1198,6 +1187,14 @@
             } else {
                 paginationLinks.next = _getPaginationLink(absUrl, vm.currentPage + 1);
             }
+
+            var translationValues = {
+                query: query || undefined,
+                page: vm.currentPage > 1 ? vm.currentPage : undefined,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            };
+            title = $translate.instant('pages.search.page_title', translationValues);
+            metaDesc =  $translate.instant('pages.search.meta_description', translationValues);
 
             platform.setPaginationLinks(paginationLinks);
             platform.setTitle(title);

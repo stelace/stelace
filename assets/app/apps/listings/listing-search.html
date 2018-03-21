@@ -84,7 +84,7 @@
                                 <div class="listing-grid__image-container">
                                     <div class="ar-content">
                                         <img class="img--cover" src="/assets/img/app/default/search-listing-image-cta.png"
-                                            data-translate-attr="{ alt: 'search.cta_add_listing_message' }"
+                                            data-translate-attr="{ alt: 'pages.search.cta_add_listing_message' }"
                                             data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }"
                                         >
                                     </div>
@@ -132,7 +132,7 @@
                         itemtype="http://data-vocabulary.org/Breadcrumb">
                         <a id="search-root-breadcrumb" class="link--blue-underline"
                             ui-sref="search({reset: 'all'})"
-                            data-translate-attr="{ title: 'search.reset_search_results' }"
+                            data-translate-attr="{ title: 'pages.search.reset_search_results' }"
                             itemprop="url">
                             <span itemprop="title">{{config.SERVICE_NAME}}</span>
                         </a>
@@ -144,7 +144,7 @@
                         ›&nbsp;
                         <a id="search-city-breadcrumb" class="link--blue-underline"
                             ng-href="{{vm.breadcrumbCityLink}}"
-                            data-translate-attr="{ title: 'search.results_near_location' }"
+                            data-translate-attr="{ title: 'pages.search.results_near_location' }"
                             data-translate-values="{ locationName: vm.firstLocation.city }"
                             itemprop="url">
                             <span
