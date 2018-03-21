@@ -190,7 +190,7 @@
                             </div>
                         </div>
                     </div>
-                    <p ng-hide="vm.maxLocationsReached" data-translate="user.account.max_number_locations_reached">
+                    <p ng-show="vm.maxLocationsReached" data-translate="user.account.max_number_locations_reached">
                     </p>
                     <div class="small-10 small-offset-1 text-left padding-bottom"
                         ng-repeat="location in vm.myLocations">
