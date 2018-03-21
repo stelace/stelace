@@ -97,7 +97,7 @@ new Vue({
                 lang: this.selectedLang,
                 serviceName: this.serviceName,
                 email: this.email,
-                password: this.password
+                password: CryptoJS.SHA256(this.password).toString()
             };
 
             return this.postInstall(params)
