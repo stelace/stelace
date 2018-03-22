@@ -181,7 +181,10 @@ async function _fetchStelaceConfig() {
         throw new Error('No Stelace config available');
     }
 
-    const stelaceConfig = stelaceConfigs[0];
+    const stelaceConfig = _.defaultsDeep(stelaceConfigs[0], {
+        config: { website__url: sails.config.stelace.url }
+    });
+
     _updateCache(stelaceConfig);
     cached = true;
 }
