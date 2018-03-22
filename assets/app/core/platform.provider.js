@@ -100,10 +100,10 @@
                 var devEnv = _.includes(["dev", "preprod"], getEnvironment());
                 var listingShareUrl;
 
-                if (devEnv || ! listingSlug) {
+                if (devEnv) {
                     listingShareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
                 } else {
-                    listingShareUrl = getBaseUrl() + "/l/" + listingSlug;
+                    listingShareUrl = getBaseUrl() + (listingSlug ? "/l/" + listingSlug : "");
                 }
 
                 if (! _.isEmpty(utmTags) && ! devEnv) {
@@ -130,10 +130,10 @@
                 var devEnv = _.includes(["dev", "preprod"], getEnvironment());
                 var shareUrl;
 
-                if (devEnv || ! urlPath) {
+                if (devEnv) {
                     shareUrl = "https://stelace.com"; // fixed Url that can be crawled by Facebook
                 } else {
-                    shareUrl = getBaseUrl() + urlPath;
+                    shareUrl = getBaseUrl() + (urlPath || "");
                 }
 
                 if (! _.isEmpty(utmTags) && ! devEnv) {
@@ -187,7 +187,9 @@
             }
 
             function setOpenGraph(newOgTags) {
-                var head           = document.getElementsByTagName("head")[0];
+                var $rootScope = $injector.get("$rootScope");
+                var head       = document.getElementsByTagName("head")[0];
+
                 var existingOgTags = {
                     "og:type": head.querySelector("meta[property='og:type']"),
                     "og:title": head.querySelector("meta[property='og:title']"),
@@ -199,13 +201,14 @@
                     "og:description": head.querySelector("meta[property='og:description']")
                 };
 
-                // TODO: Use website config
                 var defaultOgContents = {
                     "og:type": "website",
                     "og:title": "pages.homepage.page_title",
-                    "og:url": "https://stelace.com",
-                    "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
-                    "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
+                    "og:url": $rootScope.config.website__url,
+                    "og:image": $rootScope.config.hero_background__home__url
+                        || "https://stelace.com/img/brand/stelace-social-header.png",
+                    "og:image:secure_url": $rootScope.config.hero_background__home__url
+                        || "https://stelace.com/img/brand/stelace-social-header.png",
                     "og:image:width": 1200, // header dimensions, to update for any other image
                     "og:image:height": 630, // See https://developers.facebook.com/docs/sharing/best-practices#images
                     "og:description": "pages.homepage.meta_description"
@@ -215,6 +218,7 @@
             }
 
             function setTwitterCard(newOgTags) {
+                var $rootScope = $injector.get("$rootScope");
                 var head           = document.getElementsByTagName("head")[0];
                 var existingOgTags = {
                     "twitter:card": head.querySelector("meta[name='twitter:card']"),
@@ -224,13 +228,13 @@
                     "twitter:image": head.querySelector("meta[name='twitter:image']")
                 };
 
-                // TODO: Use website config
                 var defaultOgContents = {
                     "twitter:card": "summary_large_image",
-                    "twitter:site": "@stelaceAI",
+                    "twitter:site": "@stelaceAI", // TODO: Use website config
                     "twitter:title": "pages.homepage.page_title",
                     "twitter:description": "pages.homepage.meta_description",
-                    "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
+                    "twitter:image": $rootScope.config.hero_background__home__url
+                        || "https://stelace.com/img/brand/stelace-social-header.png"
                 };
 
                 _updateSocialMetaTags(newOgTags, existingOgTags, defaultOgContents);

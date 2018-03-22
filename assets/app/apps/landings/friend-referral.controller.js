@@ -151,8 +151,8 @@
                 "og:url": canonicalUrl,
                 "og:title": title,
                 "og:description": description,
-                // "og:image": "https://stelace.com/img/brand/stelace-social-header.png",
-                // "og:image:secure_url": "https://stelace.com/img/brand/stelace-social-header.png",
+                // "og:image": stlConfig.hero_background__home__url,
+                // "og:image:secure_url": stlConfig.hero_background__home__url,
                 // "og:image:width": 1200,
                 // "og:image:height": 630,
                 "og:type": "website"
@@ -160,7 +160,7 @@
             platform.setTwitterCard({
                 "twitter:title": title,
                 "twitter:description": description
-                // "twitter:image": "https://stelace.com/img/brand/stelace-social-header.png"
+                // "twitter:image": stlConfig.hero_background__home__url
             });
             platform.setCanonicalLink(canonicalUrl);
         }

@@ -134,6 +134,10 @@ async function index(req, res) {
         googleTracking: config.google_analytics__active,
         googleAnalyticsId: config.google_analytics__tracking_id,
         googleMapApiKey: config.google_maps__api_key,
+        logoUrl: config.logo__url,
+        headerImgUrl: config.hero_background__home__url || "https://stelace.com/img/brand/stelace-social-header.png",
+        serviceName: config.SERVICE_NAME,
+        websiteUrl: config.website__url,
         sessionId: stelaceSession ? stelaceSession.id : 0,
         sessionToken: stelaceSession ? stelaceSession.token : '',
         eventId: stelaceEvent ? stelaceEvent.id : 0,
@@ -536,11 +540,14 @@ async function index(req, res) {
     }
 }
 
-function oldBrowsers(req, res) {
+async function oldBrowsers(req, res) {
+    const config = await StelaceConfigService.getConfig();
+
     return res
         .set({ "Cache-Control": "public, max-age=2592000" })
         .view("old_browsers", {
             title: "Please upgrade your browser",
+            serviceName: config.SERVICE_NAME,
             layout: "layouts/nothing"
         });
 }
