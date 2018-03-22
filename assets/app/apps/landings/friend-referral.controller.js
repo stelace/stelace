@@ -9,6 +9,7 @@
     function FriendReferralController($q,
                                         $state,
                                         $stateParams,
+                                        $translate,
                                         authenticationModal,
                                         cache,
                                         ListingService,
@@ -17,6 +18,7 @@
                                         MediaService,
                                         platform,
                                         referral,
+                                        StelaceConfig,
                                         StelaceEvent,
                                         storage,
                                         toastr,
@@ -25,6 +27,7 @@
                                         UserService) {
 
         var source = $stateParams.s || null;
+        var stlConfig = StelaceConfig.getConfig();
         var listings;
         var referrer;
         var referrerId;
@@ -133,14 +136,16 @@
         }
 
         function _setSEOTags() {
-            var description = "Empruntez nos objets en libre-service "
-                + (vm.referrer.displayName ? "grâce au parrainage de " + vm.referrer.displayName + " " : "");
-            var title       = (vm.referrer.displayName ? vm.referrer.displayName + " vous offre jusqu'à 30€ d'économies"
-                : "Faites jusqu'à 30€ d'économies grâce à ce parrainage");
+            var title = $translate.instant("pages.friend_referral.page_title", {
+                user: vm.referrer.displayName || undefined,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            });
+            var description = $translate.instant("pages.friend_referral.meta_description", {
+                user: vm.referrer.displayName || undefined,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            });
 
-            description += "en vous inscrivant dès maintenant sur Sharinplace.";
-
-            platform.setTitle(title + " - Sharinplace");
+            platform.setTitle(title);
             platform.setMetaTags({ description: description });
             platform.setOpenGraph({
                 "og:url": canonicalUrl,

@@ -1976,7 +1976,18 @@ pages:
         cta_add_listing_message:
             en: 'Post a listing on {SERVICE_NAME}'
             fr: 'Déposez une annonce sur {SERVICE_NAME}'
+    booking_payment:
+        page_title:
+            en: 'Checkout - {SERVICE_NAME}'
+            fr: 'Paiement - {SERVICE_NAME}'
+    booking_confirmation:
+        page_title:
+            en: 'Checkout - {SERVICE_NAME}'
+            fr: 'Paiement - {SERVICE_NAME}'
     help:
+        page_title:
+            en: 'Help - {SERVICE_NAME}'
+            fr: 'Questions fréquentes - {SERVICE_NAME}'
         header:
             en: Help center
             fr: Centre d’aide
@@ -1988,6 +1999,9 @@ pages:
             en: Help page text
             fr: Contenu de la page d’aide
     terms:
+        page_title:
+            en: 'Terms - {SERVICE_NAME}'
+            fr: 'Conditions d’utilisation et mentions légales - {SERVICE_NAME}'
         header:
             en: Terms of use
             fr: Conditions générales de service et d’utilisation
@@ -2002,6 +2016,9 @@ pages:
             en: Terms page text
             fr: Contenu des conditions et mentions légales
     contact:
+        page_title:
+            en: 'Contact {SERVICE_NAME}'
+            fr: 'Contactez-nous - {SERVICE_NAME}'
         header:
             en: Contact us
             fr: Contactez-nous
@@ -2071,6 +2088,20 @@ pages:
             en: Public profile
             fr: Mes informations publiques
             context: Helps user to make distinction between public profile information and private account information.
+    invite:
+        page_title:
+            en: 'Your friends on {SERVICE_NAME}'
+            fr: 'Vos amis sur {SERVICE_NAME}'
+        meta_description:
+            en: 'Invite your friends to join {SERVICE_NAME}.'
+            fr: 'Invitez vos amis à rejoindre {SERVICE_NAME.'
+    friend_referral:
+        page_title:
+            en: '{user, select, undefined {Invitation} other {{user}’s invitation}} - {SERVICE_NAME}'
+            fr: '{user, select, undefined {Invitation} other {Invitation de {user}}} - {SERVICE_NAME}'
+        meta_description:
+            en: '{user, select, undefined {You are invited} other {{user} invites you}} to join {SERVICE_NAME}.'
+            fr: '{user, select, undefined {Vous avez reçu une invitation à rejoindre } other {{user} vous invite sur}} {SERVICE_NAME}.'
     not_found:
         page_title:
             en: 'Page not found - {SERVICE_NAME}'

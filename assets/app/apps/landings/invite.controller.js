@@ -13,6 +13,7 @@
                                 $state,
                                 $stateParams,
                                 $timeout,
+                                $translate,
                                 authenticationModal,
                                 cache,
                                 ezfb,
@@ -28,6 +29,7 @@
                                 UserService) {
 
         var listeners = [];
+        var stlConfig = StelaceConfig.getConfig();
         var currentUser;
         var canonicalUrl;
         var currentEmailInput;
@@ -98,18 +100,6 @@
             return _populateView()
                 .then(_populateFriends)
                 .then(function () {
-                    if (currentUser && vm.inviteUrl) {
-                        var description = "Profitez d'objets en libre-service "
-                            + (vm.currentUser.displayName ? "grâce au parrainage de " + vm.currentUser.displayName + " " : "");
-
-                        description    = encodeURIComponent(description + "en vous inscrivant dès maintenant sur Sharinplace.");
-
-                         vm.twInviteUrl = "https://twitter.com/intent/tweet?"
-                         + "url=" + UserService.getRefererUrl(vm.currentUser, "twitter")
-                         + "&text=" + description;
-                         // + "&hashtags=cadeau,partage"; // no char left
-                    }
-
                     StelaceEvent.sendEvent("Invite view");
 
                     _setSEOTags();
@@ -158,10 +148,24 @@
         }
 
         function _setSEOTags() {
-            var description = "En parrainant vos amis, empruntez nos objets Sharinplace en libre-service et gagnez d'autres récompenses.";
-            var title       = "Obtenez des récompenses en parrainant vos amis";
+            var title = $translate.instant("pages.invite.page_title", {
+                user: vm.currentUser.displayName || undefined,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            });
+            var description = $translate.instant("pages.invite.meta_description", {
+                user: vm.currentUser.displayName || undefined,
+                SERVICE_NAME: stlConfig.SERVICE_NAME
+            });
 
-            platform.setTitle(title + " sur Sharinplace");
+            if (currentUser && vm.inviteUrl) {
+                var tweetDescription = encodeURIComponent(description);
+
+                vm.twInviteUrl = "https://twitter.com/intent/tweet?"
+                 + "url=" + UserService.getRefererUrl(vm.currentUser, "twitter")
+                 + "&text=" + tweetDescription;
+            }
+
+            platform.setTitle(title);
             platform.setMetaTags({ description: description });
             platform.setOpenGraph({
                 "og:url": canonicalUrl,

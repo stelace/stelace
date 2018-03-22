@@ -28,7 +28,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                title: "Conditions Générales de Services et d'Utilisation - Sharinplace"
+                title: "pages.terms.page_title"
             })
             .state("404", {
                 url: "/404",
@@ -40,7 +40,7 @@
                 metaTags: {
                     robots: "noindex"
                 },
-                title: "Page introuvable :( - Sharinplace"
+                title: "pages.not_found.page_title"
             })
             .state("contact", {
                 url: "/contact",
@@ -49,7 +49,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                title: "Contactez l'équipe Sharinplace"
+                title: "pages.contact.page_title"
             })
             .state("help", {
                 url: "/help",
@@ -58,7 +58,7 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                title: "Questions fréquentes - Sharinplace"
+                title: "pages.help.page_title"
             })
             .state("friendReferral", {
                 url: "/friend/:slug?s",
@@ -68,10 +68,11 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
+                title: "pages.friend_referral.page_title",
                 metaTags: {
-                    robots: "noindex"
-                },
-                title: "Votre parrain vous offre des cadeaux Sharinplace"
+                    robots: "noindex",
+                    description: "pages.friend_referral.meta_description"
+                }
             })
             .state("invite", {
                 url: "/invite",
@@ -81,7 +82,10 @@
                 controllerAs: "vm",
                 appClassName: appClassName,
                 noAuthNeeded: true,
-                title: "Obtenez des récompenses en parrainant vos amis sur Sharinplace"
+                title: "pages.invite.page_title",
+                metaTags: {
+                    description: "pages.invite.meta_description"
+                }
             });
     }
 

@@ -14,14 +14,16 @@
                 templateUrl: appsPath + "/bookings/booking-payment.html",
                 controller: "BookingPaymentController",
                 controllerAs: "vm",
-                appClassName: appClassName
+                appClassName: appClassName,
+                title: "pages.booking_payment.page_title"
             })
             .state("bookingConfirmation", {
                 url: "/booking-confirmation/:id",
                 templateUrl: appsPath + "/bookings/booking-confirmation.html",
                 controller: "BookingConfirmationController",
                 controllerAs: "vm",
-                appClassName: appClassName
+                appClassName: appClassName,
+                title: "pages.booking_confirmation.page_title"
             });
     }
 
