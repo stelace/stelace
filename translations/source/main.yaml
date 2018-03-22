@@ -2071,3 +2071,25 @@ pages:
             en: Public profile
             fr: Mes informations publiques
             context: Helps user to make distinction between public profile information and private account information.
+    not_found:
+        page_title:
+            en: 'Page not found - {SERVICE_NAME}'
+            fr: 'Page introuvable - {SERVICE_NAME}'
+        header:
+            en: 'Lost in {SERVICE_NAME}'
+            fr: 'Lost in {SERVICE_NAME}'
+        subheader:
+            en: Page requested may be lost.
+            fr: La page que vous cherchez est introuvable.
+        guidance:
+            en: No worry, we keep you on track.
+            fr: Pas de panique, on vous aide à poursuivre votre route.
+        guidance_tooltip:
+            en: You might be more luck this time…
+            fr: Cette fois, vous aurez peut-être un peu plus de chance…
+        surprise_listing_button:
+            en: Pick a surprise listing
+            fr: Annonce surprise
+        404_error_label:
+            en: 404 error
+            fr: Erreur 404

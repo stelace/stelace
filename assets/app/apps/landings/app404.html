@@ -3,33 +3,34 @@
     <div class="fluid-content">
         <div class="grid-block small-vertical medium-horizontal small-12">
             <div class="medium-8">
-                <h1 class="semibold">
-                    Lost in Sharinplace
+                <h1 class="semibold"
+                    data-translate="pages.not_found.header"
+                    data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
                 </h1>
-                <h2 class="semibold">
-                    Oups, la page que vous cherchez est introuvable.
+                <h2 class="semibold" data-translate="pages.not_found.subheader">
                 </h2>
-                <h2>
-                    Pas de panique, on vous aide à poursuivre votre route&nbsp;:
+                <h2 data-translate="pages.not_found.guidance">
                 </h2>
                 <ul class="no-bullet no-margin-bottom">
                     <li>
-                        <a class="link--blue-underline" ui-sref="home">Accueil</a>
+                        <a class="link--blue-underline" ui-sref="home" data-translate="navigation.home"></a>
                     </li>
                     <li>
-                        <a class="link--blue-underline" ui-sref="search">Recherche d'objets à vendre ou louer</a>
+                        <a class="link--blue-underline" ui-sref="search" data-translate="navigation.search"></a>
                     </li>
                     <li ng-if="vm.randomListing">
-                        <a class="link--blue-underline" ui-sref="listing({ slug: vm.randomListing.nameURLSafe + '-' + vm.randomListing.id })" title="Cette fois, vous aurez peut-être un peu plus de chance…">Annonce suprise</a>
+                        <a class="link--blue-underline"
+                            ui-sref="listing({ slug: vm.randomListing.nameURLSafe + '-' + vm.randomListing.id })"
+                            data-translate-attr="{ title: 'pages.not_found.guidance_tooltip' }"
+                            data-translate="pages.not_found.surprise_listing_button"></a>
                     </li>
                 </ul>
             </div>
             <div class="medium-4">
-                <img class="lost" src="assets/img/app/Lost404.gif" alt="Lost - 404 error">
+                <img class="lost" src="assets/img/app/default/Lost404.gif" data-translate-attr="{ alt: 'pages.not_found.404_error_label' }">
             </div>
         </div>
-        <h3 class="error">
-            Erreur 404
+        <h3 class="error" data-translate="pages.not_found.404_error_label">
         </h3>
     </div>
     <div ng-include="'/assets/app/layout/footer.html'"></div>
