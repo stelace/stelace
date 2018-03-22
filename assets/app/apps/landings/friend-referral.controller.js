@@ -82,7 +82,7 @@
                 referrerListings = results.referrerListings.plain ? results.referrerListings.plain() : results.referrerListings;
                 vm.listingTypes = results.listingTypes;
 
-                storage.setListing("referralInfo", {
+                storage.setItem("referralInfo", {
                     referrerId: referrerId,
                     date: new Date().toISOString(),
                     source: source
