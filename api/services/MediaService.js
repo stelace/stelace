@@ -333,10 +333,14 @@ async function _getImageWithLogo({ media, filepath, size, displayType }) {
     }
 
     const config = await StelaceConfigService.getConfig();
-    if (!config.logo__media_id) return;
+    if (!config.logo__media_id) {
+        return filepath;
+    }
 
     const logoMedia = await Media.findOne({ id: config.logo__media_id });
-    if (!logoMedia) return;
+    if (!logoMedia) {
+        return filepath;
+    }
 
     const logoPath = path.join(sails.config.uploadDir, Media.getStorageFilename(logoMedia));
     const logoSize = {
