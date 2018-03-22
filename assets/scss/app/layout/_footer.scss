@@ -54,22 +54,7 @@
         height: 2.5rem;
         margin: 0 1rem;
         fill: #FFF;
-    }
-
-    .icon {
         transition: fill .2s ease-out;
-
-        &.soc-fb:hover {
-            fill: $facebook-color;
-        }
-
-        &.soc-tw:hover {
-            fill: $twitter-color;
-        }
-
-        &.soc-gpl:hover {
-            fill: $google-plus-color;
-        }
     }
 }
 

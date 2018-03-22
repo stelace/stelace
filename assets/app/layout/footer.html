@@ -43,31 +43,38 @@
         <div id="footer-external-links" class="text-center stelace-footer__soc margin-top"
             itemscope
             itemtype="http://schema.org/Organization">
-            <p class="text-center text--semibold margin-bottom">
+            <p class="text-center text--semibold margin-bottom"
+                ng-show="config.twitter_url || config.facebook_url || config.googleplus_url || config.instagram_url ">
                 <span data-translate="social.join_us"></span>
             </p>
             <div class="flex-container flex--center flex--wrap">
                 <a class="footer__link" ng-href="{{config.twitter_url}}" target="_blank"
                     itemprop="sameAs" ng-if="config.twitter_url">
-                    <svg class="icon soc-tw">
+                    <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#cui-circle"/>
                     </svg>
                 </a>
                 <a class="footer__link" ng-href="{{config.facebook_url}}" target="_blank"
                     itemprop="sameAs" ng-if="config.facebook_url">
-                    <svg class="icon soc-fb">
+                    <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#face-circled"/>
                     </svg>
                 </a>
                 <a class="footer__link" ng-href="{{config.googleplus_url}}" rel="publisher" target="_blank"
                     itemprop="sameAs" ng-if="config.googleplus_url">
-                    <svg class="icon soc-gpl">
+                    <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#g-pl-circled"/>
                     </svg>
                 </a>
+                <a class="footer__link" ng-href="{{config.instagram_url}}" target="_blank"
+                    itemprop="sameAs" ng-if="config.instagram_url">
+                    <svg class="icon">
+                        <use xlink:href="/assets/build/icons/sprite.svg#instgm-circled"/>
+                    </svg>
+                </a>
             </div>
-            <link itemprop="url" href="https://stelace.com">
-            <link itemprop="logo" href="/assets/img/logo/stelace-logo.png">
+            <link itemprop="url" href="{{config.website__url}}">
+            <link itemprop="logo" href="{{config.logo__url}}">
         </div>
     </div>
     <p class="stelace-footer__attribution text-center">
