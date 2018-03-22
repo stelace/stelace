@@ -260,19 +260,18 @@
                 }); // return most used and most searched tags first
 
                 vm.listingTypes = results.listingTypes;
+                vm.showListingTypes = vm.listingTypes.length > 1;
 
                 if (vm.listingTypes.length === 1) {
-                    selectListingType(vm.listingTypes[0]);
+                    vm.uniqueListingType = vm.listingTypes[0];
                 }
-
-                vm.showListingTypes = vm.listingTypes.length > 1;
 
                 if (!listingId && vm.listingTypeId) {
                     var listingType = _.find(vm.listingTypes, function (listingType) {
                         return listingType.id === vm.listingTypeId;
                     });
                     if (listingType) {
-                        selectListingType(listingType);
+                        vm.urlListingType = listingType;
                     }
                 }
 
@@ -401,7 +400,7 @@
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
-                vm.listingType              = null;
+                vm.listingType              = vm.uniqueListingType || vm.urlListingType || null;
                 vm.mediasMaxNbReached       = false;
                 vm.listing.listingTypesIds  = [];
                 vm.listing.quantity         = 1;
@@ -414,7 +413,9 @@
                     vm.listingValidationFields[field] = false;
                 });
 
-                _loadListingType();
+                if (vm.listingType) {
+                    selectListingType(vm.listingType);
+                }
 
                 if (currentUser) {
                     vm.listing.listLocations = _.map(myLocations, function (location) {
@@ -435,7 +436,7 @@
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
-                vm.listingType              = null;
+                vm.listingType              = vm.uniqueListingType || vm.urlListingType || null;
                 vm.listing.listingTypesIds  = vm.listing.listingTypesIds || [];
                 vm.listing.recurringDatesPattern = vm.listing.recurringDatesPattern || '* * * * *';
                 vm.listing.quantity         = vm.listing.quantity || 1;
@@ -448,7 +449,9 @@
                     vm.listingValidationFields[field] = false;
                 });
 
-                _loadListingType();
+                if (vm.listingType) {
+                    selectListingType(vm.listingType);
+                }
 
                 if (currentUser
                     && (! vm.listing.listLocations || ! vm.listing.listLocations.length)
