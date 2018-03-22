@@ -1149,8 +1149,7 @@
         function _setSEOTags() {
             var query = $rootScope.searchParams.query;
             var url = platform.getBaseUrl() + $state.current.urlWithoutParams;
-            var noParamsSearch = (! query && ! urlLocationName)
-            var location = urlLocation || previousQueryLocation;
+            // var location = urlLocation || previousQueryLocation;
             var title;
             var metaDesc;
 
