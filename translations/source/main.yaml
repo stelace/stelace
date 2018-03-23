@@ -12,8 +12,8 @@ stelace:
         fr: Lanceur de marketplaces intelligentes
 service:
     page_title:
-        en: {SERVICE_NAME}
-        fr: {SERVICE_NAME}
+        en: '{SERVICE_NAME}'
+        fr: '{SERVICE_NAME}'
     meta_description:
         en: '{SERVICE_NAME} runs on {provider_name}.'
         fr: '{SERVICE_NAME} s’appuie sur {provider_name}'
@@ -766,14 +766,14 @@ user:
         inbox_notice_details:
             en: |
                 You {new_messages, plural,
-                    0 {have no new message}
+                    =0 {have no new message}
                     one {have a new message}
                     other {have {new_messages} new messages}
                 }
                 in your inbox.
             fr: |
                 Vous {new_messages, plural,
-                    0 {n’avez pas de nouveau message}
+                    =0 {n’avez pas de nouveau message}
                     one {avez un nouveau message}
                     other {avez {new_messages} nouveaux messages}
                 }
@@ -1399,30 +1399,24 @@ booking:
         taker_fees:
             en: |
                 Service fees: {price, select,
-                    =0{Free}
+                    0 {Free}
                     other{{price, number, currency}}
                 }
             fr: |
                 Frais de service : {price, select,
-                    =0{Offerts}
+                    0 {Offerts}
                     other{{price, number, currency}}
                 }
         owner_fees:
             en: |
-                Payment fees{price, select,
-                    =0{}
-                    other{ included}
-                }: {price, select,
-                    =0{Free}
-                    other{{price, number, currency}}
+                {price, select,
+                    0 {Payment fees: Free}
+                    other {Payment fees included: {price, number, currency}}
                 }
             fr: |
                 {price, select,
-                    =0{Frais}
-                    other{Dont frais}
-                } de paiement : {price, select,
-                    =0{Offerts}
-                    other{{price, number, currency}}
+                    0 {Frais de paiement : Offerts}
+                    other{Dont frais de paiement : {price, number, currency}}
                 }
         security_deposit:
             en: 'Security deposit: {price, number, currency}'
