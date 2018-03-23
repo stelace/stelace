@@ -829,6 +829,7 @@
 
         function showStep3AndUpdatePrice() {
             if (! vm.listing
+                || !vm.listingType
                 || (typeof vm.listing.sellingPrice === "undefined" && !vm.listingTypeProperties.isTimeFlexible)
                 || (typeof vm.listing.timeUnitPrice === "undefined" && vm.listingTypeProperties.isTimeFlexible)
             ) {
@@ -878,6 +879,10 @@
         }
 
         function setDefaultPrices() {
+            if (!vm.listingTypeProperties) {
+                return;
+            }
+
             var sellingPrice = getSellingPrice();
             var timeUnitPrice = getTimeUnitPrice();
 
