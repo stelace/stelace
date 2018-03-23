@@ -160,7 +160,12 @@ async function install(params) {
     }
 
     await createStelaceConfig({ config: { SERVICE_NAME: serviceName, lang } });
-    await UserService.createUser({ email, password, roles: ['admin', 'user', 'seller'] }, { passwordRequired: true });
+    await UserService.createUser({
+        email,
+        password,
+        roles: ['admin', 'user', 'seller'],
+        userType: 'organization',
+    }, { passwordRequired: true });
 }
 
 function refreshStelaceConfig() {

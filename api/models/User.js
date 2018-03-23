@@ -250,6 +250,7 @@ function getAccessFields(access) {
     var accessFields = {
         api: [
             "id",
+            "organizationName",
             "username",
             "firstname",
             "lastname",
@@ -278,9 +279,11 @@ function getAccessFields(access) {
             "createdDate",
             "lastConnectionDate",
             "userType",
+            "canChangeUserType",
         ],
         self: [
             "id",
+            "organizationName",
             "username",
             "firstname",
             "lastname",
@@ -308,9 +311,11 @@ function getAccessFields(access) {
             "lastViewedLevelId",
             "createdDate",
             "userType",
+            "canChangeUserType",
         ],
         others: [
             "id",
+            "organizationName",
             "username",
             "firstname",
             "lastname",
@@ -333,11 +338,14 @@ function exposeTransform(element, field, access) {
     let exposeFullName;
 
     switch (field) {
-
         case "lastname":
             exposeFullName = _.includes(['self', 'api'], access);
             var shortLastname = element.lastname && element.lastname.charAt(0) + ".";
             element.lastname = exposeFullName ? element.lastname : shortLastname;
+            break;
+
+        case 'canChangeUserType':
+            element.canChangeUserType = User.canChangeUserType(element);
             break;
     }
 }

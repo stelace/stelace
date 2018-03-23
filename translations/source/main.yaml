@@ -693,6 +693,18 @@ user:
     lastname_label:
         en: Last name
         fr: Nom
+    user_type_label:
+        en: Status
+        fr: Statut
+    user_type_individual:
+        en: Individual
+        fr: Particulier
+    user_type_organization:
+        en: Organization
+        fr: Professionnel
+    organization_label:
+        en: Organization name
+        fr: Nom de l'organisation
     email_label:
         en: Email Address
         fr: Adresse email

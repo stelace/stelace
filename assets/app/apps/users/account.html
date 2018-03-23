@@ -126,6 +126,45 @@
                         </div>
                     </div>
                 </div>
+                <div class="account__user-type text-left" ng-if="!config.is_internal_service">
+                    <label for="user-description"
+                        data-translate="user.user_type_label">
+                    </label>
+                    <div class="flex-container flex-form-line margin-bottom-plus">
+                        <div class="flex-container flex--align-center">
+                            <input type="radio"
+                                id="user-type-individual"
+                                name="user-type"
+                                ng-model="vm.editingCurrentUser.userType"
+                                value="individual"
+                                ng-disabled="!vm.editingCurrentUser.canChangeUserType"
+                                ng-change="vm.updateUser()">
+                            <label for="user-type-individual" data-translate="user.user_type_individual">
+                            </label>
+                        </div>
+                        <div class="flex-container flex--align-center">
+                            <input type="radio"
+                                id="user-type-organization"
+                                name="user-type"
+                                ng-model="vm.editingCurrentUser.userType"
+                                value="organization"
+                                ng-disabled="!vm.editingCurrentUser.canChangeUserType"
+                                ng-change="vm.updateUser()">
+                            <label for="user-type-organization" data-translate="user.user_type_organization">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="text-left"
+                    data-uib-collapse="vm.editingCurrentUser.userType !== 'organization'">
+                    <label for="user-organization-name"
+                        data-translate="user.organization_label">
+                    </label>
+                    <input id="user-organization-name" type="text"
+                        ng-model="vm.editingCurrentUser.organizationName"
+                        ng-blur="vm.updateUser()"
+                        data-translate-attr="{ placeholder: 'user.organization_label' }">
+                </div> -->
                 <div class="text-left"
                     ng-if="vm.currentUser.phone || vm.currentUser.emailCheck">
                     <label for="user-description"

@@ -161,6 +161,12 @@
         }
     }
 
+    .account__user-type {
+        input[type="radio"] {
+            margin-top: 0;
+        }
+    }
+
     .account__income-reports {
         #income-report-select {
             display: inline-block;

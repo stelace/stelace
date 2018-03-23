@@ -6,10 +6,20 @@
             <h1 data-translate="pages.user_profile.greeting"
             data-translate-values="{ user: vm.user.displayName || undefined }">
             </h1>
-            <div class="text--small text--semibold"
-                ng-if="::vm.user.createdDate"
-                data-translate="user.joined_in_month"
-                data-translate-values="{ subscription_date: vm.user.createdDate }">
+            <div class="text--small text--semibold">
+                <span ng-if="::vm.user.createdDate"
+                    data-translate="user.joined_in_month"
+                    data-translate-values="{ subscription_date: vm.user.createdDate }">
+                </span>
+                <span ng-if="!config.is_internal_service && vm.user.userType">
+                    &nbsp;&bull;&nbsp;
+                    <span ng-if="!config.is_internal_service" ng-switch="::vm.user.userType">
+                        <span ng-switch-when="individual" data-translate="user.user_type_individual">
+                        </span>
+                        <span ng-switch-when="organization" data-translate="user.user_type_organization">
+                        </span>
+                    </span>
+                </span>
             </div>
         </div>
         <div class="flex-container small-vertical desktop-horizontal">

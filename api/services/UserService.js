@@ -1,4 +1,4 @@
-/* global AuthService, GeneratorService, MicroService, StelaceEventService, User */
+/* global AuthService, GeneratorService, MicroService, StelaceConfigService, StelaceEventService, User */
 
 module.exports = {
 
@@ -98,6 +98,9 @@ async function createUser(attrs, options = {}) {
 
     const emailToken = await GeneratorService.getRandomString(30);
 
+    const config = await StelaceConfigService.getConfig();
+    const defaultUserType = config.user_type__default || 'individual';
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         throw createError(400, 'email exists');
@@ -109,7 +112,7 @@ async function createUser(attrs, options = {}) {
             email,
             emailToken,
             organizationName,
-            userType,
+            userType: userType || defaultUserType,
             username: username || emailUsername,
             firstname,
             lastname,

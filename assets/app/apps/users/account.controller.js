@@ -193,7 +193,9 @@
             var checkAttrs = [
                 "firstname",
                 "lastname",
-                "description"
+                "description",
+                "userType",
+                "organizationName"
             ];
             var updateFirstname;
             if (_.isEqual(_.pick(vm.editingCurrentUser, checkAttrs), _.pick(vm.currentUser, checkAttrs))) {

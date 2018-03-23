@@ -3,6 +3,7 @@ const nonEditableFields = [
     'mangopay_complete',
     'social_login__facebook_complete',
     'social_login__google_complete',
+    'is_internal_service',
 ];
 
 const schema = {
@@ -94,6 +95,13 @@ const schema = {
         },
         googleplus_url: {
             type: ['string', 'null'],
+        },
+        is_internal_service: {
+            type: ['boolean', 'null'],
+        },
+        user_type__default: {
+            type: ['string', 'null'],
+            enum: ['individual', 'organization', null],
         },
     },
 };

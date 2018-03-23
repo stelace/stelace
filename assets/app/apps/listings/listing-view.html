@@ -604,6 +604,12 @@
                                             data-translate="user.joined_in_month"
                                             data-translate-values="{ subscription_date: vm.listing.owner.createdDate }"></span>
                                     </div>
+                                    <div ng-switch="vm.listing.owner.userType" ng-if="!config.is_internal_service">
+                                        <span ng-switch-when="individual" data-translate="user.user_type_individual">
+                                        </span>
+                                        <span ng-switch-when="organization" data-translate="user.user_type_organization">
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="medium-6 flex-container flex--column" ng-if="vm.ownerMessageStats.answerRate">
                                     <div>
