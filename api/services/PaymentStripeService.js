@@ -51,7 +51,7 @@ async function getStripeInstance() {
         throw createError('Missing Stripe secret key', { missingCredentials: true });
     }
 
-    stripeInstance = new Stripe(sails.config.stripe.secretKey);
+    stripeInstance = new Stripe(secretKey);
     return stripeInstance;
 }
 
