@@ -11,11 +11,14 @@
                                     $scope,
                                     $state,
                                     $stateParams,
+                                    $translate,
                                     $window,
                                     BookingService,
                                     CardService,
+                                    ContentService,
                                     finance,
                                     KycService,
+                                    loggerToServer,
                                     ListingCategoryService,
                                     ListingService,
                                     mangopay,
@@ -36,7 +39,6 @@
         var debouncedAction = tools.debounceAction(_createPayment);
 
         var nbTimeUnits = 28;
-        var euroCountriesIsos = ["DE", "AT", "BE", "ES", "FI", "FR", "IE", "IT", "LU", "NL", "PT", "GR", "SL", "CY", "MT", "SK", "EE", "LV", "LT"];
         var currentUser;
         var bookingPaymentMessages;
         var cardId;
@@ -64,7 +66,6 @@
 
         vm.onChangeBirthday = onChangeBirthday;
         vm.cardsToggle   = cardsToggle;
-        vm.checkCountry  = checkCountry;
         vm.createAccount = createAccount;
         vm.saveCard      = saveCard;
         vm.createPayment = createPayment;
@@ -99,7 +100,7 @@
             });
 
             var notFoundBooking = function (err) {
-                toastr.warning("Réservation introuvable");
+                loggerToServer.error(err); // Fail silently
 
                 if (err.status === 404) {
                     $state.go("inbox");
@@ -149,7 +150,7 @@
                 vm.organizationName = vm.currentUser.organizationName;
 
                 if (vm.booking.cancellationId) {
-                    toastr.warning("Réservation annulée");
+                    ContentService.showNotification({ messageKey: 'pages.booking_payment.cancelled_booking' });
                     $state.go("inbox");
                     return $q.reject("stop");
                 }
@@ -199,13 +200,16 @@
                 vm.lastName  = vm.currentUser.lastname;
 
                 if (vm.booking.startDate && vm.booking.endDate) {
-                    vm.startDate = _displayDate(vm.booking.startDate);
-                    vm.endDate   = _displayDate(moment(vm.booking.endDate).subtract({ d: 1 }));
+                    vm.startDate = vm.booking.startDate;
+                    vm.endDate   = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
 
                     vm.showBookingDuration = true;
                 } else {
                     vm.showBookingDuration = false;
                 }
+
+                vm.adultPaymentTooltip = $translate.instant('pages.booking_payment.only_adult_payment_label');
+                vm.paymentSecuredByTooltip = $translate.instant('pages.booking_payment.card.payment_secured_by');
 
                 return $q.all({
                     conversations: MessageService.getConversations({
@@ -229,7 +233,6 @@
                     locations: results.listingLocations,
                     nbTimeUnits: Math.max(nbTimeUnits, vm.booking.nbTimeUnits)
                 });
-                vm.bookingDuration  = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
 
                 vm.expirationYears = _.range(vm.thisYear, (vm.thisYear + 10));
 
@@ -266,7 +269,7 @@
             })
             .catch(function (err) {
                 if (err !== "stop") {
-                    toastr.warning("Une erreur est survenue. Veuillez réessayer plus tard.");
+                    ContentService.showError(err);
                 }
             });
         }
@@ -281,18 +284,6 @@
         function cardsToggle() {
             vm.reuseCard = !vm.reuseCard;
             vm.selectedCard = vm.reuseCard ? vm.cards[0] : null;
-        }
-
-        function checkCountry() {
-            if (!_.includes(euroCountriesIsos, vm.identity.countryOfResidence)) {
-                vm.euroCountryWarning = true;
-            } else {
-                vm.euroCountryWarning = false;
-            }
-        }
-
-        function _displayDate(date) {
-            return moment(date).format("ddd D MMM YYYY");
         }
 
         function onChangeBirthday(date) {
@@ -319,12 +310,17 @@
                 || ! vm.firstName
                 || ! vm.lastName
             ) {
-                toastr.warning("Il manque des informations nécessaires à la validation du paiement.", "Informations de facturation");
+                ContentService.showNotification({
+                    titleKey: 'pages.booking_payment.billing_information_title',
+                    messageKey: 'form.missing_information'
+                });
                 return false;
             }
             if (! validBirthday) {
-                toastr.warning("Date de naissance invalide"); // should not happen since constructed above
-                return false;
+                var dateOfBirthError = new Error("Invalid date of birth during checkout");
+                // Should not happen since constructed above
+                // Try failing silently but payment provider likely to issue an error.
+                loggerToServer.error(dateOfBirthError);
             }
 
             // Update User with new info
@@ -378,7 +374,6 @@
                 })
                 .then(function (card) {
                     vm.cards.push(card);
-                    // toastr.info("Carte bleue enregistrée");
                     return card;
                 });
         }
@@ -453,20 +448,12 @@
                 }
             });
 
-            if (! vm.conversation && ! vm.privateContent) {
-                return toastr.info("Vous devriez écrire quelques mots au propriétaire afin qu'il accepte votre demande.", "Un petit mot...");
-            } else if (! vm.privateContent && ! vm.booking.acceptedDate) {
-                // Automatic message if needed when user has already booked this listing before, or engaged a conversation with owner
-                // But don't create automatic message if already accepted by owner...
-                if (BookingService.isNoTime(vm.booking)) {
-                    vm.privateContent = "Bonjour, je viens d'effectuer un paiement "
-                     + "pour acheter votre " + vm.listing.name + ".\n\nAcceptez-vous ma réservation?";
-                } else {
-                    vm.privateContent = "Bonjour, je viens d'effectuer un "
-                     + (vm.booking.takerPrice ? "paiement " : "dépôt de garantie ")
-                     + "pour réserver votre " + vm.listing.name + " du "
-                     + vm.startDate + " au " + vm.endDate + ".\n\nAcceptez-vous ma réservation?";
-                }
+            if (! vm.privateContent && (! vm.conversation || ! vm.booking.acceptedDate)) {
+                // Automatic message for clarity, or when user has already booked this listing before, or engaged a conversation with owner
+                // But don't create automatic message if already accepted by owner.
+                vm.privateContent = $translate.instant('pages.booking_payment.default_private_message', {
+                    price: vm.booking.takerPrice
+                });
             }
 
             // Existing cards should be valid
@@ -478,14 +465,20 @@
             } else {
                 if (vm.paymentProvider === 'stripe') {
                     if (!touchCard) {
-                        return toastr.warning("Veuillez saisir votre numéro de carte bancaire.", "Informations de paiement");
+                        return ContentService.showNotification({
+                            messageKey: 'pages.booking_payment.error.invalid_card_number'
+                        });
                     }
                     if (vm.cardErrorType) {
-                        return toastr.warning("Veuillez vérifier votre numéro de carte bancaire.", "Informations de paiement");
+                        return ContentService.showNotification({
+                            messageKey: 'pages.booking_payment.error.invalid_card_number'
+                        });
                     }
                 } else { // vm.paymentProvider === 'mangopay'
                     if ($scope.paymentForm.newCardNumber.$invalid) {
-                        return toastr.warning("Veuillez vérifier votre numéro de carte bancaire.", "Informations de paiement");
+                        return ContentService.showNotification({
+                            messageKey: 'pages.booking_payment.error.invalid_card_number'
+                        });
                     }
                     if (! vm.cardExpirationMonth || ! vm.cardExpirationYear) {
                         return toastr.warning("Veuillez préciser la date d'expiration de votre carte bancaire.", "Informations de paiement");
@@ -507,12 +500,16 @@
 
                     if (! vm.currentUser.phoneCheck && vm.isSmsActive) {
                         vm.promptPhoneHighlight = true;
-                        toastr.info("Veuillez vérifier votre numéro de téléphone (fixe ou mobile).", "Informations de paiement");
+                        ContentService.showNotification({
+                            messageKey: 'authentication.error.invalid_phone'
+                        });
                         return $q.reject("stop");
                     }
 
                     if (! currentUser.email && ! tools.isEmail(vm.email)) {
-                        toastr.info("Veuillez renseigner une adresse email valide.");
+                        ContentService.showNotification({
+                            messageKey: 'authentication.error.invalid_email'
+                        });
                         return $q.reject("stop");
                     }
 
@@ -616,7 +613,7 @@
                         return toastr.error(errorMessage, errorTitle);
                     }
 
-                    toastr.warning("Nous sommes désolés et cherchons à résoudre le problème. Veuillez recommencer plus tard.", "Oups, une erreur s'est produite");
+                    ContentService.showError(err);
                 })
                 .finally(function () {
                     usSpinnerService.stop('payment-spinner');
