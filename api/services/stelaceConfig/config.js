@@ -106,6 +106,14 @@ const schema = {
         listing_categories__required: {
             type: ['boolean', 'null'],
         },
+        phone_prompt__owner_level: {
+            type: ['string', 'null'],
+            enum: ['show', 'require', null],
+        },
+        phone_prompt__taker_level: {
+            type: ['string', 'null'],
+            enum: ['show', 'require', null],
+        },
     },
 };
 

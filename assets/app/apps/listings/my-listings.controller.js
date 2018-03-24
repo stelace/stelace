@@ -102,6 +102,11 @@
         vm.formatDate           = "dd/MM/yyyy";
 
         vm.isActivePriceRecommendation = StelaceConfig.isFeatureActive('PRICE_RECOMMENDATION');
+        vm.isSmsActive          = StelaceConfig.isFeatureActive('SMS');
+        vm.showPromptPhone      = vm.isSmsActive
+                                    && (typeof stlConfig.phone_prompt__owner_level === 'undefined'
+                                        || _.includes(['show', 'require'], stlConfig.phone_prompt__owner_level));
+        vm.isPhoneRequired      = vm.isSmsActive && stlConfig.phone_prompt__owner_level === 'require';
         vm.showTags             = false;
         vm.viewCreate           = ($state.current.name === "listingCreate");
         vm.myListingsView          = ($state.current.name === "myListings");
@@ -1032,7 +1037,16 @@
             return $q.when(isAuthenticated)
                 .then(function (isAuthenticated) {
                     if (isAuthenticated) {
-                        return promptInfoModal.ask(["email", "mainLocation", "phone"], { isListingOwner: true });
+                        var askInfo = [
+                            'email',
+                            'mainLocation',
+                        ];
+
+                        if (vm.isPhoneRequired) {
+                            askInfo.push('phone');
+                        }
+
+                        return promptInfoModal.ask(askInfo, { isListingOwner: true });
                     } else {
                         return $q.reject("not authenticated");
                     }

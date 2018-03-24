@@ -18,6 +18,7 @@
                                 loggerToServer,
                                 map,
                                 Modal,
+                                StelaceConfig,
                                 tools,
                                 UserService,
                                 usSpinnerService) {
@@ -46,7 +47,8 @@
             ngAutocompleteOptions: { // Google Places ngAutocomplete options
                 forceGlobalSearch: true
             },
-            emailChecked: false
+            emailChecked: false,
+            isSmsActive: StelaceConfig.isFeatureActive('SMS')
         };
         var modalId = "promptInfoModal";
         var modal   = new Modal({
@@ -222,12 +224,14 @@
             if (askMainLocation && ! user.hasMainLocation) {
                 fields.push("mainLocation");
             }
-            if (askPhone && (! user.phoneCheck || ! user.phone)) {
-                vm.phone = user.phone || null;
-                fields.push("phone");
-            }
-            if (askPhoneNew && (begin || (! begin && (! user.phoneCheck || ! user.phone)))) {
-                fields.push("phoneNew");
+            if (vm.isSmsActive) {
+                if (askPhone && (! user.phoneCheck || ! user.phone)) {
+                    vm.phone = user.phone || null;
+                    fields.push("phone");
+                }
+                if (askPhoneNew && (begin || (! begin && (! user.phoneCheck || ! user.phone)))) {
+                    fields.push("phoneNew");
+                }
             }
             if (askEmailNew && (begin || (! begin && ! user.email))) {
                 fields.push("emailNew");

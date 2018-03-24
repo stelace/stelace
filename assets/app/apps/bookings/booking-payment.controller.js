@@ -47,6 +47,8 @@
         var stripeCardElement;
         var touchCard = false;
 
+        var stlConfig = StelaceConfig.getConfig();
+
         var vm = this;
         vm.userType             = null;
         vm.paymentProvider      = null;
@@ -61,6 +63,8 @@
         vm.isSmsActive          = StelaceConfig.isFeatureActive('SMS');
         vm.thisYear             = moment().year();
         vm.thisMonth            = moment().month() + 1;
+        vm.showPromptPhone      = vm.isSmsActive && _.includes(['show', 'require'], stlConfig.phone_prompt__taker_level);
+        vm.isPhoneRequired      = vm.isSmsActive && stlConfig.phone_prompt__taker_level === 'require';
 
         vm.footerTestimonials   = true;
 
@@ -334,7 +338,7 @@
                 editingCurrentUser.birthday = vm.identity.birthday;
             }
 
-            editingCurrentUser.userType = 'individual'; // TODO: the user can specify it via UI
+            editingCurrentUser.userType = editingCurrentUser.userType || 'individual'; // TODO: the user can specify it via UI
 
             return $q.when(true)
                 .then(function () {
@@ -498,7 +502,7 @@
                 .then(function (currentUser) {
                     vm.currentUser = currentUser;
 
-                    if (! vm.currentUser.phoneCheck && vm.isSmsActive) {
+                    if (! vm.currentUser.phoneCheck && vm.isPhoneRequired) {
                         vm.promptPhoneHighlight = true;
                         ContentService.showNotification({
                             messageKey: 'authentication.error.invalid_phone'

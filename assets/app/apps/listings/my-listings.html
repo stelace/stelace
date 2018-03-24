@@ -644,9 +644,9 @@
                         </div>
                     </div>
                     <div class="margin-top-plus margin-bottom"
-                        ng-if="vm.isAuthenticated && (! vm.existingPhone || vm.noImage)">
+                        ng-if="vm.isAuthenticated && ((! vm.existingPhone && vm.showPromptPhone) || vm.noImage)">
                         <hr class="small-6 small-offset-3">
-                        <div class="small-12" ng-if="! vm.existingPhone">
+                        <div class="small-12" ng-if="! vm.existingPhone && vm.showPromptPhone">
                             <h2 data-translate="prompt.making_your_life_easier">
                             </h2>
                             <p class="text--small"
