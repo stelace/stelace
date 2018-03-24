@@ -484,10 +484,10 @@ function computeTranslations({
             const label = _.get(translations, labelKey);
             const helper = _.get(translations, helperKey);
 
-            if (label) {
+            if (typeof label !== 'undefined') {
                 _.set(computedTranslations, labelKey, label);
             }
-            if (helper) {
+            if (typeof helper !== 'undefined') {
                 _.set(computedTranslations, helperKey, helper);
             }
         }
