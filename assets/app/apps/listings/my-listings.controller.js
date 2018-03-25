@@ -1259,7 +1259,7 @@
                         titleKey: 'listing.edition.listing_saved',
                         messageKey: 'listing.edition.publication_status',
                         messageValues: {
-                            published: createAttrs.validation ? 'after_validation' : 'now',
+                            published: !createdListing.validated ? 'after_validation' : 'now',
                             SERVICE_NAME: stlConfig.SERVICE_NAME
                         },
                         type: 'success'
