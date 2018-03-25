@@ -2,7 +2,7 @@
 
 Stelace helps entrepreneurs create online marketplaces and communities in no time to let them focus on experimenting and growing their audience.
 
-This repository includes all marketplace features and integrations. Stelace Artificial Intelligence assistance, automatic setup and cloud hosting are also available [without a line of code](https://stelace.com).
+This repository includes all marketplace features and integrations. Stelace marketplace launcher, automatic setup and cloud hosting are also available [without a line of code](https://stelace.com).
 
 ---
 
@@ -36,6 +36,7 @@ Stelace is under active development, with *massive* ongoing updates.
             - [Create the MySQL database](#create-the-mysql-database)
             - [Create the local config](#create-the-local-config)
             - [PhantomJS symbolic link](#phantomjs-symbolic-link)
+            - [Install Docker CE](#install-docker-ce)
         - [Run environment](#run-environment)
         - [Update environment](#update-environment)
         - [Backup database](#backup-database)
@@ -48,8 +49,6 @@ Stelace is under active development, with *massive* ongoing updates.
 <!-- /TOC -->
 
 ## Features
-
-Everything but [Stelace AI](https://stelace.com), including:
 
 - Listing management
 - Delayed payments (Stripe / Mangopay)
@@ -179,9 +178,9 @@ tmpDir: "/path/to/project-external/tmp"
 uploadDir: "/path/to/project-external/upload"
 snapshotsDir: "/path/to/project-external/snapshots"
 
-- Change debugMail and debugSms email addresses
+- Set `debugMail` and `debugSms` email addresses if you want to test emails (emails will be sent to debug email addresses instead of real ones)
 
-- Uncomment `migrate: "safe"` option after populating database with first `sails lift` command, to speed up sails start
+- Uncomment `migrate: "safe"` and comment `migrate: "alter"` option after populating database with first `sails lift` command, to speed up sails start
 >Start once with "alter" when some model changes
 
 
@@ -191,6 +190,10 @@ snapshotsDir: "/path/to/project-external/snapshots"
 
 > (optional, useful to debug phantom scripts)
 
+
+####Install Docker CE
+
+Please go to [Docker website](https://docs.docker.com/install/#server) to install Docker CE. Choose the right installation guide for your system.
 
 
 ### Run environment
@@ -202,6 +205,15 @@ Open 2 terminals: 1 for client-side and 1 for server-side.
 - For server-side: `sails lift`
 
 Now go to the url: http://localhost:3000. Stelace should be up and running!
+
+Launch Elasticsearch to search listings:
+`./elasticsearch-run.sh`
+
+
+
+**Populate database**
+
+    node scripts_migration/createListingTypes.js
 
 
 **Gulp tasks**
