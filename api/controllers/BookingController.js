@@ -41,7 +41,7 @@ const createError = require('http-errors');
 const appendQuery = require('append-query');
 
 // TODO: use this cache to send message server-side during payment
-// Rather than relying on client-side booking-confirmation view
+// Rather than relying on client-side confirmation view
 var messageCache;
 
 Promise.promisifyAll(fs);
@@ -363,8 +363,8 @@ async function payment(req, res) {
     const hashBookingsManagers = await TransactionService.getBookingTransactionsManagers([id]);
     const transactionManager = hashBookingsManagers[booking.id];
 
-    // store booking message for emails sent before message creation in booking-confirmation view
-    if (operation !== 'payment') { // payment in booking-confirmation view
+    // store booking message for emails sent before message creation in confirmation view
+    if (operation !== 'payment') { // payment in confirmation view
         messageCache.set(booking.id, message);
     }
 
@@ -412,7 +412,7 @@ async function paymentSecure(req, res) {
     const tokenType = req.param("t");
     const userId = req.param("u");
 
-    let redirectUrl = '/booking-confirmation/' + id;
+    let redirectUrl = '/confirmation/' + id;
 
     try {
         const allowedTokenTypes = [

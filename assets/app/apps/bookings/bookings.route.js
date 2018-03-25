@@ -10,7 +10,7 @@
 
         $stateProvider
             .state("bookingPayment", {
-                url: "/booking-payment/:id",
+                url: "/checkout/:id",
                 templateUrl: appsPath + "/bookings/booking-payment.html",
                 controller: "BookingPaymentController",
                 controllerAs: "vm",
@@ -18,7 +18,7 @@
                 title: "pages.booking_payment.page_title"
             })
             .state("bookingConfirmation", {
-                url: "/booking-confirmation/:id",
+                url: "/confirmation/:id",
                 templateUrl: appsPath + "/bookings/booking-confirmation.html",
                 controller: "BookingConfirmationController",
                 controllerAs: "vm",
