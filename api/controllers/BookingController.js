@@ -503,10 +503,7 @@ async function paymentSecure(req, res) {
         const queryObj = {};
 
         if (err.errorType) {
-            queryObj.error = err.errorType;
-        }
-        if (err.resultCode) {
-            queryObj.resultCode = err.resultCode;
+            queryObj.error_type = err.errorType;
         }
 
         if (!Object.keys(queryObj).length) {

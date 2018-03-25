@@ -5,6 +5,8 @@ module.exports = {
     getStripeInstance,
     unsetStripeInstance,
 
+    getErrorType,
+
     createCustomer,
 
     fetchAccount,
@@ -57,6 +59,68 @@ async function getStripeInstance() {
 
 function unsetStripeInstance() {
     stripeInstance = null;
+}
+
+function getErrorType(error) {
+    if (typeof error.code === 'string') {
+        switch (error.code) {
+            case 'invalid_number':
+                return 'invalid_number';
+
+            case 'invalid_expiry_month':
+            case 'invalid_expiry_year':
+                return 'invalid_expiration_date';
+
+            case 'invalid_cvc':
+            case 'incorrect_cvc':
+                return 'invalid_cvc';
+
+            case 'incorrect_number':
+                return 'invalid_number';
+
+            case 'expired_card':
+                return 'card_expired';
+
+            case 'incorrect_zip':
+                return 'invalid_zip';
+
+            default:
+                break;
+        }
+    }
+
+    if (typeof error.decline_code === 'string') {
+        switch (error.decline_code) {
+            case 'card_velocity_exceeded':
+                return 'card_limit';
+
+            case 'do_not_honor':
+                return 'do_not_honor';
+
+            case 'expired_card':
+                return 'card_expired';
+
+            case 'insufficient_funds':
+                return 'insufficient_funds';
+
+            case 'invalid_cvc':
+            case 'incorrect_cvc':
+                return 'invalid_cvc';
+
+            case 'invalid_expiry_year':
+                return 'invalid_expiration_date';
+
+            case 'invalid_number':
+            case 'incorrect_number':
+                return 'invalid_number';
+
+            case 'incorrect_zip':
+                return 'invalid_zip';
+
+            default:
+                break;
+        }
+    }
 }
 
 /**

@@ -49,7 +49,7 @@ async function createPreauthorization({ booking, cardId, operation, req, logger 
 
     const enoughExpiration = _isCardExpirationEnough(booking, card);
     if (!enoughExpiration) {
-        throw createError(400, 'Expiration date too short');
+        throw createError(400, 'Expiration date too short', { errorType: 'expiration_date_too_short' });
     }
 
     const setSecureMode = _.includes(['deposit', 'deposit-payment'], operation);
@@ -90,9 +90,11 @@ async function createPreauthorization({ booking, cardId, operation, req, logger 
             });
             logger.error({ err: error });
 
-            throw createError(400, 'preauthorization fail', {
-                resultCode: preauthorization.ResultCode,
-            });
+            console.log(preauthorization)
+            const errorType = PaymentMangopayService.getErrorType(preauthorization.ResultCode);
+            console.log(errorType)
+
+            throw createError(400, 'preauthorization fail', { errorType });
         }
 
         if (preauthorization.SecureModeNeeded) {
@@ -102,13 +104,20 @@ async function createPreauthorization({ booking, cardId, operation, req, logger 
             preauthorization,
         };
     } else if (booking.paymentProvider === 'stripe') {
-        const charge = await PaymentStripeService.createCharge({
-            user: taker,
-            card,
-            amount,
-            currency: booking.currency,
-            capture: false,
-        });
+        let charge;
+
+        try {
+            charge = await PaymentStripeService.createCharge({
+                user: taker,
+                card,
+                amount,
+                currency: booking.currency,
+                capture: false,
+            });
+        } catch (err) {
+            const errorType = PaymentStripeService.getErrorType(err);
+            throw createError(400, 'preauthorization fail', { errorType });
+        }
 
         result.providerData = {
             charge,
@@ -155,10 +164,9 @@ async function afterPreauthorizationReturn({
                 cardId: card.id,
             }).catch(() => { /* do nothing */ });
 
-            throw createError('Preauthorization fail', {
+            throw createError(400, 'Preauthorization fail', {
                 preauthorization,
-                errorType: 'fail',
-                resultCode: preauthorization.ResultCode,
+                errorType: PaymentMangopayService.getErrorType(preauthorization.ResultCode),
             });
         }
 
@@ -174,9 +182,9 @@ async function afterPreauthorizationReturn({
                 bookingId: booking.id,
             }).catch(() => { /* do nothing */ });
 
-            throw createError('Preauthorization fail', {
+            throw createError(400, 'Preauthorization fail', {
                 charge,
-                errorType: 'fail',
+                errorType: PaymentStripeService.getErrorType({ code: charge.outcome.type }),
                 resultCode: charge.outcome.type,
                 outcome: charge.outcome,
             });

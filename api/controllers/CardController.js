@@ -57,6 +57,11 @@ async function create(req, res) {
             registrationData,
         });
 
+        const errorType = PaymentMangopayService.getErrorType(cardRegistration.ResultCode);
+        if (errorType) {
+            throw createError(400, { errorType });
+        }
+
         card = await PaymentMangopayService.createCard({
             userId: req.user.id,
             providerCardId: cardRegistration.CardId,
@@ -67,11 +72,16 @@ async function create(req, res) {
             throw createError(400);
         }
 
-        card = await PaymentStripeService.createCard({
-            user: req.user,
-            sourceId: cardToken,
-            forget,
-        });
+        try {
+            card = await PaymentStripeService.createCard({
+                user: req.user,
+                sourceId: cardToken,
+                forget,
+            });
+        } catch (err) {
+            const errorType = PaymentStripeService.getErrorType(err);
+            throw createError(400, { errorType });
+        }
     } else {
         throw new Error('Unknown payment provider');
     }

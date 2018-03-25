@@ -21,6 +21,7 @@
                                     loggerToServer,
                                     ListingCategoryService,
                                     ListingService,
+                                    ListingTypeService,
                                     mangopay,
                                     map,
                                     MediaService,
@@ -50,6 +51,8 @@
         var stlConfig = StelaceConfig.getConfig();
 
         var vm = this;
+        vm.listingType          = null;
+        vm.listingTypeProperties = {};
         vm.userType             = null;
         vm.paymentProvider      = null;
         vm.booking              = null;
@@ -59,7 +62,6 @@
         vm.reuseCard            = true; // default
         vm.rememberCard         = true; // default
         vm.promptPhoneHighlight = false;
-        vm.showBookingDuration  = false;
         vm.isSmsActive          = StelaceConfig.isFeatureActive('SMS');
         vm.thisYear             = moment().year();
         vm.thisMonth            = moment().month() + 1;
@@ -199,6 +201,9 @@
 
                 vm.existingPhone = vm.currentUser.phoneCheck; // save initial value
 
+                vm.listingType = vm.booking.listingType;
+                vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
+
                 // Populate account form
                 vm.firstName = vm.currentUser.firstname;
                 vm.lastName  = vm.currentUser.lastname;
@@ -206,10 +211,6 @@
                 if (vm.booking.startDate && vm.booking.endDate) {
                     vm.startDate = vm.booking.startDate;
                     vm.endDate   = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
-
-                    vm.showBookingDuration = true;
-                } else {
-                    vm.showBookingDuration = false;
                 }
 
                 vm.adultPaymentTooltip = $translate.instant('pages.booking_payment.only_adult_payment_label');
@@ -353,7 +354,8 @@
                 .then(function () {
                     return KycService.updateKyc(kyc, {
                         birthday: vm.identity.birthday,
-                        nationality: vm.identity.nationality,
+                        nationality: vm.identity.countryOfResidence, // TODO: create a input for nationality
+                        // nationality: vm.identity.nationality,
                         countryOfResidence: vm.identity.countryOfResidence
                     });
                 })
@@ -470,25 +472,29 @@
                 if (vm.paymentProvider === 'stripe') {
                     if (!touchCard) {
                         return ContentService.showNotification({
-                            messageKey: 'pages.booking_payment.error.invalid_card_number'
+                            messageKey: 'payment.error.invalid_card_number'
                         });
                     }
                     if (vm.cardErrorType) {
                         return ContentService.showNotification({
-                            messageKey: 'pages.booking_payment.error.invalid_card_number'
+                            messageKey: 'payment.error.invalid_card_number'
                         });
                     }
                 } else { // vm.paymentProvider === 'mangopay'
                     if ($scope.paymentForm.newCardNumber.$invalid) {
                         return ContentService.showNotification({
-                            messageKey: 'pages.booking_payment.error.invalid_card_number'
+                            messageKey: 'payment.error.invalid_card_number'
                         });
                     }
                     if (! vm.cardExpirationMonth || ! vm.cardExpirationYear) {
-                        return toastr.warning("Veuillez préciser la date d'expiration de votre carte bancaire.", "Informations de paiement");
+                        return ContentService.showNotification({
+                            messageKey: 'payment.error.invalid_card_expiration_date'
+                        });
                     }
                     if ($scope.paymentForm.newCardCvc.$invalid) {
-                        return toastr.warning("Veuillez vérifier votre code de sécurité (inscrit au dos de votre carte bancaire)", "Informations de paiement");
+                        return ContentService.showNotification({
+                            messageKey: 'payment.error.invalid_card_cvc'
+                        });
                     }
                 }
             }
@@ -583,38 +589,35 @@
                     vm.reuseCard    = false;
                     vm.selectedCard = null;
 
-                    if (err.status === 400 && err.data && err.data.message === "expiration date too short") {
+                    var messageKey;
+
+                    if (err.status === 400 && err.data && err.data.errorType === 'expiration_date_too_short') {
                         // TODO : check on load
-                        return toastr.warning("Veuillez utiliser une carte expirant dans au moins un mois.", "Carte bientôt expirée");
-                    } else if (err.status === 400 && err.data && err.data.message === "preauthorization fail") {
-                        var errorTitle = "Échec du paiement";
-                        var errorMessage;
+                        return ContentService.showNotification({
+                            messageKey: 'payment.error.card_expiration_too_short',
+                            type: 'warning'
+                        });
+                    } else if (err.resultCode) {
+                        var errorType = BookingService.getMangopayErrorType(err.resultCode);
+                        messageKey = BookingService.mapErrorTypeToTranslationKey(errorType);
 
-                        switch (err.data.resultCode) {
-                            case "101399":
-                                errorMessage = "Votre carte bancaire ne supporte pas la procédure de sécurité \"Verified by Visa\".";
-                                break;
+                        return ContentService.showNotification({
+                            titleKey: 'payment.error.payment_error_title',
+                            messageKey: messageKey,
+                            type: 'error'
+                        });
+                    } else if (err.data) {
+                        var paymentErrorTypes = BookingService.getPaymentErrorTypes();
 
-                            case "101301":
-                                errorMessage = "La procédure de sécurité \"Verified by Visa\" a échoué.";
-                                break;
+                        if (err.data.errorType && _.includes(paymentErrorTypes, err.data.errorType)) {
+                            messageKey = BookingService.mapErrorTypeToTranslationKey(err.data.errorType);
 
-                            case "101105":
-                                errorMessage = "Votre carte a expiré. Veuillez saisir un autre numéro de carte bancaire.";
-                                break;
-
-                            case "101106":
-                            case "101410":
-                                errorMessage = "L'enregistrement de votre carte bancaire a échoué. Merci de saisir à nouveau le numéro de votre carte ou d'enregistrer une autre carte.";
-                                break;
-
-                            default:
-                                errorMessage = "Le paiement a échoué. Veuillez vérifier que vous disposez des fonds suffisants sur votre compte et "
-                                    + "que le plafond de votre carte bancaire n'a pas été atteint.";
-                                break;
+                            return ContentService.showNotification({
+                                titleKey: 'payment.error.payment_error_title',
+                                messageKey: messageKey,
+                                type: 'error'
+                            });
                         }
-
-                        return toastr.error(errorMessage, errorTitle);
                     }
 
                     ContentService.showError(err);

@@ -1435,9 +1435,29 @@ booking:
                     0 {Frais de paiement : Offerts}
                     other{Dont frais de paiement : {price, number, currency}}
                 }
+        quantity:
+            en: 'Quantity: {quantity}'
+            fr: "Quantity\_: {quantity}"
         security_deposit:
             en: 'Security deposit: {price, number, currency}'
             fr: "Caution\_: {price, number, currency}"
+        owner_locations:
+            en: |
+                {owner, select,
+                    undefined {The seller}
+                    other {{owner}}
+                } specified the following {nb_locations, plural,
+                    one {location}
+                    other {locations}
+                } for the listing:
+            fr: |
+                {owner, select,
+                    undefined {The vendeur}
+                    other {{owner}}
+                } a indiqué {nb_locations, plural,
+                    one {le lieu suivant}
+                    other {les lieux suivants}
+                } pour l'annonce :
     status:
         accepted:
             en: Accepted
@@ -1802,6 +1822,53 @@ rating:
         remaining_comment_message:
             en: 'Don''t forget to write to {userName} a comment as soon as possible.'
             fr: 'N''oubliez pas d''écrire dès que possible un commentaire à {userName}.'
+payment:
+    error:
+        payment_error_title:
+            en: Payment failed
+            fr: Échec du paiement
+        invalid_card_number:
+            en: Please check your card number.
+            fr: Veuillez vérifier votre numéro de carte.
+        invalid_card_expiration_date:
+            en: Please check your card expiration date.
+            fr: Veuillez vérifier la date d'expiration de votre carte.
+        invalid_card_cvc:
+            en: Please check your card security card (on the back of your card).
+            fr: Veuillez vérifier votre code de sécurité (inscrit au dos de votre carte bancaire).
+        invalid_card_zip:
+            en: Please check your zip.
+            fr: Veuillez vérifier votre code postal.
+        card_limit_reached:
+            en: Your card limit has been reached.
+            fr: Le plafond de votre carte bancaire a été atteint.
+        card_3dsecure_not_available:
+            en: Your card isn't available with 3DSecure authentication.
+            fr: La vérification 3DSecure n'est pas disponible sur votre carte.
+        card_3dsecure_incompatible:
+            en: Your card is incompatible with 3DSecure authentication.
+            fr: Votre carte n'est pas compatible avec la vérification 3DSecure.
+        3dsecure_fail:
+            en: The 3DSecure authentication has failed.
+            fr: La vérification 3DSecure a échoué.
+        insufficient_funds:
+            en: Please check that you have sufficient funds in your bank account.
+            fr: Veuillez vérifier que vous disposez des fonds suffisants sur votre compte.
+        do_not_honor:
+            en: The bank has refused the payment. Please contact it before trying again.
+            fr: La banque a refusé le paiement. Veuillez la contacter avant de réessayer.
+        card_inactive:
+            en: Your card is inactive. Please activate it before trying again.
+            fr: Votre carte bancaire est inactive. Veuillez l'activer avant de réessayer.
+        card_expired:
+            en: Your card has expired. Please add a new one.
+            fr: Votre carte bancaire a expiré. Veuillez saisir un autre numéro de carte bancaire.
+        card_expiration_too_short:
+            en: Please use a card that expires in at least one month.
+            fr: Veuillez utiliser une carte expirant dans au moins un mois.
+        generic_error:
+            en: The payment has failed. Please check that you have sufficient funds in your bank account and that your card limit hasn't been reached.
+            fr: Le paiement a échoué. Veuillez vérifier que vous disposez des fonds suffisants sur votre compte et que le plafond de votre carte bancaire n'a pas été atteint.
 pricing:
     price_with_currency:
         en: '{price, number, currency}'
@@ -2118,13 +2185,34 @@ pages:
             cancelled_booking:
                 en: This transaction was cancelled.
                 fr: Cette transaction a été annulée.
-            invalid_card_number:
-                en: Please check your card number.
-                fr: Veuillez vérifier votre numéro de carte.
     booking_confirmation:
         page_title:
             en: 'Checkout - {SERVICE_NAME}'
             fr: 'Paiement - {SERVICE_NAME}'
+        redirection_to_checkout_message:
+            en: You will be redirected to the checkout page.
+            fr: Vous allez être redirigé(e) vers la page de paiement.
+        payment_processing_message:
+            en: In-progress checking
+            fr: Vérification en cours
+        payment_success_message:
+            en: Payment successful
+            fr: Transaction réussie
+        inbox_cta_link:
+            en: Go to your inbox to stay in touch with {owner, select, undefined {the seller} other {{owner}}}.
+            fr: Accédez à votre messagerie pour rester en contact avec {owner, select, undefined {le vendeur} other {{owner}}}.
+        email_notification_message:
+            en: You will receive a confirmation email.
+            fr: Vous allez recevoir un email de confirmation.
+        payment_summary:
+            en: The {price, number, currency} payment has been successful.
+            fr: Le paiement de {price, number, currency} a été effectué avec succès.
+        deposit_summary:
+            en: A {deposit, number, currency} deposit has been performed. It will not be used except in case of a dispute.
+            fr: Vous venez de réaliser un dépôt de garantie à hauteur de {deposit, number, currency}, en aucun cas prélevé en l'absence de litige.
+        generic_error:
+            en: An error has happened and we apologize for any inconvenience. Your card hasn't been debited.
+            fr: Une erreur s'est produite et nous vous prions de nous en excuser. Aucun prélèvement ne sera effectué.
     help:
         page_title:
             en: 'Help - {SERVICE_NAME}'

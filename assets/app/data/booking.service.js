@@ -26,6 +26,10 @@
         service.getDueDate                            = getDueDate;
         service.getFbTransactionType                  = getFbTransactionType;
 
+        service.getMangopayErrorType                  = getMangopayErrorType;
+        service.getPaymentErrorTypes                  = getPaymentErrorTypes;
+        service.mapErrorTypeToTranslationKey          = mapErrorTypeToTranslationKey;
+
         Restangular.extendModel("booking", function (obj) {
             return Booking.mixInto(obj);
         });
@@ -407,6 +411,131 @@
             } else {
                 return '';
             }
+        }
+
+        function getMangopayErrorType(resultCode) {
+            switch (resultCode) {
+                case '101399':
+                    return '3dsecure_not_available';
+
+                case '101302':
+                case '101303':
+                    return '3dsecure_incompatible';
+
+                case '101301':
+                    return '3dsecure_fail';
+
+                case '02624':
+                case '101105':
+                    return 'card_expired';
+
+                case '01902':
+                case '101106':
+                    return 'card_inactive';
+
+                case '101102':
+                    return 'insufficient_funds';
+
+                case '101101':
+                    return 'do_not_honor';
+
+                case '101104':
+                    return 'card_limit';
+
+                case '02625':
+                case '105202':
+                    return 'invalid_number';
+
+                case '105203':
+                    return 'invalid_expiration_date';
+
+                case '02627':
+                case '105204':
+                    return 'invalid_cvc';
+
+                default:
+                    break;
+            }
+        }
+
+        function getPaymentErrorTypes() {
+            return [
+                '3dsecure_not_available',
+                '3dsecure_incompatible',
+                '3dsecure_fail',
+                'card_expired',
+                'card_inactive',
+                'insufficient_funds',
+                'do_not_honor',
+                'card_limit',
+                'invalid_number',
+                'invalid_expiration_date',
+                'invalid_cvc',
+                'invalid_zip'
+            ];
+        }
+
+        function mapErrorTypeToTranslationKey(errorType) {
+            var key;
+
+            switch (errorType) {
+                case '3dsecure_not_available':
+                    key = 'card_3dsecure_not_available';
+                    break;
+
+                case '3dsecure_incompatible':
+                    key = 'card_3dsecure_incompatible';
+                    break;
+
+                case '3dsecure_fail':
+                    key = '3dsecure_fail';
+                    break;
+
+                case 'card_expired':
+                    key = 'card_expired';
+                    break;
+
+                case 'card_inactive':
+                    key = 'card_inactive';
+                    break;
+
+                case 'insufficient_funds':
+                    key = 'insufficient_funds';
+                    break;
+
+                case 'do_not_honor':
+                    key = 'do_not_honor';
+                    break;
+
+                case 'card_limit':
+                    key = 'card_limit_reached';
+                    break;
+
+                case 'invalid_number':
+                    key = 'invalid_card_number';
+                    break;
+
+                case 'invalid_expiration_date':
+                    key = 'invalid_card_expiration_date';
+                    break;
+
+                case 'invalid_cvc':
+                    key = 'invalid_card_cvc';
+                    break;
+
+                case 'invalid_zip':
+                    key = 'invalid_card_zip';
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (!key) {
+                key = 'generic_error';
+            }
+
+            return 'payment.error.' + key;
         }
     }
 

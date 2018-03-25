@@ -81,7 +81,7 @@
                                 </span>
                                 <div class="form-warning text--semibold"
                                     uib-collapse="vm.editingCardNumber || ! paymentForm.newCardNumber.$touched || ! paymentForm.newCardNumber.$invalid"
-                                    data-translate="pages.booking_payment.error.invalid_card_number">
+                                    data-translate="payment.error.invalid_card_number">
                                 </div>
                             </div>
                             <img class="card-type-logo" src="/assets/img/app/payment/visa_logo.png" alt="logo Visa"
@@ -139,8 +139,8 @@
                     <img id="powered-by" class="powered-by-mangopay-logo"
                         src="/assets/img/app/payment/powered-by-mangopay_v2.png"
                         data-translate-attr="{ title: 'pages.booking_payment.mangopay_logo_alt', alt: 'pages.booking_payment.mangopay_logo_alt'}"
-                        data-translate-values="{ payment_provider: vm.paymentProvider }"
-                        ng-if="vm.paymentProvider === 'mangopay'">
+                        data-translate-values="{ payment_provider: vm.booking.paymentProvider }"
+                        ng-if="vm.booking.paymentProvider === 'mangopay'">
                 </div>
                 <hr>
 
@@ -260,9 +260,8 @@
                             <sip-img ng-src="{{vm.listing.url + '?size=800x600'}}" type="background"></sip-img>
                         </div>
                         <div class="booking-summary__content">
-                            <!-- TODO: show quantity if stock -->
-                            <div ng-if="vm.showBookingDuration">
-                                <div class="margin-bottom text-center">
+                            <div>
+                                <div class="margin-bottom text-center" ng-if="vm.listingTypeProperties.isTimeFlexible">
                                     <span class="text--semibold"
                                         data-translate="pricing.nb_unit_label"
                                         data-translate-values="{ timeUnit: vm.booking.timeUnit, nbTimeUnits: vm.booking.nbTimeUnits }"></span>
@@ -271,12 +270,16 @@
                                     <span data-translate="booking.from_start_date_to_end_date"
                                         data-translate-values="{ start_date: vm.startDate, end_date: vm.endDate }"></span>
                                 </div>
-                                <hr>
+                                <div class="margin-bottom text-center" ng-if="vm.listingTypeProperties.isAvailabilityStock">
+                                    <span class="text--semibold"
+                                        data-translate="booking.summary.quantity"
+                                        data-translate-values="{ quantity: vm.booking.quantity }"></span>
+                                </div>
+                                <hr ng-if="vm.listingTypeProperties.isTimeFlexible || vm.listingTypeProperties.isAvailabilityStock">
                             </div>
                             <div class="margin-bottom" ng-if="vm.listingLocations.length">
-                                {{::vm.listing.owner.fullname}} a indiqué préférer un rendez-vous
-                                <span ng-if="vm.listingLocations.length > 1">aux lieux suivants</span>
-                                <span ng-if="vm.listingLocations.length <= 1">au lieu suivant</span>&nbsp;:
+                                <span data-translate="booking.summary.owner_locations"
+                                    data-translate-values="{ nb_locations: vm.listingLocations.length, owner: vm.listing.owner.fullname || undefined }"></span>
                             </div>
                             <div class="margin-bottom-plus booking-summary__locations" ng-if="vm.listingLocations.length">
                                 <span ng-repeat="loc in vm.listingLocations">{{::loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : "")}}<br></span>
