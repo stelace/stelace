@@ -94,6 +94,7 @@
 
         vm.activeTags           = StelaceConfig.isFeatureActive('TAGS');
         vm.showListingCategories = StelaceConfig.isFeatureActive('LISTING_CATEGORIES');
+        vm.isListingCategoriesRequired = !!stlConfig.listing_categories__required;
         vm.listingType          = null;
         vm.listingType  = null;
         vm.listingTypes         = [];
@@ -277,7 +278,13 @@
 
                 vm.isAuthenticated    = !! currentUser;
                 vm.createAccount      = ! currentUser;
-                vm.listingCategoriesLvl1 = _selectListingCategory();
+
+                if (listingCategories.length) {
+                    vm.listingCategoriesLvl1 = _selectListingCategory();
+                } else {
+                    vm.showListingCategories = false;
+                    vm.isListingCategoriesRequired = false;
+                }
 
                 return _fetchUserInfo();
             }).then(function () {
@@ -694,7 +701,7 @@
                 return;
             }
 
-            if (! vm.selectedListingCategoryLvl1 && vm.showListingCategories) {
+            if (! vm.selectedListingCategoryLvl1 && vm.isListingCategoriesRequired) {
                 return;
             }
 
@@ -1107,7 +1114,7 @@
                 }
                 if (vm.selectedListingCategoryLvl2) {
                     attrs.listingCategoryId = vm.selectedListingCategoryLvl2.id;
-                } else {
+                } else if (vm.selectedListingCategoryLvl1) {
                     attrs.listingCategoryId = vm.selectedListingCategoryLvl1.id;
                 }
             }

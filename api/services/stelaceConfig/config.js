@@ -103,6 +103,9 @@ const schema = {
             type: ['string', 'null'],
             enum: ['individual', 'organization', null],
         },
+        listing_categories__required: {
+            type: ['boolean', 'null'],
+        },
     },
 };
 

@@ -106,7 +106,7 @@
                                 ng-model="vm.selectedListingCategoryLvl1"
                                 ng-options="cat.name for cat in vm.listingCategoriesLvl1"
                                 ng-change="vm.categoryChanged()"
-                                required>
+                                ng-required="vm.isListingCategoriesRequired">
                                 <option value="" selected disabled="disabled" data-translate="listing.category_label">
                                 </option>
                             </select>
