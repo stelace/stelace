@@ -27,7 +27,7 @@ module.exports = {
             EVENTS: true,
             SOCIAL_LOGIN: true,
             INCOME_REPORT: false,
-            LISTING_CATEGORIES: false,
+            LISTING_CATEGORIES: true,
             SMS: true,
             MAP: true,
         },

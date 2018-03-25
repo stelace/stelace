@@ -191,7 +191,7 @@ snapshotsDir: "/path/to/project-external/snapshots"
 > (optional, useful to debug phantom scripts)
 
 
-####Install Docker CE
+#### Install Docker CE
 
 Please go to [Docker website](https://docs.docker.com/install/#server) to install Docker CE. Choose the right installation guide for your system.
 
@@ -213,7 +213,12 @@ Launch Elasticsearch to search listings:
 
 **Populate database**
 
+Execute the following scripts to populate database:
+
     node scripts_migration/createListingTypes.js
+    node scripts_migration/createListingCategories.js
+
+ An interface will be provided for an easy edition. For now, you can edit the data structure within those scripts and execute them again to apply your changes.
 
 
 **Gulp tasks**
