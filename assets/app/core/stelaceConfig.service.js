@@ -13,8 +13,6 @@
         service.updateConfig   = updateConfig;
         service.updateFeatures = updateFeatures;
 
-        service.getPaymentProvider = getPaymentProvider;
-
         activate();
 
         return service;
@@ -60,11 +58,6 @@
                 .then(function (result) {
                     window.actions.FeaturesActions.setFeatures(result.features);
                 });
-        }
-
-        function getPaymentProvider() {
-            var state = $ngRedux.getState();
-            return state.config.payment_provider;
         }
 
     }

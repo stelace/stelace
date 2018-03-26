@@ -21,6 +21,7 @@ module.exports = {
 
 };
 
+const _ = require('lodash');
 const createError = require('http-errors');
 
 function find(req, res) {
@@ -49,10 +50,10 @@ async function createAccount(req, res) {
         accountType,
         accountToken,
         country,
+        paymentProvider,
     } = req.allParams();
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
     const currency = config.currency;
 
     if (!currency) {
@@ -95,17 +96,17 @@ async function getBankAccounts(req, res) {
 
 async function createBankAccount(req, res) {
     const attrs = req.allParams();
+    const paymentProvider = req.param('paymentProvider');
 
     const access = 'self';
 
-    const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
-
     let bankAccount;
     if (paymentProvider === 'mangopay') {
-        bankAccount = await PaymentMangopayService.createBankAccount(req.user, attrs);
+        bankAccount = await PaymentMangopayService.createBankAccount(req.user, _.omit(attrs, 'paymentProvider'));
     } else if (paymentProvider === 'stripe') {
-        bankAccount = await PaymentStripeService.createBankAccount(req.user, attrs);
+        bankAccount = await PaymentStripeService.createBankAccount(req.user, _.omit(attrs, 'paymentProvider'));
+    } else {
+        throw new Error('Unknown payment provider');
     }
 
     res.json(BankAccount.expose(bankAccount, access));

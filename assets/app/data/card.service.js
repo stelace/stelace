@@ -31,6 +31,7 @@
                 registrationData: args.registrationData,
                 cardToken: args.cardToken,
                 forget: args.forget,
+                paymentProvider: args.paymentProvider
             });
         }
 

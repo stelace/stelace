@@ -36,12 +36,10 @@ async function create(req, res) {
         registrationData,
         cardToken,
         forget,
+        paymentProvider,
     } = req.allParams();
 
     const access = 'self';
-
-    const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
 
     let card;
 

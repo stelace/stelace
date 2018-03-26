@@ -54,7 +54,6 @@
         vm.listingType          = null;
         vm.listingTypeProperties = {};
         vm.userType             = null;
-        vm.paymentProvider      = null;
         vm.booking              = null;
         vm.showEmail            = false;
         vm.cardErrorType        = null;
@@ -143,7 +142,9 @@
                 cardId = results.cardId;
                 vm.booking       = results.booking;
                 vm.currentUser   = currentUser;
-                vm.cards         = results.cards;
+                vm.cards         = _.filter(results.cards, function (card) {
+                    return card.paymentProvider === vm.booking.paymentProvider;
+                });
                 vm.noImage       = (results.myImage.url === platform.getDefaultProfileImageUrl());
                 vm.identity      = {
                     birthday: kyc.data.birthday,
@@ -179,8 +180,7 @@
                     }
                 }
 
-                vm.paymentProvider = StelaceConfig.getPaymentProvider();
-                if (vm.paymentProvider === 'stripe') {
+                if (vm.booking.paymentProvider === 'stripe') {
                     var eventCallback = function (error) {
                         touchCard = true;
                         if (error) {
@@ -363,16 +363,19 @@
                     kyc = newKyc;
 
                     // will not create an account if there is existing ones
-                    return finance.createAccount({ accountType: 'customer' });
+                    return finance.createAccount({
+                        accountType: 'customer',
+                        paymentProvider: vm.booking.paymentProvider
+                    });
                 });
         }
 
         function saveCard() {
             return $q.resolve()
                 .then(function () {
-                    if (vm.paymentProvider === 'mangopay') {
+                    if (vm.booking.paymentProvider === 'mangopay') {
                         return _saveMangopayCard();
-                    } else if (vm.paymentProvider === 'stripe') {
+                    } else if (vm.booking.paymentProvider === 'stripe') {
                         return _saveStripeCard();
                     } else {
                         return $q.reject('Unknown payment provider');
@@ -405,7 +408,8 @@
                         registrationData: data,
                         cardNumber: vm.newCard.number,
                         expirationDate: vm.newCard.expirationDate,
-                        forget: ! vm.rememberCard
+                        forget: ! vm.rememberCard,
+                        paymentProvider: vm.booking.paymentProvider
                     });
                 });
         }
@@ -418,7 +422,8 @@
             return CardService.createStripeCardToken(stripeCardElement)
                 .then(function (res) {
                     return CardService.createCard({
-                        cardToken: res.token.id
+                        cardToken: res.token.id,
+                        paymentProvider: vm.booking.paymentProvider
                     });
                 });
         }
@@ -469,7 +474,7 @@
             } else if (! vm.selectedCard && vm.cards.length && vm.reuseCard) {
                 selectedCard = vm.cards[0]; // should not happen
             } else {
-                if (vm.paymentProvider === 'stripe') {
+                if (vm.booking.paymentProvider === 'stripe') {
                     if (!touchCard) {
                         return ContentService.showNotification({
                             messageKey: 'payment.error.invalid_card_number'
@@ -480,7 +485,7 @@
                             messageKey: 'payment.error.invalid_card_number'
                         });
                     }
-                } else { // vm.paymentProvider === 'mangopay'
+                } else { // vm.booking.paymentProvider === 'mangopay'
                     if ($scope.paymentForm.newCardNumber.$invalid) {
                         return ContentService.showNotification({
                             messageKey: 'payment.error.invalid_card_number'

@@ -51,7 +51,7 @@
                         ng-if="! vm.reuseCard && vm.cards.length < 2"
                         data-translate="pages.booking_payment.card.using_new_card_prompt">
                     </p>
-                    <div ng-show="vm.paymentProvider === 'stripe'" class="margin-bottom-plus">
+                    <div ng-show="vm.booking.paymentProvider === 'stripe'" class="margin-bottom-plus">
                         <div id="card-element" class="margin-bottom"
                             ng-class="{ 'form-submitted': paymentForm.$submitted }"></div>
                         <div class="card-error form-warning text--semibold margin-bottom"
@@ -59,7 +59,7 @@
                             {{vm.cardErrorMessage}}
                         </div>
                     </div>
-                    <div ng-show="vm.paymentProvider === 'mangopay'">
+                    <div ng-show="vm.booking.paymentProvider === 'mangopay'">
                         <label for="card-number" data-translate="pages.booking_payment.card.number">
                         </label>
                         <div class="flex-container flex--wrap">

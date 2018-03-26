@@ -252,7 +252,14 @@
                     });
                 }
 
-                vm.hasBankAccount = bankAccounts.length;
+                if (vm.booking) {
+                    bankAccounts = _.filter(bankAccounts, function (bankAccount) {
+                        return bankAccount.paymentProvider === vm.booking.paymentProvider;
+                    });
+                    vm.hasBankAccount = bankAccounts.length;
+                } else {
+                    vm.hasBankAccount = false;
+                }
 
                 _populateMessageCTA();
                 _setCountdown();

@@ -78,11 +78,11 @@
             // conversation bookingStatus is more accurate since updated
             vm.ctaTitleKey = _getCtaTitleKey((vm.conversation && vm.conversation.bookingStatus) || vm.message.bookingStatus);
 
-            vm.paymentProvider = StelaceConfig.getPaymentProvider();
-
             // no booking if booking status is 'info'
             if (vm.booking) {
                 vm.booking = Restangular.restangularizeElement(null, vm.booking, "booking");
+
+                vm.paymentProvider = vm.booking.paymentProvider;
 
                 vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
 
@@ -127,7 +127,9 @@
                     vm.isGoogleMapSDKReady = true;
                     cache.set("isGoogleMapSDKReady", true);
                     kyc = results.kyc;
-                    bankAccounts = results.bankAccounts;
+                    bankAccounts = _.filter(results.bankAccounts, function (bankAccount) {
+                        return bankAccount.paymentProvider === vm.paymentProvider;
+                    });
                     paymentAccounts = results.paymentAccounts;
 
                     vm.currentUser  = results.currentUser;
@@ -381,7 +383,7 @@
                         kyc = newKyc;
 
                         if (vm.paymentProvider === 'mangopay') {
-                            return finance.createAccount();
+                            return finance.createAccount({ paymentProvider: vm.paymentProvider });
                         } else if (vm.paymentProvider === 'stripe') {
                             return finance.createStripeAccountToken({
                                 legal_entity: {
@@ -401,6 +403,7 @@
                                     accountToken: res.token.id,
                                     accountType: 'account',
                                     country: kyc.data.countryOfResidence, // TODO: check the country associated with RIB
+                                    paymentProvider: vm.paymentProvider
                                 });
                             });
                         }
@@ -434,6 +437,7 @@
                                 Country: vm.identity.countryOfResidence, // TODO: get the country from the address
                             },
                             iban: vm.iban,
+                            paymentProvider: vm.booking.paymentProvider
                         };
 
                         return finance.createBankAccount(createBankAccountAttrs)
@@ -450,7 +454,8 @@
                         })
                         .then(function (res) {
                             return finance.createBankAccount({
-                                accountToken: res.token.id
+                                accountToken: res.token.id,
+                                paymentProvider: vm.booking.paymentProvider
                             });
                         })
                         .then(_afterBankAccountCreationSuccess)
