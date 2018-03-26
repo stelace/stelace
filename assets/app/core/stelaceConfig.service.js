@@ -13,6 +13,8 @@
         service.updateConfig   = updateConfig;
         service.updateFeatures = updateFeatures;
 
+        service.isFreeTrial = isFreeTrial;
+
         activate();
 
         return service;
@@ -58,6 +60,10 @@
                 .then(function (result) {
                     window.actions.FeaturesActions.setFeatures(result.features);
                 });
+        }
+
+        function isFreeTrial() {
+            return window.dataFromServer.freeTrial;
         }
 
     }

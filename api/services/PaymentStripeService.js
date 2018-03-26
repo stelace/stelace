@@ -46,9 +46,17 @@ let stripeInstance;
 async function getStripeInstance() {
     if (stripeInstance) return stripeInstance;
 
-    const secretData = await StelaceConfigService.getSecretData();
+    const config = await StelaceConfigService.getConfig();
+    let secretKey;
 
-    const secretKey = secretData.stripe__secret_key;
+    if (sails.config.stelace.stelaceId && !config.is_service_live) {
+        secretKey = sails.config.freeTrial.stripe.secretKey;
+    } else {
+        const secretData = await StelaceConfigService.getSecretData();
+
+        secretKey = secretData.stripe__secret_key;
+    }
+
     if (!secretKey) {
         throw createError('Missing Stripe secret key', { missingCredentials: true });
     }

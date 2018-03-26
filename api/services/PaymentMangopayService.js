@@ -44,16 +44,34 @@ let mangopayInstance;
 async function getMangopayInstance() {
     if (mangopayInstance) return mangopayInstance;
 
+    const config = await StelaceConfigService.getConfig();
     const secretData = await StelaceConfigService.getSecretData();
 
-    const clientId = secretData.mangopay__client_id;
-    const passphrase = secretData.mangopay__passphrase;
+    let clientId;
+    let passphrase;
+    let workspace;
 
-    const workspace = sails.config.mangopay.workspace;
+    if (sails.config.stelace.stelaceId && !config.is_service_live) {
+        clientId = sails.config.freeTrial.mangopay.clientId;
+        passphrase = sails.config.freeTrial.mangopay.passphrase;
+        workspace = 'sandbox';
+    } else {
+        clientId = secretData.mangopay__client_id;
+        passphrase = secretData.mangopay__passphrase;
+
+        workspace = sails.config.mangopay.workspace;
+    }
+
+    // force the workspace to be 'production'
+    if (sails.config.stelace.stelaceId && config.is_service_live) {
+        workspace = 'production';
+    }
 
     if (!clientId || !passphrase) {
         throw createError('Missing Mangopay client credentials', { missingCredentials: true });
     }
+
+    console.log(clientId, passphrase)
 
     mangopayInstance = new Mangopay({
         clientId,

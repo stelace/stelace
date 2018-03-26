@@ -123,7 +123,11 @@ async function createCardRegistration(req, res) {
         currency = config.currency;
 
         if (!currency) {
-            throw new Error('Missing payment configuration');
+            if (sails.config.stelace.stelaceId && !config.is_service_live) {
+                currency = StelaceConfigService.getDefaultCurrency();
+            } else {
+                throw new Error('Missing payment configuration');
+            }
         }
     }
 

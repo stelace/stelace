@@ -370,6 +370,7 @@ async function payment(req, res) {
 
     const skipPayment = Booking.shouldPaymentBeSkipped(booking, operation, transactionManager);
 
+    try {
     if (!skipPayment) {
         const result = await PaymentService.createPreauthorization({
             booking,
@@ -403,6 +404,10 @@ async function payment(req, res) {
     });
 
     res.json(Booking.expose(updatedBooking, access));
+}catch(err) {
+    console.log(err)
+    throw err
+}
 }
 
 async function paymentSecure(req, res) {

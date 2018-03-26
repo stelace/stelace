@@ -102,7 +102,22 @@ async function index(req, res) {
     // pre-load translations for client-side
     const translations = await ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
 
-    const paymentProvider = config.payment_provider;
+    let paymentProvider = config.payment_provider;
+
+    let stripePublishKey = config.stripe__publish_key;
+    let stripeActive;
+
+    const freeTrial = sails.config.stelace.stelaceId && !config.is_service_live;
+
+    if (freeTrial) {
+        if (!paymentProvider) {
+            paymentProvider = StelaceConfigService.getDefaultPaymentProvider();
+        }
+        stripePublishKey = sails.config.freeTrial.stripe.publishKey;
+        stripeActive = true;
+    } else {
+        stripeActive = (paymentProvider === 'stripe' || config.stripe_complete);
+    }
 
     const dataFromServer = {
         config,
@@ -111,7 +126,8 @@ async function index(req, res) {
         currency,
         translations,
         paymentProvider,
-        stripePublishKey: config.stripe__publish_key,
+        stripePublishKey,
+        freeTrial,
     };
 
     let highlightTranslations;
@@ -146,7 +162,7 @@ async function index(req, res) {
         devHighlightTranslations: highlightTranslations ? 'highlight-translations' : '',
         featureDetection: !UAService.isBot(userAgent),
         dataFromServer: JSON.stringify(dataFromServer || {}),
-        stripeActive: paymentProvider === 'stripe',
+        stripeActive,
     };
 
     if (sails.config.environment === 'production') {
