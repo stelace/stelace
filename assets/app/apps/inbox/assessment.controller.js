@@ -7,6 +7,7 @@
         .controller("AssessmentController", AssessmentController);
 
     function AssessmentController($interval,
+                                    $ngRedux,
                                     $q,
                                     $rootScope,
                                     $scope,
@@ -30,6 +31,7 @@
         var collapseTimeout;
 
         var vm = this;
+        vm.config = null;
         vm.showAssessmentSaveButton = false;
         vm.showRatingSaveButton = false;
         vm.isOwner        = false;
@@ -79,9 +81,14 @@
                 })
             );
 
+            var unsubscribeConfig = $ngRedux.subscribe(function () {
+                vm.config = getConfig();
+            });
+
             $scope.$on("$destroy", function () {
                 $interval.cancel(showButtonInterval);
                 $timeout.cancel(collapseTimeout);
+                unsubscribeConfig();
             });
 
             // prefill the assessment with the previous one
@@ -140,6 +147,11 @@
 
                 _setShowButton();
             });
+        }
+
+        function getConfig() {
+            var state = $ngRedux.getState();
+            return state.config;
         }
 
         function save() {

@@ -692,7 +692,7 @@ user:
         fr: Vérification du profil
     joined_in_month:
         en: 'Joined in {subscription_date, date, fullmonth}'
-        fr: 'Membre depuis  {subscription_date, date, fullmonth}'
+        fr: 'Membre depuis {subscription_date, date, fullmonth}'
     firstname_label:
         en: First name
         fr: Prénom
@@ -1306,6 +1306,38 @@ social:
     share_on_facebook:
         en: Share on Facebook
         fr: Partagez sur Facebook
+    facebook_page:
+        en: '{SERVICE_NAME} Facebook page'
+        fr: 'Page Facebook {SERVICE_NAME}'
+    cta_share_title:
+        en: |
+            {is_owner, select,
+                true {Make your listing known}
+                false {You liked?}
+                other {}
+            }
+        fr: |
+            {is_owner, select,
+                true {Faîtes connaître votre annonce}
+                false {Vous aimez ?}
+                other {}
+            }
+    cta_share_message:
+        en: |
+            {is_owner, select,
+                true {Share your listing with your friends}
+                false {Share your discovery with your friends}
+                other {}
+            }
+        fr: |
+            {is_owner, select,
+                true {Partagez votre annonce avec vos amis}
+                false {Partagez votre découverte avec vos amis}
+                other {}
+            }
+    cta_share_card_message:
+        en: 'Discover it on {SERVICE_NAME}'
+        fr: 'Découvrez le sur {SERVICE_NAME}'
 greeting:
     en: Hello
     fr: Bonjour
@@ -1620,6 +1652,102 @@ inbox:
     error_refresh_page_message:
         en: Please refresh the page to display the transaction confirmation
         fr: Veuillez rafraîchir la page pour faire apparaître la confirmation de la transaction
+    transaction_security_title:
+        en: Secure your transactions
+        fr: Sécurisez vos transactions
+    transaction_security_message:
+        en: 'Do not make any transactions outside the website {SERVICE_NAME}. By doing that, you would loose access to our secured payment service, our cancellation policy and our support.'
+        fr: 'N’effectuez jamais de transactions en dehors du site {SERVICE_NAME}. En ne passant pas par le site, vous perdriez accès à notre service de paiement sécurisé, à notre politique d’annulation et à notre assistance.'
+    banking_details:
+        main_message:
+            en: 'I give my banking details{price, select, 0 {} other { to receive the payment}}:'
+            fr: "Je renseigne mes informations bancaires{price, select, 0 {} other { pour recevoir le paiement}} :"
+        helper_message:
+            en: Please have your RIB with you.
+            fr: Nous vous invitons à vous munir de votre RIB.
+        location:
+            en: Address specified on your RIB
+            fr: Adresse indiquée sur mon RIB
+        location_placeholder:
+            en: Give your address
+            fr: Renseignez votre adresse
+        iban:
+            en: IBAN
+            fr: IBAN
+        invalid_iban_message:
+            en: Please give a valid IBAN to receive your payment.
+            fr: Veuillez renseigner un IBAN valide pour recevoir votre paiement.
+        notification:
+            missing_iban_message:
+                en: Please give your IBAN.
+                fr: Veuillez renseigner votre IBAN.
+            iban_error_message:
+                en: Please check your IBAN.
+                fr: Veuillez vérifier votre IBAN.
+            missing_information_message:
+                en: Missing information is required to valid the transaction.
+                fr: Il manque des informations nécessaires à la validation de la réservation.
+            incorrect_location_message:
+                en: Please give a correct address.
+                fr: Veuillez renseigner une adresse correcte.
+            missing_location_message:
+                en: Please give your address.
+                fr: Veuillez renseigner votre adresse.
+            success_title:
+                en: Banking details saved
+                fr: Coordonnées bancaires enregistrées
+            success_message:
+                en: You will get the payment amount after the transaction validation.
+                fr: Nous pourrons vous transférer le montant de la réservation après la validation de la transaction.
+
+    summary:
+        information_title:
+            en: Information
+            fr: Informations
+        listing_title:
+            en: |
+                {as_owner, select,
+                    true {Your listing}
+                    false {{owner, select,
+                        undefined {The seller’s}
+                        other {{owner}’s}
+                    } listing}
+                    other {}
+                }
+            fr: |
+                {as_owner, select,
+                    true {Votre annonce}
+                    false {L’annonce {owner, select,
+                        undefined {du vendeur}
+                        other {de {owner}}
+                    }}
+                    other {}
+                }
+        owner_locations:
+            en: |
+                {as_owner, select,
+                    true {You}
+                    false {{owner, select,
+                        undefined {The seller}
+                        other {{owner}}
+                    }}
+                    other {}
+                } specified the following {nb_locations, plural,
+                    one {location}
+                    other {locations}
+                } for the listing:
+            fr: |
+                {as_owner, select,
+                    true {Vous avez indiqué}
+                    false {{owner, select,
+                        undefined {Le vendeur a indiqué}
+                        other {{owner} a indiqué}
+                    }}
+                    other {}
+                } {nb_locations, plural,
+                    one {le lieu suivant}
+                    other {les lieux suivants}
+                } pour l’annonce :
 assessment:
     assessment_action:
         en: '{toConfirm, select, true{Validation needed} other{Completed}}'

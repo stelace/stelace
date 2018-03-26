@@ -198,7 +198,7 @@
                                 ng-model="vm.ctaPublicMessage"
                                 ng-model-options="{ debounce: 300 }"
                                 ng-maxlength="2000"
-                                placeholder="{{'Question publique:\n' + vm.publicQuestion.substr(0, 128) + '...'}}"
+                                data-translate-attr="{ placeholder: 'inbox.public_question_placeholder' }"
                                 sip-textarea-auto-adjust>
                             </textarea>
                             <button class="button brightblue"
@@ -250,28 +250,31 @@
                                 <span ng-switch-when="false" data-translate="booking.prompt.show_banking_details"></span>
                             </div>
                             <div uib-collapse="! vm.bankAccountActive">
-                                <p ng-hide="vm.hasBankAccount">
-                                    <span class="text--semibold text--orange">
-                                        Je renseigne mes informations bancaires&nbsp;<span ng-if="vm.booking.takerPrice">pour recevoir le paiement</span>&nbsp;:
+                                <p ng-hide="vm.hasBankAccount" class="margin-top no-margin-bottom">
+                                    <span class="text--semibold text--orange"
+                                        data-translate="inbox.banking_details.main_message"
+                                        data-translate-values="{ price: vm.booking.takerPrice }"
+                                    >
                                     </span>
                                     <br>
-                                    <span class="text--light">Nous vous invitons à vous munir de votre RIB.</span>
+                                    <span class="text--light"
+                                        data-translate="inbox.banking_details.helper_message"
+                                    >
+                                    </span>
                                 </p>
                                 <div class="flex-container">
                                     <div class="small-6">
-                                        <label for="owner-firstname">
-                                            Prénom
+                                        <label for="owner-firstname" data-translate="user.firstname_label">
                                         </label>
-                                        <input id="owner-lastname" type="text"
+                                        <input id="owner-firstname" type="text"
                                             ng-model="vm.firstName"
                                             ng-model-options="{ debounce: 300 }"
                                             required>
                                     </div>
                                     <div class="small-6">
-                                        <label for="owner-firstname">
-                                            Nom
+                                        <label for="owner-lastname"  data-translate="user.lastname_label">
                                         </label>
-                                        <input id="owner-firstname" type="text"
+                                        <input id="owner-lastname" type="text"
                                             ng-model="vm.lastName"
                                             ng-model-options="{ debounce: 300 }"
                                             required>
@@ -279,17 +282,19 @@
                                 </div>
                                 <div ng-if="!vm.hasBankAccount">
                                     <label for="select-birth-day">
-                                        Date de naissance&nbsp;
+                                        <span data-translate="user.date_of_birth_label">
+                                        </span>
+                                        &nbsp;
                                         <span class="badge tooltip-badge"
                                             data-tooltip-placement="auto top"
                                             data-tooltip-trigger="mouseenter outsideClick"
-                                            uib-tooltip="Seuls les majeurs sont autorisés à effectuer des transactions sur Sharinplace.">
+                                            uib-tooltip="{{vm.adultPaymentTooltip}}">
                                             ?
                                         </span>
                                     </label>
                                     <div data-stl-select-birthday data-birth-date="{{vm.identity.birthday}}" on-change="vm.onChangeBirthday(date)"></div>
                                 </div>
-                                <label>Adresse indiquée sur mon RIB</label>
+                                <label data-translate="inbox.banking_details.location"></label>
                                 <input
                                     ng-if="vm.isGoogleMapSDKReady"
                                     ng-class="{'force-invalid': vm.missingAddress}"
@@ -299,27 +304,20 @@
                                     ng-autocomplete
                                     data-options="vm.ngAutocompleteOptions"
                                     data-details="vm.addressLocation"
-                                    placeholder="Saisissez votre adresse">
+                                    data-translate-attr="{ placeholder: 'inbox.banking_details.location_placeholder' }">
                                 <div ng-if="!vm.hasBankAccount">
-                                    <label for="select-country">
-                                        Pays
+                                    <label for="select-country" data-translate="pages.booking_payment.country_of_residence_label">
                                     </label>
                                     <select id="select-country" name="booking-country"
                                         ng-model="vm.identity.countryOfResidence"
                                         data-stl-select-country
-                                        data-lang="fr"
-                                        ng-change="vm.checkCountry()"
-                                        ng-class="{'force-invalid': vm.euroCountryWarning}">
+                                        data-lang="{{config.lang}}"
+                                        ng-change="vm.checkCountry()">
                                     </select>
-                                    <div class="form-warning text--semibold"
-                                        uib-collapse="! vm.euroCountryWarning">
-                                        Seuls les paiements en euros sont acceptés.
-                                    </div>
                                 </div>
                                 <div class="flex-container">
                                     <div class="small-12">
-                                        <label for="owner-iban">
-                                            IBAN
+                                        <label for="owner-iban" data-translate="inbox.banking_details.iban">
                                         </label>
                                         <input id="owner-iban" type="text"
                                             name="ownerIban"
@@ -329,17 +327,15 @@
                                             placeholder="FR7630..."
                                             required>
                                         <div class="form-warning text--semibold"
-                                            uib-collapse="! bankAccountForm.ownerIban.$touched || ! bankAccountForm.ownerIban.$invalid && ! vm.badIban">
-                                            Veuillez renseigner un IBAN valide pour recevoir votre paiement.
+                                            uib-collapse="! bankAccountForm.ownerIban.$touched || ! bankAccountForm.ownerIban.$invalid && ! vm.badIban"
+                                            data-translate="inbox.banking_details.invalid_iban_message"
+                                        >
                                         </div>
                                     </div>
                                 </div>
-                                <div ng-show="vm.hasBankAccount">
-                                    Pour modifier vos informations bancaires, veuillez nous contacter.
-                                </div>
                                 <button class="button"
-                                    ng-click="vm.createBankAccount()">
-                                    Enregistrer mes informations
+                                    ng-click="vm.createBankAccount()"
+                                    data-translate="prompt.save_button">
                                 </button>
                                 <span class="spinner-container" ng-if="vm.bankAccountActive">
                                     <span data-us-spinner="{scale: 0.5}" data-spinner-key="booking-validation-spinner"></span>

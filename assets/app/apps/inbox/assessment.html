@@ -229,16 +229,20 @@
                     </div>
                 </div>
                 <div class="fb-page__container margin-top-plus"
-                    ng-if="vm.ratings && vm.facebookPagePlugin">
+                    ng-if="vm.ratings && vm.facebookPagePlugin && vm.config.facebook_url">
                     <div class="fb-page"
-                        data-href="https://www.facebook.com/sharinplace/"
+                        data-href="{{vm.config.facebook_url}}"
                         data-small-header="true"
                         data-width="500"
                         data-adapt-container-width="true"
                         data-hide-cover="false"
                         data-show-facepile="false">
-                        <blockquote cite="https://www.facebook.com/sharinplace/" class="fb-xfbml-parse-ignore">
-                            <a href="https://www.facebook.com/sharinplace/">Page Facebook Sharinplace</a>
+                        <blockquote cite="{{vm.config.facebook_url}}" class="fb-xfbml-parse-ignore">
+                            <a ng-href="{{vm.config.facebook_url}}"
+                                data-translate="social.facebook_page"
+                                data-translate-values="{ SERVICE_NAME: vm.config.SERVICE_NAME }"
+                            >
+                            </a>
                         </blockquote>
                     </div>
                 </div>

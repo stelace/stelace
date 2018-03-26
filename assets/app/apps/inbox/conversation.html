@@ -92,21 +92,13 @@
                     <div class="small-12 medium-10 plain-card">
                         <!-- Using ng-if to prevent 2-line content from showing initially -->
                         <div class="plain-card__divider">
-                            <h3 ng-hide="::vm.isOwner">
-                                Vous aimez&nbsp;?
-                            </h3>
-                            <h3 ng-if="::vm.isOwner">
-                                Faites connaître votre objet
+                            <h3 data-translate="social.cta_share_title" data-translate-values="{ is_owner: vm.isOwner }">
                             </h3>
                         </div>
                         <div class="message__content">
                             <div class="text--semibold"
-                                ng-hide="::vm.isOwner">
-                                 Partagez votre découverte avec vos amis&nbsp;;)
-                            </div>
-                            <div class="text--semibold"
-                                ng-if="::vm.isOwner">
-                                 Partagez votre annonce avec vos amis&nbsp;;)
+                                data-translate="social.cta_share_message"
+                                data-translate-values="{ is_owner: vm.isOwner }">
                             </div>
                             <div class="text-center cursor-pointer"
                                 ng-click="vm.facebookShare()"
@@ -123,11 +115,13 @@
                                         <div class="text--semibold ellipsis">
                                             {{ vm.listing.name }}
                                         </div>
-                                        <div class="text--small ellipsis">
-                                            A emprunter sur Sharinplace
+                                        <div class="text--small ellipsis"
+                                            data-translate="social.cta_share_card_message"
+                                            data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }"
+                                        >
                                         </div>
                                         <div class="text--vsmall text--light ellipsis">
-                                            SHARINPLACE.FR
+                                            {{config.SERVICE_NAME}} <!-- TODO: replace by domain name -->
                                         </div>
                                     </div>
                                 </div>
@@ -136,16 +130,14 @@
                                         <svg class="icon">
                                             <use xlink:href="/assets/build/icons/sprite.svg#face"/>
                                         </svg>
-                                        &nbsp;Partagez sur Facebook
+                                        &nbsp;
+                                        <span data-translate="social.share_on_facebook"></span>
                                     </span>
                                     <span class="spinner-container">
                                         <span data-us-spinner="{scale: 0.5}" data-spinner-key="share-listing-spinner"></span>
                                     </span>
                                 </div>
                             </div>
-                            <!-- <div class="text--light">
-                                Cet objet pourrait intéresser vos amis, parmi  bien d'autres disponibles sur Sharinplace&nbsp!
-                            </div> -->
                         </div>
                     </div>
                     <div class="medium-1"></div>
@@ -209,7 +201,7 @@
                         <div class="small-2 medium-1 message__myself-thumbnail-wrapper"
                             ng-class="{'hide-myself-mobile': (message.senderId === vm.interlocutor.id)}">
                             <div class="profile__image" ng-if="::(message.senderId !== vm.interlocutor.id)">
-                                <sip-img class="webkit-render-fix" ng-src="{{vm.myMedia.url + '?size=128x128'}}" alt="Ma photo de profil" rounded="true"></sip-img>
+                                <sip-img class="webkit-render-fix" ng-src="{{vm.myMedia.url + '?size=128x128'}}" rounded="true"></sip-img>
                             </div>
                         </div>
                         <div class="small-10 padded-sides message__content">
@@ -267,22 +259,28 @@
                                 ui-sref="user({ id: vm.interlocutor.id })">
                                 {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}}
                             </h3>
-                            <p class="text--small text--light"
-                                ng-switch="::vm.interlocutor.id">
-                                <span ng-switch-when="1">Compte officiel Sharinplace</span>
-                                <span ng-switch-default>Membre depuis {{::vm.interlocutor.seniority}}</span>
+                            <p ng-switch="::vm.interlocutor.id">
+                                <span ng-switch-when="1"
+                                    data-translate="user.service_admin_account"
+                                    data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }">
+                                </span>
+                                <span ng-switch-default
+                                    data-translate="user.joined_in_month"
+                                    data-translate-values="{ subscription_date: vm.interlocutor.createdDate }"></span>
                             </p>
                         </div>
                     </div>
                     <div>
                         <div class="plain-card__divider">
                             <h3>
-                                Informations&nbsp;
+                                <span data-translate="inbox.summary.information_title">
+                                </span>
+                                &nbsp;
                                 <span class="badge tooltip-badge tooltip-dispensable"
                                     ng-if="vm.interlocutor.emailCheck || vm.interlocutor.phoneCheck"
                                     data-tooltip-placement="auto bottom"
                                     data-tooltip-trigger="mouseenter outsideClick"
-                                    uib-tooltip="Les coordonnées des membres sont vérifiées par Sharinplace, et masquées par mesure de sécurité avant la conclusion d'une réservation. Les coordonnées de {{::(vm.interlocutor.firstname || vm.interlocutor.fullname)}} vous sont transmises par email en cas de réservation.">
+                                    uib-tooltip="{{vm.interlocutorContactDetailsHiddenMessage}}">
                                     ?
                                 </span>
                             </h3>
@@ -301,8 +299,10 @@
                         ng-if="vm.listing">
                         <div class="plain-card__divider">
                             <!-- TODO: request owner identity in controller -->
-                            <h3 class="ellipsis">
-                                {{vm.isOwner ? "Votre objet" : (vm.listing.ownerId === 1 ? "Objet Sharinplace" : "Objet de " + (vm.interlocutor.firstname || vm.interlocutor.fullname))}}
+                            <h3 class="ellipsis"
+                                data-translate="inbox.summary.listing_title"
+                                data-translate-values="{ as_owner: vm.isOwner, owner: vm.interlocutor.firstname || vm.interlocutor.fullname || undefined }"
+                            >
                             </h3>
                         </div>
                         <div class="card-section flex-container desktop-vertical">
@@ -319,9 +319,8 @@
                                 </h3>
                                 <div ng-if="vm.listing.owner && vm.listingLocations.length">
                                     <div class="margin-top margin-bottom">
-                                        {{ vm.isTaker ? (vm.listing.owner.firstname || vm.listing.owner.fullname) + " est susceptible d'être disponible" : "Vous avez indiqué que cet objet pouvait être disponible" }}
-                                        <span ng-if="vm.listingLocations.length > 1">aux lieux suivants&nbsp;:</span>
-                                        <span ng-if="vm.listingLocations.length <= 1">au lieu suivant&nbsp;:</span>
+                                        <span data-translate="inbox.summary.owner_locations"
+                                            data-translate-values="{ nb_locations: vm.listingLocations.length, owner: vm.listing.owner.fullname || undefined, as_owner: !vm.isTaker }"></span>
                                     </div>
                                     <div class="margin-bottom-plus booking-summary__locations">
                                         <span ng-repeat="loc in vm.listingLocations">{{::(loc.displayAddress + (loc.postalCode ? " (" + loc.postalCode + ")" : ""))}}<br></span>
@@ -332,24 +331,12 @@
                     </div>
                 </div>
                 <div class="conversation__helper-wrapper">
-                    <div ng-if="vm.interlocutor.id === vm.listing.ownerId">
-                        <h3>Sécurisez vos emprunts</h3>
-                        <p class="text--small">
-                            N'effectuez jamais de réservation ou de dépôt de garantie avec d'autres membres en dehors du site Web Sharinplace.
-                        </p>
-                        <p class="text--small">
-                            En ne passant pas par Sharinplace, vous perdriez accès à notre service de paiement sécurisé, à notre politique d'annulation avantageuse et à notre assistance.
-                        </p>
-                    </div>
-                    <div ng-if="vm.interlocutor.id !== vm.listing.ownerId">
-                        <h3>Garantissez vos paiements</h3>
-                        <p class="text--small">
-                            N'effectuez jamais de transactions en dehors du site Web Sharinplace.
-                        </p>
-                        <p class="text--small">
-                            En effectuant vos transactions en dehors de Sharinplace, vous perdriez accès au dépôt de garantie protégeant vos objets, à notre service de paiement sécurisé, ainsi qu'à notre assistance.
-                        </p>
-                    </div>
+                    <h3 data-translate="inbox.transaction_security_title"></h3>
+                    <p class="text--small"
+                        data-translate="inbox.transaction_security_message"
+                        data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }"
+                    >
+                    </p>
                 </div>
             </div>
         </div>
