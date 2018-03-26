@@ -122,7 +122,6 @@ function saveSparkpostEvent(event, batchId) {
         ip: event.ip_address,
         country: geoIp && geoIp.country,
         region: geoIp && geoIp.region,
-        city: geoIp && geoIp.city,
         userAgent: event.user_agent,
         os: parsedUserAgent && parsedUserAgent.os.toString(),
         browser: parsedUserAgent && parsedUserAgent.toAgent(),
@@ -219,7 +218,6 @@ function saveEvent(mandrillEvent) {
         mandrillEvent.location = mandrillEvent.location || {};
         createAttrs.country = mandrillEvent.location.country_long;
         createAttrs.region  = mandrillEvent.location.region;
-        createAttrs.city    = mandrillEvent.location.city;
 
         mandrillEvent.user_agent_parsed = mandrillEvent.user_agent_parsed || {};
         createAttrs.mobile        = mandrillEvent.user_agent_parsed.mobile;

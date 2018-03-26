@@ -741,7 +741,6 @@ async function createEvent({
         params: _.omit(searchQuery, 'timestamp'),
         os: parsedUserAgent.os.toString(),
         browser: parsedUserAgent.toAgent(),
-        device: parsedUserAgent.device.toString(),
     });
     let stelaceEvent;
 

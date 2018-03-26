@@ -504,7 +504,6 @@ function createEvent(args) {
 
             ua.os      = parsedUserAgent.os.toString();
             ua.browser = parsedUserAgent.toAgent();
-            ua.device  = parsedUserAgent.device.toString();
         }
 
         if (ip) {
@@ -595,11 +594,9 @@ function createEvent(args) {
             lang: lang,
             country: ipInfo.country,
             region: ipInfo.region,
-            city: ipInfo.city,
             userAgent: userAgent,
             os: ua.os,
             browser: ua.browser,
-            device: ua.device,
             startUtmCampaign: utmCampaign,
             startUtmSource: utmSource,
             startUtmContent: utmContent,
@@ -623,12 +620,10 @@ function createEvent(args) {
             ip: ip,
             country: ipInfo.country,
             region: ipInfo.region,
-            city: ipInfo.city,
             lang: lang,
             userAgent: userAgent,
             os: ua.os,
             browser: ua.browser,
-            device: ua.device,
             width: width,
             height: height
         });
@@ -664,11 +659,9 @@ function createEvent(args) {
             lang: lang,
             country: ipInfo.country,
             region: ipInfo.region,
-            city: ipInfo.city,
             userAgent: userAgent,
             os: ua.os,
             browser: ua.browser,
-            device: ua.device,
             utmCampaign: utmCampaign,
             utmSource: utmSource,
             utmContent: utmContent,
@@ -859,12 +852,10 @@ function isAtLeastOneSet(model, fields) {
  * @param  {string} args.ip
  * @param  {string} args.country
  * @param  {string} args.region
- * @param  {string} args.city
  * @param  {string} args.lang
  * @param  {string} args.userAgent
  * @param  {string} args.os
  * @param  {string} args.browser
- * @param  {string} args.device
  * @param  {number} args.width
  * @param  {number} args.height
  * @return {object}
@@ -894,7 +885,6 @@ function getSessionChangeAttrs(stelaceSession, args) {
         updateAttrs.ip      = args.ip;
         updateAttrs.country = args.country;
         updateAttrs.region  = args.region;
-        updateAttrs.city    = args.city;
     }
 
     if (! stelaceSession.lang) {
@@ -905,7 +895,6 @@ function getSessionChangeAttrs(stelaceSession, args) {
         updateAttrs.userAgent = args.userAgent;
         updateAttrs.os        = args.os;
         updateAttrs.browser   = args.browser;
-        updateAttrs.device    = args.device;
     }
 
     if (! stelaceSession.width && ! stelaceSession.height) {

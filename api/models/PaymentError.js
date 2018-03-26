@@ -81,12 +81,6 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
-        city: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
         userAgent: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
@@ -100,12 +94,6 @@ module.exports = {
             maxLength: 255,
         },
         browser: {
-            type: 'string',
-            columnType: 'varchar(255) CHARACTER SET utf8mb4',
-            allowNull: true,
-            maxLength: 255,
-        },
-        device: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
             allowNull: true,
@@ -182,7 +170,6 @@ async function createMangopayError({
             const parsedUserAgent = useragent.parse(userAgent);
             createAttrs.os = parsedUserAgent.os.toString();
             createAttrs.browser = parsedUserAgent.toString();
-            createAttrs.device = parsedUserAgent.device.toString();
         }
 
         createAttrs.ip = req.ip;
@@ -190,7 +177,6 @@ async function createMangopayError({
             const ipInfo = await IPService.getInfo(req.ip);
             createAttrs.country = ipInfo.country;
             createAttrs.region = ipInfo.region;
-            createAttrs.city = ipInfo.city;
         }
     }
 
@@ -250,7 +236,6 @@ async function createStripeError({
             const parsedUserAgent = useragent.parse(userAgent);
             createAttrs.os = parsedUserAgent.os.toString();
             createAttrs.browser = parsedUserAgent.toString();
-            createAttrs.device = parsedUserAgent.device.toString();
         }
 
         createAttrs.ip = req.ip;
@@ -258,7 +243,6 @@ async function createStripeError({
             const ipInfo = await IPService.getInfo(req.ip);
             createAttrs.country = ipInfo.country;
             createAttrs.region = ipInfo.region;
-            createAttrs.city = ipInfo.city;
         }
     }
 

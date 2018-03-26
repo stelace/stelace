@@ -92,12 +92,6 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
-        city: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
         userAgent: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',

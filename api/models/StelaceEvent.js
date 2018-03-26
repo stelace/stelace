@@ -130,12 +130,6 @@ module.exports = {
             allowNull: true,
             maxLength: 255,
         },
-        city: {
-            type: 'string',
-            columnType: 'varchar(255)',
-            allowNull: true,
-            maxLength: 255,
-        },
         userAgent: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
@@ -149,12 +143,6 @@ module.exports = {
             maxLength: 255,
         },
         browser: {
-            type: 'string',
-            columnType: 'varchar(255) CHARACTER SET utf8mb4',
-            allowNull: true,
-            maxLength: 255,
-        },
-        device: {
             type: 'string',
             columnType: 'varchar(255) CHARACTER SET utf8mb4',
             allowNull: true,
@@ -240,7 +228,6 @@ function getAccessFields(access) {
             'targetUrl',
             'country',
             'region',
-            'city',
             'userAgent',
             'os',
             'browser',

@@ -90,13 +90,11 @@
                 .then(function () {
                     return $q.all({
                         myLocations: LocationService.getMine(),
-                        ipLocation: LocationService.getGeoInfo(),
                         currentUser: UserService.getCurrentUser(),
                         listingTypes: ListingTypeService.cleanGetList(),
                     });
                 }).then(function (results) {
                     $rootScope.myLocations = results.myLocations;
-                    $rootScope.ipLocation  = results.ipLocation;
                     currentUser            = results.currentUser;
                     vm.listingTypes = results.listingTypes;
 

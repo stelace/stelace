@@ -62,7 +62,6 @@
         var currentUser;
         var listingCategories;
         var myLocations;
-        var ipLocation;
         var stopSpinnerTimeout;
         var defaultQueryMode = "default";
         var spinnerTimeout;
@@ -246,7 +245,6 @@
                 listingCategories: ListingCategoryService.cleanGetList(),
                 myLocations: $rootScope.myLocations || LocationService.getMine(),
                 urlLocation: _getLocationFromURL(urlLocationName),
-                ipLocation: $rootScope.ipLocation || LocationService.getGeoInfo(),
                 listingTypes: ListingTypeService.cleanGetList()
             }).then(function (results) {
                 currentUser    = tools.clearRestangular(results.currentUser);
@@ -261,10 +259,6 @@
                 });
                 $rootScope.myLocations = myLocations;
                 urlLocation = results.urlLocation;
-
-                if (results.ipLocation) {
-                    ipLocation = results.ipLocation;
-                }
 
                 return _loadSearchConfig();
             }).then(function () {
@@ -472,13 +466,6 @@
                     if (_.contains(["all", "location"], $stateParams.reset) || ! $rootScope.myLocations.length) {
                         vm.validLocation = false;
                         queryLocationSource = "default";
-
-                        if (ipLocation && ipLocation.latitude && ipLocation.longitude) {
-                            ipDefaultLocation = _.assign({}, ipLocation, { source: "ip", name: "Position" });
-                            return ipDefaultLocation;
-                        } else {
-                            return;
-                        }
                     }
 
                     return;
