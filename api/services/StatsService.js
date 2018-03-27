@@ -22,7 +22,7 @@ function getDayAfter(date) {
     return moment(date).add({ d: 1 }).format('YYYY-MM-DD');
 }
 
-function getDateCount(dates, { startDate, endDate }) {
+function getDateCount(dates, { startDate, endDate, total }) {
     if (!startDate || !TimeService.isDateString(startDate, { onlyDate: true })
      || !endDate || !TimeService.isDateString(endDate, { onlyDate: true })
      || endDate <= startDate
@@ -41,7 +41,7 @@ function getDateCount(dates, { startDate, endDate }) {
     let currentDate = startDate;
     let stopDate = endDate;
 
-    const arrayDates = [];
+    let arrayDates = [];
 
     while (currentDate <= stopDate) {
         if (hash[currentDate]) {
@@ -57,6 +57,15 @@ function getDateCount(dates, { startDate, endDate }) {
         }
 
         currentDate = moment(currentDate).add({ d: 1 }).format('YYYY-MM-DD');
+    }
+
+    if (_.isNumber(total)) {
+        let sum = total;
+
+        arrayDates = arrayDates.map(obj => {
+            sum += obj.count;
+            return Object.assign({}, obj, { aggregate: sum });
+        });
     }
 
     return arrayDates;
