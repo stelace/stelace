@@ -1,4 +1,4 @@
-/* global Card, PaymentMangopayService, StelaceConfigService, TimeService, User */
+/* global Card, PaymentMangopayService, TimeService, User */
 
 /**
 * Card.js
@@ -140,6 +140,7 @@ function getAccessFields(access) {
         self: [
             "id",
             "userId",
+            "paymentProvider",
             "expirationMonth",
             "expirationYear",
             "currency",
@@ -185,31 +186,17 @@ function hasUnknownStatus(card) {
 }
 
 async function fetchCards(user) {
-    const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
-
-    let resourceOwnerId;
-    if (paymentProvider === 'mangopay') {
-        resourceOwnerId = User.getMangopayUserId(user);
-    } else if (paymentProvider === 'stripe') {
-        resourceOwnerId = User.getStripeCustomerId(user);
-    }
-
-    if (!resourceOwnerId) {
-        return [];
-    }
-
-    let findAttrs = {
-        resourceOwnerId,
-        forget: false,
-        active: true,
-    };
+    const mangopayResourceOwnerId = User.getMangopayUserId(user);
+    const stripeResourceOwnerId = User.getStripeCustomerId(user);
 
     const oneHourAgo = moment().subtract(1, 'h').toISOString();
 
-    if (paymentProvider === 'mangopay') {
-        findAttrs = Object.assign(findAttrs, {
+    const getMangopayCards = (resourceOwnerId) => {
+        return Card.find({
             paymentProvider: 'mangopay',
+            resourceOwnerId,
+            forget: false,
+            active: true,
             or: [
                 { validity: 'VALID' },
                 {
@@ -218,14 +205,26 @@ async function fetchCards(user) {
                 },
             ],
         });
-    } else { // paymentProvider === 'stripe'
-        findAttrs = Object.assign(findAttrs, {
-            paymentProvider: 'stripe',
-        });
-    }
+    };
 
-    const cards = await Card.find(findAttrs);
-    return cards;
+    const getStripeCards = (resourceOwnerId) => {
+        return Card.find({
+            paymentProvider: 'stripe',
+            resourceOwnerId,
+            forget: false,
+            active: true,
+        });
+    };
+
+    const [
+        mangopayCards,
+        stripeCards,
+    ] = await Promise.all([
+        mangopayResourceOwnerId ? getMangopayCards(mangopayResourceOwnerId) : [],
+        stripeResourceOwnerId ? getStripeCards(stripeResourceOwnerId) : [],
+    ]);
+
+    return mangopayCards.concat(stripeCards);
 }
 
 function isExpiredAt(card, expiredDate) {

@@ -339,7 +339,7 @@
             // updating progress-bar
             if ($rootScope.noGamificationDistraction || isLoggedAs) {
                 vm.showActionGreeting  = false;
-                return; // Prevent popover or animation in critical views such as booking-payment
+                return; // Prevent popover or animation in critical views such as checkout
             } else if (stats.levelChanged) {
                 vm.showLevelGreeting = true;
                 vm.points            = newGamificationStats.points;

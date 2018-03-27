@@ -69,8 +69,17 @@ async function createBooking({
     }
 
     const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
-    const currency = config.currency;
+    let paymentProvider = config.payment_provider;
+    let currency = config.currency;
+
+    if (sails.config.stelace.stelaceId && !config.is_service_live) {
+        if (!currency) {
+            currency = StelaceConfigService.getDefaultCurrency();
+        }
+        if (!paymentProvider) {
+            paymentProvider = StelaceConfigService.getDefaultPaymentProvider();
+        }
+    }
 
     if (!paymentProvider || !currency) {
         throw createError(500, 'Missing payment configuration', { expose: true });

@@ -260,8 +260,8 @@ function extractBookingId(url, parsedUrl) {
         return;
     }
 
-    var bookingPaymentViewField      = "/booking-payment/:id";
-    var bookingConfirmationViewField = "/booking-confirmation/:id";
+    var bookingPaymentViewField      = "/checkout/:id";
+    var bookingConfirmationViewField = "/confirmation/:id";
 
     var fields = [
         bookingPaymentViewField,

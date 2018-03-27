@@ -213,6 +213,10 @@
                 vm.conversation = conversation;
                 vm.messages     = messages;
 
+                vm.interlocutorContactDetailsHiddenMessage = $translate.instant('inbox.interlocutor_contact_details_hidden_message', {
+                    interlocutorName: vm.interlocutor.firstname || vm.interlocutor.fullname
+                });
+
                 if (conversation.booking) {
                     conversation.booking = Restangular.restangularizeElement(null, conversation.booking, "booking");
                     vm.booking = conversation.booking;
@@ -248,7 +252,14 @@
                     });
                 }
 
-                vm.hasBankAccount = bankAccounts.length;
+                if (vm.booking) {
+                    bankAccounts = _.filter(bankAccounts, function (bankAccount) {
+                        return bankAccount.paymentProvider === vm.booking.paymentProvider;
+                    });
+                    vm.hasBankAccount = bankAccounts.length;
+                } else {
+                    vm.hasBankAccount = false;
+                }
 
                 _populateMessageCTA();
                 _setCountdown();

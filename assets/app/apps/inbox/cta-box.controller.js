@@ -28,7 +28,6 @@
                                 UserService,
                                 usSpinnerService) {
         var listeners         = [];
-        var displayFormatDate = "DD/MM/YYYY";
         var newAddress;
         var loadIBANForm;
         var kyc;
@@ -42,13 +41,16 @@
         vm.isGoogleMapSDKReady   = cache.get("isGoogleMapSDKReady") || false;
         vm.currentUser           = null;
         vm.mainLocation          = null;
+        vm.bankAccount           = null;
         vm.showBankAccountForm   = false;
         vm.bankAccountActive     = false;
         vm.showBankAccountToggle = false;
         vm.showContract          = false;
         vm.contractUrl           = null;
         vm.contractTarget        = "_blank";
-        vm.isNoTime              = false;
+        vm.listingType           = null;
+        vm.listingTypeProperties = {};
+        vm.adultPaymentTooltip = $translate.instant('pages.booking_payment.only_adult_payment_label');
 
         // Google Places ngAutocomplete options
         vm.ngAutocompleteOptions = {
@@ -76,11 +78,11 @@
             // conversation bookingStatus is more accurate since updated
             vm.ctaTitleKey = _getCtaTitleKey((vm.conversation && vm.conversation.bookingStatus) || vm.message.bookingStatus);
 
-            vm.paymentProvider = StelaceConfig.getPaymentProvider();
-
             // no booking if booking status is 'info'
             if (vm.booking) {
                 vm.booking = Restangular.restangularizeElement(null, vm.booking, "booking");
+
+                vm.paymentProvider = vm.booking.paymentProvider;
 
                 vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
 
@@ -104,11 +106,6 @@
                         });
                 }
 
-                if (! vm.isNoTime) {
-                    vm.startDate = moment(vm.booking.startDate).format(displayFormatDate);
-                    vm.endDate   = moment(vm.booking.endDate).format(displayFormatDate);
-                }
-
                 _setBookingState();
                 _setFees();
             }
@@ -130,7 +127,9 @@
                     vm.isGoogleMapSDKReady = true;
                     cache.set("isGoogleMapSDKReady", true);
                     kyc = results.kyc;
-                    bankAccounts = results.bankAccounts;
+                    bankAccounts = _.filter(results.bankAccounts, function (bankAccount) {
+                        return bankAccount.paymentProvider === vm.paymentProvider;
+                    });
                     paymentAccounts = results.paymentAccounts;
 
                     vm.currentUser  = results.currentUser;
@@ -150,7 +149,12 @@
                     vm.firstName          = vm.currentUser.firstname;
                     vm.lastName           = vm.currentUser.lastname;
                     vm.hasBankAccount     = !!bankAccounts[0];
+                    vm.bankAccount        = bankAccounts[0];
                     vm.bankAccountMissing = loadIBANForm && ! vm.hasBankAccount;
+
+                    if (vm.bankAccount) {
+                        vm.iban = vm.bankAccount.data.iban;
+                    }
 
                     vm.showBankAccountForm = true;
 
@@ -284,7 +288,10 @@
                  || ! vm.firstName
                  || ! vm.lastName
                 ) {
-                    toastr.warning("Il manque des informations nécessaires à la validation de la réservation.", "Informations bancaires");
+                    ContentService.showNotification({
+                        messageKey: 'inbox.banking_details.notification.missing_information_message',
+                        type: 'warning'
+                    });
                     vm.currentRequest = false;
                     return;
                 }
@@ -303,7 +310,7 @@
                         "userType",
                     ];
 
-                    editingCurrentUser.userType = 'individual'; // TODO: the user can choose from UI
+                    editingCurrentUser.userType = editingCurrentUser.userType || 'individual'; // TODO: the user can choose from UI
 
                     if (! _.isEqual(_.pick(editingCurrentUser, updateAttrs), _.pick(vm.currentUser, updateAttrs))) {
                         return editingCurrentUser.patch();
@@ -346,11 +353,17 @@
                                 }
                             })
                             .catch(function (err) {
-                                toastr.warning("Veuillez renseigner une adresse correcte.", "Adresse incorrecte");
+                                ContentService.showNotification({
+                                    messageKey: 'inbox.banking_details.notification.incorrect_location_message',
+                                    type: 'warning'
+                                });
                                 return $q.reject(err);
                             });
                     } else if (missingAddress) {
-                        toastr.warning("Veuillez renseigner votre adresse.", "Adresse manquante");
+                        ContentService.showNotification({
+                            messageKey: 'inbox.banking_details.notification.missing_location_message',
+                            type: 'warning'
+                        });
                         return $q.reject("no address");
                     } else {
                         return;
@@ -370,7 +383,7 @@
                         kyc = newKyc;
 
                         if (vm.paymentProvider === 'mangopay') {
-                            return finance.createAccount();
+                            return finance.createAccount({ paymentProvider: vm.paymentProvider });
                         } else if (vm.paymentProvider === 'stripe') {
                             return finance.createStripeAccountToken({
                                 legal_entity: {
@@ -390,6 +403,7 @@
                                     accountToken: res.token.id,
                                     accountType: 'account',
                                     country: kyc.data.countryOfResidence, // TODO: check the country associated with RIB
+                                    paymentProvider: vm.paymentProvider
                                 });
                             });
                         }
@@ -400,8 +414,15 @@
                     });
                 })
                 .then(function () {
-                    if (!vm.hasBankAccount && ! vm.iban) {
-                        toastr.warning("Veuillez renseigner votre IBAN.", "IBAN manquant");
+                    if (vm.hasBankAccount) {
+                        return ContentService.showSaved();
+                    }
+
+                    if (! vm.iban) {
+                        ContentService.showNotification({
+                            messageKey: 'inbox.banking_details.notification.missing_iban_message',
+                            type: 'warning'
+                        });
                         vm.badIban = true;
                         return $q.reject("no iban");
                     }
@@ -416,6 +437,7 @@
                                 Country: vm.identity.countryOfResidence, // TODO: get the country from the address
                             },
                             iban: vm.iban,
+                            paymentProvider: vm.booking.paymentProvider
                         };
 
                         return finance.createBankAccount(createBankAccountAttrs)
@@ -432,7 +454,8 @@
                         })
                         .then(function (res) {
                             return finance.createBankAccount({
-                                accountToken: res.token.id
+                                accountToken: res.token.id,
+                                paymentProvider: vm.booking.paymentProvider
                             });
                         })
                         .then(_afterBankAccountCreationSuccess)
@@ -450,12 +473,19 @@
             vm.bankAccountActive     = false;
             vm.showBankAccountToggle = true;
             vm.ctaTitleKey = _getCtaTitleKey();
-            toastr.success("Merci\xa0! Nous pourrons vous transférer le montant de la location après signature de l'état des lieux initial.",
-                "Coordonnées bancaires enregistrées");
+
+            ContentService.showNotification({
+                titleKey: 'inbox.banking_details.notification.success_title',
+                messageKey: 'inbox.banking_details.notification.success_message',
+                type: 'success'
+            });
         }
 
         function _afterBankAccountCreationFail(err) {
-            toastr.warning("Veuillez vérifier votre IBAN.", "Erreur lors de l'enregistrement de vos informations bancaires");
+            ContentService.showNotification({
+                messageKey: 'inbox.banking_details.notification.iban_error_message',
+                type: 'warning'
+            });
             vm.badIban = true;
             return $q.reject(err);
         }

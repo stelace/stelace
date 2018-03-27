@@ -5,6 +5,8 @@ module.exports = {
     getMangopayInstance,
     unsetMangopayInstance,
 
+    getErrorType,
+
     createUser,
     createNaturalUser,
     createLegalUser,
@@ -42,16 +44,34 @@ let mangopayInstance;
 async function getMangopayInstance() {
     if (mangopayInstance) return mangopayInstance;
 
+    const config = await StelaceConfigService.getConfig();
     const secretData = await StelaceConfigService.getSecretData();
 
-    const clientId = secretData.mangopay__client_id;
-    const passphrase = secretData.mangopay__passphrase;
+    let clientId;
+    let passphrase;
+    let workspace;
 
-    const workspace = sails.config.mangopay.workspace;
+    if (sails.config.stelace.stelaceId && !config.is_service_live) {
+        clientId = sails.config.freeTrial.mangopay.clientId;
+        passphrase = sails.config.freeTrial.mangopay.passphrase;
+        workspace = 'sandbox';
+    } else {
+        clientId = secretData.mangopay__client_id;
+        passphrase = secretData.mangopay__passphrase;
+
+        workspace = sails.config.mangopay.workspace;
+    }
+
+    // force the workspace to be 'production'
+    if (sails.config.stelace.stelaceId && config.is_service_live) {
+        workspace = 'production';
+    }
 
     if (!clientId || !passphrase) {
         throw createError('Missing Mangopay client credentials', { missingCredentials: true });
     }
+
+    console.log(clientId, passphrase)
 
     mangopayInstance = new Mangopay({
         clientId,
@@ -65,6 +85,51 @@ async function getMangopayInstance() {
 
 function unsetMangopayInstance() {
     mangopayInstance = null;
+}
+
+function getErrorType(resultCode) {
+    switch (resultCode) {
+        case '101399':
+            return '3dsecure_not_available';
+
+        case '101302':
+        case '101303':
+            return '3dsecure_incompatible';
+
+        case '101301':
+            return '3dsecure_fail';
+
+        case '02624':
+        case '101105':
+            return 'card_expired';
+
+        case '01902':
+        case '101106':
+            return 'card_inactive';
+
+        case '101102':
+            return 'insufficient_funds';
+
+        case '101101':
+            return 'do_not_honor';
+
+        case '101104':
+            return 'card_limit';
+
+        case '02625':
+        case '105202':
+            return 'invalid_number';
+
+        case '105203':
+            return 'invalid_expiration_date';
+
+        case '02627':
+        case '105204':
+            return 'invalid_cvc';
+
+        default:
+            break;
+    }
 }
 
 async function createUser(user) {

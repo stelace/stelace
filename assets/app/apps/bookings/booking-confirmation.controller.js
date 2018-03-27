@@ -14,9 +14,11 @@
                                         $timeout,
                                         $window,
                                         BookingService,
+                                        ContentService,
                                         gamification,
                                         ListingCategoryService,
                                         ListingService,
+                                        ListingTypeService,
                                         map,
                                         MediaService,
                                         MessageService,
@@ -37,7 +39,8 @@
         vm.error                  = false;
         vm.paymentProcessing      = false;
         vm.paymentDone            = false;
-        vm.showBookingDuration    = false;
+        vm.listingType            = null;
+        vm.listingTypeProperties  = {};
 
         activate();
 
@@ -112,15 +115,13 @@
                     location.displayAddress = map.getPlaceName(location);
                 });
 
-                vm.listing            = listing;
-                vm.bookingDuration = vm.booking.nbTimeUnits + " jour" + (vm.booking.nbTimeUnits > 1 ? "s" : "");
+                vm.listing = listing;
+                vm.listingType = vm.booking.listingType;
+                vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
 
                 if (vm.booking.startDate && vm.booking.endDate) {
-                    vm.startDate           = _displayDate(vm.booking.startDate);
-                    vm.endDate             = _displayDate(moment(vm.booking.endDate).subtract({ d: 1 }));
-                    vm.showBookingDuration = true;
-                } else {
-                    vm.showBookingDuration = false;
+                    vm.startDate = vm.booking.startDate;
+                    vm.endDate   = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
                 }
 
                 vm.listingCategoryName = ListingCategoryService.findListingCategory(listing, listingCategories);
@@ -128,44 +129,22 @@
 
                 var locationSearch = $location.search();
 
-                if (locationSearch.error) {
+                if (locationSearch.error || locationSearch.error_type) {
                     vm.error = true;
 
-                    if (locationSearch.error === "fail" && locationSearch.resultCode) {
-                        var errorTitle = "Échec du paiement";
-                        var errorMessage;
+                    var messageKey = BookingService.mapErrorTypeToTranslationKey(locationSearch.error_type);
 
-                        switch (locationSearch.resultCode) {
-                            case "101399":
-                                errorMessage = "Votre carte bancaire ne supporte malheureusement pas la procédure de sécurité \"Verified by Visa\". Nous vous invitons à utiliser une autre carte.";
-                                break;
+                    _redirectToPayment();
 
-                            case "101301":
-                                errorMessage = "La procédure de sécurité \"Verified by Visa\" a échoué. Nous vous invitons à recommencer.";
-                                break;
-
-                            case "101105":
-                                errorMessage = "Votre carte a expiré. Nous vous invitons à saisir un autre numéro de carte bancaire.";
-                                break;
-
-                            case "101106":
-                            case "101410":
-                                errorMessage = "L'enregistrement de votre carte bancaire a échoué. Veuillez saisir de nouveau le numéro de votre carte ou renseigner un autre numéro.";
-                                break;
-
-                            default:
-                                errorMessage = "Le paiement a échoué. Veuillez vérifier que vous disposez des fonds suffisants sur votre compte et "
-                                    + "que le plafond de votre carte bancaire n'a pas été atteint.";
-                                break;
-                        }
-
-                        _redirectToPayment();
-
-                        toastr.error(errorMessage, errorTitle, {
+                    ContentService.showNotification({
+                        titleKey: 'payment.error.payment_error_title',
+                        messageKey: messageKey,
+                        type: 'error',
+                        options: {
                             timeOut: 0,
                             closeButton: true
-                        });
-                    }
+                        }
+                    });
 
                     return $q.reject();
                 }
@@ -257,10 +236,6 @@
                 vm.paymentProcessing = false;
                 usSpinnerService.stop('payment-spinner'); // autostart on load
             });
-        }
-
-        function _displayDate(date) {
-            return moment(date).format("ddd D MMM YYYY");
         }
 
         function _redirectToPayment() {

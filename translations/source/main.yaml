@@ -692,7 +692,7 @@ user:
         fr: Vérification du profil
     joined_in_month:
         en: 'Joined in {subscription_date, date, fullmonth}'
-        fr: 'Membre depuis  {subscription_date, date, fullmonth}'
+        fr: 'Membre depuis {subscription_date, date, fullmonth}'
     firstname_label:
         en: First name
         fr: Prénom
@@ -1306,6 +1306,38 @@ social:
     share_on_facebook:
         en: Share on Facebook
         fr: Partagez sur Facebook
+    facebook_page:
+        en: '{SERVICE_NAME} Facebook page'
+        fr: 'Page Facebook {SERVICE_NAME}'
+    cta_share_title:
+        en: |
+            {is_owner, select,
+                true {Make your listing known}
+                false {You liked?}
+                other {}
+            }
+        fr: |
+            {is_owner, select,
+                true {Faîtes connaître votre annonce}
+                false {Vous aimez ?}
+                other {}
+            }
+    cta_share_message:
+        en: |
+            {is_owner, select,
+                true {Share your listing with your friends}
+                false {Share your discovery with your friends}
+                other {}
+            }
+        fr: |
+            {is_owner, select,
+                true {Partagez votre annonce avec vos amis}
+                false {Partagez votre découverte avec vos amis}
+                other {}
+            }
+    cta_share_card_message:
+        en: 'Discover it on {SERVICE_NAME}'
+        fr: 'Découvrez le sur {SERVICE_NAME}'
 greeting:
     en: Hello
     fr: Bonjour
@@ -1435,9 +1467,29 @@ booking:
                     0 {Frais de paiement : Offerts}
                     other{Dont frais de paiement : {price, number, currency}}
                 }
+        quantity:
+            en: 'Quantity: {quantity}'
+            fr: "Quantity\_: {quantity}"
         security_deposit:
             en: 'Security deposit: {price, number, currency}'
             fr: "Caution\_: {price, number, currency}"
+        owner_locations:
+            en: |
+                {owner, select,
+                    undefined {The seller}
+                    other {{owner}}
+                } specified the following {nb_locations, plural,
+                    one {location}
+                    other {locations}
+                } for the listing:
+            fr: |
+                {owner, select,
+                    undefined {The vendeur}
+                    other {{owner}}
+                } a indiqué {nb_locations, plural,
+                    one {le lieu suivant}
+                    other {les lieux suivants}
+                } pour l'annonce :
     status:
         accepted:
             en: Accepted
@@ -1600,6 +1652,102 @@ inbox:
     error_refresh_page_message:
         en: Please refresh the page to display the transaction confirmation
         fr: Veuillez rafraîchir la page pour faire apparaître la confirmation de la transaction
+    transaction_security_title:
+        en: Secure your transactions
+        fr: Sécurisez vos transactions
+    transaction_security_message:
+        en: 'Do not make any transactions outside the website {SERVICE_NAME}. By doing that, you would loose access to our secured payment service, our cancellation policy and our support.'
+        fr: 'N’effectuez jamais de transactions en dehors du site {SERVICE_NAME}. En ne passant pas par le site, vous perdriez accès à notre service de paiement sécurisé, à notre politique d’annulation et à notre assistance.'
+    banking_details:
+        main_message:
+            en: 'I give my banking details{price, select, 0 {} other { to receive the payment}}:'
+            fr: "Je renseigne mes informations bancaires{price, select, 0 {} other { pour recevoir le paiement}} :"
+        helper_message:
+            en: Please have your RIB with you.
+            fr: Nous vous invitons à vous munir de votre RIB.
+        location:
+            en: Address specified on your RIB
+            fr: Adresse indiquée sur mon RIB
+        location_placeholder:
+            en: Give your address
+            fr: Renseignez votre adresse
+        iban:
+            en: IBAN
+            fr: IBAN
+        invalid_iban_message:
+            en: Please give a valid IBAN to receive your payment.
+            fr: Veuillez renseigner un IBAN valide pour recevoir votre paiement.
+        notification:
+            missing_iban_message:
+                en: Please give your IBAN.
+                fr: Veuillez renseigner votre IBAN.
+            iban_error_message:
+                en: Please check your IBAN.
+                fr: Veuillez vérifier votre IBAN.
+            missing_information_message:
+                en: Missing information is required to valid the transaction.
+                fr: Il manque des informations nécessaires à la validation de la réservation.
+            incorrect_location_message:
+                en: Please give a correct address.
+                fr: Veuillez renseigner une adresse correcte.
+            missing_location_message:
+                en: Please give your address.
+                fr: Veuillez renseigner votre adresse.
+            success_title:
+                en: Banking details saved
+                fr: Coordonnées bancaires enregistrées
+            success_message:
+                en: You will get the payment amount after the transaction validation.
+                fr: Nous pourrons vous transférer le montant de la réservation après la validation de la transaction.
+
+    summary:
+        information_title:
+            en: Information
+            fr: Informations
+        listing_title:
+            en: |
+                {as_owner, select,
+                    true {Your listing}
+                    false {{owner, select,
+                        undefined {The seller’s}
+                        other {{owner}’s}
+                    } listing}
+                    other {}
+                }
+            fr: |
+                {as_owner, select,
+                    true {Votre annonce}
+                    false {L’annonce {owner, select,
+                        undefined {du vendeur}
+                        other {de {owner}}
+                    }}
+                    other {}
+                }
+        owner_locations:
+            en: |
+                {as_owner, select,
+                    true {You}
+                    false {{owner, select,
+                        undefined {The seller}
+                        other {{owner}}
+                    }}
+                    other {}
+                } specified the following {nb_locations, plural,
+                    one {location}
+                    other {locations}
+                } for the listing:
+            fr: |
+                {as_owner, select,
+                    true {Vous avez indiqué}
+                    false {{owner, select,
+                        undefined {Le vendeur a indiqué}
+                        other {{owner} a indiqué}
+                    }}
+                    other {}
+                } {nb_locations, plural,
+                    one {le lieu suivant}
+                    other {les lieux suivants}
+                } pour l’annonce :
 assessment:
     assessment_action:
         en: '{toConfirm, select, true{Validation needed} other{Completed}}'
@@ -1802,6 +1950,53 @@ rating:
         remaining_comment_message:
             en: 'Don''t forget to write to {userName} a comment as soon as possible.'
             fr: 'N''oubliez pas d''écrire dès que possible un commentaire à {userName}.'
+payment:
+    error:
+        payment_error_title:
+            en: Payment failed
+            fr: Échec du paiement
+        invalid_card_number:
+            en: Please check your card number.
+            fr: Veuillez vérifier votre numéro de carte.
+        invalid_card_expiration_date:
+            en: Please check your card expiration date.
+            fr: Veuillez vérifier la date d'expiration de votre carte.
+        invalid_card_cvc:
+            en: Please check your card security card (on the back of your card).
+            fr: Veuillez vérifier votre code de sécurité (inscrit au dos de votre carte bancaire).
+        invalid_card_zip:
+            en: Please check your zip.
+            fr: Veuillez vérifier votre code postal.
+        card_limit_reached:
+            en: Your card limit has been reached.
+            fr: Le plafond de votre carte bancaire a été atteint.
+        card_3dsecure_not_available:
+            en: Your card isn't available with 3DSecure authentication.
+            fr: La vérification 3DSecure n'est pas disponible sur votre carte.
+        card_3dsecure_incompatible:
+            en: Your card is incompatible with 3DSecure authentication.
+            fr: Votre carte n'est pas compatible avec la vérification 3DSecure.
+        3dsecure_fail:
+            en: The 3DSecure authentication has failed.
+            fr: La vérification 3DSecure a échoué.
+        insufficient_funds:
+            en: Please check that you have sufficient funds in your bank account.
+            fr: Veuillez vérifier que vous disposez des fonds suffisants sur votre compte.
+        do_not_honor:
+            en: The bank has refused the payment. Please contact it before trying again.
+            fr: La banque a refusé le paiement. Veuillez la contacter avant de réessayer.
+        card_inactive:
+            en: Your card is inactive. Please activate it before trying again.
+            fr: Votre carte bancaire est inactive. Veuillez l'activer avant de réessayer.
+        card_expired:
+            en: Your card has expired. Please add a new one.
+            fr: Votre carte bancaire a expiré. Veuillez saisir un autre numéro de carte bancaire.
+        card_expiration_too_short:
+            en: Please use a card that expires in at least one month.
+            fr: Veuillez utiliser une carte expirant dans au moins un mois.
+        generic_error:
+            en: The payment has failed. Please check that you have sufficient funds in your bank account and that your card limit hasn't been reached.
+            fr: Le paiement a échoué. Veuillez vérifier que vous disposez des fonds suffisants sur votre compte et que le plafond de votre carte bancaire n'a pas été atteint.
 pricing:
     price_with_currency:
         en: '{price, number, currency}'
@@ -2118,13 +2313,34 @@ pages:
             cancelled_booking:
                 en: This transaction was cancelled.
                 fr: Cette transaction a été annulée.
-            invalid_card_number:
-                en: Please check your card number.
-                fr: Veuillez vérifier votre numéro de carte.
     booking_confirmation:
         page_title:
             en: 'Checkout - {SERVICE_NAME}'
             fr: 'Paiement - {SERVICE_NAME}'
+        redirection_to_checkout_message:
+            en: You will be redirected to the checkout page.
+            fr: Vous allez être redirigé(e) vers la page de paiement.
+        payment_processing_message:
+            en: In-progress checking
+            fr: Vérification en cours
+        payment_success_message:
+            en: Payment successful
+            fr: Transaction réussie
+        inbox_cta_link:
+            en: Go to your inbox to stay in touch with {owner, select, undefined {the seller} other {{owner}}}.
+            fr: Accédez à votre messagerie pour rester en contact avec {owner, select, undefined {le vendeur} other {{owner}}}.
+        email_notification_message:
+            en: You will receive a confirmation email.
+            fr: Vous allez recevoir un email de confirmation.
+        payment_summary:
+            en: The {price, number, currency} payment has been successful.
+            fr: Le paiement de {price, number, currency} a été effectué avec succès.
+        deposit_summary:
+            en: A {deposit, number, currency} deposit has been performed. It will not be used except in case of a dispute.
+            fr: Vous venez de réaliser un dépôt de garantie à hauteur de {deposit, number, currency}, en aucun cas prélevé en l'absence de litige.
+        generic_error:
+            en: An error has happened and we apologize for any inconvenience. Your card hasn't been debited.
+            fr: Une erreur s'est produite et nous vous prions de nous en excuser. Aucun prélèvement ne sera effectué.
     help:
         page_title:
             en: 'Help - {SERVICE_NAME}'

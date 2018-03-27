@@ -114,6 +114,9 @@ const schema = {
             type: ['string', 'null'],
             enum: ['show', 'require', null],
         },
+        is_service_live: {
+            type: ['boolean', 'null'],
+        },
     },
 };
 

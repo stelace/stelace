@@ -36,12 +36,10 @@ async function create(req, res) {
         registrationData,
         cardToken,
         forget,
+        paymentProvider,
     } = req.allParams();
 
     const access = 'self';
-
-    const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
 
     let card;
 
@@ -57,6 +55,11 @@ async function create(req, res) {
             registrationData,
         });
 
+        const errorType = PaymentMangopayService.getErrorType(cardRegistration.ResultCode);
+        if (errorType) {
+            throw createError(400, { errorType });
+        }
+
         card = await PaymentMangopayService.createCard({
             userId: req.user.id,
             providerCardId: cardRegistration.CardId,
@@ -67,11 +70,16 @@ async function create(req, res) {
             throw createError(400);
         }
 
-        card = await PaymentStripeService.createCard({
-            user: req.user,
-            sourceId: cardToken,
-            forget,
-        });
+        try {
+            card = await PaymentStripeService.createCard({
+                user: req.user,
+                sourceId: cardToken,
+                forget,
+            });
+        } catch (err) {
+            const errorType = PaymentStripeService.getErrorType(err);
+            throw createError(400, { errorType });
+        }
     } else {
         throw new Error('Unknown payment provider');
     }
@@ -115,7 +123,11 @@ async function createCardRegistration(req, res) {
         currency = config.currency;
 
         if (!currency) {
-            throw new Error('Missing payment configuration');
+            if (sails.config.stelace.stelaceId && !config.is_service_live) {
+                currency = StelaceConfigService.getDefaultCurrency();
+            } else {
+                throw new Error('Missing payment configuration');
+            }
         }
     }
 

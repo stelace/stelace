@@ -4,6 +4,7 @@ module.exports = {
 
     getTimeGranularities,
     getDefaultCurrency,
+    getDefaultPaymentProvider,
     getAllowedLangs,
 
     hasStelaceConfig,
@@ -99,6 +100,7 @@ const timeGranularities = [
 ];
 
 const defaultCurrency = 'EUR';
+const defaultPaymentProvider = 'stripe';
 const allowedLangs = [
     'en',
     'fr',
@@ -110,6 +112,10 @@ function getTimeGranularities() {
 
 function getDefaultCurrency() {
     return defaultCurrency;
+}
+
+function getDefaultPaymentProvider() {
+    return defaultPaymentProvider;
 }
 
 function getAllowedLangs() {

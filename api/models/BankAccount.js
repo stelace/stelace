@@ -1,4 +1,4 @@
-/* global BankAccount, StelaceConfigService, User */
+/* global BankAccount, User */
 
 /**
  * BankAccount.js
@@ -188,25 +188,32 @@ function parseStripeData(rawJson) {
 }
 
 async function fetchBankAccounts(user) {
-    const config = await StelaceConfigService.getConfig();
-    const paymentProvider = config.payment_provider;
+    const mangopayResourceOwnerId = User.getMangopayUserId(user);
+    const stripeResourceOwnerId = User.getStripeAccountId(user);
 
-    let resourceOwnerId;
-    if (paymentProvider === 'mangopay') {
-        resourceOwnerId = User.getMangopayUserId(user);
-    } else if (paymentProvider === 'stripe') {
-        resourceOwnerId = User.getStripeAccountId(user);
-    }
+    const getMangopayBankAccounts = (resourceOwnerId) => {
+        return BankAccount.find({
+            paymentProvider: 'mangopay',
+            resourceOwnerId,
+            active: true,
+        });
+    };
 
-    if (!resourceOwnerId) {
-        return [];
-    }
+    const getStripeBankAccounts = (resourceOwnerId) => {
+        return BankAccount.find({
+            paymentProvider: 'stripe',
+            resourceOwnerId,
+            active: true,
+        });
+    };
 
-    const bankAccounts = await BankAccount.find({
-        paymentProvider,
-        resourceOwnerId,
-        active: true,
-    });
+    const [
+        mangopayBankAccounts,
+        stripeBankAccounts,
+    ] = await Promise.all([
+        mangopayResourceOwnerId ? getMangopayBankAccounts(mangopayResourceOwnerId) : [],
+        stripeResourceOwnerId ? getStripeBankAccounts(stripeResourceOwnerId) : [],
+    ]);
 
-    return bankAccounts;
+    return mangopayBankAccounts.concat(stripeBankAccounts);
 }

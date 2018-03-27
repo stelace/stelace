@@ -13,7 +13,7 @@
         service.updateConfig   = updateConfig;
         service.updateFeatures = updateFeatures;
 
-        service.getPaymentProvider = getPaymentProvider;
+        service.isFreeTrial = isFreeTrial;
 
         activate();
 
@@ -62,9 +62,8 @@
                 });
         }
 
-        function getPaymentProvider() {
-            var state = $ngRedux.getState();
-            return state.config.payment_provider;
+        function isFreeTrial() {
+            return window.dataFromServer.freeTrial;
         }
 
     }

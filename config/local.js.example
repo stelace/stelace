@@ -120,8 +120,6 @@ module.exports = {
     //     },
     // },
 
-    paymentProvider: '', // 'mangopay' or 'stripe'
-
     mangopay: {
         workspace: 'sandbox', // change to production if ready
     },
