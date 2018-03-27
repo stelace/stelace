@@ -165,10 +165,10 @@
                             ng-focus="header.searchFocus = !header.searchFocus"
                             ng-blur="header.searchFocus = !header.searchFocus">
                         <div class="logo-overlay"
-                            ng-hide="header.searchFocus || searchParams.query" ng-switch="{{!!config.logo__url}}">
+                            ng-hide="header.searchFocus || searchParams.query">
                             <div class="company-logo-container">
-                                <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logo__url}}">
-                                <svg class="company-logo small" ng-switch-when="false">
+                                <img class="company-logo small" ng-if="config.logo__url" ng-src="{{config.logo__url}}">
+                                <svg class="company-logo small" ng-if="!config.logo__url">
                                     <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                                 </svg>
                                 <svg class="icon icon--inline">
@@ -197,9 +197,9 @@
             class="main-header main-header--desktop flex-container flex--space-between flex--align-center hide-for-small-only">
             <div class="logo-container"
                 ng-if="header.isDesktop">
-                <a id="desktop-main-header__logo-anchor" href="/" class="header-event" ng-switch="{{!!config.logo__url}}">
-                    <img class="company-logo" ng-switch-when="true" ng-src="{{config.logo__url}}">
-                    <svg class="company-logo" ng-switch-when="false">
+                <a id="desktop-main-header__logo-anchor" href="/" class="header-event">
+                    <img class="company-logo" ng-if="config.logo__url" ng-src="{{config.logo__url}}">
+                    <svg class="company-logo" ng-if="!config.logo__url">
                         <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                     </svg>
                 </a>
@@ -236,11 +236,10 @@
                         ng-blur="header.searchFocus = !header.searchFocus">
                     <div class="logo-overlay"
                         ng-hide="header.searchFocus || searchParams.query"
-                        ng-if="! header.isDesktop"
-                        ng-switch="{{!!config.logo__url}}">
+                        ng-if="! header.isDesktop">
                         <div class="company-logo-container">
-                            <img class="company-logo small" ng-switch-when="true" ng-src="{{config.logo__url}}">
-                            <svg class="company-logo small" ng-switch-when="false">
+                            <img class="company-logo small" ng-if="config.logo__url" ng-src="{{config.logo__url}}">
+                            <svg class="company-logo small" ng-if="!config.logo__url">
                                 <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
                             </svg>
                             <svg class="icon icon--inline">
