@@ -35,8 +35,8 @@ module.exports = {
             SERVICE_NAME: 'MyStelace',
         },
 
-        // Stelace SaaS or custom dashboard base url
-        dashboardUrl: '', // http://localhost:8080 if served at http://localhost:8080/dashboard
+        // Stelace SaaS or other custom dashboard base url (dashboard is expected to be served from '/dashboard' path)
+        dashboardUrl: '', // http://example.com if served at http://example.com/dashboard
         stelaceId: '', // used for Stelace SaaS
 
         superAdmin: false,

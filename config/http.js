@@ -167,11 +167,28 @@ module.exports.http = {
             if (!sails.config.stelace.dashboardUrl) return next();
 
             if (!dashboardProxy) {
+                if (!sails.config.providerApiKey) {
+                    const explanation = `
+                        Currently, there is no custom dashboard connected with this Stelace website. Have a look on our own
+                        <a href="https://stelace.com">dashboard</a>.
+                    `;
+
+                    return res.send(explanation);
+                }
+
+                const headers = {};
+
+                if (sails.config.providerApiKey) {
+                    headers['x-provider-api-key'] = sails.config.providerApiKey; // check for protected dashboard
+                }
+
                 const proxyOptions = {
                     target: sails.config.stelace.dashboardUrl,
                     changeOrigin: false,
                     logLevel: 'warn',
+                    headers,
                 };
+                // paths to access dashboard
                 const proxyUrls = [
                     '/dashboard',
                     '/stelace',
