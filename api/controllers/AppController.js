@@ -105,6 +105,7 @@ async function index(req, res) {
     let paymentProvider = config.payment_provider;
 
     let stripePublishKey = config.stripe__publish_key;
+    let googleMapApiKey = config.google_maps__api_key;
     let stripeActive;
 
     const freeTrial = sails.config.stelace.stelaceId && !config.is_service_live;
@@ -117,6 +118,11 @@ async function index(req, res) {
         stripeActive = true;
     } else {
         stripeActive = (paymentProvider === 'stripe' || config.stripe_complete);
+    }
+    if (sails.config.stelace.stelaceId) {
+        if (!googleMapApiKey) {
+            googleMapApiKey = sails.config.freeTrial.googleMapApiKey;
+        }
     }
 
     const dataFromServer = {
@@ -149,7 +155,7 @@ async function index(req, res) {
         facebookPixelId: config.facebook_pixel__id,
         googleTracking: config.google_analytics__active,
         googleAnalyticsId: config.google_analytics__tracking_id,
-        googleMapApiKey: config.google_maps__api_key,
+        googleMapApiKey,
         logoUrl: config.logo__url,
         headerImgUrl: config.hero_background__home__url || "https://stelace.com/img/brand/stelace-social-header.png",
         serviceName: config.SERVICE_NAME,
