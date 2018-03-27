@@ -448,8 +448,14 @@
                 vm.validPrice               = false;
                 vm.selectedListingCategoryLvl1 = null;
                 vm.selectedListingCategoryLvl2 = null;
-                vm.listingType              = vm.uniqueListingType || vm.urlListingType || null;
-                vm.listing.listingTypesIds  = vm.listing.listingTypesIds || [];
+
+                if (newListingTmp.listingTypesIds) {
+                    var indexedListingTypes = _.indexBy(vm.listingTypes, 'id');
+
+                    vm.listing.listingTypesIds = newListingTmp.listingTypesIds;
+                    vm.listingType = indexedListingTypes[newListingTmp.listingTypesIds[0]];
+                }
+
                 vm.listing.recurringDatesPattern = vm.listing.recurringDatesPattern || '* * * * *';
                 vm.listing.quantity         = vm.listing.quantity || 1;
                 stepProgressDone            = {};
