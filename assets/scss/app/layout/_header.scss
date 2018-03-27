@@ -46,6 +46,7 @@ $header-height: 3rem;
     .small-menu {
         width: $header-small-menu-width; // border-box
         padding: 0.125rem $header-small-menu-hpadding 0; // make menu sandwich easily clickable
+        position: relative; // useful to position inbox message count
         &::after {
             content: "\AMENU";
             color: $platform-color-blue;
