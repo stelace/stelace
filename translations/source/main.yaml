@@ -12,8 +12,8 @@ stelace:
         fr: Lanceur de marketplaces intelligentes
 service:
     page_title:
-        en: {SERVICE_NAME}
-        fr: {SERVICE_NAME}
+        en: '{SERVICE_NAME}'
+        fr: '{SERVICE_NAME}'
     meta_description:
         en: '{SERVICE_NAME} runs on {provider_name}.'
         fr: '{SERVICE_NAME} s’appuie sur {provider_name}'
@@ -121,6 +121,9 @@ authentication:
             en: This email address is already used by another account.
             fr: L’adresse renseignée est déjà utilisée par un autre compte.
             context: This can be useful to multi-account users trying to update their email address.
+        invalid_phone:
+            en: Please check your phone number.
+            fr: Veuillez vérifier votre numéro de téléphone.
 listing:
     overview_title:
         en: Overview
@@ -654,6 +657,9 @@ time:
     year_label:
         en: Year
         fr: Année
+    month_label:
+        en: Month
+        fr: Year
     from_day_label:
         en: From
         fr: Du
@@ -708,6 +714,9 @@ user:
     email_label:
         en: Email Address
         fr: Adresse email
+    date_of_birth_label:
+        en: Date of birth
+        fr: Date de naissance
     verified_email_label:
         en: Verified
         fr: Vérifiée
@@ -766,14 +775,14 @@ user:
         inbox_notice_details:
             en: |
                 You {new_messages, plural,
-                    0 {have no new message}
+                    =0 {have no new message}
                     one {have a new message}
                     other {have {new_messages} new messages}
                 }
                 in your inbox.
             fr: |
                 Vous {new_messages, plural,
-                    0 {n’avez pas de nouveau message}
+                    =0 {n’avez pas de nouveau message}
                     one {avez un nouveau message}
                     other {avez {new_messages} nouveaux messages}
                 }
@@ -950,8 +959,8 @@ user:
             fr: Vérifier mon numéro
             context: Give the user a hint about upcoming validation process once phone number has been filled in.
         phone_validation_context:
-            en: '{SERVICE_NAME} can notify you of important transaction updates by SMS. Your number will be communicated to a given user only once you’ve accepted her request.'
-            fr: '{SERVICE_NAME} vous prévient gratuitement de toute demande par SMS afin que vous ne ratiez aucune occasion. Votre numéro ne sera jamais communiqué à un autre membre tant que vous n’aurez pas accepté sa demande.'
+            en: '{SERVICE_NAME} can notify you of important transaction updates by SMS. Your number can only be communicated to another user during a transaction.'
+            fr: '{SERVICE_NAME} vous prévient gratuitement de toute demande par SMS afin que vous ne ratiez aucune occasion. Votre numéro ne pourra être communiqué à un autre membre que dans le cadre d’une transaction.'
         phone_validation_trust_factor:
             en: A verified phone number inspires confidence and increase you chances of completing transactions.
             fr: Un numéro vérifié est un gage de confiance et augmente vos chances de recevoir des demandes.
@@ -1094,9 +1103,13 @@ prompt:
         en: Login to know more about this listing.
         fr: Connectez-vous pour en savoir plus sur cette annonce.
     inspire_confidence:
-        en: Inspiring confidence
+        en: Inspiring trust
         fr: Inspirez confiance
         context: Can prompt user to complete her profile and increase trust.
+    proceed_with_confidence:
+        en: Proceed with confidence
+        fr: Poursuivez en toute sérénité
+        context: Can be used in process such as checkout/payment, with opportunity to verify information about the listing or the seller for instance.
     making_your_life_easier:
         en: Making your life easier
         fr: Facilitez-vous la vie
@@ -1125,6 +1138,10 @@ notification:
         fr: "Merci d’avoir partagé\_!"
         context: Used to inform user that (social) link sharing is completed.
 form:
+    missing_information:
+        en: Missing information
+        fr: Information manquante
+        context: Can be showed when some part of form has not been filled in.
     min_characters:
         fr: '{min_number_of_characters, plural, one {Ce champ ne peut pas être vide.} other {# caractères minimum}}'
         en: '{min_number_of_characters, plural, one {This can’t be empty.} other {Minimum # characters}}'
@@ -1371,8 +1388,8 @@ booking:
         en: 'on {date, date, short}'
         fr: 'le {date, date, short}'
     from_start_date_to_end_date:
-        en: 'from {startDate, date, short} to {endDate, date, short}'
-        fr: 'du {startDate, date, short} au {endDate, date, short}'
+        en: 'From {start_date, date, short} to {end_date, date, short}'
+        fr: 'Du {start_date, date, short} au {end_date, date, short}'
     acceptance_deadline_message:
         en: 'After a booking, you have 36h to accept or reject it. After that deadline, the booking can be automatically cancelled.'
         fr: 'Après une réservation, vous disposez de 36h pour l''accepter ou la refuser. Passé ce délai, la réservation est susceptible d''être annulée automatiquement.'
@@ -1399,30 +1416,24 @@ booking:
         taker_fees:
             en: |
                 Service fees: {price, select,
-                    =0{Free}
+                    0 {Free}
                     other{{price, number, currency}}
                 }
             fr: |
                 Frais de service : {price, select,
-                    =0{Offerts}
+                    0 {Offerts}
                     other{{price, number, currency}}
                 }
         owner_fees:
             en: |
-                Payment fees{price, select,
-                    =0{}
-                    other{ included}
-                }: {price, select,
-                    =0{Free}
-                    other{{price, number, currency}}
+                {price, select,
+                    0 {Payment fees: Free}
+                    other {Payment fees included: {price, number, currency}}
                 }
             fr: |
                 {price, select,
-                    =0{Frais}
-                    other{Dont frais}
-                } de paiement : {price, select,
-                    =0{Offerts}
-                    other{{price, number, currency}}
+                    0 {Frais de paiement : Offerts}
+                    other{Dont frais de paiement : {price, number, currency}}
                 }
         security_deposit:
             en: 'Security deposit: {price, number, currency}'
@@ -1518,8 +1529,8 @@ inbox:
         en: Please provider some details...
         fr: Veuillez apporter quelques précisions...
     required_message:
-        en: 'Please write your message to {interlocutorName}'
-        fr: 'Merci d''écrire quelques mots à {interlocutorName}'
+        en: 'Please write your message{interlocutorName, select, undefined {} other { to {interlocutorName}}}.'
+        fr: 'Merci d’écrire quelques mots{interlocutorName, select, undefined {} other { à {interlocutorName}}}.'
     rejection_required_message:
         en: Please explain your rejection in few words
         fr: Merci d'expliquer votre refus en quelques mots
@@ -1687,7 +1698,7 @@ assessment:
             en: Required field
             fr: Champ requis
         missing_fields_message:
-            en: Please enter the faithfulness of the listing
+            en: Please state the accuracy of the listing
             fr: Merci de renseigner la conformité de l'annonce
         missing_comment_title:
             en: Comment required
@@ -1992,6 +2003,124 @@ pages:
         page_title:
             en: 'Checkout - {SERVICE_NAME}'
             fr: 'Paiement - {SERVICE_NAME}'
+        header:
+            en: Checkout
+            fr: Paiement
+        header__EDITOR_LABEL:
+            en: Checkout page title
+            fr: Titre de la page de paiement
+        header_deposit:
+            en: Deposit
+            fr: Dépôt de garantie
+        billing_information_title:
+            en: Billing information
+            fr: Informations de facturation
+        country_of_residence_label:
+            en: Country of residence
+            fr: Pays de résidence
+        only_adult_payment_label:
+            en: Only adults are allowed to proceed with payment.
+            fr: Seuls les majeurs sont autorisés à effectuer des paiements.
+        payment_secured_by:
+            en: |
+                Your payment details are encrypted and secured by {payment_provider, select,
+                    stripe {Stripe.}
+                    mangopay {Mangopay.}
+                    other {our certified payment provider.}
+                }
+            fr: |
+                Vos informations de paiement sont chiffrées et sécurisées par {payment_provider, select,
+                    stripe {Stripe.}
+                    mangopay {Mangopay.}
+                    other {notre prestataire de paiement accrédité.}
+                }
+        mangopay_logo_alt:
+            en: Mangopay logo
+            fr: Logo Mangopay / Crédit Mutuel
+        card:
+            add_new_card:
+                en: Add a new card
+                fr: Utiliser une nouvelle carte
+            using_new_card_prompt:
+                en: Please enter card details.
+                fr: Merci de renseigner votre nouvelle carte.
+            reuse_card:
+                en: Reuse a card
+                fr: Réutiliser une carte
+            reusing_card_prompt:
+                en: Please pick a card
+                fr: Veuillez chosir une carte
+            number:
+                en: Card number
+                fr: Numéro de carte
+            expiration_label:
+                en: Expires
+                fr: Expiration
+            card_verification_code_label:
+                en: CVC
+                fr: Cryptogramme visuel
+            secured_payment_popup:
+                en: Secured payment {has_3Dsecure_enabled, select, true {3DSecure} other {}}
+                fr: Paiement chiffré {has_3Dsecure_enabled, select, true {3DSecure} other {}}
+            save_label:
+                en: Save card for later.
+                fr: Enregistrer ma carte pour plus tard.
+            save_context:
+                en: Secured and easy way to save your time.
+                fr: Sécurisé et pratique pour vous faire gagner du temps.
+        default_private_message:
+            en: |
+                Hello, would you accept this transaction{price, select,
+                    undefined {}
+                    0 {}
+                    other { for {price, number, currency}}
+                }?
+            fr: |
+                Acceptez-vous ma réservation{price, select,
+                    undefined {}
+                    0 {}
+                    other { pour un montant de {price, number, currency}}
+                } ?
+        accept_payment_statement:
+            en: 'I accept to pay {price, number, currency}.'
+            fr: 'J’accepte de payer {price, number, currency}.'
+        accept_payment_statement__EDITOR_LABEL:
+            en: Payment statement
+            fr: Accord pour paiement
+        accept_deposit_statement:
+            en: 'I accept that a {deposit, number, currency} deposit is required. It won’t be debited from my account except in case of a disputed moderated by {SERVICE_NAME}.'
+            fr: 'J’accepte qu’un dépôt de garantie (caution) de {deposit, number, currency} soit bloqué sur ma carte bancaire. Celui-ci ne sera en aucun cas prélevé en l’absence de litige avéré constaté par {SERVICE_NAME}.'
+        accept_deposit_statement__EDITOR_LABEL:
+            en: Deposit statement
+            fr: Accord pour le dépôt de garantie
+        cancellation_policy:
+            en: I will be able to cancel and get a full refund in case of discrepancy with the listing.
+            fr: Il me sera possible d’annuler sans frais en cas de non-conformité avec l’annonce.
+        cancellation_policy__EDITOR_LABEL:
+            en: Politique d’annulation
+            fr: Cancellation policy
+        accept_service_terms_statement:
+            en: 'By clicking the confirm button below, I agree to the Terms of Service applicable on {SERVICE_NAME}.'
+            fr: 'En cliquant sur le bouton ci-dessous, je déclare avoir lu et accepté les Conditions d’Utilisation de {SERVICE_NAME}.'
+        accept_service_terms_statement__EDITOR_LABEL:
+            en: Acceptance of Terms
+            fr: Acceptation des Conditions d’Utilisation
+        confirm_payment_button:
+            en: Confirm payment
+            fr: Confirmer et payer
+        3DSecure_logo_alt:
+            en: 3DSecure Visa / MasterCard logo
+            fr: Logo 3DSecure Visa / MasterCard
+        3DSecure_message:
+            en: Your bank may require 3DSecure authentication to secure your payment.
+            fr: Pour garantir votre sécurité, votre banque est susceptible de procéder à une vérification 3DSecure.
+        error:
+            cancelled_booking:
+                en: This transaction was cancelled.
+                fr: Cette transaction a été annulée.
+            invalid_card_number:
+                en: Please check your card number.
+                fr: Veuillez vérifier votre numéro de carte.
     booking_confirmation:
         page_title:
             en: 'Checkout - {SERVICE_NAME}'
