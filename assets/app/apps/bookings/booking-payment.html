@@ -53,7 +53,7 @@
                     </p>
                     <div ng-show="vm.booking.paymentProvider === 'stripe'" class="margin-bottom-plus">
                         <div id="card-element" class="margin-bottom"
-                            ng-class="{ 'form-submitted': paymentForm.$submitted }"></div>
+                            ng-class="{ 'form-submitted': paymentForm.$submitted, touched: vm.stripeCardTouched }"></div>
                         <div class="card-error form-warning text--semibold margin-bottom"
                             uib-collapse="!vm.cardErrorMessage">
                             {{vm.cardErrorMessage}}

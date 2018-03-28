@@ -234,7 +234,9 @@
         border: 1px solid #999;
     }
 
-    .StripeElement--invalid, .StripeElement.form-submitted:not(.StripeElement--complete) {
+    .StripeElement--invalid,
+    .StripeElement.touched:not(.StripeElement--focus):not(.StripeElement--complete),
+    .StripeElement.form-submitted:not(.StripeElement--complete) {
         background-color: rgba(255, 120, 0, 0.1);
         border: 1px solid rgba(255, 120, 0, 0.5);
     }

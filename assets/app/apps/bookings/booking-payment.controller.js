@@ -46,7 +46,6 @@
         var stelaceEventObj;
         var kyc;
         var stripeCardElement;
-        var touchCard = false;
 
         var stlConfig = StelaceConfig.getConfig();
 
@@ -57,6 +56,7 @@
         vm.booking              = null;
         vm.showEmail            = false;
         vm.cardErrorType        = null;
+        vm.stripeCardTouched    = false;
         vm.newCard              = {};
         vm.reuseCard            = true; // default
         vm.rememberCard         = true; // default
@@ -182,7 +182,7 @@
 
                 if (vm.booking.paymentProvider === 'stripe') {
                     var eventCallback = function (error) {
-                        touchCard = true;
+                        vm.stripeCardTouched = true;
                         if (error) {
                             vm.cardErrorType = error.code;
                             vm.cardErrorMessage = error.message;
@@ -475,7 +475,7 @@
                 selectedCard = vm.cards[0]; // should not happen
             } else {
                 if (vm.booking.paymentProvider === 'stripe') {
-                    if (!touchCard) {
+                    if (!vm.stripeCardTouched) {
                         return ContentService.showNotification({
                             messageKey: 'payment.error.invalid_card_number'
                         });
