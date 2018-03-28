@@ -568,7 +568,7 @@ listing:
             en: Missing picture
             fr: Photographie manquante
         missing_image_message:
-            en: A beautiful picture make your listing more attractive.
+            en: A beautiful picture makes your listing more attractive.
             fr: Une belle photo rend votre annonce plus attractive.
         missing_location_title:
             en: Required address or city
@@ -1578,8 +1578,8 @@ inbox:
         en: 'Message {interlocutorName, select, undefined {} other {to {interlocutorName}}}'
         fr: 'Message {interlocutorName, select, undefined {} other {à {interlocutorName}}}'
     acceptance_or_rejection_placeholder:
-        en: Please provider some details...
-        fr: Veuillez apporter quelques précisions...
+        en: Please provide some details…
+        fr: Veuillez apporter quelques précisions…
     required_message:
         en: 'Please write your message{interlocutorName, select, undefined {} other { to {interlocutorName}}}.'
         fr: 'Merci d’écrire quelques mots{interlocutorName, select, undefined {} other { à {interlocutorName}}}.'
