@@ -4,8 +4,7 @@
         <div class="booking__payment-processing desktop-8">
             <h2 class="spinner-space"
                 data-translate="pages.booking_confirmation.page_title"
-                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }"
-            >
+                data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME, status: (vm.paymentDone && ! vm.error) ? 'confirmed' : (vm.error ? 'cancelled' : '') }">
             </h2>
             <div class="booking__payment-message text-center">
                 <span data-us-spinner="{top: '0%'}" data-spinner-key="payment-spinner" data-spinner-start-active="true"></span>

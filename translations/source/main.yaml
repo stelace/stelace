@@ -237,8 +237,8 @@ listing:
             en: First listing call-to-action
             fr: Message incitant à créer une première annonce
         first_listing_cta_img_alt:
-            en: Create your own listing on {SERVICE_NAME}
-            fr: Créez votre propre annonce sur {SERVICE_NAME}
+            en: 'Create your own listing on {SERVICE_NAME}'
+            fr: 'Créez votre propre annonce sur {SERVICE_NAME}'
     trust_helper:
         payments:
             en: |
@@ -420,16 +420,16 @@ listing:
             en: No price suggestion found
             fr: Aucune suggestion de prix disponible
         price_recommendation_result_label:
-            en: "Suggestion:"
+            en: 'Suggestion:'
             fr: "Suggestion\_:"
         image_title:
-            en: Beautiful pictures make difference...
-            fr: De belles photos font la différence...
+            en: Beautiful pictures make a difference…
+            fr: De belles photos font la différence…
         image_title__EDITOR_LABEL:
             en: ''
             fr: ''
         security_deposit_message:
-            en: Amount automatically blocked by security on the taker credit card.
+            en: Amount automatically held on the taker credit card.
             fr: Montant automatiquement bloqué par sécurité sur la carte bancaire des utilisateurs.
         security_deposit_message__EDITOR_LABEL:
             en: ''
@@ -460,7 +460,7 @@ listing:
                     other {}
                 }
         trust_message:
-            en: 'If there is a transaction, the price amount will be transferred to your account in the days following your confirmation. Easy and secure!'
+            en: 'If there is a transaction, the amount will be transferred to your account few days after your confirmation. Easy and secure!'
             fr: "En cas de réservation, le prix sera transféré sur votre compte dans les jours qui suivront votre confirmation. Facile et sécurisé\_!"
         my_listings_label:
             en: |
@@ -756,8 +756,8 @@ user:
             en: 'My account - {SERVICE_NAME}'
             fr: 'Mon compte {SERVICE_NAME}'
         greeting:
-            en: Welcome back {firstname, select, undefined {} other {{firstname}}}
-            fr: Bienvenue sur {SERVICE_NAME} {firstname, select, undefined {} other {{firstname}}}
+            en: 'Welcome back {firstname, select, undefined {} other {{firstname}}}'
+            fr: 'Bienvenue sur {SERVICE_NAME} {firstname, select, undefined {} other {{firstname}}}'
             context: User can have no name yet.
         greeting__EDITOR_LABEL:
             en: Greeting message of account page
@@ -843,7 +843,7 @@ user:
         location_name_placeholder:
             en: Place name
             fr: Nom de l’adresse
-            context: "User can give a name to each of her favorite places in these inputs"
+            context: User can give a name to each of her favorite places in these inputs
         my_listings_title:
             en: My listings
             fr: Mes annonces
@@ -852,8 +852,8 @@ user:
             fr: Mon mot de passe
             context: Section where user can update her password
         no_password_helper:
-            en: Connect instantly to {SERVICE_NAME}.
-            fr: Pour me connecter à {SERVICE_NAME} plus facilement.
+            en: 'Connect instantly to {SERVICE_NAME}.'
+            fr: 'Pour me connecter à {SERVICE_NAME} plus facilement.'
         current_password_label:
             en: Current password
             fr: Mot de passe actuel
@@ -875,12 +875,12 @@ user:
                     other {Mot de passe}
                 }
         incorrect_current_password:
-            en: Your current password does not match, please check your input.
+            en: 'Your current password does not match, please check your input.'
             fr: La saisie de votre ancien mot de passe est erronée.
         income_statement_title:
             en: Income reports
             fr: Mes revenus
-            context: In this section, user can download annual income report on platform to fill in tax returns.
+            context: 'In this section, user can download annual income report on platform to fill in tax returns.'
         income_statement_download:
             en: Download annual statement
             fr: "Consulter mon récapitulatif annuel de revenus\_:"
@@ -901,8 +901,8 @@ user:
                 }
             context: Same button is used to cancel upload during process.
         profile_image_trust_factor:
-            en: Profile images let users of {SERVICE_NAME} interact with greater trust. Add yours in no time.
-            fr: Les photos de profil permettent aux autres utilisateurs {SERVICE_NAME} d’interagir avec plus de confiance. Ajoutez la vôtre en quelques secondes.
+            en: 'Profile images let users of {SERVICE_NAME} interact with greater trust. Add yours in no time.'
+            fr: 'Les photos de profil permettent aux autres utilisateurs {SERVICE_NAME} d’interagir avec plus de confiance. Ajoutez la vôtre en quelques secondes.'
         update_profile_button:
             en: Update my profile
             fr: Compléter mon profil
@@ -911,7 +911,7 @@ user:
             fr: Veuillez renseigner votre adresse email pour être informé en cas de demandes concernant vos annonces ou pendant vos transactions.
         update_old_email:
             en: '{old_email} is not valid anymore? Please fill in your new email address.'
-            fr: "{old_email} n’est plus valable ?Veuillez renseigner votre nouvelle adresse email."
+            fr: "{old_email} n’est plus valable\_?Veuillez renseigner votre nouvelle adresse email."
         main_location_helper:
             en: |
                 {is_listing_owner, select,
@@ -950,7 +950,7 @@ user:
             context: Prompt user to save phone number to get notified of new bookings and requests.
         SMS_validation_code_helper:
             en: Keep your phone at hand to get your SMS validation code.
-            fr: Conservez votre téléphone à portée de main avant de poursuivre, afin de recevoir un code de validation à 4 chiffres.
+            fr: 'Conservez votre téléphone à portée de main avant de poursuivre, afin de recevoir un code de validation à 4 chiffres.'
         SMS_validation_code_sent:
             en: Please fill in the SMS validation code we have just sent to you.
             fr: Merci de saisir le code de validation SMS que nous venons de vous envoyer.
@@ -1109,7 +1109,7 @@ prompt:
     proceed_with_confidence:
         en: Proceed with confidence
         fr: Poursuivez en toute sérénité
-        context: Can be used in process such as checkout/payment, with opportunity to verify information about the listing or the seller for instance.
+        context: 'Can be used in process such as checkout/payment, with opportunity to verify information about the listing or the seller for instance.'
     making_your_life_easier:
         en: Making your life easier
         fr: Facilitez-vous la vie
@@ -1129,10 +1129,10 @@ notification:
     validation_last_attempt:
         en: Last attempt
         fr: Dernier essai
-        context: Displayed when user has just failed to complete a process and is offered one last try, generally for security reasons.
+        context: 'Displayed when user has just failed to complete a process and is offered one last try, generally for security reasons.'
     validation_failed:
-        en: Validation failed{retry, select, later {, please retry later.} other {}}
-        fr: Échec de la validation{retry, select, later {, veuillez réessayer plus tard.} other {}}
+        en: 'Validation failed{retry, select, later {, please retry later.} other {}}'
+        fr: 'Échec de la validation{retry, select, later {, veuillez réessayer plus tard.} other {}}'
     shared:
         en: Thank you for sharing!
         fr: "Merci d’avoir partagé\_!"
@@ -1293,8 +1293,8 @@ places:
         fr: Et là
         context: A final way to label a location marker on a map.
     location_examples:
-        en: Address, city, station…
-        fr: Adresse, ville, gare…
+        en: 'Address, city, station…'
+        fr: 'Adresse, ville, gare…'
         context: Illustrate search locations with some obvious examples
     address_placeholder:
         en: Address
@@ -1566,14 +1566,14 @@ inbox:
     conversation_intro_taker:
         en: ''
         fr: ''
-        context: Explains which type of info could be useful to exchange during conversation, from buyer’s point of view.
+        context: 'Explains which type of info could be useful to exchange during conversation, from buyer’s point of view.'
     conversation_intro_taker__EDITOR_LABEL:
-        en: 'Conversation context'
-        fr: 'Contexte de la conversation'
+        en: Conversation context
+        fr: Contexte de la conversation
     conversation_intro_owner:
         en: ''
         fr: ''
-        context: Explains which type of info could be useful to exchange during conversation, from owner’s point of view.
+        context: 'Explains which type of info could be useful to exchange during conversation, from owner’s point of view.'
     message_to:
         en: 'Message {interlocutorName, select, undefined {} other {to {interlocutorName}}}'
         fr: 'Message {interlocutorName, select, undefined {} other {à {interlocutorName}}}'
@@ -1661,12 +1661,12 @@ inbox:
     banking_details:
         main_message:
             en: 'I give my banking details{price, select, 0 {} other { to receive the payment}}:'
-            fr: "Je renseigne mes informations bancaires{price, select, 0 {} other { pour recevoir le paiement}} :"
+            fr: "Je renseigne mes informations bancaires{price, select, 0 {} other { pour recevoir le paiement}}\_:"
         helper_message:
-            en: Please have your RIB with you.
+            en: Please have them ready.
             fr: Nous vous invitons à vous munir de votre RIB.
         location:
-            en: Address specified on your RIB
+            en: Address specified on your bank details
             fr: Adresse indiquée sur mon RIB
         location_placeholder:
             en: Give your address
@@ -1699,7 +1699,6 @@ inbox:
             success_message:
                 en: You will get the payment amount after the transaction validation.
                 fr: Nous pourrons vous transférer le montant de la réservation après la validation de la transaction.
-
     summary:
         information_title:
             en: Information
@@ -2088,8 +2087,8 @@ pages:
             en: As shown in Web browser and search engine results such as Google.
             fr: Apparaît dans votre navigateur Web ainsi que dans les résultats des moteurs de recherche tels que Google.
         meta_description:
-            en: "Your community awaits you on {SERVICE_NAME}"
-            fr: "Rejoignez la communauté {SERVICE_NAME}"
+            en: 'Your community awaits you on {SERVICE_NAME}'
+            fr: 'Rejoignez la communauté {SERVICE_NAME}'
             context: This is a very generic default that should be replaced by admin before marketplace is online.
         header:
             en: 'Welcome to {SERVICE_NAME}'
@@ -2255,8 +2254,8 @@ pages:
                 en: CVC
                 fr: Cryptogramme visuel
             secured_payment_popup:
-                en: Secured payment {has_3Dsecure_enabled, select, true {3DSecure} other {}}
-                fr: Paiement chiffré {has_3Dsecure_enabled, select, true {3DSecure} other {}}
+                en: 'Secured payment {has_3Dsecure_enabled, select, true {3DSecure} other {}}'
+                fr: 'Paiement chiffré {has_3Dsecure_enabled, select, true {3DSecure} other {}}'
             save_label:
                 en: Save card for later.
                 fr: Enregistrer ma carte pour plus tard.
@@ -2308,15 +2307,15 @@ pages:
             fr: Logo 3DSecure Visa / MasterCard
         3DSecure_message:
             en: Your bank may require 3DSecure authentication to secure your payment.
-            fr: Pour garantir votre sécurité, votre banque est susceptible de procéder à une vérification 3DSecure.
+            fr: 'Pour garantir votre sécurité, votre banque est susceptible de procéder à une vérification 3DSecure.'
         error:
             cancelled_booking:
                 en: This transaction was cancelled.
                 fr: Cette transaction a été annulée.
     booking_confirmation:
         page_title:
-            en: 'Checkout - {SERVICE_NAME}'
-            fr: 'Paiement - {SERVICE_NAME}'
+            en: 'Payment {status, select, confirmed {confirmed} cancelled {cancelled} other{}}'
+            fr: 'Paiement {status, select, confirmed {confirmé} cancelled {annulé} other{}}'
         redirection_to_checkout_message:
             en: You will be redirected to the checkout page.
             fr: Vous allez être redirigé(e) vers la page de paiement.
@@ -2327,17 +2326,17 @@ pages:
             en: Payment successful
             fr: Transaction réussie
         inbox_cta_link:
-            en: Go to your inbox to stay in touch with {owner, select, undefined {the seller} other {{owner}}}.
-            fr: Accédez à votre messagerie pour rester en contact avec {owner, select, undefined {le vendeur} other {{owner}}}.
+            en: 'Go to your inbox to stay in touch with {owner, select, undefined {the seller} other {{owner}}}.'
+            fr: 'Accédez à votre messagerie pour rester en contact avec {owner, select, undefined {le vendeur} other {{owner}}}.'
         email_notification_message:
             en: You will receive a confirmation email.
             fr: Vous allez recevoir un email de confirmation.
         payment_summary:
-            en: The {price, number, currency} payment has been successful.
-            fr: Le paiement de {price, number, currency} a été effectué avec succès.
+            en: 'The {price, number, currency} payment has been successful.'
+            fr: 'Le paiement de {price, number, currency} a été effectué avec succès.'
         deposit_summary:
-            en: A {deposit, number, currency} deposit has been performed. It will not be used except in case of a dispute.
-            fr: Vous venez de réaliser un dépôt de garantie à hauteur de {deposit, number, currency}, en aucun cas prélevé en l'absence de litige.
+            en: 'A {deposit, number, currency} deposit has been performed. It will not be used except in case of a dispute.'
+            fr: 'Vous venez de réaliser un dépôt de garantie à hauteur de {deposit, number, currency}, en aucun cas prélevé en l''absence de litige.'
         generic_error:
             en: An error has happened and we apologize for any inconvenience. Your card hasn't been debited.
             fr: Une erreur s'est produite et nous vous prions de nous en excuser. Aucun prélèvement ne sera effectué.
@@ -2470,11 +2469,11 @@ pages:
             en: Page requested may be lost.
             fr: La page que vous cherchez est introuvable.
         guidance:
-            en: No worry, we keep you on track.
-            fr: Pas de panique, on vous aide à poursuivre votre route.
+            en: 'No worry, we keep you on track.'
+            fr: 'Pas de panique, on vous aide à poursuivre votre route.'
         guidance_tooltip:
             en: You might be more luck this time…
-            fr: Cette fois, vous aurez peut-être un peu plus de chance…
+            fr: 'Cette fois, vous aurez peut-être un peu plus de chance…'
         surprise_listing_button:
             en: Pick a surprise listing
             fr: Annonce surprise

@@ -140,7 +140,6 @@
                     <span ng-if="vm.firstLocation.city"
                         itemscope
                         itemtype="http://data-vocabulary.org/Breadcrumb">
-                        <!-- // TODO : get nearest big city via a service -->
                         ›&nbsp;
                         <a id="search-city-breadcrumb" class="link--blue-underline"
                             ng-href="{{vm.breadcrumbCityLink}}"
@@ -156,7 +155,6 @@
                                     itemscope
                                     itemtype="http://schema.org/PostalAddress">
                                     <span itemprop="addressLocality">{{vm.firstLocation.city}}</span>
-                                    <!-- WARNING : France is the only country for the moment -->
                                     <meta itemprop="addressCountry" content="{{vm.firstLocation.country}}">
                                 </span>
                             </span>
