@@ -18,7 +18,7 @@
                 </div>
                 <div class="margin-bottom-plus">
                     <div class="text--semibold"
-                        ng-if="vm.paymentProcessing && ! vm.error"
+                        ng-if="vm.paymentProcessing && ! vm.error && ! vm.paymentDone"
                         data-translate="pages.booking_confirmation.payment_processing_message"
                     >
                     </div>
@@ -54,7 +54,7 @@
                     </span>
                 </p>
                 <p class="text-justify"
-                    ng-if="vm.paymentDone || ! vm.error">
+                    ng-if="vm.paymentDone && vm.conversation && vm.owner">
                     <!-- Conversation is empty if payment failed -->
                     <a id="post-payment-conversation-link" ui-sref="conversation({conversationId: vm.conversation.id})">
                         <span data-translate="pages.booking_confirmation.inbox_cta_link"

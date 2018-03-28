@@ -37,7 +37,7 @@
 
         var vm = this;
         vm.error                  = false;
-        vm.paymentProcessing      = false;
+        vm.paymentProcessing      = true;
         vm.paymentDone            = false;
         vm.listingType            = null;
         vm.listingTypeProperties  = {};
@@ -156,7 +156,6 @@
 
                 if (! vm.booking.paymentDate) {
                     vm.firstTime = true;
-                    vm.paymentProcessing = true;
                     return vm.booking
                         .payment({
                             cardId: cardId,
@@ -183,7 +182,6 @@
                 }
 
                 if (booking.paidDate) {
-                    vm.paymentProcessing = false;
                     vm.paymentDone = true;
                 }
                 statusIcon = "success";
@@ -229,7 +227,10 @@
             })
             .catch(function (/* err */) {
                 statusIcon = "failure";
-                vm.error = true;
+
+                if (!vm.paymentDone) {
+                    vm.error = true;
+                }
             })
             .finally(function () {
                 vm.showStatusIcon = statusIcon;
