@@ -77,7 +77,7 @@ async function updateDefault(req, res) {
 
     const lang = ContentEntriesService.getBestLang(attrs.locale);
 
-    await ContentEntriesService.updateTranslations(lang, attrs.translations);
+    const updatedTranslations = await ContentEntriesService.updateTranslations(lang, attrs.translations);
 
-    res.json({ ok: true });
+    res.json(updatedTranslations);
 }

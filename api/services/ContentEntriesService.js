@@ -133,6 +133,8 @@ async function updateTranslations(lang, newTranslations) {
     });
 
     await updateDefaultTranslations(lang, updatingTranslations);
+
+    return updatingTranslations;
 }
 
 async function updateUserTranslations(lang, newTranslations) {
