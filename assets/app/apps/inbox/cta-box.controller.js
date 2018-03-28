@@ -313,7 +313,13 @@
                     editingCurrentUser.userType = editingCurrentUser.userType || 'individual'; // TODO: the user can choose from UI
 
                     if (! _.isEqual(_.pick(editingCurrentUser, updateAttrs), _.pick(vm.currentUser, updateAttrs))) {
-                        return editingCurrentUser.patch();
+                        return editingCurrentUser
+                            .patch()
+                            .then(function () {
+                                _.forEach(updateAttrs, function (field) {
+                                    vm.currentUser[field] = editingCurrentUser[field];
+                                });
+                            });
                     }
 
                     return;
@@ -429,7 +435,7 @@
 
                     if (vm.paymentProvider === 'mangopay') {
                         var createBankAccountAttrs = {
-                            ownerName: vm.firstName + " " + vm.lastName,
+                            ownerName: vm.currentUser.firstname + " " + vm.currentUser.lastname,
                             ownerAddress: {
                                 AddressLine1: vm.currentUser.address.name,
                                 City: vm.currentUser.address.city,
@@ -444,13 +450,15 @@
                             .then(_afterBankAccountCreationSuccess)
                             .catch(_afterBankAccountCreationFail);
                     } else if (vm.paymentProvider === 'stripe') {
+                        var accountHolderType = vm.currentUser.userType === 'individual' ? 'individual' : 'company';
+
                         return finance.createStripeBankAccountToken({
                             country: vm.identity.countryOfResidence,
                             currency: 'eur', // handle other currencies
                             routing_number: undefined,
                             account_number: vm.iban,
                             account_holder_name: vm.firstName + " " + vm.lastName,
-                            account_holder_type: vm.currentUser.userType
+                            account_holder_type: accountHolderType
                         })
                         .then(function (res) {
                             return finance.createBankAccount({
