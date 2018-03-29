@@ -308,14 +308,12 @@ async function cancelOtherBookings(booking, logger) {
 
         // for each pending bookings, compute if it exceeds the stock limit at the booking date
         _.forEach(pendingBookings, pendingBooking => {
-            const availableResult = BookingService.getAvailabilityDates({
-                futureBookings,
-                listingAvailabilities,
-                newBooking: pendingBooking,
-                maxQuantity: listing.quantity,
-            });
+            const maxQuantity = Listing.getMaxQuantity(listing, pendingBooking.listingType);
 
-            if (!availableResult.isAvailable) {
+            const availabilityGraph = BookingService.getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });
+            const availabilityResult = BookingService.getAvailabilityDateInfo(availabilityGraph, pendingBooking);
+
+            if (!availabilityResult.isAvailable) {
                 otherBookings.push(pendingBooking);
             }
         });
@@ -336,14 +334,12 @@ async function cancelOtherBookings(booking, logger) {
 
         // for each pending bookings, compute if it exceeds the stock limit during the period
         _.forEach(pendingBookings, pendingBooking => {
-            const availableResult = BookingService.getAvailabilityPeriods({
-                futureBookings,
-                listingAvailabilities,
-                newBooking: pendingBooking,
-                maxQuantity: listing.quantity,
-            });
+            const maxQuantity = Listing.getMaxQuantity(listing, pendingBooking.listingType);
 
-            if (!availableResult.isAvailable) {
+            const availabilityGraph = BookingService.getAvailabilityPeriodGraph({ futureBookings, listingAvailabilities, maxQuantity });
+            const availabilityResult = BookingService.getAvailabilityPeriodInfo(availabilityGraph, pendingBooking);
+
+            if (!availabilityResult.isAvailable) {
                 otherBookings.push(pendingBooking);
             }
         });
