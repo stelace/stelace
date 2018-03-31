@@ -1,4 +1,4 @@
-/* global LoggerService, MicroService, TokenService, UAService */
+/* global LoggerService, MicroService, StelaceConfigService, TokenService, UAService */
 
 /**
  * HTTP Server Settings
@@ -83,8 +83,23 @@ module.exports.http = {
             next();
         },
 
-        responseEnhancement: function (req, res, next) {
+        responseEnhancement: async function (req, res, next) {
             res.sendError = MicroService.sendError(res);
+
+            if (sails.config.stelace.stelaceId) {
+                let disableIndexing = true;
+
+                try {
+                    const config = await StelaceConfigService.getConfig();
+                    disableIndexing = !config.is_service_live;
+                } catch (e) {
+                    // do nothing
+                }
+
+                if (disableIndexing) {
+                    res.set('X-Robots-Tag', 'noindex, nofollow, nosnippet, noarchive');
+                }
+            }
 
             if (req.url.substr(0, 5) === "/api/") {
                 res.set("Cache-Control", "no-cache");
