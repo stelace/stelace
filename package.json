@@ -94,7 +94,7 @@
     "passport-facebook": "2.1.0",
     "passport-google-oauth": "1.0.0",
     "passport-local": "1.0.0",
-    "phantomjs": "1.9.19",
+    "phantomjs-prebuilt": "2.1.16",
     "request": "2.69.0",
     "run-sequence": "1.1.5",
     "sails": "1.0.0-45",

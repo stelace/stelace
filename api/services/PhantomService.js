@@ -11,7 +11,7 @@ const Promise = require('bluebird');
 var fs           = require('fs');
 var path         = require('path');
 var childProcess = require('child_process');
-var phantomjs    = require('phantomjs');
+var phantomjs    = require('phantomjs-prebuilt');
 var binPath      = phantomjs.path;
 
 Promise.promisifyAll(fs);

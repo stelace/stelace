@@ -186,7 +186,7 @@ snapshotsDir: "/path/to/project-external/snapshots"
 
 #### PhantomJS symbolic link
 
-    ln -s node_modules/phantomjs/bin/phantomjs
+    ln -s node_modules/phantomjs-prebuilt/bin/phantomjs
 
 > (optional, useful to debug phantom scripts)
 
