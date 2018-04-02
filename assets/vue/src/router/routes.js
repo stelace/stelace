@@ -1,10 +1,15 @@
-import store from '@state/store'
+// import store from '@state/store';
+
+const Home = () => import(/* webpackChunkName: "public-app" */ '@views/home');
+// const Login = () => import(/* webpackChunkName: "demo-app" */ '@views/login');
+// const Profile = () => import(/* webpackChunkName: "demo-app" */ '@views/profile');
+// const app404 = () => import(/* webpackChunkName: "demo-app" */ '@views/404');
 
 export default [
   {
     path: '/',
     name: 'home',
-    component: require('@views/home').default,
+    component: Home,
   },
   {
     path: '*',
@@ -14,7 +19,7 @@ export default [
   {
     path: '/login',
     name: 'login',
-    component: require('@views/login').default,
+    component: Login,
     beforeEnter(routeTo, routeFrom, next) {
       // If the user is already logged in
       if (store.getters['auth/loggedIn']) {
@@ -38,7 +43,7 @@ export default [
   {
     path: '/profile/:username',
     name: 'username-profile',
-    component: require('@views/profile').default,
+    component: Profile,
     meta: {
       authRequired: true,
     },
@@ -81,7 +86,7 @@ export default [
   {
     path: '/404',
     name: '404',
-    component: require('@views/404').default,
+    component: app404,
     // Allows props to be passed to the 404 page through route
     // params, such as `resource` to define what wasn't found.
     props: true,
