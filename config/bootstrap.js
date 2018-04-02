@@ -25,4 +25,4 @@ module.exports.bootstrap = async function(done) {
     // (otherwise your server will never lift, since it's waiting on the bootstrap)
     return done();
 
-  };
+};
