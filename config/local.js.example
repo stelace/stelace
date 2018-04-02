@@ -17,6 +17,7 @@ module.exports = {
             forceRefreshInHours: 2,
             authExpirationInDays: 14,
         },
+        snapshotsDurationInDays: 7,
         secret: '<secret>', // must replace it with random characters (different from `token.authSecret`)
         url: 'http://localhost:3000', // like 'https://example.com'
 

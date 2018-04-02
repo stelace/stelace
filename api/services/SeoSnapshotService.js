@@ -2,17 +2,18 @@
 
 module.exports = {
 
-    init: init
+    init,
 
 };
 
-var querystring = require('querystring');
-var fs          = require('fs');
-var path        = require('path');
-var cheerio     = require('cheerio');
-var uuid        = require('uuid');
+const querystring = require('querystring');
+const fs          = require('fs');
+const path        = require('path');
+const cheerio     = require('cheerio');
+const Uuid        = require('uuid');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const moment = require('moment');
 
 Promise.promisifyAll(fs);
 
@@ -40,34 +41,29 @@ function SeoSnapshot(args) {
     }, this.saveInterval);
 }
 
-SeoSnapshot.prototype.getCache = function getCache() {
-    return Promise
-        .resolve()
-        .then(() => {
-            if (this.cache) {
-                return this.cache;
-            }
+SeoSnapshot.prototype.getCache = async function getCache() {
+    if (this.cache) {
+        return this.cache;
+    }
 
-            if (! MicroService.existsSync(this.cacheFilepath)) {
-                // equivalent of shell 'touch' file
-                fs.closeSync(fs.openSync(this.cacheFilepath, "w"));
+    if (! MicroService.existsSync(this.cacheFilepath)) {
+        // equivalent of shell 'touch' file
+        fs.closeSync(fs.openSync(this.cacheFilepath, "w"));
 
-                this.cache = {};
-                return this.cache;
-            }
+        this.cache = {};
+        return this.cache;
+    }
 
-            return fs
-                .readFileAsync(this.cacheFilepath, "utf8")
-                .then(JSON.parse)
-                .then(data => {
-                    this.cache = data;
-                    return this.cache;
-                })
-                .catch((/* err */) => {
-                    this.cache = {};
-                    return this.cache;
-                });
-        });
+    try {
+        let data = await fs.readFileAsync(this.cacheFilepath, 'utf8');
+        data = JSON.parse(data);
+
+        this.cache = data;
+        return this.cache;
+    } catch (e) {
+        this.cache = {};
+        return this.cache;
+    }
 };
 
 SeoSnapshot.prototype.saveCache = function saveCache() {
@@ -82,17 +78,22 @@ SeoSnapshot.prototype.getSnapshotData = function getSnapshotData(url) {
     return this.cache[url];
 };
 
-SeoSnapshot.prototype.setSnapshotData = function setSnapshotData(url, status) {
+SeoSnapshot.prototype.setSnapshotData = function setSnapshotData(url, { uuid, status, createdDate } = {}) {
     if (! this.cache[url]) {
         this.cache[url] = {};
     }
 
-    var snapshotData = this.cache[url];
+    const snapshotData = this.cache[url];
 
-    if (! snapshotData.uuid) {
-        snapshotData.uuid = uuid.v4();
+    if (!snapshotData.uuid) {
+        snapshotData.uuid = uuid || Uuid.v4();
     }
-    snapshotData.status = status;
+    if (status) {
+        snapshotData.status = status;
+    }
+    if (createdDate) {
+        snapshotData.createdDate = createdDate;
+    }
 };
 
 SeoSnapshot.prototype.standardizeUrl = function standardizeUrl(urlPath) {
@@ -120,71 +121,62 @@ SeoSnapshot.prototype.standardizeUrl = function standardizeUrl(urlPath) {
     return urlPath;
 };
 
-SeoSnapshot.prototype.createSnapshot = function (args) {
+SeoSnapshot.prototype.createSnapshot = async function (args) {
     var urlBody          = args.urlBody;
     var urlPath          = args.urlPath;
     var snapshotFilename = args.snapshotFilename;
     var snapshotFilepath = path.join(this.snapshotsDirPath, snapshotFilename);
+    var uuid             = args.uuid;
 
-    return Promise
-        .resolve()
-        .then(() => {
-            return PhantomService.snapshotHtml({
-                url: urlBody + urlPath,
-                filePath: snapshotFilename,
-                spa: true
-            });
-        })
-        .then(() => {
-            return fs.readFileAsync(snapshotFilepath, "utf8");
-        })
-        .then(data => {
-            var $ = cheerio.load(data);
-            var status = $("meta[name='status-code']").attr("content");
-            status = status ? parseInt(status, 10) : 200;
+    await PhantomService.snapshotHtml({
+        url: urlBody + urlPath,
+        filePath: snapshotFilename,
+        spa: true,
+    });
 
-            this.setSnapshotData(urlPath, status);
-            this.isThereNewSnapshots = true;
+    const data = await fs.readFileAsync(snapshotFilepath, 'utf8');
 
-            return status;
-        });
+    const $ = cheerio.load(data);
+    let status = $('meta[name="status-code"]').attr('content');
+    status = status ? parseInt(status, 10) : 200;
+
+    const createdDate = new Date().toISOString();
+
+    this.setSnapshotData(urlPath, { uuid, status, createdDate });
+    this.isThereNewSnapshots = true;
+
+    return status;
 };
 
-SeoSnapshot.prototype.serveSnapshot = function serveSnapshot(urlBody, urlPath, req, res) {
-    return this.getCache()
-        .then(() => {
-            var standardizedUrl  = this.standardizeUrl(urlPath);
-            var snapshotData     = this.getSnapshotData(standardizedUrl);
-            var snapshotFilename = snapshotData.uuid + ".html";
-            var snapshotFilepath = path.join(this.snapshotsDirPath, snapshotFilename);
+SeoSnapshot.prototype.serveSnapshot = async function serveSnapshot(urlBody, urlPath, req, res) {
+    await this.getCache();
 
+    const standardizedUrl  = this.standardizeUrl(urlPath);
+    const snapshotData     = this.getSnapshotData(standardizedUrl);
+    const snapshotFilename = snapshotData.uuid + '.html';
+    const snapshotFilepath = path.join(this.snapshotsDirPath, snapshotFilename);
 
-            // if the snapshot exists and the status is 202 or 404, serve it
-            if (_.contains([200, 204], snapshotData.status) && MicroService.existsSync(snapshotFilepath)) {
-                return [
-                    snapshotData.status,
-                    snapshotFilepath
-                ];
-            }
+    let status;
 
-            var snapshotArgs = {
-                urlBody: urlBody,
-                urlPath: standardizedUrl,
-                snapshotFilename: snapshotFilename
-            };
+    const expirationDays = sails.config.stelace.snapshotsDurationInDays || 7;
+    const minCreatedDate = moment().subtract({ d: expirationDays }).toISOString();
 
-            return this.createSnapshot(snapshotArgs)
-                .then(status => {
-                    return [
-                        status,
-                        snapshotFilepath
-                    ];
-                });
-        })
-        .spread((status, snapshotFilepath) => {
-            res
-                .status(status)
-                .sendFile(snapshotFilepath);
-        })
-        .catch(res.sendError);
+    let takeSnapshot = !_.includes([200, 204], snapshotData.status)
+        || !MicroService.existsSync(snapshotFilepath)
+        || !snapshotData.createdDate || snapshotData.createdDate < minCreatedDate;
+
+    if (takeSnapshot) {
+        const snapshotArgs = {
+            uuid: snapshotData.uuid,
+            urlBody: urlBody,
+            urlPath: standardizedUrl,
+            snapshotFilename: snapshotFilename,
+        };
+
+        status = await this.createSnapshot(snapshotArgs);
+    } else {
+        status = snapshotData.status;
+    }
+
+    res.status(status).sendFile(snapshotFilepath);
 };
