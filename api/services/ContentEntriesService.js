@@ -10,8 +10,6 @@ module.exports = {
     getTranslations,
     fetchDefaultTranslations,
     updateDefaultTranslations,
-
-    updateTranslations,
     updateUserTranslations,
     resetUserTranslations,
     refreshTranslations,
@@ -41,13 +39,24 @@ const availableLangs = ['en', 'fr'];
 
 const translationFolder = path.join(__dirname, '../../translations');
 
-const sourceFilepath = path.join(translationFolder, './source/main.yaml');
-const sourceModifiedFilepath = path.join(translationFolder, './modified/main-modified.yaml');
-const sourceModifiedDeltaFilepath = path.join(translationFolder, './modified/main-modified-delta.yaml');
-
-let cachedDefaultTranslations = {};
-let cachedUserTranslations = {};
-let cachedMetadatas = {};
+const namespaces = {
+    default: {
+        sourceFilepath: path.join(translationFolder, './source/main.yaml'),
+        sourceModifiedFilepath: path.join(translationFolder, './modified/main-modified.yaml'),
+        sourceModifiedDeltaFilepath: path.join(translationFolder, './modified/main-modified-delta.yaml'),
+        cachedDefaultTranslations: {},
+        cachedUserTranslations: {},
+        cachedMetadatas: {},
+    },
+    email: {
+        sourceFilepath: path.join(translationFolder, './source/email.yaml'),
+        sourceModifiedFilepath: path.join(translationFolder, './modified/email-modified.yaml'),
+        sourceModifiedDeltaFilepath: path.join(translationFolder, './modified/email-modified-delta.yaml'),
+        cachedDefaultTranslations: {},
+        cachedUserTranslations: {},
+        cachedMetadatas: {},
+    },
+};
 
 function getDefaultLang() {
     return defaultLang;
@@ -69,16 +78,21 @@ function getBestLang(lang) {
     return getDefaultLang();
 }
 
+function isValidNamespace(namespace) {
+    return typeof namespaces[namespace] === 'object';
+}
+
 async function getTranslations({
     lang,
     displayContext,
     onlyEditableKeys,
+    namespace,
 }) {
     const {
         translations,
         userTranslations,
         metadata,
-    } = await _getTranslations(lang);
+    } = await _getTranslations(lang, { namespace });
 
     return computeTranslations({
         translations,
@@ -89,39 +103,48 @@ async function getTranslations({
     });
 }
 
-async function _getTranslations(lang) {
+async function _getTranslations(lang, { namespace }) {
     if (!isLangAllowed(lang)) {
         throw new Error('Invalid lang');
     }
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const space = namespaces[namespace];
 
     const [
         translations,
         userTranslations,
     ] = await Promise.all([
-        fetchDefaultTranslations(lang),
-        fetchUserTranslations(lang),
+        fetchDefaultTranslations(lang, { namespace }),
+        fetchUserTranslations(lang, { namespace }),
     ]);
 
     if (!sails.config.useCacheTranslations) {
-        cachedMetadatas[lang] = null;
+        space.cachedMetadatas[lang] = null;
     }
 
-    if (!cachedMetadatas[lang]) {
+    if (!space.cachedMetadatas[lang]) {
         const metadata = parseMetadata(translations);
-        cachedMetadatas[lang] = metadata;
+        space.cachedMetadatas[lang] = metadata;
     }
 
     return {
         translations,
         userTranslations,
-        metadata: cachedMetadatas[lang],
+        metadata: space.cachedMetadatas[lang],
     };
 }
 
-async function updateTranslations(lang, newTranslations) {
+async function updateDefaultTranslations(lang, newTranslations, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
     const keys = getAllKeys(newTranslations);
 
-    const existingTranslations = await fetchDefaultTranslations(lang);
+    const existingTranslations = await fetchDefaultTranslations(lang, { namespace });
     const existingKeys = getAllKeys(existingTranslations);
 
     const filteredKeys = _.intersection(keys, existingKeys);
@@ -132,21 +155,34 @@ async function updateTranslations(lang, newTranslations) {
         _.set(updatingTranslations, key, _.get(newTranslations, key));
     });
 
-    await updateDefaultTranslations(lang, updatingTranslations);
+    await _updateDefaultTranslations(lang, updatingTranslations, { namespace });
 
     return updatingTranslations;
 }
 
-async function updateUserTranslations(lang, newTranslations) {
+async function updateUserTranslations(lang, newTranslations, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const space = namespaces[namespace];
+
     const keys = getAllKeys(newTranslations);
-    const { metadata } = await _getTranslations(lang);
 
-    const editableKeys = _.intersection(keys, metadata.editableKeys); // filter out non valid editable keys
+    let editableKeys;
 
-    const existingUserTranslations = await Translation.find({ lang, key: editableKeys });
+    if (namespace !== 'email') {
+        const { metadata } = await _getTranslations(lang, { namespace });
+
+        editableKeys = _.intersection(keys, metadata.editableKeys); // filter out non valid editable keys
+    } else {
+        editableKeys = keys; // let users edit all available keys for email
+    }
+
+    const existingUserTranslations = await Translation.find({ lang, key: editableKeys, namespace });
     const indexedExistingUserTranslations = _.indexBy(existingUserTranslations, 'key');
 
-    const defaultTranslations = await fetchDefaultTranslations(lang);
+    const defaultTranslations = await fetchDefaultTranslations(lang, { namespace });
 
     const updatedTranslations = {};
 
@@ -162,34 +198,47 @@ async function updateUserTranslations(lang, newTranslations) {
             }
 
             _.set(updatedTranslations, key, defaultValue);
-            _.set(cachedUserTranslations[lang], key, null);
+            _.set(space.cachedUserTranslations[lang], key, null);
         } else {
             if (existingUserTranslation) {
                 await Translation.updateOne(existingUserTranslation.id, { content });
             } else {
                 await Translation.create({
                     lang,
-                    namespace: 'default',
+                    namespace,
                     key,
                     content,
                 });
             }
 
             _.set(updatedTranslations, key, content);
-            _.set(cachedUserTranslations[lang], key, content);
+            _.set(space.cachedUserTranslations[lang], key, content);
         }
     });
 
     return updatedTranslations;
 }
 
-async function resetUserTranslations(lang, translationsKeys) {
+async function resetUserTranslations(lang, translationsKeys, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const space = namespaces[namespace];
+
     const keys = translationsKeys;
-    const { metadata } = await _getTranslations(lang);
 
-    const editableKeys = _.intersection(keys, metadata.editableKeys); // filter out non valid editable keys
+    let editableKeys;
 
-    const existingUserTranslations = await Translation.find({ lang, key: editableKeys });
+    if (namespace !== 'email') {
+        const { metadata } = await _getTranslations(lang, { namespace });
+
+        editableKeys = _.intersection(keys, metadata.editableKeys); // filter out non valid editable keys
+    } else {
+        editableKeys = keys; // let users edit all available keys for email
+    }
+
+    const existingUserTranslations = await Translation.find({ lang, key: editableKeys, namespace });
     const indexedExistingUserTranslations = _.indexBy(existingUserTranslations, 'key');
 
     const existingTranslationsIds = editableKeys.reduce((memo, key) => {
@@ -203,7 +252,7 @@ async function resetUserTranslations(lang, translationsKeys) {
 
     await Translation.destroy({ id: existingTranslationsIds });
 
-    const defaultTranslations = await fetchDefaultTranslations(lang);
+    const defaultTranslations = await fetchDefaultTranslations(lang, { namespace });
 
     const resetTranslations = {};
 
@@ -214,38 +263,54 @@ async function resetUserTranslations(lang, translationsKeys) {
         }
 
         _.set(resetTranslations, key, defaultValue);
-        _.set(cachedUserTranslations[lang], key, null);
+        _.set(space.cachedUserTranslations[lang], key, null);
     });
 
     return resetTranslations;
 }
 
-async function refreshTranslations() {
-    cachedDefaultTranslations = {};
-    cachedUserTranslations = {};
-    cachedMetadatas = {};
+async function refreshTranslations(namespace) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const space = namespaces[namespace];
+
+    space.cachedDefaultTranslations = {};
+    space.cachedUserTranslations = {};
+    space.cachedMetadatas = {};
 }
 
-async function getMetadata(lang) {
-    const { metadata } = await _getTranslations(lang);
+async function getMetadata(lang, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const { metadata } = await _getTranslations(lang, { namespace });
     return metadata;
 }
 
-async function fetchDefaultTranslations(lang) {
-    if (!sails.config.useCacheTranslations) {
-        cachedDefaultTranslations[lang] = null;
+async function fetchDefaultTranslations(lang, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
     }
 
-    if (cachedDefaultTranslations[lang]) {
-        return cachedDefaultTranslations[lang];
+    const space = namespaces[namespace];
+
+    if (!sails.config.useCacheTranslations) {
+        space.cachedDefaultTranslations[lang] = null;
+    }
+
+    if (space.cachedDefaultTranslations[lang]) {
+        return space.cachedDefaultTranslations[lang];
     }
 
     const [
         rawSourceContent,
         rawSourceModifiedDeltaContent,
     ] = await Promise.all([
-        fs.readFileAsync(sourceFilepath, 'utf8'),
-        fs.readFileAsync(sourceModifiedDeltaFilepath, 'utf8').catch(_handleNotFoundError),
+        fs.readFileAsync(space.sourceFilepath, 'utf8'),
+        fs.readFileAsync(space.sourceModifiedDeltaFilepath, 'utf8').catch(_handleNotFoundError),
     ]);
 
     const sourceTranslations = i18nCompile.fromString(rawSourceContent);
@@ -255,24 +320,30 @@ async function fetchDefaultTranslations(lang) {
 
     const langs = Object.keys(mergedSourceTranslations);
 
-    await Promise.each(langs, lang => _dumpTranslationLang(lang, mergedSourceTranslations[lang]));
+    await Promise.each(langs, lang => _dumpTranslationLang(lang, mergedSourceTranslations[lang], { namespace }));
 
     langs.forEach(lang => {
-        cachedDefaultTranslations[lang] = mergedSourceTranslations[lang];
+        space.cachedDefaultTranslations[lang] = mergedSourceTranslations[lang];
     });
 
-    return cachedDefaultTranslations[lang];
+    return space.cachedDefaultTranslations[lang];
 }
 
-async function updateDefaultTranslations(lang, translations) {
+async function _updateDefaultTranslations(lang, translations, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const space = namespaces[namespace];
+
     const [
         rawSourceContent,
         rawSourceModifiedContent,
         rawSourceModifiedDeltaContent,
     ] = await Promise.all([
-        fs.readFileAsync(sourceFilepath, 'utf8'),
-        fs.readFileAsync(sourceModifiedFilepath, 'utf8').catch(_handleNotFoundError),
-        fs.readFileAsync(sourceModifiedDeltaFilepath, 'utf8').catch(_handleNotFoundError),
+        fs.readFileAsync(space.sourceFilepath, 'utf8'),
+        fs.readFileAsync(space.sourceModifiedFilepath, 'utf8').catch(_handleNotFoundError),
+        fs.readFileAsync(space.sourceModifiedDeltaFilepath, 'utf8').catch(_handleNotFoundError),
     ]);
 
     const source = yaml.safeLoad(rawSourceContent);
@@ -297,21 +368,27 @@ async function updateDefaultTranslations(lang, translations) {
     const sourceModifiedYaml = yaml.safeDump(mergedSourceModified, yamlOptions);
     const sourceModifiedDeltaYaml = yaml.safeDump(sourceModifiedDelta, yamlOptions);
 
-    await fs.writeFileAsync(sourceModifiedDeltaFilepath, sourceModifiedDeltaYaml, 'utf8');
-    await fs.writeFileAsync(sourceModifiedFilepath, sourceModifiedYaml, 'utf8');
+    await fs.writeFileAsync(space.sourceModifiedDeltaFilepath, sourceModifiedDeltaYaml, 'utf8');
+    await fs.writeFileAsync(space.sourceModifiedFilepath, sourceModifiedYaml, 'utf8');
 
     const mergedSourceModifiedTranslations = i18nCompile.fromString(sourceModifiedYaml);
 
-    await _dumpTranslationLang(lang, mergedSourceModifiedTranslations[lang]);
-    cachedDefaultTranslations[lang] = mergedSourceModifiedTranslations[lang];
+    await _dumpTranslationLang(lang, mergedSourceModifiedTranslations[lang], { namespace });
+    space.cachedDefaultTranslations[lang] = mergedSourceModifiedTranslations[lang];
 }
 
-async function _dumpTranslationLang(lang, translations) {
+async function _dumpTranslationLang(lang, translations, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
     if (sails.config.noJsonTranslationsFiles) {
         return;
     }
 
-    const filepath = path.join(translationFolder, `./build/${lang}.json`);
+    const namespaceFilename = namespace === 'default' ? lang : `${namespace}-${lang}`;
+
+    const filepath = path.join(translationFolder, `./build/${namespaceFilename}.json`);
     await fs.writeFileAsync(filepath, JSON.stringify(translations, null, 2), 'utf8');
 }
 
@@ -322,24 +399,30 @@ function _handleNotFoundError(err) {
     throw err;
 }
 
-async function fetchUserTranslations(lang) {
+async function fetchUserTranslations(lang, { namespace }) {
+    if (!isValidNamespace(namespace)) {
+        throw new Error('Invalid namespace');
+    }
+
+    const space = namespaces[namespace];
+
     if (!sails.config.useCacheTranslations) {
-        cachedUserTranslations[lang] = null;
+        space.cachedUserTranslations[lang] = null;
     }
 
-    if (cachedUserTranslations[lang]) {
-        return cachedUserTranslations[lang];
+    if (space.cachedUserTranslations[lang]) {
+        return space.cachedUserTranslations[lang];
     }
 
-    const userTranslationsEntries = await Translation.find({ lang });
+    const userTranslationsEntries = await Translation.find({ lang, namespace });
 
     const userTranslations = userTranslationsEntries.reduce((memo, entry) => {
         memo[entry.key] = entry.content;
         return memo;
     }, {});
 
-    cachedUserTranslations[lang] = userTranslations;
-    return cachedUserTranslations[lang];
+    space.cachedUserTranslations[lang] = userTranslations;
+    return space.cachedUserTranslations[lang];
 }
 
 function parseMetadata(translations) {

@@ -40,6 +40,8 @@ const permissions = [
     { resource: 'translation', actions: ['view', 'edit'] },
     { resource: 'adminEditor', actions: ['view'] },
     { resource: 'editor', actions: ['view'] },
+    { resource: 'adminEmailEditor', actions: ['view'] },
+    { resource: 'emailEditor', actions: ['view'] },
     { resource: 'settings', actions: ['view', 'edit'] },
     { resource: 'roles', actions: ['view', 'create', 'edit', 'remove'] },
     { resource: 'listingCategory', actions: ['view', 'create', 'edit', 'remove'] },

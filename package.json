@@ -42,6 +42,7 @@
     "diacritics": "1.2.3",
     "easynexmo": "0.7.0",
     "elasticsearch": "13.3.1",
+    "format-message": "5.2.6",
     "geolib": "2.0.21",
     "gm": "1.21.1",
     "gulp": "3.9.1",

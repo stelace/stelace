@@ -100,7 +100,12 @@ async function index(req, res) {
     const currency = config.currency || StelaceConfigService.getDefaultCurrency();
 
     // pre-load translations for client-side
-    const translations = await ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
+    const translations = await ContentEntriesService.getTranslations({
+        lang,
+        displayContext: false,
+        onlyEditableKeys: false,
+        namespace: 'default',
+    });
 
     let paymentProvider = config.payment_provider;
 

@@ -3,7 +3,7 @@
 const { expect } = require('chai');
 
 const translations = {
-    landing: {
+    pages: {
         homepage: {
             title: 'Welcome to {SERVICE_NAME}',
             title__EDITOR_LABEL: 'Title of your website',
@@ -29,7 +29,7 @@ const translations = {
     },
 };
 const userTranslations = {
-    landing: {
+    pages: {
         homepage: {
             title: 'Hello everyone!',
             header: 'The next step',
@@ -85,7 +85,7 @@ describe('ContentEntriesService', () => {
             const metadata = ContentEntriesService.parseMetadata(translations);
 
             const expected = {
-                landing: {
+                pages: {
                     homepage: {
                         title: 'Hello everyone!',
                         header: 'The next step',
@@ -119,7 +119,7 @@ describe('ContentEntriesService', () => {
             const metadata = ContentEntriesService.parseMetadata(translations);
 
             const expected = {
-                landing: {
+                pages: {
                     homepage: {
                         title: 'Hello everyone!',
                         header: 'The next step',
@@ -145,7 +145,7 @@ describe('ContentEntriesService', () => {
             const metadata = ContentEntriesService.parseMetadata(translations);
 
             const expected = {
-                landing: {
+                pages: {
                     homepage: {
                         title: 'Hello everyone!',
                         title__EDITOR_LABEL: 'Title of your website',

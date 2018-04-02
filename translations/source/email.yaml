@@ -1,0 +1,791 @@
+general:
+    custom_goodbye:
+        en: ''
+        fr: ''
+    footer_content:
+        en: ''
+        fr: ''
+    copyright:
+        en: 'Copyright © {current_year}, all right reserved.'
+        fr: 'Copyright © {current_year}, tous droits réservés.'
+template:
+    email_confirmation:
+        name:
+            en: Email confirmation
+            fr: Confirmation d’email
+        description:
+            en: "That email is sent when a email confirmation from the user is necessary (subscription, email address change…)."
+            fr: "Cet email est envoyé lorsqu’une confirmation de l’email de la part de l’utilisateur est nécessaire (inscription, changement d’adresse email…)."
+        subject:
+            en: 'Please confirm your email address on {SERVICE_NAME}'
+            fr: 'Veuillez confirmer votre adresse email sur {SERVICE_NAME}'
+        preview_content:
+            en: A simple click to validate your email
+            fr: Un simple click pour valider votre email
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: "Only one last step…"
+            fr: "Une dernière étape…"
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: Confirm my email address
+            fr: Confirmer mon adresse email
+        trailing_content:
+            en: Please confirm your email on {SERVICE_NAME} by clicking on the above button.
+            fr: Nous vous invitons à confirmer votre email sur {SERVICE_NAME} à l’aide du bouton ci-dessus.
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    subscription:
+        name:
+            en: Subscription
+            fr: Inscription
+        description:
+            en: That email is sent when the user subscribes.
+            fr: Cet email est envoyé lorsque l’utilisateur s’inscrit
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    password_recovery:
+        name:
+            en: Password recovery
+            fr: Récupération de mot de passe
+        description:
+            en: That email is sent when the user wants to reset his password.
+            fr: Cet email est envoyé lorsque l’utilisateur veut réinitialiser son mot de passe.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    new_message:
+        name:
+            en: New message
+            fr: Nouveau message
+        description:
+            en: That email is sent when the user receives a new message in the inbox.
+            fr: Cet email est envoyé lorsque l’utilisateur reçoit un nouveau message via la messagerie.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    prebooking_confirmed_owner:
+        name:
+            en: Prebooking confirmed - Owner
+            fr: Pré-réservation confirmée - Propriétaire
+        description:
+            en: That email is sent when the owner accepts a prebooking.
+            fr: Cet email est envoyé lorsque le propriétaire accepte une pré-réservation.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    prebooking_pending_taker:
+        name:
+            en: Prebooking pending - Taker
+            fr: Pré-réservation en attente - Demandeur
+        description:
+            en: That email is sent to the taker when the taker creates a prebooking that needs an acceptance from the owner.
+            fr: Cet email est envoyé au demandeur lorsque celui-ci crée une pré-réservation qui nécessite une acceptation de la part du propriétaire.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_pending_owner:
+        name:
+            en: Booking pending - Owner
+            fr: Réservation en attente - Propriétaire
+        description:
+            en: That email is sent when the taker creates a booking that needs an acceptance from the owner.
+            fr: Cet email est envoyé lorsque le demandeur crée une réservation qui nécessite l’acceptation du propriétaire.
+        subject:
+            en: '{listing__name} has been booked by {taker__name}'
+            fr: '{listing__name} a été réservé(e) par {taker__name}'
+        preview_content:
+            en: 'Only 36h to accept or reject'
+            fr: 'Plus que 36h pour accepter ou refuser'
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: 'Hi, your {listing__name} has been booked!'
+            fr: "Bonjour, votre {listing__name} a été réservé(e) !"
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: |
+                {taker__name} has booked your {listing__name} {booking__end_date, select,
+                    undefined { for {booking__start_date, date, long}}
+                    other {from {booking__start_date, date, long} to {booking__end_date, date, long}}
+                }{booking__owner_price, select,
+                    0 {}
+                    other { for an amount of {booking__owner_price, number, currency}{booking__owner_fees, select,
+                        0 {}
+                        other { including {booking__owner_fees, number, currency} for payment fees}
+                    }}
+                }.
+            fr: |
+                {taker__name} a réservé votre {listing__name} {booking__end_date, select,
+                    undefined { pour le {booking__start_date, date, long}}
+                    other {du {booking__start_date, date, long} au {booking__end_date, date, long}}
+                }{booking__owner_price, select,
+                    0 {}
+                    other { pour un montant de {booking__owner_price, number, currency}{booking__owner_fees, select,
+                        0 {}
+                        other { incluant {booking__owner_fees, number, currency} de frais de paiement}
+                    }}
+                }.
+        cta_button__text:
+            en: Click here to accept or reject
+            fr: Cliquez ici pour accepter ou refuser
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_pending_taker:
+        name:
+            en: Booking pending - Taker
+            fr: Réservation en attente - Demandeur
+        description:
+            en: That email is sent to the taker when a booking is created and an acceptation from the owner is required.
+            fr: Cet email est envoyé au demandeur lorsqu’une réservation est créée et que celle-ci nécessite l’acceptation du propriétaire.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_confirmed_owner:
+        name:
+            en: Booking confirmed - Owner
+            fr: Réservation confirmée - Propriétaire
+        description:
+            en: That email is sent to the owner when a booking is confirmed (paid and accepted).
+            fr: Cet email est envoyé au propriétaire lorsqu’une réservation est confirmée (payée et acceptée).
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_confirmed_taker:
+        name:
+            en: Booking confirmed - Taker
+            fr: Réservation confirmée - Demandeur
+        description:
+            en: That email is sent to the taker when a booking is confirmed (paid and accepted).
+            fr: Cet email est envoyé au demandeur lorsqu’une réservation est confirmée (payée et acceptée).
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_checkout_owner:
+        name:
+            en: Booking checkout - Owner
+            fr: Réservation réception - Propriétaire
+        description:
+            en: That email is sent to the owner when the transaction is completed.
+            fr: Cet email est envoyé au propriétaire lorsque la transaction s’est déroulée.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_checkout_taker:
+        name:
+            en: Booking checkout - Taker
+            fr: Réservation réception - Demandeur
+        description:
+            en: That email is sent to the taker when the transaction is completed.
+            fr: Cet email est envoyé au demandeur lorsque la transaction s’est déroulée.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    listing_return_owner:
+        name:
+            en: Property return - Owner
+            fr: Récupération du bien - Propriétaire
+        description:
+            en: That email is sent to the owner when the property is returned to the owner (useful for renting).
+            fr: Cet email est envoyé au propriétaire lorsque le propriétaire a récupérer son bien (utile pour la location).
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    listing_return_taker:
+        name:
+            en: Property return - Taker
+            fr: Récupération du bien - Demandeur
+        description:
+            en: That email is sent to the taker when the property is returned to the owner (useful for renting).
+            fr: Cet email est envoyé au demandeur lorsque le propriétaire a récupérer son bien (utile pour la location).
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    booking_to_accept_owner:
+        name:
+            en: Booking to accept - Owner
+            fr: Réservation à accepter - Propriétaire
+        description:
+            en: That email is sent to the owner to remind him to accept a booking.
+            fr: Cet email est envoyé au propriétaire pour lui rappeler d’accepter une réservation.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    missing_bank_account_owner:
+        name:
+            en: Missing bank account - Owner
+            fr: Compte bancaire manquant - Propriétaire
+        description:
+            en: That email is sent to the owner to remind him to give his banking details to receive the payment.
+            fr: Cet email est envoyé au propriétaire pour lui rappeler de renseigner son compte bancaire pour recevoir le paiement.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    upcoming_transaction_owner:
+        name:
+            en: Upcoming transaction - Owner
+            fr: Transaction à venir - Propriétaire
+        description:
+            en: That email is sent to the owner to remind him that a transaction is upcoming.
+            fr: Cet email est envoyé au propriétaire pour lui rappeler qu’une transaction est à venir.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    upcoming_transaction_taker:
+        name:
+            en: Upcoming transaction - Taker
+            fr: Transaction à venir - Demandeur
+        description:
+            en: That email is sent to the tkaer to remind him that a transaction is upcoming.
+            fr: Cet email est envoyé au demandeur pour lui rappeler qu’une transaction est à venir.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''
+    missing_rating:
+        name:
+            en: Missing rating
+            fr: Évaluation manquante
+        description:
+            en: That email is sent when the user hasn’t yet rate a booking.
+            fr: Cet email est envoyé lorsque l’utilisateur n’a pas encore évalué une réservation.
+        subject:
+            en: ''
+            fr: ''
+        preview_content:
+            en: ''
+            fr: ''
+        trailing_contact:
+            en: ''
+            fr: ''
+        main_title:
+            en: ''
+            fr: ''
+        leading_content:
+            en: ''
+            fr: ''
+        content:
+            en: ''
+            fr: ''
+        cta_button__text:
+            en: ''
+            fr: ''
+        trailing_content:
+            en: ''
+            fr: ''
+        featured__title:
+            en: ''
+            fr: ''
+        featured__content:
+            en: ''
+            fr: ''
+        end_content:
+            en: ''
+            fr: ''

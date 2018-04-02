@@ -9,7 +9,7 @@ module.exports = {
 const _ = require('lodash');
 const Promise = require('bluebird');
 var moment                  = require('moment');
-var areIntlLocalesSupported = require('intl-locales-supported');
+// var areIntlLocalesSupported = require('intl-locales-supported');
 var IntlPolyfill            = require('intl');
 
 function init(initFields, args) {
@@ -46,23 +46,26 @@ function init(initFields, args) {
                 break;
 
             case "intl":
-                // Node supports only english locale by default
-                var localesToSupport        = [
-                    "fr-FR"
-                ];
+                global.Intl = IntlPolyfill;
 
-                if (global.Intl) {
-                    // Determine if the built-in `Intl` has the locale data needed
-                    if (! areIntlLocalesSupported(localesToSupport)) {
-                        // Intl exists, but it doesn't have the data we need, so load the
-                        // polyfill and patch the constructors we need with the polyfill's.
-                        Intl.NumberFormat   = IntlPolyfill.NumberFormat;
-                        Intl.DateTimeFormat = IntlPolyfill.DateTimeFormat;
-                    }
-                } else {
-                    // No Intl, so use and load the polyfill.
-                    global.Intl = IntlPolyfill;
-                }
+                // Node supports only english locale by default
+                // var localesToSupport        = [
+                //     'en',
+                //     'fr',
+                // ];
+
+                // if (global.Intl) {
+                //     // Determine if the built-in `Intl` has the locale data needed
+                //     if (! areIntlLocalesSupported(localesToSupport)) {
+                //         // Intl exists, but it doesn't have the data we need, so load the
+                //         // polyfill and patch the constructors we need with the polyfill's.
+                //         Intl.NumberFormat   = IntlPolyfill.NumberFormat;
+                //         Intl.DateTimeFormat = IntlPolyfill.DateTimeFormat;
+                //     }
+                // } else {
+                //     // No Intl, so use and load the polyfill.
+                //     global.Intl = IntlPolyfill;
+                // }
                 break;
 
             case "odoo":

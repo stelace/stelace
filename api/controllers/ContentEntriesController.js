@@ -44,7 +44,12 @@ async function findLanguage(req, res) {
 
     const lang = ContentEntriesService.getBestLang(attrs.lang);
 
-    const translations = await ContentEntriesService.getTranslations({ lang, displayContext: false, onlyEditableKeys: false });
+    const translations = await ContentEntriesService.getTranslations({
+        lang,
+        displayContext: false,
+        onlyEditableKeys: false,
+        namespace: 'default',
+    });
 
     res.json(translations);
 }

@@ -49,7 +49,6 @@ module.exports = {
         content: {
             type: 'string',
             columnType: 'longtext CHARACTER SET utf8mb4',
-            required: true,
         },
         editorData: {
             type: 'json',

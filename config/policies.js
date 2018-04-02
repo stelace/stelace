@@ -199,6 +199,11 @@ module.exports.policies = {
         'findDefault': true,
     },
 
+    'v0_1/EmailTemplateController': {
+        '*': ['isApiAuthenticated'],
+        'preview': true,
+    },
+
     'v0_1/InfoController': {
         '*': ['isApiAuthenticated'],
     },
