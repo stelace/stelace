@@ -7,6 +7,7 @@
     "dev:e2e": "vue-cli-service e2e:open --mode=development",
     "build": "vue-cli-service build",
     "build:ci": "cross-env ANALYZE=true yarn build",
+    "dev-build": "vue-cli-service build --mode development",
     "lint":
       "eslint --ext .js,.vue --fix . && stylelint --fix \"src/**/*.vue\" \"src/**/*.scss\" && markdownlint docs/*.md *.md && prettier --list-different --write \"**/*.{js,jsx,json,css,scss,vue,md}\"",
     "unit": "jest",
@@ -57,6 +58,8 @@
     "lint-staged": "7.0.x",
     "markdownlint-cli": "0.8.x",
     "node-sass": "4.7.x",
+    "raw-loader":
+      "https://github.com/webpack-contrib/raw-loader.git#83f65414e67496c44ac3b412d1b3c9fed88d4b22",
     "sass-loader": "6.0.x",
     "stylelint": "9.1.x",
     "stylelint-config-css-modules": "1.2.x",

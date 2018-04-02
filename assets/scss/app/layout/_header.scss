@@ -4,6 +4,7 @@ $header-height: 3rem;
 
 .stelace-header-container {
     position: fixed; // To ensure header is always visible when opening offcanvas menu. See root.html
+    top: 0;
     left: 0;
     right: 0;
     z-index: 1000;

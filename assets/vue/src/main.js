@@ -11,7 +11,7 @@ const app = new Vue({
   router,
   store,
   render: h => h(App),
-}).$mount('#app')
+}).$mount('#stl-vue-app')
 
 // If running inside Cypress
 if (window.Cypress) {

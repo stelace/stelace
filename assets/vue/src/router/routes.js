@@ -7,6 +7,11 @@ export default [
     component: require('@views/home').default,
   },
   {
+    path: '*',
+    beforeEnter: () => {}, // do not call next to bypass vue router
+  },
+/*
+  {
     path: '/login',
     name: 'login',
     component: require('@views/login').default,
@@ -88,4 +93,5 @@ export default [
     path: '*',
     redirect: '404',
   },
-]
+*/
+];

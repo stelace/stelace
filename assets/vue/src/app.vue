@@ -13,12 +13,12 @@ export default {
 </script>
 
 <template>
-  <div id="app">
+  <div id="stl-app">
     <!--
     Even when routes use the same component, treat them
     as distinct and create the component again.
     -->
-    <router-view :key="$route.fullPath"/>
+    <!-- <router-view :key="$route.fullPath"/> -->
   </div>
 </template>
 
@@ -44,6 +44,7 @@ export default {
 }
 
 body {
+  padding-top: 3rem;
   background: $color-body-bg;
 }
 
@@ -57,7 +58,7 @@ body {
 
 a,
 a:visited {
-  color: $color-link-text;
+  color: $anchor-font-color;
 }
 
 h1 {
