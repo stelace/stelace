@@ -201,9 +201,11 @@ async function createNewUser(query, profile, req) {
         const token = await User.createCheckEmailToken(user, user.email);
 
         EmailTemplateService
-            .sendEmailTemplate('app-subscription-to-confirm', {
-                user: user,
-                token: token
+            .sendEmailTemplate('email_confirmation', {
+                user,
+                data: {
+                    token,
+                },
             })
             .catch(() => { /* do nothing*/ });
     }

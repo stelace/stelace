@@ -122,16 +122,16 @@ Sails.load(getConfig(), async function (err, sails) {
     function sendEmail(user, levelId) {
         switch (levelId) {
             case "BEGINNER":
-                return EmailTemplateService.sendEmailTemplate('gamification-lvl-up-beginner', { user });
+                return EmailTemplateService.sendEmailTemplate('gamification_lvl_up_beginner', { user });
 
             case "BRONZE":
-                return EmailTemplateService.sendEmailTemplate('gamification-lvl-up-bronze', { user });
+                return EmailTemplateService.sendEmailTemplate('gamification_lvl_up_bronze', { user });
 
             // case "SILVER":
-            //     return EmailTemplateService.sendEmailTemplate('gamification-lvl-up-silver', { user });
+            //     return EmailTemplateService.sendEmailTemplate('gamification_lvl_up_silver', { user });
 
             // case "GOLD":
-            //     return EmailTemplateService.sendEmailTemplate('gamification-lvl-up-gold', { user });
+            //     return EmailTemplateService.sendEmailTemplate('gamification_lvl_up_gold', { user });
         }
     }
 });

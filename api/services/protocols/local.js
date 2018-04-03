@@ -43,9 +43,11 @@ exports.register = async function (req, res, next) {
         var token = await User.createCheckEmailToken(user, user.email);
 
         EmailTemplateService
-            .sendEmailTemplate('app-subscription-to-confirm', {
-                user: user,
-                token: token
+            .sendEmailTemplate('email_confirmation', {
+                user,
+                data: {
+                    token,
+                },
             })
             .catch(() => { /* do nothing*/ });
 

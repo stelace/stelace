@@ -480,9 +480,11 @@ function lostPassword(req, res) {
                 return Token.create(createAttrs);
             })
             .then(token => {
-                return EmailTemplateService.sendEmailTemplate('recovery-password', {
-                    user: user,
-                    token: token
+                return EmailTemplateService.sendEmailTemplate('password_recovery', {
+                    user,
+                    data: {
+                        token,
+                    },
                 });
             });
     }
@@ -593,10 +595,12 @@ function emailNew(req, res) {
         })
         .then(token => {
             return EmailTemplateService
-                .sendEmailTemplate('check-email-to-confirm', {
+                .sendEmailTemplate('email_confirmation', {
                     user: req.user,
-                    email,
-                    token,
+                    data: {
+                        email,
+                        token,
+                    },
                 })
                 .catch(err => {
                     req.logger.error({ err: err }, "send email sendCheckEmailToConfirm");
@@ -643,7 +647,7 @@ function emailCheck(req, res) {
                             GamificationService.checkActions(user, ["EMAIL_VALIDATION"], null, req.logger, req);
 
                             return EmailTemplateService
-                                .sendEmailTemplate('app-subscription-confirmed', { user })
+                                .sendEmailTemplate('subscription', { user })
                                 .catch(err => {
                                     req.logger.error({ err: err }, "send email appSubscriptionConfirmed");
                                 });
@@ -693,7 +697,7 @@ function emailCheck(req, res) {
                 // send email only if it's the first time (at the register time, not when changing email) and if the token isn't used
                 if (firstTime && token) {
                     return EmailTemplateService
-                        .sendEmailTemplate('app-subscription-confirmed', { user })
+                        .sendEmailTemplate('subscription', { user })
                         .catch(err => {
                             req.logger.error({ err: err }, "send email appSubscriptionConfirmed");
                         });

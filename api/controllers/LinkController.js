@@ -480,10 +480,12 @@ function sendFriendEmails(req, res) {
 
     function sendInviteEmail(user, email, referrerMedia) {
         return EmailTemplateService
-            .sendEmailTemplate('invite-friend', {
-                email: email,
-                referrer: user,
-                referrerMedia: referrerMedia
+            .sendEmailTemplate('invite_friend', {
+                email,
+                data: {
+                    referrer: user,
+                    referrerMedia: referrerMedia
+                },
             })
             .catch(err => {
                 req.logger.warn({

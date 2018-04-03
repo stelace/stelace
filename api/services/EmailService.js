@@ -218,34 +218,34 @@ async function sendHtmlEmail({
 
 /**
  * Send email via template
- * @param  {string}   templateName
- * @param  {string}   specificTemplateName
- * @param  {string}   [text]
- * @param  {string}   subject
- * @param  {string}   [fromEmail]
- * @param  {string}   [fromName]
- * @param  {object}   toUser - fromEmail or toUser must be defined
- * @param  {string}   toEmail
- * @param  {string}   [toName]
- * @param  {string}   [replyTo]
- * @param  {object}   [data = {}]
- * @param  {string[]} [tags = []]
- * @param  {boolean}  [noCopyEmail = false]
- * @param  {boolean}  [transactional = true]
- * @param  {object}   [logger]
+ * @param  {String}   templateName
+ * @param  {String}   specificTemplateName
+ * @param  {String}   [text]
+ * @param  {String}   subject
+ * @param  {String}   html
+ * @param  {String}   [fromEmail]
+ * @param  {String}   [fromName]
+ * @param  {Object}   toUser - fromEmail or toUser must be defined
+ * @param  {String}   toEmail
+ * @param  {String}   [toName]
+ * @param  {String}   [replyTo]
+ * @param  {String[]} [tags = []]
+ * @param  {Boolean}  [noCopyEmail = false]
+ * @param  {Boolean}  [transactional = true]
+ * @param  {Object}   [logger]
  */
 async function sendEmail({
     templateName,
     specificTemplateName,
     text,
     subject,
+    html,
     fromEmail,
     fromName,
     toUser,
     toEmail,
     toName,
     replyTo,
-    data = {},
     noCopyEmail = false,
     transactional = true,
     tags = [],
@@ -270,6 +270,7 @@ async function sendEmail({
      || !specificTemplateName
      || !toEmail
      || !subject
+     || !html
     ) {
         throw new Error('Invalid fields');
     }
@@ -283,12 +284,6 @@ async function sendEmail({
     }
 
     const realTemplateName = getRealTemplateName(templateName, specificTemplateName);
-    setUtmTagsToTemplateUrls(realTemplateName, data);
-    if (data.authToken) {
-        setAuthTokenToTemplateUrls(data.authToken, data);
-    }
-
-    const html = generateHtml(templateName, data);
 
     if (!text) {
         text = generateText(html, ['.headerContainer', '.bodyContainer']);
@@ -331,9 +326,8 @@ async function sendEmail({
         templateName,
         specificTemplateName,
         subject,
-        data,
         tags: sendTags,
-        sentDate: moment().toISOString(),
+        sentDate: new Date().toISOString(),
         status: 'sent',
         sparkpostTransmissionId: sparkpostResult.id,
         html,
@@ -367,6 +361,158 @@ async function sendEmail({
         logger.error({ err: e }, 'Copy email failed');
     }
 }
+
+// /**
+//  * Send email via template
+//  * @param  {string}   templateName
+//  * @param  {string}   specificTemplateName
+//  * @param  {string}   [text]
+//  * @param  {string}   subject
+//  * @param  {string}   [fromEmail]
+//  * @param  {string}   [fromName]
+//  * @param  {object}   toUser - fromEmail or toUser must be defined
+//  * @param  {string}   toEmail
+//  * @param  {string}   [toName]
+//  * @param  {string}   [replyTo]
+//  * @param  {object}   [data = {}]
+//  * @param  {string[]} [tags = []]
+//  * @param  {boolean}  [noCopyEmail = false]
+//  * @param  {boolean}  [transactional = true]
+//  * @param  {object}   [logger]
+//  */
+// async function sendEmail({
+//     templateName,
+//     specificTemplateName,
+//     text,
+//     subject,
+//     fromEmail,
+//     fromName,
+//     toUser,
+//     toEmail,
+//     toName,
+//     replyTo,
+//     data = {},
+//     noCopyEmail = false,
+//     transactional = true,
+//     tags = [],
+//     logger,
+// }) {
+//     logger = logger || LoggerService.getLogger('app', {
+//         service: 'EmailService',
+//         action: 'sendEmail',
+//     });
+
+//     const helloConfig = sails.config.stelace.hello;
+
+//     if (!fromEmail) {
+//         fromEmail = helloConfig.email;
+//         fromName = helloConfig.name;
+//     }
+//     toEmail = toEmail || (toUser && toUser.email);
+//     toName = toName || (toUser ? User.getName(toUser) : null);
+//     replyTo = replyTo || helloConfig.email;
+
+//     if (!templateName
+//      || !specificTemplateName
+//      || !toEmail
+//      || !subject
+//     ) {
+//         throw new Error('Invalid fields');
+//     }
+
+//     const debugEmail = sails.config.debugMail;
+//     const copyEmail = sails.config.copyMail;
+//     const enableTracking = !debugEmail;
+
+//     if (copyEmail && !MicroService.isEmail(copyEmail)) {
+//         throw new Error('Copy email is not a valid email');
+//     }
+
+//     const realTemplateName = getRealTemplateName(templateName, specificTemplateName);
+//     setUtmTagsToTemplateUrls(realTemplateName, data);
+//     if (data.authToken) {
+//         setAuthTokenToTemplateUrls(data.authToken, data);
+//     }
+
+//     const html = generateHtml(templateName, data);
+
+//     if (!text) {
+//         text = generateText(html, ['.headerContainer', '.bodyContainer']);
+//     }
+
+//     const sendTags = _.clone(tags);
+
+//     const params = getSparkpostEmailConfig({
+//         html,
+//         text,
+//         fromEmail,
+//         fromName,
+//         toEmail,
+//         toName,
+//         subject,
+//         replyTo,
+//         tags: sendTags,
+//         debugEmail,
+//         transactional,
+//         enableOpenTracking: true,
+//         enableClickTracking: enableTracking,
+//     });
+
+//     if (sails.config.localEmailResult) {
+//         const filepath = getLocalEmailResultFilepath(realTemplateName);
+//         fs.writeFileSync(filepath, html);
+//         return;
+//     }
+
+//     const sparkpostClient = getSparkpostClient();
+//     const { results: sparkpostResult } = await sparkpostClient.transmissions.send(params);
+
+//     const createAttrs = {
+//         userId: toUser && toUser.id,
+//         fromEmail,
+//         fromName,
+//         toEmail,
+//         toName,
+//         replyTo,
+//         templateName,
+//         specificTemplateName,
+//         subject,
+//         data,
+//         tags: sendTags,
+//         sentDate: moment().toISOString(),
+//         status: 'sent',
+//         sparkpostTransmissionId: sparkpostResult.id,
+//         html,
+//     };
+
+//     await EmailLog
+//         .create(createAttrs)
+//         .catch(err => {
+//             logger.error({ err }, 'EmailLog not created');
+//         });
+
+//     try {
+//         if (!debugEmail && copyEmail && !noCopyEmail) {
+//             const params = getSparkpostEmailConfig({
+//                 html,
+//                 text,
+//                 fromEmail,
+//                 fromName,
+//                 toEmail: copyEmail,
+//                 subject,
+//                 replyTo,
+//                 tags: sendTags.concat(['copy']),
+//                 enableOpenTracking: false,
+//                 enableClickTracking: false,
+//             });
+
+//             const sparkpostClient = getSparkpostClient();
+//             await sparkpostClient.transmissions.send(params);
+//         }
+//     } catch (e) {
+//         logger.error({ err: e }, 'Copy email failed');
+//     }
+// }
 
 function generateText(html, selectors) {
     const $ = cheerio.load(html);
@@ -565,7 +711,7 @@ function getSparkpostEmailConfig({
 }
 
 function getRealTemplateName(templateName, specificTemplateName) {
-    if (templateName === "general-notification-template") {
+    if (templateName === "general") {
         return specificTemplateName;
     }
 

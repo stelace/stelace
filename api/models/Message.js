@@ -518,16 +518,18 @@ function _sendNewMessageEmailsAndSms(data, logger) {
 
             if (! isDuplicate) {
                 EmailTemplateService
-                    .sendEmailTemplate('new-message', {
+                    .sendEmailTemplate('new_message', {
                         user: receiver,
-                        listing: listing,
-                        listingMedias: listingMedias,
-                        conversation: conversation,
-                        firstMessage: firstMessage,
-                        message: message,
-                        sender: sender,
-                        senderMedia: senderMedia,
-                        booking: booking // to check if booking has already been accepted
+                        data: {
+                            listing,
+                            listingMedias,
+                            conversation,
+                            firstMessage,
+                            message,
+                            sender,
+                            senderMedia,
+                            booking, // to check if booking has already been accepted
+                        },
                     })
                     .catch(err => {
                         logger.error({ err: err }, "send new message email");

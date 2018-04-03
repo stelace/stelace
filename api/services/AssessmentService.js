@@ -467,13 +467,16 @@ function _sendAssessmentEmailsSms(data) {
 
         function sendEmailBookingCheckoutToTaker() {
             return EmailTemplateService
-                .sendEmailTemplate('booking-checkout-taker', {
+                .sendEmailTemplate('booking_checkout_taker', {
                     user: taker,
-                    listing: listing,
-                    booking: startBooking,
-                    owner: owner,
-                    assessment: assessment,
-                    conversation: conversation
+                    data: {
+                        taker,
+                        listing,
+                        booking: startBooking,
+                        owner,
+                        assessment,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     // not critical
@@ -483,14 +486,17 @@ function _sendAssessmentEmailsSms(data) {
 
         function sendEmailBookingCheckoutToOwner() {
             return EmailTemplateService
-                .sendEmailTemplate('booking-checkout-owner', {
+                .sendEmailTemplate('booking_checkout_owner', {
                     user: owner,
-                    listing: listing,
-                    booking: startBooking,
-                    taker: taker,
-                    assessment: assessment,
-                    newAssessment: newAssessment,
-                    conversation: conversation
+                    data: {
+                        owner,
+                        listing,
+                        booking: startBooking,
+                        taker,
+                        assessment,
+                        newAssessment,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     // critical since contains signToken
@@ -518,13 +524,16 @@ function _sendAssessmentEmailsSms(data) {
 
         function sendEmailListingReturnToTaker() {
             return EmailTemplateService
-                .sendEmailTemplate('listing-return-taker', {
+                .sendEmailTemplate('listing_return_taker', {
                     user: taker,
-                    listing: listing,
-                    booking: endBooking,
-                    owner: owner,
-                    assessment: assessment,
-                    conversation: conversation
+                    data: {
+                        taker,
+                        listing,
+                        booking: endBooking,
+                        owner,
+                        assessment,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     logger.error({ err: err }, "send email booking return to taker");
@@ -533,13 +542,16 @@ function _sendAssessmentEmailsSms(data) {
 
         function sendEmailListingReturnToOwner() {
             return EmailTemplateService
-                .sendEmailTemplate('listing-return-owner', {
+                .sendEmailTemplate('listing_return_owner', {
                     user: owner,
-                    listing: listing,
-                    booking: endBooking,
-                    taker: taker,
-                    assessment: assessment,
-                    conversation: conversation
+                    data: {
+                        owner,
+                        listing,
+                        booking: endBooking,
+                        taker,
+                        assessment,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     logger.error({ err: err }, "send email booking return to owner");

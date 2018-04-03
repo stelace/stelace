@@ -702,13 +702,16 @@ function _sendBookingPendingEmailsSms(data) {
 
         function sendEmailBookingPendingToTaker() {
             return EmailTemplateService
-                .sendEmailTemplate('booking-pending-taker', {
+                .sendEmailTemplate('booking_pending_taker', {
                     user: taker,
-                    listing: listing,
-                    booking: booking,
-                    listingMedias: listingMedias,
-                    owner: owner,
-                    conversation: conversation
+                    data: {
+                        taker,
+                        listing,
+                        booking,
+                        listingMedias,
+                        owner,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     // not critical
@@ -718,13 +721,16 @@ function _sendBookingPendingEmailsSms(data) {
 
         function sendEmailBookingPendingToOwner() {
             return EmailTemplateService
-                .sendEmailTemplate('booking-pending-owner', {
+                .sendEmailTemplate('booking_pending_owner', {
                     user: owner,
-                    listing: listing,
-                    booking: booking,
-                    listingMedias: listingMedias,
-                    taker: taker,
-                    conversation: conversation
+                    data: {
+                        owner,
+                        listing,
+                        booking,
+                        listingMedias,
+                        taker,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     // critical but not enough to prevent booking...
@@ -902,16 +908,19 @@ function _sendBookingConfirmedEmailsSms(data) {
 
         function sendEmailBookingConfirmedToTaker() {
             return EmailTemplateService
-                .sendEmailTemplate('booking-confirmed-taker', {
+                .sendEmailTemplate('booking_confirmed_taker', {
                     user: taker,
-                    listing: listing,
-                    booking: booking,
-                    conversation: conversation,
-                    listingMedias: listingMedias,
-                    owner: owner,
-                    assessment: assessment,
-                    ownerLocations: ownerLocations,
-                    takerLocations: takerLocations,
+                    data: {
+                        taker,
+                        listing,
+                        booking,
+                        conversation,
+                        listingMedias,
+                        owner,
+                        assessment,
+                        ownerLocations,
+                        takerLocations,
+                    },
                 })
                 .catch(err => {
                     // not critical
@@ -934,14 +943,17 @@ function _sendBookingConfirmedEmailsSms(data) {
         function sendEmailBookingConfirmedToOwner() {
             // (full info since booking is paid)
             return EmailTemplateService
-                .sendEmailTemplate('booking-confirmed-owner', {
+                .sendEmailTemplate('booking_confirmed_owner', {
                     user: owner,
-                    listing: listing,
-                    booking: booking,
-                    listingMedias: listingMedias,
-                    taker: taker,
-                    ownerLocations: ownerLocations,
-                    conversation: conversation
+                    data: {
+                        owner,
+                        listing,
+                        booking,
+                        listingMedias,
+                        taker,
+                        ownerLocations,
+                        conversation,
+                    },
                 })
                 .catch(err => {
                     // not critical
@@ -952,14 +964,16 @@ function _sendBookingConfirmedEmailsSms(data) {
         function sendEmailPrebookingPendingToTaker() {
             // Taker call to action
             return EmailTemplateService
-                .sendEmailTemplate('prebooking-pending-taker', {
+                .sendEmailTemplate('prebooking_pending_taker', {
                     user: taker,
-                    listing: listing,
-                    booking: booking,
-                    conversation: conversation,
-                    listingMedias: listingMedias,
-                    giver: owner,
-                    giverMessage: giverMessage
+                    data: {
+                        listing,
+                        booking,
+                        conversation,
+                        listingMedias,
+                        owner,
+                        ownerMessage: giverMessage,
+                    },
                 })
                 .catch(err => {
                     // not critical
@@ -982,13 +996,16 @@ function _sendBookingConfirmedEmailsSms(data) {
 
         function sendEmailPrebookingConfirmedToOwner() {
             return EmailTemplateService
-                .sendEmailTemplate('prebooking-confirmed-owner', {
+                .sendEmailTemplate('prebooking_confirmed_owner', {
                     user: owner,
-                    listing: listing,
-                    booking: booking,
-                    conversation: conversation,
-                    listingMedias: listingMedias,
-                    taker: taker
+                    data: {
+                        owner,
+                        listing,
+                        booking,
+                        conversation,
+                        listingMedias,
+                        taker,
+                    },
                 })
                 .catch(err => {
                     // not critical

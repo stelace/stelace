@@ -898,13 +898,16 @@ Sails.load(getConfig(), async function (err, sails) {
         var conversation = args.conversation;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('booking-to-accept-owner', {
+        return EmailTemplateService.sendEmailTemplate('booking_to_accept_owner', {
             user: owner,
-            listing: listing,
-            listingMedias: [media],
-            taker: taker,
-            booking: booking,
-            conversation: conversation
+            data: {
+                owner,
+                listing,
+                listingMedias: [media],
+                taker,
+                booking,
+                conversation,
+            },
         });
     }
 
@@ -968,12 +971,15 @@ Sails.load(getConfig(), async function (err, sails) {
         var conversation = args.conversation;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('missing-bank-account-owner', {
+        return EmailTemplateService.sendEmailTemplate('missing_bank_account_owner', {
             user: owner,
-            listing: listing,
-            listingMedias: [media],
-            booking: booking,
-            conversation: conversation
+            data: {
+                owner,
+                listing,
+                listingMedias: [media],
+                booking,
+                conversation,
+            },
         });
     }
 
@@ -997,13 +1003,16 @@ Sails.load(getConfig(), async function (err, sails) {
         var dueDate      = args.dueDate;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('upcoming-assessment-giver', {
+        return EmailTemplateService.sendEmailTemplate('upcoming_transaction_owner', {
             user: giver,
-            listing: listing,
-            listingMedias: [media],
-            taker: taker,
-            conversation: conversation,
-            dueDate: dueDate
+            data: {
+                owner: giver,
+                listing,
+                listingMedias: [media],
+                taker,
+                conversation,
+                dueDate,
+            },
         });
     }
 
@@ -1028,14 +1037,17 @@ Sails.load(getConfig(), async function (err, sails) {
         var dueDate      = args.dueDate;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('upcoming-assessment-taker', {
+        return EmailTemplateService.sendEmailTemplate('upcoming_transaction_taker', {
             user: taker,
-            listing: listing,
-            listingMedias: [media],
-            giver: giver,
-            conversation: conversation,
-            assessment: assessment,
-            dueDate: dueDate
+            data: {
+                taker,
+                listing,
+                listingMedias: [media],
+                owner: giver,
+                conversation,
+                assessment,
+                dueDate,
+            },
         });
     }
 
@@ -1061,14 +1073,17 @@ Sails.load(getConfig(), async function (err, sails) {
         var dueDate      = args.dueDate;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('late-unsigned-assessment-giver', {
+        return EmailTemplateService.sendEmailTemplate('late_unsigned_assessment_giver', {
             user: giver,
-            listing: listing,
-            listingMedias: [media],
-            taker: taker,
-            booking: booking,
-            conversation: conversation,
-            dueDate: dueDate
+            data: {
+                owner: giver,
+                listing,
+                listingMedias: [media],
+                taker,
+                booking,
+                conversation,
+                dueDate,
+            },
         });
     }
 
@@ -1137,12 +1152,14 @@ Sails.load(getConfig(), async function (err, sails) {
         var target       = args.target;
         var media        = args.media;
 
-        return EmailTemplateService.sendEmailTemplate('missing-rating', {
-            user: user,
-            listing: listing,
-            listingMedias: [media],
-            targetUser: target,
-            conversation: conversation
+        return EmailTemplateService.sendEmailTemplate('missing_rating', {
+            user,
+            data: {
+                listing,
+                listingMedias: [media],
+                targetUser: target,
+                conversation,
+            },
         });
     }
 });

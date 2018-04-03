@@ -166,9 +166,66 @@ function omitUnusedFields(data) {
     }
 }
 
-async function sendEmailTemplate(/* templateName, args */) {
-    // TODO: replace with real templates
-    await Promise.resolve();
+/**
+ * Send email with the general template as layout
+ * @param {String} templateName
+ * @param {Object} params
+ * @param {Object} params.user      // user or email must be defined
+ * @param {String} params.email
+ * @param {String} [params.replyTo]
+ * @param {String} [params.lang]
+ * @param {String} [params.tags]
+ * @param {Object} [params.data]
+ * @param {Object} [params.noCopyEmail]
+ * @param {Object} [params.transactional]
+ */
+async function sendEmailTemplate(templateName, {
+    user,
+    email,
+    replyTo,
+    lang,
+    tags,
+    data,
+    noCopyEmail,
+    transactional,
+} = {}) {
+    if (!lang) {
+        const config = await StelaceConfigService.getConfig();
+        lang = config.lang;
+    }
+
+    const {
+        isCompleteEmail,
+        html,
+        subject,
+    } = await getTemplateResult(templateName, {
+        lang,
+        user,
+        isEditMode: false,
+        data,
+        displayDefault: false,
+    });
+
+    if (!isCompleteEmail) {
+        return;
+    }
+
+    if (!tags) {
+        tags = getTemplateTags(templateName);
+    }
+
+    await EmailService.sendEmail({
+        templateName: 'general',
+        specificTemplateName: templateName,
+        toUser: user,
+        toEmail: email,
+        subject,
+        html,
+        replyTo,
+        tags,
+        noCopyEmail,
+        transactional,
+    });
 }
 
 async function getTemplateResult(templateName, { lang, user, isEditMode, data = {}, displayDefault = false }) {
@@ -230,10 +287,13 @@ async function getTemplateResult(templateName, { lang, user, isEditMode, data = 
         html = $.html();
     }
 
+    const isCompleteEmail = rawContent && rawContent.main_title;
+
     return {
         html,
         subject: compiledContent.subject,
         parameters,
+        isCompleteEmail,
     };
 }
 
@@ -660,6 +720,34 @@ function getTemplateWorkflow(templateName) {
         getEmailBlocks,
         compileNonEditableContent,
     };
+}
+
+function getTemplateTags(templateName) {
+    const templateTags = {
+        email_confirmation: ['email-confirmation'],
+        subscription: ['subscription'],
+        password_recovery: ['password-recovery'],
+        new_message: ['conversation'],
+
+        prebooking_confirmed_owner: ['booking-process'],
+        prebooking_pending_taker: ['booking-process'],
+        booking_pending_owner: ['booking-process'],
+        booking_pending_taker: ['booking-process'],
+        booking_confirmed_owner: ['booking-process'],
+        booking_confirmed_taker: ['booking-process'],
+        booking_checkout_owner: ['booking-process'],
+        booking_checkout_taker: ['booking-process'],
+        listing_return_owner: ['booking-process'],
+        listing_return_taker: ['booking-process'],
+
+        booking_to_accept_owner: ['reminder'],
+        missing_bank_account_owner: ['reminder'],
+        upcoming_transaction_owner: ['reminder'],
+        upcoming_transaction_taker: ['reminder'],
+        missing_rating: ['reminder'],
+    };
+
+    return templateTags[templateName];
 }
 
 function getParametersMetadata(templateName) {

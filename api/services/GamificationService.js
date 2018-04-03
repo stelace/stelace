@@ -1159,9 +1159,11 @@ function _getConfig() {
                         throw error;
                     }
 
-                    return EmailTemplateService.sendEmailTemplate('friend-booking-reward-referer', {
-                        user: user,
-                        friend: friend
+                    return EmailTemplateService.sendEmailTemplate('friend_booking_reward_referer', {
+                        user,
+                        data: {
+                            friend,
+                        },
                     });
                 })
                 .catch(err => {
@@ -1218,9 +1220,11 @@ function _getConfig() {
                         throw error;
                     }
 
-                    return EmailTemplateService.sendEmailTemplate('friend-booking-reward-referer', {
-                        user: user,
-                        friend: friend
+                    return EmailTemplateService.sendEmailTemplate('friend_booking_reward_referer', {
+                        user,
+                        data: {
+                            friend,
+                        },
                     });
                 })
                 .catch(err => {
