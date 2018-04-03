@@ -27,17 +27,29 @@ async function getListTemplates(req, res) {
 }
 
 async function preview(req, res) {
-    const { template, locale } = req.allParams();
+    const { template, locale, display_default } = req.allParams();
 
-    const { html } = await _getTemplateResult({ template, lang: locale, currentUser: req.user, isEditMode: false });
+    const { html } = await _getTemplateResult({
+        template,
+        lang: locale,
+        currentUser: req.user,
+        isEditMode: false,
+        displayDefault: display_default === '1',
+    });
 
     res.send(html);
 }
 
 async function edit(req, res) {
-    const { template, locale } = req.allParams();
+    const { template, locale, display_default } = req.allParams();
 
-    const { html } = await _getTemplateResult({ template, lang: locale, currentUser: req.user, isEditMode: true });
+    const { html } = await _getTemplateResult({
+        template,
+        lang: locale,
+        currentUser: req.user,
+        isEditMode: true,
+        displayDefault: display_default === '1',
+    });
 
     res.send(html);
 }
@@ -61,7 +73,7 @@ async function getTemplateMetadata(req, res) {
     });
 }
 
-async function _getTemplateResult({ template, lang, currentUser, isEditMode }) {
+async function _getTemplateResult({ template, lang, currentUser, isEditMode, displayDefault }) {
     const templates = EmailTemplateService.getListTemplates();
     if (!templates.includes(template)) {
         throw createError(404, 'Template not found');
@@ -89,6 +101,7 @@ async function _getTemplateResult({ template, lang, currentUser, isEditMode }) {
         isEditMode,
         user,
         data: exampleData,
+        displayDefault,
     });
 
     return result;

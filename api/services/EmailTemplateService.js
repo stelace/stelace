@@ -171,11 +171,11 @@ async function sendEmailTemplate(/* templateName, args */) {
     await Promise.resolve();
 }
 
-async function getTemplateResult(templateName, { lang, user, isEditMode, data = {} }) {
+async function getTemplateResult(templateName, { lang, user, isEditMode, data = {}, displayDefault = false }) {
     const config = await StelaceConfigService.getConfig();
 
     const emailTemplate = await fetchEmailTemplate();
-    const rawContent = await getTemplateContent(templateName, lang);
+    const rawContent = await getTemplateContent(templateName, lang, { displayDefault });
     const workflow = getTemplateWorkflow(templateName);
 
     // transform input data into ICU placeholders
@@ -248,8 +248,14 @@ async function fetchEmailTemplate() {
     return emailTemplate;
 }
 
-async function getTemplateContent(templateName, lang) {
-    const rawContent = await ContentEntriesService.getTranslations({ lang, namespace: 'email' });
+async function getTemplateContent(templateName, lang, { displayDefault = false } = {}) {
+    let rawContent;
+
+    if (displayDefault) {
+        rawContent = await ContentEntriesService.fetchDefaultTranslations(lang, { namespace: 'email' });
+    } else {
+        rawContent = await ContentEntriesService.getTranslations({ lang, namespace: 'email' });
+    }
 
     return Object.assign({}, rawContent.general, rawContent.template[templateName]);
 }
