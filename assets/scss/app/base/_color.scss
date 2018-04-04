@@ -1,9 +1,15 @@
 $platform-color-red      : #B60030;
 $platform-color-orange   : #FF7800;
-$platform-color-blue     : #00578E;
+$platform-color-blue     : #1055B6;
 $platform-color-green    : #00AA3C;
 $platform-color-purple   : #78287D;
-$platform-color-turquoise: #1ABC9C;
+$platform-color-darkblue : rgb(51,51,81); // #333351
+$platform-color-white    : #FFF;
+$platform-color-grey-lighter: rgb(248, 248, 250);
+$platform-color-grey-light: #DDD;
+$platform-color-grey: rgb(140, 145, 150);
+$platform-color-grey-dark: rgb(85, 90, 95);
+$platform-color-calltoaction: #009BFC; // scale-color($platform-color-blue, $lightness: 30%)
 
 $facebook-color   : #3A5898;
 $twitter-color    : #2AA9E0;
@@ -11,18 +17,66 @@ $google-plus-color: #D34836;
 $linked-in-color  : #0077B5;
 $pinterest-color  : #BD081C;
 
-$platform-color-darkblue  : rgb(51,51,81); // #333351
-$platform-color-brightblue: #009BFC; // scale-color($platform-color-blue, $lightness: 30%)
 $platform-color-bronze    : #CD7F32;
 $platform-color-silver    : #BFC1C2;
 $platform-color-gold      : #F2A900;
 
-$main-font-color: rgb(85, 90, 95);
-$anchor-font-color: none;
-$anchor-font-color-hover: none;
+// 2nd layer allowing future customization
 
-// :root {
-//     --primary-color: #00578E;
-// }
+$stl-color-red: $platform-color-red;
+$stl-color-orange: $platform-color-orange;
+$stl-color-blue: $platform-color-blue;
+$stl-color-green: $platform-color-green;
+$stl-color-purple: $platform-color-purple;
+$stl-color-darkblue: $platform-color-darkblue;
+$stl-color-white: $platform-color-white;
+$stl-color-grey-lighter: $platform-color-grey-lighter;
+$stl-color-grey-light: $platform-color-grey-light;
+$stl-color-grey: $platform-color-grey;
+$stl-color-grey-dark: $platform-color-grey-dark;
 
-// $platform-color-blue : var(--primary-color);
+// 3rd layer: User variables (CSS Custom Properties)
+// WARNING: SASS color functions such as adjust-color can’t be applied to CSS Custom properties
+// since sass sees only 'var(--custom-property-name…)', not browser value.
+// Use SASS color functions only when interpolating SASS variables as below
+
+$stl-color-font: var(--stl-color-font, #{$stl-color-grey-dark});
+$stl-color-font-light: var(--stl-color-font-light, #{$stl-color-grey});
+
+$stl-color-primary: var(--stl-color-primary, #{$stl-color-blue});
+$stl-color-primary-light: var(--stl-color-primary-light, #{adjust-color($stl-color-blue, $lightness: 15% )});
+// $stl-color-primary-dark: var(--stl-color-primary-dark, #{$stl-color-blue});
+// Text color to define sensibly: either white or classic darker font-color depending on background-color
+$stl-color-primary-text: var(--stl-color-primary-text, #{$stl-color-white});
+
+$stl-color-secondary: var(--stl-color-secondary, #{$stl-color-darkblue});
+$stl-color-secondary-light: var(--stl-color-secondary-light, #{adjust-color($stl-color-darkblue, $lightness: 15% )});
+$stl-color-secondary-text: var(--stl-color-secondary-text, #{$stl-color-white});
+
+$stl-color-calltoaction: var(--stl-color-calltoaction, #{$platform-color-calltoaction});
+$stl-color-calltoaction-light: var(--stl-color-calltoaction-light, #{adjust-color($platform-color-calltoaction, $lightness: 15% )});
+$stl-color-calltoaction-text: var(--stl-color-calltoaction-text, #{$stl-color-white});
+
+$stl-color-success: var(--stl-color-success, #{$stl-color-green});
+$stl-color-success-light: var(--stl-color-success-light, #{adjust-color($stl-color-green, $lightness: 15% )});
+$stl-color-success-text: var(--stl-color-success-text, #{$stl-color-white});
+
+$stl-color-body-background: var(--stl-color-body-background, #{$stl-color-white});
+$stl-color-body-background-light: var(--stl-color-body-background-light, #{$stl-color-white});
+$stl-color-body-background-text: var(--stl-color-body-background-text, #{$stl-color-font});
+
+// Should default to body-background color
+$stl-color-header-background: var(--stl-color-header-background, #{$stl-color-white});
+$stl-color-header-background-light: var(--stl-color-header-background-light, #{$stl-color-white});
+$stl-color-header-background-text: var(--stl-color-header-background-text, #{$stl-color-font});
+
+$stl-color-footer-background: var(--stl-color-footer-background, #{$stl-color-secondary});
+$stl-color-footer-background-text: var(--stl-color-footer-background-light, #{$stl-color-secondary-light});
+$stl-color-footer-background-text: var(--stl-color-footer-background-text, #{$stl-color-secondary-text});
+
+
+$stl-color-disabled: var(--stl-color-disabled, #{$stl-color-grey-light});
+$stl-color-disabled-text: var(--stl-color-disabled-text, #{$stl-color-font});
+
+$stl-color-border: var(--stl-color-border, #{$stl-color-grey-light});
+$stl-color-border-dark: var(--stl-color-border-dark, #{$stl-color-grey});

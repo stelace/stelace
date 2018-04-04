@@ -51,7 +51,6 @@
         memberLinks = memberLinks.concat([
             {
                 labelKey: 'navigation.account',
-                color: "blue",
                 icon: "home",
                 sref: "account"
             }
@@ -61,7 +60,6 @@
             memberLinks = memberLinks.concat([
                 {
                     labelKey: 'navigation.invite',
-                    color: "red",
                     icon: "megaphone",
                     sref: "invite"
                 }
@@ -71,31 +69,26 @@
         memberLinks = memberLinks.concat([
             {
                 labelKey: 'navigation.new_listing',
-                color: "purple",
                 icon: "clipboard-pencil",
                 sref: "listingCreate"
             },
             {
                 labelKey: 'navigation.search',
-                color: "orange",
                 icon: "magnifying",
                 sref: "search"
             },
             {
                 labelKey: 'navigation.inbox',
-                color: "blue",
                 icon: "email-envelope",
                 sref: "inbox({ f: null })"
             },
             {
                 labelKey: vm.showGamification ? 'navigation.rewards' : 'navigation.public_profile',
-                color: "gold",
                 icon: vm.showGamification ? "trophy" : "user",
                 sref: "userMe"
             },
             {
                 labelKey: 'navigation.my_listings',
-                color: "purple",
                 icon: "tag",
                 sref: "myListings"
             },

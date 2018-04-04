@@ -2,20 +2,21 @@
 
 
 #offcanvas-menu {
-    background-color: $platform-color-darkblue;
+    background-color: $stl-color-footer-background;
     // disable background hack below as overflow is visible on mobile devices when dragging body edges
     // overflow: visible;  // enable background-hack below
     // z-index: 0; // idem, but more importantly solves laggy animation off menu on android mobiles
     line-height: 2;
     > div {
         min-height: 100%;
-        color: #FFF;
+        color: $stl-color-footer-background-text;
+        border-left: 1px solid $stl-color-footer-background-text;
         // This background hack hides white flickering during animation
         // position: absolute;
         // left: -10rem;
         // right: 0;
         // padding-left: 10rem;
-        background-color: $platform-color-darkblue;
+        background-color: $stl-color-footer-background;
     }
 
     ul {
@@ -24,16 +25,12 @@
     }
 
     .offcanvas-menu__link {
-        color: #FFF;
-        border-top: 1px solid rgba(#FFF, 0.2);
-        &:last-child {
-            border-bottom: 1px solid rgba(#FFF, 0.2);
-        }
+        color: $stl-color-footer-background-text;
 
         a {
             padding: 0.5rem 1rem;
             display: block;
-            color: #FFF;
+            color: $stl-color-footer-background-text;
         }
 
         button {
@@ -48,31 +45,19 @@
             border-right: none;
         }
 
-        :focus, :hover, :active {
+        :focus, :hover {
             .icon {
                 outline: none;
-                &.red {
-                    fill: scale-color($platform-color-red, $lightness: 10%);
-                }
-                &.orange {
-                    fill: scale-color($platform-color-orange, $lightness: 30%);
-                }
-                &.purple {
-                    fill: scale-color($platform-color-purple, $lightness: 30%);
-                }
-                &.blue {
-                    fill: scale-color($platform-color-blue, $lightness: 30%);
-                }
-                &.green {
-                    fill: scale-color($platform-color-green, $lightness: 10%);
-                }
-                &.gold {
-                    fill: scale-color($platform-color-gold, $lightness: 10%);
-                }
                 &.grey {
-                    fill: rgba(#FFF, 0.5);
+                    fill: $stl-color-grey-light;
                 }
             }
+        }
+        :hover .icon {
+            fill: $stl-color-calltoaction-light;
+        }
+        :focus .icon {
+            fill: $stl-color-calltoaction;
         }
     }
 
@@ -82,7 +67,7 @@
         width: 1.5rem;
         margin-right: 0.5rem;
         vertical-align: text-bottom;
-        fill: #FFF;
+        fill: $stl-color-footer-background-text;
         transition: fill 0.3s;
     }
 

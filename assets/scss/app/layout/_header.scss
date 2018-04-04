@@ -31,14 +31,14 @@ $header-height: 3rem;
     z-index: 2; // above root content if it is positionned
     width: 100%; // no more flexbox
     height: $header-height;
-    background-color: #FFF;
-    border-bottom: 1px solid #CCC;
+    background-color: $stl-color-header-background;
+    border-bottom: 1px solid $stl-color-border;
 
     .anchor-like {
         transition: color 0.3s ease;
-        color: rgb(85, 90, 95);
+        color: $stl-color-header-background-text;
         &:hover, &:focus {
-            color: $platform-color-blue;
+            color: $stl-color-primary;
         }
     }
 
@@ -50,7 +50,7 @@ $header-height: 3rem;
         position: relative; // useful to position inbox message count
         &::after {
             content: "\AMENU";
-            color: $platform-color-blue;
+            color: $stl-color-primary;
             white-space: pre;
             font-size: 0.75rem;
             font-weight: 600;
@@ -58,12 +58,12 @@ $header-height: 3rem;
         .icon.small {
             width: $header-small-menu-width - 2 * $header-small-menu-hpadding;
             margin-bottom: -0.375rem;
-            fill: $platform-color-blue;
+            fill: $stl-color-primary;
         }
     }
 
     .company-logo {
-        color: $platform-color-blue;
+        color: $stl-color-primary;
     }
 
     $header-mobile-progress-width: 1.5rem;
@@ -191,7 +191,7 @@ $header-height: 3rem;
         right: 0;
         transform: translateY(-50%);
         pointer-events: none;
-        color: $platform-color-blue;
+        color: $stl-color-primary;
 
         .icon {
             width: 1.25rem;
@@ -216,11 +216,11 @@ $header-height: 3rem;
        input {
            border-radius: $global-rounded;
            border: none;
-           background: rgba($platform-color-darkblue, 0.08);
+           background: $stl-color-grey-lighter;
        }
     }
     .search__filter-toggle {
-        color: $platform-color-brightblue;
+        color: $stl-color-calltoaction;
     }
 
     .profile__image {
@@ -250,20 +250,10 @@ $header-height: 3rem;
 
     }
 
-    .new-listing-button-1 {
-        @extend %button;
-        @include button-style(
-            $background: $platform-color-red,
-            $background-hover: scale-color($platform-color-red, $lightness: 10%)
-        );
-    }
-    .new-listing-button-2 {
-        @extend %button;
-        @include button-style(
-            $background: $platform-color-purple,
-            $background-hover: scale-color($platform-color-purple, $lightness: 10%)
-        );
-    }
+    // .new-listing-button-1 {
+    // }
+    // .new-listing-button-2 {
+    // }
 
     .new-listing-button-2, .new-listing-button-1 {
         margin: auto;

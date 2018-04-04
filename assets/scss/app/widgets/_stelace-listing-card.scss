@@ -5,7 +5,7 @@
     margin-left: auto;
     margin-right: auto;
     a p {
-        color: rgb(85, 90, 95);
+        color: $stl-color-font;
         font-weight: 600;
     }
     .listing-grid__listing--highlight {
@@ -51,7 +51,7 @@ $listing-card-image-container-small-width: 9rem;
 }
 .listing-grid__price {
     padding: 0.25rem 0 0 0.25rem;
-    color: rgba($platform-color-darkblue, 0.6);
+    color: $stl-color-font-light;
     font-size: 1rem;
     line-height: 1;
     font-weight: 600;
@@ -70,7 +70,7 @@ $listing-card-image-container-small-width: 9rem;
 .listing-grid__booking-modes {
     padding-left: 0.25rem;
     font-size: 0.875rem;
-    color: rgb(85, 90, 95);
+    color: $stl-color-font;
 }
 .listing-grid__selling-icon-container {
     margin-left: 0.25rem;
@@ -78,11 +78,11 @@ $listing-card-image-container-small-width: 9rem;
         width: 1rem;
         height: 1rem;
         vertical-align: top;
-        fill: rgba($platform-color-darkblue, 0.6);
+        fill: $stl-color-font-light;
    }
 }
 .listing-grid__selling-price {
-    color: rgba($platform-color-darkblue, 0.6);
+    color: $stl-color-font-light;
     font-size: 1rem;
 }
 .listing-grid__description {
@@ -90,7 +90,7 @@ $listing-card-image-container-small-width: 9rem;
     // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
 
     padding: 0.25rem 0.5rem;
-    background-color: #FFF;
+    background-color: $stl-color-white;
     p {
         font-size: 0.875rem;
         margin-bottom: 0;
@@ -156,10 +156,10 @@ $listing-card-image-container-small-width: 9rem;
         padding: 0.25rem;
         &:hover, &:focus, &:active {
             .icon {
-                fill: $platform-color-blue;
+                fill: $stl-color-primary;
             }
             & + .text-control__label {
-                color: $platform-color-blue;
+                color: $stl-color-primary;
             }
         }
 
@@ -168,7 +168,7 @@ $listing-card-image-container-small-width: 9rem;
         }
 
         .icon {
-            fill: rgba(140, 145, 150, 0.5)
+            fill: $stl-color-font-light;
         }
     }
     .text-control__label {
@@ -214,7 +214,7 @@ $listing-card-image-container-small-width: 9rem;
     right: 0;
     bottom: 0;
     left: 0;
-    color: #FFF;
+    color: $platform-color-white;
     font-weight: 600;
     z-index: 1; // above next sibbling .listing-grid__image
     .icon {

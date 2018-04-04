@@ -1,7 +1,7 @@
 @import "../base/all";
 
 body.listings {
-    background-color: rgb(240, 240, 245);
+    background-color: $stl-color-body-background;
 }
 
 .listings {
@@ -22,10 +22,6 @@ body.listings {
         }
     }
 
-    .white-slide {
-        background: #FFF
-    }
-
     .InfoBox {
         font-family: $body-font-family;
         font-size: 11px; // google maps default
@@ -34,7 +30,6 @@ body.listings {
         .location-name {
             display: inline-block;
             max-width: 100%;
-            color: #006eb3;
             font-weight: 600;
             // ellipsis styles
             overflow: hidden;
@@ -63,21 +58,18 @@ body.listings {
 
         > div {
             cursor: pointer;
-            border-top: 1px solid rgba(0,0,0,0.25);
-            border-left: 1px solid rgba(0,0,0,0.25);
-            border-right: 1px solid rgba(0,0,0,0.15);
             width: 100%;
             height: $infobox-height - 2 * $infobox-triangle-size;
-            background-color: #006eb3;
+            background-color: $stl-color-calltoaction;
             border-radius: 0.5 * $global-radius;
-            color: #FFF;
+            color: $stl-color-calltoaction-text;
             line-height: 18px;
             font-size: 0.75rem;
             // must wrap pseudo element for ng-hide
             &::after {
                 @include css-triangle(
                     $triangle-size: $infobox-triangle-size, // Size of the triangle
-                    $triangle-color: #006eb3, // Color of the triangle
+                    $triangle-color: $stl-color-calltoaction, // Color of the triangle
                     $triangle-direction: top // Orientation of the triangle; can be top, right, bottom, or left
                 );
                 position: relative;
@@ -93,7 +85,7 @@ body.listings {
         .profile__image {
             width: $infobox-height - 2 * $infobox-triangle-size;
             height: $infobox-height - 2 * $infobox-triangle-size;
-            border: 3px solid rgb(88, 88, 114); //rgba($platform-color-darkblue, 0.8)
+            border: 3px solid $stl-color-secondary-light;
             cursor: pointer;
             &::after {
                 @include css-triangle(
@@ -118,11 +110,11 @@ body.listings {
             width: 100%;
             height: $infobox-height - 2 * $infobox-big-triangle-size;
             padding: 5px;
-            background-color: #FFF;
+            background-color: $stl-color-body-background;
             &::after {
                 @include css-triangle(
                     $triangle-size: $infobox-big-triangle-size,
-                    $triangle-color: #FFF,
+                    $triangle-color: $stl-color-body-background,
                     $triangle-direction: top
                 );
                 position: relative;
@@ -170,14 +162,14 @@ body.listings {
         img {
             width: $infobox-height;
             height: $infobox-height - 2 * $infobox-triangle-size;
-            border: 2px solid rgb(88, 88, 114);
+            border: 2px solid $stl-color-secondary-light;
             border-radius: $global-radius;
         }
 
         &::after {
             @include css-triangle(
                 $triangle-size: $infobox-triangle-size,
-                $triangle-color: rgb(88, 88, 114),
+                $triangle-color: $stl-color-secondary-light,
                 $triangle-direction: top
             );
             position: relative;
@@ -199,8 +191,8 @@ body.listings {
             padding: 5px;
             overflow: hidden;
             -webkit-transform: translate3d(0,0,0);
-            background-color: #FFF;
-            color: rgb(85, 90, 95);
+            background-color: $stl-color-body-background;
+            color: $stl-color-font;
         }
 
         h3.listing-name {
@@ -221,9 +213,9 @@ body.listings {
             left: 100%;
             transform: translateX(-100%) translateY(-50%);
             padding: 0.375rem 0.5rem 0.25rem;
-            color: #FFF;
+            color: $stl-color-secondary-text;
             font-size: 1.25rem;
-            background-color: rgba($platform-color-darkblue, 0.8);
+            background-color: $stl-color-secondary;
             line-height: 1;
             font-weight: 600;
             sup {
@@ -238,7 +230,7 @@ body.listings {
             top: 100%;
             left: 50%;
             transform: translateX(-50%) translateY(-50%);
-            border: 2px solid #FFF;
+            border: 2px solid $stl-color-body-background;
         }
 
         .listing-thumbnail__description {
@@ -262,7 +254,7 @@ body.listings {
         &::after {
             @include css-triangle(
                 $triangle-size: $infobox-big-triangle-size,
-                $triangle-color: #FFF,
+                $triangle-color: $stl-color-body-background,
                 $triangle-direction: top
             );
             position: relative;
@@ -282,7 +274,7 @@ body.listings {
             padding: 0 3px 1px;
             font-size: 0.7rem;
             text-align: center;
-            border-bottom: 2px solid $platform-color-darkblue;
+            border-bottom: 2px solid $stl-color-secondary;
         }
         .call-to-action {
             display: none;
@@ -291,7 +283,7 @@ body.listings {
         &:not(.anonymous)::after {
             @include css-triangle(
                 $triangle-size: $infobox-triangle-size,
-                $triangle-color: $platform-color-darkblue,
+                $triangle-color: $stl-color-secondary,
                 $triangle-direction: top
             );
             position: relative;
@@ -301,7 +293,7 @@ body.listings {
 
         &.anonymous {
             height: 80px;
-            background-color: #FFF;
+            background-color: $stl-color-body-background;
             border-radius: $global-radius;
 
             .location-tag {
@@ -319,7 +311,7 @@ body.listings {
             &::after {
                 @include css-triangle(
                     $triangle-size: 10px,
-                    $triangle-color: #FFF,
+                    $triangle-color: $stl-color-body-background,
                     $triangle-direction: top
                 );
                 position: relative;
@@ -343,10 +335,10 @@ $search__search-bar-height: 3.5rem;
 .listing-search__query {
     width: 100%; // limit width with size-XX classes
     padding: $search__query-padding;
-    background: #FFF;
+    background: $stl-color-body-background;
     transition: all 0.3s ease;
-    border-right: 1px solid #CCC;
-    border-bottom: 1px solid #CCC;
+    border-right: 1px solid $stl-color-border;
+    border-bottom: 1px solid $stl-color-border;
 
     &.search-query--fixed {
         position: fixed;
@@ -369,11 +361,11 @@ $search__search-bar-height: 3.5rem;
 }
 
 .search__advanced-search {
-    background: #FFF;
+    background: $stl-color-body-background;
     padding: $search__query-padding;
     padding-right: 2 * $search__query-padding;
-    border-right: 1px solid #CCC;
-    border-bottom: 1px solid #CCC;
+    border-right: 1px solid $stl-color-border;
+    border-bottom: 1px solid $stl-color-border;
     opacity: 1;
     &.ng-hide-add {
         transition: all ease 0.3s 0;
@@ -420,9 +412,9 @@ $search__search-bar-height: 3.5rem;
         width: 1.5rem;
         position: absolute;
         top: 0;
-        color: #999;
+        color: $stl-color-grey-light;
         &:focus, &:hover, &:active {
-            color: #FFF;
+            color: $stl-color-white;
         }
     }
     .delete-button ~ .location-tag {
@@ -440,7 +432,7 @@ $search__search-bar-height: 3.5rem;
         bottom: 0;
         left: 0;
         &.background {
-            background-color: rgba(#FFF, 0.5);
+            background-color: rgba($platform-color-white, 0.5); // not using custom property with RGBA
         }
     }
 
@@ -453,29 +445,29 @@ $search__search-bar-height: 3.5rem;
 
         & > li > a, .pagination > li > span {
             background-color: transparent;
-            color: $platform-color-blue;
+            color: $stl-color-primary;
             transition: all 0.3s;
 
             &:hover {
-                border-color: #CCC;
-                color: scale-color($platform-color-blue, $lightness: 30%);
+                border-color: $stl-color-grey-light;
+                color: $stl-color-calltoaction;
             }
         }
 
         & > .active {
             a, a:hover, a:focus,
             span, span:hover, span:focus {
-                background-color: scale-color($platform-color-blue, $lightness: 30%);
-                border-color: scale-color($platform-color-blue, $lightness: 30%);
-                color: #FFF;
+                background-color: $stl-color-calltoaction;
+                border-color: $stl-color-calltoaction;
+                color:  $stl-color-calltoaction-text;
             }
         }
 
         & > .disabled {
             a, a:hover, a:focus,
             span, span:hover, span:focus {
-                color: #DDD;
-                border-color: #DDD;
+                color: $stl-color-grey-light;
+                border-color: $stl-color-grey-light;
                 background-color: transparent;
             }
         }
@@ -503,7 +495,7 @@ $search__search-bar-height: 3.5rem;
 }
 .listing-search__content {
     overflow-y: auto;
-    border-right: 1px solid #DDD;
+    border-right: 1px solid $stl-color-border;
 }
 .listing-search__location-input-container {
     flex: 0 1 25rem;
@@ -512,17 +504,17 @@ $search__search-bar-height: 3.5rem;
         border-radius: 0;
     }
     input {
-        border-bottom: 1px solid rgba($platform-color-blue, 0.5);
+        border-bottom: 1px solid $stl-color-calltoaction-light;
         transition: all 0.3s ease;
     }
     input:hover, input:focus {
-        border-bottom: 2px solid rgba($platform-color-blue, 0.8);
+        border-bottom: 2px solid $stl-color-calltoaction;
     }
 }
 .listing-search__results {
     position: relative; // for spinner
     min-height: calc(100vh - 2 * #{$search__query-padding} - #{$header-height} - #{$search__search-bar-height});
-    background-color: rgb(240, 240, 245);
+    background-color: $stl-color-body-background;
 }
 .listing-search__results-overlay {
     position: absolute;
@@ -531,14 +523,14 @@ $search__search-bar-height: 3.5rem;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(#FFF, 0.5);
+    background-color: rgba($platform-color-white, 0.5);  // not using custom property with RGBA
 }
 .listing-search__results-items {
     padding-bottom: 0; // override
 }
 .listing-search__breadcrumb {
     padding: 0 0 1rem;
-    background-color: rgb(240, 240, 245);
+    background-color: $stl-color-body-background;
 }
 
 .listing-view {
@@ -610,14 +602,14 @@ $search__search-bar-height: 3.5rem;
         }
     }
     #mobile-map-container {
-        background-color: rgb(240, 240, 245);
+        background-color: $stl-color-body-background;
     }
 
     .stelace-listing__essential {
         position: relative;
         padding: 0.5rem 1rem;
-        background-color: #FFF;
-        border: 1px solid #DDD;
+        background-color: $stl-color-body-background;
+        border: 1px solid $stl-color-border;
         border-top: none;
         box-shadow: 0 -8px 4px -4px rgba(0, 0, 0, 0.25);
     }
@@ -665,7 +657,7 @@ $search__search-bar-height: 3.5rem;
     }
     .stelace-listing__book {
         // padding: 0.5rem 1rem;
-        border: 1px solid #DDD;
+        border: 1px solid $stl-color-border;
         box-sizing: content-box;
 
         @media #{$mq-from-desktop} {
@@ -686,15 +678,15 @@ $search__search-bar-height: 3.5rem;
         flex-direction: column;
 
         .book__price {
-            background-color: rgba(51, 51, 81, 0.95);
+            background-color: $stl-color-secondary;
             padding: 0.25rem 0.5rem;
-            color: #FFF;
+            color: $stl-color-secondary-text;
         }
         .book__pics {
-            position: relative; // prices-overlay positionning
+            position: relative; // prices-overlay positioning
             width: 100%;
             height: 3/5 * $stelace-listing__book-width;
-            background-color: #FFF;
+            background-color: $stl-color-body-background;
             @media #{$mq-until-tablet} {
                 order: 1; // last
                 #book__prices-overlay {
@@ -703,13 +695,13 @@ $search__search-bar-height: 3.5rem;
             }
         }
         #book__prices-overlay {
-            color: #FFF;
+            color: $stl-color-secondary-text;
             position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
             left: 0;
-            background-color: rgba(51, 51, 81, 0.95);
+            background-color: $stl-color-secondary;
             opacity: 0;
             transition: opacity 0.3s;
             padding: 0.5rem;
@@ -733,7 +725,7 @@ $search__search-bar-height: 3.5rem;
             }
 
             &:hover, &.show-overlay {
-                opacity: 1;
+                opacity: 0.95;
             }
         }
         .book__dates {
@@ -766,7 +758,7 @@ $search__search-bar-height: 3.5rem;
             $book__dates-side-padding: 0.5rem;
             box-sizing: border-box;
             padding: $book__dates-side-padding $book__dates-side-padding ($book__dates-side-padding * 0.5);
-            background-color: #FFF;
+            background-color: $stl-color-white;
             label {
                 border-radius: 0.5 * $global-radius;
                 margin-bottom: 3px;
@@ -807,16 +799,10 @@ $search__search-bar-height: 3.5rem;
                 margin: 0;
             }
         }
-
-        #listing-book-button {
-            &.disabled {
-                background-color: #DDD;
-            }
-        }
     }
 
     .stelace-listing__context-info {
-        background-color: #FFF;
+        background-color: $stl-color-body-background;
         border-radius: 0.5 * $global-radius;
         padding: 1rem;
         margin-bottom: 1rem;
@@ -830,7 +816,7 @@ $search__search-bar-height: 3.5rem;
 
     .stelace-listing__description {
         min-height: 15rem;
-        background-color: rgb(240, 240, 245);
+        background-color: $stl-color-body-background;
         p {
             white-space: pre-line;
             word-wrap: break-word;
@@ -894,8 +880,8 @@ $search__search-bar-height: 3.5rem;
 
     .stelace-listing__contact{
         min-height: 10rem;
-        background-color: #FFF;
-        border: 1px solid #DDD;
+        background-color: $stl-color-body-background;
+        border: 1px solid $stl-color-border;
     }
     .owner__profile{
         padding-top: 1rem;
@@ -914,7 +900,7 @@ $search__search-bar-height: 3.5rem;
 
     .stelace-listing__others {
         min-height: 10rem;
-        background-color: rgb(240, 240, 245);
+        background-color: $stl-color-body-background;
     }
     .listing-tag {
         display: inline-block;
@@ -926,8 +912,8 @@ $search__search-bar-height: 3.5rem;
         border-radius: 0.5 * $global-radius;
         transition: all 200ms ease;
         &:focus, &:hover, &:active {
-            background-color: $platform-color-purple;
-            color: #FFF;
+            background-color: $stl-color-purple;
+            color: $stl-color-white;
         }
     }
     .listing-grid {
@@ -953,7 +939,7 @@ $search__search-bar-height: 3.5rem;
 
     .stelace-hero {
         min-height: 12rem;
-        background: linear-gradient(170deg, $platform-color-blue 10%, $platform-color-brightblue 70%);
+        background: linear-gradient(170deg, $stl-color-primary 10%, $stl-color-calltoaction 70%);
     }
     .stelace-hero:focus, .stelace-hero:hover {
         .my-listings__cta .icon {
@@ -965,7 +951,7 @@ $search__search-bar-height: 3.5rem;
         .icon {
             height: 3rem;
             width: 3rem;
-            fill: #FFF;
+            fill: $stl-color-white;
             transition: transform 0.3s ease;
         }
     }

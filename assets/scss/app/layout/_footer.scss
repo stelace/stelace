@@ -1,17 +1,17 @@
 @import "../base/all";
 
 .stelace-footer {
-    background-color: rgba($platform-color-darkblue, 0.8);
-    color: #FFF;
-    padding: 2rem 1rem 1rem;
-    a {
-        color: #FFF;
+    background-color: $stl-color-footer-background;
+    color: $stl-color-footer-background-text;
+    padding: 0 0 1rem;
+    a, hr {
+        color: $stl-color-footer-background-text;
     }
 
     ul {
         list-style: none;
         a:hover {
-            color: #CCC;
+            opacity: 0.8;
         }
         li {
             display: inline-block;
@@ -53,7 +53,7 @@
         width: 2.5rem;
         height: 2.5rem;
         margin: 0 1rem;
-        fill: #FFF;
+        fill: $stl-color-footer-background-text;
         transition: fill .2s ease-out;
     }
 }

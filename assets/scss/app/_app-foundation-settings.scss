@@ -90,18 +90,18 @@ $include-css: (
 
 // We use these to control various global styles
 // $body-background: #fff;
-$body-font-color: $main-font-color; // default: #222
+$body-font-color: $stl-color-font; // default: #222
 $body-font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; // "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $body-font-weight: $font-weight-normal;
 // $body-font-style: normal;
 // $body-antialiased: true;
 
 // Application Colors
-$primary-color: $platform-color-blue; // #00558B;
-// $secondary-color: #f1f1f1;
-$alert-color: #B60030; // #F04124;
-// $info-color: #A0D3E8;
-// $success-color: #43AC6A;
+$primary-color:  $stl-color-primary;
+$secondary-color: $stl-color-secondary; // #f1f1f1;
+$alert-color: $stl-color-red; // #F04124;
+$info-color: $stl-color-darkblue; // #A0D3E8;
+$success-color:  $stl-color-success; // #43AC6A;
 // $warning-color: #F08A24;
 // $dark-color: #232323;
 // $gray: #dfdfdf;
@@ -142,7 +142,7 @@ $breakpoint-classes: (small medium s-medium desktop xlarge); // default: (small 
 // $header-font-family: $body-font-family;
 // $header-font-weight: $font-weight-normal;
 // $header-font-style: $font-weight-normal;
-$header-font-color: rgb(85, 90, 95); // #222
+$header-font-color: $stl-color-font; // #222
 // $header-line-height: 1.4;
 // $header-top-margin: .2rem;
 // $header-bottom-margin: .5rem;
@@ -327,12 +327,9 @@ $button-radius: 0.5 * $global-radius; // 0
 
 // $card-background: #fff;
 // $card-color: isitlight($card-background);
-$card-color: inherit;
 // $card-border: 1px solid smartscale($card-background, 7%);
-$card-border: medium none;
 // $card-radius: $global-radius;
 // $card-shadow: 0 1px 2px rgba(#000, 0.2);
-$card-shadow: 0 1px 4px rgba(#000, 0.2);
 // $card-padding: $global-padding;
 // $card-margin: 0.5rem;
 
@@ -358,29 +355,29 @@ $card-shadow: 0 1px 4px rgba(#000, 0.2);
 // $form-padding: 0.5rem;
 
 // Text fields
-$input-color: rgb(85, 90, 95); // #000
+$input-color: $stl-color-font; // #000
 // $input-color-hover: $input-color;
 // $input-color-focus: $input-color;
 // $input-background: #fff;
 // $input-background-hover: $input-background;
 // $input-background-focus: $input-background;
-// $input-background-disabled: smartscale($input-background);
+$input-background-disabled: $stl-color-grey-light; // smartscale($input-background);
 // $input-border: 1px solid #ccc;
 // $input-border-hover: 1px solid #bbb;
 // $input-border-focus: 1px solid #999;
 // $input-cursor-disabled: not-allowed;
 
 // Select menus
-$select-color: rgb(85, 90, 95); // #000
-$select-background: #fff; // #fafafa
-$select-background-hover: #fff; // smartscale($select-background, 4%)
+$select-color: $stl-color-font; // #000
+$select-background: $stl-color-white; // #fafafa
+$select-background-hover: $stl-color-grey-lighter; // smartscale($select-background, 4%)
 // $select-arrow: true;
 // $select-arrow-color: $select-color;
 
 // Labels
 // $form-label-fontsize: 0.9rem;
 // $form-label-margin: 0.5rem;
-$form-label-color: rgb(85, 90, 95); // #333
+$form-label-color: $stl-color-font; // #333
 
 // Inline labels
 // $inlinelabel-color: #333;
@@ -615,9 +612,9 @@ $switch-height: rem-calc(16);
 
 // $titlebar-center-width: 50%;
 // $titlebar-side-width: (100% - $titlebar-center-width) / 2;
-$titlebar-background: none; // #EEE
-$titlebar-color: #FFF; // #000
-$titlebar-border: none; // 1px solid #ccc
+// $titlebar-background: none; // #EEE
+// $titlebar-color: #FFF; // #000
+// $titlebar-border: none; // 1px solid #ccc
 // $titlebar-padding: $global-padding;
 // $titlebar-item-classes: (
 //   center: 'center',

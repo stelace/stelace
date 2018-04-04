@@ -31,14 +31,6 @@
   animation-iteration-count: infinite;
 }
 
-// @keyframes glowBlue {
-//     0%   { background-color: rgba($platform-color-blue, 0.8); }
-//     40%   { background-color: rgba($platform-color-blue, 0.8); }
-//     50%  { background-color: rgba($platform-color-blue, 1); }
-//     60%   { background-color: rgba($platform-color-blue, 0.8); }
-//     100% { background-color: rgba($platform-color-blue, 0.8); }
-// }
-
 @keyframes bounce{
     from {
       transform: translateY(0);

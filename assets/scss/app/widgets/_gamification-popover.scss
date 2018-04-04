@@ -10,10 +10,10 @@
             width: 3.5rem;
             }
         &.megaphone:focus, &.megaphone:hover {
-            color: $platform-color-red;
+            color: $stl-color-red;
         }
         &.tag:focus, &.tag:hover {
-            color: $platform-color-purple;
+            color: $stl-color-purple;
         }
     }
     hr {

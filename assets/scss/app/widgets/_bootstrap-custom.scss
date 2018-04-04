@@ -19,13 +19,13 @@
         // right: 5%;
         // margin-left: 0;
         li {
-            border-color: rgba($platform-color-darkblue, 0.6);
+            border-color: $stl-color-secondary-light;
             &.cursor-disabled {
                 cursor: default;
             }
         }
         .active {
-            background-color: rgba($platform-color-darkblue, 0.8);
+            background-color: $stl-color-secondary-light;
         }
     }
 }

@@ -53,36 +53,8 @@ ng\:form {
         &:hover,
         &:focus,
         &:active {
-            background-color: rgba(0,87,142,0.2);
+            background-color: rgba(0,0,0,0.2);
             border: none;
-        }
-        &.subtle--small {
-            width: 30%;
-            display: inline-block;
-        }
-
-        &.subtle--large {
-            width: 90%;
-        }
-
-        &.subtle--hint {
-            background-color: rgba(0, 87, 142, 0.05);
-            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-            &:hover,
-            &:focus,
-            &:active {
-                background-color: rgba(0,87,142,0.2);
-            }
-        }
-        &.subtle--less-subtle {
-            padding: 0.25rem 1rem;;
-        }
-        &.subtle--more-padding {
-            padding: 0.5rem;
-        }
-        &.subtle--center {
-            margin-left: auto;
-            margin-right: auto;
         }
     }
 }
@@ -95,15 +67,15 @@ select {
     padding-top: 0.25rem; // avoid crop text with foundation default setting (0.5rem)
     padding-bottom: 0.25rem;
     option {
-        color: #333;
+        color: $stl-color-font;
     }
     option[disabled] {
-        color: #666;
+        color: $stl-color-disabled;
     }
     /*See http://stackoverflow.com/questions/3773430/remove-outline-from-select-box-in-ff*/
     &:-moz-focusring {
         color: transparent;
-        text-shadow: 0 0 0 #666;
+        text-shadow: 0 0 0 $stl-color-grey-light;
     }
 }
 select.input--subtle {
@@ -115,7 +87,7 @@ select.input--subtle {
     padding: 0.25rem 1.5rem 0.25rem 1rem;
     margin: 0.5rem;
     //Need to encode in base64 for Firefox
-    background: rgba(0,87,142,0.05) url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+DQogIDxwYXRoIGZpbGw9IiMwMDAiIGQ9Im04NiAxMjhjLTEzLTEzLTM0LTEzLTQ4IDBjLTYgNy0xMCAxNi0xMCAyNGMwIDkgNCAxOCAxMCAyNGwyMTggMjE4bDIxOC0yMThjMTMtMTMgMTMtMzUgMC00OGMtMTQtMTMtMzUtMTMtNDkgMGwtMTY5IDE3MHoiLz4NCjwvc3ZnPg0K')
+    background: rgba(0,0,0,0.05) url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+DQogIDxwYXRoIGZpbGw9IiMwMDAiIGQ9Im04NiAxMjhjLTEzLTEzLTM0LTEzLTQ4IDBjLTYgNy0xMCAxNi0xMCAyNGMwIDkgNCAxOCAxMCAyNGwyMTggMjE4bDIxOC0yMThjMTMtMTMgMTMtMzUgMC00OGMtMTQtMTMtMzUtMTMtNDkgMGwtMTY5IDE3MHoiLz4NCjwvc3ZnPg0K')
         right 6px center no-repeat;
     background-size: 12px 12px;
     transition: background-color 0.3s;
@@ -123,18 +95,10 @@ select.input--subtle {
     &:hover,
     &:focus,
     &:active {
-        background-color: rgba(0,87,142,0.2);
-    }
-    &.select-subtle--large {
-        width: 60%;
+        background-color: rgba(0,0,0,0.2);
     }
 }
 
-textarea.input--subtle {
-    display: block;
-    width: 90%;
-    resize: vertical;
-}
 textarea[readonly][data-sip-autoselect] {
     resize: none;
 }
@@ -165,7 +129,7 @@ textarea[readonly], input[readonly] {
 
 input, textarea {
     &::placeholder {
-        color: rgb(140, 145, 150);
+        color: $stl-color-font-light;
         opacity: 1; // Firefox reset
         // can't use opacity to fade content since it fades whole input on IE11
     }
@@ -213,8 +177,8 @@ input[type=number] {
 
     input, select, textarea {
         &[disabled] {
-            border: 1px solid #EEE;
-            background: #FEFEFE;
+            border: 1px solid $stl-color-disabled;
+            background: $stl-color-disabled;
         }
     }
 }
@@ -259,13 +223,13 @@ input[type=number] {
         .icon {
             height: 100%;
             width: 1.4rem;
-            fill: #2F2F3B;
+            fill: $stl-color-grey;
         }
 
         &.active {
             opacity: 1;
             .icon {
-                fill: scale-color($platform-color-blue, $lightness: 30%); // brightblue
+                fill: $stl-color-calltoaction;
             }
         }
     }
@@ -284,14 +248,12 @@ input[type=number] {
     &.center {
         display: block;
     }
-    &[disabled] { // Reproduce foundation .disabled class' default styles
-        transition: all 0.25s; // not only background
-        opacity: 0.5;
+    &.button[disabled], &.button.disabled  {
+        // Increase specificity by one with .button to override color classes
+        transition: all 0.25s;
+        background: $stl-color-disabled;
         cursor: default;
         pointer-events: none;
-    }
-    &[ng-disabled], &.disabled {
-        transition: all 0.25s; // not only background
     }
     &.red {
         @include button-style(
@@ -311,19 +273,13 @@ input[type=number] {
             $background-hover: auto
         );
     }
-    &.brightblue {
+    &.calltoaction {
         @include button-style(
-            $background: scale-color($platform-color-blue, $lightness: 30%),
-            $background-hover: scale-color($platform-color-blue, $lightness: 40%)
+            $background: $stl-color-calltoaction,
+            $background-hover: $stl-color-calltoaction-light
         );
     }
-    &.darkblue {
-        @include button-style(
-            $background: $platform-color-darkblue,
-            $background-hover: scale-color($platform-color-darkblue, $lightness: 10%)
-        );
-    }
-    &.gray {
+    &.grey {
         @include button-style(
             $background: $gray-dark,
             $background-hover: scale-color($gray-dark, $lightness: 10%),
@@ -377,30 +333,9 @@ button, .button, .select-file {
 .spinner-container {
     z-index: 999; // Avoid being above modals (1000)
 }
-.app-button {
-    @include button-style(
-        $background: #4080cb,
-        $color: #fff,
-        $background-hover: auto
-    );
-    border-radius: 5px / 20px;
 
-    &.disabled,
-    &.disabled:hover {
-        @include button-disabled;
-        cursor: default;
-        background-color: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 0 3px 1px rgba(150, 150, 150, 0.5);
-        color: rgba(0, 0, 0, 0.3);
-    }
-}
-
-.sip-button {
-    @include button-style(
-        $background: $primary-color,
-        $color: #fff
-    );
-    border-radius: 0.5 * $global-radius;
+.stl-button {
+    @include button-style();
     font-size: 1.1rem;
 }
 
@@ -410,16 +345,11 @@ button, .button, .select-file {
     text-decoration: underline;
     &:hover, &:active {
         cursor: pointer;
-        color: $platform-color-blue;
+        color: $stl-color-primary;
     }
 }
 
 .add-listing-button {
-    @extend %button;
-    @include button-style(
-        $background: $platform-color-red,
-        $background-hover: auto
-    );
     margin: auto;
 }
 
@@ -484,7 +414,7 @@ strong {
 }
 
 .text--light {
-    color: rgb(140, 145, 150);
+    color: $stl-color-font-light;
 }
 .text--dark {
     color: #333;
@@ -565,7 +495,6 @@ button, .button {
 // Links
 
 a {
-    color: $platform-color-blue;
     &:hover, &:focus, &:active {
         text-decoration: none;
     }
@@ -597,7 +526,7 @@ a {
 .anchor-like {
     transition: color 0.3s ease;
     &:hover, &:focus {
-        color: $platform-color-blue;
+        color: $stl-color-primary;
     }
     svg.icon {
         fill: currentColor;
@@ -641,87 +570,15 @@ a, [ng-click], [uib-popover], [uib-tooltip] {
 }
 
 #main-grid-block {
-    width:100%; //fix for profile view in tablet layout
-
     > :not(.signin-form-container) {
-        background-color: rgb(240, 240, 245);
+        background-color: $stl-color-body-background;
     }
 
     // Animations
     &.ng-enter {
-         animation: semiFadeIn 0.6s both ease-in-out;
+        animation: semiFadeIn 0.6s both ease-in-out;
     }
     &.ng-leave {
-    }
-
-    .grid-divider > div.grid-divider__container {
-        padding: 0 0 0.125rem;
-        // overriding foundation padding
-    }
-    /*.main-card-container {
-        // padding: 0.5rem;
-        // Padding in the container is not taken into account by IE11 when splitting in two columns > wrapping
-        // Setting Margin around the child is preferred
-    }*/
-    .main-card {
-        @include card-container(
-            $background: transparent,
-            $border: none,
-            $radius: 0.5 * $global-radius,
-            $shadow: 1px 3px 5px 2px rgba(0, 0, 0, 0.4),
-            $color: #333,
-            $padding: 0
-        );
-        margin: 0.5rem 0.5rem 1rem;
-        // 1 rem bottom because of margin collapsing in tablet/mobile layout (1 column)
-        @media #{$mq-mobile} {
-            margin: 0.25rem;
-            box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.4)
-        }
-
-        > .card-divider {
-            opacity: 0.8;
-            a {
-                display: block; // ensuring correct behaviour in IE11 despite svg pointer-events set to none
-            }
-        }
-        > a.card-divider {
-            transition: opacity 0.3s ease;
-            &:hover {
-                opacity: 0.9;
-            }
-            &:focus, &:active {
-                opacity: 1;
-            }
-        }
-
-        .card-section {
-            background: rgba(255, 255, 255, 0.85);
-        }
-        // img are 100% width in foundation cards by default
-        img {
-            width: auto,
-        }
-
-        .card {
-            margin: 0.5rem;
-        }
-    }
-
-    .card-divider {
-        color: #fff;
-        font-size: 1.5rem;
-        min-height: 2.5rem;
-        .icon {
-            width: 2rem;
-            height: 2rem;
-            fill:#fff;
-        }
-        h2 {
-            display: inline-block;
-            font-size:1.5rem;
-            line-height: 1;
-        }
     }
 }
 
@@ -836,12 +693,12 @@ a, [ng-click], [uib-popover], [uib-tooltip] {
     right: 0;
     bottom: 0;
     overflow: hidden;
-    background-color: #FFF;
+    background-color: $stl-color-body-background;
   }
 }
 
 @mixin input-like() {
-    background-color: #FFF;
+    background-color: $input-background;
     border: $input-border;
     padding: $form-padding;
     margin-bottom: $global-padding; // foundation default 1rem
@@ -854,14 +711,14 @@ a, [ng-click], [uib-popover], [uib-tooltip] {
 }
 
 .location-tag {
-    background-color: $platform-color-darkblue;
+    background-color: $stl-color-secondary;
     border-radius: 0.5 * $global-radius;
-    color: #FFF;
+    color: $stl-color-secondary-text;
     transition: background-color 0.3s, color 0.3s;
     font-weight: 600;
     &.disabled {
-        background-color: rgb(240, 240, 245);
-        color: #BBB;
+        background-color: $stl-color-disabled;
+        color: $stl-color-disabled-text;
     }
     display: inline-block;
     vertical-align: middle;
@@ -895,8 +752,8 @@ a.profile__image {
 }
 .badge {
     &.font-color {
-        background-color: $body-font-color;
-        color: #FFF;
+        background-color: $stl-color-font;
+        color: $stl-color-body-background;
     }
 }
 .message-badge {
@@ -908,9 +765,9 @@ a.profile__image {
 
 .plain-card {
     @include card-container(
-        $background: #fff, // Background color
-        $color: rgb(85, 90, 95),
-        $border: 1px solid #DDD,
+        $background: $stl-color-white, // Background color
+        $color: $stl-color-font,
+        $border: 1px solid $stl-color-border,
         $radius: 0,
         $shadow: none, // Box shad: ;ow
         $padding: 1rem,
@@ -922,7 +779,6 @@ a.profile__image {
             margin-top: 0;
             margin-bottom: 0;
             font-weight: 600;
-            color: #FFF;
             font-size: 1.125rem;
         }
         h2 {
@@ -931,13 +787,14 @@ a.profile__image {
             }
         }
         @include card-divider(
-            $background: rgba($platform-color-darkblue, 0.9),
-            $padding: 0.5rem 1rem
+            $background: $stl-color-secondary,
+            $padding: 0.5rem 1rem,
+            $color: $stl-color-secondary-text
         );
     }
 
     .plain-card__section {
-        background-color: #FFF; // for absolute positionning
+        background-color: $stl-color-white; // for absolute positionning
     }
 }
 
@@ -978,12 +835,12 @@ a.profile__image {
         fill: #FFBB00;
     }
     .star-empty {
-        fill: #DDD;
+        fill: $stl-color-grey-light;
     }
 }
 
 .social-signin {
-    color: #fff;
+    color: $stl-color-white;
     padding: 0.4rem;
     text-align: center;
     display: block;
@@ -1029,7 +886,7 @@ a.profile__image {
     align-items: center;
     z-index: 1;
     margin: 0;
-    color: #FFF;
+    color: $stl-color-white;
     // IE10-11 Fix. See https://github.com/philipwalton/flexbugs/issues/127
     > * {
         max-width: 100%
@@ -1039,7 +896,7 @@ a.profile__image {
         text-align: center;
         font-weight: 600;
         text-shadow: 0 0 6px rgba(0,0,0,0.6);
-        color: #FFF;
+        color: $stl-color-white;
     }
 
     background-position: 50% 50%; // default to override if needed
@@ -1087,7 +944,7 @@ a.profile__image {
 }
 
 .image-white-cta {
-    background-color: #FFF;
+    background-color: $stl-color-white;
     h2 {
         font-size: 1.125rem;
         font-weight: 600;
@@ -1132,8 +989,7 @@ a.profile__image {
 }
 
 .progress {
-    // brightblue is bootstrap default setting in variables.scss
-    border-right-color: $platform-color-blue;
+    border-right-color: $stl-color-primary;
     transition: border-color 0.6s ease 1s;
     .progress-bar {
         transition: width 0.6s ease, background-color 0.6s ease;
@@ -1141,7 +997,7 @@ a.profile__image {
 }
 .progress.beginner {
     .progress-bar {
-        background-color: $platform-color-blue;
+        background-color: $stl-color-primary;
     }
     border-right-color: $platform-color-bronze;
 }
@@ -1382,13 +1238,13 @@ img {
         border: none;
     }
     .btn-info.active, .valid-date .btn-info.active {
-        background-color: scale-color($platform-color-blue, $lightness: 30%); // same blue as sidebar inbox
+        background-color: $stl-color-calltoaction; // same blue as sidebar inbox
     }
     .valid-date .btn {
         background-color: rgba($platform-color-green, 0.3);
     }
     tbody .btn.disabled, tbody .btn[disabled] {
-        background: #DDD;
+        background: $stl-color-disabled;
         opacity: 0.3;
     }
     thead .btn.disabled, thead .btn[disabled] { // month
@@ -1450,7 +1306,7 @@ body .popover {
     }
 }
 .ui-select-container.ui-select-bootstrap.flat-border {
-    border: 1px solid #DDD;
+    border: 1px solid $stl-color-border;
     box-shadow: none;
     margin-bottom: $global-padding; // foundation default 1rem
     &:focus, &:hover {
@@ -1497,7 +1353,7 @@ body .popover {
         }
     }
     .helper {
-        background-color: rgb(240, 240, 245);
+        background-color: $stl-color-body-background;
     }
     .profile__image {
         height: 4.5rem;
@@ -1505,7 +1361,7 @@ body .popover {
         margin: 0 auto 0.5rem;
     }
     .content {
-        background-color: #FFF;
+        background-color: $stl-color-white;
     }
     h2.fluid-helper-modal__title {
         font-size: 1.25rem;
@@ -1566,18 +1422,9 @@ body .popover {
     }
     // overriding authentication.scss
     .signin-form {
-        background-color: rgba(255, 255, 255, 1);
+        background-color: $stl-color-white;
         width: 90%;
         margin: 0.5rem auto;
         border-radius: 0.5 * $global-radius;
-
-        #{$text-input-selectors} {
-            border: 1px solid rgba(133, 130, 133, 0.5);
-            &:hover,
-            &:focus {
-                background-color: #FFF;
-                border: 1px solid rgba(0, 87, 142, 0.5);
-            }
-        }
     }
 }

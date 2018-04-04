@@ -155,7 +155,7 @@
 
                 <div ng-show="! vm.booking.cancellationId && ! vm.listing.snapshot && vm.message.isCtaActive">
                     <div ng-if="vm.isTaker && ! vm.booking.paidDate">
-                        <button class="button brightblue"
+                        <button class="button calltoaction"
                             ui-sref="bookingPayment({id: vm.booking.id})"
                             data-translate="booking.prompt.view_contract"
                         >
@@ -201,13 +201,13 @@
                                 data-translate-attr="{ placeholder: 'inbox.public_question_placeholder' }"
                                 sip-textarea-auto-adjust>
                             </textarea>
-                            <button class="button brightblue"
+                            <button class="button calltoaction"
                                 ng-click="vm.accept()"
                                 ng-class="{disabled: ! vm.rejectCollapse}"
                                 data-translate="booking.prompt.accept_button"
                             >
                             </button>
-                            <button class="button gray"
+                            <button class="button grey"
                                 ng-click="vm.reveal('reject')"
                                 ng-class="{disabled: ! vm.rejectCollapse}"
                                 data-translate="booking.prompt.reject_button"

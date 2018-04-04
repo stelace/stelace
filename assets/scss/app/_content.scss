@@ -1,9 +1,9 @@
 .highlight-translations {
     [data-translate] {
-        outline: 2px solid $platform-color-green;
+        outline: 2px solid $stl-color-green;
     }
     [data-translate-attr]::placeholder {
         text-decoration: underline;
-        color: $platform-color-green;
+        color: $stl-color-green;
     }
 }

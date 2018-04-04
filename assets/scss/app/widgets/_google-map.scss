@@ -28,7 +28,7 @@
 
 #{$text-input-selectors} {
     &.map-input {
-        border: $platform-color-green solid 2px;
+        border: $stl-color-primary solid 2px;
         border-radius: $global-radius;
         line-height: 1.2;
         padding: 0.2rem 0.4rem;

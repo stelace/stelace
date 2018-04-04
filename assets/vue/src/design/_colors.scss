@@ -1,16 +1,16 @@
 // CONTENT
-$color-body-bg: #f9f7f5;
-$color-text: $main-font-color;
-$color-heading-text: $main-font-color;
+$color-body-bg: $stl-color-body-background;
+$color-text: $stl-color-font;
+$color-heading-text: $stl-color-font;
 
 // LINKS
-$color-link-text: #39a275;
+$color-link-text: $stl-color-primary;
 $color-link-text-active: $color-text;
 
 // INPUTS
-$color-input-border: lighten($color-heading-text, 50%);
+$color-input-border: $stl-color-font-light;
 
 // BUTTONS
-$color-button-bg: $color-link-text;
-$color-button-disabled-bg: darken(desaturate($color-button-bg, 20%), 10%);
-$color-button-text: white;
+$color-button-bg: $stl-color-primary;
+$color-button-disabled-bg: $stl-color-grey-light;
+$color-button-text: $stl-color-white;

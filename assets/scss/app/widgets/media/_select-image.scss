@@ -44,19 +44,19 @@
             line-height: 1rem;
             font-size: 0.75rem;
             font-weight: 600;
-            background-color: rgba($platform-color-darkblue, 0.6);
+            background-color: $stl-color-secondary-light;
         }
     }
 
     .text-control {
-        color: #333;
-        fill: #333;
+        color: $stl-color-font;
+        fill: $stl-color-font;
         &:hover,
         &:focus,
         &:active {
             cursor: pointer;
-        fill: $platform-color-blue;
-        color: $platform-color-blue;
+        fill: $stl-color-primary;
+        color: $stl-color-primary;
         }
     }
 }

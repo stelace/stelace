@@ -29,7 +29,7 @@
                 data-translate-attr="{ placeholder: 'form.validation_code_placeholder' }">
         </div>
         <div class="text-center spinner-button-container">
-            <button class="button sip-button spinner-button--center margin-top"
+            <button class="button stl-button spinner-button--center margin-top"
                     ng-disabled="promptModalForm.$invalid"
                     ng-class="{disabled: promptModalForm.$invalid}"
                     ng-click="vm.action()">
@@ -60,7 +60,7 @@
         <p class="sign__text"
             ng-switch-when="1" data-translate="user.contact_info_kept_private">
         </p>
-        <button class="button sip-button center margin-top"
+        <button class="button stl-button center margin-top"
                 ng-disabled="! vm.locationSearchObject"
                 ng-class="{disabled: ! vm.locationSearchObject}"
                 ng-click="vm.action()">
@@ -84,7 +84,7 @@
             ng-model="vm.email"
             required
             data-translate-attr="{ placeholder: 'authentication.placeholder.email' }">
-        <button class="button sip-button center margin-top"
+        <button class="button stl-button center margin-top"
                 ng-disabled="! vm.email"
                 ng-class="{disabled: ! vm.email}"
                 ng-click="vm.action()"
@@ -107,7 +107,7 @@
             data-translate-attr="{ placeholder: 'authentication.placeholder.email' }">
         </p>
         <div class="text-center spinner-button-container">
-            <button class="button sip-button spinner-button--center margin-top"
+            <button class="button stl-button spinner-button--center margin-top"
                     ng-disabled="! vm.emailNew"
                     ng-class="{disabled: ! vm.emailNew}"
                     ng-click="vm.action()"
