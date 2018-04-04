@@ -1108,7 +1108,6 @@
                         </tr>
                         <tr>
                             <td align="center" valign="top">
-                                <!-- BEGIN FOOTER // -->
                                 <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateFooter">
                                     <tr>
                                         <td valign="top" class="footerContainer" style="padding-bottom:9px;">
@@ -1120,22 +1119,30 @@
                                                             <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
                                                                 <tbody>
                                                                     <tr>
-                                                                        <td valign="top" class="mcnTextContent" style="padding: 9px 18px;color: #808080;">
-                                                                            {{#if footer_content__block}}
-                                                                            <span data-translate="general.footer_content" class="general-template">
-                                                                                {{{footer_content}}}
-                                                                            </span>
-                                                                             <br>
-                                                                            <br>
-                                                                            {{/if}}
-                                                                            <span data-translate="general.copyright" class="general-template">
-                                                                                {{{copyright}}}
-                                                                            </span>
+                                                                        <td valign="center" class="mcnTextContent" style="padding: 9px 18px;color: #808080;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                                                                            style="min-width:100%;">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                                                                            {{#if footer_content__block}}
+                                                                                            <span data-translate="general.footer_content" class="general-template">
+                                                                                                {{{footer_content}}}
+                                                                                            </span>
+                                                                                            <br>
+                                                                                            <br>
+                                                                                            {{/if}}
+                                                                                            <span data-translate="general.copyright" class="general-template">
+                                                                                                {{{copyright}}}
+                                                                                            </span>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
                                                                         </td>
                                                                     </tr>
                                                                 </tbody>
                                                             </table>
-
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -1143,7 +1150,49 @@
                                         </td>
                                     </tr>
                                 </table>
-                                <!-- // END FOOTER -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" valign="top">
+                                <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateFooter">
+                                    <tr>
+                                        <td valign="top" class="footerContainer" style="padding-bottom:9px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                                                style="min-width:100%;">
+                                                <tbody class="mcnTextBlockOuter">
+                                                    <tr>
+                                                        <td valign="top" class="mcnTextBlockInner">
+                                                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td valign="center" class="mcnTextContent" style="padding: 0px 18px;color: #808080;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                                                                            style="min-width:100%;">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                                                                            {{#if branding__block}}
+                                                                                                <span>
+                                                                                                    {{{branding}}}
+                                                                                                </span>
+                                                                                                <br>
+                                                                                                <img alt="Logo" src="{{stelace_logo__url}}" width="100" style="max-width:100px; padding-top: 2px;" class="mcnImage">
+                                                                                            {{/if}}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>

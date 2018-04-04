@@ -1157,7 +1157,7 @@ Sails.load(getConfig(), async function (err, sails) {
             data: {
                 listing,
                 listingMedias: [media],
-                targetUser: target,
+                interlocutor: target,
                 conversation,
             },
         });

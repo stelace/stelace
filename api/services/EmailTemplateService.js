@@ -380,10 +380,12 @@ function beforeCompileNonEditableContent(content, { config, /*data, user, lang*/
         _.pick(config, ['styles', 'defaultStyles'])
     );
 
+    newContent.stelace_logo__url = sails.config.stelace.url + '/assets/img/logo/stelace-logo.png';
+
     if (config.logo__url) {
         newContent.service_logo__url = sails.config.stelace.url + config.logo__url;
     } else {
-        newContent.service_logo__url = sails.config.stelace.url + '/assets/img/logo/stelace-logo.png';
+        newContent.service_logo__url = newContent.stelace_logo__url;
     }
 
     newContent.style__color_brand = configStyles.styles['--stl-color-primary']
@@ -410,6 +412,7 @@ function computeContentBlock(content, { emailTemplateBlocks, isEditMode }) {
         'end_content__block',
         'footer_content__block',
         'custom_goodbye__block',
+        'branding__block',
     ];
 
     // use email blocks
@@ -436,6 +439,7 @@ function computeContentBlock(content, { emailTemplateBlocks, isEditMode }) {
         computedBlock.end_content__block = !!content.end_content;
         computedBlock.footer_content__block = !!content.footer_content;
         computedBlock.custom_goodbye__block = !!content.custom_goodbye;
+        computedBlock.branding__block = true;
 
         blockNames.forEach(name => {
             if (!newContent[name]) return;
@@ -493,6 +497,9 @@ function getHtml(emailTemplate, content) {
         'copyright',
         'style__color_brand',
         'style__color_calltoaction',
+        'branding__block',
+        'branding',
+        'stelace_logo__url',
     ];
 
     return emailCompiledTemplate(_.pick(content, fields));
@@ -510,7 +517,8 @@ function getEmailBlocks() {
         featured__block: false,
         end_content__block: true,
         footer_content__block: true,
-        custom_goodbye__block: true,
+        custom_goodbye__block: false,
+        branding__block: true,
     };
 
     return Object.assign({}, commonBlocks);
@@ -520,6 +528,9 @@ async function beforeTransformData(parameters, { config, user, data, lang }) {
     const newParams = {};
 
     newParams.SERVICE_NAME = config.SERVICE_NAME;
+    newParams.service_email = config.service_email; // TODO: create variable in config
+    newParams.service_billing_address = config.service_billing_address; // TODO: create variable in config
+    newParams.has_contact_address = !!(newParams.service_email || newParams.service_billing_address);
 
     if (typeof user === 'object') {
         newParams.user__firstname = user.firstname || undefined;
@@ -533,6 +544,7 @@ async function beforeTransformData(parameters, { config, user, data, lang }) {
         listingMedias,
         owner,
         taker,
+        interlocutor,
         conversation,
     } = data;
 
@@ -567,6 +579,9 @@ async function beforeTransformData(parameters, { config, user, data, lang }) {
     if (taker) {
         newParams.taker__name = EmailHelperService.getUserName(taker, 'notFull');
     }
+    if (interlocutor) {
+        newParams.interlocutor__name = EmailHelperService.getUserName(interlocutor, 'notFull');
+    }
     if (conversation) {
         newParams.conversation__url = EmailHelperService.getUrl('conversation', conversation);
     }
@@ -578,6 +593,8 @@ function getCommonParametersMetadata({ filter = [], omit = [] } = {}) {
     const commonParametersMetadata = [
         { label: 'SERVICE_NAME', type: 'string' },
         { label: 'current_year', type: 'string' },
+        { label: 'service_email', type: 'string' },
+        { label: 'service_billing_address', type: 'string' },
 
         { label: 'user__firstname', type: 'string' },
         { label: 'user__lastname', type: 'string' },
@@ -598,6 +615,7 @@ function getCommonParametersMetadata({ filter = [], omit = [] } = {}) {
 
         { label: 'owner__name', type: 'string' },
         { label: 'taker__name', type: 'string' },
+        { label: 'interlocutor__name', type: 'string' },
     ];
 
     let parametersMetadata = commonParametersMetadata.slice(0);
@@ -666,9 +684,6 @@ function getTemplateWorkflow(templateName) {
             break;
 
         case 'subscription':
-            getEmailBlocks = {
-                cta_button__block: false,
-            };
             break;
 
         case 'password_recovery':
@@ -767,12 +782,16 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
             ],
         }),
         subscription: getCommonParametersMetadata({
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
             ],
@@ -781,6 +800,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
             ],
@@ -789,6 +810,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -812,6 +835,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -834,6 +859,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -856,6 +883,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -878,6 +907,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -900,6 +931,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -922,6 +955,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -944,6 +979,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -966,6 +1003,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -988,6 +1027,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1010,6 +1051,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1033,6 +1076,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1055,6 +1100,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1077,6 +1124,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1099,6 +1148,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1121,6 +1172,8 @@ function getParametersMetadata(templateName) {
             filter: [
                 'SERVICE_NAME',
                 'current_year',
+                'service_email',
+                'service_billing_address',
                 'user__firstname',
                 'user__lastname',
                 'listing__name',
@@ -1137,6 +1190,7 @@ function getParametersMetadata(templateName) {
                 'booking__deposit',
                 'owner__name',
                 'taker__name',
+                'interlocutor__name',
             ],
         }),
     };
@@ -1191,6 +1245,11 @@ function getExampleData(templateName) {
         },
         conversation: {
             id: 456,
+        },
+        interlocutor: {
+            firstname: 'John',
+            lastname: 'Scott',
+            email: 'john.scott@email.com',
         },
     };
 

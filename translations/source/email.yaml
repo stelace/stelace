@@ -3,43 +3,70 @@ general:
         en: ''
         fr: ''
     footer_content:
-        en: ''
-        fr: ''
+        en: |
+            You’re receiving this email because you created a {SERVICE_NAME} account.
+            {has_contact_address, select,
+                true {<br><br>Our mailing address is: {service_email, select,
+                        undefined {}
+                        other {{service_email}}
+                    }{service_billing_address, select,
+                        undefined {}
+                        other {<br><br>{service_billing_address}}
+                    }
+                }
+                other {}
+            }
+        fr: |
+            Vous recevez cet email suite à votre inscription sur {SERVICE_NAME}.
+            {has_contact_address, select,
+                true {<br><br>Vous pouvez nous contacter à l'adresse suivante : {service_email, select,
+                        undefined {}
+                        other {{service_email}}
+                    }{service_billing_address, select,
+                        undefined {}
+                        other {<br><br>{service_billing_address}}
+                    }
+                }
+                other {}
+            }
     copyright:
-        en: 'Copyright © {current_year}, all right reserved.'
-        fr: 'Copyright © {current_year}, tous droits réservés.'
+        en: 'Copyright © {current_year} {SERVICE_NAME}, all rights reserved.'
+        fr: 'Copyright © {current_year} {SERVICE_NAME}, tous droits réservés.'
+    branding:
+        en: '{SERVICE_NAME} is powered by Stelace.com the marketplace launcher.'
+        fr: '{SERVICE_NAME} est propulsé par la plateforme de places de marché Stelace.com'
 template:
     email_confirmation:
         name:
             en: Email confirmation
             fr: Confirmation d’email
         description:
-            en: "That email is sent when a email confirmation from the user is necessary (subscription, email address change…)."
-            fr: "Cet email est envoyé lorsqu’une confirmation de l’email de la part de l’utilisateur est nécessaire (inscription, changement d’adresse email…)."
+            en: 'This email is sent when an email confirmation needs to be verified (sign up, email address change…).'
+            fr: 'Cet email est envoyé lorsqu’une confirmation de l’email d’un utilisateur est nécessaire (inscription, changement d’adresse email…)'
         subject:
-            en: 'Please confirm your email address on {SERVICE_NAME}'
+            en: 'Please verify your email address for {SERVICE_NAME}'
             fr: 'Veuillez confirmer votre adresse email sur {SERVICE_NAME}'
         preview_content:
-            en: A simple click to validate your email
-            fr: Un simple click pour valider votre email
+            en: 'Help us secure your {SERVICE_NAME} account by verifying your email address with 1 click!'
+            fr: 'Aidez-nous à sécuriser votre compte {SERVICE_NAME} en un simple click.'
         trailing_contact:
-            en: ''
-            fr: ''
+            en: Add our email to your address book and make sure to stay informed.
+            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         main_title:
-            en: "Only one last step…"
-            fr: "Une dernière étape…"
+            en: Please confirm your email address.
+            fr: Merci de confirmer votre adresse email.
         leading_content:
-            en: ''
-            fr: ''
+            en: 'Help us secure your {SERVICE_NAME} account by verifying your email address.'
+            fr: 'Aidez-nous à sécuriser votre compte {SERVICE_NAME} en validant l’adresse email fournie.'
         content:
-            en: ''
-            fr: ''
+            en: We’d love to make sure we’ve got the right email for you. Please click the button below.
+            fr: Nous aimerions nous assurer qu’il s’agit bien de la bonne adresse.
         cta_button__text:
             en: Confirm my email address
             fr: Confirmer mon adresse email
         trailing_content:
-            en: Please confirm your email on {SERVICE_NAME} by clicking on the above button.
-            fr: Nous vous invitons à confirmer votre email sur {SERVICE_NAME} à l’aide du bouton ci-dessus.
+            en: 'Please confirm your email on {SERVICE_NAME} by clicking on the above button.'
+            fr: 'Nous vous invitons à confirmer votre email sur {SERVICE_NAME} à l’aide du bouton ci-dessus.'
         featured__title:
             en: ''
             fr: ''
@@ -54,26 +81,36 @@ template:
             en: Subscription
             fr: Inscription
         description:
-            en: That email is sent when the user subscribes.
-            fr: Cet email est envoyé lorsque l’utilisateur s’inscrit
+            en: This email is sent when a new user subscribes.
+            fr: Cet email est envoyé lorsqu’un nouvel utilisateur s’inscrit.
         subject:
-            en: ''
-            fr: ''
+            en: Thanks for verifying your email address.
+            fr: Merci d’avoir confirmé votre adresse email.
         preview_content:
-            en: ''
-            fr: ''
+            en: 'Welcome to {SERVICE_NAME} {user__firstname}!'
+            fr: "Bienvenue sur {SERVICE_NAME} {user__firstname} !"
         trailing_contact:
-            en: ''
-            fr: ''
+            en: Add our email to your address book and make sure to stay informed.
+            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         main_title:
-            en: ''
-            fr: ''
+            en: |-
+                Thank you {
+                user__firstname, select,
+                undefined {}
+                other {{user__firstname}}
+                }
+            fr: |-
+                Merci {
+                user__firstname, select,
+                undefined {}
+                other {{user__firstname}}
+                }!
         leading_content:
-            en: ''
-            fr: ''
+            en: 'We are very happy to welcome you to the {SERVICE_NAME} family!'
+            fr: 'Toute l’équipe {SERVICE_NAME} est heureuse de vous compter parmi ses membres :)'
         content:
-            en: ''
-            fr: ''
+            en: If you have any question do not hesitate to reach out.
+            fr: 'Si vous avez la moindre question, n’hésitez pas à nous contacter.'
         cta_button__text:
             en: ''
             fr: ''
@@ -94,29 +131,41 @@ template:
             en: Password recovery
             fr: Récupération de mot de passe
         description:
-            en: That email is sent when the user wants to reset his password.
-            fr: Cet email est envoyé lorsque l’utilisateur veut réinitialiser son mot de passe.
+            en: 'This email will be sent for password recovery (lost password, forgotten password…).'
+            fr: 'Cet email sera envoyé en cas de changement de mot de passe (mot de passe oublié, perdu…).'
         subject:
-            en: ''
-            fr: ''
+            en: '{SERVICE_NAME} reset password instructions.'
+            fr: 'Changez votre mot de passe {SERVICE_NAME}.'
         preview_content:
-            en: ''
-            fr: ''
+            en: Forgot your password? Let’s get you a new one.
+            fr: Mot de passe oublié ? Créez-en un nouveau.
         trailing_contact:
-            en: ''
-            fr: ''
+            en: Add our email to your address book and make sure to stay informed.
+            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         main_title:
-            en: ''
-            fr: ''
+            en: |-
+                Hi {
+                user__firstname, select,
+                undefined {}
+                other {{user__firstname}}
+                },
+            fr: |-
+                Bonjour {
+                user__firstname, select,
+                undefined {}
+                other {{user__firstname}}
+                },
         leading_content:
-            en: ''
-            fr: ''
+            en: 'We heard you need a password reset. Please, click the link below to change your password.'
+            fr: |-
+                Vous avez demandé à changer votre mot de passe.
+                Merci de cliquer sur le bouton ci-dessous pour en choisir un nouveau.
         content:
             en: ''
             fr: ''
         cta_button__text:
-            en: ''
-            fr: ''
+            en: Reset my password
+            fr: Réinitialiser mon mot de passe
         trailing_content:
             en: ''
             fr: ''
@@ -127,36 +176,50 @@ template:
             en: ''
             fr: ''
         end_content:
-            en: ''
-            fr: ''
+            en: 'You’ll be redirected to a secure site from which you can set a new {SERVICE_NAME} password.'
+            fr: 'Vous serez redirigé vers une page  sécurisée vous permettant de créer un nouveau mot de passe pour {SERVICE_NAME}.'
     new_message:
         name:
             en: New message
             fr: Nouveau message
         description:
-            en: That email is sent when the user receives a new message in the inbox.
-            fr: Cet email est envoyé lorsque l’utilisateur reçoit un nouveau message via la messagerie.
+            en: This email is sent when users receive a new message in their inbox.
+            fr: Cet email est envoyé lorsque vos utilisateurs reçoivent un message dans leur messagerie sécurisée.
         subject:
             en: ''
-            fr: ''
+            fr: 'Nouveau message sur {SERVICE_NAME}'
         preview_content:
             en: ''
-            fr: ''
+            fr: Vous venez de recevoir un message. Répondez-y vite.
         trailing_contact:
-            en: ''
-            fr: ''
+            en: Add our email to your address book and make sure to stay informed.
+            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         main_title:
-            en: ''
-            fr: ''
+            en: You've got a new message.
+            fr: Vous avez reçu un message.
         leading_content:
-            en: ''
-            fr: ''
+            en: |-
+                Hi {
+                user__firstname, select,
+                undefined {}
+                other {{user__firstname}}
+                }!
+
+                You've got a new message in your inbox concerning this listing: "{listing__name}".
+            fr: |-
+                Bonjour {
+                user__firstname, select,
+                undefined {}
+                other {{user__firstname}}
+                }!
+
+                Vous avez un nouveau message dans votre messagerie concernant l’annonce suivante : "{listing__name}".
         content:
-            en: ''
-            fr: ''
+            en: Click the button below to check your inbox.
+            fr: Cliquez sur le bouton ci-dessous pour accéder directement à votre messagerie.
         cta_button__text:
-            en: ''
-            fr: ''
+            en: Check my inbox
+            fr: Consulter ma messagerie
         trailing_content:
             en: ''
             fr: ''
@@ -214,29 +277,37 @@ template:
             en: Prebooking pending - Taker
             fr: Pré-réservation en attente - Demandeur
         description:
-            en: That email is sent to the taker when the taker creates a prebooking that needs an acceptance from the owner.
-            fr: Cet email est envoyé au demandeur lorsque celui-ci crée une pré-réservation qui nécessite une acceptation de la part du propriétaire.
+            en: This email will be sent to the taker to inform him that his prebooking has been accepted and he shall proceed with the payment.
+            fr: 'Cet email sera envoyé à l’utilisateur ayant effectué une pré-réservation pour l’informer de l’acceptation de celle-ci et qu’il puisse procéder au paiement.'
         subject:
-            en: ''
-            fr: ''
+            en: |
+                Confirm your prebooking on {SERVICE_NAME}.
+            fr: 'Confirmez votre pré-réservation sur {SERVICE_NAME}.'
         preview_content:
-            en: ''
-            fr: ''
+            en: |-
+                Your prebooking has been accepted {owner__name
+                , select, undefined {} other {by {owner__name}}}
+            fr: |-
+                Votre pré-réservation a été acceptée {owner__name
+                , select, undefined {} other {par {owner__name}}}
         trailing_contact:
-            en: ''
-            fr: ''
+            en: Add our email to your address book and make sure to stay informed.
+            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         main_title:
-            en: ''
-            fr: ''
+            en: Hooray! Your prebooking has been accepted.
+            fr: Bravo ! Votre pré-réservation a été acceptée.
         leading_content:
-            en: ''
-            fr: ''
+            en: |
+                Your request has been accepted {owner__name, select, undefined {} other {by {owner__name}}}.
+            fr: |
+                Votre demande a bien été acceptée {owner__name, select, undefined {} other {par {owner__name}}}.
         content:
-            en: ''
-            fr: ''
+            en: Please confirm by clicking on the button below to proceed with the payment.
+            fr: |
+                Merci de la confirmer en cliquant sur le bouton ci-dessous pour procéder au paiement.
         cta_button__text:
-            en: ''
-            fr: ''
+            en: Confirm my booking
+            fr: Confimer ma réservation
         trailing_content:
             en: ''
             fr: ''
@@ -254,20 +325,20 @@ template:
             en: Booking pending - Owner
             fr: Réservation en attente - Propriétaire
         description:
-            en: That email is sent when the taker creates a booking that needs an acceptance from the owner.
-            fr: Cet email est envoyé lorsque le demandeur crée une réservation qui nécessite l’acceptation du propriétaire.
+            en: This email will be sent to the owner when his listing has found a taker.
+            fr: Cet email sera envoyé aux propriétaires des annonces ayant trouvé preneur.
         subject:
-            en: '{listing__name} has been booked by {taker__name}'
-            fr: '{listing__name} a été réservé(e) par {taker__name}'
+            en: 'You listing {listing__name} has been booked!'
+            fr: 'Votre annonce "{listing__name}" a été réservé(e) !'
         preview_content:
-            en: 'Only 36h to accept or reject'
-            fr: 'Plus que 36h pour accepter ou refuser'
+            en: Make sure to accept it in the following 36 hours.
+            fr: Assurez-vous d’accepter la réservation dans les 36 heures.
         trailing_contact:
             en: ''
             fr: ''
         main_title:
             en: 'Hi, your {listing__name} has been booked!'
-            fr: "Bonjour, votre {listing__name} a été réservé(e) !"
+            fr: "Bonjour, votre {listing__name} a été réservé(e)\_!"
         leading_content:
             en: ''
             fr: ''
@@ -295,7 +366,7 @@ template:
                     }}
                 }.
         cta_button__text:
-            en: Click here to accept or reject
+            en: Click here to accept or refuse
             fr: Cliquez ici pour accepter ou refuser
         trailing_content:
             en: ''
@@ -757,26 +828,26 @@ template:
             en: That email is sent when the user hasn’t yet rate a booking.
             fr: Cet email est envoyé lorsque l’utilisateur n’a pas encore évalué une réservation.
         subject:
-            en: ''
-            fr: ''
+            en: Share your feedback!
+            fr: Dites ce que vous en avez pensé !
         preview_content:
-            en: ''
-            fr: ''
+            en: Review your last transaction.
+            fr: Evaluez votre dernière transaction.
         trailing_contact:
             en: ''
             fr: ''
         main_title:
-            en: ''
-            fr: ''
+            en: Give your feedback!
+            fr: "Laissez un commentaire !"
         leading_content:
             en: ''
             fr: ''
         content:
-            en: ''
-            fr: ''
+            en: 'Giving feedback is always a good idea.  If everything went well, you should let others know that {taker__name} can be trusted. If there were any problems, it’s good to mention those as well.'
+            fr: "Laisser un commentaire est toujours une bonne idée. Si tout s’est bien passé, vous devriez faire savoir que {taker__name} est quelqu’un de confiance. Dans le cas contraire aussi il est important de le mentionner !"
         cta_button__text:
-            en: ''
-            fr: ''
+            en: Let a review
+            fr: Laisser une évaluation
         trailing_content:
             en: ''
             fr: ''
@@ -787,5 +858,5 @@ template:
             en: ''
             fr: ''
         end_content:
-            en: ''
-            fr: ''
+            en: 'Reviews, feedbacks and ratings are precious. Gain trust from people, collecting reviews for each transaction.'
+            fr: Les commentaires et évaluations sont précieux ! Ils pemrettent d'augmenter la confiance qu'ont les autres utilisateurs en vous alors ne vous en privez pas.
