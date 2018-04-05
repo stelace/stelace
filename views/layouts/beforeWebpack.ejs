@@ -59,8 +59,9 @@
     <link rel="stylesheet" href="/assets/build/css/app.css">
     <!-- endinject -->
 
-    <! CSS Custom properties -->
+    <!-- CSS Custom properties -->
     <style type="text/css">
+      :root {}
     </style>
 
     <!-- Webpack resource hints preload/prefetch -->
@@ -188,6 +189,9 @@
     <!-- endinject -->
 
     <script>
+      // CSS Custom Properties ponyfill
+      cssVars && cssVars();
+
       var loadingContentEl = document.getElementById("loading-content");
       if (loadingContentEl && loadingContentEl.remove) {
         loadingContentEl.remove();
