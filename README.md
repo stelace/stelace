@@ -2,7 +2,7 @@
 
 Stelace helps entrepreneurs create online marketplaces and communities in no time to let them focus on experimenting and growing their audience.
 
-This repository includes all marketplace features and integrations. Stelace marketplace launcher, automatic setup and cloud hosting are also available [without a line of code](https://stelace.com).
+This repository includes all marketplace features and integrations. Stelace marketplace launcher, automatic setup, APIs, webhooks, full dashboard and cloud hosting are also available [without a line of code](https://stelace.com).
 
 ---
 
@@ -10,7 +10,7 @@ This repository includes all marketplace features and integrations. Stelace mark
 
 Stelace is under active development, with *massive* ongoing updates.
 
-**Everything will break in unexpected ways until v1 is released.**
+**Expect breaking changes until v1 is released.**
 
 ![Stelace pre-launch](https://media.giphy.com/media/26xBEamXwaMSUbV72/giphy.gif)
 
@@ -66,6 +66,7 @@ Stelace is under active development, with *massive* ongoing updates.
 - Translations
 - …
 
+You can connect your own dashboard with Stelace Public API or use [official Stelace dashboard](https://stelace.com).
 
 ## Environment
 ### Install environment
@@ -198,7 +199,13 @@ Please go to [Docker website](https://docs.docker.com/install/#server) to instal
 
 ### Run environment
 
-Open 2 terminals: 1 for client-side and 1 for server-side.
+You need to build Vue.js app and app.ejs template with Webpack first. In `assets/vue` directory:
+
+- Build Vue.js assets and watch `yarn dev-build`
+
+- Build Vue.js assets once `yarn build` (optimized for production)
+
+Open 2 terminals in project’s root: 1 for client-side and 1 for server-side.
 
 - For client-side: `gulp`
 
@@ -288,8 +295,8 @@ Using mysqldump for exporting "small" dataset is ok (< 10GB).
 - Docs
 
 ## Open source alternatives
-- [Sharetribe](https://github.com/sharetribe/sharetribe)
-- [Cocorico](https://github.com/Cocolabs-SAS/cocorico)
+- [Sharetribe](https://github.com/sharetribe/sharetribe) (Ruby)
+- [Cocorico](https://github.com/Cocolabs-SAS/cocorico) (PHP)
 - *Add yours*
 
 ## License
