@@ -10,7 +10,7 @@
     "entrepreneur"
   ],
   "homepage": "https://stelace.com",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "author": "Stelace Team",
   "main": "app.js",
   "repository": {
