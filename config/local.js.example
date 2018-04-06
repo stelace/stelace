@@ -34,6 +34,11 @@ module.exports = {
         },
         defaultConfig: {
             SERVICE_NAME: 'MyStelace',
+            styles: {
+                // Define valid CSS Custom Properties as Hex colors for theming
+                '--stl-primary-color': '#1055B6',
+                // Defaults are defined in color.scss
+            },
         },
 
         // Stelace SaaS or other custom dashboard base url (dashboard is expected to be served from '/dashboard' path)

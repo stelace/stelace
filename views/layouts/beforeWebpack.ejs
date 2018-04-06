@@ -61,7 +61,11 @@
 
     <!-- CSS Custom properties -->
     <style type="text/css">
-      :root {}
+      :root {
+        <% for (let style in styles) { %>
+          <%= `${style}: ${styles[style]};` %>
+        <% } %>
+      }
     </style>
 
     <!-- Webpack resource hints preload/prefetch -->

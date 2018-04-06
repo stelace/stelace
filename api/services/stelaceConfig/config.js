@@ -117,6 +117,9 @@ const schema = {
         is_service_live: {
             type: ['boolean', 'null'],
         },
+        styles: {
+            type: 'object',
+        },
     },
 };
 

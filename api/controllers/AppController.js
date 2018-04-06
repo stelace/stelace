@@ -174,7 +174,16 @@ async function index(req, res) {
         featureDetection: !UAService.isBot(userAgent),
         dataFromServer: JSON.stringify(dataFromServer || {}),
         stripeActive,
+        styles: {},
     };
+
+    if (typeof config.styles === 'object') {
+        for (const style in config.styles) {
+            if (typeof style === 'string' && style.indexOf('--stl-color-' >= 0)) {
+                viewParams.styles[style] = config.styles[style];
+            }
+        }
+    }
 
     if (sails.config.environment === 'production') {
         viewParams.env = 'prod';
