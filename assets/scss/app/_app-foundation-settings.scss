@@ -355,7 +355,7 @@ $button-radius: 0.5 * $global-radius; // 0
 // $form-padding: 0.5rem;
 
 // Text fields
-$input-color: $stl-color-font; // #000
+$input-color: $stl-color-input-text; // #000
 // $input-color-hover: $input-color;
 // $input-color-focus: $input-color;
 // $input-background: #fff;
@@ -368,8 +368,8 @@ $input-background-disabled: $stl-color-grey-light; // smartscale($input-backgrou
 // $input-cursor-disabled: not-allowed;
 
 // Select menus
-$select-color: $stl-color-font; // #000
-$select-background: $stl-color-white; // #fafafa
+$select-color: $stl-color-input-text; // #000
+$select-background: $stl-color-input-background; // #fafafa
 $select-background-hover: $stl-color-grey-lighter; // smartscale($select-background, 4%)
 // $select-arrow: true;
 // $select-arrow-color: $select-color;

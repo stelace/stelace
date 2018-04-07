@@ -51,7 +51,8 @@
     }
     .booking-summary {
         z-index: 10;
-        background-color: $stl-color-white;
+        background-color: $stl-color-card-background;
+        color: $stl-color-card-background-text;
         border: 1px solid $stl-color-border;
         @media #{$mq-from-desktop} {
             position: absolute;

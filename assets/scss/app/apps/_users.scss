@@ -83,7 +83,8 @@
 
         // this is sticky-side-bar
         .card-section-container {
-            background-color: $stl-color-white;
+            background-color: $stl-color-card-background;
+            color: $stl-color-card-background-text;
             width: $user-info-width;
             border: 1px solid $stl-color-border;
             border-top: none;
@@ -135,7 +136,7 @@
     .account__contact-info {
         input#user-phone, input#user-email {
             &.data-placeholder::placeholder {
-                color: $body-font-color;
+                color: $stl-color-input-text-light;
             }
         }
     }

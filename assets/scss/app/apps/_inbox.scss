@@ -34,7 +34,7 @@
 
     .inbox__conversations {
         > a, > div {
-            color: inherit;
+            color: $stl-color-listing-card-background-text;
             padding: 1rem;
             border-bottom: 1px solid #EEE;
         }
@@ -137,7 +137,8 @@
         .conversation__answer {
             padding-left: 1rem;
             padding-right: 1rem;
-            background-color: $stl-color-white;
+            background-color: $stl-color-card-background;
+            color: $stl-color-card-background-text;
             border: solid 1px $stl-color-border;
 
             .textarea-auto-adjust {
@@ -160,7 +161,8 @@
                 white-space: pre-wrap;
                 word-wrap: break-word;
                 padding: 1rem 1rem 1.5rem;
-                background-color: $stl-color-white;
+                background-color: $stl-color-card-background;
+                color: $stl-color-card-background-text;
                 border: 1px solid $stl-color-border;
                 border-radius: 0.5 * $global-radius;
                 &::after {

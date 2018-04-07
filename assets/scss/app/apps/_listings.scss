@@ -758,7 +758,8 @@ $search__search-bar-height: 3.5rem;
             $book__dates-side-padding: 0.5rem;
             box-sizing: border-box;
             padding: $book__dates-side-padding $book__dates-side-padding ($book__dates-side-padding * 0.5);
-            background-color: $stl-color-white;
+            background-color: $stl-color-card-background;
+            color: $stl-color-card-background-text;
             label {
                 border-radius: 0.5 * $global-radius;
                 margin-bottom: 3px;

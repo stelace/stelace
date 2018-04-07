@@ -129,7 +129,7 @@ textarea[readonly], input[readonly] {
 
 input, textarea {
     &::placeholder {
-        color: $stl-color-font-light;
+        color: $stl-color-input-text-light;
         opacity: 1; // Firefox reset
         // can't use opacity to fade content since it fades whole input on IE11
     }
@@ -276,7 +276,8 @@ input[type=number] {
     &.calltoaction {
         @include button-style(
             $background: $stl-color-calltoaction,
-            $background-hover: $stl-color-calltoaction-light
+            $background-hover: $stl-color-calltoaction-light,
+            $color: $stl-color-calltoaction-text
         );
     }
     &.grey {
@@ -765,8 +766,8 @@ a.profile__image {
 
 .plain-card {
     @include card-container(
-        $background: $stl-color-white, // Background color
-        $color: $stl-color-font,
+        $background: $stl-color-card-background, // Background color
+        $color: $stl-color-listing-card-background-text,
         $border: 1px solid $stl-color-border,
         $radius: 0,
         $shadow: none, // Box shad: ;ow
@@ -791,10 +792,6 @@ a.profile__image {
             $padding: 0.5rem 1rem,
             $color: $stl-color-secondary-text
         );
-    }
-
-    .plain-card__section {
-        background-color: $stl-color-white; // for absolute positionning
     }
 }
 

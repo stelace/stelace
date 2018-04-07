@@ -90,7 +90,11 @@ $listing-card-image-container-small-width: 9rem;
     // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
 
     padding: 0.25rem 0.5rem;
-    background-color: $stl-color-white;
+    background-color: $stl-color-listing-card-background;
+    color: $stl-color-listing-card-background-text;
+    h1, h2, h3 {
+        color: $stl-color-listing-card-background-text;
+    }
     p {
         font-size: 0.875rem;
         margin-bottom: 0;

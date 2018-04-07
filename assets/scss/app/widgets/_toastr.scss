@@ -142,15 +142,18 @@ button.toast-close-button {
 }
 .toast-success {
     background-color: $stl-color-success;//#51a351;
+    color: $stl-color-success-text;
 }
 .toast-error {
     background-color: $stl-color-red; //#bd362f;
 }
 .toast-info {
     background-color: $stl-color-primary; //#2f96b4;
+    color: $stl-color-primary-text;
 }
 .toast-warning {
-    background-color: $stl-color-orange; //#f89406;
+    background-color: $stl-color-secondary; //#f89406;
+    color: $stl-color-secondary-text;
 }
 .toast-progress {
     position: absolute;

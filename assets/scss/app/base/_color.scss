@@ -65,18 +65,27 @@ $stl-color-body-background: var(--stl-color-body-background, #{$stl-color-white}
 $stl-color-body-background-light: var(--stl-color-body-background-light, #{$stl-color-white});
 $stl-color-body-background-text: var(--stl-color-body-background-text, #{$stl-color-font});
 
-// Should default to body-background color
 $stl-color-header-background: var(--stl-color-header-background, #{$stl-color-white});
 $stl-color-header-background-light: var(--stl-color-header-background-light, #{$stl-color-white});
-$stl-color-header-background-text: var(--stl-color-header-background-text, #{$stl-color-font});
+$stl-color-header-background-text: var(--stl-color-header-background-text, #{$stl-color-grey-dark});
 
 $stl-color-footer-background: var(--stl-color-footer-background, #{$stl-color-secondary});
 $stl-color-footer-background-text: var(--stl-color-footer-background-light, #{$stl-color-secondary-light});
 $stl-color-footer-background-text: var(--stl-color-footer-background-text, #{$stl-color-secondary-text});
 
-
-$stl-color-disabled: var(--stl-color-disabled, #{$stl-color-grey-light});
-$stl-color-disabled-text: var(--stl-color-disabled-text, #{$stl-color-font});
-
 $stl-color-border: var(--stl-color-border, #{$stl-color-grey-light});
 $stl-color-border-dark: var(--stl-color-border-dark, #{$stl-color-grey});
+
+
+$stl-color-card-background: var(--stl-color-card-background, #{$stl-color-white});
+$stl-color-card-background-text: var(--stl-color-card-background-text, #{$stl-color-grey-dark});
+
+$stl-color-listing-card-background: var(--stl-color-listing-card-background, #{$stl-color-card-background});
+$stl-color-listing-card-background-text: var(--stl-color-listing-card-background-text, #{$stl-color-card-background-text});
+
+$stl-color-input-background: var(--stl-color-input-background, #{$stl-color-white});
+$stl-color-input-text: var(--stl-color-input-text, #{$stl-color-grey-dark});
+$stl-color-input-text-light: var(--stl-color-input-text-light, #{$stl-color-grey});
+
+$stl-color-disabled: var(--stl-color-disabled, #{$stl-color-grey-light});
+$stl-color-disabled-text: var(--stl-color-disabled-text, #{$stl-color-grey-dark});
