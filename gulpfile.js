@@ -373,7 +373,7 @@ gulp.task('build:app:prod', function () {
 /** Vue app **/
 
 const vueAppCacheStream = ({ destFolder }) => {
-    return gulp.src('assets/build/vue/**/*.js')
+    return gulp.src('assets/build/vue/**/*') // includes styles
         .pipe($$.plumber())
         .pipe(gulp.dest(destFolder));
 };
