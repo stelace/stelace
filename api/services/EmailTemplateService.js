@@ -685,42 +685,141 @@ function getTemplateWorkflow(templateName) {
             break;
 
         case 'subscription':
+            compileNonEditableContent = function (content) {
+                const newContent = {};
+
+                newContent.cta__button_url = AppUrlService.getAppUrl();
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'password_recovery':
+            compileNonEditableContent = function (content, { data }) {
+                const newContent = {};
+
+                const { token } = data;
+
+                newContent.cta__button_url = AppUrlService.getUrl('recoveryPassword', [token]);
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'new_message':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'prebooking_confirmed_owner':
+            getEmailBlocks = () => {
+                return {
+                    cta_button__block: false,
+                };
+            };
             break;
 
         case 'prebooking_pending_taker':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'booking_pending_owner':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'booking_pending_taker':
+            getEmailBlocks = () => {
+                return {
+                    cta_button__block: false,
+                };
+            };
             break;
 
         case 'booking_confirmed_owner':
+            getEmailBlocks = () => {
+                return {
+                    cta_button__block: false,
+                };
+            };
             break;
 
         case 'booking_confirmed_taker':
+            getEmailBlocks = () => {
+                return {
+                    cta_button__block: false,
+                };
+            };
             break;
 
         case 'booking_checkout_owner':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'booking_checkout_taker':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'listing_return_owner':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'listing_return_taker':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         case 'booking_to_accept_owner':
@@ -736,6 +835,15 @@ function getTemplateWorkflow(templateName) {
             break;
 
         case 'missing_rating':
+            compileNonEditableContent = function (content, { parameters }) {
+                const newContent = {};
+
+                const { conversation__url } = parameters;
+
+                newContent.cta__button_url = conversation__url;
+
+                return Object.assign({}, content, newContent);
+            };
             break;
 
         default:
@@ -1133,14 +1241,6 @@ function getParametersMetadata(templateName) {
                 'listing__name_short',
                 'listing__description',
                 'listing__description__short',
-                'booking__start_date',
-                'booking__end_date',
-                'booking__owner_price',
-                'booking__owner_net_income',
-                'booking__owner_fees',
-                'booking__taker_price',
-                'booking__taker_fees',
-                'booking__deposit',
                 'owner__name',
                 'taker__name',
             ],
@@ -1157,14 +1257,6 @@ function getParametersMetadata(templateName) {
                 'listing__name_short',
                 'listing__description',
                 'listing__description__short',
-                'booking__start_date',
-                'booking__end_date',
-                'booking__owner_price',
-                'booking__owner_net_income',
-                'booking__owner_fees',
-                'booking__taker_price',
-                'booking__taker_fees',
-                'booking__deposit',
                 'owner__name',
                 'taker__name',
             ],
@@ -1181,14 +1273,6 @@ function getParametersMetadata(templateName) {
                 'listing__name_short',
                 'listing__description',
                 'listing__description__short',
-                'booking__start_date',
-                'booking__end_date',
-                'booking__owner_price',
-                'booking__owner_net_income',
-                'booking__owner_fees',
-                'booking__taker_price',
-                'booking__taker_fees',
-                'booking__deposit',
                 'owner__name',
                 'taker__name',
                 'interlocutor__name',
@@ -1258,6 +1342,15 @@ function getExampleData(templateName) {
 
     switch (templateName) {
         case 'email_confirmation':
+            exampleData = Object.assign({}, commonExampleData, {
+                token: {
+                    id: 12,
+                    value: 'sdf4ze89f23',
+                },
+            });
+            break;
+
+        case 'password_recovery':
             exampleData = Object.assign({}, commonExampleData, {
                 token: {
                     id: 12,
