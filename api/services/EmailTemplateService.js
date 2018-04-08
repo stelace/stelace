@@ -287,7 +287,7 @@ async function getTemplateResult(templateName, { lang, user, isEditMode, data = 
         html = $.html();
     }
 
-    const isCompleteEmail = rawContent && rawContent.main_title;
+    const isCompleteEmail = rawContent && rawContent.header_title;
 
     return {
         html,
@@ -317,7 +317,7 @@ async function getTemplateContent(templateName, lang, { displayDefault = false }
         rawContent = await ContentEntriesService.getTranslations({ lang, namespace: 'email' });
     }
 
-    return Object.assign({}, rawContent.general, rawContent.template[templateName]);
+    return Object.assign({}, rawContent.labels, rawContent.general, rawContent.template[templateName]);
 }
 
 function configureFormatMessage(formatMessage, { lang, currency = 'EUR' }) {
@@ -401,9 +401,9 @@ function computeContentBlock(content, { emailTemplateBlocks, isEditMode }) {
     const newContent = {};
 
     const blockNames = [
-        'trailing_contact__block',
+        'preheader_content__block',
         'service_logo__block',
-        'main_title__block',
+        'header_title__block',
         'leading_content__block',
         'notification_image__block',
         'cta_button__block',
@@ -411,7 +411,6 @@ function computeContentBlock(content, { emailTemplateBlocks, isEditMode }) {
         'featured__block',
         'end_content__block',
         'footer_content__block',
-        'custom_goodbye__block',
         'branding__block',
     ];
 
@@ -420,17 +419,23 @@ function computeContentBlock(content, { emailTemplateBlocks, isEditMode }) {
         newContent[name] = !!emailTemplateBlocks[name];
     });
 
-    if (!newContent['cta_button_block']) {
+    if (!newContent['notification_image__block']) {
+        newContent['leading_content__block'] = false;
+    }
+    if (!newContent['cta_button__block'] || !newContent['featured__block']) {
         newContent['trailing_content__block'] = false;
+    }
+    if (!newContent['cta_button__block'] && !newContent['trailing_content__block']) {
+        newContent['end_content__block'] = false;
     }
 
     // if not preview, hide blocks that have no value
     if (!isEditMode) {
         let computedBlock = {};
 
-        computedBlock.trailing_contact__block = !!content.trailing_contact;
+        computedBlock.preheader_content__block = !!content.preheader_content;
         computedBlock.service_logo__block = !!content.service_logo__url;
-        computedBlock.main_title__block = !!content.main_title;
+        computedBlock.header_title__block = !!content.header_title;
         computedBlock.leading_content__block = !!content.leading_content;
         computedBlock.notification_image__block = !!content.notification_image__href;
         computedBlock.cta_button__block = !!content.cta_button__text;
@@ -438,7 +443,6 @@ function computeContentBlock(content, { emailTemplateBlocks, isEditMode }) {
         computedBlock.featured__block = !!content.featured__content;
         computedBlock.end_content__block = !!content.end_content;
         computedBlock.footer_content__block = !!content.footer_content;
-        computedBlock.custom_goodbye__block = !!content.custom_goodbye;
         computedBlock.branding__block = true;
 
         blockNames.forEach(name => {
@@ -462,12 +466,12 @@ function getHtml(emailTemplate, content) {
     const fields = [
         'subject',
         'preview_content',
-        'trailing_contact__block',
-        'trailing_contact',
+        'preheader_content__block',
+        'preheader_content',
         'service_logo__block',
         'service_logo__url',
-        'main_title__block',
-        'main_title',
+        'header_title__block',
+        'header_title',
         'leading_content__block',
         'leading_content',
         'notification_image__block',
@@ -490,11 +494,9 @@ function getHtml(emailTemplate, content) {
         'featured__content',
         'end_content__block',
         'end_content',
-        'custom_goodbye__block',
-        'custom_goodbye',
         'footer_content__block',
         'footer_content',
-        'copyright',
+        'legal_notice',
         'style__color_brand',
         'style__color_calltoaction',
         'branding__block',
@@ -507,9 +509,9 @@ function getHtml(emailTemplate, content) {
 
 function getEmailBlocks() {
     const commonBlocks = {
-        trailing_contact__block: true,
+        preheader_content__block: true,
         service_logo__block: true,
-        main_title__block: true,
+        header_title__block: true,
         leading_content__block: true,
         notification_image__block: false,
         cta_button__block: true,
@@ -517,7 +519,6 @@ function getEmailBlocks() {
         featured__block: false,
         end_content__block: true,
         footer_content__block: true,
-        custom_goodbye__block: false,
         branding__block: true,
     };
 

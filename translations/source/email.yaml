@@ -1,37 +1,69 @@
+labels:
+    preheader_content_label:
+        en: Pre-header content
+        fr: Contenu de début de page
+    header_title_label:
+        en: Title
+        fr: Titre
+    leading_content_label:
+        en: Leading content
+        fr: Premier contenu
+    content_label:
+        en: Main content
+        fr: Contenu principal
+    cta_button__text_label:
+        en: Call-to-action button text
+        fr: Texte du bouton d’action
+    trailing_content_label:
+        en: Content after the call-to-action button
+        fr: Contenu après le bouton d’action
+    featured__title_label:
+        en: Featured title
+        fr: Titre du contenu mis en avant
+    featured__content_label:
+        en: Featured content
+        fr: Contenu mis en avant
+    end_content_label:
+        en: End content
+        fr: Contenu de fin
+    footer_content_label:
+        en: Footer content
+        fr: Contenu de bas de page
+    legal_notice_label:
+        en: Legal notice
+        fr: Mentions légales
 general:
-    custom_goodbye:
-        en: ''
-        fr: ''
     footer_content:
+        en: 'You’re receiving this email because you created a {SERVICE_NAME} account.'
+        fr: 'Vous recevez cet email suite à votre inscription sur {SERVICE_NAME}.'
+    legal_notice:
         en: |
-            You’re receiving this email because you created a {SERVICE_NAME} account.
+            Copyright © {current_year} {SERVICE_NAME}, all rights reserved.
             {has_contact_address, select,
                 true {<br><br>Our mailing address is: {service_email, select,
                         undefined {}
-                        other {{service_email}}
+                        other {<br>{service_email}}
                     }{service_billing_address, select,
                         undefined {}
-                        other {<br><br>{service_billing_address}}
+                        other {<br>{service_billing_address}}
                     }
                 }
                 other {}
             }
-        fr: |
-            Vous recevez cet email suite à votre inscription sur {SERVICE_NAME}.
+        fr:
+            |
+            Copyright © {current_year} {SERVICE_NAME}, tous droits réservés.
             {has_contact_address, select,
-                true {<br><br>Vous pouvez nous contacter à l'adresse suivante : {service_email, select,
+                true {<br><br>Vous pouvez nous contacter à l’adresse suivante : {service_email, select,
                         undefined {}
-                        other {{service_email}}
+                        other {<br>{service_email}}
                     }{service_billing_address, select,
                         undefined {}
-                        other {<br><br>{service_billing_address}}
+                        other {<br>{service_billing_address}}
                     }
                 }
                 other {}
             }
-    copyright:
-        en: 'Copyright © {current_year} {SERVICE_NAME}, all rights reserved.'
-        fr: 'Copyright © {current_year} {SERVICE_NAME}, tous droits réservés.'
     branding:
         en: '{SERVICE_NAME} is powered by Stelace.com the marketplace launcher.'
         fr: '{SERVICE_NAME} est propulsé par la plateforme de places de marché Stelace.com'
@@ -49,24 +81,30 @@ template:
         preview_content:
             en: 'Help us secure your {SERVICE_NAME} account by verifying your email address with 1 click!'
             fr: 'Aidez-nous à sécuriser votre compte {SERVICE_NAME} en un simple click.'
-        trailing_contact:
+        preheader_content:
             en: Add our email to your address book and make sure to stay informed.
             fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
-        main_title:
+        header_title:
             en: Please confirm your email address.
             fr: Merci de confirmer votre adresse email.
         leading_content:
-            en: 'Help us secure your {SERVICE_NAME} account by verifying your email address.'
-            fr: 'Aidez-nous à sécuriser votre compte {SERVICE_NAME} en validant l’adresse email fournie.'
+            en: ''
+            fr: ''
         content:
-            en: We’d love to make sure we’ve got the right email for you. Please click the button below.
-            fr: Nous aimerions nous assurer qu’il s’agit bien de la bonne adresse.
+            en: |
+                Help us secure your {SERVICE_NAME} account by verifying your email address.<br>
+                We’d love to make sure we’ve got the right email for you. Please click the button below.<br><br>
+                Please confirm your email on {SERVICE_NAME} by clicking on the above button.
+            fr: |
+                Aidez-nous à sécuriser votre compte {SERVICE_NAME} en validant l’adresse email fournie.<br>
+                Nous aimerions nous assurer qu’il s’agit bien de la bonne adresse.<br><br>
+                Nous vous invitons à confirmer votre email sur {SERVICE_NAME} à l’aide du bouton ci-dessus.
         cta_button__text:
             en: Confirm my email address
             fr: Confirmer mon adresse email
         trailing_content:
-            en: 'Please confirm your email on {SERVICE_NAME} by clicking on the above button.'
-            fr: 'Nous vous invitons à confirmer votre email sur {SERVICE_NAME} à l’aide du bouton ci-dessus.'
+            en: ''
+            fr: ''
         featured__title:
             en: ''
             fr: ''
@@ -89,31 +127,33 @@ template:
         preview_content:
             en: 'Welcome to {SERVICE_NAME} {user__firstname}!'
             fr: "Bienvenue sur {SERVICE_NAME} {user__firstname} !"
-        trailing_contact:
+        preheader_content:
             en: Add our email to your address book and make sure to stay informed.
             fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
-        main_title:
+        header_title:
             en: |-
-                Thank you {
-                user__firstname, select,
-                undefined {}
-                other {{user__firstname}}
-                }
-            fr: |-
-                Merci {
-                user__firstname, select,
-                undefined {}
-                other {{user__firstname}}
+                Thank you{user__firstname, select,
+                    undefined {}
+                    other { {user__firstname}}
                 }!
+            fr: |-
+                Merci{user__firstname, select,
+                    undefined {}
+                    other { {user__firstname}}
+                } !
         leading_content:
-            en: 'We are very happy to welcome you to the {SERVICE_NAME} family!'
-            fr: 'Toute l’équipe {SERVICE_NAME} est heureuse de vous compter parmi ses membres :)'
-        content:
-            en: If you have any question do not hesitate to reach out.
-            fr: 'Si vous avez la moindre question, n’hésitez pas à nous contacter.'
-        cta_button__text:
             en: ''
             fr: ''
+        content:
+            en: |
+                We are very happy to welcome you to the {SERVICE_NAME} family!<br><br>
+                If you have any question do not hesitate to reach out.
+            fr: |
+                Si vous avez la moindre question, n’hésitez pas à nous contacter.<br><br>
+                Toute l’équipe {SERVICE_NAME} est heureuse de vous compter parmi ses membres :)
+        cta_button__text:
+            en: Let’ get started!
+            fr: "C'est parti !"
         trailing_content:
             en: ''
             fr: ''
@@ -139,10 +179,10 @@ template:
         preview_content:
             en: Forgot your password? Let’s get you a new one.
             fr: Mot de passe oublié ? Créez-en un nouveau.
-        trailing_contact:
+        preheader_content:
             en: Add our email to your address book and make sure to stay informed.
             fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
-        main_title:
+        header_title:
             en: |-
                 Hi {
                 user__firstname, select,
@@ -156,13 +196,11 @@ template:
                 other {{user__firstname}}
                 },
         leading_content:
-            en: 'We heard you need a password reset. Please, click the link below to change your password.'
-            fr: |-
-                Vous avez demandé à changer votre mot de passe.
-                Merci de cliquer sur le bouton ci-dessous pour en choisir un nouveau.
-        content:
             en: ''
             fr: ''
+        content:
+            en: 'We heard you need a password reset. Please, click the link below to change your password.'
+            fr: 'Vous avez demandé à changer votre mot de passe. Merci de cliquer sur le bouton ci-dessous pour en choisir un nouveau.'
         cta_button__text:
             en: Reset my password
             fr: Réinitialiser mon mot de passe
@@ -191,32 +229,30 @@ template:
         preview_content:
             en: ''
             fr: Vous venez de recevoir un message. Répondez-y vite.
-        trailing_contact:
+        preheader_content:
             en: Add our email to your address book and make sure to stay informed.
             fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
-        main_title:
+        header_title:
             en: You've got a new message.
             fr: Vous avez reçu un message.
         leading_content:
-            en: |-
-                Hi {
-                user__firstname, select,
-                undefined {}
-                other {{user__firstname}}
-                }!
-
-                You've got a new message in your inbox concerning this listing: "{listing__name}".
-            fr: |-
-                Bonjour {
-                user__firstname, select,
-                undefined {}
-                other {{user__firstname}}
-                }!
-
-                Vous avez un nouveau message dans votre messagerie concernant l’annonce suivante : "{listing__name}".
+            en: ''
+            fr: ''
         content:
-            en: Click the button below to check your inbox.
-            fr: Cliquez sur le bouton ci-dessous pour accéder directement à votre messagerie.
+            en: |
+                Hi{user__firstname, select,
+                    undefined {}
+                    other { {user__firstname}}
+                }!<br><br>
+                You've got a new message in your inbox concerning this listing: "{listing__name}".<br><br>
+                Click the button below to check your inbox.
+            fr: |
+                Bonjour{user__firstname, select,
+                    undefined {}
+                    other { {user__firstname}}
+                } !<br><br>
+                Vous avez un nouveau message dans votre messagerie concernant l’annonce suivante : "{listing__name}".<br><br>
+                Cliquez sur le bouton ci-dessous pour accéder directement à votre messagerie.
         cta_button__text:
             en: Check my inbox
             fr: Consulter ma messagerie
@@ -245,10 +281,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -290,20 +326,21 @@ template:
             fr: |-
                 Votre pré-réservation a été acceptée {owner__name
                 , select, undefined {} other {par {owner__name}}}
-        trailing_contact:
+        preheader_content:
             en: Add our email to your address book and make sure to stay informed.
             fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
-        main_title:
+        header_title:
             en: Hooray! Your prebooking has been accepted.
             fr: Bravo ! Votre pré-réservation a été acceptée.
         leading_content:
-            en: |
-                Your request has been accepted {owner__name, select, undefined {} other {by {owner__name}}}.
-            fr: |
-                Votre demande a bien été acceptée {owner__name, select, undefined {} other {par {owner__name}}}.
+            en: ''
+            fr: ''
         content:
-            en: Please confirm by clicking on the button below to proceed with the payment.
+            en: |
+                Your request has been accepted {owner__name, select, undefined {} other {by {owner__name}}}.<br><br>
+                Please confirm by clicking on the button below to proceed with the payment.
             fr: |
+                Votre demande a bien été acceptée {owner__name, select, undefined {} other {par {owner__name}}}.<br><br>
                 Merci de la confirmer en cliquant sur le bouton ci-dessous pour procéder au paiement.
         cta_button__text:
             en: Confirm my booking
@@ -333,10 +370,10 @@ template:
         preview_content:
             en: Make sure to accept it in the following 36 hours.
             fr: Assurez-vous d’accepter la réservation dans les 36 heures.
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: 'Hi, your {listing__name} has been booked!'
             fr: "Bonjour, votre {listing__name} a été réservé(e)\_!"
         leading_content:
@@ -393,10 +430,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -433,10 +470,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -473,10 +510,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -513,10 +550,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -553,10 +590,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -593,10 +630,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -633,10 +670,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -673,10 +710,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -713,10 +750,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -753,10 +790,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -793,10 +830,10 @@ template:
         preview_content:
             en: ''
             fr: ''
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: ''
             fr: ''
         leading_content:
@@ -833,10 +870,10 @@ template:
         preview_content:
             en: Review your last transaction.
             fr: Evaluez votre dernière transaction.
-        trailing_contact:
+        preheader_content:
             en: ''
             fr: ''
-        main_title:
+        header_title:
             en: Give your feedback!
             fr: "Laissez un commentaire !"
         leading_content:
@@ -859,4 +896,4 @@ template:
             fr: ''
         end_content:
             en: 'Reviews, feedbacks and ratings are precious. Gain trust from people, collecting reviews for each transaction.'
-            fr: Les commentaires et évaluations sont précieux ! Ils pemrettent d'augmenter la confiance qu'ont les autres utilisateurs en vous alors ne vous en privez pas.
+            fr: Les commentaires et évaluations sont précieux ! Ils permettent d’augmenter la confiance qu’ont les autres utilisateurs en vous alors ne vous en privez pas.
