@@ -51,7 +51,9 @@
     }
     .booking-summary {
         z-index: 10;
-        background-color: #FFF;
+        background-color: $stl-color-card-background;
+        color: $stl-color-card-background-text;
+        border: 1px solid $stl-color-border;
         @media #{$mq-from-desktop} {
             position: absolute;
             width: $booking-summary-width;
@@ -94,10 +96,10 @@
         h1 {
             font-size: 1.125rem;
             font-weight: 600;
-            color: #FFF;
+            color: $stl-color-secondary-text;
             margin: 0;
         }
-        background-color: $platform-color-darkblue;
+        background-color: $stl-color-secondary;
         padding: 0.25rem 0.5rem;
     }
     .booking-summary__picture {
@@ -130,13 +132,13 @@
         height: 2rem;
         border-radius: 0.5 * $global-radius;
         margin: 3px 0 1rem 0.25rem;
-        border: 1px solid #ccc;
+        border: 1px solid $stl-color-border;
         transition: all 0.3s;
         &.inactive {
             opacity: 0.25
         }
         &.active {
-            border: 1px solid #999;
+            border: 1px solid $stl-color-border-dark;
         }
     }
 
@@ -149,8 +151,8 @@
     .booking__confirm {
         button {
             @include button-style(
-                $background: scale-color($platform-color-blue, $lightness: 20%),
-                $background-hover: scale-color($platform-color-blue, $lightness: 30%)
+                $background: $stl-color-calltoaction,
+                $background-hover: $stl-color-calltoaction-light
             );
             margin-top: 1rem;
         }
@@ -200,10 +202,10 @@
                 width: 5rem;
             }
             .icon.success {
-                fill: $platform-color-green;
+                fill: $stl-color-success;
             }
             .icon.failure {
-                fill: $platform-color-red;
+                fill: $stl-color-red;
             }
         }
     }
@@ -220,18 +222,14 @@
     }
 
     .StripeElement {
-        background-color: #FFF;
+        background-color: $input-background;
         padding: 0.6rem;
         border-radius: 2px;
-        border: 1px solid #CCC;
+        border: 1px solid $stl-color-border;
     }
 
-    .StripeElement:hover {
-        border: 1px solid #BBB;
-    }
-
-    .StripeElement--focus {
-        border: 1px solid #999;
+    .StripeElement:hover, .StripeElement--focus {
+        border: 1px solid $stl-color-border-dark;
     }
 
     .StripeElement--invalid,

@@ -160,10 +160,12 @@ async function index(req, res) {
         facebookPixelId: config.facebook_pixel__id,
         googleTracking: config.google_analytics__active,
         googleAnalyticsId: config.google_analytics__tracking_id,
+        twitterUsername: config.twitter_username,
         googleMapApiKey,
         logoUrl: config.logo__url,
         headerImgUrl: config.hero_background__home__url || "https://stelace.com/img/brand/stelace-social-header.png",
         serviceName: config.SERVICE_NAME,
+        websiteTitle: translations.pages.homepage.page_title,
         websiteUrl: config.website__url,
         sessionId: stelaceSession ? stelaceSession.id : 0,
         sessionToken: stelaceSession ? stelaceSession.token : '',
@@ -174,7 +176,16 @@ async function index(req, res) {
         featureDetection: !UAService.isBot(userAgent),
         dataFromServer: JSON.stringify(dataFromServer || {}),
         stripeActive,
+        styles: {},
     };
+
+    if (typeof config.styles === 'object') {
+        for (const style in config.styles) {
+            if (typeof style === 'string' && style.indexOf('--stl-color-' >= 0)) {
+                viewParams.styles[style] = config.styles[style];
+            }
+        }
+    }
 
     if (sails.config.environment === 'production') {
         viewParams.env = 'prod';

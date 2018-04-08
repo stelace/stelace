@@ -13,7 +13,7 @@
             Obtenez des récompenses pour chaque ami parrainé sur Sharinplace grâce à votre lien de parrainage.
         </p>
         <div ng-if="! vm.currentUser">
-            <button class="button brightblue"
+            <button class="button calltoaction"
                 ng-click="vm.login()">
                 Connectez-vous pour inviter vos amis
             </button>
@@ -50,7 +50,7 @@
                     data-sip-autoselect="{{::vm.inviteUrl}}">
             </div>
             <div id="invite-friends-bar" class="invite-friends__bar flex-container flex--center margin-bottom desktop-10 desktop-offset-1">
-                <button class="button red"
+                <button class="button secondary"
                     ng-click="vm.toggleEmailInvite()">
                     <svg class="icon icon--inline">
                         <use xlink:href="/assets/build/icons/sprite.svg#email-envelope"/>
@@ -107,7 +107,7 @@
                     uib-collapse="! vm.emailAddressError">
                     Oups, la dernière adresse indiquée est invalide.
                 </div>
-                <button class="button button--highlight red center margin-top-plus"
+                <button class="button button--highlight secondary center margin-top-plus"
                     ng-disabled="! vm.emailInviteList.length && ! vm.activateSendEmailsButton"
                     ng-click="vm.sendEmailsInvite()">
                     Envoyer

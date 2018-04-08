@@ -302,6 +302,9 @@ listing:
     edit_my_listing_action:
         en: Edit my listing
         fr: Modifier mon annonce
+    delete_listing_warning:
+        en: "Please confirm you want to delete this listing."
+        fr: "Confirmez-vous la suppression de cette annonce?"
     not_available_now:
         en: Not available for now
         fr: Indisponible pour le moment
@@ -1038,6 +1041,9 @@ prompt:
     cancel_button:
         en: Cancel
         fr: Annuler
+    delete_button:
+        en: Delete
+        fr: Supprimer
     send_button:
         en: Send
         fr: Envoyer
@@ -1045,6 +1051,12 @@ prompt:
         en: Later
         fr: Plus tard
         context: User can postpone an action with this button.
+    binary_yes:
+        en: "Yes"
+        fr: "Oui"
+    binary_no:
+        en: "No"
+        fr: "Non"
     select_all_button:
         en: Select all
         fr: Tout sélectionner

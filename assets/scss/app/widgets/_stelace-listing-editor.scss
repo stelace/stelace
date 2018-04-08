@@ -115,10 +115,10 @@
             margin-left: 1rem;
             &:hover, &:focus, &:active {
                 .icon {
-                    fill: $platform-color-blue;
+                    fill: $stl-color-primary;
                 }
                 & + .text-control__label {
-                    color: $platform-color-blue;
+                    color: $stl-color-primary;
                 }
             }
 
@@ -190,7 +190,7 @@
             line-height: 1rem;
             font-size: 0.75rem;
             font-weight: 600;
-            background-color: rgba($platform-color-darkblue, 0.8);
+            background-color: $stl-color-secondary-light;
         }
     }
 

@@ -34,7 +34,7 @@
 
     .inbox__conversations {
         > a, > div {
-            color: inherit;
+            color: $stl-color-listing-card-background-text;
             padding: 1rem;
             border-bottom: 1px solid #EEE;
         }
@@ -137,8 +137,9 @@
         .conversation__answer {
             padding-left: 1rem;
             padding-right: 1rem;
-            background-color: #FFF;
-            border: solid 1px #EEE;
+            background-color: $stl-color-card-background;
+            color: $stl-color-card-background-text;
+            border: solid 1px $stl-color-border;
 
             .textarea-auto-adjust {
                 margin: 1rem 0;
@@ -160,13 +161,14 @@
                 white-space: pre-wrap;
                 word-wrap: break-word;
                 padding: 1rem 1rem 1.5rem;
-                background-color: #FFF;
-                border: 1px solid #EEE;
+                background-color: $stl-color-card-background;
+                color: $stl-color-card-background-text;
+                border: 1px solid $stl-color-border;
                 border-radius: 0.5 * $global-radius;
                 &::after {
                     @include css-triangle(
                         $triangle-size: $message-triangle-size,
-                        $triangle-color: #FFF,
+                        $triangle-color: $stl-color-border,
                         $triangle-direction: right
                     );
                     position: absolute;
@@ -198,7 +200,7 @@
                 &::after {
                     @include css-triangle(
                         $triangle-size: $message-triangle-size,
-                        $triangle-color: #FFF,
+                        $triangle-color: $stl-color-border,
                         $triangle-direction: left
                     );
                     position: absolute;
@@ -234,8 +236,8 @@
 
             .plain-card__divider {
                 .tooltip-badge {
-                    color: rgba($platform-color-darkblue, 0.9);
-                    background-color: #FFF;
+                    color: $stl-color-secondary-light;
+                    background-color: $stl-color-secondary-text;
                 }
             }
         }
@@ -316,7 +318,6 @@
             top: 50%;
             right: 1rem;
             transform: translateY(-50%);
-            color: #FFF;
             font-size: 1.25rem;
         }
 

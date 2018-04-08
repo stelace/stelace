@@ -44,6 +44,7 @@ var jsConfig = {
         "assets/bower_components/photoswipe/dist/photoswipe-ui-default.js",
         "assets/bower_components/spin.js/spin.js",
         "assets/bower_components/viewport-units-buggyfill/viewport-units-buggyfill.js",
+        "node_modules/css-vars-ponyfill/dist/css-vars-ponyfill.js",
         "assets/vendors/redux-3.7.2.min.js",
         "assets/bower_components/sprintf/dist/sprintf.min.js",
         "assets/bower_components/cron-converter/dist/cron.min.js",

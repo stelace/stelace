@@ -50,16 +50,16 @@
             .monitoring-title-cell,
             .monitoring-cell {
                 padding: 0.75rem 0;
-                border: 1px solid #CCC;
+                border: 1px solid $stl-color-grey-light;
             }
         }
 
         .monitoring-title-line {
-            border-bottom: 1px solid #CCC;
+            border-bottom: 1px solid $stl-color-grey-light;
         }
 
         .monitoring-line:nth-child(odd) {
-            background-color: #DDD;
+            background-color: $stl-color-grey-lighter;
         }
     }
 

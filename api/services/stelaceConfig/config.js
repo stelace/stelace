@@ -87,7 +87,10 @@ const schema = {
         social_login__google_complete: {
             type: ['boolean', 'null'],
         },
-        twitter_url: {
+        twitter_username: {
+            type: ['string', 'null'],
+        },
+        instagram_username: {
             type: ['string', 'null'],
         },
         facebook_url: {
@@ -116,6 +119,9 @@ const schema = {
         },
         is_service_live: {
             type: ['boolean', 'null'],
+        },
+        styles: {
+            type: 'object',
         },
     },
 };

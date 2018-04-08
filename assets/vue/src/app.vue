@@ -28,8 +28,9 @@ export default {
 // stylelint-disable selector-max-type, selector-class-pattern
 
 // Normalize default styles across browsers,
+// Already imported in from Foundation for Apps (legacy angular app)
 // https://necolas.github.io/normalize.css/
-@import '~normalize.css/normalize.css';
+// @import '~normalize.css/normalize.css';
 // Style loading bar between pages.
 // https://github.com/rstacruz/nprogress
 @import '~nprogress/nprogress.css';
@@ -44,11 +45,10 @@ export default {
 }
 
 body {
-  padding-top: 3rem;
   background: $color-body-bg;
 }
 
-#app {
+#stl-app {
   @extend %typography-small;
 }
 
@@ -56,10 +56,10 @@ body {
 // Base element styles
 // ===
 
-a,
-a:visited {
-  color: $anchor-font-color;
-}
+// a,
+// a:visited {
+//   color: $anchor-font-color;
+// }
 
 h1 {
   @extend %typography-xxlarge;

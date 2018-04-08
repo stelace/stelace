@@ -14,7 +14,7 @@
         margin: 0 1px 0;
     }
     .background svg {
-        fill: #DDD;
+        fill: $platform-color-grey-light;
     }
     .fill {
         position: absolute;
@@ -52,7 +52,7 @@
 
     .user-ratings-average {
         svg.icon {
-            fill: rgb(140, 145, 150);
+            fill: $stl-color-font-light;
             vertical-align: text-top;
         }
     }

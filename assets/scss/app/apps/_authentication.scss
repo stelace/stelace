@@ -45,7 +45,7 @@
             height: 80px;
         }
         .logo {
-            color: $platform-color-blue;
+            color: $stl-color-primary;
             max-width: 100%;
             max-height: 100%;
             width: auto;
@@ -68,16 +68,18 @@
             line-height: 1.4;
             height: 2.5rem;
             padding: 0.5rem;
-            border: 1px solid rgba(0, 87, 142, 0.4);
             @media #{$mq-mobile} {
                 padding: 0.2rem 0.5rem;
             }
             margin-bottom: 0.5rem;
             background-color: rgba(255,255,255,0.5);
-            &:hover,
+            &:hover{
+                background-color: rgba(255,255,255,0.7);
+                border: 1px solid $stl-color-calltoaction-light;
+            }
             &:focus {
                 background-color: rgba(255,255,255,0.7);
-                border: 1px solid rgba(0, 87, 142, 0.6);
+                border: 1px solid $stl-color-calltoaction;
             }
         }
     }
@@ -91,7 +93,7 @@
     }
 
     .sign__text {
-        color: #333;
+        color: $stl-color-grey-dark;
         font-size: 0.875rem;
         text-align: center;
         font-weight: 600;
@@ -101,12 +103,15 @@
         &.sign__lost {
             font-weight: normal;
             a {
-                color: #333;
+                color: $stl-color-grey-dark;
                 font-style: italic;
                 &:hover, &:focus, &:active {
                     text-decoration: underline;
                 }
             }
         }
+    }
+    label.sign__text, .sign__text label {
+        color: $stl-color-grey-dark;
     }
 }

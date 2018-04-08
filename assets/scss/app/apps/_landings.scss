@@ -16,6 +16,7 @@
     }
 }
 .home-hero__wrapper {
+    min-height: 40vh;
     position: relative;
 }
 .home-hero__content {
@@ -26,7 +27,7 @@
         margin-top: 0;
         font-size: 1.5rem;
         font-weight: 600;
-        color: #FFF;
+        color: $stl-color-white;
         text-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
         @media #{$mq-from-desktop} {
             font-size: 1.75rem;
@@ -36,7 +37,7 @@
         margin-top: 0;
         font-size: 2rem;
         font-weight: 600;
-        color: #FFF;
+        color: $stl-color-white;
         text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
         @media #{$mq-from-tablet} {
             font-size: 2.5rem;
@@ -53,7 +54,7 @@
     bottom: 0;
     height: $home-search-bar-height;
     width: 100%;
-    background: #FFF;
+    background: $stl-color-white;
     form {
         margin: 0 auto;
         .inline-label {
@@ -72,10 +73,10 @@
             border: none;
         }
         input {
-            border-bottom: 1px solid rgba($platform-color-brightblue, 0.5);
+            border-bottom: 1px solid $stl-color-calltoaction-light;
             transition: all 0.3s ease;
             &:hover, &input:focus {
-                border-bottom: 2px solid rgba($platform-color-brightblue, 0.8);
+                border-bottom: 2px solid $stl-color-calltoaction;
             }
         }
     }
@@ -83,7 +84,7 @@
 .home__listing-board {
     margin: 0 auto;
     padding: 2rem 0;
-    background-color: rgb(240, 240, 245);
+    background-color: $stl-color-body-background;
 }
 
 .app404 {
@@ -215,7 +216,7 @@
             }
         }
         .profile__image--responsive {
-            border: 2px solid #FFF;
+            border: 2px solid $stl-color-border;
         }
         h1 {
             @media #{$mq-from-tablet} {

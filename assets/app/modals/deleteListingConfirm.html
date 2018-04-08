@@ -1,12 +1,12 @@
 <div class="grid-block vertical">
-    <div class="card-divider text-center">
-        Confirmez-vous la suppression de cet objet&nbsp;?
+    <div class="card-divider text-center"
+        data-translate="listing.delete_listing_warning">
     </div>
     <div class="card-section grid-content">
         <div class="text-center">
             {{vm.listing.name}}<br>
-            <a ng-click="vm.deleteListing(vm.listing)" class="alert button app-button">Oui</a>
-            <a zf-close class="button app-button">Annuler</a>
+            <a ng-click="vm.deleteListing(vm.listing)" class="alert button" data-translate="prompt.delete_button"></a>
+            <a zf-close class="grey button" data-translate="prompt.cancel_button"></a>
         </div>
     </div>
 </div>

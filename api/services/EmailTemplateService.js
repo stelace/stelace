@@ -376,12 +376,21 @@ function compileContent(rawContent, parameters, { lang, currency }) {
 
 function beforeCompileNonEditableContent(content, { config, /*data, user, lang*/ }) {
     const newContent = {};
+    const configStyles = Object.assign({ styles: {}, defaultStyles: {}},
+        _.pick(config, ['styles', 'defaultStyles'])
+    );
 
     if (config.logo__url) {
         newContent.service_logo__url = sails.config.stelace.url + config.logo__url;
     } else {
         newContent.service_logo__url = sails.config.stelace.url + '/assets/img/logo/stelace-logo.png';
     }
+
+    newContent.style__color_brand = configStyles.styles['--stl-color-primary']
+        || configStyles.defaultStyles['--stl-color-primary'];
+
+    newContent.style__color_calltoaction = configStyles.styles['--stl-color-calltoaction']
+        || configStyles.defaultStyles['--stl-color-calltoaction'];
 
     return Object.assign({}, content, newContent);
 }
@@ -482,6 +491,8 @@ function getHtml(emailTemplate, content) {
         'footer_content__block',
         'footer_content',
         'copyright',
+        'style__color_brand',
+        'style__color_calltoaction',
     ];
 
     return emailCompiledTemplate(_.pick(content, fields));

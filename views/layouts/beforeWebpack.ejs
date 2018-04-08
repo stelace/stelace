@@ -14,7 +14,7 @@
     <% } %>
     <meta property="og:locale" content="<%= lang %>">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Smart marketplace launcher">
+    <meta property="og:title" content="<%= websiteTitle %>">
     <meta property="og:url" content="<%= websiteUrl %>">
     <meta property="og:site_name" content="<%= serviceName %>">
     <meta property="og:image" content="<%= headerImgUrl %>">
@@ -22,11 +22,13 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:description" content="">
+    <% if (twitterUsername) { %>
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@stelaceAI">
-    <meta name="twitter:title" content="Smart marketplace launcher">
+    <meta name="twitter:site" content="@<%= twitterUsername %>">
+    <meta name="twitter:title" content="<%= websiteTitle %>">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="<%= headerImgUrl %>">
+    <% } %>
 
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
@@ -58,6 +60,15 @@
     <!-- app:css -->
     <link rel="stylesheet" href="/assets/build/css/app.css">
     <!-- endinject -->
+
+    <!-- CSS Custom properties -->
+    <style type="text/css">
+      :root {
+        <% for (let style in styles) { %>
+          <%= `${style}: ${styles[style]};` %>
+        <% } %>
+      }
+    </style>
 
     <!-- Webpack resource hints preload/prefetch -->
 
@@ -184,6 +195,9 @@
     <!-- endinject -->
 
     <script>
+      // CSS Custom Properties ponyfill
+      cssVars && cssVars();
+
       var loadingContentEl = document.getElementById("loading-content");
       if (loadingContentEl && loadingContentEl.remove) {
         loadingContentEl.remove();

@@ -315,7 +315,7 @@
                                     </div>
                                     <!-- Not using ng-switch-default or ng-if to prevent both buttons from displaying at the same time -->
                                     <div class="center padding-bottom">
-                                        <button id="listing-book-button" class="button brightblue margin-bottom"
+                                        <button id="listing-book-button" class="button calltoaction margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
                                             ng-click="vm.bookListing()"
@@ -324,7 +324,7 @@
                                             data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: 'TIME_FLEXIBLE' }">
                                         </button>
-                                        <button id="listing-purchase-defined-button" class="button red margin-bottom"
+                                        <button id="listing-purchase-defined-button" class="button calltoaction margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
                                             ng-click="vm.bookListing()"
@@ -333,7 +333,7 @@
                                             data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: 'TIME_PREDEFINED' }">
                                         </button>
-                                        <button id="listing-purchase-button" class="button red margin-bottom"
+                                        <button id="listing-purchase-button" class="button calltoaction margin-bottom"
                                             ng-class="{ disabled: vm.disableBookingButton }"
                                             ng-disabled="vm.disableBookingButton"
                                             ng-click="vm.bookListing()"
@@ -349,7 +349,7 @@
                                         data-translate-values="{ owner: vm.listing.owner.firstname || vm.listing.owner.fullname || undefined }">
                                     </div>
                                     <button id="listing-book-sticky-button"
-                                        class="button brightblue button--highlight sticky-button"
+                                        class="button calltoaction button--highlight sticky-button"
                                         ng-hide="vm.disableBookingButton"
                                         ng-click="vm.stickyButtonBookListing()"
                                         ng-switch-when="false"
@@ -357,7 +357,7 @@
                                         <span data-translate="listing.checkout_action"
                                             data-translate-values="{ timeDimension: vm.listingTypeProperties.isTimeFlexible ? 'TIME_FLEXIBLE' : 'NONE' }"></span>
                                     </button>
-                                    <a class="button purple"
+                                    <a class="button secondary"
                                         ui-sref="editListing({ id: vm.listing.id })"
                                         ng-switch-when="true"
                                         data-translate="listing.edit_my_listing_action">

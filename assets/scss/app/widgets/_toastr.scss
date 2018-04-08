@@ -13,9 +13,9 @@ $toastr-top-offset: 3.5rem; // header is 3rem tall;
     // font-size: 0.925rem;
 }
 .toast-message a:hover {
-    color: $platform-color-blue; // #CCC
+    color: $stl-color-primary; // #CCC
     // text-decoration: none;
-    .toast-info & { // also platform-color-blue...
+    .toast-info & { // also stl-color-primary...
         color: rgba(255, 255, 255, 0.75)
     }
 }
@@ -141,16 +141,19 @@ button.toast-close-button {
     background-color: #030303;
 }
 .toast-success {
-    background-color: $success-color;//#51a351;
+    background-color: $stl-color-success;//#51a351;
+    color: $stl-color-success-text;
 }
 .toast-error {
-    background-color: $platform-color-red; //#bd362f;
+    background-color: $stl-color-red; //#bd362f;
 }
 .toast-info {
-    background-color: $platform-color-blue; //#2f96b4;
+    background-color: $stl-color-primary; //#2f96b4;
+    color: $stl-color-primary-text;
 }
 .toast-warning {
-    background-color: $platform-color-orange; //#f89406;
+    background-color: $stl-color-secondary; //#f89406;
+    color: $stl-color-secondary-text;
 }
 .toast-progress {
     position: absolute;

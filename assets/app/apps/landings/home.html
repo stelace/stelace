@@ -11,10 +11,10 @@
                 data-translate="pages.homepage.subheader"
                 data-translate-values="{ SERVICE_NAME: config.SERVICE_NAME }"
                 ></h2>
-            <a id="home-hero-cta-button"
-                class="order-3 button button--big brightblue"
+            <!-- <a id="home-hero-cta-button"
+                class="order-3 button button--big calltoaction"
                 ui-sref="listingCreate"
-                data-translate="pages.homepage.main_cta"></a>
+                data-translate="pages.homepage.main_cta"></a> -->
         </div>
         <div class="home__search-bar">
             <form novalidate id="home-search-form">
@@ -33,7 +33,7 @@
                             autocomplete="off">
                     </div>
                     <button ng-click="vm.search()"
-                        class="button button--highlight blue">
+                        class="button button--highlight">
                         <span data-translate="navigation.search"></span>
                         <svg class="icon icon--inline margin-left margin-right">
                             <use xlink:href="/assets/build/icons/sprite.svg#magnifying"/>
@@ -78,7 +78,7 @@
             <h3 class="text-center text--semibold margin-bottom">
                 <span data-translate="pages.homepage.content_cta_header"></span>
             </h3>
-            <a id="samples-add-listing-button" class="add-listing-button button button--highlight"
+            <a id="samples-add-listing-button" class="add-listing-button calltoaction button button--highlight"
                 ui-sref="listingCreate">
                 <svg class="icon--inline icon">
                     <use xlink:href="/assets/build/icons/sprite.svg#plus-squared"/>

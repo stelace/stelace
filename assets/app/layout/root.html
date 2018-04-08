@@ -62,7 +62,7 @@
                         ng-click="offcanvas.closeMenu()"
                         ng-attr-sip-autofocus="offcanvas.isMenuOpen">
                         <!-- Autofocus first link on opening -->
-                        <svg class="icon {{::offcanvas.memberLinks[0].color}}">
+                        <svg class="icon">
                             <use xlink:href="{{::offcanvas.memberLinks[0].iconUrl}}"></use>
                         </svg>
                         <span data-translate="{{::offcanvas.memberLinks[0].labelKey}}"></span>
@@ -75,7 +75,7 @@
                         ui-sref="{{::memberLink.sref}}"
                         tabindex="{{offcanvas.menuTabindex}}"
                         ng-click="offcanvas.closeMenu()">
-                        <svg class="icon {{::memberLink.color}}">
+                        <svg class="icon">
                             <use xlink:href="{{::memberLink.iconUrl}}"></use>
                         </svg>
                         <span data-translate="{{memberLink.labelKey}}"></span>
@@ -290,10 +290,10 @@
                     </a>
                 </li>
                 <li class="header__link">
-                    <a ui-sref="listingCreate()" class="new-listing-button-1 header-event"
+                    <a ui-sref="listingCreate()" class="new-listing-button-1 button calltoaction header-event"
                         data-translate="prompt.post_listing_short_button_1">
                     </a>
-                    <!-- <a ui-sref="listingCreate()" class="new-listing-button-2 header-event"
+                    <!-- <a ui-sref="listingCreate()" class="new-listing-button-2 button secondary header-event"
                         data-translate="prompt.post_listing_short_button_2">
                     </a> -->
                 </li>
@@ -302,10 +302,10 @@
                 ng-show="! header.isAuthenticated">
                 <!-- Using ng-show to ensure links existence for ux event listener -->
                 <li>
-                    <a ui-sref="listingCreate()" class="new-listing-button-1 header-event"
+                    <a ui-sref="listingCreate()" class="new-listing-button-1 button calltoaction header-event"
                         data-translate="prompt.post_listing_short_button_1">
                     </a>
-                    <!-- <a ui-sref="listingCreate()" class="new-listing-button-2 header-event"
+                    <!-- <a ui-sref="listingCreate()" class="new-listing-button-2 button secondary header-event"
                         data-translate="prompt.post_listing_short_button_2">
                     </a> -->
                 </li>
@@ -333,6 +333,6 @@
     </div>
     <!-- Do not use hardware-acceleration class (transform3d) as it can break some positionned components such as sticky-sidebar -->
     <div id="root-content" class="offcanvas-frame">
-        <main id="main-grid-block" class="" ui-view></main>
+        <div id="main-grid-block" class="" ui-view></div>
     </div>
 </div>
