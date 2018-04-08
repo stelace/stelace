@@ -79,7 +79,7 @@ var jsConfig = {
         "assets/bower_components/angular-translate/angular-translate.js",
         "assets/bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js",
         "assets/bower_components/angular-translate-storage-local/angular-translate-storage-local.js",
-        "assets/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js",
+        // "assets/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js",
         "assets/bower_components/angular-translate-interpolation-messageformat/angular-translate-interpolation-messageformat.js",
 
         // Foundation for apps
@@ -93,7 +93,7 @@ var jsConfig = {
     ],
 
     app: [
-        // Sharinplace app
+        // Stelace angular app
         "assets/app/actions/**/*.js",
         "assets/app/reducers/**/*.js",
         "assets/app/core/core.module.js",
@@ -240,14 +240,6 @@ gulp.task('serve:root', function () {
         .pipe(gulp.dest(".tmp/public"));
 });
 
-gulp.task('serve:translations', function () {
-    return gulp.src("translations/*.json")
-        .pipe($$.jsonFormat(4))
-        .pipe($$.eol("\n"))
-        .pipe(gulp.dest("translations"))
-        .pipe(gulp.dest(".tmp/public/assets/translations"));
-});
-
 gulp.task('serve:newsletters', function () {
     return gulp.src("assets/newsletters/**/*.html")
         .pipe($$.minifyHtml({
@@ -378,43 +370,17 @@ gulp.task('build:app:prod', function () {
         .pipe(gulp.dest("assets/build/js"));
 });
 
-/** Translations **/
-gulp.task('build:translations', function (cb) {
-    exec('npm run translate', function (err, stdout, stderr) {
-        console.log(stdout);
-        console.log(stderr);
-        cb(err);
-    });
-});
+/** Vue app **/
 
-const translationsCacheStream = ({ destFolder }) => {
-    // Cache main language to avoid flash of untranslated content (FOUC)
-    const lang = 'en'; // TODO: use config default language
-    // cf. https://www.npmjs.com/package/gulp-ng-lang2js
-
-    const source = `translations/${lang}.json`;
-
-    return gulp.src(source)
+const vueAppCacheStream = ({ destFolder }) => {
+    return gulp.src('assets/build/vue/**/*') // includes styles
         .pipe($$.plumber())
-        .pipe($$.ngLang2js({
-            declareModule: true,
-            moduleName   : 'stelace.translationCache',
-            prefix       : 'assets/translations/'
-        }))
-        .pipe($$.sourcemaps.init())
-            .pipe($$.concat("app-lang.js"))
-            .pipe($$.ngAnnotate())
-            .pipe($$.uglify())
-        .pipe($$.sourcemaps.write("../sourcemaps"))
         .pipe(gulp.dest(destFolder));
 };
 
-gulp.task('build:translations:cache', function () {
-    return translationsCacheStream({ destFolder: 'assets/build/js' });
-});
-
-gulp.task('watch:translations:cache', function () {
-    return translationsCacheStream({ destFolder: '.tmp/public/assets/build/js' });
+gulp.task('serve:vue-app', function () {
+    return vueAppCacheStream({ destFolder: '.tmp/public/assets/build/js' })
+        .pipe(reload({ stream: true }));
 });
 
 /** Sass **/
@@ -526,11 +492,9 @@ gulp.task('linker:prod', function () {
 gulp.task('default', ['build', 'browser-sync'], function () {
     gulp.watch(jsConfig.app, ["watch:app:dev"]);
 
+    gulp.watch("assets/build/vue/*", ["serve:vue-app"]);
+
     gulp.watch("assets/img/**/*", ["serve:images:dev"]);
-
-    // gulp.watch("translations/**/*.yaml", ['build:translations']);
-
-    // gulp.watch("translations/*.json", ['serve:translations', 'watch:translations:cache']);
 
     gulp.watch("assets/scss/**/*", ["watch:sass:dev"]);
 
@@ -539,8 +503,8 @@ gulp.task('default', ['build', 'browser-sync'], function () {
 
 gulp.task('build', function (cb) {
     runSequence(
-        ['build:app-pre:dev', 'build:app:dev', 'build:app-lib', 'build:app-templates', 'build:sass:dev', 'build:sprites-svg:dev', /*'build:translations'*/],
-        ['serve:root', /*'serve:translations', */'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components', /*'build:translations:cache'*/],
+        ['build:app-pre:dev', 'build:app:dev', 'build:app-lib', 'build:app-templates', 'build:sass:dev', 'build:sprites-svg:dev', 'serve:vue-app'],
+        ['serve:root', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
         'linker:dev',
         cb
     );
@@ -548,9 +512,9 @@ gulp.task('build', function (cb) {
 
 gulp.task('build-prod', function (cb) {
     runSequence(
-        ['build:app-templates'/*, 'build:translations'*/],
-        ['build:app-pre:prod', 'build:app:prod', 'build:sass:prod', 'build:sprites-svg:prod'/*, 'build:translations:cache'*/],
-        ['serve:root', /*'serve:translations',*/ 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
+        ['build:app-templates'],
+        ['build:app-pre:prod', 'build:app:prod', 'build:sass:prod', 'build:sprites-svg:prod', 'serve:vue-app'],
+        ['serve:root', 'serve:newsletters', 'serve:images:dev', 'serve:build', 'serve:bower_components'],
         ['linker:prod', 'cache-bust'],
         'compress',
         cb

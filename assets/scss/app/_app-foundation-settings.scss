@@ -90,14 +90,14 @@ $include-css: (
 
 // We use these to control various global styles
 // $body-background: #fff;
-$body-font-color: rgb(85, 90, 95); // default: #222
+$body-font-color: $main-font-color; // default: #222
 $body-font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; // "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $body-font-weight: $font-weight-normal;
 // $body-font-style: normal;
 // $body-antialiased: true;
 
 // Application Colors
-$primary-color: #00578E; // #00558B;
+$primary-color: $platform-color-blue; // #00558B;
 // $secondary-color: #f1f1f1;
 $alert-color: #B60030; // #F04124;
 // $info-color: #A0D3E8;
@@ -199,8 +199,8 @@ $header-font-color: rgb(85, 90, 95); // #222
 // We use these to style anchors
 // $anchor-text-decoration: none;
 // $anchor-text-decoration-hover: none;
-$anchor-font-color: none; // $primary-color;
-$anchor-font-color-hover: none; // scale-color($anchor-font-color, $lightness: -14%)
+// $anchor-font-color: $primary-color;
+// $anchor-font-color-hover: scale-color($anchor-font-color, $lightness: -14%)
 
 // We use these to style the <hr> element
 // $hr-border-width: 1px;

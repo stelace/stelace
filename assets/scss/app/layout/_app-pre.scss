@@ -16,11 +16,9 @@
     position: absolute;
     top: calc(50% - 60px);
     left: 50%;
-    width: 240px; // fix translateX in Firefox
     max-width: 100%;
     transform: translate(-50%, -50%);
-    color: $platform-color-blue;
-    svg {
+    img {
         max-width: 100%;
         max-height: 60px;
     }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="no-js" lang="<%= lang %>" ng-app="app" ng-strict-di>
+<html class="no-js" lang="<%= lang %>">
   <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <meta charset="utf-8">
     <base href="/">
@@ -58,49 +58,50 @@
     <!-- app:css -->
     <link rel="stylesheet" href="/assets/build/css/app.css">
     <!-- endinject -->
+
+    <!-- Webpack resource hints preload/prefetch -->
+
   </head>
 
   <body class="<%= devHighlightTranslations %>"
-        data-status=""
-        data-env="<%= env %>"
-        data-session-id="<%= sessionId %>"
-        data-session-token="<%= sessionToken %>"
-        data-event-id="<%= eventId %>"
-        data-event-token="<%= eventToken %>"
-        data-ux-version="<%= uxVersion %>">
+    data-status=""
+    data-env="<%= env %>"
+    data-session-id="<%= sessionId %>"
+    data-session-token="<%= sessionToken %>"
+    data-event-id="<%= eventId %>"
+    data-event-token="<%= eventToken %>"
+    data-ux-version="<%= uxVersion %>">
 
     <noscript>
-        <div class="no-script">
-            You need to enable JavaScript to browse this website.
-        </div>
+      <div class="no-script">
+        You need to enable JavaScript to browse this website.
+      </div>
     </noscript>
 
     <div id="loading-content">
-        <div id="loading-logo">
-            <svg>
-                <use xlink:href="/assets/build/icons/sprite.svg#stelace-logo"></use>
-            </svg>
-        </div>
-        <div id="loading-spinner">
-            <img src="/assets/img/app/AppSpinner.gif" alt="Loading">
-        </div>
+      <div id="loading-logo">
+        <img src="<%= logoUrl %>" alt="<%= serviceName %> logo">
+      </div>
+      <div id="loading-spinner">
+        <img src="/assets/img/app/AppSpinner.gif" alt="Loading">
+      </div>
     </div>
 
     <!-- Polyfills -->
     <script>
-        // Element remove
-        if (! ("remove" in Element.prototype)) {
-            Element.prototype.remove = function () {
-                if (this.parentNode) {
-                    this.parentNode.removeChild(this);
-                }
-            };
-        }
+      // Element remove
+      if (! ("remove" in Element.prototype)) {
+        Element.prototype.remove = function () {
+          if (this.parentNode) {
+            this.parentNode.removeChild(this);
+          }
+        };
+      }
     </script>
 
     <% if (dataFromServer) { %>
     <script>
-        window.dataFromServer = <%- dataFromServer %>;
+      window.dataFromServer = <%- dataFromServer %>;
     </script>
     <% } %>
 
@@ -108,48 +109,47 @@
 
     <% if (googleTracking && googleAnalyticsId) { %>
     <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-        ga('create', '<%= googleAnalyticsId %>', 'auto');
-        ga('require', 'linkid', 'linkid.js');
-        // ga('send', 'pageview');
+      ga('create', '<%= googleAnalyticsId %>', 'auto');
+      // ga('require', 'linkid', 'linkid.js');
     </script>
     <% } else { %>
     <script>
-        window.gaFake = true;
-        window.ga = function () {};
+      window.gaFake = true;
+      window.ga = function () {};
     </script>
     <% } %>
 
     <% if (facebookTracking === "dev") { %>
     <script>
-        // Facebook Pixel Debugging
-        window.fbq = function (t,name,data) { console.log("Facebook Pixel Event:", name, data); };
+      // Facebook Pixel Debugging
+      window.fbq = function (t,name,data) { console.log("Facebook Pixel Event:", name, data); };
     </script>
     <% } else if (facebookTracking && facebookPixelId) { %>
     <script>
-        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-        document,'script','//connect.facebook.net/en_US/fbevents.js');
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','//connect.facebook.net/en_US/fbevents.js');
 
-        fbq('init', '<%= facebookPixelId %>');
-        // fbq('track', "PageView");
+      fbq('init', '<%= facebookPixelId %>');
+      // fbq('track', "PageView");
     </script>
     <% } else { %>
     <script>
-        window.fbq = function () {};
+      window.fbq = function () {};
     </script>
     <% } %>
 
     <% if (googleMapApiKey) { %>
-        <script>
-            window.googleMapApiKey = "<%= googleMapApiKey %>";
-        </script>
+    <script>
+      window.googleMapApiKey = "<%= googleMapApiKey %>";
+    </script>
     <% } %>
 
     <!-- app-pre:js -->
@@ -158,37 +158,20 @@
 
     <% if (featureDetection) { %>
     <script>
-        var hasFeatures = (Modernizr.flexbox || Modernizr.flexboxtweener)
-                            && Modernizr.matchmedia;
+      var hasFeatures = (Modernizr.flexbox || Modernizr.flexboxtweener);
 
-        if (! hasFeatures) {
-            window.location.replace("/old-browsers");
-        }
+      if (! hasFeatures) {
+        window.location.replace("/old-browsers");
+      }
     </script>
     <% } %>
 
-    <script>
-        (function IECustomEventPolyfill() {
-            if (typeof window.CustomEvent === "function") return false; // If not IE
-
-            function CustomEvent(event, params) {
-                params = params || { bubbles: false, cancelable: false, detail: undefined };
-                var evt = document.createEvent("CustomEvent");
-                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-                return evt;
-            }
-
-            CustomEvent.prototype = window.Event.prototype;
-
-            window.CustomEvent = CustomEvent;
-        })();
-    </script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
 
     <% if (stripeActive) { %>
-    <script src="https://js.stripe.com/v3/"></script>
+    <script async defer src="https://js.stripe.com/v3/"></script>
     <% } %>
 
-    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.fr,Intl.~locale.en"></script>
 
     <!-- app:js -->
     <script src="/assets/build/js/app-lib.js"></script>
@@ -197,14 +180,16 @@
     <!-- endinject -->
 
     <!-- app-lang:js -->
-    <!-- <script src="/assets/build/js/app-lang.js"></script> -->
+    <!-- <script defer src="/assets/build/js/app-lang.js"></script> -->
     <!-- endinject -->
 
     <script>
-        var loadingContentEl = document.getElementById("loading-content");
-        if (loadingContentEl && loadingContentEl.remove) {
-            loadingContentEl.remove();
-        }
+      var loadingContentEl = document.getElementById("loading-content");
+      if (loadingContentEl && loadingContentEl.remove) {
+        loadingContentEl.remove();
+      }
     </script>
+
+    <!-- Webpack scripts -->
   </body>
 </html>
