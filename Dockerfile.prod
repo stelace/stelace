@@ -27,9 +27,17 @@ RUN cd /tmp && bower install --allow-root
 RUN mkdir -p /usr/src/app && cd /usr/src/app && ln -s /tmp/node_modules \
   && mkdir -p /usr/src/app/assets && cd /usr/src/app/assets && ln -s /tmp/bower_components
 
-COPY . /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /tmp/assets/vue
+COPY assets/vue/package.json assets/vue/yarn.lock /tmp/assets/vue/
+RUN cd /tmp/assets/vue && yarn
+RUN mkdir -p /usr/src/app/assets/vue && cd /usr/src/app/assets/vue && ln -s /tmp/assets/vue/node_modules
 
+COPY . /usr/src/app
+
+WORKDIR /usr/src/app/assets/vue
+RUN yarn build
+
+WORKDIR /usr/src/app
 RUN gulp build-prod
 
 #USER node # Uncomment this line when we find a way to create files without being root

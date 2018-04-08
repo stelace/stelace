@@ -1,8 +1,23 @@
+# Dependencies
 node_modules
 assets/bower_components
-assets/build
-logs
-emailTests
-.tmp
+assets/vue/node_modules
+
+# Environment
 config/local.js
 .env
+
+# Logs
+logs
+cron.log
+
+# Build
+assets/build
+views/layouts/app.ejs
+.tmp
+
+# Project specific
+emailTests
+translations/build
+translations/modified
+external-files
