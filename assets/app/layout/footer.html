@@ -44,13 +44,14 @@
         <div id="footer-external-links" class="text-center stelace-footer__soc margin-top"
             itemscope
             itemtype="http://schema.org/Organization">
-            <p class="text-center text--semibold margin-bottom"
-                ng-show="config.twitter_url || config.facebook_url || config.googleplus_url || config.instagram_url ">
+            <p class="text-center text--semibold"
+                ng-show="config.twitter_username || config.facebook_url || config.googleplus_url || config.instagram_username">
                 <span data-translate="social.join_us"></span>
             </p>
             <div class="flex-container flex--center flex--wrap">
-                <a class="footer__link" ng-href="{{config.twitter_url}}" target="_blank"
-                    itemprop="sameAs" ng-if="config.twitter_url">
+                <a class="footer__link" target="_blank"
+                    ng-href="{{'https://twitter.com/' + config.twitter_username.toLowerCase()}}"
+                    itemprop="sameAs" ng-if="config.twitter_username">
                     <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#cui-circle"/>
                     </svg>
@@ -67,8 +68,9 @@
                         <use xlink:href="/assets/build/icons/sprite.svg#g-pl-circled"/>
                     </svg>
                 </a>
-                <a class="footer__link" ng-href="{{config.instagram_url}}" target="_blank"
-                    itemprop="sameAs" ng-if="config.instagram_url">
+                <a class="footer__link" target="_blank"
+                    ng-href="{{'https://www.instagram.com/' + config.instagram_username.toLowerCase()}}"
+                    itemprop="sameAs" ng-if="config.instagram_username">
                     <svg class="icon">
                         <use xlink:href="/assets/build/icons/sprite.svg#instgm-circled"/>
                     </svg>

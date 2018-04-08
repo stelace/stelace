@@ -230,7 +230,7 @@
 
                 var defaultOgContents = {
                     "twitter:card": "summary_large_image",
-                    "twitter:site": "@stelaceAI", // TODO: Use website config
+                    "twitter:site": "@" + ($rootScope.config.twitter_username || "stelaceAI"),
                     "twitter:title": "pages.homepage.page_title",
                     "twitter:description": "pages.homepage.meta_description",
                     "twitter:image": $rootScope.config.hero_background__home__url
