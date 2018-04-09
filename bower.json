@@ -1,9 +1,9 @@
 {
   "name": "stelace",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "authors": [
     "Wing-On Yuen <wing-on@stelace.com>",
-    "Andy Bruère <andy.bruere@stelace.com>"
+    "Andy Bruère <andy@stelace.com>"
   ],
   "moduleType": [
     "node"
