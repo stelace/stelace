@@ -33,6 +33,9 @@ labels:
         en: Legal notice
         fr: Mentions légales
 general:
+    preheader_content:
+        en: Add our email to your address book and make sure to stay informed.
+        fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
     footer_content:
         en: 'You’re receiving this email because you created a {SERVICE_NAME} account.'
         fr: 'Vous recevez cet email suite à votre inscription sur {SERVICE_NAME}.'
@@ -81,9 +84,6 @@ template:
         preview_content:
             en: 'Help us secure your {SERVICE_NAME} account by verifying your email address with 1 click!'
             fr: 'Aidez-nous à sécuriser votre compte {SERVICE_NAME} en un simple click.'
-        preheader_content:
-            en: Add our email to your address book and make sure to stay informed.
-            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         header_title:
             en: Please confirm your email address.
             fr: Merci de confirmer votre adresse email.
@@ -127,9 +127,6 @@ template:
         preview_content:
             en: 'Welcome to {SERVICE_NAME} {user__firstname}!'
             fr: "Bienvenue sur {SERVICE_NAME} {user__firstname} !"
-        preheader_content:
-            en: Add our email to your address book and make sure to stay informed.
-            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         header_title:
             en: |-
                 Thank you{user__firstname, select,
@@ -179,9 +176,6 @@ template:
         preview_content:
             en: Forgot your password? Let’s get you a new one.
             fr: Mot de passe oublié ? Créez-en un nouveau.
-        preheader_content:
-            en: Add our email to your address book and make sure to stay informed.
-            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         header_title:
             en: |-
                 Hi {
@@ -229,9 +223,6 @@ template:
         preview_content:
             en: ''
             fr: Vous venez de recevoir un message. Répondez-y vite.
-        preheader_content:
-            en: Add our email to your address book and make sure to stay informed.
-            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         header_title:
             en: You've got a new message.
             fr: Vous avez reçu un message.
@@ -281,9 +272,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -326,9 +314,6 @@ template:
             fr: |-
                 Votre pré-réservation a été acceptée {owner__name
                 , select, undefined {} other {par {owner__name}}}
-        preheader_content:
-            en: Add our email to your address book and make sure to stay informed.
-            fr: Ajoutez notre adresse email à votre carnet de contacts pour rester informé.
         header_title:
             en: Hooray! Your prebooking has been accepted.
             fr: Bravo ! Votre pré-réservation a été acceptée.
@@ -370,9 +355,6 @@ template:
         preview_content:
             en: Make sure to accept it in the following 36 hours.
             fr: Assurez-vous d’accepter la réservation dans les 36 heures.
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: 'Hi, your {listing__name} has been booked!'
             fr: "Bonjour, votre {listing__name} a été réservé(e)\_!"
@@ -430,9 +412,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -468,9 +447,6 @@ template:
             en: ''
             fr: ''
         preview_content:
-            en: ''
-            fr: ''
-        preheader_content:
             en: ''
             fr: ''
         header_title:
@@ -510,9 +486,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -548,9 +521,6 @@ template:
             en: ''
             fr: ''
         preview_content:
-            en: ''
-            fr: ''
-        preheader_content:
             en: ''
             fr: ''
         header_title:
@@ -590,9 +560,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -628,9 +595,6 @@ template:
             en: ''
             fr: ''
         preview_content:
-            en: ''
-            fr: ''
-        preheader_content:
             en: ''
             fr: ''
         header_title:
@@ -670,9 +634,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -708,9 +669,6 @@ template:
             en: ''
             fr: ''
         preview_content:
-            en: ''
-            fr: ''
-        preheader_content:
             en: ''
             fr: ''
         header_title:
@@ -750,9 +708,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -788,9 +743,6 @@ template:
             en: ''
             fr: ''
         preview_content:
-            en: ''
-            fr: ''
-        preheader_content:
             en: ''
             fr: ''
         header_title:
@@ -830,9 +782,6 @@ template:
         preview_content:
             en: ''
             fr: ''
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: ''
             fr: ''
@@ -870,9 +819,6 @@ template:
         preview_content:
             en: Review your last transaction.
             fr: Evaluez votre dernière transaction.
-        preheader_content:
-            en: ''
-            fr: ''
         header_title:
             en: Give your feedback!
             fr: "Laissez un commentaire !"
