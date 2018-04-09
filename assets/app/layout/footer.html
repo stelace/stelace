@@ -82,7 +82,9 @@
     </div>
     <p class="stelace-footer__attribution text-center padding">
         <span data-translate="stelace.powered_by"></span>
-        <strong><a href="https://stelace.com"
-            data-translate-attr="{ title: 'stelace.smart_marketplace' }" data-translate="stelace.name"></a></strong>
+        <strong>
+            <a ng-href="{{'https://stelace.com/' + (config.website__url ? '?utm_campaign=powered-by&utm_medium=galaxy&utm_content=footer' : '')}}"
+            data-translate-attr="{ title: 'stelace.smart_marketplace' }" data-translate="stelace.name"></a>
+        </strong>
     </p>
 </footer>

@@ -25,6 +25,7 @@ const formatMessage = require('format-message');
 const Handlebars = require('handlebars');
 const cheerio = require('cheerio');
 const moment = require('moment');
+const querystring = require('querystring');
 
 Promise.promisifyAll(fs);
 
@@ -242,7 +243,7 @@ async function getTemplateResult(templateName, { lang, user, isEditMode, data = 
 
     // transform input data into ICU placeholders
     let parameters = {};
-    parameters = await beforeTransformData(parameters, { config, data, user, lang });
+    parameters = await prepareDataForICUMessageFormat(parameters, { config, data, user, lang });
     if (typeof workflow.transformData === 'function') {
         const templateParameters = await workflow.transformData(parameters, { config, data, user, lang });
         if (templateParameters) {
@@ -251,7 +252,7 @@ async function getTemplateResult(templateName, { lang, user, isEditMode, data = 
     }
 
     // compile user content using ICU placeholders into HBS variables
-    let compiledContent = compileContent(rawContent, parameters, { lang, currency: config.currency });
+    let compiledContent = compileICUContent(rawContent, parameters, { lang, currency: config.currency });
 
     // add HBS variables that are not editable by user
     compiledContent = beforeCompileNonEditableContent(compiledContent, { config, data, user, lang, parameters });
@@ -354,7 +355,7 @@ function configureFormatMessage(formatMessage, { lang, currency = 'EUR' }) {
     });
 }
 
-function compileContent(rawContent, parameters, { lang, currency }) {
+function compileICUContent(rawContent, parameters, { lang, currency }) {
     const compiledContent = {};
 
     configureFormatMessage(formatMessage, { lang, currency });
@@ -385,6 +386,7 @@ function beforeCompileNonEditableContent(content, { config, /*data, user, lang*/
         _.pick(config, ['styles', 'defaultStyles'])
     );
 
+    newContent.stelace_website__img_url = getStelaceFooterUrl({ content: 'footer-logo' });
     newContent.stelace_logo__url = sails.config.stelace.url + '/assets/img/logo/stelace-logo.png';
 
     if (config.logo__url) {
@@ -507,6 +509,7 @@ function getHtml(emailTemplate, content) {
         'branding__block',
         'branding',
         'stelace_logo__url',
+        'stelace_website__img_url',
     ];
 
     return emailCompiledTemplate(_.pick(content, fields));
@@ -530,13 +533,14 @@ function getEmailBlocks() {
     return Object.assign({}, commonBlocks);
 }
 
-async function beforeTransformData(parameters, { config, user, data, lang }) {
+async function prepareDataForICUMessageFormat(parameters, { config, user, data, lang }) {
     const newParams = {};
 
     newParams.SERVICE_NAME = config.SERVICE_NAME;
     newParams.service_email = config.service_email; // TODO: create variable in config
     newParams.service_billing_address = config.service_billing_address; // TODO: create variable in config
     newParams.has_contact_address = !!(newParams.service_email || newParams.service_billing_address);
+    newParams.stelace_website__text_url = getStelaceFooterUrl();
 
     if (typeof user === 'object') {
         newParams.user__firstname = user.firstname || undefined;
@@ -1369,4 +1373,17 @@ function getExampleData(templateName) {
     }
 
     return exampleData;
+}
+
+function getStelaceFooterUrl({ content } = {}) {
+    const sourceSite = sails.config.stelace.url && sails.config.stelace.url.replace(/https?:\/\//, '');
+
+    const utmString = querystring.stringify({
+        utm_medium: 'email',
+        utm_campaign: 'powered-by',
+        utm_content: content || 'footer',
+        utm_source: sourceSite || '',
+    });
+
+    return `https://stelace.com/?${utmString}`;
 }
