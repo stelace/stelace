@@ -1,6 +1,6 @@
 /*
     global AppUrlService, ContentEntriesService, CurrencyService, EmailService, EmailHelperService,
-    Listing, PricingService, StelaceConfigService, TimeService
+    Listing, MicroService, PricingService, StelaceConfigService, TimeService
 */
 
 module.exports = {
@@ -189,9 +189,14 @@ async function sendEmailTemplate(templateName, {
     noCopyEmail,
     transactional,
 } = {}) {
+    const config = await StelaceConfigService.getConfig();
+
     if (!lang) {
-        const config = await StelaceConfigService.getConfig();
         lang = config.lang;
+    }
+
+    if (!replyTo && config.service_email && MicroService.isEmail(config.service_email)) {
+        replyTo = config.service_email;
     }
 
     const {
