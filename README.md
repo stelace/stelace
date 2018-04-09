@@ -2,7 +2,7 @@
 
 Stelace helps entrepreneurs create online marketplaces and communities in no time to let them focus on experimenting and growing their audience.
 
-This repository includes all marketplace features and integrations. Stelace marketplace launcher, automatic setup, APIs, webhooks, full dashboard and cloud hosting are also available [without a line of code](https://stelace.com).
+This repository includes all marketplace features and integrations. Stelace marketplace launcher, cloud hosting, automatic setup & updates, APIs, webhooks and full dashboard are also available [without a line of code](https://stelace.com).
 
 ---
 
@@ -24,11 +24,13 @@ Stelace is under active development, with *massive* ongoing updates.
     - [Warning](#warning)
     - [Contents](#contents)
     - [Features](#features)
+    - [Stelace Dashboard](#stelace-dashboard)
     - [Environment](#environment)
         - [Install environment](#install-environment)
             - [Install Node.js](#install-nodejs)
                 - [Node version warning](#node-version-warning)
                 - [Node.js global dependencies](#nodejs-global-dependencies)
+            - [Install Yarn](#install-yarn)
             - [Install MySQL](#install-mysql)
             - [Install GraphicsMagick](#install-graphicsmagick)
             - [Install local dependencies](#install-local-dependencies)
@@ -51,12 +53,13 @@ Stelace is under active development, with *massive* ongoing updates.
 ## Features
 
 - Listing management
+- Theming & customization
 - Delayed payments (Stripe / Mangopay)
 - Marketplace fees
 - Advanced search (Elasticsearch)
 - Maps (Google Maps)
 - Booking calendars
-- Flexible listing types and workflows
+- Flexible listing types & workflows
 - Validation steps
 - User ratings & public accounts
 - Gamification
@@ -66,7 +69,14 @@ Stelace is under active development, with *massive* ongoing updates.
 - Translations
 - …
 
-You can connect your own dashboard with Stelace Public API or use [official Stelace dashboard](https://stelace.com).
+## Stelace Dashboard
+
+You can connect your own dashboard with Stelace Public API or use [official Stelace dashboard](https://stelace.com), enabling live design and content editing, real-time stats, translation tools, team roles management and much more.
+
+[![Stelace Dashboard](https://user-images.githubusercontent.com/12909094/38527674-415ac06c-3c5c-11e8-89d3-c92c3be1d377.png)](https://stelace.com)
+
+
+For more details, please refer to [this post (#4)](https://github.com/stelace/stelace/issues/4#issuecomment-376476916).
 
 ## Environment
 ### Install environment
@@ -96,16 +106,18 @@ Each time you change the version of Node.js, you need to reinstall npm because i
 
     sudo npm install -g npm
 
-And if you switch to another major version of Node.js (Major.Minor.Patch, see http://semver.org), you also need to reinstall all Node.js dependencies (global and local). See the section [Update environment](#update-environment).
+If you switch to another major version of Node.js (Major.Minor.Patch, see http://semver.org), you also need to reinstall all Node.js dependencies (global and local). See the section [Update environment](#update-environment).
 
 
 ##### Node.js global dependencies
     sudo npm install -g node-gyp
-    sudo npm install -g sails@1.0.0-45
+    sudo npm install -g sails@1.0.0
     sudo npm install -g gulp
     sudo npm install -g bower
     sudo npm install -g bunyan
 
+#### Install Yarn
+=> https://yarnpkg.com/en/docs/install
 
 #### Install MySQL
 
@@ -289,10 +301,11 @@ Using mysqldump for exporting "small" dataset is ok (< 10GB).
 
 ## Ongoing
 
-- Easier environment setup with docker and setup tools
-- Internationalization (i18n branch)
-- Stripe Connect integration
-- Docs
+- Listing types dimensions
+- Vue.js components
+- Developer tooling
+- API Docs
+- CLA
 
 ## Open source alternatives
 - [Sharetribe](https://github.com/sharetribe/sharetribe) (Ruby)
@@ -300,6 +313,10 @@ Using mysqldump for exporting "small" dataset is ok (< 10GB).
 - *Add yours*
 
 ## License
-Stelace is open source under the terms of the [GPLv3](LICENSE.txt).
+Stelace is open source under the terms of the [GPLv3 license](LICENSE.txt).
+
+All project files are covered by this license unless stated otherwise in individual file contents.
+
+Made with ❤️ in Paris, France.
 
 Stelace Copyright © 2017-2018 Sharinplace SAS
