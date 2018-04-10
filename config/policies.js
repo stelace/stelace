@@ -181,65 +181,65 @@ module.exports.policies = {
 
     // API ROUTES
 
-    'v0_1/ApiKeyController': {
+    'publicApi/latest/ApiKeyController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/ApiEventController': {
+    'publicApi/latest/ApiEventController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/BookingController': {
+    'publicApi/latest/BookingController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/ContentEntriesController': {
+    'publicApi/latest/ContentEntriesController': {
         '*': ['isApiAuthenticated'],
         'findEditable': true,
         'findDefault': true,
     },
 
-    'v0_1/EmailTemplateController': {
+    'publicApi/latest/EmailTemplateController': {
         '*': ['isApiAuthenticated'],
         'preview': true,
     },
 
-    'v0_1/InfoController': {
+    'publicApi/latest/InfoController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/ListingController': {
+    'publicApi/latest/ListingController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/ListingCategoryController': {
+    'publicApi/latest/ListingCategoryController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/ListingTypeController': {
+    'publicApi/latest/ListingTypeController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/MediaController': {
+    'publicApi/latest/MediaController': {
         '*': ['isApiAuthenticated'],
         'get': true,
         'getRedirect': true,
     },
 
-    'v0_1/StatsController': {
+    'publicApi/latest/StatsController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/StelaceConfigController': {
+    'publicApi/latest/StelaceConfigController': {
         '*': ['isApiAuthenticated'],
         'updatePlan': ['isProvider'],
     },
 
-    'v0_1/UserController': {
+    'publicApi/latest/UserController': {
         '*': ['isApiAuthenticated'],
     },
 
-    'v0_1/WebhookController': {
+    'publicApi/latest/WebhookController': {
         '*': ['isApiAuthenticated'],
     },
 
