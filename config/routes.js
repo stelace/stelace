@@ -206,6 +206,7 @@ module.exports.routes = {
     'get /api/v0.1/info/me': { target: 'publicApi/latest/InfoController.me', cors: apiCors },
     'get /api/v0.1/info/my-permissions': { target: 'publicApi/latest/InfoController.getMyPermissions', cors: apiCors },
     'get /api/v0.1/info/plan-permissions': { target: 'publicApi/latest/InfoController.getPlanPermissions', cors: apiCors },
+    'get /api/v0.1/info/plan': { target: 'publicApi/latest/InfoController.getPlan', cors: apiCors },
 
     'get /api/v0.1/listings': { target: 'publicApi/latest/ListingController.find', cors: apiCors },
     'get /api/v0.1/listings/:id': { target: 'publicApi/latest/ListingController.findOne', cors: apiCors },

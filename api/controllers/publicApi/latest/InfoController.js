@@ -1,10 +1,11 @@
-/* global AclService, User */
+/* global AclService, StelaceConfigService, User */
 
 module.exports = {
 
     me,
     getMyPermissions,
     getPlanPermissions,
+    getPlan,
 
 };
 
@@ -40,4 +41,9 @@ async function getMyPermissions(req, res) {
 async function getPlanPermissions(req, res) {
     const planPermissions = await AclService.getPlanPermissions();
     res.json(planPermissions);
+}
+
+async function getPlan(req, res) {
+    const plan = await StelaceConfigService.getPlan();
+    res.json(plan);
 }
