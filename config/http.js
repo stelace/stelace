@@ -16,6 +16,8 @@ const fs    = require('fs');
 const proxy = require('http-proxy-middleware');
 const serveStatic = require('serve-static');
 
+const { version } = require('../package.json');
+
 const serve = serveStatic(path.join(__dirname, '../assets'));
 
 let dashboardProxy;
@@ -196,6 +198,8 @@ module.exports.http = {
                 if (sails.config.providerApiKey) {
                     headers['x-provider-api-key'] = sails.config.providerApiKey; // check for protected dashboard
                 }
+
+                headers['x-stelace-version'] = sails.config.stelace.version || version;
 
                 const proxyOptions = {
                     target: sails.config.stelace.dashboardUrl,
