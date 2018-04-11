@@ -123,7 +123,7 @@
     .stelace-hero {
         min-height: 10rem;
         height: 10rem; // IE11 centering fix
-        background: linear-gradient(170deg, $stl-color-primary 10%, $stl-color-secondary 70%);
+        @include stl-primary-secondary-gradient-background;
     }
 
     label {

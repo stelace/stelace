@@ -897,31 +897,15 @@ a.profile__image {
     }
 
     background-position: 50% 50%; // default to override if needed
-
-    background-repeat: no-repeat;
     background-size: cover;
 
-    &.stelace-hero__background {
-        background-image: url("/assets/img/app/background/sunset.jpg");
-
-        // @media #{$mq-mobile} {
-        //     background-image: url("");
-        // }
-        // @media #{$mq-from-tablet} and (max-width: #{$mq-desktop-max}) {
-        //     background-image: url("");
-        // }
-        // @media
-        //     #{$mq-from-large},
-        //     #{$mq-from-tablet} and #{$mq-landscape} and (-webkit-min-device-pixel-ratio: 2),
-        //     #{$mq-from-tablet} and #{$mq-landscape} and (min-resolution: 192dpi)
-        // {
-        //     background-image: url("");
-        // }
-    }
-
     ~ .cc-media-attribution {
-        @include cc-media-attribution();
+        @include cc-media-attribution;
     }
+}
+.stelace-hero__background {
+    // background-image property automatically replaced by custom picture in config
+    @include stl-primary-secondary-gradient-background;
 }
 
 .background--cover-dark {

@@ -15,7 +15,7 @@
         function init() {
             window.stelaceExternal = {};
             window.stelaceExternal.refreshTranslation = ContentService.refreshTranslation;
-            window.stelaceExternal.setHeroBackgroundHome = ContentService.setHeroBackgroundHome;
+            window.stelaceExternal.setHeroBackground = ContentService.setHeroBackground;
             window.stelaceExternal.setLogo = ContentService.setLogo;
         }
     }

@@ -325,7 +325,7 @@
         var config = window.dataFromServer.config;
 
         if (config.hero_background__home__url) {
-            ContentService.setHeroBackgroundHome(config.hero_background__home__url);
+            ContentService.setHeroBackground(config.hero_background__home__url);
         }
 
         // Force $ngRedux.subscribe in rootScope with dispatch

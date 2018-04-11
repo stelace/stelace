@@ -1,3 +1,6 @@
+// '@include mixin-name;' is the preferred method rather than extending placeholders or classes
+// See https://www.sitepoint.com/avoid-sass-extend/
+
 @mixin cc-media-attribution {
     height: 1rem;
     padding: 2px 2px 0 0;
@@ -6,4 +9,16 @@
     a {
         color: $stl-color-font;
     }
+}
+
+@mixin stl-primary-secondary-gradient-background {
+    background-image: linear-gradient(170deg, $stl-color-primary 10% , $stl-color-secondary 75%);
+}
+
+@mixin position-absolute-cover {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
 }

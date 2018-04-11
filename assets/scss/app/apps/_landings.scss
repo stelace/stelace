@@ -197,7 +197,7 @@
         }
     }
     .cc-media-attribution {
-        @include cc-media-attribution();
+        @include cc-media-attribution;
     }
 
     &.help {

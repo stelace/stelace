@@ -9,7 +9,7 @@
 
         var service = {};
         service.refreshTranslation = refreshTranslation;
-        service.setHeroBackgroundHome = setHeroBackgroundHome;
+        service.setHeroBackground = setHeroBackground;
         service.setLogo = setLogo;
         service.showNotification = showNotification;
         service.showError = showError;
@@ -23,7 +23,7 @@
             $translate.refresh();
         }
 
-        function setHeroBackgroundHome(url) {
+        function setHeroBackground(url) {
             if (!heroBgHomeStyle) {
                 heroBgHomeStyle = document.createElement('style');
                 heroBgHomeStyle.id = _.uniqueId('style_');
@@ -31,7 +31,7 @@
             }
 
             heroBgHomeStyle.innerHTML = [
-                '.stelace-hero.stelace-hero__background {',
+                '.stelace-hero__background, .authentication .app-container::before {',
                     'background-image: url("' + url + '")',
                 '}'
             ].join('');

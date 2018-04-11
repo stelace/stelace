@@ -2,11 +2,14 @@
 
 .authentication {
     .app-container {
-        background-position: 50% 50%;
-        background-repeat: no-repeat;
-        background-size: cover;
-
-        background-image: url("/assets/img/app/background/sunset.jpg");
+        &::before {
+            content: '';
+            @include position-absolute-cover;
+            @include stl-primary-secondary-gradient-background;
+            background-position: 50% 50%;
+            background-size: cover;
+            filter: blur(8px);
+        }
     }
 }
 
@@ -54,7 +57,7 @@
     }
 
     .signin-form {
-        background-color: rgba(255, 255, 255, 0.65);
+        background-color: rgba(255, 255, 255, 0.75);
         box-shadow: 1px 3px 7px rgba(0, 0, 0, 0.4);
         border-radius: $global-radius;
         padding: 0.5rem 1.5rem;
