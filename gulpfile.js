@@ -6,7 +6,7 @@ var browserSync = require('browser-sync');
 var fs          = require('fs');
 var crypto      = require('crypto'); // eslint-disable-line
 var path        = require('path');
-var exec        = require('child_process').exec;
+// var exec        = require('child_process').exec;
 
 var reload      = browserSync.reload;
 
@@ -80,7 +80,7 @@ var jsConfig = {
         "assets/bower_components/angular-translate/angular-translate.js",
         "assets/bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js",
         "assets/bower_components/angular-translate-storage-local/angular-translate-storage-local.js",
-        // "assets/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js",
+        "assets/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js",
         "assets/bower_components/angular-translate-interpolation-messageformat/angular-translate-interpolation-messageformat.js",
 
         // Foundation for apps
