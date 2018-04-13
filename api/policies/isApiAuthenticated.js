@@ -9,7 +9,7 @@ module.exports = async function (req, res, next) {
         const token = req.cookies.stl_id;
 
         if (!key && !token) {
-            return res.status(401).send();
+            return res.sendStatus(401);
         }
 
         const createAttrs = {
