@@ -258,16 +258,15 @@ async function sendEmail({
 
     const helloConfig = sails.config.stelace.hello;
 
-    if (!fromEmail) {
-        fromEmail = helloConfig.email;
-        fromName = helloConfig.name;
-    }
+    fromEmail = fromEmail || helloConfig.email;
+    fromName = fromName || helloConfig.name;
     toEmail = toEmail || (toUser && toUser.email);
     toName = toName || (toUser ? User.getName(toUser) : null);
     replyTo = replyTo || helloConfig.email;
 
     if (!templateName
      || !specificTemplateName
+     || !fromEmail
      || !toEmail
      || !subject
      || !html

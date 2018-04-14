@@ -223,6 +223,7 @@ async function sendEmailTemplate(templateName, {
     await EmailService.sendEmail({
         templateName: 'general',
         specificTemplateName: templateName,
+        fromName: config.SERVICE_NAME || 'Stelace',
         toUser: user,
         toEmail: email,
         subject,
