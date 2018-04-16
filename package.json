@@ -100,7 +100,7 @@
     "request": "2.69.0",
     "run-sequence": "1.1.5",
     "sails": "1.0.0",
-    "sails-hook-orm": "2.0.0-16",
+    "sails-hook-orm": "2.0.0-23",
     "sails-mysql": "https://github.com/stelace/sails-mysql.git#d8d69cbd92b707fba569cd517c9e74366866d243",
     "should": "8.2.2",
     "sparkpost": "2.1.2",
