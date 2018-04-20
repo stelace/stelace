@@ -179,7 +179,11 @@ async function createListing(attrs, { req, res } = {}) {
         createAttrs.locations = _.pluck(userLocations, 'id');
     }
 
-    if (config.listings_validation_automatic) {
+    const automaticValidation = config.listings_validation_automatic;
+
+    if (typeof automaticValidation !== 'boolean'
+     || (typeof automaticValidation === 'boolean' && automaticValidation === true)
+    ) {
         createAttrs.validated = true;
     }
 
