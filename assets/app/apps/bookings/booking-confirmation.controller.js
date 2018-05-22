@@ -36,6 +36,7 @@
         var bookingPaymentMessages;
 
         var vm = this;
+        vm.showTime               = false;
         vm.error                  = false;
         vm.paymentProcessing      = true;
         vm.paymentDone            = false;
@@ -71,6 +72,8 @@
                 if (vm.booking.paidDate) {
                     vm.paymentDone = true;
                 }
+
+                vm.showTime = ListingTypeService.showTime(vm.booking.timeUnit);
 
                 return $q.all({
                     conversations: MessageService.getConversations({
@@ -121,7 +124,13 @@
 
                 if (vm.booking.startDate && vm.booking.endDate) {
                     vm.startDate = vm.booking.startDate;
-                    vm.endDate   = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
+
+                    if (vm.showTime) {
+                        vm.endDate = vm.booking.endDate;
+                    } else {
+                        // for the UI when time isn't shown, display the before day as the upper limit
+                        vm.endDate = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
+                    }
                 }
 
                 vm.listingCategoryName = ListingCategoryService.findListingCategory(listing, listingCategories);

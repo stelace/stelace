@@ -8,6 +8,7 @@
           var service = Restangular.all("listingType");
           service.getBookingTimeUnit = getBookingTimeUnit;
           service.getProperties = getProperties;
+          service.showTime = showTime;
 
           CleanService.clean(service);
 
@@ -40,6 +41,10 @@
                 isAssessmentOneStep: properties.ASSESSMENTS === 'ONE_STEP',
                 isAssessmentTwoSteps: properties.ASSESSMENTS === 'TWO_STEPS'
             };
+          }
+
+          function showTime(timeUnit) {
+            return _.includes(['m', 'h'], timeUnit);
           }
 
           return service;

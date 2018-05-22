@@ -1413,12 +1413,18 @@ booking:
                     h{ {nbTimeUnits, plural, one{# heure} other{# heures}} }
                     m{ {nbTimeUnits, plural, one{# minute} other{# minutes}}
                 } other{} } au maximum.
+        unavailable_periods:
+            en: The selected dates are not available.
+            fr: Les dates sélectionnées ne sont pas disponibles.
     impending_cancellation:
         en: Impending cancellation
         fr: Annulation imminente
     to_accept_suffix:
         en: to accept
         fr: pour accepter
+    unavailable_periods:
+        en: Unavailable periods
+        fr: Périodes indisponibles
     remaining_time_to_accept:
         en: '{remainingTime} remaining to accept.'
         fr: "Il ne vous reste que\_{remainingTime} pour accepter."
@@ -1429,11 +1435,33 @@ booking:
         en: 'The booking cancellation is impending. Please accept or reject the request from {userName} or contact us if there is any problem.'
         fr: 'L''annulation de cette réservation est imminente. Merci d''accepter ou de refuser rapidement la demande de {userName} ou de nous contacter en cas de difficultés.'
     on_date:
-        en: 'on {date, date, short}'
-        fr: 'le {date, date, short}'
+        en: |
+            on {date, date, short}{show_time, select,
+                true { at {date, time, short}}
+                other {}
+            }
+        fr: |
+            le {date, date, short}{show_time, select,
+                true { à {date, time, short}}
+                other {}
+            }
     from_start_date_to_end_date:
-        en: 'From {start_date, date, short} to {end_date, date, short}'
-        fr: 'Du {start_date, date, short} au {end_date, date, short}'
+        en: |
+            From {start_date, date, short}{show_time, select,
+                true { at {start_date, time, short}}
+                other {}
+            } to {end_date, date, short}{show_time, select,
+                true { at {end_date, time, short}}
+                other {}
+            }
+        fr: |
+            Du {start_date, date, short}{show_time, select,
+                true { à {start_date, time, short}}
+                other {}
+            } au {end_date, date, short}{show_time, select,
+                true { à {end_date, time, short}}
+                other {}
+            }
     acceptance_deadline_message:
         en: 'After a booking, you have 36h to accept or reject it. After that deadline, the booking can be automatically cancelled.'
         fr: 'Après une réservation, vous disposez de 36h pour l''accepter ou la refuser. Passé ce délai, la réservation est susceptible d''être annulée automatiquement.'
@@ -1599,11 +1627,33 @@ inbox:
         en: Please explain your rejection in few words
         fr: Merci d'expliquer votre refus en quelques mots
     booking_date:
-        en: '{date, date, long}'
-        fr: '{date, date, long}'
+        en: |
+            {date, date, short}{show_time, select,
+                true {, {date, time, short}}
+                other {}
+            }
+        fr: |
+            {date, date, short}{show_time, select,
+                true {, {date, time, short}}
+                other {}
+            }
     booking_dates:
-        en: '{startDate, date, long} - {endDate, date, long}'
-        fr: '{startDate, date, long} - {endDate, date, long}'
+        en: |
+            {startDate, date, short}{show_time, select,
+                true {, {startDate, time, short}}
+                other {}
+            } - {endDate, date, short}{show_time, select,
+                true {, {endDate, time, short}}
+                other {}
+            }
+        fr: |
+            {startDate, date, short}{show_time, select,
+                true {, {startDate, time, short}}
+                other {}
+            } - {endDate, date, short}{show_time, select,
+                true {, {endDate, time, short}}
+                other {}
+            }
     private_question_helper:
         en: 'You can reply to {interlocutorName}''s private message below:'
         fr: "Vous pouvez répondre au message privé de {interlocutorName} ci-dessous\_:"
@@ -2053,6 +2103,26 @@ pricing:
     quantity:
         en: Quantity
         fr: Quantité
+    duration:
+        en: Duration
+        fr: Durée
+    duration_value:
+        en: |
+            {duration_hours, select,
+                undefined {}
+                other {{duration_hours, number}h}
+            } {duration_minutes, select,
+                undefined {}
+                other {{duration_minutes, number}m}
+            }
+        fr: |
+            {duration_hours, select,
+                undefined {}
+                other {{duration_hours, number}h}
+            } {duration_minutes, select,
+                undefined {}
+                other {{duration_minutes, number}m}
+            }
 fraction:
     less_than_percent:
         en: 'Less than {hundredth, number, percent}'

@@ -1845,7 +1845,10 @@
             vm.listingType = listingType;
             vm.listingTypeProperties = ListingTypeService.getProperties(listingType);
 
-            vm.showPeriodAvailability = vm.listingTypeProperties.isTimeFlexible;
+            var timeUnit = ListingTypeService.getBookingTimeUnit(vm.listingType);
+            var showTime = ListingTypeService.showTime(timeUnit);
+
+            vm.showPeriodAvailability = vm.listingTypeProperties.isTimeFlexible && !showTime;
             vm.showDateAvailability = vm.listingTypeProperties.isTimePredefined;
         }
 

@@ -661,8 +661,8 @@
                 conversationId: conversationId,
                 privateContent: vm.privateMessage || manualMessages.privateMessage || null,
                 publicContent: vm.publicMessage || manualMessages.publicMessage || null,
-                startDate: vm.conversation.startDate ? moment(vm.conversation.startDate).format(formatDate) : null, // keep same dates
-                endDate: vm.conversation.endDate ? moment(vm.conversation.endDate).format(formatDate) : null,
+                startDate: vm.conversation.startDate || null, // keep same dates
+                endDate: vm.conversation.endDate || null,
                 listingId: vm.listing.id,
                 receiverId: vm.interlocutor.id,
                 senderId: currentUser.id

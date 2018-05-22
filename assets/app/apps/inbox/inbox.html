@@ -74,12 +74,12 @@
                                 <span>(</span>
                                 <span ng-if="(conv.displayStartDate && !conv.displayEndDate) || (conv.displayStartDate === conv.displayEndDate)"
                                     data-translate="inbox.booking_date"
-                                    data-translate-values="{ date: conv.displayStartDate }"
+                                    data-translate-values="{ date: conv.displayStartDate, show_time: conv.showTime }"
                                 >
                                 </span>
                                 <span ng-if="conv.displayStartDate && conv.displayEndDate"
                                     data-translate="inbox.booking_dates"
-                                    data-translate-values="{ startDate: conv.displayStartDate, endDate: conv.displayEndDate }"
+                                    data-translate-values="{ startDate: conv.displayStartDate, endDate: conv.displayEndDate, show_time: conv.showTime }"
                                 >
                                 </span>
                                 <span>)</span>

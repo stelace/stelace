@@ -49,6 +49,7 @@
         vm.contractUrl           = null;
         vm.contractTarget        = "_blank";
         vm.listingType           = null;
+        vm.showTime              = false;
         vm.listingTypeProperties = {};
         vm.adultPaymentTooltip = $translate.instant('pages.booking_payment.only_adult_payment_label');
 
@@ -82,6 +83,8 @@
             if (vm.booking) {
                 vm.booking = Restangular.restangularizeElement(null, vm.booking, "booking");
 
+                vm.showTime = ListingTypeService.showTime(vm.booking.timeUnit);
+
                 vm.paymentProvider = vm.booking.paymentProvider;
 
                 vm.listingTypeProperties = ListingTypeService.getProperties(vm.booking.listingType);
@@ -90,7 +93,12 @@
                     vm.displayStartDate = vm.booking.startDate;
                 }
                 if (vm.booking.endDate) {
-                    vm.displayEndDate = _getDisplayEndDate(vm.booking.endDate);
+                    if (vm.showTime) {
+                        vm.displayEndDate = vm.booking.endDate;
+                    } else {
+                        // for the UI when time isn't shown, display the before day as the upper limit
+                        vm.displayEndDate = _getDisplayEndDate(vm.booking.endDate);
+                    }
                 }
 
                 var config = vm.booking.listingType.config;

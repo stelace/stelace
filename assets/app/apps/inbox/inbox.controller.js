@@ -12,6 +12,7 @@
                                 $scope,
                                 $stateParams,
                                 AssessmentService,
+                                ListingTypeService,
                                 MessageService,
                                 StelaceEvent,
                                 tools,
@@ -126,14 +127,27 @@
                 conversation.interlocutorMedia = interlocutorMedia;
                 conversation.lastDate          = conversation.newContentDate;
 
-                var TIME = conversation.booking.listingType.properties.TIME;
-                if (TIME !== 'NONE') {
-                    if (conversation.startDate) {
-                        conversation.displayStartDate = conversation.startDate;
-                    }
-                    if (conversation.endDate) {
-                        // TODO: find a generic way to do with other time units (here day time unit)
-                        conversation.displayEndDate = getDisplayEndDate(conversation.endDate);
+                conversation.showTime = false;
+
+                var timeUnit;
+
+                if (conversation.booking) {
+                    timeUnit = ListingTypeService.getBookingTimeUnit(conversation.booking.listingType);
+                    conversation.showTime = ListingTypeService.showTime(timeUnit);
+
+                    var TIME = conversation.booking.listingType.properties.TIME;
+                    if (TIME !== 'NONE') {
+                        if (conversation.startDate) {
+                            conversation.displayStartDate = conversation.startDate;
+                        }
+                        if (conversation.endDate) {
+                            if (conversation.showTime) {
+                                conversation.displayEndDate = conversation.endDate;
+                            } else {
+                                // for the UI when time isn't shown, display the before day as the upper limit
+                                conversation.displayEndDate = getDisplayEndDate(conversation.endDate);
+                            }
+                        }
                     }
                 }
 

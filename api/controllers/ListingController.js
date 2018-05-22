@@ -213,6 +213,8 @@ async function findOne(req, res) {
 
             const availabilityGraph = BookingService.getAvailabilityPeriodGraph({ futureBookings, listingAvailabilities, maxQuantity });
             availabilityGraphs.periods = availabilityGraph;
+
+            listing.listingAvailabilities = listingAvailabilities;
         } else if (TIME === 'TIME_PREDEFINED') {
             const listingAvailabilities = await ListingAvailability.find({
                 listingId: listing.id,
@@ -222,10 +224,13 @@ async function findOne(req, res) {
 
             const availabilityGraph = BookingService.getAvailabilityDateGraph({ futureBookings, listingAvailabilities, maxQuantity });
             availabilityGraphs.dates = availabilityGraph;
+
+            listing.listingAvailabilities = listingAvailabilities;
         }
     }
 
     listing.availabilityGraphs = availabilityGraphs;
+    listing.futureBookings = futureBookings;
 
     res.json(listing);
 }

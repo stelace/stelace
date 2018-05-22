@@ -114,9 +114,10 @@
                                     data-translate="pricing.nb_unit_label"
                                     data-translate-values="{ timeUnit: vm.booking.timeUnit, nbTimeUnits: vm.booking.nbTimeUnits }"></span>
                                 <br>
-                                <!-- TODO: longer format may be needed when dimension is not day -->
                                 <span data-translate="booking.from_start_date_to_end_date"
-                                    data-translate-values="{ start_date: vm.startDate, end_date: vm.endDate }"></span>
+                                    data-translate-values="{ start_date: vm.startDate, end_date: vm.endDate, show_time: vm.showTime }"
+                                >
+                                </span>
                             </div>
                             <div class="margin-bottom text-center" ng-if="vm.listingTypeProperties.isAvailabilityStock">
                                 <span class="text--semibold"

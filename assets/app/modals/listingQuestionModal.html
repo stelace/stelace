@@ -17,7 +17,7 @@
             class="fluid-width form--control"
             novalidate>
             <div>
-                <div ng-hide="vm.noTimeBookingSelected">
+                <div ng-hide="vm.noTimeBookingSelected" ng-if="!vm.showTime">
                     <p class="margin-top text--semibold"
                         data-translate="listing.time.date_calendar_title"></p>
                     <div class="flex-container flex--space">

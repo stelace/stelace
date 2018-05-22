@@ -101,7 +101,10 @@
         vm.formatDate           = "dd/MM/yyyy";
         vm.calendarPlaceholder  = '';
         vm.showDate             = false;
+        vm.showTime             = false;
+        vm.invalidBookingInputs = false;
         vm.showIncorrectDates   = false;
+        vm.availabilityError    = false;
         vm.dateErrorObject      = null;
         vm.disableBookingButton = false;
         vm.listing              = null;
@@ -122,7 +125,11 @@
         vm.listQuantities = [];
         vm.selectedQuantityStr = '1';
         vm.selectedQuantity    = 1;
+        vm.listDurations = [];
+        vm.selectedDurationStr = null;
+        vm.selectedDuration = null;
         vm.timeUnit = null;
+        vm.unavailablePeriods = [];
 
         // Use autoblur directive on iOS to prevent browser UI toolbar and cursor from showing up on iOS Safari, despite readonly status
         // Accessibility issue: this fix prevents from tabing rapidly to submit button
@@ -143,7 +150,10 @@
         // vm.changeMobileEndDate   = changeMobileEndDate;
         vm.displayTimeFlexiblePrice = displayTimeFlexiblePrice;
         vm.displayTimePredefinedPrice = displayTimePredefinedPrice;
+        vm.changeStartDate       = changeStartDate;
+        vm.changeStartTime       = changeStartTime;
         vm.changeQuantity        = changeQuantity;
+        vm.changeDuration        = changeDuration;
         vm.displayFullDate       = displayFullDate;
         vm.openImgSmallGallery   = openImgSmallGallery;
         vm.openImgGallery        = openImgGallery;
@@ -313,6 +323,9 @@
                 var maxDurationBooking;
                 if (vm.listingTypeProperties.isTimeFlexible) {
                     maxDurationBooking = vm.selectedListingType.config.bookingTime.maxDuration;
+
+                    _generateListDurations(maxDurationBooking, vm.timeUnit);
+                    vm.selectedDurationStr = vm.listDurations[0].value;
                 }
 
                 ListingService.populate(listing, {
@@ -374,7 +387,10 @@
                 vm.calendarReady = true;
                 vm.startDate = null;
                 vm.endDate   = null;
+                vm.startTime = null;
+                vm.bookingDuration = null
                 vm.showDate  = true;
+                vm.showTime = ListingTypeService.showTime(vm.timeUnit);
                 $scope.$watch('vm.startDate', _promptEndDate, true);
 
                 galleryImgs  = createImgGallery(listing.medias);
@@ -383,11 +399,39 @@
 
                 vm.listing = listing;
 
+                vm.unavailablePeriods = [];
+                _.forEach(listing.futureBookings, function (booking) {
+                    vm.unavailablePeriods.push({
+                        id: booking.id,
+                        type: 'booking',
+                        startDate: booking.startDate,
+                        endDate: booking.endDate
+                    });
+                });
+
+                if (vm.listingTypeProperties.isTimeFlexible) {
+                    _.forEach(listing.listingAvailabilities, function (listingAvailability) {
+                        if (!listingAvailability.quantity) {
+                            vm.unavailablePeriods.push({
+                                id: listingAvailability.id,
+                                type: 'listingAvailability',
+                                startDate: listingAvailability.startDate,
+                                endDate: listingAvailability.endDate
+                            });
+                        }
+                    });
+                }
+
+                vm.unavailablePeriods = _.sortBy(vm.unavailablePeriods, function (period) {
+                    return period.startDate;
+                });
+
                 vm.pricingTableData.show          = false;
                 vm.pricingTableData.listing          = listing;
                 vm.pricingTableData.listingType   = vm.selectedListingType;
                 vm.pricingTableData.bookingParams = {
-                    quantity: 1
+                    quantity: 1,
+                    useDuration: vm.showTime
                 };
                 vm.pricingTableData.data          = {
                     totalPrice: 0,
@@ -400,6 +444,11 @@
                     vm.pricingTableData.bookingParams.applyFreeFees = vm.applyFreeFees;
                     vm.pricingTableData.show                        = true;
                     vm.showPrice = true;
+                }
+
+                if (vm.listingTypeProperties.isTimeFlexible && vm.showTime) {
+                    vm.pricingTableData.bookingParams.nbTimeUnits = null;
+                    changeDuration();
                 }
 
                 var sellingPriceResult = pricing.getPriceAfterRebateAndFees({
@@ -535,6 +584,25 @@
         function _setQuantity(quantity) {
             vm.selectedQuantity = quantity;
             vm.selectedQuantityStr = '' + quantity;
+        }
+
+        function _generateListDurations(maxDuration, timeUnit) {
+            if (maxDuration === 0) { // should not happen
+                vm.listDurations = [];
+            } else {
+                vm.listDurations = _.map(_.range(1, maxDuration + 1), function (nbUnits) {
+                    var value = {};
+                    value[timeUnit] = nbUnits;
+
+                    return {
+                        value: JSON.stringify(value),
+                        label: $translate.instant('pricing.duration_value', {
+                            duration_hours: timeUnit === 'h' ? nbUnits : undefined,
+                            duration_minutes: timeUnit === 'm' ? nbUnits : undefined,
+                        })
+                    };
+                });
+            }
         }
 
         function _getAvailabilityGraph(listing, type) {
@@ -684,12 +752,20 @@
         //     displayTimeFlexiblePrice();
         // }
 
-        function getStartDate(date) {
-            return moment(date).format(formatDate) + 'T00:00:00.000Z';
+        function getStartDate(date, showTime) {
+            if (showTime) {
+                return new Date(date).toISOString();
+            } else {
+                return moment(date).format(formatDate) + 'T00:00:00.000Z';
+            }
         }
 
-        function getEndDate(date) {
-            return moment(date).add({ d: 1 }).format(formatDate) + 'T00:00:00.000Z';
+        function getEndDate(date, showTime) {
+            if (showTime) {
+                return new Date(date).toISOString();
+            } else {
+                return moment(date).add({ d: 1 }).format(formatDate) + 'T00:00:00.000Z';
+            }
         }
 
         function changeQuantity() {
@@ -697,12 +773,56 @@
             vm.pricingTableData.bookingParams.quantity = vm.selectedQuantity;
         }
 
+        function changeDuration() {
+            var value = vm.selectedDurationStr;
+            var durationObj = JSON.parse(value);
+            vm.nbTimeUnits = _.values(durationObj)[0];
+            vm.pricingTableData.bookingParams.nbTimeUnits = vm.nbTimeUnits;
+
+            if (vm.startDate && vm.startTime) {
+                vm.endDate = computeEndDate(vm.startDate, durationObj);
+            }
+
+            displayTimeFlexiblePrice();
+        }
+
+        function changeStartTime() {
+            if (vm.startDate && vm.startTime) {
+                setStartDateWithStartTime();
+
+                if (vm.nbTimeUnits && vm.timeUnit) {
+                    var durationObj = {};
+                    durationObj[vm.timeUnit] = vm.nbTimeUnits;
+
+                    vm.endDate = computeEndDate(vm.startDate, durationObj);
+                }
+            }
+
+            displayTimeFlexiblePrice();
+        }
+
+        function setStartDateWithStartTime() {
+            if (!vm.startDate || !vm.startTime) {
+                return;
+            }
+
+            vm.startDate.setHours(vm.startTime.getHours());
+            vm.startDate.setMinutes(vm.startTime.getMinutes());
+            vm.startDate.setSeconds(0);
+            vm.startDate.setMilliseconds(0);
+        }
+
+        // durationObj: { h: 12 } for example
+        function computeEndDate(startDate, durationObj) {
+            return moment(startDate).add(durationObj).toISOString();
+        }
+
         function displayTimePredefinedPrice() {
             if (! vm.selectedPredefinedDate) {
                 return;
             }
 
-            var predefinedDate = getStartDate(vm.selectedPredefinedDate);
+            var predefinedDate = getStartDate(vm.selectedPredefinedDate, vm.showTime);
 
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z'; // TODO: compute ref date based on time unit
 
@@ -735,9 +855,18 @@
                 isAvailable = false;
             }
 
-            vm.showIncorrectDates = ! isValidDates.result || ! isAvailable;
+            vm.showIncorrectDates = !isValidDates.result;
 
-            vm.showPrice = ! vm.showIncorrectDates;
+            // vm.startTime can be null because the user enters an incorrect value
+            if (vm.showTime && !vm.startTime) {
+                vm.showIncorrectDates = true;
+            }
+
+            vm.availabilityError = !isAvailable;
+
+            vm.invalidBookingInputs = vm.showIncorrectDates || vm.availabilityError;
+
+            vm.showPrice = ! vm.invalidBookingInputs;
 
             if (vm.showPrice) {
                 vm.pricingTableData.bookingParams.startDate     = predefinedDate;
@@ -755,18 +884,34 @@
             _setDisableBookingButton();
         }
 
+        function changeStartDate() {
+            if (vm.showTime) {
+                if (vm.startDate && vm.startTime && vm.nbTimeUnits && vm.timeUnit) {
+                    var durationObj = {};
+                    durationObj[vm.timeUnit] = vm.nbTimeUnits;
+
+                    setStartDateWithStartTime();
+                    vm.endDate = computeEndDate(vm.startDate, durationObj);
+                }
+            }
+
+            displayTimeFlexiblePrice();
+        }
+
         function displayTimeFlexiblePrice() {
             if (! vm.startDate || ! vm.endDate) {
                 return;
             }
 
-            var startDate = getStartDate(vm.startDate);
-            var endDate = getEndDate(vm.endDate);
+            var startDate = getStartDate(vm.startDate, vm.showTime);
+            var endDate = getEndDate(vm.endDate, vm.showTime);
 
             var refDate = moment().format(formatDate) + 'T00:00:00.000Z'; // TODO: compute ref date based on time unit
 
-            var timeUnit = ListingTypeService.getBookingTimeUnit(vm.selectedListingType);
-            vm.nbTimeUnits = BookingService.getNbTimeUnits(startDate, endDate, timeUnit);
+            if (!vm.showTime) {
+                var timeUnit = ListingTypeService.getBookingTimeUnit(vm.selectedListingType);
+                vm.nbTimeUnits = BookingService.getNbTimeUnits(startDate, endDate, timeUnit);
+            }
 
             var isValidDates;
             var isAvailable;
@@ -803,9 +948,18 @@
                 }
             }
 
-            vm.showIncorrectDates = ! isValidDates.result || ! isAvailable;
+            vm.showIncorrectDates = !isValidDates.result;
 
-            vm.showPrice = ! vm.showIncorrectDates;
+            // vm.startTime can be null because the user enters an incorrect value
+            if (vm.showTime && !vm.startTime) {
+                vm.showIncorrectDates = true;
+            }
+
+            vm.availabilityError = !isAvailable;
+
+            vm.invalidBookingInputs = vm.showIncorrectDates || vm.availabilityError;
+
+            vm.showPrice = ! vm.invalidBookingInputs;
 
             if (vm.showPrice) {
                 vm.pricingTableData.bookingParams.startDate     = startDate;
@@ -954,10 +1108,10 @@
             };
 
             if (vm.listingTypeProperties.isTimeFlexible) {
-                createAttrs.startDate = getStartDate(vm.startDate);
+                createAttrs.startDate = getStartDate(vm.startDate, vm.showTime);
                 createAttrs.nbTimeUnits = vm.nbTimeUnits;
             } else if (vm.listingTypeProperties.isTimePredefined) {
-                createAttrs.startDate = getStartDate(vm.selectedPredefinedDate);
+                createAttrs.startDate = getStartDate(vm.selectedPredefinedDate, vm.showTime);
             }
 
             // Google Analytics event
@@ -1024,6 +1178,10 @@
         }
 
         function _promptEndDate(newDate, oldDate) {
+            if (vm.showTime) {
+                return;
+            }
+
             if (! newDate || (vm.endDate && oldDate && newDate <= vm.endDate)) {
                 // prompt endDate only if existing startDate and no valid preexisting endDate
                 return;
@@ -1451,7 +1609,7 @@
         }
 
         function _setDisableBookingButton() {
-            vm.disableBookingButton = vm.listing.locked || vm.showIncorrectDates;
+            vm.disableBookingButton = vm.listing.locked || vm.invalidBookingInputs;
         }
 
         function _checkAuth(customGreetingKey) {

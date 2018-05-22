@@ -16,7 +16,9 @@
          * {object}  bookingParams
          * {string}  bookingParams.startDate
          * {string}  bookingParams.endDate
+         * {string}  bookingParams.nbTimeUnits
          * {string}  bookingParams.quantity
+         * {string}  bookingParams.useDuration
          * {boolean} [bookingParams.applyFreeFees = false]
          */
         return {
@@ -140,6 +142,10 @@
 
                 if (scope.booking) {
                     return scope.booking.nbTimeUnits;
+                }
+
+                if (scope.bookingParams.useDuration) {
+                    return scope.bookingParams.nbTimeUnits || 1;
                 }
 
                 var listingType = getListingType();

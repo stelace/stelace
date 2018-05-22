@@ -50,6 +50,7 @@
         var stlConfig = StelaceConfig.getConfig();
 
         var vm = this;
+        vm.showTime             = false;
         vm.listingType          = null;
         vm.listingTypeProperties = {};
         vm.userType             = null;
@@ -156,6 +157,8 @@
                 vm.userType = vm.currentUser.userType;
                 vm.organizationName = vm.currentUser.organizationName;
 
+                vm.showTime = ListingTypeService.showTime(vm.booking.timeUnit);
+
                 if (vm.booking.cancellationId) {
                     ContentService.showNotification({ messageKey: 'pages.booking_payment.cancelled_booking' });
                     $state.go("inbox");
@@ -210,7 +213,13 @@
 
                 if (vm.booking.startDate && vm.booking.endDate) {
                     vm.startDate = vm.booking.startDate;
-                    vm.endDate   = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
+
+                    if (vm.showTime) {
+                        vm.endDate = vm.booking.endDate;
+                    } else {
+                        // for the UI when time isn't shown, display the before day as the upper limit
+                        vm.endDate = moment(vm.booking.endDate).subtract({ d: 1 }).toISOString();
+                    }
                 }
 
                 vm.adultPaymentTooltip = $translate.instant('pages.booking_payment.only_adult_payment_label');

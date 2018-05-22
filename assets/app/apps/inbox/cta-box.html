@@ -14,12 +14,12 @@
                             <span> (</span>
                             <span ng-if="vm.listingTypeProperties.isTimeFlexible"
                                 data-translate="booking.from_start_date_to_end_date"
-                                data-translate-values="{ start_date: vm.displayStartDate, end_date: vm.displayEndDate }"
+                                data-translate-values="{ start_date: vm.displayStartDate, end_date: vm.displayEndDate, show_time: vm.showTime }"
                             >
                             </span>
                             <span ng-if="vm.listingTypeProperties.isTimePredefined"
                                 data-translate="booking.on_date"
-                                data-translate-values="{ date: vm.displayStartDate }"
+                                data-translate-values="{ date: vm.displayStartDate, show_time: vm.showTime }"
                             >
                             </span>
                             <span>)</span>

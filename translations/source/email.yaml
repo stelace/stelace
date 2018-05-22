@@ -377,8 +377,17 @@ template:
         content:
             en: >-
                 {taker__name} has booked your {listing__name} {booking__end_date, select,
-                    undefined { for {booking__start_date, date, long}}
-                    other {from {booking__start_date, date, long} to {booking__end_date, date, long}}
+                    undefined { for {booking__start_date, date, long}{booking__show_time, select,
+                        true { at {booking__start_date, time, short}}
+                        other {}
+                    }}
+                    other { from {booking__start_date, date, long}{booking__show_time, select,
+                        true { at {booking__start_date, time, short}}
+                        other {}
+                    } to {booking__end_date, date, long}{booking__show_time, select,
+                        true { at {booking__end_date, time, short}}
+                        other {}
+                    }}
                 }{booking__owner_price, select,
                     0 {}
                     other { for an amount of {booking__owner_price, number, currency}{booking__owner_fees, select,
@@ -388,8 +397,17 @@ template:
                 }.
             fr: >-
                 {taker__name} a réservé votre {listing__name} {booking__end_date, select,
-                    undefined { pour le {booking__start_date, date, long}}
-                    other {du {booking__start_date, date, long} au {booking__end_date, date, long}}
+                    undefined { pour le {booking__start_date, date, long}{booking__show_time, select,
+                        true { at {booking__start_date, time, short}}
+                        other {}
+                    }}
+                    other {du {booking__start_date, date, long}{booking__show_time, select,
+                        true { at {booking__start_date, time, short}}
+                        other {}
+                    } au {booking__end_date, date, long}{booking__show_time, select,
+                        true { at {booking__end_date, time, short}}
+                        other {}
+                    }}
                 }{booking__owner_price, select,
                     0 {}
                     other { pour un montant de {booking__owner_price, number, currency}{booking__owner_fees, select,

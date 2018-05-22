@@ -770,7 +770,11 @@ $search__search-bar-height: 3.5rem;
             }
             .select-quantity {
                 max-width: 5rem;
-                margin: 0
+                margin: 0;
+            }
+            .select-duration {
+                max-width: 5rem;
+                margin: 0;
             }
 
             .book__free-days {
@@ -779,6 +783,15 @@ $search__search-bar-height: 3.5rem;
                     padding-left: 0.5rem;
                     padding-right: 0.5rem;
                 }
+            }
+
+            .current-bookings-container {
+                max-height: 7rem;
+                overflow-y: auto;
+            }
+
+            .book_timepicker input {
+                max-width: 3rem;
             }
 
             .booking-button-trust {

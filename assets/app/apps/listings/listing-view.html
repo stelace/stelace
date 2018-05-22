@@ -200,7 +200,7 @@
                                                 ng-model="vm.startDate"
                                                 ng-click="vm.openDatepicker('start')"
                                                 ng-focus="vm.openDatepicker('start')"
-                                                ng-change="vm.displayTimeFlexiblePrice()"
+                                                ng-change="vm.changeStartDate()"
                                                 uib-datepicker-popup="{{vm.formatDate}}"
                                                 data-datepicker-options="vm.startDateOptions"
                                                 data-datepicker-append-to-body="false"
@@ -220,30 +220,45 @@
                                     </div>
                                     <div class="datepicker-side datepicker-right"
                                         ng-if="vm.listingTypeProperties.isTimeFlexible">
-                                        <label for="popup-end-date"
-                                            data-translate="time.to_day_label">
-                                        </label>
-                                        <div class="input__inner-icon-container">
-                                            <input id="popup-end-date"
-                                                type="text"
-                                                ng-model="vm.endDate"
-                                                ng-click="vm.openDatepicker('end')"
-                                                ng-focus="vm.openDatepicker('end')"
-                                                ng-change="vm.displayTimeFlexiblePrice()"
-                                                uib-datepicker-popup="{{vm.formatDate}}"
-                                                data-datepicker-options="vm.endDateOptions"
-                                                data-datepicker-append-to-body="false"
-                                                data-is-open="vm.endDateOpened"
-                                                data-show-button-bar="false"
-                                                data-translate-attr="{ placeholder: 'time.end_label' }"
-                                                readonly
-                                                data-sip-autoblur="vm.iOS">
-                                            <div class="input__inner-icon icon-right cursor-pointer"
-                                                ng-class="{active: vm.endDateOpened}"
-                                                ng-click="vm.endDateOpened = ! vm.endDateOpened;">
-                                                <svg class="icon">
-                                                    <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
-                                                </svg>
+                                        <div ng-if="!vm.showTime">
+                                            <label for="popup-end-date"
+                                                data-translate="time.to_day_label">
+                                            </label>
+                                            <div class="input__inner-icon-container">
+                                                <input id="popup-end-date"
+                                                    type="text"
+                                                    ng-model="vm.endDate"
+                                                    ng-click="vm.openDatepicker('end')"
+                                                    ng-focus="vm.openDatepicker('end')"
+                                                    ng-change="vm.displayTimeFlexiblePrice()"
+                                                    uib-datepicker-popup="{{vm.formatDate}}"
+                                                    data-datepicker-options="vm.endDateOptions"
+                                                    data-datepicker-append-to-body="false"
+                                                    data-is-open="vm.endDateOpened"
+                                                    data-show-button-bar="false"
+                                                    data-translate-attr="{ placeholder: 'time.end_label' }"
+                                                    readonly
+                                                    data-sip-autoblur="vm.iOS">
+                                                <div class="input__inner-icon icon-right cursor-pointer"
+                                                    ng-class="{active: vm.endDateOpened}"
+                                                    ng-click="vm.endDateOpened = ! vm.endDateOpened;">
+                                                    <svg class="icon">
+                                                        <use xlink:href="/assets/build/icons/sprite.svg#calendar"></use>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div ng-if="vm.showTime">
+                                            <label>
+                                                &nbsp;
+                                            </label>
+                                            <div class="book_timepicker"
+                                                ng-model="vm.startTime"
+                                                ng-change="vm.changeStartTime()"
+                                                data-show-meridian="false"
+                                                data-show-seconds="false"
+                                                data-show-spinners="false"
+                                                uib-timepicker>
                                             </div>
                                         </div>
                                     </div>
@@ -279,8 +294,36 @@
                                     </div>
                                 </div>
 
+                                <div ng-if="vm.listingTypeProperties.isTimeFlexible && vm.showTime"
+                                    class="flex-container flex--space flex--align-center margin-top margin-bottom">
+                                    <label for="duration-list" for="duration-list" data-translate="pricing.duration"></label>
+                                    <select id="duration-list" class="select-duration"
+                                        ng-model="vm.selectedDurationStr"
+                                        ng-change="vm.changeDuration()"
+                                    >
+                                        <option ng-repeat="duration in vm.listDurations"
+                                            value="{{duration.value}}"
+                                        >
+                                            {{duration.label}}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <label class="margin-bottom-plus text-center"
+                                    ng-if="vm.listingTypeProperties.isTimeFlexible && vm.showTime && vm.endDate"
+                                >
+                                    <span data-translate="time.to_day_label">
+                                    </span>
+                                    <span class="text--semibold">
+                                        <span data-translate="time.date_long" data-translate-values="{ date: vm.endDate }">
+                                        </span>
+                                        <span data-translate="time.time_short" data-translate-values="{ time: vm.endDate }">
+                                        </span>
+                                    </span>
+                                </label>
+
                                 <div ng-if="vm.listingTypeProperties.isAvailabilityStock"
-                                    class="flex-container flex--space-between flex--align-center margin-top margin-bottom">
+                                    class="flex-container flex--space flex--align-center margin-top margin-bottom">
                                     <label for="quantity-list" data-translate="pricing.quantity"></label>
                                     <select id="quantity-list" class="select-quantity"
                                         ng-model="vm.selectedQuantityStr"
@@ -292,6 +335,27 @@
                                             {{quantity}}
                                         </option>
                                     </select>
+                                </div>
+
+                                <div ng-if="vm.showTime && vm.unavailablePeriods.length"
+                                    class="current-bookings-container text-center text--small text--light margin-top margin-bottom-plus"
+                                >
+                                    <label data-translate="booking.unavailable_periods"></label>
+                                    <div ng-repeat="period in vm.unavailablePeriods">
+                                        <span>
+                                            <span data-translate="time.date_short" data-translate-values="{ date: period.startDate }">
+                                            </span>
+                                            <span data-translate="time.time_short" data-translate-values="{ time: period.startDate }">
+                                            </span>
+                                        </span>
+                                        →
+                                        <span>
+                                            <span data-translate="time.date_short" data-translate-values="{ date: period.endDate }">
+                                            </span>
+                                            <span data-translate="time.time_short" data-translate-values="{ time: period.endDate }">
+                                            </span>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <p class="text-center margin-bottom" ng-show="vm.showIncorrectDates" ng-switch="vm.dateErrorObject.type">
@@ -308,6 +372,9 @@
                                         data-translate-values="{ timeUnit: vm.dateErrorObject.timeUnit, nbTimeUnits: vm.dateErrorObject.maxDuration }"
                                     >
                                     </span>
+                                </p>
+                                <p class="text-center margin-bottom" ng-show="!vm.showIncorrectDates && vm.availabilityError">
+                                    <span data-translate="booking.error.unavailable_periods"></span>
                                 </p>
                                 <div class="text-center" ng-switch="vm.isOwner">
                                     <div ng-if="vm.listing.locked"

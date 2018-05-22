@@ -572,6 +572,8 @@ async function prepareDataForICUMessageFormat(parameters, { config, user, data, 
     if (booking) {
         const priceResult = PricingService.getPriceAfterRebateAndFees({ booking });
 
+        const timeUnit = booking.listingType.config.bookingTime.timeUnit;
+
         newParams.booking__start_date = booking.startDate;
         newParams.booking__end_date = booking.endDate || undefined;
         newParams.booking__owner_price = booking.ownerPrice || 0;
@@ -580,6 +582,8 @@ async function prepareDataForICUMessageFormat(parameters, { config, user, data, 
         newParams.booking__taker_price = booking.takerPrice || 0;
         newParams.booking__taker_fees = booking.takerFees || 0;
         newParams.booking__deposit = booking.deposit || 0;
+        newParams.booking__time_unit = timeUnit;
+        newParams.booking__show_time = _.includes(['h', 'm'], timeUnit);
     }
     if (listingMedias) {
         newParams.listing__media_url = EmailHelperService.getListingMediaUrl(listingMedias);
@@ -623,6 +627,8 @@ function getCommonParametersMetadata({ filter = [], omit = [] } = {}) {
         { label: 'booking__taker_price', type: 'number' },
         { label: 'booking__taker_fees', type: 'number' },
         { label: 'booking__deposit', type: 'number' },
+        { label: 'booking__time_unit', type: 'string' },
+        { label: 'booking__show_time', type: 'boolean' },
 
         { label: 'owner__name', type: 'string' },
         { label: 'taker__name', type: 'string' },
@@ -945,6 +951,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -970,6 +978,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -994,6 +1004,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1018,6 +1030,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1042,6 +1056,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1066,6 +1082,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1090,6 +1108,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1114,6 +1134,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1138,6 +1160,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1162,6 +1186,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1186,6 +1212,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1211,6 +1239,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
@@ -1235,6 +1265,8 @@ function getParametersMetadata(templateName) {
                 'booking__taker_price',
                 'booking__taker_fees',
                 'booking__deposit',
+                'booking__time_unit',
+                'booking__show_time',
                 'owner__name',
                 'taker__name',
             ],
