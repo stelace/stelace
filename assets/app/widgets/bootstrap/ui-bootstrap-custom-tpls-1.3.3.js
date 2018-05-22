@@ -4,468 +4,672 @@
 
  * Version: 1.3.3 - 2016-05-22
  * License: MIT
- */angular.module("ui.bootstrap", ["ui.bootstrap.tpls","ui.bootstrap.datepickerPopup","ui.bootstrap.datepicker","ui.bootstrap.dateparser","ui.bootstrap.isClass","ui.bootstrap.position","ui.bootstrap.collapse","ui.bootstrap.carousel","ui.bootstrap.stackedMap","ui.bootstrap.paging","ui.bootstrap.pager","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating"]);
-angular.module("ui.bootstrap.tpls", ["uib/template/datepickerPopup/popup.html","uib/template/datepicker/datepicker.html","uib/template/datepicker/day.html","uib/template/datepicker/month.html","uib/template/datepicker/year.html","uib/template/carousel/carousel.html","uib/template/carousel/slide.html","uib/template/pager/pager.html","uib/template/pagination/pagination.html","uib/template/tooltip/tooltip-html-popup.html","uib/template/tooltip/tooltip-popup.html","uib/template/tooltip/tooltip-template-popup.html","uib/template/popover/popover-html.html","uib/template/popover/popover-template.html","uib/template/popover/popover.html","uib/template/progressbar/bar.html","uib/template/progressbar/progress.html","uib/template/progressbar/progressbar.html","uib/template/rating/rating.html"]);
-angular.module('ui.bootstrap.datepickerPopup', ['ui.bootstrap.datepicker', 'ui.bootstrap.position'])
+ */angular.module("ui.bootstrap", ["ui.bootstrap.tpls","ui.bootstrap.collapse","ui.bootstrap.dateparser","ui.bootstrap.isClass","ui.bootstrap.datepicker","ui.bootstrap.position","ui.bootstrap.datepickerPopup","ui.bootstrap.paging","ui.bootstrap.pager","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.stackedMap","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.timepicker"]);
+angular.module("ui.bootstrap.tpls", ["uib/template/datepicker/datepicker.html","uib/template/datepicker/day.html","uib/template/datepicker/month.html","uib/template/datepicker/year.html","uib/template/datepickerPopup/popup.html","uib/template/pager/pager.html","uib/template/pagination/pagination.html","uib/template/tooltip/tooltip-html-popup.html","uib/template/tooltip/tooltip-popup.html","uib/template/tooltip/tooltip-template-popup.html","uib/template/popover/popover-html.html","uib/template/popover/popover-template.html","uib/template/popover/popover.html","uib/template/progressbar/bar.html","uib/template/progressbar/progress.html","uib/template/progressbar/progressbar.html","uib/template/rating/rating.html","uib/template/timepicker/timepicker.html"]);
+angular.module('ui.bootstrap.collapse', [])
 
-.value('$datepickerPopupLiteralWarning', true)
+  .directive('uibCollapse', ['$animate', '$q', '$parse', '$injector', function($animate, $q, $parse, $injector) {
+    var $animateCss = $injector.has('$animateCss') ? $injector.get('$animateCss') : null;
+    return {
+      link: function(scope, element, attrs) {
+        var expandingExpr = $parse(attrs.expanding),
+            expandedExpr = $parse(attrs.expanded),
+            collapsingExpr = $parse(attrs.collapsing),
+            collapsedExpr = $parse(attrs.collapsed);
 
-.constant('uibDatepickerPopupConfig', {
-  altInputFormats: [],
-  appendToBody: false,
-  clearText: 'Clear',
-  closeOnDateSelection: true,
-  closeText: 'Done',
-  currentText: 'Today',
-  datepickerPopup: 'yyyy-MM-dd',
-  datepickerPopupTemplateUrl: 'uib/template/datepickerPopup/popup.html',
-  datepickerTemplateUrl: 'uib/template/datepicker/datepicker.html',
-  html5Types: {
-    date: 'yyyy-MM-dd',
-    'datetime-local': 'yyyy-MM-ddTHH:mm:ss.sss',
-    'month': 'yyyy-MM'
-  },
-  onOpenFocus: true,
-  showButtonBar: true,
-  placement: 'auto bottom-left'
-})
-
-.controller('UibDatepickerPopupController', ['$scope', '$element', '$attrs', '$compile', '$log', '$parse', '$window', '$document', '$rootScope', '$uibPosition', 'dateFilter', 'uibDateParser', 'uibDatepickerPopupConfig', '$timeout', 'uibDatepickerConfig', '$datepickerPopupLiteralWarning',
-function($scope, $element, $attrs, $compile, $log, $parse, $window, $document, $rootScope, $position, dateFilter, dateParser, datepickerPopupConfig, $timeout, datepickerConfig, $datepickerPopupLiteralWarning) {
-  var cache = {},
-    isHtml5DateInput = false;
-  var dateFormat, closeOnDateSelection, appendToBody, onOpenFocus,
-    datepickerPopupTemplateUrl, datepickerTemplateUrl, popupEl, datepickerEl, scrollParentEl,
-    ngModel, ngModelOptions, $popup, altInputFormats, watchListeners = [],
-    timezone;
-
-  this.init = function(_ngModel_) {
-    ngModel = _ngModel_;
-    ngModelOptions = _ngModel_.$options;
-    closeOnDateSelection = angular.isDefined($attrs.closeOnDateSelection) ?
-      $scope.$parent.$eval($attrs.closeOnDateSelection) :
-      datepickerPopupConfig.closeOnDateSelection;
-    appendToBody = angular.isDefined($attrs.datepickerAppendToBody) ?
-      $scope.$parent.$eval($attrs.datepickerAppendToBody) :
-      datepickerPopupConfig.appendToBody;
-    onOpenFocus = angular.isDefined($attrs.onOpenFocus) ?
-      $scope.$parent.$eval($attrs.onOpenFocus) : datepickerPopupConfig.onOpenFocus;
-    datepickerPopupTemplateUrl = angular.isDefined($attrs.datepickerPopupTemplateUrl) ?
-      $attrs.datepickerPopupTemplateUrl :
-      datepickerPopupConfig.datepickerPopupTemplateUrl;
-    datepickerTemplateUrl = angular.isDefined($attrs.datepickerTemplateUrl) ?
-      $attrs.datepickerTemplateUrl : datepickerPopupConfig.datepickerTemplateUrl;
-    altInputFormats = angular.isDefined($attrs.altInputFormats) ?
-      $scope.$parent.$eval($attrs.altInputFormats) :
-      datepickerPopupConfig.altInputFormats;
-
-    $scope.showButtonBar = angular.isDefined($attrs.showButtonBar) ?
-      $scope.$parent.$eval($attrs.showButtonBar) :
-      datepickerPopupConfig.showButtonBar;
-
-    if (datepickerPopupConfig.html5Types[$attrs.type]) {
-      dateFormat = datepickerPopupConfig.html5Types[$attrs.type];
-      isHtml5DateInput = true;
-    } else {
-      dateFormat = $attrs.uibDatepickerPopup || datepickerPopupConfig.datepickerPopup;
-      $attrs.$observe('uibDatepickerPopup', function(value, oldValue) {
-        var newDateFormat = value || datepickerPopupConfig.datepickerPopup;
-        // Invalidate the $modelValue to ensure that formatters re-run
-        // FIXME: Refactor when PR is merged: https://github.com/angular/angular.js/pull/10764
-        if (newDateFormat !== dateFormat) {
-          dateFormat = newDateFormat;
-          ngModel.$modelValue = null;
-
-          if (!dateFormat) {
-            throw new Error('uibDatepickerPopup must have a date format specified.');
-          }
-        }
-      });
-    }
-
-    if (!dateFormat) {
-      throw new Error('uibDatepickerPopup must have a date format specified.');
-    }
-
-    if (isHtml5DateInput && $attrs.uibDatepickerPopup) {
-      throw new Error('HTML5 date input types do not support custom formats.');
-    }
-
-    // popup element used to display calendar
-    popupEl = angular.element('<div uib-datepicker-popup-wrap><div uib-datepicker></div></div>');
-    if (ngModelOptions) {
-      timezone = ngModelOptions.timezone;
-      $scope.ngModelOptions = angular.copy(ngModelOptions);
-      $scope.ngModelOptions.timezone = null;
-      if ($scope.ngModelOptions.updateOnDefault === true) {
-        $scope.ngModelOptions.updateOn = $scope.ngModelOptions.updateOn ?
-          $scope.ngModelOptions.updateOn + ' default' : 'default';
-      }
-
-      popupEl.attr('ng-model-options', 'ngModelOptions');
-    } else {
-      timezone = null;
-    }
-
-    popupEl.attr({
-      'ng-model': 'date',
-      'ng-change': 'dateSelection(date)',
-      'template-url': datepickerPopupTemplateUrl
-    });
-
-    // datepicker element
-    datepickerEl = angular.element(popupEl.children()[0]);
-    datepickerEl.attr('template-url', datepickerTemplateUrl);
-
-    if (!$scope.datepickerOptions) {
-      $scope.datepickerOptions = {};
-    }
-
-    if (isHtml5DateInput) {
-      if ($attrs.type === 'month') {
-        $scope.datepickerOptions.datepickerMode = 'month';
-        $scope.datepickerOptions.minMode = 'month';
-      }
-    }
-
-    datepickerEl.attr('datepicker-options', 'datepickerOptions');
-
-    if (!isHtml5DateInput) {
-      // Internal API to maintain the correct ng-invalid-[key] class
-      ngModel.$$parserName = 'date';
-      ngModel.$validators.date = validator;
-      ngModel.$parsers.unshift(parseDate);
-      ngModel.$formatters.push(function(value) {
-        if (ngModel.$isEmpty(value)) {
-          $scope.date = value;
-          return value;
+        if (!scope.$eval(attrs.uibCollapse)) {
+          element.addClass('in')
+            .addClass('collapse')
+            .attr('aria-expanded', true)
+            .attr('aria-hidden', false)
+            .css({height: 'auto'});
         }
 
-        if (angular.isNumber(value)) {
-          value = new Date(value);
-        }
-
-        $scope.date = dateParser.fromTimezone(value, timezone);
-
-        return dateParser.filter($scope.date, dateFormat);
-      });
-    } else {
-      ngModel.$formatters.push(function(value) {
-        $scope.date = dateParser.fromTimezone(value, timezone);
-        return value;
-      });
-    }
-
-    // Detect changes in the view from the text box
-    ngModel.$viewChangeListeners.push(function() {
-      $scope.date = parseDateString(ngModel.$viewValue);
-    });
-
-    $element.on('keydown', inputKeydownBind);
-
-    $popup = $compile(popupEl)($scope);
-    // Prevent jQuery cache memory leak (template is now redundant after linking)
-    popupEl.remove();
-
-    if (appendToBody) {
-      $document.find('body').append($popup);
-    } else {
-      $element.after($popup);
-    }
-
-    $scope.$on('$destroy', function() {
-      if ($scope.isOpen === true) {
-        if (!$rootScope.$$phase) {
-          $scope.$apply(function() {
-            $scope.isOpen = false;
-          });
-        }
-      }
-
-      $popup.remove();
-      $element.off('keydown', inputKeydownBind);
-      $document.off('click', documentClickBind);
-      if (scrollParentEl) {
-        scrollParentEl.off('scroll', positionPopup);
-      }
-      angular.element($window).off('resize', positionPopup);
-
-      //Clear all watch listeners on destroy
-      while (watchListeners.length) {
-        watchListeners.shift()();
-      }
-    });
-  };
-
-  $scope.getText = function(key) {
-    return $scope[key + 'Text'] || datepickerPopupConfig[key + 'Text'];
-  };
-
-  $scope.isDisabled = function(date) {
-    if (date === 'today') {
-      date = dateParser.fromTimezone(new Date(), timezone);
-    }
-
-    var dates = {};
-    angular.forEach(['minDate', 'maxDate'], function(key) {
-      if (!$scope.datepickerOptions[key]) {
-        dates[key] = null;
-      } else if (angular.isDate($scope.datepickerOptions[key])) {
-        dates[key] = dateParser.fromTimezone(new Date($scope.datepickerOptions[key]), timezone);
-      } else {
-        if ($datepickerPopupLiteralWarning) {
-          $log.warn('Literal date support has been deprecated, please switch to date object usage');
-        }
-
-        dates[key] = new Date(dateFilter($scope.datepickerOptions[key], 'medium'));
-      }
-    });
-
-    return $scope.datepickerOptions &&
-      dates.minDate && $scope.compare(date, dates.minDate) < 0 ||
-      dates.maxDate && $scope.compare(date, dates.maxDate) > 0;
-  };
-
-  $scope.compare = function(date1, date2) {
-    return new Date(date1.getFullYear(), date1.getMonth(), date1.getDate()) - new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
-  };
-
-  // Inner change
-  $scope.dateSelection = function(dt) {
-    if (angular.isDefined(dt)) {
-      $scope.date = dt;
-    }
-    var date = $scope.date ? dateParser.filter($scope.date, dateFormat) : null; // Setting to NULL is necessary for form validators to function
-    $element.val(date);
-    ngModel.$setViewValue(date);
-
-    if (closeOnDateSelection) {
-      $scope.isOpen = false;
-      $element[0].focus();
-    }
-  };
-
-  $scope.keydown = function(evt) {
-    if (evt.which === 27) {
-      evt.stopPropagation();
-      $scope.isOpen = false;
-      $element[0].focus();
-    }
-  };
-
-  $scope.select = function(date, evt) {
-    evt.stopPropagation();
-
-    if (date === 'today') {
-      var today = new Date();
-      if (angular.isDate($scope.date)) {
-        date = new Date($scope.date);
-        date.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
-      } else {
-        date = new Date(today.setHours(0, 0, 0, 0));
-      }
-    }
-    $scope.dateSelection(date);
-  };
-
-  $scope.close = function(evt) {
-    evt.stopPropagation();
-
-    $scope.isOpen = false;
-    $element[0].focus();
-  };
-
-  $scope.disabled = angular.isDefined($attrs.disabled) || false;
-  if ($attrs.ngDisabled) {
-    watchListeners.push($scope.$parent.$watch($parse($attrs.ngDisabled), function(disabled) {
-      $scope.disabled = disabled;
-    }));
-  }
-
-  $scope.$watch('isOpen', function(value) {
-    if (value) {
-      if (!$scope.disabled) {
-        $timeout(function() {
-          positionPopup();
-
-          if (onOpenFocus) {
-            $scope.$broadcast('uib:datepicker.focus');
+        function expand() {
+          if (element.hasClass('collapse') && element.hasClass('in')) {
+            return;
           }
 
-          $document.on('click', documentClickBind);
+          $q.resolve(expandingExpr(scope))
+            .then(function() {
+              element.removeClass('collapse')
+                .addClass('collapsing')
+                .attr('aria-expanded', true)
+                .attr('aria-hidden', false);
 
-          var placement = $attrs.popupPlacement ? $attrs.popupPlacement : datepickerPopupConfig.placement;
-          if (appendToBody || $position.parsePlacement(placement)[2]) {
-            scrollParentEl = scrollParentEl || angular.element($position.scrollParent($element));
-            if (scrollParentEl) {
-              scrollParentEl.on('scroll', positionPopup);
-            }
+              if ($animateCss) {
+                $animateCss(element, {
+                  addClass: 'in',
+                  easing: 'ease',
+                  to: { height: element[0].scrollHeight + 'px' }
+                }).start()['finally'](expandDone);
+              } else {
+                $animate.addClass(element, 'in', {
+                  to: { height: element[0].scrollHeight + 'px' }
+                }).then(expandDone);
+              }
+            });
+        }
+
+        function expandDone() {
+          element.removeClass('collapsing')
+            .addClass('collapse')
+            .css({height: 'auto'});
+          expandedExpr(scope);
+        }
+
+        function collapse() {
+          if (!element.hasClass('collapse') && !element.hasClass('in')) {
+            return collapseDone();
+          }
+
+          $q.resolve(collapsingExpr(scope))
+            .then(function() {
+              element
+                // IMPORTANT: The height must be set before adding "collapsing" class.
+                // Otherwise, the browser attempts to animate from height 0 (in
+                // collapsing class) to the given height here.
+                .css({height: element[0].scrollHeight + 'px'})
+                // initially all panel collapse have the collapse class, this removal
+                // prevents the animation from jumping to collapsed state
+                .removeClass('collapse')
+                .addClass('collapsing')
+                .attr('aria-expanded', false)
+                .attr('aria-hidden', true);
+
+              if ($animateCss) {
+                $animateCss(element, {
+                  removeClass: 'in',
+                  to: {height: '0'}
+                }).start()['finally'](collapseDone);
+              } else {
+                $animate.removeClass(element, 'in', {
+                  to: {height: '0'}
+                }).then(collapseDone);
+              }
+            });
+        }
+
+        function collapseDone() {
+          element.css({height: '0'}); // Required so that collapse works when animation is disabled
+          element.removeClass('collapsing')
+            .addClass('collapse');
+          collapsedExpr(scope);
+        }
+
+        scope.$watch(attrs.uibCollapse, function(shouldCollapse) {
+          if (shouldCollapse) {
+            collapse();
           } else {
-            scrollParentEl = null;
+            expand();
+          }
+        });
+      }
+    };
+  }]);
+
+angular.module('ui.bootstrap.dateparser', [])
+
+.service('uibDateParser', ['$log', '$locale', 'dateFilter', 'orderByFilter', function($log, $locale, dateFilter, orderByFilter) {
+  // Pulled from https://github.com/mbostock/d3/blob/master/src/format/requote.js
+  var SPECIAL_CHARACTERS_REGEXP = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
+
+  var localeId;
+  var formatCodeToRegex;
+
+  this.init = function() {
+    localeId = $locale.id;
+
+    this.parsers = {};
+    this.formatters = {};
+
+    formatCodeToRegex = [
+      {
+        key: 'yyyy',
+        regex: '\\d{4}',
+        apply: function(value) { this.year = +value; },
+        formatter: function(date) {
+          var _date = new Date();
+          _date.setFullYear(Math.abs(date.getFullYear()));
+          return dateFilter(_date, 'yyyy');
+        }
+      },
+      {
+        key: 'yy',
+        regex: '\\d{2}',
+        apply: function(value) { value = +value; this.year = value < 69 ? value + 2000 : value + 1900; },
+        formatter: function(date) {
+          var _date = new Date();
+          _date.setFullYear(Math.abs(date.getFullYear()));
+          return dateFilter(_date, 'yy');
+        }
+      },
+      {
+        key: 'y',
+        regex: '\\d{1,4}',
+        apply: function(value) { this.year = +value; },
+        formatter: function(date) {
+          var _date = new Date();
+          _date.setFullYear(Math.abs(date.getFullYear()));
+          return dateFilter(_date, 'y');
+        }
+      },
+      {
+        key: 'M!',
+        regex: '0?[1-9]|1[0-2]',
+        apply: function(value) { this.month = value - 1; },
+        formatter: function(date) {
+          var value = date.getMonth();
+          if (/^[0-9]$/.test(value)) {
+            return dateFilter(date, 'MM');
           }
 
-          angular.element($window).on('resize', positionPopup);
-        }, 0, false);
-      } else {
-        $scope.isOpen = false;
-      }
-    } else {
-      $document.off('click', documentClickBind);
-      if (scrollParentEl) {
-        scrollParentEl.off('scroll', positionPopup);
-      }
-      angular.element($window).off('resize', positionPopup);
-    }
-  });
+          return dateFilter(date, 'M');
+        }
+      },
+      {
+        key: 'MMMM',
+        regex: $locale.DATETIME_FORMATS.MONTH.join('|'),
+        apply: function(value) { this.month = $locale.DATETIME_FORMATS.MONTH.indexOf(value); },
+        formatter: function(date) { return dateFilter(date, 'MMMM'); }
+      },
+      {
+        key: 'MMM',
+        regex: $locale.DATETIME_FORMATS.SHORTMONTH.join('|'),
+        apply: function(value) { this.month = $locale.DATETIME_FORMATS.SHORTMONTH.indexOf(value); },
+        formatter: function(date) { return dateFilter(date, 'MMM'); }
+      },
+      {
+        key: 'MM',
+        regex: '0[1-9]|1[0-2]',
+        apply: function(value) { this.month = value - 1; },
+        formatter: function(date) { return dateFilter(date, 'MM'); }
+      },
+      {
+        key: 'M',
+        regex: '[1-9]|1[0-2]',
+        apply: function(value) { this.month = value - 1; },
+        formatter: function(date) { return dateFilter(date, 'M'); }
+      },
+      {
+        key: 'd!',
+        regex: '[0-2]?[0-9]{1}|3[0-1]{1}',
+        apply: function(value) { this.date = +value; },
+        formatter: function(date) {
+          var value = date.getDate();
+          if (/^[1-9]$/.test(value)) {
+            return dateFilter(date, 'dd');
+          }
 
-  function cameltoDash(string) {
-    return string.replace(/([A-Z])/g, function($1) { return '-' + $1.toLowerCase(); });
-  }
+          return dateFilter(date, 'd');
+        }
+      },
+      {
+        key: 'dd',
+        regex: '[0-2][0-9]{1}|3[0-1]{1}',
+        apply: function(value) { this.date = +value; },
+        formatter: function(date) { return dateFilter(date, 'dd'); }
+      },
+      {
+        key: 'd',
+        regex: '[1-2]?[0-9]{1}|3[0-1]{1}',
+        apply: function(value) { this.date = +value; },
+        formatter: function(date) { return dateFilter(date, 'd'); }
+      },
+      {
+        key: 'EEEE',
+        regex: $locale.DATETIME_FORMATS.DAY.join('|'),
+        formatter: function(date) { return dateFilter(date, 'EEEE'); }
+      },
+      {
+        key: 'EEE',
+        regex: $locale.DATETIME_FORMATS.SHORTDAY.join('|'),
+        formatter: function(date) { return dateFilter(date, 'EEE'); }
+      },
+      {
+        key: 'HH',
+        regex: '(?:0|1)[0-9]|2[0-3]',
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'HH'); }
+      },
+      {
+        key: 'hh',
+        regex: '0[0-9]|1[0-2]',
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'hh'); }
+      },
+      {
+        key: 'H',
+        regex: '1?[0-9]|2[0-3]',
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'H'); }
+      },
+      {
+        key: 'h',
+        regex: '[0-9]|1[0-2]',
+        apply: function(value) { this.hours = +value; },
+        formatter: function(date) { return dateFilter(date, 'h'); }
+      },
+      {
+        key: 'mm',
+        regex: '[0-5][0-9]',
+        apply: function(value) { this.minutes = +value; },
+        formatter: function(date) { return dateFilter(date, 'mm'); }
+      },
+      {
+        key: 'm',
+        regex: '[0-9]|[1-5][0-9]',
+        apply: function(value) { this.minutes = +value; },
+        formatter: function(date) { return dateFilter(date, 'm'); }
+      },
+      {
+        key: 'sss',
+        regex: '[0-9][0-9][0-9]',
+        apply: function(value) { this.milliseconds = +value; },
+        formatter: function(date) { return dateFilter(date, 'sss'); }
+      },
+      {
+        key: 'ss',
+        regex: '[0-5][0-9]',
+        apply: function(value) { this.seconds = +value; },
+        formatter: function(date) { return dateFilter(date, 'ss'); }
+      },
+      {
+        key: 's',
+        regex: '[0-9]|[1-5][0-9]',
+        apply: function(value) { this.seconds = +value; },
+        formatter: function(date) { return dateFilter(date, 's'); }
+      },
+      {
+        key: 'a',
+        regex: $locale.DATETIME_FORMATS.AMPMS.join('|'),
+        apply: function(value) {
+          if (this.hours === 12) {
+            this.hours = 0;
+          }
 
-  function parseDateString(viewValue) {
-    var date = dateParser.parse(viewValue, dateFormat, $scope.date);
-    if (isNaN(date)) {
-      for (var i = 0; i < altInputFormats.length; i++) {
-        date = dateParser.parse(viewValue, altInputFormats[i], $scope.date);
-        if (!isNaN(date)) {
-          return date;
+          if (value === 'PM') {
+            this.hours += 12;
+          }
+        },
+        formatter: function(date) { return dateFilter(date, 'a'); }
+      },
+      {
+        key: 'Z',
+        regex: '[+-]\\d{4}',
+        apply: function(value) {
+          var matches = value.match(/([+-])(\d{2})(\d{2})/),
+            sign = matches[1],
+            hours = matches[2],
+            minutes = matches[3];
+          this.hours += toInt(sign + hours);
+          this.minutes += toInt(sign + minutes);
+        },
+        formatter: function(date) {
+          return dateFilter(date, 'Z');
+        }
+      },
+      {
+        key: 'ww',
+        regex: '[0-4][0-9]|5[0-3]',
+        formatter: function(date) { return dateFilter(date, 'ww'); }
+      },
+      {
+        key: 'w',
+        regex: '[0-9]|[1-4][0-9]|5[0-3]',
+        formatter: function(date) { return dateFilter(date, 'w'); }
+      },
+      {
+        key: 'GGGG',
+        regex: $locale.DATETIME_FORMATS.ERANAMES.join('|').replace(/\s/g, '\\s'),
+        formatter: function(date) { return dateFilter(date, 'GGGG'); }
+      },
+      {
+        key: 'GGG',
+        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
+        formatter: function(date) { return dateFilter(date, 'GGG'); }
+      },
+      {
+        key: 'GG',
+        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
+        formatter: function(date) { return dateFilter(date, 'GG'); }
+      },
+      {
+        key: 'G',
+        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
+        formatter: function(date) { return dateFilter(date, 'G'); }
+      }
+    ];
+  };
+
+  this.init();
+
+  function createParser(format, func) {
+    var map = [], regex = format.split('');
+
+    // check for literal values
+    var quoteIndex = format.indexOf('\'');
+    if (quoteIndex > -1) {
+      var inLiteral = false;
+      format = format.split('');
+      for (var i = quoteIndex; i < format.length; i++) {
+        if (inLiteral) {
+          if (format[i] === '\'') {
+            if (i + 1 < format.length && format[i+1] === '\'') { // escaped single quote
+              format[i+1] = '$';
+              regex[i+1] = '';
+            } else { // end of literal
+              regex[i] = '';
+              inLiteral = false;
+            }
+          }
+          format[i] = '$';
+        } else {
+          if (format[i] === '\'') { // start of literal
+            format[i] = '$';
+            regex[i] = '';
+            inLiteral = true;
+          }
         }
       }
+
+      format = format.join('');
     }
+
+    angular.forEach(formatCodeToRegex, function(data) {
+      var index = format.indexOf(data.key);
+
+      if (index > -1) {
+        format = format.split('');
+
+        regex[index] = '(' + data.regex + ')';
+        format[index] = '$'; // Custom symbol to define consumed part of format
+        for (var i = index + 1, n = index + data.key.length; i < n; i++) {
+          regex[i] = '';
+          format[i] = '$';
+        }
+        format = format.join('');
+
+        map.push({
+          index: index,
+          key: data.key,
+          apply: data[func],
+          matcher: data.regex
+        });
+      }
+    });
+
+    return {
+      regex: new RegExp('^' + regex.join('') + '$'),
+      map: orderByFilter(map, 'index')
+    };
+  }
+
+  this.filter = function(date, format) {
+    if (!angular.isDate(date) || isNaN(date) || !format) {
+      return '';
+    }
+
+    format = $locale.DATETIME_FORMATS[format] || format;
+
+    if ($locale.id !== localeId) {
+      this.init();
+    }
+
+    if (!this.formatters[format]) {
+      this.formatters[format] = createParser(format, 'formatter');
+    }
+
+    var parser = this.formatters[format],
+      map = parser.map;
+
+    var _format = format;
+
+    return map.reduce(function(str, mapper, i) {
+      var match = _format.match(new RegExp('(.*)' + mapper.key));
+      if (match && angular.isString(match[1])) {
+        str += match[1];
+        _format = _format.replace(match[1] + mapper.key, '');
+      }
+
+      var endStr = i === map.length - 1 ? _format : '';
+
+      if (mapper.apply) {
+        return str + mapper.apply.call(null, date) + endStr;
+      }
+
+      return str + endStr;
+    }, '');
+  };
+
+  this.parse = function(input, format, baseDate) {
+    if (!angular.isString(input) || !format) {
+      return input;
+    }
+
+    format = $locale.DATETIME_FORMATS[format] || format;
+    format = format.replace(SPECIAL_CHARACTERS_REGEXP, '\\$&');
+
+    if ($locale.id !== localeId) {
+      this.init();
+    }
+
+    if (!this.parsers[format]) {
+      this.parsers[format] = createParser(format, 'apply');
+    }
+
+    var parser = this.parsers[format],
+        regex = parser.regex,
+        map = parser.map,
+        results = input.match(regex),
+        tzOffset = false;
+    if (results && results.length) {
+      var fields, dt;
+      if (angular.isDate(baseDate) && !isNaN(baseDate.getTime())) {
+        fields = {
+          year: baseDate.getFullYear(),
+          month: baseDate.getMonth(),
+          date: baseDate.getDate(),
+          hours: baseDate.getHours(),
+          minutes: baseDate.getMinutes(),
+          seconds: baseDate.getSeconds(),
+          milliseconds: baseDate.getMilliseconds()
+        };
+      } else {
+        if (baseDate) {
+          $log.warn('dateparser:', 'baseDate is not a valid date');
+        }
+        fields = { year: 1900, month: 0, date: 1, hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
+      }
+
+      for (var i = 1, n = results.length; i < n; i++) {
+        var mapper = map[i - 1];
+        if (mapper.matcher === 'Z') {
+          tzOffset = true;
+        }
+
+        if (mapper.apply) {
+          mapper.apply.call(fields, results[i]);
+        }
+      }
+
+      var datesetter = tzOffset ? Date.prototype.setUTCFullYear :
+        Date.prototype.setFullYear;
+      var timesetter = tzOffset ? Date.prototype.setUTCHours :
+        Date.prototype.setHours;
+
+      if (isValid(fields.year, fields.month, fields.date)) {
+        if (angular.isDate(baseDate) && !isNaN(baseDate.getTime()) && !tzOffset) {
+          dt = new Date(baseDate);
+          datesetter.call(dt, fields.year, fields.month, fields.date);
+          timesetter.call(dt, fields.hours, fields.minutes,
+            fields.seconds, fields.milliseconds);
+        } else {
+          dt = new Date(0);
+          datesetter.call(dt, fields.year, fields.month, fields.date);
+          timesetter.call(dt, fields.hours || 0, fields.minutes || 0,
+            fields.seconds || 0, fields.milliseconds || 0);
+        }
+      }
+
+      return dt;
+    }
+  };
+
+  // Check if date is valid for specific month (and year for February).
+  // Month: 0 = Jan, 1 = Feb, etc
+  function isValid(year, month, date) {
+    if (date < 1) {
+      return false;
+    }
+
+    if (month === 1 && date > 28) {
+      return date === 29 && (year % 4 === 0 && year % 100 !== 0 || year % 400 === 0);
+    }
+
+    if (month === 3 || month === 5 || month === 8 || month === 10) {
+      return date < 31;
+    }
+
+    return true;
+  }
+
+  function toInt(str) {
+    return parseInt(str, 10);
+  }
+
+  this.toTimezone = toTimezone;
+  this.fromTimezone = fromTimezone;
+  this.timezoneToOffset = timezoneToOffset;
+  this.addDateMinutes = addDateMinutes;
+  this.convertTimezoneToLocal = convertTimezoneToLocal;
+
+  function toTimezone(date, timezone) {
+    return date && timezone ? convertTimezoneToLocal(date, timezone) : date;
+  }
+
+  function fromTimezone(date, timezone) {
+    return date && timezone ? convertTimezoneToLocal(date, timezone, true) : date;
+  }
+
+  //https://github.com/angular/angular.js/blob/622c42169699ec07fc6daaa19fe6d224e5d2f70e/src/Angular.js#L1207
+  function timezoneToOffset(timezone, fallback) {
+    timezone = timezone.replace(/:/g, '');
+    var requestedTimezoneOffset = Date.parse('Jan 01, 1970 00:00:00 ' + timezone) / 60000;
+    return isNaN(requestedTimezoneOffset) ? fallback : requestedTimezoneOffset;
+  }
+
+  function addDateMinutes(date, minutes) {
+    date = new Date(date.getTime());
+    date.setMinutes(date.getMinutes() + minutes);
     return date;
   }
 
-  function parseDate(viewValue) {
-    if (angular.isNumber(viewValue)) {
-      // presumably timestamp to date object
-      viewValue = new Date(viewValue);
-    }
+  function convertTimezoneToLocal(date, timezone, reverse) {
+    reverse = reverse ? -1 : 1;
+    var dateTimezoneOffset = date.getTimezoneOffset();
+    var timezoneOffset = timezoneToOffset(timezone, dateTimezoneOffset);
+    return addDateMinutes(date, reverse * (timezoneOffset - dateTimezoneOffset));
+  }
+}]);
 
-    if (!viewValue) {
-      return null;
-    }
+// Avoiding use of ng-class as it creates a lot of watchers when a class is to be applied to
+// at most one element.
+angular.module('ui.bootstrap.isClass', [])
+.directive('uibIsClass', [
+         '$animate',
+function ($animate) {
+  //                    11111111          22222222
+  var ON_REGEXP = /^\s*([\s\S]+?)\s+on\s+([\s\S]+?)\s*$/;
+  //                    11111111           22222222
+  var IS_REGEXP = /^\s*([\s\S]+?)\s+for\s+([\s\S]+?)\s*$/;
 
-    if (angular.isDate(viewValue) && !isNaN(viewValue)) {
-      return viewValue;
-    }
+  var dataPerTracked = {};
 
-    if (angular.isString(viewValue)) {
-      var date = parseDateString(viewValue);
-      if (!isNaN(date)) {
-        return dateParser.toTimezone(date, timezone);
+  return {
+    restrict: 'A',
+    compile: function(tElement, tAttrs) {
+      var linkedScopes = [];
+      var instances = [];
+      var expToData = {};
+      var lastActivated = null;
+      var onExpMatches = tAttrs.uibIsClass.match(ON_REGEXP);
+      var onExp = onExpMatches[2];
+      var expsStr = onExpMatches[1];
+      var exps = expsStr.split(',');
+
+      return linkFn;
+
+      function linkFn(scope, element, attrs) {
+        linkedScopes.push(scope);
+        instances.push({
+          scope: scope,
+          element: element
+        });
+
+        exps.forEach(function(exp, k) {
+          addForExp(exp, scope);
+        });
+
+        scope.$on('$destroy', removeScope);
+      }
+
+      function addForExp(exp, scope) {
+        var matches = exp.match(IS_REGEXP);
+        var clazz = scope.$eval(matches[1]);
+        var compareWithExp = matches[2];
+        var data = expToData[exp];
+        if (!data) {
+          var watchFn = function(compareWithVal) {
+            var newActivated = null;
+            instances.some(function(instance) {
+              var thisVal = instance.scope.$eval(onExp);
+              if (thisVal === compareWithVal) {
+                newActivated = instance;
+                return true;
+              }
+            });
+            if (data.lastActivated !== newActivated) {
+              if (data.lastActivated) {
+                $animate.removeClass(data.lastActivated.element, clazz);
+              }
+              if (newActivated) {
+                $animate.addClass(newActivated.element, clazz);
+              }
+              data.lastActivated = newActivated;
+            }
+          };
+          expToData[exp] = data = {
+            lastActivated: null,
+            scope: scope,
+            watchFn: watchFn,
+            compareWithExp: compareWithExp,
+            watcher: scope.$watch(compareWithExp, watchFn)
+          };
+        }
+        data.watchFn(scope.$eval(compareWithExp));
+      }
+
+      function removeScope(e) {
+        var removedScope = e.targetScope;
+        var index = linkedScopes.indexOf(removedScope);
+        linkedScopes.splice(index, 1);
+        instances.splice(index, 1);
+        if (linkedScopes.length) {
+          var newWatchScope = linkedScopes[0];
+          angular.forEach(expToData, function(data) {
+            if (data.scope === removedScope) {
+              data.watcher = newWatchScope.$watch(data.compareWithExp, data.watchFn);
+              data.scope = newWatchScope;
+            }
+          });
+        } else {
+          expToData = {};
+        }
       }
     }
-
-    return ngModel.$options && ngModel.$options.allowInvalid ? viewValue : undefined;
-  }
-
-  function validator(modelValue, viewValue) {
-    var value = modelValue || viewValue;
-
-    if (!$attrs.ngRequired && !value) {
-      return true;
-    }
-
-    if (angular.isNumber(value)) {
-      value = new Date(value);
-    }
-
-    if (!value) {
-      return true;
-    }
-
-    if (angular.isDate(value) && !isNaN(value)) {
-      return true;
-    }
-
-    if (angular.isString(value)) {
-      return !isNaN(parseDateString(viewValue));
-    }
-
-    return false;
-  }
-
-  function documentClickBind(event) {
-    if (!$scope.isOpen && $scope.disabled) {
-      return;
-    }
-
-    var popup = $popup[0];
-    var dpContainsTarget = $element[0].contains(event.target);
-    // The popup node may not be an element node
-    // In some browsers (IE) only element nodes have the 'contains' function
-    var popupContainsTarget = popup.contains !== undefined && popup.contains(event.target);
-    if ($scope.isOpen && !(dpContainsTarget || popupContainsTarget)) {
-      $scope.$apply(function() {
-        $scope.isOpen = false;
-      });
-    }
-  }
-
-  function inputKeydownBind(evt) {
-    if (evt.which === 27 && $scope.isOpen) {
-      evt.preventDefault();
-      evt.stopPropagation();
-      $scope.$apply(function() {
-        $scope.isOpen = false;
-      });
-      $element[0].focus();
-    } else if (evt.which === 40 && !$scope.isOpen) {
-      evt.preventDefault();
-      evt.stopPropagation();
-      $scope.$apply(function() {
-        $scope.isOpen = true;
-      });
-    }
-  }
-
-  function positionPopup() {
-    if ($scope.isOpen) {
-      var dpElement = angular.element($popup[0].querySelector('.uib-datepicker-popup'));
-      var placement = $attrs.popupPlacement ? $attrs.popupPlacement : datepickerPopupConfig.placement;
-      var position = $position.positionElements($element, dpElement, placement, appendToBody);
-      dpElement.css({top: position.top + 'px', left: position.left + 'px'});
-      if (dpElement.hasClass('uib-position-measure')) {
-        dpElement.removeClass('uib-position-measure');
-      }
-    }
-  }
-
-  $scope.$on('uib:datepicker.mode', function() {
-    $timeout(positionPopup, 0, false);
-  });
-}])
-
-.directive('uibDatepickerPopup', function() {
-  return {
-    require: ['ngModel', 'uibDatepickerPopup'],
-    controller: 'UibDatepickerPopupController',
-    scope: {
-      datepickerOptions: '=?',
-      isOpen: '=?',
-      currentText: '@',
-      clearText: '@',
-      closeText: '@'
-    },
-    link: function(scope, element, attrs, ctrls) {
-      var ngModel = ctrls[0],
-        ctrl = ctrls[1];
-
-      ctrl.init(ngModel);
-    }
   };
-})
-
-.directive('uibDatepickerPopupWrap', function() {
-  return {
-    replace: true,
-    transclude: true,
-    templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/datepickerPopup/popup.html';
-    }
-  };
-});
-
+}]);
 angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootstrap.isClass'])
 
 .value('$datepickerSuppressError', false)
@@ -1108,568 +1312,6 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
   };
 });
 
-angular.module('ui.bootstrap.dateparser', [])
-
-.service('uibDateParser', ['$log', '$locale', 'dateFilter', 'orderByFilter', function($log, $locale, dateFilter, orderByFilter) {
-  // Pulled from https://github.com/mbostock/d3/blob/master/src/format/requote.js
-  var SPECIAL_CHARACTERS_REGEXP = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
-
-  var localeId;
-  var formatCodeToRegex;
-
-  this.init = function() {
-    localeId = $locale.id;
-
-    this.parsers = {};
-    this.formatters = {};
-
-    formatCodeToRegex = [
-      {
-        key: 'yyyy',
-        regex: '\\d{4}',
-        apply: function(value) { this.year = +value; },
-        formatter: function(date) {
-          var _date = new Date();
-          _date.setFullYear(Math.abs(date.getFullYear()));
-          return dateFilter(_date, 'yyyy');
-        }
-      },
-      {
-        key: 'yy',
-        regex: '\\d{2}',
-        apply: function(value) { value = +value; this.year = value < 69 ? value + 2000 : value + 1900; },
-        formatter: function(date) {
-          var _date = new Date();
-          _date.setFullYear(Math.abs(date.getFullYear()));
-          return dateFilter(_date, 'yy');
-        }
-      },
-      {
-        key: 'y',
-        regex: '\\d{1,4}',
-        apply: function(value) { this.year = +value; },
-        formatter: function(date) {
-          var _date = new Date();
-          _date.setFullYear(Math.abs(date.getFullYear()));
-          return dateFilter(_date, 'y');
-        }
-      },
-      {
-        key: 'M!',
-        regex: '0?[1-9]|1[0-2]',
-        apply: function(value) { this.month = value - 1; },
-        formatter: function(date) {
-          var value = date.getMonth();
-          if (/^[0-9]$/.test(value)) {
-            return dateFilter(date, 'MM');
-          }
-
-          return dateFilter(date, 'M');
-        }
-      },
-      {
-        key: 'MMMM',
-        regex: $locale.DATETIME_FORMATS.MONTH.join('|'),
-        apply: function(value) { this.month = $locale.DATETIME_FORMATS.MONTH.indexOf(value); },
-        formatter: function(date) { return dateFilter(date, 'MMMM'); }
-      },
-      {
-        key: 'MMM',
-        regex: $locale.DATETIME_FORMATS.SHORTMONTH.join('|'),
-        apply: function(value) { this.month = $locale.DATETIME_FORMATS.SHORTMONTH.indexOf(value); },
-        formatter: function(date) { return dateFilter(date, 'MMM'); }
-      },
-      {
-        key: 'MM',
-        regex: '0[1-9]|1[0-2]',
-        apply: function(value) { this.month = value - 1; },
-        formatter: function(date) { return dateFilter(date, 'MM'); }
-      },
-      {
-        key: 'M',
-        regex: '[1-9]|1[0-2]',
-        apply: function(value) { this.month = value - 1; },
-        formatter: function(date) { return dateFilter(date, 'M'); }
-      },
-      {
-        key: 'd!',
-        regex: '[0-2]?[0-9]{1}|3[0-1]{1}',
-        apply: function(value) { this.date = +value; },
-        formatter: function(date) {
-          var value = date.getDate();
-          if (/^[1-9]$/.test(value)) {
-            return dateFilter(date, 'dd');
-          }
-
-          return dateFilter(date, 'd');
-        }
-      },
-      {
-        key: 'dd',
-        regex: '[0-2][0-9]{1}|3[0-1]{1}',
-        apply: function(value) { this.date = +value; },
-        formatter: function(date) { return dateFilter(date, 'dd'); }
-      },
-      {
-        key: 'd',
-        regex: '[1-2]?[0-9]{1}|3[0-1]{1}',
-        apply: function(value) { this.date = +value; },
-        formatter: function(date) { return dateFilter(date, 'd'); }
-      },
-      {
-        key: 'EEEE',
-        regex: $locale.DATETIME_FORMATS.DAY.join('|'),
-        formatter: function(date) { return dateFilter(date, 'EEEE'); }
-      },
-      {
-        key: 'EEE',
-        regex: $locale.DATETIME_FORMATS.SHORTDAY.join('|'),
-        formatter: function(date) { return dateFilter(date, 'EEE'); }
-      },
-      {
-        key: 'HH',
-        regex: '(?:0|1)[0-9]|2[0-3]',
-        apply: function(value) { this.hours = +value; },
-        formatter: function(date) { return dateFilter(date, 'HH'); }
-      },
-      {
-        key: 'hh',
-        regex: '0[0-9]|1[0-2]',
-        apply: function(value) { this.hours = +value; },
-        formatter: function(date) { return dateFilter(date, 'hh'); }
-      },
-      {
-        key: 'H',
-        regex: '1?[0-9]|2[0-3]',
-        apply: function(value) { this.hours = +value; },
-        formatter: function(date) { return dateFilter(date, 'H'); }
-      },
-      {
-        key: 'h',
-        regex: '[0-9]|1[0-2]',
-        apply: function(value) { this.hours = +value; },
-        formatter: function(date) { return dateFilter(date, 'h'); }
-      },
-      {
-        key: 'mm',
-        regex: '[0-5][0-9]',
-        apply: function(value) { this.minutes = +value; },
-        formatter: function(date) { return dateFilter(date, 'mm'); }
-      },
-      {
-        key: 'm',
-        regex: '[0-9]|[1-5][0-9]',
-        apply: function(value) { this.minutes = +value; },
-        formatter: function(date) { return dateFilter(date, 'm'); }
-      },
-      {
-        key: 'sss',
-        regex: '[0-9][0-9][0-9]',
-        apply: function(value) { this.milliseconds = +value; },
-        formatter: function(date) { return dateFilter(date, 'sss'); }
-      },
-      {
-        key: 'ss',
-        regex: '[0-5][0-9]',
-        apply: function(value) { this.seconds = +value; },
-        formatter: function(date) { return dateFilter(date, 'ss'); }
-      },
-      {
-        key: 's',
-        regex: '[0-9]|[1-5][0-9]',
-        apply: function(value) { this.seconds = +value; },
-        formatter: function(date) { return dateFilter(date, 's'); }
-      },
-      {
-        key: 'a',
-        regex: $locale.DATETIME_FORMATS.AMPMS.join('|'),
-        apply: function(value) {
-          if (this.hours === 12) {
-            this.hours = 0;
-          }
-
-          if (value === 'PM') {
-            this.hours += 12;
-          }
-        },
-        formatter: function(date) { return dateFilter(date, 'a'); }
-      },
-      {
-        key: 'Z',
-        regex: '[+-]\\d{4}',
-        apply: function(value) {
-          var matches = value.match(/([+-])(\d{2})(\d{2})/),
-            sign = matches[1],
-            hours = matches[2],
-            minutes = matches[3];
-          this.hours += toInt(sign + hours);
-          this.minutes += toInt(sign + minutes);
-        },
-        formatter: function(date) {
-          return dateFilter(date, 'Z');
-        }
-      },
-      {
-        key: 'ww',
-        regex: '[0-4][0-9]|5[0-3]',
-        formatter: function(date) { return dateFilter(date, 'ww'); }
-      },
-      {
-        key: 'w',
-        regex: '[0-9]|[1-4][0-9]|5[0-3]',
-        formatter: function(date) { return dateFilter(date, 'w'); }
-      },
-      {
-        key: 'GGGG',
-        regex: $locale.DATETIME_FORMATS.ERANAMES.join('|').replace(/\s/g, '\\s'),
-        formatter: function(date) { return dateFilter(date, 'GGGG'); }
-      },
-      {
-        key: 'GGG',
-        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
-        formatter: function(date) { return dateFilter(date, 'GGG'); }
-      },
-      {
-        key: 'GG',
-        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
-        formatter: function(date) { return dateFilter(date, 'GG'); }
-      },
-      {
-        key: 'G',
-        regex: $locale.DATETIME_FORMATS.ERAS.join('|'),
-        formatter: function(date) { return dateFilter(date, 'G'); }
-      }
-    ];
-  };
-
-  this.init();
-
-  function createParser(format, func) {
-    var map = [], regex = format.split('');
-
-    // check for literal values
-    var quoteIndex = format.indexOf('\'');
-    if (quoteIndex > -1) {
-      var inLiteral = false;
-      format = format.split('');
-      for (var i = quoteIndex; i < format.length; i++) {
-        if (inLiteral) {
-          if (format[i] === '\'') {
-            if (i + 1 < format.length && format[i+1] === '\'') { // escaped single quote
-              format[i+1] = '$';
-              regex[i+1] = '';
-            } else { // end of literal
-              regex[i] = '';
-              inLiteral = false;
-            }
-          }
-          format[i] = '$';
-        } else {
-          if (format[i] === '\'') { // start of literal
-            format[i] = '$';
-            regex[i] = '';
-            inLiteral = true;
-          }
-        }
-      }
-
-      format = format.join('');
-    }
-
-    angular.forEach(formatCodeToRegex, function(data) {
-      var index = format.indexOf(data.key);
-
-      if (index > -1) {
-        format = format.split('');
-
-        regex[index] = '(' + data.regex + ')';
-        format[index] = '$'; // Custom symbol to define consumed part of format
-        for (var i = index + 1, n = index + data.key.length; i < n; i++) {
-          regex[i] = '';
-          format[i] = '$';
-        }
-        format = format.join('');
-
-        map.push({
-          index: index,
-          key: data.key,
-          apply: data[func],
-          matcher: data.regex
-        });
-      }
-    });
-
-    return {
-      regex: new RegExp('^' + regex.join('') + '$'),
-      map: orderByFilter(map, 'index')
-    };
-  }
-
-  this.filter = function(date, format) {
-    if (!angular.isDate(date) || isNaN(date) || !format) {
-      return '';
-    }
-
-    format = $locale.DATETIME_FORMATS[format] || format;
-
-    if ($locale.id !== localeId) {
-      this.init();
-    }
-
-    if (!this.formatters[format]) {
-      this.formatters[format] = createParser(format, 'formatter');
-    }
-
-    var parser = this.formatters[format],
-      map = parser.map;
-
-    var _format = format;
-
-    return map.reduce(function(str, mapper, i) {
-      var match = _format.match(new RegExp('(.*)' + mapper.key));
-      if (match && angular.isString(match[1])) {
-        str += match[1];
-        _format = _format.replace(match[1] + mapper.key, '');
-      }
-
-      var endStr = i === map.length - 1 ? _format : '';
-
-      if (mapper.apply) {
-        return str + mapper.apply.call(null, date) + endStr;
-      }
-
-      return str + endStr;
-    }, '');
-  };
-
-  this.parse = function(input, format, baseDate) {
-    if (!angular.isString(input) || !format) {
-      return input;
-    }
-
-    format = $locale.DATETIME_FORMATS[format] || format;
-    format = format.replace(SPECIAL_CHARACTERS_REGEXP, '\\$&');
-
-    if ($locale.id !== localeId) {
-      this.init();
-    }
-
-    if (!this.parsers[format]) {
-      this.parsers[format] = createParser(format, 'apply');
-    }
-
-    var parser = this.parsers[format],
-        regex = parser.regex,
-        map = parser.map,
-        results = input.match(regex),
-        tzOffset = false;
-    if (results && results.length) {
-      var fields, dt;
-      if (angular.isDate(baseDate) && !isNaN(baseDate.getTime())) {
-        fields = {
-          year: baseDate.getFullYear(),
-          month: baseDate.getMonth(),
-          date: baseDate.getDate(),
-          hours: baseDate.getHours(),
-          minutes: baseDate.getMinutes(),
-          seconds: baseDate.getSeconds(),
-          milliseconds: baseDate.getMilliseconds()
-        };
-      } else {
-        if (baseDate) {
-          $log.warn('dateparser:', 'baseDate is not a valid date');
-        }
-        fields = { year: 1900, month: 0, date: 1, hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
-      }
-
-      for (var i = 1, n = results.length; i < n; i++) {
-        var mapper = map[i - 1];
-        if (mapper.matcher === 'Z') {
-          tzOffset = true;
-        }
-
-        if (mapper.apply) {
-          mapper.apply.call(fields, results[i]);
-        }
-      }
-
-      var datesetter = tzOffset ? Date.prototype.setUTCFullYear :
-        Date.prototype.setFullYear;
-      var timesetter = tzOffset ? Date.prototype.setUTCHours :
-        Date.prototype.setHours;
-
-      if (isValid(fields.year, fields.month, fields.date)) {
-        if (angular.isDate(baseDate) && !isNaN(baseDate.getTime()) && !tzOffset) {
-          dt = new Date(baseDate);
-          datesetter.call(dt, fields.year, fields.month, fields.date);
-          timesetter.call(dt, fields.hours, fields.minutes,
-            fields.seconds, fields.milliseconds);
-        } else {
-          dt = new Date(0);
-          datesetter.call(dt, fields.year, fields.month, fields.date);
-          timesetter.call(dt, fields.hours || 0, fields.minutes || 0,
-            fields.seconds || 0, fields.milliseconds || 0);
-        }
-      }
-
-      return dt;
-    }
-  };
-
-  // Check if date is valid for specific month (and year for February).
-  // Month: 0 = Jan, 1 = Feb, etc
-  function isValid(year, month, date) {
-    if (date < 1) {
-      return false;
-    }
-
-    if (month === 1 && date > 28) {
-      return date === 29 && (year % 4 === 0 && year % 100 !== 0 || year % 400 === 0);
-    }
-
-    if (month === 3 || month === 5 || month === 8 || month === 10) {
-      return date < 31;
-    }
-
-    return true;
-  }
-
-  function toInt(str) {
-    return parseInt(str, 10);
-  }
-
-  this.toTimezone = toTimezone;
-  this.fromTimezone = fromTimezone;
-  this.timezoneToOffset = timezoneToOffset;
-  this.addDateMinutes = addDateMinutes;
-  this.convertTimezoneToLocal = convertTimezoneToLocal;
-
-  function toTimezone(date, timezone) {
-    return date && timezone ? convertTimezoneToLocal(date, timezone) : date;
-  }
-
-  function fromTimezone(date, timezone) {
-    return date && timezone ? convertTimezoneToLocal(date, timezone, true) : date;
-  }
-
-  //https://github.com/angular/angular.js/blob/622c42169699ec07fc6daaa19fe6d224e5d2f70e/src/Angular.js#L1207
-  function timezoneToOffset(timezone, fallback) {
-    timezone = timezone.replace(/:/g, '');
-    var requestedTimezoneOffset = Date.parse('Jan 01, 1970 00:00:00 ' + timezone) / 60000;
-    return isNaN(requestedTimezoneOffset) ? fallback : requestedTimezoneOffset;
-  }
-
-  function addDateMinutes(date, minutes) {
-    date = new Date(date.getTime());
-    date.setMinutes(date.getMinutes() + minutes);
-    return date;
-  }
-
-  function convertTimezoneToLocal(date, timezone, reverse) {
-    reverse = reverse ? -1 : 1;
-    var dateTimezoneOffset = date.getTimezoneOffset();
-    var timezoneOffset = timezoneToOffset(timezone, dateTimezoneOffset);
-    return addDateMinutes(date, reverse * (timezoneOffset - dateTimezoneOffset));
-  }
-}]);
-
-// Avoiding use of ng-class as it creates a lot of watchers when a class is to be applied to
-// at most one element.
-angular.module('ui.bootstrap.isClass', [])
-.directive('uibIsClass', [
-         '$animate',
-function ($animate) {
-  //                    11111111          22222222
-  var ON_REGEXP = /^\s*([\s\S]+?)\s+on\s+([\s\S]+?)\s*$/;
-  //                    11111111           22222222
-  var IS_REGEXP = /^\s*([\s\S]+?)\s+for\s+([\s\S]+?)\s*$/;
-
-  var dataPerTracked = {};
-
-  return {
-    restrict: 'A',
-    compile: function(tElement, tAttrs) {
-      var linkedScopes = [];
-      var instances = [];
-      var expToData = {};
-      var lastActivated = null;
-      var onExpMatches = tAttrs.uibIsClass.match(ON_REGEXP);
-      var onExp = onExpMatches[2];
-      var expsStr = onExpMatches[1];
-      var exps = expsStr.split(',');
-
-      return linkFn;
-
-      function linkFn(scope, element, attrs) {
-        linkedScopes.push(scope);
-        instances.push({
-          scope: scope,
-          element: element
-        });
-
-        exps.forEach(function(exp, k) {
-          addForExp(exp, scope);
-        });
-
-        scope.$on('$destroy', removeScope);
-      }
-
-      function addForExp(exp, scope) {
-        var matches = exp.match(IS_REGEXP);
-        var clazz = scope.$eval(matches[1]);
-        var compareWithExp = matches[2];
-        var data = expToData[exp];
-        if (!data) {
-          var watchFn = function(compareWithVal) {
-            var newActivated = null;
-            instances.some(function(instance) {
-              var thisVal = instance.scope.$eval(onExp);
-              if (thisVal === compareWithVal) {
-                newActivated = instance;
-                return true;
-              }
-            });
-            if (data.lastActivated !== newActivated) {
-              if (data.lastActivated) {
-                $animate.removeClass(data.lastActivated.element, clazz);
-              }
-              if (newActivated) {
-                $animate.addClass(newActivated.element, clazz);
-              }
-              data.lastActivated = newActivated;
-            }
-          };
-          expToData[exp] = data = {
-            lastActivated: null,
-            scope: scope,
-            watchFn: watchFn,
-            compareWithExp: compareWithExp,
-            watcher: scope.$watch(compareWithExp, watchFn)
-          };
-        }
-        data.watchFn(scope.$eval(compareWithExp));
-      }
-
-      function removeScope(e) {
-        var removedScope = e.targetScope;
-        var index = linkedScopes.indexOf(removedScope);
-        linkedScopes.splice(index, 1);
-        instances.splice(index, 1);
-        if (linkedScopes.length) {
-          var newWatchScope = linkedScopes[0];
-          angular.forEach(expToData, function(data) {
-            if (data.scope === removedScope) {
-              data.watcher = newWatchScope.$watch(data.compareWithExp, data.watchFn);
-              data.scope = newWatchScope;
-            }
-          });
-        } else {
-          expToData = {};
-        }
-      }
-    }
-  };
-}]);
 angular.module('ui.bootstrap.position', [])
 
 /**
@@ -2271,533 +1913,466 @@ angular.module('ui.bootstrap.position', [])
     };
   }]);
 
-angular.module('ui.bootstrap.collapse', [])
+angular.module('ui.bootstrap.datepickerPopup', ['ui.bootstrap.datepicker', 'ui.bootstrap.position'])
 
-  .directive('uibCollapse', ['$animate', '$q', '$parse', '$injector', function($animate, $q, $parse, $injector) {
-    var $animateCss = $injector.has('$animateCss') ? $injector.get('$animateCss') : null;
-    return {
-      link: function(scope, element, attrs) {
-        var expandingExpr = $parse(attrs.expanding),
-            expandedExpr = $parse(attrs.expanded),
-            collapsingExpr = $parse(attrs.collapsing),
-            collapsedExpr = $parse(attrs.collapsed);
+.value('$datepickerPopupLiteralWarning', true)
 
-        if (!scope.$eval(attrs.uibCollapse)) {
-          element.addClass('in')
-            .addClass('collapse')
-            .attr('aria-expanded', true)
-            .attr('aria-hidden', false)
-            .css({height: 'auto'});
-        }
+.constant('uibDatepickerPopupConfig', {
+  altInputFormats: [],
+  appendToBody: false,
+  clearText: 'Clear',
+  closeOnDateSelection: true,
+  closeText: 'Done',
+  currentText: 'Today',
+  datepickerPopup: 'yyyy-MM-dd',
+  datepickerPopupTemplateUrl: 'uib/template/datepickerPopup/popup.html',
+  datepickerTemplateUrl: 'uib/template/datepicker/datepicker.html',
+  html5Types: {
+    date: 'yyyy-MM-dd',
+    'datetime-local': 'yyyy-MM-ddTHH:mm:ss.sss',
+    'month': 'yyyy-MM'
+  },
+  onOpenFocus: true,
+  showButtonBar: true,
+  placement: 'auto bottom-left'
+})
 
-        function expand() {
-          if (element.hasClass('collapse') && element.hasClass('in')) {
-            return;
-          }
+.controller('UibDatepickerPopupController', ['$scope', '$element', '$attrs', '$compile', '$log', '$parse', '$window', '$document', '$rootScope', '$uibPosition', 'dateFilter', 'uibDateParser', 'uibDatepickerPopupConfig', '$timeout', 'uibDatepickerConfig', '$datepickerPopupLiteralWarning',
+function($scope, $element, $attrs, $compile, $log, $parse, $window, $document, $rootScope, $position, dateFilter, dateParser, datepickerPopupConfig, $timeout, datepickerConfig, $datepickerPopupLiteralWarning) {
+  var cache = {},
+    isHtml5DateInput = false;
+  var dateFormat, closeOnDateSelection, appendToBody, onOpenFocus,
+    datepickerPopupTemplateUrl, datepickerTemplateUrl, popupEl, datepickerEl, scrollParentEl,
+    ngModel, ngModelOptions, $popup, altInputFormats, watchListeners = [],
+    timezone;
 
-          $q.resolve(expandingExpr(scope))
-            .then(function() {
-              element.removeClass('collapse')
-                .addClass('collapsing')
-                .attr('aria-expanded', true)
-                .attr('aria-hidden', false);
+  this.init = function(_ngModel_) {
+    ngModel = _ngModel_;
+    ngModelOptions = _ngModel_.$options;
+    closeOnDateSelection = angular.isDefined($attrs.closeOnDateSelection) ?
+      $scope.$parent.$eval($attrs.closeOnDateSelection) :
+      datepickerPopupConfig.closeOnDateSelection;
+    appendToBody = angular.isDefined($attrs.datepickerAppendToBody) ?
+      $scope.$parent.$eval($attrs.datepickerAppendToBody) :
+      datepickerPopupConfig.appendToBody;
+    onOpenFocus = angular.isDefined($attrs.onOpenFocus) ?
+      $scope.$parent.$eval($attrs.onOpenFocus) : datepickerPopupConfig.onOpenFocus;
+    datepickerPopupTemplateUrl = angular.isDefined($attrs.datepickerPopupTemplateUrl) ?
+      $attrs.datepickerPopupTemplateUrl :
+      datepickerPopupConfig.datepickerPopupTemplateUrl;
+    datepickerTemplateUrl = angular.isDefined($attrs.datepickerTemplateUrl) ?
+      $attrs.datepickerTemplateUrl : datepickerPopupConfig.datepickerTemplateUrl;
+    altInputFormats = angular.isDefined($attrs.altInputFormats) ?
+      $scope.$parent.$eval($attrs.altInputFormats) :
+      datepickerPopupConfig.altInputFormats;
 
-              if ($animateCss) {
-                $animateCss(element, {
-                  addClass: 'in',
-                  easing: 'ease',
-                  to: { height: element[0].scrollHeight + 'px' }
-                }).start()['finally'](expandDone);
-              } else {
-                $animate.addClass(element, 'in', {
-                  to: { height: element[0].scrollHeight + 'px' }
-                }).then(expandDone);
-              }
-            });
-        }
+    $scope.showButtonBar = angular.isDefined($attrs.showButtonBar) ?
+      $scope.$parent.$eval($attrs.showButtonBar) :
+      datepickerPopupConfig.showButtonBar;
 
-        function expandDone() {
-          element.removeClass('collapsing')
-            .addClass('collapse')
-            .css({height: 'auto'});
-          expandedExpr(scope);
-        }
+    if (datepickerPopupConfig.html5Types[$attrs.type]) {
+      dateFormat = datepickerPopupConfig.html5Types[$attrs.type];
+      isHtml5DateInput = true;
+    } else {
+      dateFormat = $attrs.uibDatepickerPopup || datepickerPopupConfig.datepickerPopup;
+      $attrs.$observe('uibDatepickerPopup', function(value, oldValue) {
+        var newDateFormat = value || datepickerPopupConfig.datepickerPopup;
+        // Invalidate the $modelValue to ensure that formatters re-run
+        // FIXME: Refactor when PR is merged: https://github.com/angular/angular.js/pull/10764
+        if (newDateFormat !== dateFormat) {
+          dateFormat = newDateFormat;
+          ngModel.$modelValue = null;
 
-        function collapse() {
-          if (!element.hasClass('collapse') && !element.hasClass('in')) {
-            return collapseDone();
-          }
-
-          $q.resolve(collapsingExpr(scope))
-            .then(function() {
-              element
-                // IMPORTANT: The height must be set before adding "collapsing" class.
-                // Otherwise, the browser attempts to animate from height 0 (in
-                // collapsing class) to the given height here.
-                .css({height: element[0].scrollHeight + 'px'})
-                // initially all panel collapse have the collapse class, this removal
-                // prevents the animation from jumping to collapsed state
-                .removeClass('collapse')
-                .addClass('collapsing')
-                .attr('aria-expanded', false)
-                .attr('aria-hidden', true);
-
-              if ($animateCss) {
-                $animateCss(element, {
-                  removeClass: 'in',
-                  to: {height: '0'}
-                }).start()['finally'](collapseDone);
-              } else {
-                $animate.removeClass(element, 'in', {
-                  to: {height: '0'}
-                }).then(collapseDone);
-              }
-            });
-        }
-
-        function collapseDone() {
-          element.css({height: '0'}); // Required so that collapse works when animation is disabled
-          element.removeClass('collapsing')
-            .addClass('collapse');
-          collapsedExpr(scope);
-        }
-
-        scope.$watch(attrs.uibCollapse, function(shouldCollapse) {
-          if (shouldCollapse) {
-            collapse();
-          } else {
-            expand();
-          }
-        });
-      }
-    };
-  }]);
-
-angular.module('ui.bootstrap.carousel', [])
-
-.controller('UibCarouselController', ['$scope', '$element', '$interval', '$timeout', '$animate', function($scope, $element, $interval, $timeout, $animate) {
-  var self = this,
-    slides = self.slides = $scope.slides = [],
-    SLIDE_DIRECTION = 'uib-slideDirection',
-    currentIndex = $scope.active,
-    currentInterval, isPlaying, bufferedTransitions = [];
-
-  var destroyed = false;
-
-  self.addSlide = function(slide, element) {
-    slides.push({
-      slide: slide,
-      element: element
-    });
-    slides.sort(function(a, b) {
-      return +a.slide.index - +b.slide.index;
-    });
-    //if this is the first slide or the slide is set to active, select it
-    if (slide.index === $scope.active || slides.length === 1 && !angular.isNumber($scope.active)) {
-      if ($scope.$currentTransition) {
-        $scope.$currentTransition = null;
-      }
-
-      currentIndex = slide.index;
-      $scope.active = slide.index;
-      setActive(currentIndex);
-      self.select(slides[findSlideIndex(slide)]);
-      if (slides.length === 1) {
-        $scope.play();
-      }
-    }
-  };
-
-  self.getCurrentIndex = function() {
-    for (var i = 0; i < slides.length; i++) {
-      if (slides[i].slide.index === currentIndex) {
-        return i;
-      }
-    }
-  };
-
-  self.next = $scope.next = function() {
-    var newIndex = (self.getCurrentIndex() + 1) % slides.length;
-
-    if (newIndex === 0 && $scope.noWrap()) {
-      $scope.pause();
-      return;
-    }
-
-    return self.select(slides[newIndex], 'next');
-  };
-
-  self.prev = $scope.prev = function() {
-    var newIndex = self.getCurrentIndex() - 1 < 0 ? slides.length - 1 : self.getCurrentIndex() - 1;
-
-    if ($scope.noWrap() && newIndex === slides.length - 1) {
-      $scope.pause();
-      return;
-    }
-
-    return self.select(slides[newIndex], 'prev');
-  };
-
-  self.removeSlide = function(slide) {
-    var index = findSlideIndex(slide);
-
-    var bufferedIndex = bufferedTransitions.indexOf(slides[index]);
-    if (bufferedIndex !== -1) {
-      bufferedTransitions.splice(bufferedIndex, 1);
-    }
-
-    //get the index of the slide inside the carousel
-    slides.splice(index, 1);
-    if (slides.length > 0 && currentIndex === index) {
-      if (index >= slides.length) {
-        currentIndex = slides.length - 1;
-        $scope.active = currentIndex;
-        setActive(currentIndex);
-        self.select(slides[slides.length - 1]);
-      } else {
-        currentIndex = index;
-        $scope.active = currentIndex;
-        setActive(currentIndex);
-        self.select(slides[index]);
-      }
-    } else if (currentIndex > index) {
-      currentIndex--;
-      $scope.active = currentIndex;
-    }
-
-    //clean the active value when no more slide
-    if (slides.length === 0) {
-      currentIndex = null;
-      $scope.active = null;
-      clearBufferedTransitions();
-    }
-  };
-
-  /* direction: "prev" or "next" */
-  self.select = $scope.select = function(nextSlide, direction) {
-    var nextIndex = findSlideIndex(nextSlide.slide);
-    //Decide direction if it's not given
-    if (direction === undefined) {
-      direction = nextIndex > self.getCurrentIndex() ? 'next' : 'prev';
-    }
-    //Prevent this user-triggered transition from occurring if there is already one in progress
-    if (nextSlide.slide.index !== currentIndex &&
-      !$scope.$currentTransition) {
-      goNext(nextSlide.slide, nextIndex, direction);
-    } else if (nextSlide && nextSlide.slide.index !== currentIndex && $scope.$currentTransition) {
-      bufferedTransitions.push(slides[nextIndex]);
-    }
-  };
-
-  /* Allow outside people to call indexOf on slides array */
-  $scope.indexOfSlide = function(slide) {
-    return +slide.slide.index;
-  };
-
-  $scope.isActive = function(slide) {
-    return $scope.active === slide.slide.index;
-  };
-
-  $scope.isPrevDisabled = function() {
-    return $scope.active === 0 && $scope.noWrap();
-  };
-
-  $scope.isNextDisabled = function() {
-    return $scope.active === slides.length - 1 && $scope.noWrap();
-  };
-
-  $scope.pause = function() {
-    if (!$scope.noPause) {
-      isPlaying = false;
-      resetTimer();
-    }
-  };
-
-  $scope.play = function() {
-    if (!isPlaying) {
-      isPlaying = true;
-      restartTimer();
-    }
-  };
-
-  $scope.$on('$destroy', function() {
-    destroyed = true;
-    resetTimer();
-  });
-
-  $scope.$watch('noTransition', function(noTransition) {
-    $animate.enabled($element, !noTransition);
-  });
-
-  $scope.$watch('interval', restartTimer);
-
-  $scope.$watchCollection('slides', resetTransition);
-
-  $scope.$watch('active', function(index) {
-    if (angular.isNumber(index) && currentIndex !== index) {
-      for (var i = 0; i < slides.length; i++) {
-        if (slides[i].slide.index === index) {
-          index = i;
-          break;
-        }
-      }
-
-      var slide = slides[index];
-      if (slide) {
-        setActive(index);
-        self.select(slides[index]);
-        currentIndex = index;
-      }
-    }
-  });
-
-  function clearBufferedTransitions() {
-    while (bufferedTransitions.length) {
-      bufferedTransitions.shift();
-    }
-  }
-
-  function getSlideByIndex(index) {
-    for (var i = 0, l = slides.length; i < l; ++i) {
-      if (slides[i].index === index) {
-        return slides[i];
-      }
-    }
-  }
-
-  function setActive(index) {
-    for (var i = 0; i < slides.length; i++) {
-      slides[i].slide.active = i === index;
-    }
-  }
-
-  function goNext(slide, index, direction) {
-    if (destroyed) {
-      return;
-    }
-
-    angular.extend(slide, {direction: direction});
-    angular.extend(slides[currentIndex].slide || {}, {direction: direction});
-    if ($animate.enabled($element) && !$scope.$currentTransition &&
-      slides[index].element && self.slides.length > 1) {
-      slides[index].element.data(SLIDE_DIRECTION, slide.direction);
-      var currentIdx = self.getCurrentIndex();
-
-      if (angular.isNumber(currentIdx) && slides[currentIdx].element) {
-        slides[currentIdx].element.data(SLIDE_DIRECTION, slide.direction);
-      }
-
-      $scope.$currentTransition = true;
-      $animate.on('addClass', slides[index].element, function(element, phase) {
-        if (phase === 'close') {
-          $scope.$currentTransition = null;
-          $animate.off('addClass', element);
-          if (bufferedTransitions.length) {
-            var nextSlide = bufferedTransitions.pop().slide;
-            var nextIndex = nextSlide.index;
-            var nextDirection = nextIndex > self.getCurrentIndex() ? 'next' : 'prev';
-            clearBufferedTransitions();
-
-            goNext(nextSlide, nextIndex, nextDirection);
+          if (!dateFormat) {
+            throw new Error('uibDatepickerPopup must have a date format specified.');
           }
         }
       });
     }
 
-    $scope.active = slide.index;
-    currentIndex = slide.index;
-    setActive(index);
+    if (!dateFormat) {
+      throw new Error('uibDatepickerPopup must have a date format specified.');
+    }
 
-    //every time you change slides, reset the timer
-    restartTimer();
+    if (isHtml5DateInput && $attrs.uibDatepickerPopup) {
+      throw new Error('HTML5 date input types do not support custom formats.');
+    }
+
+    // popup element used to display calendar
+    popupEl = angular.element('<div uib-datepicker-popup-wrap><div uib-datepicker></div></div>');
+    if (ngModelOptions) {
+      timezone = ngModelOptions.timezone;
+      $scope.ngModelOptions = angular.copy(ngModelOptions);
+      $scope.ngModelOptions.timezone = null;
+      if ($scope.ngModelOptions.updateOnDefault === true) {
+        $scope.ngModelOptions.updateOn = $scope.ngModelOptions.updateOn ?
+          $scope.ngModelOptions.updateOn + ' default' : 'default';
+      }
+
+      popupEl.attr('ng-model-options', 'ngModelOptions');
+    } else {
+      timezone = null;
+    }
+
+    popupEl.attr({
+      'ng-model': 'date',
+      'ng-change': 'dateSelection(date)',
+      'template-url': datepickerPopupTemplateUrl
+    });
+
+    // datepicker element
+    datepickerEl = angular.element(popupEl.children()[0]);
+    datepickerEl.attr('template-url', datepickerTemplateUrl);
+
+    if (!$scope.datepickerOptions) {
+      $scope.datepickerOptions = {};
+    }
+
+    if (isHtml5DateInput) {
+      if ($attrs.type === 'month') {
+        $scope.datepickerOptions.datepickerMode = 'month';
+        $scope.datepickerOptions.minMode = 'month';
+      }
+    }
+
+    datepickerEl.attr('datepicker-options', 'datepickerOptions');
+
+    if (!isHtml5DateInput) {
+      // Internal API to maintain the correct ng-invalid-[key] class
+      ngModel.$$parserName = 'date';
+      ngModel.$validators.date = validator;
+      ngModel.$parsers.unshift(parseDate);
+      ngModel.$formatters.push(function(value) {
+        if (ngModel.$isEmpty(value)) {
+          $scope.date = value;
+          return value;
+        }
+
+        if (angular.isNumber(value)) {
+          value = new Date(value);
+        }
+
+        $scope.date = dateParser.fromTimezone(value, timezone);
+
+        return dateParser.filter($scope.date, dateFormat);
+      });
+    } else {
+      ngModel.$formatters.push(function(value) {
+        $scope.date = dateParser.fromTimezone(value, timezone);
+        return value;
+      });
+    }
+
+    // Detect changes in the view from the text box
+    ngModel.$viewChangeListeners.push(function() {
+      $scope.date = parseDateString(ngModel.$viewValue);
+    });
+
+    $element.on('keydown', inputKeydownBind);
+
+    $popup = $compile(popupEl)($scope);
+    // Prevent jQuery cache memory leak (template is now redundant after linking)
+    popupEl.remove();
+
+    if (appendToBody) {
+      $document.find('body').append($popup);
+    } else {
+      $element.after($popup);
+    }
+
+    $scope.$on('$destroy', function() {
+      if ($scope.isOpen === true) {
+        if (!$rootScope.$$phase) {
+          $scope.$apply(function() {
+            $scope.isOpen = false;
+          });
+        }
+      }
+
+      $popup.remove();
+      $element.off('keydown', inputKeydownBind);
+      $document.off('click', documentClickBind);
+      if (scrollParentEl) {
+        scrollParentEl.off('scroll', positionPopup);
+      }
+      angular.element($window).off('resize', positionPopup);
+
+      //Clear all watch listeners on destroy
+      while (watchListeners.length) {
+        watchListeners.shift()();
+      }
+    });
+  };
+
+  $scope.getText = function(key) {
+    return $scope[key + 'Text'] || datepickerPopupConfig[key + 'Text'];
+  };
+
+  $scope.isDisabled = function(date) {
+    if (date === 'today') {
+      date = dateParser.fromTimezone(new Date(), timezone);
+    }
+
+    var dates = {};
+    angular.forEach(['minDate', 'maxDate'], function(key) {
+      if (!$scope.datepickerOptions[key]) {
+        dates[key] = null;
+      } else if (angular.isDate($scope.datepickerOptions[key])) {
+        dates[key] = dateParser.fromTimezone(new Date($scope.datepickerOptions[key]), timezone);
+      } else {
+        if ($datepickerPopupLiteralWarning) {
+          $log.warn('Literal date support has been deprecated, please switch to date object usage');
+        }
+
+        dates[key] = new Date(dateFilter($scope.datepickerOptions[key], 'medium'));
+      }
+    });
+
+    return $scope.datepickerOptions &&
+      dates.minDate && $scope.compare(date, dates.minDate) < 0 ||
+      dates.maxDate && $scope.compare(date, dates.maxDate) > 0;
+  };
+
+  $scope.compare = function(date1, date2) {
+    return new Date(date1.getFullYear(), date1.getMonth(), date1.getDate()) - new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+  };
+
+  // Inner change
+  $scope.dateSelection = function(dt) {
+    if (angular.isDefined(dt)) {
+      $scope.date = dt;
+    }
+    var date = $scope.date ? dateParser.filter($scope.date, dateFormat) : null; // Setting to NULL is necessary for form validators to function
+    $element.val(date);
+    ngModel.$setViewValue(date);
+
+    if (closeOnDateSelection) {
+      $scope.isOpen = false;
+      $element[0].focus();
+    }
+  };
+
+  $scope.keydown = function(evt) {
+    if (evt.which === 27) {
+      evt.stopPropagation();
+      $scope.isOpen = false;
+      $element[0].focus();
+    }
+  };
+
+  $scope.select = function(date, evt) {
+    evt.stopPropagation();
+
+    if (date === 'today') {
+      var today = new Date();
+      if (angular.isDate($scope.date)) {
+        date = new Date($scope.date);
+        date.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+      } else {
+        date = new Date(today.setHours(0, 0, 0, 0));
+      }
+    }
+    $scope.dateSelection(date);
+  };
+
+  $scope.close = function(evt) {
+    evt.stopPropagation();
+
+    $scope.isOpen = false;
+    $element[0].focus();
+  };
+
+  $scope.disabled = angular.isDefined($attrs.disabled) || false;
+  if ($attrs.ngDisabled) {
+    watchListeners.push($scope.$parent.$watch($parse($attrs.ngDisabled), function(disabled) {
+      $scope.disabled = disabled;
+    }));
   }
 
-  function findSlideIndex(slide) {
-    for (var i = 0; i < slides.length; i++) {
-      if (slides[i].slide === slide) {
-        return i;
+  $scope.$watch('isOpen', function(value) {
+    if (value) {
+      if (!$scope.disabled) {
+        $timeout(function() {
+          positionPopup();
+
+          if (onOpenFocus) {
+            $scope.$broadcast('uib:datepicker.focus');
+          }
+
+          $document.on('click', documentClickBind);
+
+          var placement = $attrs.popupPlacement ? $attrs.popupPlacement : datepickerPopupConfig.placement;
+          if (appendToBody || $position.parsePlacement(placement)[2]) {
+            scrollParentEl = scrollParentEl || angular.element($position.scrollParent($element));
+            if (scrollParentEl) {
+              scrollParentEl.on('scroll', positionPopup);
+            }
+          } else {
+            scrollParentEl = null;
+          }
+
+          angular.element($window).on('resize', positionPopup);
+        }, 0, false);
+      } else {
+        $scope.isOpen = false;
+      }
+    } else {
+      $document.off('click', documentClickBind);
+      if (scrollParentEl) {
+        scrollParentEl.off('scroll', positionPopup);
+      }
+      angular.element($window).off('resize', positionPopup);
+    }
+  });
+
+  function cameltoDash(string) {
+    return string.replace(/([A-Z])/g, function($1) { return '-' + $1.toLowerCase(); });
+  }
+
+  function parseDateString(viewValue) {
+    var date = dateParser.parse(viewValue, dateFormat, $scope.date);
+    if (isNaN(date)) {
+      for (var i = 0; i < altInputFormats.length; i++) {
+        date = dateParser.parse(viewValue, altInputFormats[i], $scope.date);
+        if (!isNaN(date)) {
+          return date;
+        }
+      }
+    }
+    return date;
+  }
+
+  function parseDate(viewValue) {
+    if (angular.isNumber(viewValue)) {
+      // presumably timestamp to date object
+      viewValue = new Date(viewValue);
+    }
+
+    if (!viewValue) {
+      return null;
+    }
+
+    if (angular.isDate(viewValue) && !isNaN(viewValue)) {
+      return viewValue;
+    }
+
+    if (angular.isString(viewValue)) {
+      var date = parseDateString(viewValue);
+      if (!isNaN(date)) {
+        return dateParser.toTimezone(date, timezone);
+      }
+    }
+
+    return ngModel.$options && ngModel.$options.allowInvalid ? viewValue : undefined;
+  }
+
+  function validator(modelValue, viewValue) {
+    var value = modelValue || viewValue;
+
+    if (!$attrs.ngRequired && !value) {
+      return true;
+    }
+
+    if (angular.isNumber(value)) {
+      value = new Date(value);
+    }
+
+    if (!value) {
+      return true;
+    }
+
+    if (angular.isDate(value) && !isNaN(value)) {
+      return true;
+    }
+
+    if (angular.isString(value)) {
+      return !isNaN(parseDateString(viewValue));
+    }
+
+    return false;
+  }
+
+  function documentClickBind(event) {
+    if (!$scope.isOpen && $scope.disabled) {
+      return;
+    }
+
+    var popup = $popup[0];
+    var dpContainsTarget = $element[0].contains(event.target);
+    // The popup node may not be an element node
+    // In some browsers (IE) only element nodes have the 'contains' function
+    var popupContainsTarget = popup.contains !== undefined && popup.contains(event.target);
+    if ($scope.isOpen && !(dpContainsTarget || popupContainsTarget)) {
+      $scope.$apply(function() {
+        $scope.isOpen = false;
+      });
+    }
+  }
+
+  function inputKeydownBind(evt) {
+    if (evt.which === 27 && $scope.isOpen) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      $scope.$apply(function() {
+        $scope.isOpen = false;
+      });
+      $element[0].focus();
+    } else if (evt.which === 40 && !$scope.isOpen) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      $scope.$apply(function() {
+        $scope.isOpen = true;
+      });
+    }
+  }
+
+  function positionPopup() {
+    if ($scope.isOpen) {
+      var dpElement = angular.element($popup[0].querySelector('.uib-datepicker-popup'));
+      var placement = $attrs.popupPlacement ? $attrs.popupPlacement : datepickerPopupConfig.placement;
+      var position = $position.positionElements($element, dpElement, placement, appendToBody);
+      dpElement.css({top: position.top + 'px', left: position.left + 'px'});
+      if (dpElement.hasClass('uib-position-measure')) {
+        dpElement.removeClass('uib-position-measure');
       }
     }
   }
 
-  function resetTimer() {
-    if (currentInterval) {
-      $interval.cancel(currentInterval);
-      currentInterval = null;
-    }
-  }
-
-  function resetTransition(slides) {
-    if (!slides.length) {
-      $scope.$currentTransition = null;
-      clearBufferedTransitions();
-    }
-  }
-
-  function restartTimer() {
-    resetTimer();
-    var interval = +$scope.interval;
-    if (!isNaN(interval) && interval > 0) {
-      currentInterval = $interval(timerFn, interval);
-    }
-  }
-
-  function timerFn() {
-    var interval = +$scope.interval;
-    if (isPlaying && !isNaN(interval) && interval > 0 && slides.length) {
-      $scope.next();
-    } else {
-      $scope.pause();
-    }
-  }
+  $scope.$on('uib:datepicker.mode', function() {
+    $timeout(positionPopup, 0, false);
+  });
 }])
 
-.directive('uibCarousel', function() {
+.directive('uibDatepickerPopup', function() {
   return {
-    transclude: true,
-    replace: true,
-    controller: 'UibCarouselController',
-    controllerAs: 'carousel',
-    templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/carousel/carousel.html';
-    },
+    require: ['ngModel', 'uibDatepickerPopup'],
+    controller: 'UibDatepickerPopupController',
     scope: {
-      active: '=',
-      interval: '=',
-      noTransition: '=',
-      noPause: '=',
-      noWrap: '&'
+      datepickerOptions: '=?',
+      isOpen: '=?',
+      currentText: '@',
+      clearText: '@',
+      closeText: '@'
+    },
+    link: function(scope, element, attrs, ctrls) {
+      var ngModel = ctrls[0],
+        ctrl = ctrls[1];
+
+      ctrl.init(ngModel);
     }
   };
 })
 
-.directive('uibSlide', function() {
+.directive('uibDatepickerPopupWrap', function() {
   return {
-    require: '^uibCarousel',
-    transclude: true,
     replace: true,
+    transclude: true,
     templateUrl: function(element, attrs) {
-      return attrs.templateUrl || 'uib/template/carousel/slide.html';
-    },
-    scope: {
-      actual: '=?',
-      index: '=?'
-    },
-    link: function (scope, element, attrs, carouselCtrl) {
-      carouselCtrl.addSlide(scope, element);
-      //when the scope is destroyed then remove the slide from the current slides array
-      scope.$on('$destroy', function() {
-        carouselCtrl.removeSlide(scope);
-      });
+      return attrs.templateUrl || 'uib/template/datepickerPopup/popup.html';
     }
   };
-})
+});
 
-.animation('.item', ['$animateCss',
-function($animateCss) {
-  var SLIDE_DIRECTION = 'uib-slideDirection';
-
-  function removeClass(element, className, callback) {
-    element.removeClass(className);
-    if (callback) {
-      callback();
-    }
-  }
-
-  return {
-    beforeAddClass: function(element, className, done) {
-      if (className === 'active') {
-        var stopped = false;
-        var direction = element.data(SLIDE_DIRECTION);
-        var directionClass = direction === 'next' ? 'left' : 'right';
-        var removeClassFn = removeClass.bind(this, element,
-          directionClass + ' ' + direction, done);
-        element.addClass(direction);
-
-        $animateCss(element, {addClass: directionClass})
-          .start()
-          .done(removeClassFn);
-
-        return function() {
-          stopped = true;
-        };
-      }
-      done();
-    },
-    beforeRemoveClass: function (element, className, done) {
-      if (className === 'active') {
-        var stopped = false;
-        var direction = element.data(SLIDE_DIRECTION);
-        var directionClass = direction === 'next' ? 'left' : 'right';
-        var removeClassFn = removeClass.bind(this, element, directionClass, done);
-
-        $animateCss(element, {addClass: directionClass})
-          .start()
-          .done(removeClassFn);
-
-        return function() {
-          stopped = true;
-        };
-      }
-      done();
-    }
-  };
-}]);
-
-angular.module('ui.bootstrap.stackedMap', [])
-/**
- * A helper, internal data structure that acts as a map but also allows getting / removing
- * elements in the LIFO order
- */
-  .factory('$$stackedMap', function() {
-    return {
-      createNew: function() {
-        var stack = [];
-
-        return {
-          add: function(key, value) {
-            stack.push({
-              key: key,
-              value: value
-            });
-          },
-          get: function(key) {
-            for (var i = 0; i < stack.length; i++) {
-              if (key === stack[i].key) {
-                return stack[i];
-              }
-            }
-          },
-          keys: function() {
-            var keys = [];
-            for (var i = 0; i < stack.length; i++) {
-              keys.push(stack[i].key);
-            }
-            return keys;
-          },
-          top: function() {
-            return stack[stack.length - 1];
-          },
-          remove: function(key) {
-            var idx = -1;
-            for (var i = 0; i < stack.length; i++) {
-              if (key === stack[i].key) {
-                idx = i;
-                break;
-              }
-            }
-            return stack.splice(idx, 1)[0];
-          },
-          removeTop: function() {
-            return stack.splice(stack.length - 1, 1)[0];
-          },
-          length: function() {
-            return stack.length;
-          }
-        };
-      }
-    };
-  });
 angular.module('ui.bootstrap.paging', [])
 /**
  * Helper internal service for generating common controller code between the
@@ -3779,6 +3354,60 @@ function ($animate, $sce, $compile, $templateRequest) {
   });
 }]);
 
+angular.module('ui.bootstrap.stackedMap', [])
+/**
+ * A helper, internal data structure that acts as a map but also allows getting / removing
+ * elements in the LIFO order
+ */
+  .factory('$$stackedMap', function() {
+    return {
+      createNew: function() {
+        var stack = [];
+
+        return {
+          add: function(key, value) {
+            stack.push({
+              key: key,
+              value: value
+            });
+          },
+          get: function(key) {
+            for (var i = 0; i < stack.length; i++) {
+              if (key === stack[i].key) {
+                return stack[i];
+              }
+            }
+          },
+          keys: function() {
+            var keys = [];
+            for (var i = 0; i < stack.length; i++) {
+              keys.push(stack[i].key);
+            }
+            return keys;
+          },
+          top: function() {
+            return stack[stack.length - 1];
+          },
+          remove: function(key) {
+            var idx = -1;
+            for (var i = 0; i < stack.length; i++) {
+              if (key === stack[i].key) {
+                idx = i;
+                break;
+              }
+            }
+            return stack.splice(idx, 1)[0];
+          },
+          removeTop: function() {
+            return stack.splice(stack.length - 1, 1)[0];
+          },
+          length: function() {
+            return stack.length;
+          }
+        };
+      }
+    };
+  });
 /**
  * The following features are still outstanding: popup delay, animation as a
  * function, placement as a function, inside, support for more triggers than
@@ -4045,21 +3674,570 @@ angular.module('ui.bootstrap.rating', [])
   };
 });
 
-angular.module("uib/template/datepickerPopup/popup.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("uib/template/datepickerPopup/popup.html",
-    "<div>\n" +
-    "  <ul class=\"uib-datepicker-popup dropdown-menu uib-position-measure\" dropdown-nested ng-if=\"isOpen\" ng-keydown=\"keydown($event)\" ng-click=\"$event.stopPropagation()\">\n" +
-    "    <li ng-transclude></li>\n" +
-    "    <li ng-if=\"showButtonBar\" class=\"uib-button-bar\">\n" +
-    "      <span class=\"btn-group pull-left\">\n" +
-    "        <button type=\"button\" class=\"btn btn-sm btn-info uib-datepicker-current\" ng-click=\"select('today', $event)\" ng-disabled=\"isDisabled('today')\">{{ getText('current') }}</button>\n" +
-    "        <button type=\"button\" class=\"btn btn-sm btn-danger uib-clear\" ng-click=\"select(null, $event)\">{{ getText('clear') }}</button>\n" +
-    "      </span>\n" +
-    "      <button type=\"button\" class=\"btn btn-sm btn-success pull-right uib-close\" ng-click=\"close($event)\">{{ getText('close') }}</button>\n" +
-    "    </li>\n" +
-    "  </ul>\n" +
-    "</div>\n" +
-    "");
+angular.module('ui.bootstrap.timepicker', [])
+
+.constant('uibTimepickerConfig', {
+  hourStep: 1,
+  minuteStep: 1,
+  secondStep: 1,
+  showMeridian: true,
+  showSeconds: false,
+  meridians: null,
+  readonlyInput: false,
+  mousewheel: true,
+  arrowkeys: true,
+  showSpinners: true,
+  templateUrl: 'uib/template/timepicker/timepicker.html'
+})
+
+.controller('UibTimepickerController', ['$scope', '$element', '$attrs', '$parse', '$log', '$locale', 'uibTimepickerConfig', function($scope, $element, $attrs, $parse, $log, $locale, timepickerConfig) {
+  var selected = new Date(),
+    watchers = [],
+    ngModelCtrl = { $setViewValue: angular.noop }, // nullModelCtrl
+    meridians = angular.isDefined($attrs.meridians) ? $scope.$parent.$eval($attrs.meridians) : timepickerConfig.meridians || $locale.DATETIME_FORMATS.AMPMS,
+    padHours = angular.isDefined($attrs.padHours) ? $scope.$parent.$eval($attrs.padHours) : true;
+
+  $scope.tabindex = angular.isDefined($attrs.tabindex) ? $attrs.tabindex : 0;
+  $element.removeAttr('tabindex');
+
+  this.init = function(ngModelCtrl_, inputs) {
+    ngModelCtrl = ngModelCtrl_;
+    ngModelCtrl.$render = this.render;
+
+    ngModelCtrl.$formatters.unshift(function(modelValue) {
+      return modelValue ? new Date(modelValue) : null;
+    });
+
+    var hoursInputEl = inputs.eq(0),
+        minutesInputEl = inputs.eq(1),
+        secondsInputEl = inputs.eq(2);
+
+    var mousewheel = angular.isDefined($attrs.mousewheel) ? $scope.$parent.$eval($attrs.mousewheel) : timepickerConfig.mousewheel;
+
+    if (mousewheel) {
+      this.setupMousewheelEvents(hoursInputEl, minutesInputEl, secondsInputEl);
+    }
+
+    var arrowkeys = angular.isDefined($attrs.arrowkeys) ? $scope.$parent.$eval($attrs.arrowkeys) : timepickerConfig.arrowkeys;
+    if (arrowkeys) {
+      this.setupArrowkeyEvents(hoursInputEl, minutesInputEl, secondsInputEl);
+    }
+
+    $scope.readonlyInput = angular.isDefined($attrs.readonlyInput) ? $scope.$parent.$eval($attrs.readonlyInput) : timepickerConfig.readonlyInput;
+    this.setupInputEvents(hoursInputEl, minutesInputEl, secondsInputEl);
+  };
+
+  var hourStep = timepickerConfig.hourStep;
+  if ($attrs.hourStep) {
+    watchers.push($scope.$parent.$watch($parse($attrs.hourStep), function(value) {
+      hourStep = +value;
+    }));
+  }
+
+  var minuteStep = timepickerConfig.minuteStep;
+  if ($attrs.minuteStep) {
+    watchers.push($scope.$parent.$watch($parse($attrs.minuteStep), function(value) {
+      minuteStep = +value;
+    }));
+  }
+
+  var min;
+  watchers.push($scope.$parent.$watch($parse($attrs.min), function(value) {
+    var dt = new Date(value);
+    min = isNaN(dt) ? undefined : dt;
+  }));
+
+  var max;
+  watchers.push($scope.$parent.$watch($parse($attrs.max), function(value) {
+    var dt = new Date(value);
+    max = isNaN(dt) ? undefined : dt;
+  }));
+
+  var disabled = false;
+  if ($attrs.ngDisabled) {
+    watchers.push($scope.$parent.$watch($parse($attrs.ngDisabled), function(value) {
+      disabled = value;
+    }));
+  }
+
+  $scope.noIncrementHours = function() {
+    var incrementedSelected = addMinutes(selected, hourStep * 60);
+    return disabled || incrementedSelected > max ||
+      incrementedSelected < selected && incrementedSelected < min;
+  };
+
+  $scope.noDecrementHours = function() {
+    var decrementedSelected = addMinutes(selected, -hourStep * 60);
+    return disabled || decrementedSelected < min ||
+      decrementedSelected > selected && decrementedSelected > max;
+  };
+
+  $scope.noIncrementMinutes = function() {
+    var incrementedSelected = addMinutes(selected, minuteStep);
+    return disabled || incrementedSelected > max ||
+      incrementedSelected < selected && incrementedSelected < min;
+  };
+
+  $scope.noDecrementMinutes = function() {
+    var decrementedSelected = addMinutes(selected, -minuteStep);
+    return disabled || decrementedSelected < min ||
+      decrementedSelected > selected && decrementedSelected > max;
+  };
+
+  $scope.noIncrementSeconds = function() {
+    var incrementedSelected = addSeconds(selected, secondStep);
+    return disabled || incrementedSelected > max ||
+      incrementedSelected < selected && incrementedSelected < min;
+  };
+
+  $scope.noDecrementSeconds = function() {
+    var decrementedSelected = addSeconds(selected, -secondStep);
+    return disabled || decrementedSelected < min ||
+      decrementedSelected > selected && decrementedSelected > max;
+  };
+
+  $scope.noToggleMeridian = function() {
+    if (selected.getHours() < 12) {
+      return disabled || addMinutes(selected, 12 * 60) > max;
+    }
+
+    return disabled || addMinutes(selected, -12 * 60) < min;
+  };
+
+  var secondStep = timepickerConfig.secondStep;
+  if ($attrs.secondStep) {
+    watchers.push($scope.$parent.$watch($parse($attrs.secondStep), function(value) {
+      secondStep = +value;
+    }));
+  }
+
+  $scope.showSeconds = timepickerConfig.showSeconds;
+  if ($attrs.showSeconds) {
+    watchers.push($scope.$parent.$watch($parse($attrs.showSeconds), function(value) {
+      $scope.showSeconds = !!value;
+    }));
+  }
+
+  // 12H / 24H mode
+  $scope.showMeridian = timepickerConfig.showMeridian;
+  if ($attrs.showMeridian) {
+    watchers.push($scope.$parent.$watch($parse($attrs.showMeridian), function(value) {
+      $scope.showMeridian = !!value;
+
+      if (ngModelCtrl.$error.time) {
+        // Evaluate from template
+        var hours = getHoursFromTemplate(), minutes = getMinutesFromTemplate();
+        if (angular.isDefined(hours) && angular.isDefined(minutes)) {
+          selected.setHours(hours);
+          refresh();
+        }
+      } else {
+        updateTemplate();
+      }
+    }));
+  }
+
+  // Get $scope.hours in 24H mode if valid
+  function getHoursFromTemplate() {
+    var hours = +$scope.hours;
+    var valid = $scope.showMeridian ? hours > 0 && hours < 13 :
+      hours >= 0 && hours < 24;
+    if (!valid || $scope.hours === '') {
+      return undefined;
+    }
+
+    if ($scope.showMeridian) {
+      if (hours === 12) {
+        hours = 0;
+      }
+      if ($scope.meridian === meridians[1]) {
+        hours = hours + 12;
+      }
+    }
+    return hours;
+  }
+
+  function getMinutesFromTemplate() {
+    var minutes = +$scope.minutes;
+    var valid = minutes >= 0 && minutes < 60;
+    if (!valid || $scope.minutes === '') {
+      return undefined;
+    }
+    return minutes;
+  }
+
+  function getSecondsFromTemplate() {
+    var seconds = +$scope.seconds;
+    return seconds >= 0 && seconds < 60 ? seconds : undefined;
+  }
+
+  function pad(value, noPad) {
+    if (value === null) {
+      return '';
+    }
+
+    return angular.isDefined(value) && value.toString().length < 2 && !noPad ?
+      '0' + value : value.toString();
+  }
+
+  // Respond on mousewheel spin
+  this.setupMousewheelEvents = function(hoursInputEl, minutesInputEl, secondsInputEl) {
+    var isScrollingUp = function(e) {
+      if (e.originalEvent) {
+        e = e.originalEvent;
+      }
+      //pick correct delta variable depending on event
+      var delta = e.wheelDelta ? e.wheelDelta : -e.deltaY;
+      return e.detail || delta > 0;
+    };
+
+    hoursInputEl.bind('mousewheel wheel', function(e) {
+      if (!disabled) {
+        $scope.$apply(isScrollingUp(e) ? $scope.incrementHours() : $scope.decrementHours());
+      }
+      e.preventDefault();
+    });
+
+    minutesInputEl.bind('mousewheel wheel', function(e) {
+      if (!disabled) {
+        $scope.$apply(isScrollingUp(e) ? $scope.incrementMinutes() : $scope.decrementMinutes());
+      }
+      e.preventDefault();
+    });
+
+     secondsInputEl.bind('mousewheel wheel', function(e) {
+      if (!disabled) {
+        $scope.$apply(isScrollingUp(e) ? $scope.incrementSeconds() : $scope.decrementSeconds());
+      }
+      e.preventDefault();
+    });
+  };
+
+  // Respond on up/down arrowkeys
+  this.setupArrowkeyEvents = function(hoursInputEl, minutesInputEl, secondsInputEl) {
+    hoursInputEl.bind('keydown', function(e) {
+      if (!disabled) {
+        if (e.which === 38) { // up
+          e.preventDefault();
+          $scope.incrementHours();
+          $scope.$apply();
+        } else if (e.which === 40) { // down
+          e.preventDefault();
+          $scope.decrementHours();
+          $scope.$apply();
+        }
+      }
+    });
+
+    minutesInputEl.bind('keydown', function(e) {
+      if (!disabled) {
+        if (e.which === 38) { // up
+          e.preventDefault();
+          $scope.incrementMinutes();
+          $scope.$apply();
+        } else if (e.which === 40) { // down
+          e.preventDefault();
+          $scope.decrementMinutes();
+          $scope.$apply();
+        }
+      }
+    });
+
+    secondsInputEl.bind('keydown', function(e) {
+      if (!disabled) {
+        if (e.which === 38) { // up
+          e.preventDefault();
+          $scope.incrementSeconds();
+          $scope.$apply();
+        } else if (e.which === 40) { // down
+          e.preventDefault();
+          $scope.decrementSeconds();
+          $scope.$apply();
+        }
+      }
+    });
+  };
+
+  this.setupInputEvents = function(hoursInputEl, minutesInputEl, secondsInputEl) {
+    if ($scope.readonlyInput) {
+      $scope.updateHours = angular.noop;
+      $scope.updateMinutes = angular.noop;
+      $scope.updateSeconds = angular.noop;
+      return;
+    }
+
+    var invalidate = function(invalidHours, invalidMinutes, invalidSeconds) {
+      ngModelCtrl.$setViewValue(null);
+      ngModelCtrl.$setValidity('time', false);
+      if (angular.isDefined(invalidHours)) {
+        $scope.invalidHours = invalidHours;
+      }
+
+      if (angular.isDefined(invalidMinutes)) {
+        $scope.invalidMinutes = invalidMinutes;
+      }
+
+      if (angular.isDefined(invalidSeconds)) {
+        $scope.invalidSeconds = invalidSeconds;
+      }
+    };
+
+    $scope.updateHours = function() {
+      var hours = getHoursFromTemplate(),
+        minutes = getMinutesFromTemplate();
+
+      ngModelCtrl.$setDirty();
+
+      if (angular.isDefined(hours) && angular.isDefined(minutes)) {
+        selected.setHours(hours);
+        selected.setMinutes(minutes);
+        if (selected < min || selected > max) {
+          invalidate(true);
+        } else {
+          refresh('h');
+        }
+      } else {
+        invalidate(true);
+      }
+    };
+
+    hoursInputEl.bind('blur', function(e) {
+      ngModelCtrl.$setTouched();
+      if (modelIsEmpty()) {
+        makeValid();
+      } else if ($scope.hours === null || $scope.hours === '') {
+        invalidate(true);
+      } else if (!$scope.invalidHours && $scope.hours < 10) {
+        $scope.$apply(function() {
+          $scope.hours = pad($scope.hours, !padHours);
+        });
+      }
+    });
+
+    $scope.updateMinutes = function() {
+      var minutes = getMinutesFromTemplate(),
+        hours = getHoursFromTemplate();
+
+      ngModelCtrl.$setDirty();
+
+      if (angular.isDefined(minutes) && angular.isDefined(hours)) {
+        selected.setHours(hours);
+        selected.setMinutes(minutes);
+        if (selected < min || selected > max) {
+          invalidate(undefined, true);
+        } else {
+          refresh('m');
+        }
+      } else {
+        invalidate(undefined, true);
+      }
+    };
+
+    minutesInputEl.bind('blur', function(e) {
+      ngModelCtrl.$setTouched();
+      if (modelIsEmpty()) {
+        makeValid();
+      } else if ($scope.minutes === null) {
+        invalidate(undefined, true);
+      } else if (!$scope.invalidMinutes && $scope.minutes < 10) {
+        $scope.$apply(function() {
+          $scope.minutes = pad($scope.minutes);
+        });
+      }
+    });
+
+    $scope.updateSeconds = function() {
+      var seconds = getSecondsFromTemplate();
+
+      ngModelCtrl.$setDirty();
+
+      if (angular.isDefined(seconds)) {
+        selected.setSeconds(seconds);
+        refresh('s');
+      } else {
+        invalidate(undefined, undefined, true);
+      }
+    };
+
+    secondsInputEl.bind('blur', function(e) {
+      if (modelIsEmpty()) {
+        makeValid();
+      } else if (!$scope.invalidSeconds && $scope.seconds < 10) {
+        $scope.$apply( function() {
+          $scope.seconds = pad($scope.seconds);
+        });
+      }
+    });
+
+  };
+
+  this.render = function() {
+    var date = ngModelCtrl.$viewValue;
+
+    if (isNaN(date)) {
+      ngModelCtrl.$setValidity('time', false);
+      $log.error('Timepicker directive: "ng-model" value must be a Date object, a number of milliseconds since 01.01.1970 or a string representing an RFC2822 or ISO 8601 date.');
+    } else {
+      if (date) {
+        selected = date;
+      }
+
+      if (selected < min || selected > max) {
+        ngModelCtrl.$setValidity('time', false);
+        $scope.invalidHours = true;
+        $scope.invalidMinutes = true;
+      } else {
+        makeValid();
+      }
+      updateTemplate();
+    }
+  };
+
+  // Call internally when we know that model is valid.
+  function refresh(keyboardChange) {
+    makeValid();
+    ngModelCtrl.$setViewValue(new Date(selected));
+    updateTemplate(keyboardChange);
+  }
+
+  function makeValid() {
+    ngModelCtrl.$setValidity('time', true);
+    $scope.invalidHours = false;
+    $scope.invalidMinutes = false;
+    $scope.invalidSeconds = false;
+  }
+
+  function updateTemplate(keyboardChange) {
+    if (!ngModelCtrl.$modelValue) {
+      $scope.hours = null;
+      $scope.minutes = null;
+      $scope.seconds = null;
+      $scope.meridian = meridians[0];
+    } else {
+      var hours = selected.getHours(),
+        minutes = selected.getMinutes(),
+        seconds = selected.getSeconds();
+
+      if ($scope.showMeridian) {
+        hours = hours === 0 || hours === 12 ? 12 : hours % 12; // Convert 24 to 12 hour system
+      }
+
+      $scope.hours = keyboardChange === 'h' ? hours : pad(hours, !padHours);
+      if (keyboardChange !== 'm') {
+        $scope.minutes = pad(minutes);
+      }
+      $scope.meridian = selected.getHours() < 12 ? meridians[0] : meridians[1];
+
+      if (keyboardChange !== 's') {
+        $scope.seconds = pad(seconds);
+      }
+      $scope.meridian = selected.getHours() < 12 ? meridians[0] : meridians[1];
+    }
+  }
+
+  function addSecondsToSelected(seconds) {
+    selected = addSeconds(selected, seconds);
+    refresh();
+  }
+
+  function addMinutes(selected, minutes) {
+    return addSeconds(selected, minutes*60);
+  }
+
+  function addSeconds(date, seconds) {
+    var dt = new Date(date.getTime() + seconds * 1000);
+    var newDate = new Date(date);
+    newDate.setHours(dt.getHours(), dt.getMinutes(), dt.getSeconds());
+    return newDate;
+  }
+
+  function modelIsEmpty() {
+    return ($scope.hours === null || $scope.hours === '') &&
+      ($scope.minutes === null || $scope.minutes === '') &&
+      (!$scope.showSeconds || $scope.showSeconds && ($scope.seconds === null || $scope.seconds === ''));
+  }
+
+  $scope.showSpinners = angular.isDefined($attrs.showSpinners) ?
+    $scope.$parent.$eval($attrs.showSpinners) : timepickerConfig.showSpinners;
+
+  $scope.incrementHours = function() {
+    if (!$scope.noIncrementHours()) {
+      addSecondsToSelected(hourStep * 60 * 60);
+    }
+  };
+
+  $scope.decrementHours = function() {
+    if (!$scope.noDecrementHours()) {
+      addSecondsToSelected(-hourStep * 60 * 60);
+    }
+  };
+
+  $scope.incrementMinutes = function() {
+    if (!$scope.noIncrementMinutes()) {
+      addSecondsToSelected(minuteStep * 60);
+    }
+  };
+
+  $scope.decrementMinutes = function() {
+    if (!$scope.noDecrementMinutes()) {
+      addSecondsToSelected(-minuteStep * 60);
+    }
+  };
+
+  $scope.incrementSeconds = function() {
+    if (!$scope.noIncrementSeconds()) {
+      addSecondsToSelected(secondStep);
+    }
+  };
+
+  $scope.decrementSeconds = function() {
+    if (!$scope.noDecrementSeconds()) {
+      addSecondsToSelected(-secondStep);
+    }
+  };
+
+  $scope.toggleMeridian = function() {
+    var minutes = getMinutesFromTemplate(),
+        hours = getHoursFromTemplate();
+
+    if (!$scope.noToggleMeridian()) {
+      if (angular.isDefined(minutes) && angular.isDefined(hours)) {
+        addSecondsToSelected(12 * 60 * (selected.getHours() < 12 ? 60 : -60));
+      } else {
+        $scope.meridian = $scope.meridian === meridians[0] ? meridians[1] : meridians[0];
+      }
+    }
+  };
+
+  $scope.blur = function() {
+    ngModelCtrl.$setTouched();
+  };
+
+  $scope.$on('$destroy', function() {
+    while (watchers.length) {
+      watchers.shift()();
+    }
+  });
+}])
+
+.directive('uibTimepicker', ['uibTimepickerConfig', function(uibTimepickerConfig) {
+  return {
+    require: ['uibTimepicker', '?^ngModel'],
+    controller: 'UibTimepickerController',
+    controllerAs: 'timepicker',
+    replace: true,
+    scope: {},
+    templateUrl: function(element, attrs) {
+      return attrs.templateUrl || uibTimepickerConfig.templateUrl;
+    },
+    link: function(scope, element, attrs, ctrls) {
+      var timepickerCtrl = ctrls[0], ngModelCtrl = ctrls[1];
+
+      if (ngModelCtrl) {
+        timepickerCtrl.init(ngModelCtrl, element.find('input'));
+      }
+    }
+  };
 }]);
 
 angular.module("uib/template/datepicker/datepicker.html", []).run(["$templateCache", function($templateCache) {
@@ -4167,32 +4345,20 @@ angular.module("uib/template/datepicker/year.html", []).run(["$templateCache", f
     "");
 }]);
 
-angular.module("uib/template/carousel/carousel.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("uib/template/carousel/carousel.html",
-    "<div ng-mouseenter=\"pause()\" ng-mouseleave=\"play()\" class=\"carousel\" ng-swipe-right=\"prev()\" ng-swipe-left=\"next()\">\n" +
-    "  <div class=\"carousel-inner\" ng-transclude></div>\n" +
-    "  <a role=\"button\" href class=\"left carousel-control\" ng-click=\"prev()\" ng-class=\"{ disabled: isPrevDisabled() }\" ng-show=\"slides.length > 1\">\n" +
-    "    <span aria-hidden=\"true\" class=\"glyphicon glyphicon-chevron-left\"></span>\n" +
-    "    <span class=\"sr-only\">previous</span>\n" +
-    "  </a>\n" +
-    "  <a role=\"button\" href class=\"right carousel-control\" ng-click=\"next()\" ng-class=\"{ disabled: isNextDisabled() }\" ng-show=\"slides.length > 1\">\n" +
-    "    <span aria-hidden=\"true\" class=\"glyphicon glyphicon-chevron-right\"></span>\n" +
-    "    <span class=\"sr-only\">next</span>\n" +
-    "  </a>\n" +
-    "  <ol class=\"carousel-indicators\" ng-show=\"slides.length > 1\">\n" +
-    "    <li ng-repeat=\"slide in slides | orderBy:indexOfSlide track by $index\" ng-class=\"{ active: isActive(slide) }\" ng-click=\"select(slide)\">\n" +
-    "      <span class=\"sr-only\">slide {{ $index + 1 }} of {{ slides.length }}<span ng-if=\"isActive(slide)\">, currently active</span></span>\n" +
+angular.module("uib/template/datepickerPopup/popup.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("uib/template/datepickerPopup/popup.html",
+    "<div>\n" +
+    "  <ul class=\"uib-datepicker-popup dropdown-menu uib-position-measure\" dropdown-nested ng-if=\"isOpen\" ng-keydown=\"keydown($event)\" ng-click=\"$event.stopPropagation()\">\n" +
+    "    <li ng-transclude></li>\n" +
+    "    <li ng-if=\"showButtonBar\" class=\"uib-button-bar\">\n" +
+    "      <span class=\"btn-group pull-left\">\n" +
+    "        <button type=\"button\" class=\"btn btn-sm btn-info uib-datepicker-current\" ng-click=\"select('today', $event)\" ng-disabled=\"isDisabled('today')\">{{ getText('current') }}</button>\n" +
+    "        <button type=\"button\" class=\"btn btn-sm btn-danger uib-clear\" ng-click=\"select(null, $event)\">{{ getText('clear') }}</button>\n" +
+    "      </span>\n" +
+    "      <button type=\"button\" class=\"btn btn-sm btn-success pull-right uib-close\" ng-click=\"close($event)\">{{ getText('close') }}</button>\n" +
     "    </li>\n" +
-    "  </ol>\n" +
+    "  </ul>\n" +
     "</div>\n" +
-    "");
-}]);
-
-angular.module("uib/template/carousel/slide.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("uib/template/carousel/slide.html",
-    "<div ng-class=\"{\n" +
-    "    'active': active\n" +
-    "  }\" class=\"item text-center\" ng-transclude></div>\n" +
     "");
 }]);
 
@@ -4326,18 +4492,53 @@ angular.module("uib/template/progressbar/progressbar.html", []).run(["$templateC
 
 angular.module("uib/template/rating/rating.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("uib/template/rating/rating.html",
-    "<span class=\"uib-rating\" ng-mouseleave=\"reset()\" ng-keydown=\"onKeydown($event)\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"{{range.length}}\" aria-valuenow=\"{{value}}\">\n" +
-    "  <span ng-repeat-start=\"r in range track by $index\" class=\"sr-only\">({{ $index < value ? '*' : ' ' }})</span>\n" +
-    "  <span class=\"svg-icon-block\" ng-repeat-end ng-mouseenter=\"enter($index + 1)\" ng-click=\"rate($index + 1)\">\n" +
-    "    <svg class=\"svg-icon\" ng-class=\"$index < value && (r.stateOn || 'star') || (r.stateOff || 'star-empty')\" ng-attr-title=\"{{r.title}}\" aria-valuetext=\"{{r.title}}\">\n" +
-    "      <use xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:href=\"/assets/build/icons/sprite.svg#star\"></use>\n" +
-    "    </svg>\n" +
-    "  </span>\n" +
+    "<span ng-mouseleave=\"reset()\" ng-keydown=\"onKeydown($event)\" tabindex=\"0\" role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"{{range.length}}\" aria-valuenow=\"{{value}}\" aria-valuetext=\"{{title}}\">\n" +
+    "    <span ng-repeat-start=\"r in range track by $index\" class=\"sr-only\">({{ $index < value ? '*' : ' ' }})</span>\n" +
+    "    <i ng-repeat-end ng-mouseenter=\"enter($index + 1)\" ng-click=\"rate($index + 1)\" class=\"glyphicon\" ng-class=\"$index < value && (r.stateOn || 'glyphicon-star') || (r.stateOff || 'glyphicon-star-empty')\" ng-attr-title=\"{{r.title}}\"></i>\n" +
     "</span>\n" +
     "");
 }]);
-angular.module('ui.bootstrap.datepickerPopup').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibDatepickerpopupCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-datepicker-popup.dropdown-menu{display:block;float:none;margin:0;}.uib-button-bar{padding:10px 9px 2px;}</style>'); angular.$$uibDatepickerpopupCss = true; });
+
+angular.module("uib/template/timepicker/timepicker.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("uib/template/timepicker/timepicker.html",
+    "<table class=\"uib-timepicker\">\n" +
+    "  <tbody>\n" +
+    "    <tr class=\"text-center\" ng-show=\"::showSpinners\">\n" +
+    "      <td class=\"uib-increment hours\"><a ng-click=\"incrementHours()\" ng-class=\"{disabled: noIncrementHours()}\" class=\"btn btn-link\" ng-disabled=\"noIncrementHours()\" tabindex=\"{{::tabindex}}\"><span class=\"glyphicon glyphicon-chevron-up\"></span></a></td>\n" +
+    "      <td>&nbsp;</td>\n" +
+    "      <td class=\"uib-increment minutes\"><a ng-click=\"incrementMinutes()\" ng-class=\"{disabled: noIncrementMinutes()}\" class=\"btn btn-link\" ng-disabled=\"noIncrementMinutes()\" tabindex=\"{{::tabindex}}\"><span class=\"glyphicon glyphicon-chevron-up\"></span></a></td>\n" +
+    "      <td ng-show=\"showSeconds\">&nbsp;</td>\n" +
+    "      <td ng-show=\"showSeconds\" class=\"uib-increment seconds\"><a ng-click=\"incrementSeconds()\" ng-class=\"{disabled: noIncrementSeconds()}\" class=\"btn btn-link\" ng-disabled=\"noIncrementSeconds()\" tabindex=\"{{::tabindex}}\"><span class=\"glyphicon glyphicon-chevron-up\"></span></a></td>\n" +
+    "      <td ng-show=\"showMeridian\"></td>\n" +
+    "    </tr>\n" +
+    "    <tr>\n" +
+    "      <td class=\"form-group uib-time hours\" ng-class=\"{'has-error': invalidHours}\">\n" +
+    "        <input type=\"text\" placeholder=\"HH\" ng-model=\"hours\" ng-change=\"updateHours()\" class=\"form-control text-center\" ng-readonly=\"::readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementHours()\" ng-blur=\"blur()\">\n" +
+    "      </td>\n" +
+    "      <td class=\"uib-separator\">:</td>\n" +
+    "      <td class=\"form-group uib-time minutes\" ng-class=\"{'has-error': invalidMinutes}\">\n" +
+    "        <input type=\"text\" placeholder=\"MM\" ng-model=\"minutes\" ng-change=\"updateMinutes()\" class=\"form-control text-center\" ng-readonly=\"::readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementMinutes()\" ng-blur=\"blur()\">\n" +
+    "      </td>\n" +
+    "      <td ng-show=\"showSeconds\" class=\"uib-separator\">:</td>\n" +
+    "      <td class=\"form-group uib-time seconds\" ng-class=\"{'has-error': invalidSeconds}\" ng-show=\"showSeconds\">\n" +
+    "        <input type=\"text\" placeholder=\"SS\" ng-model=\"seconds\" ng-change=\"updateSeconds()\" class=\"form-control text-center\" ng-readonly=\"readonlyInput\" maxlength=\"2\" tabindex=\"{{::tabindex}}\" ng-disabled=\"noIncrementSeconds()\" ng-blur=\"blur()\">\n" +
+    "      </td>\n" +
+    "      <td ng-show=\"showMeridian\" class=\"uib-time am-pm\"><button type=\"button\" ng-class=\"{disabled: noToggleMeridian()}\" class=\"btn btn-default text-center\" ng-click=\"toggleMeridian()\" ng-disabled=\"noToggleMeridian()\" tabindex=\"{{::tabindex}}\">{{meridian}}</button></td>\n" +
+    "    </tr>\n" +
+    "    <tr class=\"text-center\" ng-show=\"::showSpinners\">\n" +
+    "      <td class=\"uib-decrement hours\"><a ng-click=\"decrementHours()\" ng-class=\"{disabled: noDecrementHours()}\" class=\"btn btn-link\" ng-disabled=\"noDecrementHours()\" tabindex=\"{{::tabindex}}\"><span class=\"glyphicon glyphicon-chevron-down\"></span></a></td>\n" +
+    "      <td>&nbsp;</td>\n" +
+    "      <td class=\"uib-decrement minutes\"><a ng-click=\"decrementMinutes()\" ng-class=\"{disabled: noDecrementMinutes()}\" class=\"btn btn-link\" ng-disabled=\"noDecrementMinutes()\" tabindex=\"{{::tabindex}}\"><span class=\"glyphicon glyphicon-chevron-down\"></span></a></td>\n" +
+    "      <td ng-show=\"showSeconds\">&nbsp;</td>\n" +
+    "      <td ng-show=\"showSeconds\" class=\"uib-decrement seconds\"><a ng-click=\"decrementSeconds()\" ng-class=\"{disabled: noDecrementSeconds()}\" class=\"btn btn-link\" ng-disabled=\"noDecrementSeconds()\" tabindex=\"{{::tabindex}}\"><span class=\"glyphicon glyphicon-chevron-down\"></span></a></td>\n" +
+    "      <td ng-show=\"showMeridian\"></td>\n" +
+    "    </tr>\n" +
+    "  </tbody>\n" +
+    "</table>\n" +
+    "");
+}]);
 angular.module('ui.bootstrap.datepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibDatepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-datepicker .uib-title{width:100%;}.uib-day button,.uib-month button,.uib-year button{min-width:100%;}.uib-left,.uib-right{width:100%}</style>'); angular.$$uibDatepickerCss = true; });
 angular.module('ui.bootstrap.position').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibPositionCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style>'); angular.$$uibPositionCss = true; });
-angular.module('ui.bootstrap.carousel').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibCarouselCss && angular.element(document).find('head').prepend('<style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style>'); angular.$$uibCarouselCss = true; });
+angular.module('ui.bootstrap.datepickerPopup').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibDatepickerpopupCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-datepicker-popup.dropdown-menu{display:block;float:none;margin:0;}.uib-button-bar{padding:10px 9px 2px;}</style>'); angular.$$uibDatepickerpopupCss = true; });
 angular.module('ui.bootstrap.tooltip').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTooltipCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style>'); angular.$$uibTooltipCss = true; });
+angular.module('ui.bootstrap.timepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTimepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-time input{width:50px;}</style>'); angular.$$uibTimepickerCss = true; });
