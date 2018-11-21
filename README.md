@@ -1,3 +1,9 @@
+# Deprecation notice
+
+**This project is not supported any more. If you are interested in Stelace to launch your marketplace, please visit our [website](https://stelace.com) and see [our docs](https://stelace.com/docs/).**
+
+The project Stelace has been renamed into Sharinplace to prevent any confusion with the current Stelace API.
+
 # Stelace
 
 Stelace helps entrepreneurs create online marketplaces and communities in no time to let them focus on experimenting and growing their audience.
@@ -6,22 +12,10 @@ This repository includes all marketplace features and integrations. Stelace mark
 
 ---
 
-## Warning
-
-Stelace is under active development, with *massive* ongoing updates.
-
-**Expect breaking changes until v1 is released.**
-
-![Stelace pre-launch](https://media.giphy.com/media/26xBEamXwaMSUbV72/giphy.gif)
-
----
-
 ## Contents
 
-<!-- TOC -->
-
+- [Deprecation notice](#deprecation-notice)
 - [Stelace](#stelace)
-    - [Warning](#warning)
     - [Contents](#contents)
     - [Features](#features)
     - [Stelace Dashboard](#stelace-dashboard)
@@ -47,8 +41,6 @@ Stelace is under active development, with *massive* ongoing updates.
     - [Ongoing](#ongoing)
     - [Open source alternatives](#open-source-alternatives)
     - [License](#license)
-
-<!-- /TOC -->
 
 ## Features
 
