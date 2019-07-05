@@ -1,21 +1,16 @@
 # Deprecation notice
 
-**This project is not supported any more. If you are interested in Stelace to launch your marketplace, please visit our [website](https://stelace.com) and see [our docs](https://stelace.com/docs/).**
+This project was an open-source version of our own [retired](https://stelace.com/blog/building-your-marketplace-is-hard-see-how-we-tried-the-idea-1-7/) marketplace _Sharinplace_ and is not supported any more.
 
-The project Stelace has been renamed into Sharinplace to prevent any confusion with the current Stelace API.
+**If you are interested in running your platform with powerful Search infrastructure, automation and marketplace management APIs, please visit our [website](https://stelace.com), have a look at [our docs](https://stelace.com/docs/) or play with and fork our [Heroes Platform](https://github.com/stelace/heroes-platform-demo) demo featuring Stelace API.**
 
-# Stelace
-
-Stelace helps entrepreneurs create online marketplaces and communities in no time to let them focus on experimenting and growing their audience.
-
-This repository includes all marketplace features and integrations. Stelace marketplace launcher, cloud hosting, automatic setup & updates, APIs, webhooks and full dashboard are also available [without a line of code](https://stelace.com).
+[![stelace-heroes-platform-screenshot](https://user-images.githubusercontent.com/12909094/60439766-abac0580-9c13-11e9-954d-9aaa7bc6f22e.gif)](https://heroes.demo.stelace.com)
 
 ---
 
 ## Contents
 
 - [Deprecation notice](#deprecation-notice)
-- [Stelace](#stelace)
     - [Contents](#contents)
     - [Features](#features)
     - [Stelace Dashboard](#stelace-dashboard)
@@ -66,9 +61,6 @@ This repository includes all marketplace features and integrations. Stelace mark
 You can connect your own dashboard with Stelace Public API or use [official Stelace dashboard](https://stelace.com), enabling live design and content editing, real-time stats, translation tools, team roles management and much more.
 
 [![Stelace Dashboard](https://user-images.githubusercontent.com/12909094/38527674-415ac06c-3c5c-11e8-89d3-c92c3be1d377.png)](https://stelace.com)
-
-
-For more details, please refer to [this post (#4)](https://github.com/stelace/stelace/issues/4#issuecomment-376476916).
 
 ## Environment
 ### Install environment
