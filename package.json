@@ -1,21 +1,20 @@
 {
-  "name": "stelace",
+  "name": "sharinplace",
   "private": true,
   "version": "0.2.1",
-  "description": "Smart marketplace launcher",
+  "description": "Open source version of retired marketplace sharinplace.fr",
   "keywords": [
     "marketplace",
     "API",
     "platform",
     "entrepreneur"
   ],
-  "homepage": "https://stelace.com",
   "license": "GPL-3.0",
-  "author": "Stelace Team",
+  "author": "Stelace Team (https://stelace.com)",
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stelace/stelace"
+    "url": "https://github.com/stelace/sharinplace"
   },
   "engines": {
     "node": ">=8.4"
