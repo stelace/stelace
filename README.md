@@ -1,10 +1,18 @@
-# Deprecation notice
+# Deprecation notice and alternatives
 
-This project was an open-source version of our own [retired](https://stelace.com/blog/building-your-marketplace-is-hard-see-how-we-tried-the-idea-1-7/) marketplace _Sharinplace_ and is not supported any more.
+> This project was an open-source version of our own [retired](https://stelace.com/blog/building-your-marketplace-is-hard-see-how-we-tried-the-idea-1-7/) marketplace _Sharinplace_ and is not supported any more.
 
-**If you are interested in running your platform with powerful Search infrastructure, automation and marketplace management APIs, please visit our [website](https://stelace.com), have a look at [our docs](https://stelace.com/docs/) or play with and fork our [Heroes Platform](https://github.com/stelace/heroes-platform-demo) demo featuring Stelace API.**
+**Have a look at our new open-source templates running on [Stelace API](https://stelace.com):**
 
-[![stelace-heroes-platform-screenshot](https://user-images.githubusercontent.com/12909094/60439766-abac0580-9c13-11e9-954d-9aaa7bc6f22e.gif)](https://heroes.demo.stelace.com)
+- **[Airbnb-like marketplace](https://marketplace.demo.stelace.com/s)** ([Docs: Getting Started](https://stelace.com/docs/getting-started))
+
+[![marketplace-demo-screenshot](https://stelace-instant-files.s3.amazonaws.com/p/238393/test/images/22d115c4e340b125120ce0f29ab36db8-stelace-marketplace-demo-laptop.png)](https://github.com/stelace/marketplace-demo)
+
+- **[Heroes Platform](https://github.com/stelace/heroes-platform-demo) focused on automation and real-time:**
+
+[![stelace-heroes-platform-screenshot](https://user-images.githubusercontent.com/12909094/60439766-abac0580-9c13-11e9-954d-9aaa7bc6f22e.gif)](https://heroes.demo.stelace.com/s)
+
+**If you are interested in running your platform with powerful Search infrastructure, automation and marketplace management APIs, please visit our [website](https://stelace.com), have a look at [our docs](https://stelace.com/docs/) or just play with one of these open-source templates.**
 
 ---
 
