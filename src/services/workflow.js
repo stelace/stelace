@@ -20,7 +20,6 @@ const { performListQuery } = require('../util/listQueryBuilder')
 
 // Stelace Workflows: reuse sandbox for performance
 const { VM } = require('vm2')
-const workflowHelpersPrefix = 'S'
 
 const debug = require('debug')('stelace:api')
 let apiBase
@@ -278,24 +277,6 @@ function start ({ communication, serverPort }) {
     let runId
     let workflowsCtx = {} // shared and same for all current event’s workflows
     let vm
-    // DEPRECATED: remove this after migration to public lodash methods
-    const stelaceWorkflowHelpers = (vm) => {
-      return {
-        get: function (objectType, path, fallback) {
-          const vmCtx = vm.run('ctx[apiVersion]')
-          helperChecks({ name: `${workflowHelpersPrefix}.get`, objectType, path, vmCtx })
-
-          return _.get(vmCtx, `${objectType}.${path}`, fallback)
-        },
-        set: function (objectType, path, newValue) {
-          const vmCtx = vm.run('ctx[apiVersion]')
-          helperChecks({ name: `${workflowHelpersPrefix}.set`, objectType, path, vmCtx })
-
-          return _.set(vmCtx, `${objectType}.${path}`, newValue)
-        }
-      }
-    }
-    // DEPRECATED:END
 
     try {
       const {
@@ -403,12 +384,10 @@ function start ({ communication, serverPort }) {
             env: {} // envVariables selectively populated for each workflow
           }
         })
-        // DEPRECATED: remove this after migration to public lodash methods
-        vm.freeze(stelaceWorkflowHelpers(vm), workflowHelpersPrefix)
-        // DEPRECATED:END
 
-        // Expose all lodash methods, version 4.7.11.
-        // Users must be informed before any version upgrade.
+        // Expose all lodash methods, version 4.7.x
+        // Users must be informed before any major or minor version updates
+        // but (security) patch updates should be applied on an ongoing basis.
         vm.freeze(_, '_')
       }
 
@@ -1153,21 +1132,6 @@ function _getEnvironmentVariablesScript (envVariables) {
     // any double quotes in variable name or content must be escaped
     return `${script} env["${k.replace(/"/g, '\\"')}"] = "${v.replace(/"/g, '\\"')}";`
   }, 'env = {};')
-}
-
-function helperChecks ({ name, objectType, path, vmCtx }) {
-  if (!objectType || typeof objectType !== 'string') {
-    throw createError(422, `${name}: a string object name is expected as first argument to access "${
-      path
-    }" property path in ${
-      vmCtx.type
-    } event workflow.`)
-  }
-  if (_.isUndefined(vmCtx[objectType])) {
-    throw createError(422, `${name}: ${objectType} does not exist in ${
-      vmCtx.type
-    } event workflow.`)
-  }
 }
 
 function stop () {
