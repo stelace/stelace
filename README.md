@@ -26,7 +26,8 @@ Includes:
 - Automation with [Events](https://stelace.com/docs/command/events) and [Workflows](https://stelace.com/docs/command/workflows), bringing _serverless_ logic to any app
 - Customizable [Transaction](https://stelace.com/docs/transactions) process
 - [Content management API](https://stelace.com/docs/content) (headless CMS)
-- … and [much more (docs)](https://stelace.com/docs)
+- [Plugin system](docs/plugins.md) to build literally anything
+- … and [even more (docs)](https://stelace.com/docs)
 
 For a full-stack experience, you can get started [here](https://stelace.com/docs/getting-started) with open-source Vue.js front-end templates.
 
@@ -170,7 +171,7 @@ yarn start # or `npm start`
 
 ### Develop with API server container
 
-Stelace server is built and deployed to Ubuntu machines, and you may have some trouble running server with another OS.
+Stelace server is built on and deployed to Linux machines (Ubuntu), and you may have some trouble running server with another OS.
 
 Docker can solve this with ease.
 
@@ -180,7 +181,7 @@ Here is how you can install dependencies and init database:
 
 ```sh
 # ephemeral container with --rm option
-docker-compose run --rm api yarn && yarn knex migrate:latest
+docker-compose run --rm api yarn && yarn seed
 ```
 
 _Note: project root directory is used as a Docker volume during development, including `node_modules` that are shared._
@@ -245,9 +246,9 @@ yarn test --verbose
 
 ### Using API server container
 
-Stelace team uses API server Docker image in production, so do CI tests.
+Stelace team uses an API server Docker image in production, so do CI tests.
 
-You can use [API server container](#develop-with-api-server-container) to run tests locally too.
+You can use an [API server container](#develop-with-api-server-container) to run tests locally too.
 
 Ensure ElasticSearch, PostgreSQL and Redis are running once you’ve started [database containers](
   #start-development-databases
@@ -274,14 +275,17 @@ docker-compose run --rm api yarn test
 
 ## Versioning
 
-Stelace API public versions introducing breaking changes are dated like `2019-05-20`.
-Old versions are supported thanks to transformers, inspired by [great examples](https://stripe.com/blog/api-versioning).
+Stelace API public versions introducing breaking changes are publicly dated like `2019-05-20` but the repository itself follows [semver](https://semver.org/) rules.
+Dated version are the equivalent of `major` updates, as in semver `major.minor.patch`.
+
+Old dated versions are supported thanks to transformers, inspired by [great examples](https://stripe.com/blog/api-versioning).
 
 When introducing breaking changes (denoted by a new major version in this repository according to semver):
 
 - Dated version is added to `src/versions/index.js`
 - Appropriate transformers are added to request, response and validation subfolders
 - Changes are documented using a `description` field in request transformers
+- [Conventional commit](https://www.conventionalcommits.org) messages are used to keep track of breaking changes
 
 ## Contributing
 
