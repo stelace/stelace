@@ -1,0 +1,245 @@
+version: 2.1
+executors:
+  ubuntu: &ubuntu
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/stelace
+    environment:
+      CI_PREFIX: CI
+      # https://docs.docker.com/develop/develop-images/build_enhancements
+      DOCKER_BUILDKIT: 1
+  ubuntu-build:
+    <<: *ubuntu
+    machine:
+        image: ubuntu-1604:201903-01
+        docker_layer_caching: true
+
+jobs:
+  build:
+    executor: ubuntu-build
+    steps:
+      - checkout
+      - run:
+          name: Set Node version
+          command: |
+            set +e
+            # Can’t use built-in nvm and update all sessions, rather use this
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v12.7.0
+            nvm alias default v12.7.0
+            # Each step uses the same `$BASH_ENV`, so need to modify it
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+      - run:
+          name: Install yarn
+          command: |
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+            sudo apt-get update && sudo apt-get install yarn
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys: # Partial restoration if available: https://circleci.com/docs/2.0/caching/#yarn-node
+            - yarn-packages-v1-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-
+      - run:
+          name: Install Dependencies, purely from the lockfile
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-v1-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules/
+      - run:
+          name: Check Coding Style (standard)
+          command: npm run lint
+      - run:
+          name: Set .env
+          command: cp .env.ci .env
+      - restore_cache:
+          name: Restore Dockerfile.elasticsearch checksum
+          key: elasticsearch-checksum-v1-{{ checksum "Dockerfile.elasticsearch" }}
+      - run:
+          name: Build Docker containers
+          command: |
+            node scripts/installExternalPlugins.js --save
+            sed -i 's|^\(INSTALLED_PLUGINS=\).*$|\1'"$INSTALLED_PLUGINS"'|' .env
+            # Set docker image CI_TAG
+            echo "export CI_TAG=${CIRCLE_SHA1:0:7}$CI_PREFIX$CIRCLE_BUILD_NUM" | tee -a $BASH_ENV vars.txt
+            source $BASH_ENV
+            # Only build and push elasticsearch image when needed
+            if [ ! -f elasticsearch-checksum.txt ]
+            then
+              echo 'export BUILD_ELASTICSEARCH=true' >> $BASH_ENV
+              source $BASH_ENV
+              # Using --ssh to install private plugins
+              # and --secret to avoid persisting .env in docker image
+              docker build -f Dockerfile.prod -t stelace --ssh default --progress plain \
+                --secret id=env,src=.env .
+              docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml build elasticsearch
+            else
+              docker build -f Dockerfile.prod -t stelace --ssh default --progress plain \
+                --secret id=env,src=.env .
+            fi
+            rm .env && cp .env.ci .env
+            # Persisting images to workspace is too slow (~90s to persist and same to load)
+            #
+            # Explicit repo name stelace_api makes sure name is kept when loading tar
+            # as opposed to using SHAs as in:
+            # DOCKER_IDS=$(docker images | awk '{if ($1 ~ /^stelace/) print $3}')
+            # docker save stelace_elasticsearch -o docker-elasticsearch.tar
+            # docker save stelace_api -o docker-api.tar
+            #
+      - run:
+          name: Login to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PWD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+      - run:
+          name: Push Docker images
+          command: |
+            docker tag stelace $DOCKERHUB_USER/stelace:$CI_TAG
+            docker push $DOCKERHUB_USER/stelace:$CI_TAG
+            echo new elasticsearch image ${BUILD_ELASTICSEARCH-false}
+            if [ -n "$BUILD_ELASTICSEARCH" ]
+            then
+              # Custom ElasticSearch image (with ICU plugin) is made public to ease development
+              docker tag stelace_elasticsearch $DOCKERHUB_ORG/elasticsearch:latest
+              docker push $DOCKERHUB_ORG/elasticsearch:latest
+            fi
+            docker logout
+      - run:
+          name: Compute Dockerfile.elasticsearch checksum
+          command: md5sum Dockerfile.elasticsearch > elasticsearch-checksum.txt
+      - save_cache:
+          name: Save Dockerfile.elasticsearch checksum
+          key: elasticsearch-checksum-v1-{{ checksum "Dockerfile.elasticsearch" }}
+          paths:
+            - elasticsearch-checksum.txt
+      - persist_to_workspace:
+          root: . # Must be an absolute path, or relative path from working_directory.
+          paths: # Must be relative path from root
+            # - docker-api.tar
+            # - docker-elasticsearch.tar
+            - .env
+            - vars.txt
+            - docker-compose*
+            - Dockerfile*
+
+  test:
+    executor: ubuntu
+    parameters:
+      deploy:
+        type: boolean
+        default: false
+    parallelism: 4
+    steps:
+      - attach_workspace:
+          at: . # Must be absolute path or relative path from working_directory
+      - run:
+          name: Login to Docker Hub and load CI tag
+          command: |
+            echo "$DOCKERHUB_PWD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            # Loading $CI_TAG variable
+            cat vars.txt >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Pull and tag custom ElasticSearch Docker image
+          command: |
+            echo `expr $CIRCLE_NODE_INDEX + 1` over $CIRCLE_NODE_TOTAL nodes
+            # docker load < docker-api.tar
+            # docker load < docker-elasticsearch.tar
+            docker pull $DOCKERHUB_ORG/elasticsearch:latest
+            docker tag $DOCKERHUB_ORG/elasticsearch:latest stelace_elasticsearch
+      - run:
+          name: Increase virtual memory for ElasticSearch
+          command: sudo sysctl -w vm.max_map_count=262144
+      - run:
+          name: Docker Compose
+          command: |
+            docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
+              up -d postgresql elasticsearch redis
+      - run:
+          name: Wait for PostgreSQL, ElasticSearch and Redis init
+          no_output_timeout: 1m
+          command: |
+            docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml run api /bin/sh -c \
+            'until nc -z -v -w30 elasticsearch 9200 && nc -z -v -w30 postgresql 5432 && nc -z -v -w30 redis 6379
+            do
+              echo "Waiting for PostgreSQL, ElasticSearch and Redis…"
+              sleep 2
+            done';
+      # Spilt unit and integration tests to use concurrency more efficiently:
+      # prevent unit tests files from being handled by one or few executors only, making them pointless
+      - run:
+          name: Run unit tests
+          no_output_timeout: 5m
+          command: |
+            mkdir -p /tmp/test-results
+            docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
+              run api npm run test:ci:unit | \
+              # Clean up by excluding non-xml lines (not starting with '<' or not indented)
+              # and empty/all-whitespace lines,
+              # using [:space:] rather than \s, not parsed correctly by some versions of grep
+              grep -Ei '^[[:space:]<]' | grep -Ev '^[[:space:]]*$' > \
+              /tmp/test-results/unit-test-results.xml
+      - run:
+          name: Run integration tests with API endpoints
+          no_output_timeout: 12m
+          command: |
+            docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
+              run api npm run test:ci:integration | \
+              grep -Ei '^[[:space:]<]' | grep -Ev '^[[:space:]]*$' > \
+              /tmp/test-results/integration-test-results.xml
+      - run: docker logout
+      - store_artifacts:
+          path: /tmp/test-results
+          prefix: tests
+      - store_test_results:
+          path: /tmp/test-results
+
+  deploy:
+    executor: ubuntu
+    steps:
+      - checkout # Needed to use git
+      - attach_workspace:
+          at: . # Must be absolute path or relative path from working_directory
+      - run:
+          name: Login to Docker Hub and load CI tag
+          command: |
+            echo "$DOCKERHUB_PWD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            # Loading $CI_TAG variable
+            cat vars.txt >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Pull successful test Docker image and publish latest version
+          command: |
+            docker pull $DOCKERHUB_USER/stelace:$CI_TAG
+            VERSION=$(git log --format=%s -n 1 $CIRCLE_SHA1 | sed -e 's/release:\s\+//I')
+            echo Version:$VERSION
+            if [[ "$VERSION" =~ ^([0-9]+\.){2}[0-9]+$ ]]
+            then
+              docker tag $DOCKERHUB_USER/stelace:$CI_TAG $DOCKERHUB_USER/stelace:latest
+              docker push $DOCKERHUB_USER/stelace:latest
+              docker tag $DOCKERHUB_USER/stelace:$CI_TAG $DOCKERHUB_USER/stelace:$VERSION
+              docker push $DOCKERHUB_USER/stelace:$VERSION
+            fi
+      - run: docker logout
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build:
+          context: stelace-server
+      - test:
+          context: stelace-server
+          requires:
+            - build
+      - deploy:
+          context: stelace-server
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

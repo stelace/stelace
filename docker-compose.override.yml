@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  api:
+    depends_on:
+      - postgresql
+      - elasticsearch
+      - redis
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_ADMIN_USER: ${POSTGRES_ADMIN_USER}
+      ELASTIC_SEARCH_HOST: ${ELASTIC_SEARCH_HOST}
+      ELASTIC_SEARCH_PROTOCOL: ${ELASTIC_SEARCH_PROTOCOL}
+      ELASTIC_SEARCH_PORT: ${ELASTIC_SEARCH_PORT}
+      ELASTIC_SEARCH_USER: ${ELASTIC_SEARCH_USER}
+      ELASTIC_SEARCH_PASSWORD: ${ELASTIC_SEARCH_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_DBNUM: ${REDIS_DBNUM}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_TLS: ${REDIS_TLS}
+
+  postgresql:
+    image: postgres:10.4-alpine
+    ports:
+      - "6543:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgresql-v10.4-data:/var/lib/postgresql/data/pgdata
+
+  elasticsearch:
+    build:
+      context: "."
+      dockerfile: Dockerfile.elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+    volumes:
+      - es-v7.3.2-data:/usr/share/elasticsearch/data
+
+  redis:
+    image: redis:5.0.1-alpine
+    expose:
+      - "6379"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-v5.0.1-data:/data
+
+volumes:
+  postgresql-v10.4-data:
+  es-v7.3.2-data:
+  redis-v5.0.1-data:

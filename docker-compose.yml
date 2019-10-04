@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: "."
+    volumes:
+      - .:/usr/src/app
+    restart: on-failure
+    depends_on:
+      - postgresql
+      - elasticsearch
+      - redis
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      API_HOST: 0.0.0.0
+      NODE_ENV: ${NODE_ENV}
+      REMOTE_STORE: ${REMOTE_STORE}
+      SYSTEM_KEY: ${SYSTEM_KEY}
+      INSTANCE_ID: ${INSTANCE_ID}
+      INSTANCE_ENV: ${INSTANCE_ENV}
+      SECURE_ENV: ${SECURE_ENV}
+      SECURE_ENV_SERVICE: ${SECURE_ENV_SERVICE}
+      AWS_REGION: ${AWS_REGION}
+      ROARR_LOG: "true"

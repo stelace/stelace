@@ -1,0 +1,607 @@
+require('dotenv').config()
+
+const test = require('ava')
+const request = require('supertest')
+
+const {
+  testTools: { lifecycle, auth }
+} = require('../../serverTooling')
+
+const { before, beforeEach, after } = lifecycle
+const { getAccessTokenHeaders } = auth
+
+test.before(async t => {
+  await before({ name: 'rating' })(t)
+  await beforeEach()(t)
+})
+// test.beforeEach(beforeEach()) // Concurrent tests are much faster
+test.after(after())
+
+test('gets simple rating stats', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:stats:all'] })
+
+  const result = await request(t.context.serverUrl)
+    .get('/ratings/stats?groupBy=authorId')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj = result.body
+
+  t.true(typeof obj === 'object')
+  t.true(typeof obj.nbResults === 'number')
+  t.true(typeof obj.nbPages === 'number')
+  t.true(typeof obj.page === 'number')
+  t.true(typeof obj.nbResultsPerPage === 'number')
+  t.true(Array.isArray(obj.results))
+  // cf. plugin middleware test below
+  t.is(typeof obj.workingTestMiddleware, 'undefined')
+
+  obj.results.forEach(result => {
+    t.truthy(result.authorId)
+    t.is(typeof result.count, 'number')
+    t.is(typeof result.sum, 'number')
+    t.is(typeof result.avg, 'number')
+    t.is(typeof result.min, 'number')
+    t.is(typeof result.max, 'number')
+  })
+
+  // check order: avg desc by default
+  let avg
+  obj.results.forEach(result => {
+    if (typeof avg === 'undefined') {
+      avg = result.avg
+    } else {
+      t.true(avg >= result.avg)
+    }
+  })
+})
+
+test('integrates plugin middleware', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:stats:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/ratings/test?groupBy=authorId')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(typeof obj === 'object')
+  t.true(Array.isArray(obj.results))
+  t.true(obj.workingTestMiddleware)
+})
+
+test('gets aggregated rating stats with ranking', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:stats:all'] })
+
+  const result = await request(t.context.serverUrl)
+    .get('/ratings/stats?groupBy=authorId&computeRanking=true')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj = result.body
+
+  t.true(typeof obj === 'object')
+  t.true(typeof obj.nbResults === 'number')
+  t.true(typeof obj.nbPages === 'number')
+  t.true(typeof obj.page === 'number')
+  t.true(typeof obj.nbResultsPerPage === 'number')
+  t.true(Array.isArray(obj.results))
+
+  obj.results.forEach(result => {
+    t.truthy(result.authorId)
+    t.is(typeof result.count, 'number')
+    t.is(typeof result.sum, 'number')
+    t.is(typeof result.avg, 'number')
+    t.is(typeof result.min, 'number')
+    t.is(typeof result.max, 'number')
+    t.is(typeof result.ranking, 'number')
+    t.is(typeof result.lowestRanking, 'number')
+
+    t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
+  })
+
+  let ranking
+  let avg
+  obj.results.forEach(result => {
+    // check ranking order
+    if (typeof ranking === 'undefined') {
+      ranking = result.ranking
+    } else {
+      t.true(ranking < result.ranking)
+    }
+
+    // check order: avg desc by default
+    if (typeof avg === 'undefined') {
+      avg = result.avg
+    } else {
+      t.true(avg >= result.avg)
+    }
+  })
+})
+
+test('gets aggregated rating stats with wildcard label', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'rating:list:all',
+      'rating:stats:all'
+    ]
+  })
+
+  const authorId = 'usr_WHlfQps1I3a1gJYz2I3a'
+
+  const { body: { results: ratings } } = await request(t.context.serverUrl)
+    .get(`/ratings?authorId=${authorId}&label=main:*`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: { results } } = await request(t.context.serverUrl)
+    .get(`/ratings/stats?groupBy=authorId&label=main:*&authorId=${authorId}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const nbRatings = ratings.length
+  const avgRatings = Math.round(ratings.reduce((memo, rating) => memo + rating.score, 0) / nbRatings)
+
+  t.is(avgRatings, results[0].avg)
+})
+
+test('gets aggregated rating stats with multiple labels', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'rating:stats:all'
+    ]
+  })
+
+  const authorId = 'usr_WHlfQps1I3a1gJYz2I3a'
+
+  const { body: { results } } = await request(t.context.serverUrl)
+    .get(`/ratings/stats?groupBy=authorId&label=main:*,main:friendliness,main:pricing&authorId=${authorId}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkStatObject = obj => {
+    t.is(typeof obj, 'object')
+    t.is(obj.authorId, authorId)
+    t.is(typeof obj.count, 'number')
+    t.is(typeof obj.sum, 'number')
+    t.is(typeof obj.avg, 'number')
+    t.is(typeof obj.min, 'number')
+    t.is(typeof obj.max, 'number')
+  }
+
+  checkStatObject(results[0]['main:*'])
+  checkStatObject(results[0]['main:friendliness'])
+  checkStatObject(results[0]['main:pricing'])
+})
+
+test('lists ratings', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
+
+  const result = await request(t.context.serverUrl)
+    .get('/ratings')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj = result.body
+
+  t.true(typeof obj === 'object')
+  t.true(typeof obj.nbResults === 'number')
+  t.true(typeof obj.nbPages === 'number')
+  t.true(typeof obj.page === 'number')
+  t.true(typeof obj.nbResultsPerPage === 'number')
+  t.true(Array.isArray(obj.results))
+})
+
+test('lists ratings with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
+
+  const result = await request(t.context.serverUrl)
+    .get('/ratings?id=rtg_2l7fQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj = result.body
+
+  t.is(typeof obj, 'object')
+  t.is(obj.nbResults, 1)
+  t.is(obj.nbPages, 1)
+  t.is(obj.page, 1)
+  t.is(typeof obj.nbResultsPerPage, 'number')
+  t.is(obj.results.length, 1)
+})
+
+test('lists ratings with advanced filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
+
+  const result1 = await request(t.context.serverUrl)
+    .get('/ratings?authorId=usr_WHlfQps1I3a1gJYz2I3a,user-external-id')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj1 = result1.body
+
+  t.is(obj1.results.length, obj1.nbResults)
+  obj1.results.forEach(rating => {
+    t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'user-external-id'].includes(rating.authorId))
+  })
+
+  const result2 = await request(t.context.serverUrl)
+    .get('/ratings?authorId[]=usr_WHlfQps1I3a1gJYz2I3a&authorId[]=user-external-id')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj2 = result2.body
+
+  t.is(obj2.results.length, obj2.nbResults)
+  obj2.results.forEach(rating => {
+    t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'user-external-id'].includes(rating.authorId))
+  })
+
+  const result3 = await request(t.context.serverUrl)
+    .get('/ratings?targetId=usr_T2VfQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj3 = result3.body
+
+  t.is(obj3.results.length, obj3.nbResults)
+  obj3.results.forEach(rating => {
+    t.true(['usr_T2VfQps1I3a1gJYz2I3a'].includes(rating.targetId))
+  })
+
+  const result4 = await request(t.context.serverUrl)
+    .get('/ratings?assetId=ast_0TYM7rs1OwP1gQRuCOwP&transactionId=trn_UG1fQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj4 = result4.body
+
+  t.is(obj4.results.length, obj4.nbResults)
+  obj4.results.forEach(rating => {
+    t.true(['ast_0TYM7rs1OwP1gQRuCOwP'].includes(rating.assetId))
+    t.true(['trn_UG1fQps1I3a1gJYz2I3a'].includes(rating.transactionId))
+  })
+})
+
+test('lists ratings with label filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
+
+  const result = await request(t.context.serverUrl)
+    .get('/ratings?label=main:friendliness,main:pricing')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj = result.body
+
+  t.true(typeof obj === 'object')
+  t.true(typeof obj.nbResults === 'number')
+  t.true(typeof obj.nbPages === 'number')
+  t.true(typeof obj.page === 'number')
+  t.true(typeof obj.nbResultsPerPage === 'number')
+  t.true(Array.isArray(obj.results))
+
+  obj.results.forEach(rating => {
+    t.true(['main:friendliness', 'main:pricing'].includes(rating.label))
+  })
+})
+
+test('lists ratings with wildcard label filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
+
+  const result = await request(t.context.serverUrl)
+    .get('/ratings?label=main:*')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj = result.body
+
+  t.true(typeof obj === 'object')
+  t.true(typeof obj.nbResults === 'number')
+  t.true(typeof obj.nbPages === 'number')
+  t.true(typeof obj.page === 'number')
+  t.true(typeof obj.nbResultsPerPage === 'number')
+  t.true(Array.isArray(obj.results))
+
+  obj.results.forEach(rating => {
+    t.true(rating.label.startsWith('main:'))
+  })
+})
+
+test('finds a rating', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:read:all'] })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .get('/ratings/rtg_2l7fQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(rating.id, 'rtg_2l7fQps1I3a1gJYz2I3a')
+  t.is(rating.authorId, 'user-external-id')
+  t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.score, 80)
+  t.is(rating.comment, 'Wonderful')
+  t.deepEqual(rating.metadata.existingData, [true])
+})
+
+test('creates a rating', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['rating:create:all']
+  })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      assetId: 'ast_0TYM7rs1OwP1gQRuCOwP',
+      transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
+      metadata: { dummy: true }
+    })
+    .expect(200)
+
+  t.is(rating.score, 100)
+  t.is(rating.comment, 'Wonderful')
+  t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
+  t.is(rating.transactionId, 'trn_a3BfQps1I3a1gJYz2I3a')
+  t.is(rating.metadata.dummy, true)
+})
+
+test('sets assetId automatically when creating a rating with a transaction and without an asset', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['rating:create:all']
+  })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
+      metadata: { dummy: true }
+    })
+    .expect(200)
+
+  t.is(rating.score, 100)
+  t.is(rating.comment, 'Wonderful')
+  t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
+  t.is(rating.label, null)
+  t.is(rating.metadata.dummy, true)
+})
+
+test('creates a rating with a label', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['rating:create:all']
+  })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      assetId: 'ast_0TYM7rs1OwP1gQRuCOwP',
+      transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
+      label: 'main:friendliness',
+      metadata: { dummy: true }
+    })
+    .expect(200)
+
+  t.is(rating.score, 100)
+  t.is(rating.comment, 'Wonderful')
+  t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
+  t.is(rating.transactionId, 'trn_a3BfQps1I3a1gJYz2I3a')
+  t.is(rating.label, 'main:friendliness')
+  t.is(rating.metadata.dummy, true)
+})
+
+test('throws an error when creating a rating with bad reference', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['rating:create:all']
+  })
+
+  await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      assetId: 'ast_0TYM7rs1OwP1gQRuCOwW', // non existing asset
+      metadata: { dummy: true }
+    })
+    .expect(422)
+
+  await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      transactionId: 'trn_a3BfQps1I3a1gJYz2I3b', // non existing transaction
+      metadata: { dummy: true }
+    })
+    .expect(422)
+
+  await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      assetId: 'ast_dmM034s1gi81giDergi8',
+      transactionId: 'trn_a3BfQps1I3a1gJYz2I3a', // transaction asset doesn't match with provided asset
+      metadata: { dummy: true }
+    })
+    .expect(422)
+
+  t.pass()
+})
+
+test('updates a rating', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['rating:edit:all']
+  })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .patch('/ratings/rtg_emdfQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .send({
+      score: 30,
+      comment: 'Bad experience',
+      metadata: { changed: true }
+    })
+    .expect(200)
+
+  t.is(rating.score, 30)
+  t.is(rating.comment, 'Bad experience')
+  t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
+  t.is(rating.metadata.changed, true)
+  t.deepEqual(rating.metadata.existingData, [true])
+})
+
+test('removes a rating', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'rating:read:all',
+      'rating:create:all',
+      'rating:remove:all'
+    ]
+  })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      assetId: 'ast_0TYM7rs1OwP1gQRuCOwP',
+      comment: 'Rating to remove',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a'
+    })
+    .expect(200)
+
+  const result = await request(t.context.serverUrl)
+    .delete(`/ratings/${rating.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const payload = result.body
+
+  t.is(payload.id, rating.id)
+
+  await request(t.context.serverUrl)
+    .get(`/ratings/${rating.id}`)
+    .set(authorizationHeaders)
+    .expect(404)
+
+  t.pass()
+})
+
+// ////////// //
+// VALIDATION //
+// ////////// //
+
+test('fails to create a rating if missing or invalid parameters', async (t) => {
+  let result
+  let error
+
+  // missing body
+  result = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .expect(400)
+
+  error = result.body
+  t.true(error.message.includes('"body" is required'))
+
+  // parameters with wrong type
+  result = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      score: 'invalid',
+      comment: true,
+      authorId: true,
+      targetId: true,
+      label: true,
+      assetId: true,
+      transactionId: true,
+      metadata: true,
+      platformData: true
+    })
+    .expect(400)
+
+  error = result.body
+  t.true(error.message.includes('"score" must be a number'))
+  t.true(error.message.includes('"comment" must be a string'))
+  t.true(error.message.includes('"authorId" must be a string'))
+  t.true(error.message.includes('"targetId" must be a string'))
+  t.true(error.message.includes('"label" must be a string'))
+  t.true(error.message.includes('"assetId" must be a string'))
+  t.true(error.message.includes('"transactionId" must be a string'))
+  t.true(error.message.includes('"metadata" must be an object'))
+  t.true(error.message.includes('"platformData" must be an object'))
+})
+
+test('fails to update a rating if missing or invalid parameters', async (t) => {
+  let result
+  let error
+
+  // missing body
+  result = await request(t.context.serverUrl)
+    .patch('/ratings/rtg_UEZfQps1I3a1gJYz2I3a')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .expect(400)
+
+  error = result.body
+  t.true(error.message.includes('"body" is required'))
+
+  // parameters with wrong type
+  result = await request(t.context.serverUrl)
+    .patch('/ratings/rtg_UEZfQps1I3a1gJYz2I3a')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      score: 'invalid',
+      label: true,
+      comment: true,
+      metadata: true,
+      platformData: true
+    })
+    .expect(400)
+
+  error = result.body
+  t.true(error.message.includes('"score" must be a number'))
+  t.true(error.message.includes('"label" must be a string'))
+  t.true(error.message.includes('"comment" must be a string'))
+  t.true(error.message.includes('"metadata" must be an object'))
+  t.true(error.message.includes('"platformData" must be an object'))
+})

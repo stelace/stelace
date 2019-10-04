@@ -1,0 +1,14 @@
+node_modules
+coverage
+README.md
+circle.yml
+.git*
+Dockerfile
+Dockerfile.prod
+.npmrc
+npm-debug.log
+yarn-debug.log
+npm-error.log
+yarn-error.log
+artillery_report*.json
+.env

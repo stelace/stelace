@@ -1,0 +1,1119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Attribution:
+  This file derives from Mailchimp email blueprints under license CC BY-SA 3.0
+  https://github.com/mailchimp/email-blueprints
+  https://creativecommons.org/licenses/by-sa/3.0/
+-->
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style type="text/css">
+    body,
+    #bodyTable,
+    #bodyCell {
+      height: 100% !important;
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    img,
+    a img {
+      border: 0;
+      outline: none;
+      text-decoration: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      margin: 0;
+      padding: 0;
+    }
+
+    p {
+      margin: 1em 0;
+      padding: 0;
+    }
+
+    a {
+      word-wrap: break-word;
+    }
+
+    .ReadMsgBody {
+      width: 100%;
+    }
+
+    .ExternalClass {
+      width: 100%;
+    }
+
+    .ExternalClass,
+    .ExternalClass p,
+    .ExternalClass span,
+    .ExternalClass font,
+    .ExternalClass td,
+    .ExternalClass div {
+      line-height: 100%;
+    }
+
+    table,
+    td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+
+    #outlook a {
+      padding: 0;
+    }
+
+    img {
+      -ms-interpolation-mode: bicubic;
+    }
+
+    body,
+    table,
+    td,
+    p,
+    a,
+    li,
+    blockquote {
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    #templatePreheader,
+    #templateHeader,
+    #templateBody,
+    #templateFooter {
+      min-width: 100%;
+    }
+
+    #bodyCell {
+      padding: 20px;
+      border-top: 10px solid {{#if style__color_brand}}{{style__color_brand}}{{else}}#1055B6{{/if}};
+    }
+
+    .mcnImage {
+      vertical-align: bottom;
+    }
+
+    .mcnTextContent img {
+      height: auto !important;
+    }
+
+    .ctaButtonContainer {
+      padding: 18px;
+    }
+    /*
+    @tab Page
+    @section background style
+    @tip Set the background color and top border for your email. You may want to choose colors that match your company's branding.
+    */
+    body,
+    #bodyTable {
+      background-color: #F2F2F2;
+    }
+
+    #bodyCell {
+      border-top: 10px solid {{#if style__color_brand}}{{style__color_brand}}{{else}}#1055B6{{/if}};
+    }
+
+    /*
+    @tab Page
+    @section email border
+    @tip Set the border for your email.
+    */
+    #templateContainer {
+      border: 0;
+    }
+
+    /*
+    @tab Page
+    @section heading 1
+    @tip Set the styling for all first-level headings in your emails. These should be the largest of your headings.
+    @style heading 1
+    */
+
+    h1 {
+
+      color: #464646 !important;
+      display: block;
+      font-family: Helvetica;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: bold;
+      line-height: 125%;
+      letter-spacing: -1px;
+      margin: 0;
+      text-align: left;
+    }
+
+    /*
+    @tab Page
+    @section heading 2
+    @tip Set the styling for all second-level headings in your emails.
+    @style heading 2
+    */
+    h2 {
+      color: #464646 !important;
+      display: block;
+      font-family: Helvetica;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: bold;
+      line-height: 125%;
+      letter-spacing: -.75px;
+      margin: 0;
+      text-align: left;
+    }
+
+    /*
+    @tab Page
+    @section heading 3
+    @tip Set the styling for all third-level headings in your emails.
+    @style heading 3
+    */
+    h3 {
+      color: #464646 !important;
+      display: block;
+      font-family: Helvetica;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: bold;
+      line-height: 125%;
+      letter-spacing: -.5px;
+      margin: 0;
+      text-align: left;
+    }
+
+    /*
+    @tab Page
+    @section heading 4
+    @tip Set the styling for all fourth-level headings in your emails. These should be the smallest of your headings.
+    @style heading 4
+    */
+    h4 {
+      color: #808080 !important;
+      display: block;
+      font-family: Helvetica;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: bold;
+      line-height: 125%;
+      letter-spacing: normal;
+      margin: 0;
+      text-align: justify;
+    }
+
+    /*
+    @tab Preheader
+    @section preheader style
+    @tip Set the background color and borders for your email's preheader area.
+    */
+    #templatePreheader {
+      background-color: #FFFFFF;
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    /*
+    @tab Preheader
+    @section preheader text
+    @tip Set the styling for your email's preheader text. Choose a size and color that is easy to read.
+    */
+    .preheaderContainer .mcnTextContent,
+    .preheaderContainer .mcnTextContent p {
+      color: #606060;
+      font-family: Helvetica;
+      font-size: 11px;
+      line-height: 125%;
+      text-align: left;
+    }
+
+    /*
+    @tab Preheader
+    @section preheader link
+    @tip Set the styling for your email's header links. Choose a color that helps them stand out from your text.
+    */
+    .preheaderContainer .mcnTextContent a {
+      color: #606060;
+      font-weight: normal;
+      text-decoration: underline;
+    }
+
+    /*
+    @tab Header
+    @section header style
+    @tip Set the background color and borders for your email's header area.
+    */
+    #templateHeader {
+      background-color: #FFFFFF;
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    /*
+    @tab Header
+    @section header text
+    @tip Set the styling for your email's header text. Choose a size and color that is easy to read.
+    */
+    .headerContainer .mcnTextContent,
+    .headerContainer .mcnTextContent p {
+      color: #464646;
+      font-family: Helvetica;
+      font-size: 15px;
+      line-height: 150%;
+      text-align: left;
+    }
+
+    /*
+    @tab Header
+    @section header link
+    @tip Set the styling for your email's header links. Choose a color that helps them stand out from your text.
+    */
+    .headerContainer .mcnTextContent a {
+      color: #6DC6DD;
+      font-weight: normal;
+      text-decoration: underline;
+    }
+
+    /*
+    @tab Body
+    @section body style
+    @tip Set the background color and borders for your email's body area.
+    */
+    #templateBody {
+      background-color: #FFFFFF;
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    /*
+    @tab Body
+    @section body text
+    @tip Set the styling for your email's body text. Choose a size and color that is easy to read.
+    */
+    .bodyContainer .mcnTextContent,
+    .bodyContainer .mcnTextContent p {
+      color: #464646;
+      font-family: Helvetica;
+      font-size: 14px;
+      line-height: 150%;
+      text-align: justify;
+    }
+
+    /*
+    @tab Body
+    @section body link
+    @tip Set the styling for your email's body links. Choose a color that helps them stand out from your text.
+    */
+    .bodyContainer .mcnTextContent a {
+      color: #6DC6DD;
+      font-weight: normal;
+      text-decoration: underline;
+    }
+
+    /*
+    @tab Footer
+    @section footer style
+    @tip Set the background color and borders for your email's footer area.
+    */
+    #templateFooter {
+      background-color: #FFFFFF;
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    /*
+    @tab Footer
+    @section footer text
+    @tip Set the styling for your email's footer text. Choose a size and color that is easy to read.
+    */
+    .footerContainer .mcnTextContent,
+    .footerContainer .mcnTextContent p {
+      color: #606060;
+      font-family: Helvetica;
+      font-size: 11px;
+      line-height: 125%;
+      text-align: justify;
+    }
+
+    /*
+    @tab Footer
+    @section footer link
+    @tip Set the styling for your email's footer links. Choose a color that helps them stand out from your text.
+    */
+    .footerContainer .mcnTextContent a {
+      color: #606060;
+      font-weight: normal;
+      text-decoration: underline;
+    }
+
+    @media only screen and (max-width: 480px) {
+      body,
+      table,
+      td,
+      p,
+      a,
+      li,
+      blockquote {
+        -webkit-text-size-adjust: none !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      body {
+        width: 100% !important;
+        min-width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[id=bodyCell] {
+        padding: 10px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      table[class=mcnTextContentContainer] {
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      .mcnBoxedTextContentContainer {
+        max-width: 100% !important;
+        min-width: 100% !important;
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      table[class=mcpreview-image-uploader] {
+        width: 100% !important;
+        display: none !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      img[class=mcnImage] {
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      table[class=mcnImageGroupContentContainer] {
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageGroupContent] {
+        padding: 9px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageGroupBlockInner] {
+        padding-bottom: 0 !important;
+        padding-top: 0 !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      tbody[class=mcnImageGroupBlockOuter] {
+        padding-bottom: 9px !important;
+        padding-top: 9px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      table[class=mcnCaptionTopContent],
+      table[class=mcnCaptionBottomContent] {
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      table[class=mcnCaptionLeftTextContentContainer],
+      table[class=mcnCaptionRightTextContentContainer],
+      table[class=mcnCaptionLeftImageContentContainer],
+      table[class=mcnCaptionRightImageContentContainer],
+      table[class=mcnImageCardLeftTextContentContainer],
+      table[class=mcnImageCardRightTextContentContainer] {
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageCardLeftImageContent],
+      td[class=mcnImageCardRightImageContent] {
+        padding-right: 18px !important;
+        padding-left: 18px !important;
+        padding-bottom: 0 !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageCardBottomImageContent] {
+        padding-bottom: 9px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageCardTopImageContent] {
+        padding-top: 18px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageCardLeftImageContent],
+      td[class=mcnImageCardRightImageContent] {
+        padding-right: 18px !important;
+        padding-left: 18px !important;
+        padding-bottom: 0 !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageCardBottomImageContent] {
+        padding-bottom: 9px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnImageCardTopImageContent] {
+        padding-top: 18px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      table[class=mcnCaptionLeftContentOuter] td[class=mcnTextContent],
+      table[class=mcnCaptionRightContentOuter] td[class=mcnTextContent] {
+        padding-top: 9px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnCaptionBlockInner] table[class=mcnCaptionTopContent]:last-child td[class=mcnTextContent] {
+        padding-top: 18px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnBoxedTextContentColumn] {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=mcnTextContent] {
+        padding-right: 18px !important;
+        padding-left: 18px !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section template width
+      @tip Make the template fluid for portrait or landscape view adaptability. If a fluid layout doesn't work for you, set the width to 300px instead.
+      */
+      table[id=templateContainer],
+      table[id=templatePreheader],
+      table[id=templateHeader],
+      table[id=templateBody],
+      table[id=templateFooter] {
+        /*@tab Mobile Styles
+          @section template width
+          @tip Make the template fluid for portrait or landscape view adaptability. If a fluid layout doesn't work for you, set the width to 300px instead.*/
+        max-width: 600px !important;
+        width: 100% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section heading 1
+      @tip Make the first-level headings larger in size for better readability on small screens.
+      */
+      h1 {
+        font-size: 20px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section heading 2
+      @tip Make the second-level headings larger in size for better readability on small screens.
+      */
+      h2 {
+        font-size: 18px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section heading 3
+      @tip Make the third-level headings larger in size for better readability on small screens.
+      */
+      h3 {
+        font-size: 16px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section heading 4
+      @tip Make the fourth-level headings larger in size for better readability on small screens.
+      */
+      h4 {
+        font-size: 16px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section Boxed Text
+      @tip Make the boxed text larger in size for better readability on small screens. We recommend a font size of at least 16px.
+      */
+      table[class=mcnBoxedTextContentContainer] td[class=mcnTextContent],
+      td[class=mcnBoxedTextContentContainer] td[class=mcnTextContent] p {
+        font-size: 16px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section Preheader Visibility
+      @tip Set the visibility of the email's preheader on small screens. You can hide it to save space.
+      */
+      table[id=templatePreheader] {
+        display: none !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section Preheader Text
+      @tip Make the preheader text larger in size for better readability on small screens.
+      */
+      td[class=preheaderContainer] td[class=mcnTextContent],
+      td[class=preheaderContainer] td[class=mcnTextContent] p {
+        font-size: 11px !important;
+        line-height: 115% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section Header Text
+      @tip Make the header text larger in size for better readability on small screens.
+      */
+      td[class=headerContainer] td[class=mcnTextContent],
+      td[class=headerContainer] td[class=mcnTextContent] p {
+        font-size: 18px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section Body Text
+      @tip Make the body text larger in size for better readability on small screens. We recommend a font size of at least 16px.
+      */
+      td[class=bodyContainer] td[class=mcnTextContent],
+      td[class=bodyContainer] td[class=mcnTextContent] p {
+        font-size: 14px !important;
+        line-height: 125% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      /*
+      @tab Mobile Styles
+      @section footer text
+      @tip Make the body content text larger in size for better readability on small screens.
+      */
+      td[class=footerContainer] td[class=mcnTextContent],
+      td[class=footerContainer] td[class=mcnTextContent] p {
+        font-size: 12px !important;
+        line-height: 115% !important;
+      }
+    }
+
+    @media only screen and (max-width: 480px) {
+      td[class=footerContainer] a[class=utilityLink] {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+
+<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" class="email-template">
+  <center>
+    <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
+      <tr>
+        <td align="center" valign="top" id="bodyCell">
+          <!-- BEGIN TEMPLATE // -->
+          <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateContainer">
+            <tr>
+              <td align="center" valign="top">
+                <!-- BEGIN PREHEADER // -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" id="templatePreheader">
+                  <tr>
+                    <td valign="top" class="preheaderContainer" style="{{#if preheader_content__block}}padding-top:9px;{{/if}}">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                        style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+
+                                  <td valign="top" class="mcnTextContent" style="padding: 9px 18px;color: #606060;text-align: center;">
+
+                                    <div style="color:#FEFEFE; display:none; display:none!important; mso-hide:all;" data-translate="preview_content">{{{preview_content}}}</div>
+                                      {{#if preheader_content__block}}<span data-translate="preheader_content">{{{preheader_content}}}</span>{{/if}}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{#if preheader_content__block}}
+                      <table class="mcnDividerBlock" style="min-width:100%;" border="0" cellpadding="0"
+                        cellspacing="0" width="100%">
+                        <tbody class="mcnDividerBlockOuter">
+                          <tr>
+                            <td class="mcnDividerBlockInner" style="min-width: 100%; padding: 5px 18px;">
+                              <table class="mcnDividerContent" style="min-width: 100%;border-top: 1px solid #DDDDDD;" border="0" cellpadding="0" cellspacing="0"
+                                width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      <span></span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <!--
+        <td class="mcnDividerBlockInner" style="padding: 18px;">
+        <hr class="mcnDividerContent" style="border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;" />
+-->
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                    </td>
+                  </tr>
+                </table>
+                <!-- // END PREHEADER -->
+              </td>
+            </tr>
+            <tr>
+              <td align="center" valign="top">
+                <!-- BEGIN HEADER // -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
+                  <tr>
+                    <td valign="top" class="headerContainer">
+                      <table class="mcnImageBlock" style="min-width:100%;" border="0" cellpadding="0" cellspacing="0"
+                        width="100%">
+                        <tbody class="mcnImageBlockOuter">
+                          <tr>
+                            <td style="padding:9px" class="mcnImageBlockInner" valign="top">
+                              <table class="mcnImageContentContainer" style="min-width:100%;" border="0" cellpadding="0" cellspacing="0" align="left" width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td class="mcnImageContent" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0;" valign="top">
+
+                                      {{#if service_logo__block}}
+                                      <img alt="Logo" src="{{service_logo__url}}"
+                                        style="max-width:180px; padding-bottom: 0; display: inline !important; vertical-align: bottom;"
+                                        class="mcnImage" align="left" width="180">
+                                      {{/if}}
+
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{#if header_title__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+
+                                    <td valign="top" class="mcnTextContent" style="padding: 9px 18px;color: #464646;font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
+
+                                      <h1 style="color:#464646" data-translate="header_title">{{{header_title}}}</h1>
+
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                    </td>
+                  </tr>
+                </table>
+                <!-- // END HEADER -->
+              </td>
+            </tr>
+            <tr>
+              <td align="center" valign="top">
+                <!-- BEGIN BODY // -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+                  <tr>
+                    <td valign="top" class="bodyContainer">
+
+                      {{#if leading_content__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+
+                                    <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+                                      <span data-translate="leading_content">
+                                        {{{leading_content}}}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                      {{#if notification_image__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnImageBlock" style="min-width:100%;">
+                        <tbody class="mcnImageBlockOuter">
+                          <tr>
+                            <td valign="top" style="padding:9px" class="mcnImageBlockInner">
+                              <table align="left" width="100%" border="0" cellpadding="0" cellspacing="0" class="mcnImageContentContainer" style="min-width:100%;">
+                                <tbody>
+                                  <tr>
+                                    <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
+
+
+                                      {{#if notification_image__href}}
+                                      <a title="{{notification_image__alt}}" href="{{notification_image__href}}" target="_blank" style="line-height: 100%;text-align: center;text-decoration: none;">
+                                        <img align="middle" alt="{{notification_image__alt}}" src="{{notification_image__url}}" width="{{notification_image__width}}" style="max-width:{{notification_image__max_width}}; padding-bottom: 0; display: inline !important; vertical-align: bottom; {{notification_image__custom_styles}}" class="mcnImage">
+                                      </a> {{else}}
+                                      <img align="middle" alt="{{notification_image__alt}}" src="{{notification_image__url}}" width="{{notification_image__width}}" style="max-width:{{notification_image__max_width}}; padding-bottom: 0; display: inline !important; vertical-align: bottom; {{notification_image__custom_styles}}"
+                                        class="mcnImage"> {{/if}}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+                                    <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+                                      <span data-translate="content">
+                                        {{{content}}}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{#if cta_button__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                        class="mcnButtonBlock" style="min-width:100%;">
+                        <tbody class="mcnButtonBlockOuter">
+                          <tr>
+                            <td style="padding-top:18px;" valign="top" align="center" class="mcnButtonBlockInner ctaButtonContainer">
+                              <table border="0" cellpadding="0" cellspacing="0" class="mcnButtonContentContainer" style="border-collapse: separate !important;border-radius: 2px;background-color:{{#if style__color_calltoaction}}{{style__color_calltoaction}}{{else}}#009BFC{{/if}};">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Arial; font-size: 18px; padding: 12px;">
+                                      <a class="mcnButton " href="{{cta__button_url}}" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">
+                                        <span data-translate="cta_button__text">{{{cta_button__text}}}</span>
+                                      </a>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                      {{#if trailing_content__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+                                    <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+                                      <span data-translate="trailing_content">
+                                        {{{trailing_content}}}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                      {{#if featured__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                        class="mcnCaptionBlock">
+                        <tbody class="mcnCaptionBlockOuter">
+                          <tr>
+                            <td class="mcnCaptionBlockInner" valign="top" style="padding:9px;">
+                              <table border="0" cellpadding="0" cellspacing="0" class="mcnCaptionRightContentOuter" width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td valign="top" class="mcnCaptionRightContentInner" style="padding:0 9px ;">
+                                      <table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnCaptionRightImageContentContainer">
+                                        <tbody>
+                                          <tr>
+                                            <td class="mcnCaptionRightImageContent" valign="top">
+                                              {{#if featured__image__href}}
+                                              <a title="{{featured__image__alt}}" href="{{featured__image__href}}" target="_blank" style="line-height: 100%;text-align: center;text-decoration: none;">
+                                                <img alt="{{featured__image__alt}}" src="{{featured__image__url}}" width="264" style="max-width:1200px;" class="mcnImage">
+                                              </a>
+                                              {{else}}
+                                                <img alt="{{featured__image__alt}}" src="{{featured__image__url}}" width="264" style="max-width:1200px;" class="mcnImage" title="{{featured__image__alt}}">
+                                              {{/if}}
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                      <table class="mcnCaptionRightTextContentContainer" align="right" border="0" cellpadding="0" cellspacing="0" width="264">
+                                        <tbody>
+                                          <tr>
+                                            <td valign="top" class="mcnTextContent">
+                                              <h3 style="color:#464646">{{{featured__title}}}</h3>
+                                              <br>
+                                              {{{featured__content}}}
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                      {{#if end_content__block}}
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock" style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+                                    <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
+                                      <span data-translate="end_content">
+                                        {{{end_content}}}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {{/if}}
+                    </td>
+                  </tr>
+                </table>
+                <!-- // END BODY -->
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <table class="mcnDividerBlock" style="min-width:100%; background-color: #FFFFFF;" border="0" cellspacing="0" width="100%">
+                    <tbody class="mcnDividerBlockOuter">
+                      <tr>
+                        <td class="mcnDividerBlockInner" style="min-width: 100%; padding: 15px 18px;">
+                          <table class="mcnDividerContent" style="min-width: 100%;border-top: 1px solid #DDDDDD;" border="0" cellpadding="0" cellspacing="0"
+                            width="100%">
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <span></span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" valign="top">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateFooter">
+                  <tr>
+                    <td valign="top" class="footerContainer" style="padding-bottom:9px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                        style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+                                    <td valign="center" class="mcnTextContent" style="padding: 9px 18px;color: #808080; font-size: 11px; line-height: 125%;">
+                                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                                      style="min-width:100%;">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                              {{#if footer_content__block}}
+                                              <span data-translate="footer_content">
+                                                {{{footer_content}}}
+                                              </span>
+                                              <br>
+                                              <br>
+                                              {{/if}}
+                                              <span data-translate="legal_notice">
+                                                {{{legal_notice}}}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            {{#if branding__block}}
+            <tr>
+              <td align="center" valign="top">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateFooter">
+                  <tr>
+                    <td valign="top" class="footerContainer" style="padding-top: 10px; padding-bottom:9px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                        style="min-width:100%;">
+                        <tbody class="mcnTextBlockOuter">
+                          <tr>
+                            <td valign="top" class="mcnTextBlockInner">
+                              <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                <tbody>
+                                  <tr>
+                                    <td valign="center" class="mcnTextContent" style="padding: 0px 18px;color: #808080; font-size: 11px; line-height: 125%;">
+                                      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
+                                      style="min-width:100%;">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnTextContentContainer">
+                                              <span>
+                                                {{{branding}}}
+                                              </span>
+                                              <br>
+                                              <a href="{{stelace_website__img_url}}">
+                                                <img alt="{{stelace_logo__alt}}" src="{{stelace_logo__url}}" width="120" style="max-width:120px; padding-top: 10px;" class="mcnImage">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            {{/if}}
+          </table>
+          <!-- // END TEMPLATE -->
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+
+</html>

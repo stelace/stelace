@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  api:
+    # Building image with Docker BuildKit (docker build --ssh …) instead of docker-compose
+    # build:
+    #   context: "."
+    #   dockerfile: Dockerfile.prod
+    # cf. .circleci/config.yml
+    image: "${DOCKERHUB_USER}/stelace:${CI_TAG}"
+    restart: on-failure
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      API_HOST: 0.0.0.0
+      NODE_ENV: ${NODE_ENV}
+      REMOTE_STORE: ${REMOTE_STORE}
+      INSTALLED_PLUGINS: ${INSTALLED_PLUGINS}
+      SYSTEM_KEY: ${SYSTEM_KEY}
+      INSTANCE_ID: ${INSTANCE_ID}
+      INSTANCE_ENV: ${INSTANCE_ENV}
+      SECURE_ENV: ${SECURE_ENV}
+      SECURE_ENV_SERVICE: ${SECURE_ENV_SERVICE}
+      AWS_REGION: ${AWS_REGION}
+      ROARR_LOG: "true"
+      # CI: needed for parallel testing inside API Docker
+      CIRCLECI: ${CIRCLECI}
+      CIRCLE_NODE_INDEX: ${CIRCLE_NODE_INDEX}
+      CIRCLE_NODE_TOTAL: ${CIRCLE_NODE_TOTAL}
