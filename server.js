@@ -31,7 +31,7 @@ const cors = corsMiddleware({
 
 const { logTrace, logError } = require('./logger')
 
-const { getPlugins } = require('./plugins')
+const { getPlugins, loadPlugin } = require('./plugins')
 
 const { getRequestContext } = require('./src/util/request')
 const polyfills = require('./src/util/polyfills')
@@ -361,6 +361,16 @@ try {
     else return pluginObject
   }
 
+  // Let external plugins self-load using command line for tests.
+  // Please refer to docs/plugins.md.
+  const toLoad = (process.env.STELACE_PLUGINS_PATHS || '')
+    // Comma-separated list of plugin absolute paths to load before starting server.
+    .split(',')
+    .filter(Boolean)
+    .map(s => s.trim())
+  if (Array.isArray(toLoad) && toLoad.length) toLoad.forEach(loadPlugin)
+
+  // Register all plugins
   const plugins = getPlugins()
 
   plugins.forEach(plugin => {

@@ -3,14 +3,27 @@ const path = require('path')
 const semver = require('semver')
 const _ = require('lodash')
 const parseGithubUrl = require('parse-github-url')
+const chalk = require('chalk')
+
+const log = console.log
+const info = str => log(`${chalk.green(str)}`)
+const warn = (err, msg, note) => {
+  if (msg) log(chalk.red(msg))
+  if (note) log(chalk.yellow(note))
+  if (err) log(err)
+}
 
 const { version: serverVersion } = require(path.join(__dirname, '../package.json'))
 
 const { IGNORED_LOCAL_PLUGINS, INSTALLED_PLUGINS } = process.env
 
+const pluginsLoadedManually = []
+const logged = {}
+
 module.exports = {
   getPlugins,
-  getInstalledPluginsNames
+  getInstalledPluginsNames,
+  loadPlugin,
 }
 
 function getPlugins () {
@@ -33,6 +46,7 @@ function getPlugins () {
   }
 
   return [
+    ...pluginsLoadedManually,
     ...localPlugins,
     ...externalPlugins
   ]
@@ -56,8 +70,28 @@ function getPluginName (str) {
   return repo.name
 }
 
-function load (file, { isLocalModule }) {
-  const p = require(isLocalModule ? `./${file}` : file)
+/**
+ * Additional way to load any plugin using `require('stelace-server/plugins')`.
+ * Must be called __before__ `require('stelace-server')`.
+ * This lets external plugins manually load themselves to run their own test suite.
+ * @param {String} path - Absolute path loaded with server `require`
+ */
+function loadPlugin (path) {
+  load(path, { isManual: true })
+}
+
+function load (file, { isLocalModule, isManual } = {}) {
+  let p
+  try {
+    p = require(isLocalModule ? `./${file}` : file)
+  } catch (err) {
+    const shouldInstall = !isLocalModule && !isManual
+    const note = shouldInstall ? `Maybe you just forgot to run \`${
+      chalk.bold('yarn plugins:install')
+    }\`.\n` : ''
+    warn(err, `\n${chalk.bold(file)} plugin not found`, note)
+    process.exit(0)
+  }
   let { supportedServerVersions: versions } = p
 
   // Optional during migration
@@ -73,6 +107,11 @@ function load (file, { isLocalModule }) {
       p.name
     } plugin (${versions || 'missing range'})`)
   }
+
+  if (!logged[p.name]) info(`${chalk.bold(p.name)} plugin enabled`)
+  logged[p.name] = true
+
+  if (isManual) pluginsLoadedManually.push(p)
 
   return p
 }
