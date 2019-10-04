@@ -1,3 +1,4 @@
+// DEPRECATED
 module.exports = {
   name: 'stripe',
   version: '0.0.1',
