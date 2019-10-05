@@ -16,6 +16,7 @@ const versions = require('../src/versions')
 
 const time = require('../src/util/time')
 const encoding = require('../src/util/encoding')
+const validation = require('../src/util/validation')
 
 module.exports = {
   permissions,
@@ -33,6 +34,7 @@ module.exports = {
   },
   utils: {
     time,
-    encoding
+    encoding,
+    validation
   }
 }

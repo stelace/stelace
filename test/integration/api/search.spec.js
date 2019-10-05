@@ -1844,23 +1844,23 @@ test('fails to search assets if missing or invalid parameters', async (t) => {
   error = result.body
   t.true(error.message.includes('"query" must be a string'))
   t.true(error.message.includes('"filter" must be a string'))
-  t.true(error.message.includes('"sort" must be an object'))
+  t.true(error.message.includes('"sort" must be of type object'))
   t.true(error.message.includes('"assetTypeId[0]" must be a string'))
   t.true(error.message.includes('"categoryId" must be a string'))
   t.true(error.message.includes('"categoriesIds" is not allowed'))
-  t.true(error.message.includes('"location" must be an object'))
+  t.true(error.message.includes('"location" must be of type object'))
   t.true(error.message.includes('"maxDistance" must be a number'))
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
   t.true(error.message.includes('"quantity" must be a number'))
   t.true(error.message.includes('"without" must be a string'))
   t.true(error.message.includes('"similarTo[0]" must be a string'))
-  t.true(error.message.includes('"customAttributes" must be an object'))
+  t.true(error.message.includes('"customAttributes" must be of type object'))
   t.true(error.message.includes('"active" must be a boolean'))
   t.true(error.message.includes('"validated" must be a boolean'))
   t.true(error.message.includes('"page" must be a number'))
   t.true(error.message.includes('"nbResultsPerPage" must be a number'))
-  t.true(error.message.includes('"availabilityFilter" must be an object'))
+  t.true(error.message.includes('"availabilityFilter" must be of type object'))
   t.true(error.message.includes('"save" must be a boolean'))
 
   t.true(error.message.includes('"name" is not allowed'))
@@ -1909,28 +1909,28 @@ test('fails to search assets if missing or invalid parameters', async (t) => {
   error = result.body
   t.true(error.message.includes('"query" must be a string'))
   t.true(error.message.includes('"filter" must be a string'))
-  t.true(error.message.includes('"sort" must be an object'))
+  t.true(error.message.includes('"sort" must be of type object'))
   t.true(error.message.includes('"assetTypeId[0]" must be a string'))
   t.true(error.message.includes('"categoryId" must be a string'))
   t.true(error.message.includes('"categoriesIds" is not allowed'))
-  t.true(error.message.includes('"location" must be an object'))
+  t.true(error.message.includes('"location" must be of type object'))
   t.true(error.message.includes('"maxDistance" must be a number'))
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
   t.true(error.message.includes('"quantity" must be a number'))
   t.true(error.message.includes('"without" must be a string'))
   t.true(error.message.includes('"similarTo[0]" must be a string'))
-  t.true(error.message.includes('"customAttributes" must be an object'))
+  t.true(error.message.includes('"customAttributes" must be of type object'))
   t.true(error.message.includes('"active" must be a boolean'))
   t.true(error.message.includes('"validated" must be a boolean'))
   t.true(error.message.includes('"page" must be a number'))
   t.true(error.message.includes('"nbResultsPerPage" must be a number'))
-  t.true(error.message.includes('"availabilityFilter" must be an object'))
+  t.true(error.message.includes('"availabilityFilter" must be of type object'))
 
   t.true(error.message.includes('"name" must be a string'))
   t.true(error.message.includes('"userId" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
   t.true(error.message.includes('"savedSearch" is not allowed'))
 
   // parameters with wrong type when save is true
@@ -1947,7 +1947,7 @@ test('fails to search assets if missing or invalid parameters', async (t) => {
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"savedSearch" must be an object'))
+  t.true(error.message.includes('"savedSearch" must be of type object'))
 
   // parameters with wrong type when save is true
   result = await request(t.context.serverUrl)
@@ -1962,7 +1962,7 @@ test('fails to search assets if missing or invalid parameters', async (t) => {
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"savedSearch" must be an object'))
+  t.true(error.message.includes('"savedSearch" must be of type object'))
 })
 
 // //////// //

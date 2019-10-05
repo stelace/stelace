@@ -1,4 +1,4 @@
-const Joi = require('@hapi/joi')
+const { Joi } = require('./validation')
 const { parseArrayValues, getPaginationMeta } = require('./list')
 
 const filtersSchema = Joi.object().pattern(
@@ -6,24 +6,24 @@ const filtersSchema = Joi.object().pattern(
   Joi.object().keys({
     dbField: Joi.string(),
     value: Joi.any(),
-    transformValue: Joi.alternatives().try([
+    transformValue: Joi.alternatives().try(
       Joi.string().valid('array'),
       Joi.func()
-    ]),
-    query: Joi.alternatives().try([
+    ),
+    query: Joi.alternatives().try(
       Joi.string().valid('range', 'inList'),
       Joi.func()
-    ])
+    )
   })
 ).min(1).required()
 
-const rangeFilterSchema = Joi.alternatives().try([
+const rangeFilterSchema = Joi.alternatives().try(
   Joi.any(),
   Joi.object().pattern(
     Joi.string().valid('lt', 'lte', 'gt', 'gte'),
     Joi.any()
   )
-]).required()
+).required()
 
 const orderConfigSchema = Joi.object().keys({
   orderBy: Joi.string().required(),
@@ -114,7 +114,7 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
 }
 
 function checkFilters (filters) {
-  const { error } = Joi.validate(filters, filtersSchema, joiOptions)
+  const { error } = filtersSchema.validate(filters, joiOptions)
 
   if (error) {
     error.message = `Bad filters: ${error.message}`
@@ -123,7 +123,7 @@ function checkFilters (filters) {
 }
 
 function checkRangeFilter (value, key) {
-  const { error } = Joi.validate(value, rangeFilterSchema, joiOptions)
+  const { error } = rangeFilterSchema.validate(value, joiOptions)
 
   if (error) {
     error.message = `Bad range filter ${key}: ${error.message}`
@@ -132,7 +132,7 @@ function checkRangeFilter (value, key) {
 }
 
 function checkOrderConfig (orderConfig) {
-  const { error } = Joi.validate(orderConfig, orderConfigSchema, joiOptions)
+  const { error } = orderConfigSchema.validate(orderConfig, joiOptions)
 
   if (error) {
     error.message = `Bad order config: ${error.message}`
@@ -141,7 +141,7 @@ function checkOrderConfig (orderConfig) {
 }
 
 function checkPaginationConfig (paginationConfig) {
-  const { error } = Joi.validate(paginationConfig, paginationConfigSchema, joiOptions)
+  const { error } = paginationConfigSchema.validate(paginationConfig, joiOptions)
 
   if (error) {
     error.message = `Bad pagination config: ${error.message}`

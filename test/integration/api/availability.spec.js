@@ -554,12 +554,12 @@ test('fails to create an availability if missing or invalid parameters', async (
   error = result.body
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
-  t.true(error.message.includes('"quantity" does not match'))
+  t.regex(error.message, /"quantity" .* fails to match the signed number pattern/)
   t.true(error.message.includes('"recurringPattern" must be a string'))
   t.true(error.message.includes('"recurringTimezone" must be a string'))
-  t.true(error.message.includes('"recurringDuration" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"recurringDuration" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update an availability if missing or invalid parameters', async (t) => {
@@ -588,7 +588,7 @@ test('fails to update an availability if missing or invalid parameters', async (
     .send({
       startDate: 10,
       endDate: 10,
-      quantity: 'test',
+      quantity: -1,
       recurringPattern: true,
       recurringTimezone: true,
       recurringDuration: true,
@@ -600,12 +600,12 @@ test('fails to update an availability if missing or invalid parameters', async (
   error = result.body
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
-  t.true(error.message.includes('"quantity" does not match'))
+  t.true(error.message.includes('"quantity" must be larger than or equal to 0'))
   t.true(error.message.includes('"recurringPattern" must be a string'))
   t.true(error.message.includes('"recurringTimezone" must be a string'))
-  t.true(error.message.includes('"recurringDuration" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"recurringDuration" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 // ////// //

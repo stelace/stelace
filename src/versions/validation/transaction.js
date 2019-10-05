@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
+const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 const { allowedTimeUnits } = require('../../util/time')
 

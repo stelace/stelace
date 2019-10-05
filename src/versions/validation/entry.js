@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const orderByFields = [
@@ -49,7 +47,7 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .optionalKeys('collection', 'locale', 'name')
+    .fork(['collection', 'locale', 'name'], schema => schema.optional())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

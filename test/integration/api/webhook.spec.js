@@ -416,8 +416,8 @@ test('fails to create a webhook if missing or invalid parameters', async (t) => 
   t.true(error.message.includes('"targetUrl" must be a string'))
   t.true(error.message.includes('"event" must be a string'))
   t.true(error.message.includes('"active" must be a boolean'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to create a webhook with an invalid API version', async (t) => {
@@ -472,8 +472,8 @@ test('fails to update a webhook if missing or invalid parameters', async (t) => 
   t.true(error.message.includes('"name" must be a string'))
   t.true(error.message.includes('"event" must be a string'))
   t.true(error.message.includes('"active" must be a boolean'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a webhook with an invalid API version', async (t) => {

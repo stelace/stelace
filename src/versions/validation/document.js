@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const orderByFields = [
@@ -10,10 +8,10 @@ const orderByFields = [
 
 const dataFieldSchema = Joi.string().regex(/^data\.\w+$/)
 
-const groupBySchema = Joi.alternatives().try([
+const groupBySchema = Joi.alternatives().try(
   dataFieldSchema,
   Joi.string().valid('authorId', 'targetId')
-])
+)
 
 const labelSchema = Joi.string().regex(/^\w+(:\w+)*$/)
 const labelWithWildcardSchema = Joi.string().regex(/^(\*|(\w+)(:(\w+|\*))*)$/)
@@ -88,7 +86,7 @@ schemas['2019-05-20'].update = {
     .keys({
       replaceDataProperties: Joi.array().items(Joi.string())
     })
-    .forbiddenKeys('authorId', 'targetId', 'type')
+    .fork(['authorId', 'targetId', 'type'], schema => schema.forbidden())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

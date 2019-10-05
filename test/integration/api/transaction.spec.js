@@ -1632,10 +1632,10 @@ test('fails to preview a transaction if missing or invalid parameters', async (t
   t.true(error.message.includes('"assetId" must be a string'))
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
-  t.true(error.message.includes('"duration" must be an object'))
+  t.true(error.message.includes('"duration" must be of type object'))
   t.true(error.message.includes('"quantity" must be a number'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to create a transaction if missing or invalid parameters', async (t) => {
@@ -1677,11 +1677,11 @@ test('fails to create a transaction if missing or invalid parameters', async (t)
   t.true(error.message.includes('"assetId" must be a string'))
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
-  t.true(error.message.includes('"duration" must be an object'))
+  t.true(error.message.includes('"duration" must be of type object'))
   t.true(error.message.includes('"quantity" must be a number'))
   t.true(error.message.includes('"takerId" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a transaction if missing or invalid parameters', async (t) => {
@@ -1723,11 +1723,11 @@ test('fails to update a transaction if missing or invalid parameters', async (t)
   t.true(error.message.includes('"assetId" must be a string'))
   t.true(error.message.includes('"startDate" must be a string'))
   t.true(error.message.includes('"endDate" must be a string'))
-  t.true(error.message.includes('"duration" must be an object'))
+  t.true(error.message.includes('"duration" must be of type object'))
   t.true(error.message.includes('"quantity" must be a number'))
   t.true(error.message.includes('"status" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to create a transaction transition if missing or invalid parameters', async (t) => {
@@ -1774,7 +1774,7 @@ test('fails to create a transaction transition if missing or invalid parameters'
 
   error = result.body
   t.true(error.message.includes('"name" must be a string'))
-  t.true(error.message.includes('"data" must be an object'))
+  t.true(error.message.includes('"data" must be of type object'))
 })
 
 // ////// //

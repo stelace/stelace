@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { searchSchema } = require('../../util/validation')
+const { Joi, searchSchema } = require('../../util/validation')
 
 const ifSaving = (joiTypeIfTrue, joiTypeIfFalse) => Joi.when('save', {
   is: joiTypeIfTrue ? Joi.boolean().valid(true).required() : Joi.boolean().valid(false),

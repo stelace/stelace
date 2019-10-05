@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema } = require('../../util/validation')
 
 const schemas = {}
 
@@ -27,8 +25,8 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .forbiddenKeys('value')
-    .optionalKeys('name')
+    .fork('value', schema => schema.forbidden())
+    .fork('name', schema => schema.optional())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

@@ -1,4 +1,5 @@
-const Joi = require('@hapi/joi')
+const { utils } = require('../../../serverTooling')
+const { validation: { Joi } } = utils
 
 const groupSchema = Joi.string().valid('authorId', 'targetId', 'assetId', 'transactionId')
 
@@ -85,8 +86,8 @@ module.exports = function createValidation (deps) {
   schemas['2019-05-20'].update = {
     params: objectIdParamsSchema,
     body: schemas['2019-05-20'].create.body
-      .forbiddenKeys('authorId', 'targetId', 'assetId', 'transactionId')
-      .optionalKeys('score')
+      .fork(['authorId', 'targetId', 'assetId', 'transactionId'], schema => schema.forbidden())
+      .fork('score', schema => schema.optional())
   }
   schemas['2019-05-20'].remove = {
     params: objectIdParamsSchema

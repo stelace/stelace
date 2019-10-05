@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const orderByFields = [

@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
+const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const organizationSchema = Joi.object().pattern(
@@ -20,6 +18,19 @@ const userIdWithOrgIdSchema = Joi.object().keys({
   id: Joi.string().required(),
   organizationId: Joi.string().required()
 }).required()
+
+// Cannot make key forbidden or optional after using Joi.required() in Joi.when() 'otherwise' clause.
+// alter and tailor methods are perfect for this use case:
+// https://hapi.dev/family/joi/?v=16.1.7#anyaltertargets
+const usernameOrPasswordSchema = Joi.string().alter({
+  post: schema => schema.when('type', {
+    is: 'organization',
+    then: Joi.any().forbidden(),
+    otherwise: Joi.string().max(255).required()
+  }),
+  patchUsername: schema => schema.optional(),
+  patchPassword: schema => schema.forbidden()
+})
 
 const schemas = {}
 
@@ -58,16 +69,8 @@ schemas['2019-05-20'].create = {
   body: Joi.object().keys({
     type: Joi.string().valid('organization', 'user').default('user'),
 
-    username: Joi.when('type', {
-      is: 'organization',
-      then: Joi.any().forbidden(),
-      otherwise: Joi.string().max(255).required()
-    }),
-    password: Joi.when('type', {
-      is: 'organization',
-      then: Joi.any().forbidden(),
-      otherwise: Joi.string().max(255).required()
-    }),
+    username: usernameOrPasswordSchema.tailor('post'),
+    password: usernameOrPasswordSchema.tailor('post'),
     displayName: Joi.string().max(255).allow('', null),
     firstname: Joi.string().max(255).allow('', null),
     lastname: Joi.string().max(255).allow('', null),
@@ -87,8 +90,9 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .forbiddenKeys('type', 'password', 'organizations', 'orgOwnerId')
-    .optionalKeys('username')
+    .fork(['type', 'organizations', 'orgOwnerId'], schema => schema.forbidden())
+    .fork('password', () => usernameOrPasswordSchema.tailor('patchPassword'))
+    .fork('username', () => usernameOrPasswordSchema.tailor('patchUsername'))
     .keys({ orgOwnerId: Joi.string().max(255) })
 }
 schemas['2019-05-20'].remove = {

@@ -40,7 +40,8 @@
     "docker:apm": "COMPOSE_PROJECT_NAME=stelace_monitoring docker-compose -f docker-compose.monitoring.yml"
   },
   "dependencies": {
-    "@hapi/joi": "git://github.com/hapijs/joi.git#v16.0.0-rc1",
+    "@hapi/bourne": "^1.3.2",
+    "@hapi/joi": "^16.1.7",
     "aws-param-store": "^3.0.0",
     "aws-sdk": "^2.543.0",
     "bcrypt": "^3.0.6",

@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 
 const Joi = require('@hapi/joi')
+const Bourne = require('@hapi/bourne')
 
 const {
   getRandomStringRegex,
@@ -14,6 +15,44 @@ const UUID_V4_REGEX = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[
 function isUUIDV4 (value) {
   return typeof value === 'string' && UUID_V4_REGEX.test(value)
 }
+
+/**
+ * Joi does not coerce strings to objects and arrays anymore since v16
+ * so we restore this behavior manually.
+ * https://github.com/hapijs/joi/issues/2037, "Array and object string coercion"
+ */
+const customJoi = Joi.extend(
+  {
+    type: 'object',
+    base: Joi.object(),
+    coerce: {
+      from: 'string',
+      method (value, helpers) {
+        if (typeof value !== 'string') return
+        if (value[0] !== '{' && !/^\s*\{/.test(value)) return
+
+        try {
+          return { value: Bourne.parse(value) }
+        } catch (ignoreErr) { }
+      }
+    }
+  },
+  {
+    type: 'array',
+    base: Joi.array(),
+    coerce: {
+      from: 'string',
+      method (value, helpers) {
+        if (typeof value !== 'string') return
+        if (value[0] !== '[' && !/^\s*\[/.test(value)) return
+
+        try {
+          return { value: Bourne.parse(value) }
+        } catch (ignoreErr) { }
+      }
+    }
+  }
+)
 
 /**
  * Tests if given id is in-house objectId
@@ -60,13 +99,13 @@ const objectIdParamsSchema = Joi.object().keys({
 }).required()
 
 function getRangeFilter (joiType) {
-  return Joi.alternatives().try([
+  return Joi.alternatives().try(
     joiType,
     Joi.object().pattern(
       Joi.string().valid('lt', 'lte', 'gt', 'gte'),
       joiType
     )
-  ])
+  )
 }
 
 const idsSchema = Joi.array().unique().items(Joi.string()).single()
@@ -77,7 +116,7 @@ const locationSchema = Joi.object().unknown().keys({
 })
 
 const sortSchema = Joi.array().items(
-  Joi.object().length(1).pattern(/.*/, Joi.string().only('desc', 'asc'))
+  Joi.object().length(1).pattern(/.*/, Joi.string().allow('desc', 'asc'))
 ).single() // converts unique {sortStep} to [{sortStep}]
 
 const availabilityFilterSchema = Joi.object().keys({
@@ -116,6 +155,7 @@ const searchSchema = Joi.object().keys({
 })
 
 module.exports = {
+  Joi: customJoi,
   isUUIDV4,
   isValidObjectId,
 

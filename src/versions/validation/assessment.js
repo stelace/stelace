@@ -1,25 +1,23 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const signersSchema = Joi.object().pattern(
   Joi.string().required(),
-  Joi.alternatives().try([
+  Joi.alternatives().try(
     Joi.any().valid(null), // null
     Joi.object().keys({ // or signer object
       comment: Joi.string().allow('', null),
       statement: Joi.string().allow('pass', 'challenge', null)
     })
-  ])
+  )
 )
 
 const signCodesSchema = Joi.object().pattern(
   Joi.string(),
-  Joi.alternatives().try([
+  Joi.alternatives().try(
     Joi.any().valid(null),
     Joi.string()
-  ])
+  )
 )
 
 const schemas = {}
@@ -65,7 +63,7 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .forbiddenKeys('assetId', 'transactionId', 'ownerId', 'takerId')
+    .fork(['assetId', 'transactionId', 'ownerId', 'takerId'], schema => schema.forbidden())
 }
 schemas['2019-05-20'].sign = {
   params: objectIdParamsSchema,

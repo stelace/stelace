@@ -1961,11 +1961,11 @@ test('fails to create a workflow if missing or invalid parameters', async (t) =>
   t.true(error.message.includes('"context" must be a string'))
   t.true(error.message.includes('"notifyUrl" must be a string'))
   t.true(error.message.includes('"event" must be a string'))
-  t.true(error.message.includes('"computed" must be an object'))
-  t.true(error.message.includes('"run" must be an object'))
+  t.true(error.message.includes('"computed" must be of type object'))
+  t.true(error.message.includes('"run" must be of type object'))
   t.true(error.message.includes('"active" must be a boolean'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to create a workflow with an invalid API version', async (t) => {
@@ -2025,11 +2025,11 @@ test('fails to update a workflow if missing or invalid parameters', async (t) =>
   t.true(error.message.includes('"description" must be a string'))
   t.true(error.message.includes('"context[0]" must be a string'))
   t.true(error.message.includes('"event" must be a string'))
-  t.true(error.message.includes('"computed" must be an object'))
-  t.true(error.message.includes('"run" must be an object'))
+  t.true(error.message.includes('"computed" must be of type object'))
+  t.true(error.message.includes('"run" must be of type object'))
   t.true(error.message.includes('"active" must be a boolean'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a workflow with an invalid API version', async (t) => {

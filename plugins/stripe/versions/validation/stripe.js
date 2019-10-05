@@ -1,4 +1,5 @@
-const Joi = require('@hapi/joi')
+const { utils } = require('../../../serverTooling')
+const { validation: { Joi } } = utils
 
 const schemas = {}
 

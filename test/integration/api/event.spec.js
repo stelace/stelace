@@ -338,5 +338,5 @@ test('fails to create an event if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"type" must be a string'))
   t.true(error.message.includes('"objectId" must be a string'))
   t.true(error.message.includes('"emitterId" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
 })

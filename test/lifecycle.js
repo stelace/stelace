@@ -81,6 +81,7 @@ async function dropTestPlatforms () {
     await request
       .delete(`${serverUrl}/store/platforms/${platformId}`)
       .set(getAuthorizationHeaders({ systemKey }))
+      .catch(handleDropDatabaseError)
   })
 
   await store.reset()

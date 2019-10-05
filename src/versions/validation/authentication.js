@@ -1,4 +1,4 @@
-const Joi = require('@hapi/joi')
+const { Joi } = require('../../util/validation')
 
 const externalAuthProviderSchema = Joi.object().keys({
   platformId: Joi.string().required(),

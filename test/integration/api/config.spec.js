@@ -257,9 +257,9 @@ test('fails to update the config if missing parameters', async (t) => {
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"stelace" must be an object'))
-  t.true(error.message.includes('"custom" must be an object'))
-  t.true(error.message.includes('"theme" must be an object'))
+  t.true(error.message.includes('"stelace" must be of type object'))
+  t.true(error.message.includes('"custom" must be of type object'))
+  t.true(error.message.includes('"theme" must be of type object'))
 })
 
 test('fails to update the private config if missing parameters', async (t) => {
@@ -287,5 +287,5 @@ test('fails to update the private config if missing parameters', async (t) => {
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"stelace" must be an object'))
+  t.true(error.message.includes('"stelace" must be of type object'))
 })

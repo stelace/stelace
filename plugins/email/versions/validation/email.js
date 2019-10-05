@@ -1,34 +1,35 @@
-const Joi = require('@hapi/joi')
+const { utils } = require('../../../serverTooling')
+const { validation: { Joi } } = utils
 
 const singleLvlObjectSchema = Joi.object().pattern(
   Joi.string(),
-  Joi.alternatives().try([
+  Joi.alternatives().try(
     Joi.boolean(),
     Joi.number(),
     Joi.string().allow('', null)
-  ])
+  )
 )
 
 // https://nodemailer.com/message/addresses
-const emailSchema = Joi.alternatives().try([
+const emailSchema = Joi.alternatives().try(
   Joi.string(),
   Joi.object().keys({
     name: Joi.string(),
     address: Joi.string().email()
   })
-])
+)
 
 // https://nodemailer.com/message/custom-headers
 const headersSchema = Joi.object().pattern(
   Joi.string(),
-  Joi.alternatives().try([
+  Joi.alternatives().try(
     Joi.string(),
     Joi.array().items(Joi.string()),
     Joi.object().keys({
       prepared: Joi.boolean(),
       value: Joi.string()
     })
-  ])
+  )
 )
 
 const schemas = {}
@@ -48,10 +49,10 @@ schemas['2019-05-20'].send = {
 
     // Unfortunately, cannot use to: Joi.array().items(emailSchema).single()
     // Joi.array().items() doesn't seem to accept Joi.alternatives() as item
-    to: Joi.alternatives().try([
+    to: Joi.alternatives().try(
       emailSchema,
       Joi.array().items(emailSchema)
-    ]),
+    ),
 
     // DEPRECATED: favor `from` and `to` Nodemailer format
     fromName: Joi.string(), // not transmitted to service at all, please use `from`
@@ -71,10 +72,10 @@ schemas['2019-05-20'].sendTemplate = {
     locale: Joi.string(),
     currency: Joi.string(),
     from: emailSchema,
-    to: Joi.alternatives().try([
+    to: Joi.alternatives().try(
       emailSchema,
       Joi.array().items(emailSchema)
-    ]),
+    ),
 
     // DEPRECATED: favor `from` and `to` Nodemailer format
     fromName: Joi.string(), // not transmitted to service at all, please use `from`

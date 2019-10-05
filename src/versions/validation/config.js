@@ -1,4 +1,4 @@
-const Joi = require('@hapi/joi')
+const { Joi } = require('../../util/validation')
 
 const refreshTokenExpirationSchema = Joi.object().pattern(
   Joi.string().valid('m', 'h', 'd'),
@@ -7,11 +7,11 @@ const refreshTokenExpirationSchema = Joi.object().pattern(
 
 const singleLvlObjectSchema = Joi.object().pattern(
   Joi.string(),
-  Joi.alternatives().try([
+  Joi.alternatives().try(
     Joi.boolean(),
     Joi.number(),
     Joi.string().allow('', null)
-  ])
+  )
 )
 
 const ssoConnectionSchema = Joi.object().keys({
@@ -51,13 +51,13 @@ const ssoConnectionSchema = Joi.object().keys({
   userInfoUrl: Joi.string().uri()
 })
 
-const emailSchema = Joi.alternatives().try([
+const emailSchema = Joi.alternatives().try(
   Joi.string(),
   Joi.object().keys({
     name: Joi.string(),
     address: Joi.string().email()
   })
-])
+)
 
 const schemas = {}
 
@@ -114,14 +114,14 @@ schemas['2019-05-20'].updatePrivate = {
 
         defaults: Joi.object().keys({
           from: emailSchema.allow(null),
-          cc: Joi.alternatives().try([
+          cc: Joi.alternatives().try(
             emailSchema,
             Joi.array().items(emailSchema)
-          ]).allow(null),
-          bcc: Joi.alternatives().try([
+          ).allow(null),
+          bcc: Joi.alternatives().try(
             emailSchema,
             Joi.array().items(emailSchema)
-          ]).allow(null),
+          ).allow(null),
           replyTo: emailSchema.allow(null)
         }).allow(null)
       }).allow(null),

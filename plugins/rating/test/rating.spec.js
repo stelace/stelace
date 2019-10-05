@@ -562,8 +562,8 @@ test('fails to create a rating if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"label" must be a string'))
   t.true(error.message.includes('"assetId" must be a string'))
   t.true(error.message.includes('"transactionId" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a rating if missing or invalid parameters', async (t) => {
@@ -602,6 +602,6 @@ test('fails to update a rating if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"score" must be a number'))
   t.true(error.message.includes('"label" must be a string'))
   t.true(error.message.includes('"comment" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })

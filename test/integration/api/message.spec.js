@@ -367,8 +367,8 @@ test('fails to create a message if missing or invalid parameters', async (t) => 
   t.true(error.message.includes('"read" must be a boolean'))
   t.true(error.message.includes('"senderId" must be a string'))
   t.true(error.message.includes('"receiverId" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a message if missing or invalid parameters', async (t) => {
@@ -403,8 +403,8 @@ test('fails to update a message if missing or invalid parameters', async (t) => 
 
   error = result.body
   t.true(error.message.includes('"read" must be a boolean'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 // ////// //

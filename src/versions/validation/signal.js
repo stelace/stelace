@@ -1,4 +1,4 @@
-const Joi = require('@hapi/joi')
+const { Joi } = require('../../util/validation')
 
 const channelNameSchema = Joi.string().trim().max(256)
   .regex(/^[a-z0-9-_]+$/i, 'alphanumeric, hyphen or underscore (/^[a-z0-9-_]+$/i)')

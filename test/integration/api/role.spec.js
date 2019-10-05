@@ -218,8 +218,8 @@ test('fails to create a role if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"permissions" must be an array'))
   t.true(error.message.includes('"readNamespaces" must be an array'))
   t.true(error.message.includes('"editNamespaces" must be an array'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a role if missing or invalid parameters', async (t) => {
@@ -262,6 +262,6 @@ test('fails to update a role if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"permissions" must be an array'))
   t.true(error.message.includes('"readNamespaces" must be an array'))
   t.true(error.message.includes('"editNamespaces" must be an array'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })

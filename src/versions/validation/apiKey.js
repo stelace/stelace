@@ -1,8 +1,6 @@
-const Joi = require('@hapi/joi')
-
 const { builtInTypes, customTypeRegex } = require('stelace-util-keys')
 
-const { objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
+const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const orderByFields = [
@@ -11,10 +9,10 @@ const orderByFields = [
   'updatedDate'
 ]
 
-const typeSchema = Joi.alternatives().try([
+const typeSchema = Joi.alternatives().try(
   Joi.string().valid(...builtInTypes),
   Joi.string().regex(customTypeRegex)
-])
+)
 
 const rightsSchema = Joi.when('type', {
   // https://github.com/hapijs/joi/blob/v14.3.1/API.md#anywhencondition-options
@@ -77,7 +75,7 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .optionalKeys('name')
+    .fork('name', schema => schema.optional())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

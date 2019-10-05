@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 const { allowedTimeUnits } = require('../../util/time')
 
@@ -9,10 +7,11 @@ const durationSchema = Joi.object().pattern(
   Joi.number().integer().min(1)
 ).length(1)
 
-const quantitySchema = Joi.alternatives().try([
-  Joi.string().regex(/^[+-]\d+$/), // relative quantity, put the string type before the number because Joi will autoconvert '+1' into 1
+const quantitySchema = Joi.alternatives().try(
+  // put the string type before the number because Joi will automatically convert '+1' to 1
+  Joi.string().regex(/^[+-]\d+$/, 'signed number'),
   Joi.number().integer().min(0) // fixed quantity
-])
+)
 
 const orderByFields = [
   'createdDate',
@@ -60,8 +59,8 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .forbiddenKeys('assetId')
-    .optionalKeys('startDate', 'endDate', 'quantity')
+    .fork('assetId', schema => schema.forbidden())
+    .fork(['startDate', 'endDate', 'quantity'], schema => schema.optional())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

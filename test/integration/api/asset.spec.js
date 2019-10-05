@@ -734,9 +734,9 @@ test('fails to create an asset if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"quantity" must be a number'))
   t.true(error.message.includes('"price" must be a number'))
   t.true(error.message.includes('"currency" must be a string'))
-  t.true(error.message.includes('"customAttributes" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"customAttributes" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update an asset if missing or invalid parameters', async (t) => {
@@ -790,9 +790,9 @@ test('fails to update an asset if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"quantity" must be a number'))
   t.true(error.message.includes('"price" must be a number'))
   t.true(error.message.includes('"currency" must be a string'))
-  t.true(error.message.includes('"customAttributes" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"customAttributes" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 // ////// //

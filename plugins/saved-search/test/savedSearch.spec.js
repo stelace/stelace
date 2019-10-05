@@ -518,6 +518,6 @@ test('fails to update a saved search if missing or invalid parameters', async (t
   t.true(error.message.includes('"name" must be a string'))
   t.true(error.message.includes('"search" is not allowed'))
   t.true(error.message.includes('"active" must be a boolean'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })

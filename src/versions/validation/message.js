@@ -1,6 +1,4 @@
-const Joi = require('@hapi/joi')
-
-const { objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
+const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
 
 const orderByFields = [
@@ -54,7 +52,14 @@ schemas['2019-05-20'].create = {
 schemas['2019-05-20'].update = {
   params: objectIdParamsSchema,
   body: schemas['2019-05-20'].create.body
-    .forbiddenKeys('topicId', 'conversationId', 'content', 'attachments', 'senderId', 'receiverId')
+    .fork([
+      'topicId',
+      'conversationId',
+      'content',
+      'attachments',
+      'senderId',
+      'receiverId'
+    ], schema => schema.forbidden())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

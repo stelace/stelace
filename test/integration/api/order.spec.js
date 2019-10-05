@@ -696,8 +696,8 @@ test('fails to create an order if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"transactionIds" must be a string'))
   t.true(error.message.includes('"lines" must be an array'))
   t.true(error.message.includes('"moves" must be an array'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update an order if missing or invalid parameters', async (t) => {
@@ -730,8 +730,8 @@ test('fails to update an order if missing or invalid parameters', async (t) => {
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to create an order line if missing or invalid parameters', async (t) => {
@@ -795,8 +795,8 @@ test('fails to create an order line if missing or invalid parameters', async (t)
   t.true(error.message.includes('"receiverAmount" must be a number'))
   t.true(error.message.includes('"platformAmount" must be a number'))
   t.true(error.message.includes('"currency" must be a string'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update an order line if missing or invalid parameters', async (t) => {
@@ -829,8 +829,8 @@ test('fails to update an order line if missing or invalid parameters', async (t)
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to create an order move if missing or invalid parameters', async (t) => {
@@ -895,9 +895,9 @@ test('fails to create an order move if missing or invalid parameters', async (t)
   t.true(error.message.includes('"receiverAmount" must be a number'))
   t.true(error.message.includes('"platformAmount" must be a number'))
   t.true(error.message.includes('"currency" must be a string'))
-  t.true(error.message.includes('"real" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"real" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update an order move if missing or invalid parameters', async (t) => {
@@ -931,9 +931,9 @@ test('fails to update an order move if missing or invalid parameters', async (t)
     .expect(400)
 
   error = result.body
-  t.true(error.message.includes('"real" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"real" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 // ////// //

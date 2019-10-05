@@ -182,6 +182,39 @@ test('sends an email', async (t) => {
   t.is(payload.replyTo, emailContext.replyTo)
 })
 
+test('sends an email to multiple addresses', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['email:send:all']
+  })
+
+  const payload = {
+    html: '<div>Hello world!</div>',
+    text: 'Hello world',
+    to: [
+      {
+        name: 'User',
+        address: 'user@example.com'
+      },
+      'user2@example.com, "User3" <user3@example.com>'
+    ],
+    subject: 'Test subject',
+    replyTo: 'support@company.com'
+  }
+
+  const { body: { emailContext } } = await request(t.context.serverUrl)
+    .post('/emails/send')
+    .set(authorizationHeaders)
+    .send(payload)
+    .expect(200)
+
+  t.is(payload.html, emailContext.html)
+  t.is(payload.text, emailContext.text)
+  t.deepEqual(payload.to, emailContext.to)
+  t.is(payload.subject, emailContext.subject)
+  t.is(payload.replyTo, emailContext.replyTo)
+})
+
 // DEPRECATED
 test('sends an email with deprecated `toEmail` and `toName`', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({
@@ -893,7 +926,7 @@ test('fails to send an email if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"html" must be a string'))
   t.true(error.message.includes('"text" must be a string'))
   t.true(error.message.includes('"from" must be one of [string, object]'))
-  t.true(error.message.includes('"to" does not match any of the allowed types'))
+  t.true(error.message.includes('"to" must be one of [string, object]'))
 
   // DEPRECATED
   t.true(error.message.includes('"fromName" must be a string'))
@@ -903,7 +936,7 @@ test('fails to send an email if missing or invalid parameters', async (t) => {
 
   t.true(error.message.includes('"subject" must be a string'))
   t.true(error.message.includes('"replyTo" must be one of [string, object]'))
-  t.true(error.message.includes('"headers" must be an object'))
+  t.true(error.message.includes('"headers" must be of type object'))
 })
 
 test('fails to send an email with template if missing or invalid parameters', async (t) => {
@@ -949,11 +982,11 @@ test('fails to send an email with template if missing or invalid parameters', as
 
   error = result.body
   t.true(error.message.includes('"name" must be a string'))
-  t.true(error.message.includes('"data" must be an object'))
+  t.true(error.message.includes('"data" must be of type object'))
   t.true(error.message.includes('"locale" must be a string'))
   t.true(error.message.includes('"currency" must be a string'))
   t.true(error.message.includes('"from" must be one of [string, object]'))
-  t.true(error.message.includes('"to" does not match any of the allowed types'))
+  t.true(error.message.includes('"to" must be one of [string, object]'))
 
   // DEPRECATED
   t.true(error.message.includes('"fromName" must be a string'))

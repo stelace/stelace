@@ -1543,9 +1543,9 @@ test('fails to create a user if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"lastname" must be a string'))
   t.true(error.message.includes('"email" must be a string'))
   t.true(error.message.includes('"roles" must be an array'))
-  t.true(error.message.includes('"organizations" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"organizations" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
   t.true(error.message.includes('"type" must be a string'))
 })
 
@@ -1590,8 +1590,8 @@ test('fails to update a user if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"description" must be a string'))
   t.true(error.message.includes('"displayName" must be a string'))
   t.true(error.message.includes('"roles" must be an array'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to change organization config if missing or invalid parameters', async (t) => {

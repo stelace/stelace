@@ -130,7 +130,7 @@ const middleware = () => {
     keysToValidate.forEach(key => {
       if (errorToDisplay || !schema[key]) return
 
-      const { error, value } = joi.validate(toValidate[key], schema[key], Object.assign({}, joiOptions, { context: { label: 'body' } }))
+      const { error, value } = schema[key].validate(toValidate[key], Object.assign({}, joiOptions, { context: { label: 'body' } }))
       if (error) {
         if (error.message === '"value" is required') {
           const errorMessage = `"${key}" is required`
@@ -144,8 +144,6 @@ const middleware = () => {
         req[key] = value
       }
     })
-
-    // const { error, value } = joi.validate(toValidate, schema, joiOptions)
 
     apmSpan && apmSpan.end()
 

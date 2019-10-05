@@ -511,13 +511,13 @@ test('fails to create an api key if missing or invalid parameters', async (t) =>
 
   error = result.body
   t.true(error.message.includes('"name" must be a string'))
-  t.true(error.message.includes('"type" does not match'))
+  t.regex(error.message, /"type" .* fails to match/)
   t.true(error.message.includes('"roles" must be an array'))
   t.true(error.message.includes('"permissions" must be an array'))
   t.true(error.message.includes('"readNamespaces" must be an array'))
   t.true(error.message.includes('"editNamespaces" must be an array'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update an api key if missing or invalid parameters', async (t) => {
@@ -556,8 +556,8 @@ test('fails to update an api key if missing or invalid parameters', async (t) =>
   t.true(error.message.includes('"permissions" must be an array'))
   t.true(error.message.includes('"readNamespaces" must be an array'))
   t.true(error.message.includes('"editNamespaces" must be an array'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('secret key should be obfuscated', async (t) => {

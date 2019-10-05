@@ -892,9 +892,9 @@ test('fails to create a document if missing or invalid parameters', async (t) =>
   t.true(error.message.includes('"targetId" must be a string'))
   t.true(error.message.includes('"type" must be a string'))
   t.true(error.message.includes('"label" must be a string'))
-  t.true(error.message.includes('"data" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"data" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
 })
 
 test('fails to update a document if missing or invalid parameters', async (t) => {
@@ -932,8 +932,8 @@ test('fails to update a document if missing or invalid parameters', async (t) =>
 
   error = result.body
   t.true(error.message.includes('"label" must be a string'))
-  t.true(error.message.includes('"data" must be an object'))
-  t.true(error.message.includes('"metadata" must be an object'))
-  t.true(error.message.includes('"platformData" must be an object'))
+  t.true(error.message.includes('"data" must be of type object'))
+  t.true(error.message.includes('"metadata" must be of type object'))
+  t.true(error.message.includes('"platformData" must be of type object'))
   t.true(error.message.includes('"replaceDataProperties" must be an array'))
 })
