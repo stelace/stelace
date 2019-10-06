@@ -34,6 +34,7 @@ const {
   syncAssetsWithElasticsearch
 } = require('../elasticsearch-sync')
 
+const { logError } = require('../../logger')
 const { getEnvironments } = require('../util/environment')
 
 let responder
@@ -217,7 +218,7 @@ function start ({ communication }) {
 
     const environments = getEnvironments()
 
-    for (let env of environments) {
+    for (const env of environments) {
       try {
         await migrateDatabase({ platformId, env })
       } catch (err) {
@@ -226,7 +227,7 @@ function start ({ communication }) {
       }
     }
 
-    for (let env of environments) {
+    for (const env of environments) {
       try {
         await initElasticsearch({ platformId, env })
       } catch (err) {
@@ -259,7 +260,7 @@ function start ({ communication }) {
 
     const environments = getEnvironments()
 
-    for (let env of environments) {
+    for (const env of environments) {
       try {
         const { Category } = await getModels({ platformId, env })
         // perform a database query to check if a connection can be established
@@ -270,7 +271,7 @@ function start ({ communication }) {
       }
     }
 
-    for (let env of environments) {
+    for (const env of environments) {
       try {
         const indexExists = await isIndexExisting({ platformId, env })
         if (!indexExists) throw new Error('Elasticsearch index does not exist')
@@ -384,9 +385,18 @@ function start ({ communication }) {
     // use pattern to drop all indices (reindexing, alias indices)
     const indexPattern = getIndex({ platformId, env }) + '*'
 
-    const client = await getClient({ platformId, env })
+    let client
+    try {
+      client = await getClient({ platformId, env })
+    } catch (err) {
+      logError(err, { // should mostly affect tests, we’re logging this just in case
+        platformId,
+        env,
+        message: 'Could not getClient to drop ElasticSearch index, probably already dropped.'
+      })
+    }
 
-    await client.indices.delete({ index: indexPattern })
+    if (client) await client.indices.delete({ index: indexPattern })
 
     return { success: true }
   })
@@ -407,8 +417,16 @@ async function migrateDatabase ({ platformId, env }) {
 }
 
 async function dropDatabase ({ platformId, env }) {
-  const { connection, schema } = await getConnection({ platformId, env })
-  await dropSchema({ connection, schema, cascade: true, destroyKnex: true })
+  try {
+    const { connection, schema } = await getConnection({ platformId, env })
+    await dropSchema({ connection, schema, cascade: true, destroyKnex: true })
+  } catch (err) {
+    logError(err, { // should mostly affect tests, we’re logging this just in case
+      platformId,
+      env,
+      message: `Could not drop database ${platformId}_${env}, probably already dropped.`
+    })
+  }
 }
 
 async function migrateDatabaseVersion ({ platformId, env, version }) {
