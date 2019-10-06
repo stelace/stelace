@@ -324,7 +324,7 @@ module.exports = {
       userId: 'usr_WHlfQps1I3a1gJYz2I3a',
       expirationDate: computeDate(now, '14d'),
       reference: {
-        userAgent: 'node-superagent/3.8.2'
+        userAgent: 'node-superagent/3.8.3'
       }
     }),
     createModel({
@@ -336,7 +336,7 @@ module.exports = {
       userId: 'usr_Y0tfQps1I3a1gJYz2I3a',
       expirationDate: computeDate(now, '14d'),
       reference: {
-        userAgent: 'node-superagent/3.8.2'
+        userAgent: 'node-superagent/3.8.3'
       }
     }),
     createModel({
@@ -715,7 +715,7 @@ module.exports = {
       type: 'movie',
       label: 'source:imdb',
       data: {
-        title: `Castle in the Sky`,
+        title: 'Castle in the Sky',
         year: 1986,
         duration: 125,
         score: 8.1,
@@ -740,7 +740,7 @@ module.exports = {
       type: 'movie',
       label: 'source:random',
       data: {
-        title: `Howl's Moving Castle`,
+        title: 'Howl’s Moving Castle',
         year: 2004,
         duration: 119,
         score: 8.5,

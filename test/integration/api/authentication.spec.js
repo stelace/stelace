@@ -130,7 +130,7 @@ test('login', async (t) => {
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
-      'authorization': `${obj1.tokenType} ${obj1.accessToken}`
+      authorization: `${obj1.tokenType} ${obj1.accessToken}`
     })
     .send({
       username: 'user',
@@ -226,7 +226,7 @@ test.serial('fails to refresh token if the refresh token is expired', async (t) 
 
   // set the refresh token expiration duration at 1 day
   await request(t.context.serverUrl)
-    .patch(`/config/private`)
+    .patch('/config/private')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
@@ -262,7 +262,7 @@ test.serial('fails to refresh token if the refresh token is expired', async (t) 
 
   // reset the refresh token expiration duration
   await request(t.context.serverUrl)
-    .patch(`/config/private`)
+    .patch('/config/private')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
@@ -307,7 +307,7 @@ test.serial('configures built-in SSO providers', async (t) => {
   }
 
   const { body: error } = await request(t.context.serverUrl)
-    .patch(`/config/private`)
+    .patch('/config/private')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
@@ -325,7 +325,7 @@ test.serial('configures built-in SSO providers', async (t) => {
   t.true(error.message.includes('github'))
 
   await request(t.context.serverUrl)
-    .patch(`/config/private`)
+    .patch('/config/private')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
@@ -363,7 +363,7 @@ test.serial('performs a OAuth2 authentication', async (t) => {
 
   // add SSO connection
   await request(t.context.serverUrl)
-    .patch(`/config/private`)
+    .patch('/config/private')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-system-key': systemKey,
@@ -473,7 +473,7 @@ test.serial('performs a OAuth2 authentication', async (t) => {
   const ssoAuthorizationHeaders = {
     'x-platform-id': t.context.platformId,
     'x-stelace-env': t.context.env,
-    'authorization': `${obj.tokenType} ${obj.accessToken}`
+    authorization: `${obj.tokenType} ${obj.accessToken}`
   }
 
   // fetch the created user
@@ -547,7 +547,7 @@ test.serial('performs an OpenID authentication', async (t) => {
 
   // add SSO connection
   await request(t.context.serverUrl)
-    .patch(`/config/private`)
+    .patch('/config/private')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
@@ -575,8 +575,8 @@ test.serial('performs an OpenID authentication', async (t) => {
             userInfoMapping: {
               // displayName: 'name', // default
               // email: 'email', // default
-              'firstname': 'first_name',
-              'lastname': 'last_name',
+              firstname: 'first_name',
+              lastname: 'last_name',
               'metadata.name': 'name',
               'metadata.deep.name': 'name',
               'metadata.deep.email': 'email',
@@ -665,7 +665,7 @@ test.serial('performs an OpenID authentication', async (t) => {
   const ssoAuthorizationHeaders = {
     'x-platform-id': t.context.platformId,
     'x-stelace-env': t.context.env,
-    'authorization': `${obj.tokenType} ${obj.accessToken}`
+    authorization: `${obj.tokenType} ${obj.accessToken}`
   }
 
   // fetch the created user
@@ -715,7 +715,7 @@ test.serial('performs an OpenID authentication', async (t) => {
 
   // trigger the SSO logout (user clicks on the SSO logout button)
   const logoutResponse = await request(t.context.serverUrl)
-    .post(`/auth/logout`)
+    .post('/auth/logout')
     .set(ssoAuthorizationHeaders)
     .send({
       refreshToken: obj.refreshToken,
@@ -742,7 +742,7 @@ test.serial('performs an OpenID authentication', async (t) => {
 
   // rejected after logout, cannot refresh token anymore
   await request(t.context.serverUrl)
-    .post(`/auth/token`)
+    .post('/auth/token')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
@@ -835,7 +835,7 @@ test.serial('performs an OpenID authentication', async (t) => {
   const ssoAuthorizationHeaders2 = {
     'x-platform-id': t.context.platformId,
     'x-stelace-env': t.context.env,
-    'authorization': `${obj2.tokenType} ${obj2.accessToken}`
+    authorization: `${obj2.tokenType} ${obj2.accessToken}`
   }
 
   // fetch the user that logs a second time
@@ -917,10 +917,10 @@ test('impersonates access token for a user', async (t) => {
   const { body: result } = await request(t.context.serverUrl)
     .post('/auth/token')
     .set({
-      'user-agent': 'node-superagent/3.8.2',
+      'user-agent': 'node-superagent/3.8.3',
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
-      'authorization': `Bearer ${accessToken}`
+      authorization: `Bearer ${accessToken}`
     })
     .send({
       grantType: 'impersonateToken',
@@ -947,7 +947,7 @@ test('impersonates access token for a user via system', async (t) => {
   const { body: result } = await request(t.context.serverUrl)
     .post('/auth/token')
     .set({
-      'user-agent': 'node-superagent/3.8.2',
+      'user-agent': 'node-superagent/3.8.3',
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env,
       'x-stelace-system-key': systemKey
@@ -985,7 +985,7 @@ test('checks a refresh token', async (t) => {
     .send({
       tokenType: 'refreshToken',
       token: 'refreshToken1',
-      userAgent: 'node-superagent/3.8.2'
+      userAgent: 'node-superagent/3.8.3'
     })
     .expect(200)
 
@@ -1002,7 +1002,7 @@ test('checks a refresh token', async (t) => {
     .send({
       tokenType: 'refreshToken',
       token: 'unknownRefreshToken',
-      userAgent: 'node-superagent/3.8.2'
+      userAgent: 'node-superagent/3.8.3'
     })
     .expect(200)
 
@@ -1057,7 +1057,7 @@ test('can only check tokens if system', async (t) => {
     .send({
       tokenType: 'refreshToken',
       token: 'refreshToken1',
-      userAgent: 'node-superagent/3.8.2'
+      userAgent: 'node-superagent/3.8.3'
     })
     .expect(403)
 
@@ -1067,7 +1067,7 @@ test('can only check tokens if system', async (t) => {
     .send({
       tokenType: 'accessToken',
       token: 'accessToken1',
-      userAgent: 'node-superagent/3.8.2'
+      userAgent: 'node-superagent/3.8.3'
     })
     .expect(403)
 
@@ -1095,7 +1095,7 @@ test('changes the password and emits event', async (t) => {
   await request(t.context.serverUrl)
     .post('/password/change')
     .set({
-      'authorization': `Bearer ${accessToken}`,
+      authorization: `Bearer ${accessToken}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -1108,7 +1108,7 @@ test('changes the password and emits event', async (t) => {
   await request(t.context.serverUrl)
     .post('/password/change')
     .set({
-      'authorization': `Bearer ${accessToken}`,
+      authorization: `Bearer ${accessToken}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })

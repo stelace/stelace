@@ -20,7 +20,7 @@ async function getAccessTokenHeaders ({
   })
 
   return {
-    'authorization': `Bearer ${accessToken}`,
+    authorization: `Bearer ${accessToken}`,
     // TODO: use an API key instead of these special headers
     'x-platform-id': t.context.platformId,
     'x-stelace-env': t.context.env
@@ -49,7 +49,7 @@ async function getAccessToken ({
 async function refreshAccessToken (refreshToken, { status = 200, userAgent, requester, t } = {}) {
   const res = await requester
     .post('/auth/token')
-    .set('user-agent', userAgent || 'node-superagent/3.8.2')
+    .set('user-agent', userAgent || 'node-superagent/3.8.3')
     .set('x-platform-id', t.context.platformId)
     .set('x-stelace-env', t.context.env)
     .send({
@@ -78,7 +78,7 @@ async function getApiKey ({
   const { body: apiKey } = await request(t.context.serverUrl)
     .post('/api-keys')
     .set({
-      'authorization': `Bearer ${accessToken}`,
+      authorization: `Bearer ${accessToken}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': env || t.context.env
     })
