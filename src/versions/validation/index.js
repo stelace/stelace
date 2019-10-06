@@ -1,4 +1,4 @@
-const errors = require('restify-errors')
+const createError = require('http-errors')
 const joi = require('@hapi/joi')
 const apm = require('elastic-apm-node')
 const _ = require('lodash')
@@ -88,10 +88,10 @@ const joiOptions = {
 const keysToValidate = ['params', 'body', 'query']
 
 const errorTransformer = (validationInput, joiError) => {
-  const retError = new errors.BadRequestError()
-  retError.body.message = joiError.message
-  retError.body.data = joiError.details
-  return retError
+  const err = createError(400, joiError.message, {
+    public: joiError.details
+  })
+  return err
 }
 const errorResponder = (transformedErr, req, res, next) => next(transformedErr)
 

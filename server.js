@@ -8,7 +8,7 @@ const _ = require('lodash')
 const createError = require('http-errors')
 const serializeError = require('serialize-error')
 const Uuid = require('uuid')
-const corsMiddleware = require('restify-cors-middleware')
+const corsMiddleware = require('restify-cors-middleware2')
 const socketIO = require('socket.io')
 const apm = require('elastic-apm-node')
 const { isActive: isApmActive, addRequestContext } = require('./apm')
@@ -229,11 +229,6 @@ function logRequestError (req, res, err) {
   const requestContext = getRequestContext(req)
   const metrics = {
     statusCode: res.statusCode,
-    totalLatency: null,
-    latency: null,
-    preLatency: null,
-    useLatency: null,
-    routeLatency: null,
     method: req.method,
     path: req.path()
   }
@@ -248,7 +243,7 @@ function logRequestError (req, res, err) {
   })
 }
 
-server.on('restifyError', function (req, res, err, cb) {
+server.on('restifyError', function (req, res, err, next) {
   const statusCode = err.statusCode || 500
   err.statusCode = statusCode
 
@@ -265,8 +260,9 @@ server.on('restifyError', function (req, res, err, cb) {
     )
   }
 
-  // Log the error here instead of logging in the metrics function
-  // because the error isn't yet transformed
+  // Prevents 'undefined' string from showing up in APM route errors
+  // https://github.com/elastic/apm-agent-nodejs/blob/v2.17.0/lib/parsers.js#L26
+  err.params = err.params || []
 
   if (typeof err === 'object' && !(err instanceof Error)) {
     logRequestError(req, res, err)
@@ -284,11 +280,8 @@ server.on('restifyError', function (req, res, err, cb) {
       }
     })
 
-    // Prevents 'undefined' string from showing up in APM route errors
-    // https://github.com/elastic/apm-agent-nodejs/blob/v2.17.0/lib/parsers.js#L26
-    err.params = err.params || []
-
-    return cb()
+    res.send(err)
+    return next()
   }
 
   err.toJSON = () => {
@@ -302,7 +295,8 @@ server.on('restifyError', function (req, res, err, cb) {
     return getFormattedError(err, statusCode)
   }
 
-  return cb()
+  res.send(err)
+  return next()
 })
 
 const StelaceParams = {

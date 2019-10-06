@@ -742,9 +742,7 @@ function parseAuthorizationHeader (req) {
   if (apiKey && token) req.headers.authorization = `Bearer ${token}`
 
   function throwInvalid () {
-    throw createError(401, 'Invalid Authorization Header format', {
-      expose: true
-    })
+    throw createError(401, 'Invalid Authorization Header format')
   }
 }
 
