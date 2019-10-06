@@ -83,7 +83,7 @@ async function startReindexingProcess ({ platformId, env, customAttributes, newC
     useAlias: true,
     aliasTag: 'new',
     customBodyFn: (body) => {
-      // put this settings to speed up reindexing
+      // settings speeding up re-indexing
       // https://www.elastic.co/guide/en/elasticsearch/reference/current/reindex-upgrade-inplace.html
       _.set(body, 'settings.index.number_of_replicas', 0)
       _.set(body, 'settings.index.auto_expand_replicas', false)

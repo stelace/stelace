@@ -34,7 +34,7 @@ For a full-stack experience, you can get started [here](https://stelace.com/docs
 [![CircleCI](https://circleci.com/gh/stelace/stelace.svg?style=svg)](https://circleci.com/gh/stelace/stelace)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstelace%2Fstelace.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstelace%2Fstelace?ref=badge_shield)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-purple.svg)](https://conventionalcommits.org)
 
 ---
 
@@ -222,11 +222,7 @@ Tests files are run in parallel with AVA, using multiple schemas in PostgreSQL d
 
 __Tests are quite CPU-intensive and you probably want to have 4 CPU cores to run them in good conditions.__
 
-When appropriate, running a single or a few tests only is much faster using:
-
-```sh
-yarn test test/integration/api/asset.spec.js
-```
+Please find more details in [server docs (testing)](docs/testing.md).
 
 ### Logs
 

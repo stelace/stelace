@@ -263,9 +263,9 @@ async function updateMapping ({ platformId, env, type = 'asset', customAttribute
   const client = await getClient({ platformId, env })
   const index = getIndex({ platformId, env, type, tag })
 
-  // With elasticsearch SDK, we need to pass type: '_doc' and include_type_name to true
-  // Omiting them, an error message "Unable to build a path with those params" occurs
-  // TODO: maybe it will be fixed to upgrade to the new supported SDK @elastic/elasticsearch
+  // With elasticsearch SDK, we need to pass type: '_doc' and set include_type_name to true
+  // Without them, an "Unable to build a path with those params" error occurs
+  // TODO: probably fixed with new SDK @elastic/elasticsearch we’ll have to migrate to
   await client.indices.putMapping({
     index,
     type: '_doc',
