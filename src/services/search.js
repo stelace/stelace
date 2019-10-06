@@ -186,11 +186,11 @@ function start ({ communication, isSystem }) {
 
     const index = getIndex({ platformId, env })
 
-    let bool = {
+    const bool = {
       filter: [] // ES filter context
     }
     let moreLikeThis
-    let sortParams = []
+    const sortParams = []
 
     const hasFilter = !!parsedFilter
     // Don’t filter assets on `active` by default when using null reset
@@ -267,7 +267,7 @@ function start ({ communication, isSystem }) {
       }
     }
 
-    let textFields = [
+    const textFields = [
       'name^2',
       'description'
     ]
@@ -488,22 +488,26 @@ function start ({ communication, isSystem }) {
             sortKey += '.keyword'
           }
 
-          sortParams.push({ [sortKey]: {
-            order: step[name],
-            missing: '_last'
+          sortParams.push({
+            [sortKey]: {
+              order: step[name],
+              missing: '_last'
             // All assets should have a price
             // but in the future other built-in attributes could be missing
-          } })
+            }
+          })
         } else if (customAttribute && _.includes(sortableAttributesTypes, customAttribute.type)) {
           // Add '.keyword' to text field key to allow sorting
           // https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html
           const customAttributeKey =
             `customAttributes.${name}${customAttribute.type === 'text' ? '.keyword' : ''}`
-          sortParams.push({ [customAttributeKey]: {
-            order: step[name],
-            missing: '_last'
+          sortParams.push({
+            [customAttributeKey]: {
+              order: step[name],
+              missing: '_last'
             // We must deal with assets missing this custom attribute
-          } })
+            }
+          })
         } else {
           throw createError(422, `Can't sort by custom attribute ${name} of type ${
             customAttribute && customAttribute.type
@@ -562,9 +566,9 @@ function start ({ communication, isSystem }) {
     const client = await getClient({ platformId, env })
 
     let hasAdditionalResults = true
-    let indexedResultAssetsIds = {}
+    const indexedResultAssetsIds = {}
     let nbResultsFetched = 0 // depends on size
-    let maxNbResults = page * nbResultsPerPage
+    const maxNbResults = page * nbResultsPerPage
     let maxNbResultsReached = false
     let currentNbResults = 0
     let allResults = []

@@ -231,7 +231,7 @@ function start ({ communication }) {
       platformData
     } = payload
 
-    let customAttribute = await CustomAttribute.query().findById(customAttributeId)
+    const customAttribute = await CustomAttribute.query().findById(customAttributeId)
     if (!customAttribute) {
       throw createError(404)
     }

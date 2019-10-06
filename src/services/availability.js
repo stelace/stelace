@@ -278,7 +278,7 @@ function start ({ communication }) {
       const maxEndDate = getAvailabilityMaxEndDate(startDate)
       if (maxEndDate < endDate) {
         throw createError(422,
-          `Recurring availbility period cannot exceed one year. ` +
+          'Recurring availbility period cannot exceed one year. ' +
           `End date must be before the date "${maxEndDate}"`
         )
       }
@@ -377,7 +377,7 @@ function start ({ communication }) {
     const updateAttrs = _.omit(payload, ['metadata', 'platformData'])
     const updateAttrsBeforeFullDataMerge = Object.assign({}, payload)
 
-    let availability = await Availability.query().findById(availabilityId)
+    const availability = await Availability.query().findById(availabilityId)
     if (!availability) {
       throw createError(404)
     }
@@ -440,7 +440,7 @@ function start ({ communication }) {
       const maxEndDate = getAvailabilityMaxEndDate(newStartDate)
       if (maxEndDate < newEndDate) {
         throw createError(422,
-          `Recurring availbility period cannot exceed one year. ` +
+          'Recurring availbility period cannot exceed one year. ' +
           `End date must be before the date "${maxEndDate}"`
         )
       }
@@ -643,7 +643,7 @@ function start ({ communication }) {
    * @param {String}   env
    */
   responder.on('_isAvailable', async (req) => {
-    let {
+    const {
       assetsIds,
       startDate = new Date().toISOString(),
       endDate,
@@ -731,7 +731,7 @@ function start ({ communication }) {
   })
 
   responder.on('_syncInternalAvailability', async (req) => {
-    let {
+    const {
       assetsIds,
       platformId,
       env
@@ -745,7 +745,7 @@ function start ({ communication }) {
   })
 
   responder.on('_syncInternalAvailabilityTransaction', async (req) => {
-    let {
+    const {
       transactionIds,
       platformId,
       env
@@ -759,7 +759,7 @@ function start ({ communication }) {
   })
 
   responder.on('_removeInternalAvailability', async (req) => {
-    let {
+    const {
       assetsIds,
       platformId,
       env

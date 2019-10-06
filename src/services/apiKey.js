@@ -345,7 +345,7 @@ function start ({ communication, isSystem }) {
       apiKeyId
     } = req
 
-    let apiKey = await ApiKey.query().findById(apiKeyId)
+    const apiKey = await ApiKey.query().findById(apiKeyId)
     if (!apiKey) {
       return { id: apiKeyId }
     }

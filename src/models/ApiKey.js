@@ -93,8 +93,8 @@ class ApiKey extends Base {
 
   static exposeTransform (element, field, { options }) {
     switch (field) {
-      case 'key':
-        let key = element.key
+      case 'key': {
+        const key = element.key
 
         if (key && typeof key === 'string') {
           const parsedKey = parseKey(key)
@@ -114,6 +114,7 @@ class ApiKey extends Base {
           }
         }
         break
+      }
     }
   }
 }

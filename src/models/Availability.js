@@ -88,7 +88,7 @@ class Availability extends Base {
 
   static exposeTransform (element, field) {
     switch (field) {
-      case 'quantity':
+      case 'quantity': {
         const sign = element.quantity.charAt(0)
         const isSign = ['+', '-'].includes(sign)
 
@@ -96,6 +96,7 @@ class Availability extends Base {
           element.quantity = parseInt(element.quantity, 10)
         }
         break
+      }
     }
   }
 }

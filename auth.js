@@ -133,8 +133,6 @@ async function checkAuthToken ({
     } catch (err) {
       if (err && process.env.NODE_ENV === 'test') logError(err)
     }
-  } catch (err) {
-    throw err
   } finally {
     apmSpan && apmSpan.end()
   }
@@ -190,7 +188,7 @@ function checkPermissions (permissions = [], {
   const middleware = async (req, res, next) => {
     const apmSpan = apm.startSpan('Check permissions')
 
-    let permissionsToCheck = permissions.slice(0)
+    const permissionsToCheck = permissions.slice(0)
 
     // Always check, in case platformData is edited via current endpoint
     if (!permissionsToCheck.includes('platformData:edit:all')) {
@@ -228,7 +226,7 @@ function checkPermissions (permissions = [], {
 
       // do not duplicate permissions check in system
       // add behaviour of system like expose system namespace or do not obfuscate api keys
-      let checkPermissionsFromSystem = isSystemRequest && req.headers['x-stelace-system-permissions'] === 'check'
+      const checkPermissionsFromSystem = isSystemRequest && req.headers['x-stelace-system-permissions'] === 'check'
 
       let isPublishableApiKey = false
 
@@ -558,7 +556,7 @@ async function computeAccessInfo ({
   let readNamespaces = newReadNamespaces
   let editNamespaces = newEditNamespaces
   let hashPermissions = grantedPermissions
-  let arrayPermissions = filteredPermissionsByPlan
+  const arrayPermissions = filteredPermissionsByPlan
 
   if (useRestrictedRoles) {
     const newHashPermissions = {}

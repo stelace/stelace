@@ -161,7 +161,7 @@ test('gets the private config', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['config:read:all'] })
 
   const { body: config } = await request(t.context.serverUrl)
-    .get(`/config/private`)
+    .get('/config/private')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -189,7 +189,7 @@ test('gets the system config', async (t) => {
   const systemKey = getSystemKey()
 
   const { body: config } = await request(t.context.serverUrl)
-    .get(`/config/system`)
+    .get('/config/system')
     .set({
       'x-stelace-system-key': systemKey,
       'x-platform-id': t.context.platformId,

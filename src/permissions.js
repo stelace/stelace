@@ -304,7 +304,7 @@ const coreListObjectPermissions = [
   }
 ]
 
-let permissionsDefObjects = _.cloneDeep(coreListObjectPermissions)
+const permissionsDefObjects = _.cloneDeep(coreListObjectPermissions)
 
 let permissionsArray
 

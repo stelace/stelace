@@ -311,7 +311,7 @@ test('sends an email with headers', async (t) => {
 
   const headers1 = {
     'x-test-key1': 'key1',
-    'x-test-key2': JSON.stringify({ 'key2': true }),
+    'x-test-key2': JSON.stringify({ key2: true }),
     'x-test-key3': 'key3'
   }
   const headers2 = {
@@ -320,7 +320,7 @@ test('sends an email with headers', async (t) => {
       'key1-2',
       'key1-3'
     ],
-    'x-test-key2': JSON.stringify({ 'key2': true }),
+    'x-test-key2': JSON.stringify({ key2: true }),
     'x-test-key3': 'key3'
   }
   const headers3 = {

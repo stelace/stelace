@@ -187,7 +187,7 @@ function getReadDynamicNamespaceForObject ({
     dataNamespaces.push('private')
   }
 
-  let addedReadNamespaces = []
+  const addedReadNamespaces = []
 
   const missingNamespaces = _.difference(dataNamespaces, readNamespaces)
 
@@ -223,7 +223,7 @@ function getEditDynamicNamespaceForObject ({
   const dataNamespaces = Base.getDataNamespaces(deltaObject || object)
   const userId = getUserIdFromObj(object)
 
-  let addedEditNamespaces = []
+  const addedEditNamespaces = []
 
   const missingNamespaces = _.difference(dataNamespaces, editNamespaces)
 

@@ -40,7 +40,7 @@ const job = new CronJob(
 const lockTtl = nbMinutes * 60 * 1000 // milliseconds
 
 async function emitTaskEvents () {
-  let fetchEventsTransaction = apm.startTransaction(`Fetch task events to emit via cron`)
+  let fetchEventsTransaction = apm.startTransaction('Fetch task events to emit via cron')
 
   try {
     // use ref date because cron job cannot trigger at the specified time (with 0 millisecond)

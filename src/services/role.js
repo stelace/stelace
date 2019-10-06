@@ -184,7 +184,7 @@ function start ({ communication, isSystem }) {
       roleId
     } = req
 
-    let role = await Role.query().findById(roleId)
+    const role = await Role.query().findById(roleId)
     if (!role) {
       return { id: roleId }
     }
@@ -262,8 +262,8 @@ function start ({ communication, isSystem }) {
 
     const roles = await Role.query().whereIn('value', values)
 
-    let validRoles = []
-    let invalidRoles = []
+    const validRoles = []
+    const invalidRoles = []
 
     const indexedRoles = _.keyBy(roles, 'value')
 

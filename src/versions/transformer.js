@@ -115,7 +115,7 @@ class VersionTransformer {
 function indexChanges (changes) {
   return changes.reduce((indexed, change) => {
     const { version, target } = change
-    let targets = Array.isArray(target) ? target : [target]
+    const targets = Array.isArray(target) ? target : [target]
     targets.forEach(t => _.set(indexed, `${version}.${t}`, change))
     return indexed
   }, {})

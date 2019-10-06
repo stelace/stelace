@@ -251,7 +251,7 @@ function start ({ communication, serverPort }) {
       workflowId
     } = req
 
-    let workflow = await Workflow.query().findById(workflowId)
+    const workflow = await Workflow.query().findById(workflowId)
     if (!workflow) {
       return { id: workflowId }
     }
@@ -313,7 +313,7 @@ function start ({ communication, serverPort }) {
       }
 
       if (workflows.length && !_.isEmpty(event.relatedObjectsIds)) {
-        let {
+        const {
           objectsTypes,
           objectsPromises: relatedObjectsPromises
         } = await fetchRelatedObjects({
@@ -414,14 +414,14 @@ function start ({ communication, serverPort }) {
         currentWorkflowId = workflow.id
 
         const initialComputedScript = _getComputedValuesScript(workflow.computed, { reset: true })
-        let lastResponses = [] // array of responses
-        let responses = {} // step name -> response
+        const lastResponses = [] // array of responses
+        const responses = {} // step name -> response
 
         const knex = Workflow.knex()
         await Workflow.query().where('id', currentWorkflowId).patch({
           stats: knex.raw(
             // Playground http://www.sqlfiddle.com/#!17/1f4566/8
-            `jsonb_set(stats, '{nbTimesRun}', (COALESCE(stats->>'nbTimesRun','0')::int + 1)::text::jsonb)`
+            'jsonb_set(stats, \'{nbTimesRun}\', (COALESCE(stats->>\'nbTimesRun\',\'0\')::int + 1)::text::jsonb)'
           )
         })
 
@@ -565,15 +565,15 @@ function start ({ communication, serverPort }) {
 
       // map property to object type for versioning
       // (key: value) => (owner: 'user')
-      let objectsTypes = {}
+      const objectsTypes = {}
 
-      let objectsPromises = {}
+      const objectsPromises = {}
 
-      for (let objectId in relatedObjectsObject) {
+      for (const objectId in relatedObjectsObject) {
         const objectType = objectId.replace(/Id$/, '')
 
         // we need the model type below for related resources versioning
-        let modelType = ((type) => {
+        const modelType = ((type) => {
           // cf. Event relatedObjectsWhitelist
           if (/^assetType/.test(type)) return 'assetType'
           else if (/^category/.test(type)) return 'category'
@@ -659,7 +659,7 @@ function start ({ communication, serverPort }) {
       vm.run(`apiVersion = "${workflow.apiVersion}"; body = {};`)
 
       // Payload can have nested object and array values we need to reproduce in evaluated script
-      let payloadScript = _populateScriptObjectValues(workflowStep.endpointPayload)
+      const payloadScript = _populateScriptObjectValues(workflowStep.endpointPayload)
 
       const headersScript = _.reduce(workflowStep.endpointHeaders || {}, (script, v, k) => {
         const headerName = k.toLowerCase()
@@ -668,7 +668,7 @@ function start ({ communication, serverPort }) {
       }, 'var headers = {}')
 
       const now = new Date()
-      debug(`\nstart running vm (0ms)\n`)
+      debug('\nstart running vm (0ms)\n')
 
       vm.run(`lastResponses = ${
         JSON.stringify(lastResponses)
@@ -765,9 +765,11 @@ function start ({ communication, serverPort }) {
         })
       }
 
+      /* eslint-disable prefer-const */
       endpointUri = vm.run('endpointUri')
       endpointPayload = vm.run('body')
       endpointHeaders = vm.run('headers')
+      /* eslint-enable prefer-const */
 
       debug(`vm apiVersion: ${vm.run('apiVersion')}\n\n`)
       // debug(`vm lastResponses: ${JSON.stringify(vm.run('lastResponses'), null, 2)}\n\n`)
@@ -1087,7 +1089,7 @@ function _transformVmError ({ err, when, script }) {
 }
 
 function _getComputedValuesScript (computedObject, { reset } = {}) {
-  let script = reset ? 'computed = {}; ctx[apiVersion].computed = computed;' : ''
+  const script = reset ? 'computed = {}; ctx[apiVersion].computed = computed;' : ''
 
   return _populateScriptObjectValues(computedObject, '', { objectName: 'computed', script })
 }

@@ -92,7 +92,7 @@ function load (file, { isLocalModule, isManual } = {}) {
     warn(err, `\n${chalk.bold(file)} plugin not found`, note)
     process.exit(0)
   }
-  let { supportedServerVersions: versions } = p
+  const { supportedServerVersions: versions } = p
 
   // Optional during migration
   if (versions && !semver.validRange(versions)) {

@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 
 const userServer = express()
 let userServerPort
-let userServerCalls = {}
+const userServerCalls = {}
 let userApp
 
 const { before, beforeEach, after } = require('../../lifecycle')
@@ -124,7 +124,7 @@ test('creates a webhook', async (t) => {
   t.is(userServerCalls.webhook1, undefined)
 
   const { body: asset } = await request(t.context.serverUrl)
-    .post(`/assets`)
+    .post('/assets')
     .set(authorizationHeaders)
     .send({
       name: 'Asset triggering webhook 1',
@@ -182,7 +182,7 @@ test('creates a webhook with specified API version', async (t) => {
   t.is(userServerCalls.webhook2, undefined)
 
   const { body: assetType } = await request(t.context.serverUrl)
-    .post(`/asset-types`)
+    .post('/asset-types')
     .set(authorizationHeaders)
     .send({
       name: 'Asset type triggering webhook 2',
@@ -235,7 +235,7 @@ test('creates a webhook with a custom event type', async (t) => {
   t.is(userServerCalls.customEvent, undefined)
 
   const { body: event } = await request(t.context.serverUrl)
-    .post(`/events`)
+    .post('/events')
     .set(authorizationHeaders)
     .send({
       type: 'asset_viewed'
@@ -277,7 +277,7 @@ test('creates a webhook with targetUrl server returning errors', async (t) => {
     .expect(200)
 
   const { body: category } = await request(t.context.serverUrl)
-    .post(`/categories`)
+    .post('/categories')
     .set(authorizationHeaders)
     .send({
       name: 'Category triggering webhook with targetUrl error',

@@ -19,7 +19,7 @@ test('gets an error if missing publishable key', async (t) => {
 
   const { body: error } = await request(t.context.serverUrl)
     .get('/categories')
-    .set({ 'authorization': `Bearer ${accessToken}` })
+    .set({ authorization: `Bearer ${accessToken}` })
     .expect(401)
 
   t.is(error.message, 'Please provide a secret or publishable API key')

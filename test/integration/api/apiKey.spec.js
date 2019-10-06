@@ -59,7 +59,7 @@ test('list api keys with id filter', async (t) => {
 test('list api keys with api key', async (t) => {
   const result = await request(t.context.serverUrl)
     .get('/api-keys')
-    .set({ 'authorization': `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
+    .set({ authorization: `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
     .expect(200)
 
   const obj = result.body
@@ -77,7 +77,7 @@ test('rejects invalid api key format with 401 and www-authenticate header', asyn
     .get('/api-keys')
     .set({
       // old api key uuid format
-      'authorization': 'Basic f7d82664-b68a-4c2a-8763-56a2141e5e47',
+      authorization: 'Basic f7d82664-b68a-4c2a-8763-56a2141e5e47',
 
       // should use the platformId with the old format api key (no information in it)
       'x-platform-id': t.context.platformId,
@@ -150,7 +150,7 @@ test('finds an api key', async (t) => {
 test('finds an api key with api key', async (t) => {
   const result = await request(t.context.serverUrl)
     .get('/api-keys/apik_aHZQps1I3b1gJYz2I3a')
-    .set({ 'authorization': `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
+    .set({ authorization: `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
     .expect(200)
 
   const apiKey = result.body
@@ -218,7 +218,7 @@ test('fails to create an api key with a unknown role', async (t) => {
 test('creates an api key with api key', async (t) => {
   const result = await request(t.context.serverUrl)
     .post('/api-keys')
-    .set({ 'authorization': `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
+    .set({ authorization: `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
     .send({
       name: 'New api key',
       roles: ['dev'],
@@ -245,7 +245,7 @@ test('use the publishable key in Authorization header to identify the platform I
   const { body: publishableKey } = await request(t.context.serverUrl)
     .post('/api-keys')
     .set({
-      'authorization': `Bearer ${accessToken}`,
+      authorization: `Bearer ${accessToken}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -263,7 +263,7 @@ test('use the publishable key in Authorization header to identify the platform I
     .set({
       // use the publishable key to identify the platform ID
       // Custom authorization scheme, not case sensitive
-      'authorization': `Stelace-V1 apiKey=${publishableKey.key}, token=${accessToken}`
+      authorization: `Stelace-V1 apiKey=${publishableKey.key}, token=${accessToken}`
     })
     .expect(200)
 
@@ -274,7 +274,7 @@ test('use the publishable key in Authorization header to identify the platform I
     .get(`/api-keys/${publishableKey.id}`)
     .set({
       // Custom authorization scheme, not case sensitive
-      'authorization': `stelace-v1 apikey=${publishableKey.key}, token=${accessToken}`
+      authorization: `stelace-v1 apikey=${publishableKey.key}, token=${accessToken}`
     })
     .expect(200)
 

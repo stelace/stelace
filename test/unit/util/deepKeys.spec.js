@@ -106,14 +106,14 @@ test('allDeepKeys returns array including all nested objects', async (t) => {
 
   t.true(Array.isArray(results))
   t.is(results.length, 2)
-  t.true(results.every(r => r['other']))
+  t.true(results.every(r => r.other))
 })
 
 test('allDeepKeys copies or moves all key/value pairs occurrences', async (t) => {
   let transformed = await allDeepKeys(several, 'other', { copyTo: 'otherCopy' })
-  let snapshot = _.cloneDeep(several)
+  const snapshot = _.cloneDeep(several)
 
-  let expectedResult = _.cloneDeep(several)
+  const expectedResult = _.cloneDeep(several)
   expectedResult.notSoDeep.otherCopy = expectedResult.notSoDeep.other
   expectedResult.deep.body.otherCopy = expectedResult.deep.body.other
 

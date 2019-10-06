@@ -20,8 +20,6 @@ class CustomRequester extends Cote.Requester {
     try {
       const result = await super.send(...args)
       return result
-    } catch (err) {
-      throw err
     } finally {
       if (isApmActive && !apmSpan) {
         if (!apm.currentTransaction) {

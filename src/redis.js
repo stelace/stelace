@@ -226,7 +226,7 @@ async function setPlatformEnvData (platformId, env, key, data) {
   if (Array.isArray(key)) {
     const redisKeys = _getRedisDataKeys(key, { data, platformId, env })
     // Node-redis expects [key1, data1, key2, data2, …] array
-    const keyDataPairs = _.flatMap(redisKeys, (k, i) => [ k, JSON.stringify(data[key[i]]) ])
+    const keyDataPairs = _.flatMap(redisKeys, (k, i) => [k, JSON.stringify(data[key[i]])])
     await client.msetAsync(keyDataPairs)
   } else {
     await client.setAsync(`data:${platformId}:${env}:${key}`, JSON.stringify(data))
@@ -307,8 +307,9 @@ async function getAllStelaceTasks ({ platformId, env } = {}) {
   // Avoid loading tasks of all platforms in memory at once
   const platformRegex = new RegExp(`"platformId":"${platformId}"`)
   const envRegex = new RegExp(`"env":"${env}"`)
-  return _scanAndFilterTasks({ filterFn: r =>
-    (!platformId || platformRegex.test(r)) && (!env || envRegex.test(r))
+  return _scanAndFilterTasks({
+    filterFn: r =>
+      (!platformId || platformRegex.test(r)) && (!env || envRegex.test(r))
   })
 }
 
@@ -423,7 +424,7 @@ async function removeStelaceTaskExecutionDates ({ taskId }) {
  */
 async function _scanAndFilterTasks ({ filterFn = _ => _, mapFn = _ => _, client }) {
   let tasks = []
-  let cl = client || getRedisClient()
+  const cl = client || getRedisClient()
 
   const getTasks = async (start = 0) => {
     // Using HSCAN for performance, for it is non-blocking unlike KEYS
@@ -433,7 +434,7 @@ async function _scanAndFilterTasks ({ filterFn = _ => _, mapFn = _ => _, client 
     const res = await cl.hscanAsync('stelace_tasks', start, 'COUNT', 100)
     let [cursor, results] = res
     // probably faster than using JSON.parse
-    let platformTasks = results
+    const platformTasks = results
       // TODO: use idPrefix of task model when migrating task related redis functions to Task plugin.
       .filter(r => !r.startsWith('task_') && filterFn(r))
       .map(JSON.parse)

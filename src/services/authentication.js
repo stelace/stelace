@@ -301,7 +301,7 @@ function start ({ communication, serverPort, isSystem }) {
     const { hasValidFormat } = parsePublicPlatformId(publicPlatformId)
     if (!hasValidFormat) throw createError(422)
 
-    let ssoConnection = await getSSOConnection({ publicPlatformId, provider })
+    const ssoConnection = await getSSOConnection({ publicPlatformId, provider })
     const { jwks } = ssoConnection
     return jwks || {}
   })
@@ -563,7 +563,7 @@ function start ({ communication, serverPort, isSystem }) {
             let platformData
 
             // Update default properties and root values
-            let updateAttrs = _.transform(userAttrs, (attrs, v, k) => {
+            const updateAttrs = _.transform(userAttrs, (attrs, v, k) => {
               if (!_.isEmpty(_.get(user, k))) return true
               _.set(attrs, k, userAttrs[k])
             }, {})
@@ -682,7 +682,7 @@ function start ({ communication, serverPort, isSystem }) {
       afterLogoutUrl
     } = ssoConnection
 
-    let redirectUrl = afterLogoutUrl || afterAuthenticationUrl
+    const redirectUrl = afterLogoutUrl || afterAuthenticationUrl
 
     try {
       if (protocol !== 'openid') throw createError('Logout is only allowed if the protocol is openid')
@@ -1548,7 +1548,7 @@ async function getAuthenticationValue ({ platformId, env, provider, type, value 
 }
 
 function applySSOUserInfoMapping (userInfo, userInfoMapping) {
-  let defaultUserInfoMapping = {
+  const defaultUserInfoMapping = {
     email: 'email',
     firstname: 'given_name',
     lastname: 'family_name',

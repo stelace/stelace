@@ -189,7 +189,7 @@ function start ({ communication }) {
       webhookId
     } = req
 
-    let webhook = await Webhook.query().findById(webhookId)
+    const webhook = await Webhook.query().findById(webhookId)
     if (!webhook) {
       return { id: webhookId }
     }

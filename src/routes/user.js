@@ -240,7 +240,7 @@ function init (server, { middlewares, helpers } = {}) {
     const userId = req.params.id
     const organizationId = req.params.organizationId
 
-    let params = populateRequesterParams(req)({
+    const params = populateRequesterParams(req)({
       type: 'removeFromOrganization',
       userId,
       organizationId,

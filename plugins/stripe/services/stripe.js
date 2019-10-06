@@ -390,7 +390,7 @@ module.exports = function createService (deps) {
 
     const requestBuilder = request[verb](remoteUrl)
       .set({
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       })
 

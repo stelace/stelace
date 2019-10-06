@@ -88,7 +88,7 @@ test('creates a custom attribute', async (t) => {
 test('list of string values are expected when creating a custom attribute of type "select" or "tags"', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['customAttribute:create:all'] })
 
-  let customAttributeParams = {
+  const customAttributeParams = {
     name: 'customOptions',
     type: 'select',
     listValues: ['1', '2', '3']
@@ -340,7 +340,7 @@ test.serial('removes a custom attribute after automatic dereferencing and emits 
   })
 
   const attrId = 'attr_WE9Qps1I3a1gJYz2I3a'
-  let assetIds = []
+  const assetIds = []
   const { body: customAttribute } = await request(t.context.serverUrl)
     .get(`/custom-attributes/${attrId}`)
     .set(authorizationHeaders)

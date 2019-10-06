@@ -16,10 +16,12 @@ function init (server, { middlewares, helpers } = {}) {
     path: '/api-keys'
   }, checkPermissions([
     'apiKey:list:all'
-  ], { optionalPermissions: [ // needed for reveal
-    'apiKey:create:all',
-    'apiKey:edit:all'
-  ] }), wrapAction(async (req, res) => {
+  ], {
+    optionalPermissions: [ // needed for reveal
+      'apiKey:create:all',
+      'apiKey:edit:all'
+    ]
+  }), wrapAction(async (req, res) => {
     const fields = [
       'orderBy',
       'order',
@@ -55,10 +57,12 @@ function init (server, { middlewares, helpers } = {}) {
   }, checkPermissions([
     'apiKey:read',
     'apiKey:read:all'
-  ], { optionalPermissions: [ // needed for reveal
-    'apiKey:create:all',
-    'apiKey:edit:all'
-  ] }), wrapAction(async (req, res) => {
+  ], {
+    optionalPermissions: [ // needed for reveal
+      'apiKey:create:all',
+      'apiKey:edit:all'
+    ]
+  }), wrapAction(async (req, res) => {
     const { id } = req.params
 
     let reveal

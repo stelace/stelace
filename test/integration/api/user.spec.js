@@ -121,7 +121,7 @@ test('list users without type should only return natural users', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
   const result = await request(t.context.serverUrl)
-    .get(`/users`)
+    .get('/users')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -142,7 +142,7 @@ test('list organization users', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
   const result = await request(t.context.serverUrl)
-    .get(`/users?type=organization`)
+    .get('/users?type=organization')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -163,7 +163,7 @@ test('list users and organizations', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
   const result = await request(t.context.serverUrl)
-    .get(`/users?type=all`)
+    .get('/users?type=all')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -193,7 +193,7 @@ test('list users and organizations filtering by IDs without providing type', asy
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
   const result = await request(t.context.serverUrl)
-    .get(`/users?id[]=usr_WHlfQps1I3a1gJYz2I3a&id[]=org_xC3ZlGs1Jo71gb2G0Jo7`)
+    .get('/users?id[]=usr_WHlfQps1I3a1gJYz2I3a&id[]=org_xC3ZlGs1Jo71gb2G0Jo7')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -1170,7 +1170,7 @@ test('updates a user’s rights in organization with API key', async (t) => {
     .patch('/users/usr_Y0tfQps1I3a1gJYz2I3a/organizations/org_yiBSnhs1zaP1hh8rczaP')
     // .put('/users/usr_Y0tfQps1I3a1gJYz2I3a/organizations/org_yiBSnhs1zaP1hh8rczaP')
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })

@@ -634,7 +634,7 @@ test.serial('generates availability__* events', async (t) => {
   const newEndDate = computeDate(now, '18 days')
 
   const { body: availability } = await request(t.context.serverUrl)
-    .post(`/availabilities`)
+    .post('/availabilities')
     .set(authorizationHeaders)
     .send({
       assetId,

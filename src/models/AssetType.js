@@ -160,12 +160,13 @@ class AssetType extends Base {
       case 'pricing':
       case 'timing':
       case 'unavailableWhen':
-      case 'transactionProcess':
+      case 'transactionProcess': {
         if (planPermissions === null) return // no plan permission to check
         const granted = _.pickBy(planPermissions)
         const transactionsEnabled = Object.keys(granted).some(p => p.startsWith('transaction:'))
         if (!transactionsEnabled) delete element[field]
         break
+      }
     }
   }
 }

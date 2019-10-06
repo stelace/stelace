@@ -275,7 +275,7 @@ function start ({ communication }) {
 
     const { taskId } = req
 
-    let task = await Task.query().findById(taskId)
+    const task = await Task.query().findById(taskId)
     if (!task) {
       return { id: taskId }
     }

@@ -202,7 +202,7 @@ function start ({ communication }) {
       categoryId
     } = req
 
-    let category = await Category.query().findById(categoryId)
+    const category = await Category.query().findById(categoryId)
     if (!category) {
       return { id: categoryId }
     }

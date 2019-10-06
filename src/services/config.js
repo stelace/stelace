@@ -119,7 +119,7 @@ async function readConfig ({ req, access }) {
   const env = req.env
   const { Config } = await getModels({ platformId, env })
 
-  let config = await Config.query().findOne({ access })
+  const config = await Config.query().findOne({ access })
 
   return exposeConfig({ req, config, access })
 }

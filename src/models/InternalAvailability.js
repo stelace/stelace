@@ -94,7 +94,7 @@ class InternalAvailability extends Base {
         throw createError(`Unfound asset type (ID ${asset.assetTypeId})`, { assetTypeId: asset.assetTypeId })
       }
 
-      let availabilities = indexedAssetAvailabilities[asset.id] || []
+      const availabilities = indexedAssetAvailabilities[asset.id] || []
 
       const availabilityGraph = getAvailabilityPeriodGraph({
         availabilities,
@@ -126,7 +126,7 @@ class InternalAvailability extends Base {
 
           await InternalAvailability.query(trx).insert({
             assetId: asset.id,
-            datesRange: raw(`tstzrange(?, ?)`, [dbStartDate, dbEndDate]),
+            datesRange: raw('tstzrange(?, ?)', [dbStartDate, dbEndDate]),
             startDate: dbStartDate,
             endDate: dbEndDate,
             quantity
@@ -148,7 +148,7 @@ class InternalAvailability extends Base {
             transactionStatus: status,
             assetTypeId,
             unavailable: isStatusBlockingAvailability(transaction, status),
-            datesRange: raw(`tstzrange(?, ?)`, [dbStartDate, dbEndDate]),
+            datesRange: raw('tstzrange(?, ?)', [dbStartDate, dbEndDate]),
             startDate: dbStartDate,
             endDate: dbEndDate,
             quantity: -quantity // used quantity so it's negative

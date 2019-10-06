@@ -181,7 +181,7 @@ function start ({ communication }) {
       platformData
     } = payload
 
-    let assetType = await AssetType.query().findById(assetTypeId)
+    const assetType = await AssetType.query().findById(assetTypeId)
     if (!assetType) {
       throw createError(404)
     }
@@ -251,7 +251,7 @@ function start ({ communication }) {
       assetTypeId
     } = req
 
-    let assetType = await AssetType.query().findById(assetTypeId)
+    const assetType = await AssetType.query().findById(assetTypeId)
     if (!assetType) {
       return { id: assetTypeId }
     }

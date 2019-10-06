@@ -184,7 +184,7 @@ function start ({ communication }) {
       metadata
     }
 
-    let entry = await Entry.query().findById(entryId)
+    const entry = await Entry.query().findById(entryId)
     if (!entry) {
       throw createError(404)
     }

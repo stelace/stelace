@@ -134,7 +134,7 @@ test('list events with advanced filter', async (t) => {
   })
 
   const { body: obj6 } = await request(t.context.serverUrl)
-    .get(`/events?emitterId=random`)
+    .get('/events?emitterId=random')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -144,7 +144,7 @@ test('list events with advanced filter', async (t) => {
   })
 
   const { body: obj7 } = await request(t.context.serverUrl)
-    .get(`/events?type=future_event`)
+    .get('/events?type=future_event')
     .set(authorizationHeaders)
     .expect(200)
 

@@ -184,7 +184,6 @@ function getPriceAfterFees (args) {
   const ownerPrice = args.ownerPrice
   const currency = args.currency
 
-  let ownerNetIncome
   let takerPrice
   let ownerFeesPercent
   let takerFeesPercent
@@ -195,6 +194,7 @@ function getPriceAfterFees (args) {
   if (useFees) {
     ownerFees = args.ownerFees || 0
     takerFees = args.takerFees || 0
+    takerPrice = _roundPrice(ownerPrice + takerFees)
 
     ownerFeesPercent = getFeesPercent(ownerFees, ownerPrice)
     takerFeesPercent = getFeesPercent(takerFees, takerPrice)
@@ -210,7 +210,7 @@ function getPriceAfterFees (args) {
     takerFees = _roundPrice(reverseTakerFeesRate * ownerPrice)
   }
 
-  ownerNetIncome = _roundPrice(ownerPrice - ownerFees)
+  const ownerNetIncome = _roundPrice(ownerPrice - ownerFees)
   takerPrice = _roundPrice(ownerPrice + takerFees)
 
   return {

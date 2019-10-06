@@ -324,7 +324,7 @@ class Event extends Base {
     }
 
     const deltasConfigs = {
-      'asset': {
+      asset: {
         asset__name_changed: 'name',
         asset__description_changed: 'description',
         asset__category_switched: 'categoryId',
@@ -357,7 +357,7 @@ class Event extends Base {
           return { customAttributes: updateAttrs.customAttributes }
         }
       },
-      'transaction': {
+      transaction: {
         transaction__status_changed: 'status'
       }
     }

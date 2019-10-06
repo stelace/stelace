@@ -419,7 +419,7 @@ if (secretApiKey) {
       .post('/providers/stripe/request')
       .send({
         method: 'POST',
-        url: `/v1/subscriptions`,
+        url: '/v1/subscriptions',
         body: {
           customer: createdCustomer.id,
           items: [
@@ -582,7 +582,7 @@ if (secretApiKey) {
       .post('/providers/stripe/request')
       .send({
         method: 'POST',
-        url: `/v1/charges`,
+        url: '/v1/charges',
         body: {
           amount: 1000,
           currency: 'EUR',
@@ -599,7 +599,7 @@ if (secretApiKey) {
       .post('/providers/stripe/request')
       .send({
         method: 'POST',
-        url: `/v1/subscriptions`,
+        url: '/v1/subscriptions',
         body: {
           trial_end: moment().add(1, 'M').unix(), // timestamp in seconds
           customer: createdCustomer.id,

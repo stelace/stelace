@@ -290,7 +290,7 @@ function start ({ communication }) {
       platformData
     } = payload
 
-    let order = await Order.query().findById(orderId)
+    const order = await Order.query().findById(orderId)
     if (!order) {
       throw createError(404)
     }
@@ -421,7 +421,7 @@ function start ({ communication }) {
       }
 
       if (!order.senderId && !senderId) {
-        const msg = `There is no senderId associated with the order. Please create an order line with a senderId.`
+        const msg = 'There is no senderId associated with the order. Please create an order line with a senderId.'
         throw createError(422, msg)
       }
       if (senderId && senderId !== order.senderId) {

@@ -12,7 +12,7 @@ const {
   getPendingReindexingTask
 } = require('./elasticsearch-reindex')
 
-let assetActionsQueue = []
+const assetActionsQueue = []
 let assetsSync = false
 
 const syncQueueDurationMs = 300
@@ -54,7 +54,7 @@ async function _syncAssets () {
         const chunksByEnv = _.groupBy(chunks, 'env')
         const environments = Object.keys(chunksByEnv)
 
-        for (let env of environments) {
+        for (const env of environments) {
           const reindexingTask = await getPendingReindexingTask({ platformId, env })
           const body = getUpdateBulkBody(platformId, env, chunksByEnv[env], reindexingTask)
 

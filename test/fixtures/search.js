@@ -178,7 +178,7 @@ async function initElasticsearch ({ t }) {
   fixturesParams.assetsIds.asset5 = asset5.id
 
   await request(t.context.serverUrl)
-    .post(`/availabilities`)
+    .post('/availabilities')
     .set(authorizationHeaders)
     .send({
       assetId: asset5.id,
@@ -190,7 +190,7 @@ async function initElasticsearch ({ t }) {
     .expect(200)
 
   await request(t.context.serverUrl)
-    .post(`/availabilities`)
+    .post('/availabilities')
     .set(authorizationHeaders)
     .send({
       assetId: asset5.id,

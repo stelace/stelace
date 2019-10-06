@@ -157,7 +157,7 @@ function createMiddleware () {
       payload: search
     })
 
-    let docCreateAttrs = SavedSearch.convertSavedSearchToDoc(createAttrs)
+    const docCreateAttrs = SavedSearch.convertSavedSearchToDoc(createAttrs)
 
     docCreateAttrs.documentId = await getObjectId({ prefix: SavedSearch.idPrefix, platformId, env })
     docCreateAttrs.documentType = savedSearchDocumentType

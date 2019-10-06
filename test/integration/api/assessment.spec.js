@@ -190,7 +190,8 @@ test('updates an assessment with configuration parameters', async (t) => {
 })
 
 test('updates an assessment with configuration parameters using simple config permission', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:edit:all', 'assessment:config'],
     userId: 'user-external-id'
   })
@@ -216,7 +217,8 @@ test('updates an assessment with configuration parameters using simple config pe
 })
 
 test('fails to update an assessment with configuration parameters using simple config permission if the user is not specified in signers list', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:edit:all', 'assessment:config']
   })
 
@@ -238,7 +240,8 @@ test('fails to update an assessment with configuration parameters using simple c
 })
 
 test('adds a signer to an assessment will generate a new sign code if not specified', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:edit:all', 'assessment:config:all']
   })
 
@@ -259,7 +262,8 @@ test('adds a signer to an assessment will generate a new sign code if not specif
 })
 
 test('adds a signer to an assessment and generates a sign code for her', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:edit:all', 'assessment:config:all']
   })
 
@@ -299,7 +303,8 @@ test('adds a signer to an assessment and generates a sign code for her', async (
 })
 
 test('signs an assessment', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:sign:all'],
     userId: 'user-external-id'
   })
@@ -333,7 +338,8 @@ test('signs an assessment', async (t) => {
 })
 
 test('signs an assessment with a challenge statement', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:sign:all', 'assessment:edit:all'],
     userId: 'user-external-id'
   })
@@ -373,7 +379,8 @@ test('signs an assessment with a challenge statement', async (t) => {
 })
 
 test('signs an assessment partially will propagate the user statement to the global assessment statement', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:sign:all', 'assessment:edit:all', 'assessment:config:all'],
     userId: 'user-external-id'
   })
@@ -441,7 +448,8 @@ test('signs an assessment partially will propagate the user statement to the glo
 })
 
 test('updating a partial signed challenge assessment to pass will reset the statement', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:sign:all', 'assessment:edit:all', 'assessment:config:all'],
     userId: 'user-external-id'
   })
@@ -509,7 +517,8 @@ test('updating a partial signed challenge assessment to pass will reset the stat
 })
 
 test('updating a partial signed to pass after a challenge statement will get a global challenge statement', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:sign:all', 'assessment:edit:all', 'assessment:config:all'],
     userId: 'user-external-id'
   })
@@ -586,7 +595,8 @@ test('updating a partial signed to pass after a challenge statement will get a g
 })
 
 test('signs an assessment as many times as it should to be completely signed', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: ['assessment:sign:all', 'assessment:edit:all', 'assessment:config:all'],
     userId: 'user-external-id'
   })
@@ -882,19 +892,19 @@ test.serial('generates assessment__* events', async (t) => {
     object: assessmentUpdated,
     t,
     patchPayload: Object.assign({}, patchPayload, {
-      'signers': {
+      signers: {
         '7e779b5f-876c-4cbc-934c-2fdbcacef4d6': {
-          'comment': null,
-          'statement': null,
-          'signedDate': null
+          comment: null,
+          statement: null,
+          signedDate: null
         },
         'user-external-id': {
-          'comment': null,
-          'statement': null,
-          'signedDate': null
+          comment: null,
+          statement: null,
+          signedDate: null
         }
       },
-      'signCodes': {
+      signCodes: {
         '7e779b5f-876c-4cbc-934c-2fdbcacef4d6': null,
         'user-external-id': null
       }

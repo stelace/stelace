@@ -40,7 +40,7 @@ function init (server, { middlewares, helpers } = {}) {
       logoutFromExternalProvider
     } = req.body
 
-    let params = populateRequesterParams(req)({
+    const params = populateRequesterParams(req)({
       type: 'logout',
       refreshToken,
       logoutFromExternalProvider
@@ -204,7 +204,7 @@ function init (server, { middlewares, helpers } = {}) {
       username
     } = req.body
 
-    let params = populateRequesterParams(req)({
+    const params = populateRequesterParams(req)({
       type: 'requestPasswordReset',
       username
     })
@@ -221,7 +221,7 @@ function init (server, { middlewares, helpers } = {}) {
       newPassword
     } = req.body
 
-    let params = populateRequesterParams(req)({
+    const params = populateRequesterParams(req)({
       type: 'confirmPasswordReset',
       resetToken,
       newPassword
@@ -263,7 +263,7 @@ function init (server, { middlewares, helpers } = {}) {
       redirect
     } = req.query
 
-    let params = populateRequesterParams(req)({
+    const params = populateRequesterParams(req)({
       type: 'tokenConfirmCheck',
       token,
       redirect

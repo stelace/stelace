@@ -66,7 +66,7 @@ async function dropTestPlatforms () {
   await bluebird.each(platformIds, async (platformId) => {
     if (platformId === '1') return // Don’t destroy development data
 
-    for (let env of testingEnvs) {
+    for (const env of testingEnvs) {
       await request
         .post(`${serverUrl}/store/platforms/${platformId}/database/drop`)
         .set(getAuthorizationHeaders({ systemKey, env }))
@@ -136,7 +136,7 @@ function before ({ name, platformId, env, enableSignal = true } = {}) {
 
     if (!env) env = defaultTestingEnv
 
-    for (let env of testingEnvs) {
+    for (const env of testingEnvs) {
       await initSettings({
         serverUrl: t.context.serverUrl,
         platformId,
@@ -158,7 +158,7 @@ function beforeEach ({ minimumFixtures = false } = {}) {
 
     const platformId = t.context.platformId
 
-    for (let env of testingEnvs) {
+    for (const env of testingEnvs) {
       await request
         .post(`${t.context.serverUrl}/store/platforms/${platformId}/database/drop`)
         .set(getAuthorizationHeaders({ systemKey, env }))

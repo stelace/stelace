@@ -269,7 +269,7 @@ function start ({ communication }) {
     const env = req.env
     const { Transaction } = await getModels({ platformId, env })
 
-    let transactionAttrs = await computeTransactionInformation(
+    const transactionAttrs = await computeTransactionInformation(
       Object.assign(
         { platformId, env, req },
         _.omit(payload, ['metadata', 'platformData'])
@@ -346,7 +346,7 @@ function start ({ communication }) {
       throw createError(403)
     }
 
-    let transactionAttrs = await computeTransactionInformation(
+    const transactionAttrs = await computeTransactionInformation(
       Object.assign(
         { takerId, platformId, env, req },
         _.omit(payload, ['metadata', 'platformData'])
@@ -413,7 +413,7 @@ function start ({ communication }) {
     const currentUserId = getCurrentUserId(req)
 
     if (!req._matchedPermissions['transaction:config:all'] && status) {
-      throw createError(403, `You haven't the permission to update the status`)
+      throw createError(403, 'You haven\'t the permission to update the status')
     }
 
     const platformId = req.platformId
@@ -422,7 +422,7 @@ function start ({ communication }) {
 
     // cannot use `select for update` here
     // otherwise the transaction will be too long, possibly causing slow responses or worst deadlocks
-    let transaction = await Transaction.query().findById(transactionId)
+    const transaction = await Transaction.query().findById(transactionId)
     if (!transaction) {
       throw createError(404)
     }
@@ -488,7 +488,7 @@ function start ({ communication }) {
       updateAttrs.status = status
 
       const newStatusHistoryStep = { status, date: now }
-      updateAttrs.statusHistory = raw(`?::jsonb || "statusHistory"`, [ // prepend a jsonb array using PostgreSQL `||` operator
+      updateAttrs.statusHistory = raw('?::jsonb || "statusHistory"', [ // prepend a jsonb array using PostgreSQL `||` operator
         JSON.stringify([newStatusHistoryStep])
       ])
     }
@@ -597,7 +597,7 @@ function start ({ communication }) {
 
       updateAttrs = {
         status: newStatus,
-        statusHistory: raw(`?::jsonb || "statusHistory"`, [ // prepend a jsonb array using PostgreSQL `||` operator
+        statusHistory: raw('?::jsonb || "statusHistory"', [ // prepend a jsonb array using PostgreSQL `||` operator
           JSON.stringify([newStatusHistoryStep])
         ])
       }
@@ -765,10 +765,10 @@ function start ({ communication }) {
       .whereNull('cancelledDate')
 
     if (filterStartDate) {
-      const period = `'[` +
+      const period = '\'[' +
         filterStartDate + ',' +
         (filterEndDate || '') +
-        `)'`
+        ')\''
 
       queryBuilder
         .where(builder => {
@@ -1268,7 +1268,7 @@ async function cancelTransactions ({ transactions, platformId, env, cancellation
         cancellationReason,
         cancelledDate: now,
         status,
-        statusHistory: raw(`?::jsonb || "statusHistory"`, [ // prepend a jsonb array using PostgreSQL `||` operator
+        statusHistory: raw('?::jsonb || "statusHistory"', [ // prepend a jsonb array using PostgreSQL `||` operator
           JSON.stringify([newStatusHistoryStep])
         ])
       }

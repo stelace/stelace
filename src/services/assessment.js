@@ -113,7 +113,7 @@ function start ({ communication }) {
       assessmentId
     } = req
 
-    let assessment = await Assessment.query().findById(assessmentId)
+    const assessment = await Assessment.query().findById(assessmentId)
     if (!assessment) {
       throw createError(404)
     }
@@ -551,7 +551,7 @@ function start ({ communication }) {
       assessmentId
     } = req
 
-    let assessment = await Assessment.query().findById(assessmentId)
+    const assessment = await Assessment.query().findById(assessmentId)
     if (!assessment) {
       return { id: assessmentId }
     }

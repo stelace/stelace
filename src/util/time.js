@@ -193,7 +193,7 @@ function computeRecurringDates (pattern, { startDate, endDate, timezone = 'Europ
   while (continueLoop) {
     const momentDate = schedule.next()
 
-    let date = momentDate.toISOString()
+    const date = momentDate.toISOString()
 
     continueLoop = date < endDate
 

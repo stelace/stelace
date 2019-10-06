@@ -165,7 +165,7 @@ test.serial('creates a task with an execution date and checks events', async (t)
   t.context.server._startCrons()
 
   const authorizationHeaders = {
-    'authorization': `Basic ${encodeBase64(apiKey.key + ':')}`
+    authorization: `Basic ${encodeBase64(apiKey.key + ':')}`
   }
 
   const eventType = 'asset_timeout'
@@ -271,7 +271,7 @@ test.serial('creates a task with recurring parameters and checks events', async 
   t.context.server._startCrons()
 
   const authorizationHeaders = {
-    'authorization': `Basic ${encodeBase64(apiKey.key + ':')}`
+    authorization: `Basic ${encodeBase64(apiKey.key + ':')}`
   }
 
   // trigger every 15 minutes between when the hour is 1, 2, 4 or 5

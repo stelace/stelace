@@ -179,7 +179,7 @@ function start ({ communication }) {
       const knex = Document.knex()
       let queryBuilder = knex
 
-      queryBuilder = queryBuilder.with(`aggregations`, qb => {
+      queryBuilder = queryBuilder.with('aggregations', qb => {
         let selectExpressions = [
           knex.raw(`${sqlGroupByExpression} as "groupByField"`)
         ]
@@ -200,7 +200,7 @@ function start ({ communication }) {
 
           selectExpressions = selectExpressions.concat([
             knex.raw(`ROW_NUMBER() OVER (ORDER BY ${orderBy}((${sqlStatsFieldExpression})::REAL) ${order}) AS "ranking"`),
-            knex.raw(`COUNT(*) OVER () as "lowestRanking"`)
+            knex.raw('COUNT(*) OVER () as "lowestRanking"')
           ])
         }
 
@@ -314,7 +314,7 @@ function start ({ communication }) {
         .offset((page - 1) * nbResultsPerPage)
         .limit(nbResultsPerPage)
 
-      let [
+      const [
         documentStats,
         [{ count: nbDocuments }]
       ] = await Promise.all([
@@ -523,7 +523,7 @@ function start ({ communication }) {
       replaceDataProperties
     } = req
 
-    let document = await Document.query().findById(documentId)
+    const document = await Document.query().findById(documentId)
     if (!document) {
       throw createError(404)
     }

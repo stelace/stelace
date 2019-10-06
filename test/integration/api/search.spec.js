@@ -936,7 +936,7 @@ test('returns assets with queried custom attributes (range for numbers)', async 
     })
     .expect(200)
 
-  let hasOnlyAssetsWithHigherCapacity = searchResults.reduce((has, asset) => {
+  const hasOnlyAssetsWithHigherCapacity = searchResults.reduce((has, asset) => {
     return has && asset.customAttributes.seatingCapacity > lowSeatingCapacity
   }, true)
 
@@ -1517,7 +1517,7 @@ test('sorts assets by custom attribute of type boolean, with missing values last
     })
     .expect(200)
 
-  let lastAsset = searchResults[searchResults.length - 1]
+  const lastAsset = searchResults[searchResults.length - 1]
   const isSortedByAscendingBoolean = searchResults.reduce((memo, asset, index) => {
     const lastBoolean = searchResults[Math.max(0, index - 1)].customAttributes.automaticTransmission
     // Missing/null values are sorted "_last" in ElasticSearch (~ true boolean)

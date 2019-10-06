@@ -85,7 +85,7 @@ function start ({ communication, stelaceIO }) {
        *   Client will also automatically join matching userId channel if provided.
        */
       async function authenticationCallback (data) {
-        const name = `Socket: Signal authentication`
+        const name = 'Socket: Signal authentication'
         apm.startTransaction(name)
 
         const rawApiKey = _.get(data, 'publishableKey')
@@ -93,8 +93,8 @@ function start ({ communication, stelaceIO }) {
         const channels = _.flatten([_.get(data, 'channels', '')])
         const authToken = _.get(data, 'authToken')
 
-        let organizationIds = [] // to be extracted from channels
-        let userIds = [] // there should be a single one at most
+        const organizationIds = [] // to be extracted from channels
+        const userIds = [] // there should be a single one at most
         let otherChannels = []
         let platformId
         let env

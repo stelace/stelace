@@ -122,13 +122,13 @@ class CustomAttribute extends Base {
               newError = {
                 name,
                 value,
-                message: `The value must be in the allowed listValues`,
+                message: 'The value must be in the allowed listValues',
                 allowed: customAttribute.listValues
               }
             }
             break
 
-          case 'tags':
+          case 'tags': {
             if (!Array.isArray(value)) {
               newError = { name, value, message: 'An array is expected' }
               break
@@ -142,12 +142,13 @@ class CustomAttribute extends Base {
               newError = {
                 name,
                 value,
-                message: `Some array elements are not allowed in the allowed listValues`,
+                message: 'Some array elements are not allowed in the allowed listValues',
                 allowed: customAttribute.listValues,
                 notAllowed: extraFields
               }
             }
             break
+          }
 
           default:
             newError = {

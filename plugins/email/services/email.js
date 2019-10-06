@@ -303,7 +303,7 @@ module.exports = function createService (deps) {
     toEmail,
     toName
   }) {
-    if (toEmail && to) throw createError(400, `Please provide only one of 'to' and 'toEmail'`)
+    if (toEmail && to) throw createError(400, 'Please provide only one of \'to\' and \'toEmail\'')
 
     const privateConfig = await configRequester.communicate(req)({
       type: 'readPrivate'

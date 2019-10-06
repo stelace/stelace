@@ -601,7 +601,7 @@ server.use(async (req, res, next) => {
   const { platformId, env } = req
 
   try {
-    let selectedVersion = req.headers['x-stelace-version']
+    const selectedVersion = req.headers['x-stelace-version']
 
     if (selectedVersion && !apiVersions.includes(selectedVersion)) {
       throw createError(400, `Invalid Stelace version '${selectedVersion}'`, {
@@ -668,7 +668,7 @@ function wrapAction (fn, { routeAction = true } = {}) {
     try {
       const apmSpan = apm.startSpan('Route action')
 
-      let result = await fn(req, res)
+      const result = await fn(req, res)
 
       apmSpan && apmSpan.end()
 

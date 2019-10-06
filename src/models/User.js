@@ -133,9 +133,10 @@ class User extends Base {
         if (!hasPrivate) delete element.email
         break
 
-      case 'orgOwnerId':
+      case 'orgOwnerId': {
         const id = element.id
         if (!id || !id.startsWith(this.organizationIdPrefix)) delete element.orgOwnerId
+      }
     }
   }
 

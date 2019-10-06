@@ -8,8 +8,8 @@ const bodyParser = require('body-parser')
 
 const userServer = express()
 let userServerPort
-let userServerCalls = {}
-let userServerCallsHeaders = {}
+const userServerCalls = {}
+const userServerCallsHeaders = {}
 let userApp
 
 const { apiVersions } = require('../../../src/versions')
@@ -99,7 +99,7 @@ test('list workflows with custom namespace', async (t) => {
 
   t.true(Array.isArray(workflows))
 
-  let hasAtLeastOneCustomNamespace = workflows.some(w => typeof w.platformData._custom !== 'undefined')
+  const hasAtLeastOneCustomNamespace = workflows.some(w => typeof w.platformData._custom !== 'undefined')
   t.true(hasAtLeastOneCustomNamespace)
 })
 
@@ -231,7 +231,8 @@ test('creates several single-step Stelace workflows', async (t) => {
     permissions: ['availability:list:all']
   })
 
-  const { body:
+  const {
+    body:
     { results: asset1AvailabilitiesBeforeWorkflow1 }
   } = await request(t.context.serverUrl)
     .get(`/availabilities?assetId=${assetId}`)
@@ -243,7 +244,7 @@ test('creates several single-step Stelace workflows', async (t) => {
   await request(t.context.serverUrl)
     .patch(`/assets/${assetId}`)
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -273,7 +274,7 @@ test('creates several single-step Stelace workflows', async (t) => {
   const workflow1LogsCall1 = workflow1AfterRun1Actions[0]
   t.is(workflow1LogsCall1.metadata.eventObjectId, assetId)
   t.is(workflow1LogsCall1.metadata.endpointMethod, 'POST')
-  t.is(workflow1LogsCall1.metadata.endpointUri, `/availabilities`)
+  t.is(workflow1LogsCall1.metadata.endpointUri, '/availabilities')
   t.is(workflow1LogsCall1.metadata.endpointPayload.quantity, 1)
   t.is(workflow1LogsCall1.metadata.endpointPayload.metadata.futurePrice, 24)
   t.is(workflow1LogsCall1.metadata.endpointPayload.metadata.var, 'true')
@@ -284,7 +285,8 @@ test('creates several single-step Stelace workflows', async (t) => {
   // Workflow events from concurrent tests can trigger this workflow
   t.true(workflow1AfterRun1.stats.nbTimesRun >= 1)
 
-  const { body:
+  const {
+    body:
     { results: asset1AvailabilitiesAfterWorkflow1 }
   } = await request(t.context.serverUrl)
     .get(`/availabilities?assetId=${assetId}`)
@@ -368,7 +370,8 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(assetTypeAuthorizationHeaders)
     .expect(200)
 
-  const { body:
+  const {
+    body:
     { results: asset2AvailabilitiesBeforeWorkflow2 }
   } = await request(t.context.serverUrl)
     .get(`/availabilities?assetId=${asset2Id}`)
@@ -380,7 +383,7 @@ test('creates several single-step Stelace workflows', async (t) => {
   await request(t.context.serverUrl)
     .patch(`/assets/${asset2Id}`)
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -413,7 +416,7 @@ test('creates several single-step Stelace workflows', async (t) => {
   const workflow1LogsCall2 = workflow1AfterRun2Actions[0] // most recent first
   t.is(workflow1LogsCall2.metadata.eventObjectId, asset2Id)
   t.is(workflow1LogsCall2.metadata.endpointMethod, 'POST')
-  t.is(workflow1LogsCall2.metadata.endpointUri, `/availabilities`)
+  t.is(workflow1LogsCall2.metadata.endpointUri, '/availabilities')
   t.is(workflow1LogsCall2.metadata.endpointPayload.quantity, 1)
   t.is(workflow1LogsCall2.metadata.endpointPayload.metadata.futurePrice, 24)
   t.is(workflow1LogsCall2.metadata.endpointPayload.metadata.var, 'true')
@@ -432,14 +435,16 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(assetTypeAuthorizationHeaders)
     .expect(200)
 
-  const { body:
+  const {
+    body:
     { results: asset1AvailabilitiesAfterWorkflow2 }
   } = await request(t.context.serverUrl)
     .get(`/availabilities?assetId=${assetId}`)
     .set(availabilityAuthorizationHeaders)
     .expect(200)
 
-  const { body:
+  const {
+    body:
     { results: asset2AvailabilitiesAfterWorkflow2 }
   } = await request(t.context.serverUrl)
     .get(`/availabilities?assetId=${asset2Id}`)
@@ -654,7 +659,7 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
   // Create a new asset triggering two-step Workflow
 
   const { body: asset } = await request(t.context.serverUrl)
-    .post(`/assets`)
+    .post('/assets')
     .set(assetAuthorizationHeaders)
     .send({
       name: 'Asset triggering multi-step Stelace Workflow',
@@ -667,7 +672,8 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
 
   await new Promise(resolve => setTimeout(resolve, defaultTestDelay))
 
-  const { body:
+  const {
+    body:
     { results: availabilitiesAfterWorkflow }
   } = await request(t.context.serverUrl)
     .get(`/availabilities?assetId=${asset.id}`)
@@ -731,7 +737,7 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
   const workflowAfterRunCall1 = workflowAfterRunActions[1]
   t.is(workflowAfterRunCall1.metadata.eventObjectId, asset.id)
   t.is(workflowAfterRunCall1.metadata.endpointMethod, 'POST')
-  t.is(workflowAfterRunCall1.metadata.endpointUri, `/availabilities`)
+  t.is(workflowAfterRunCall1.metadata.endpointUri, '/availabilities')
   t.is(workflowAfterRunCall1.metadata.endpointPayload.quantity, 1)
   t.is(workflowAfterRunCall1.metadata.endpointPayload.startDate, startDate)
   t.is(workflowAfterRunCall1.metadata.endpointPayload.endDate, endDate)
@@ -877,7 +883,7 @@ test('creates multi-step workflow triggered by custom events and calling externa
   await request(t.context.serverUrl)
     .post('/events')
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -1279,7 +1285,7 @@ test('accepts nested arrays of literals as endpoint payload parameters', async (
   await request(t.context.serverUrl)
     .post('/users')
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -1371,7 +1377,7 @@ test('accepts nested object as endpoint payload parameters', async (t) => {
   const { body: assetType } = await request(t.context.serverUrl)
     .post('/asset-types')
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -1424,7 +1430,8 @@ Testing asset__updated ==> Workflow A (logs x1 state to update from x0 state wit
 These tests of logs urged to create a new workflowLog table handling concurrency.
 */
 test('handles filters and logs errors properly when executing Stelace Workflow', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t,
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
     permissions: [
       'workflow:create:all',
       'workflow:edit:all',
@@ -1743,7 +1750,7 @@ test('passes basic security checks', async (t) => {
   await request(t.context.serverUrl)
     .patch(`/categories/${categoryId}`)
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })
@@ -1807,7 +1814,7 @@ test('passes basic security checks', async (t) => {
   await request(t.context.serverUrl)
     .patch(`/categories/${categoryId}`)
     .set({
-      'authorization': `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
+      authorization: `Basic ${encodeBase64('seck_live_iuJzTKo5wumuE1imSjmcgimR:')}`,
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
     })

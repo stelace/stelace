@@ -31,13 +31,13 @@ async function findDeepKey (obj, key, { getPath = false, base = '', arrayResults
   const tmpObj = tmpPath ? _.get(obj, tmpPath, obj) : obj
 
   if (arrayResults && Array.isArray(tmpObj)) {
-    let foundObjects = await Promise.all(obj.map(async (v, i) => {
+    const foundObjects = await Promise.all(obj.map(async (v, i) => {
       const opts = { base: _appendPath(tmpPath, i), getPath: true, arrayResults }
       return findDeepKey(v, key, opts)
     }))
     foundArray = _transformFoundObjects(foundObjects, { base })
   } else {
-    for (let k in tmpObj) {
+    for (const k in tmpObj) {
       const v = tmpObj[k]
       const shouldSearchInValue = !res && _.isObjectLike(v)
       if (!shouldSearchInValue) continue
@@ -105,12 +105,12 @@ async function allDeepKeys (object, key, options = {}) {
     throw new Error('copyTo and moveTo options can only be strings or omitted.')
   }
 
-  let copy = _.cloneDeep(object)
-  let transformedObject = _.cloneDeep(object)
+  const copy = _.cloneDeep(object)
+  const transformedObject = _.cloneDeep(object)
 
   const innerOptions = { getPath: true, arrayResults: true }
   let found = {}
-  let all = []
+  const all = []
 
   // Safeguard
   const maxDuration = 4000

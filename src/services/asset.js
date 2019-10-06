@@ -463,7 +463,7 @@ function start ({ communication }) {
       throw createError(400, 'Invalid currency')
     }
 
-    let asset = await Asset.query().findById(assetId)
+    const asset = await Asset.query().findById(assetId)
     if (!asset) {
       throw createError(404)
     }
@@ -482,7 +482,7 @@ function start ({ communication }) {
       }
     }
 
-    let assetType = await AssetType.query().findById(assetTypeId || asset.assetTypeId)
+    const assetType = await AssetType.query().findById(assetTypeId || asset.assetTypeId)
     if (!assetType) {
       throw createError(422, 'Asset type not found')
     }
@@ -619,7 +619,7 @@ function start ({ communication }) {
       assetId
     } = req
 
-    let asset = await Asset.query().findById(assetId)
+    const asset = await Asset.query().findById(assetId)
     if (!asset) {
       return { id: assetId }
     }

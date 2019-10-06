@@ -43,7 +43,7 @@ test('permissions can be checked', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(permissionsObject2['unknownPermission'], false)
+  t.is(permissionsObject2.unknownPermission, false)
 
   // check public permissions
   const { body: permissionsObject3 } = await request(t.context.serverUrl)

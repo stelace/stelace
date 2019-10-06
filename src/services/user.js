@@ -431,7 +431,7 @@ function start ({ communication }) {
       platformData
     } = payload
 
-    let user = await User.query().findById(userId)
+    const user = await User.query().findById(userId)
     if (!user) {
       throw createError(404)
     }
@@ -546,7 +546,7 @@ function start ({ communication }) {
           platformId,
           env,
           custom: { organizationId: userId, userId: orgOwnerId },
-          message: `Fail to make new owner join organization.`
+          message: 'Fail to make new owner join organization.'
         })
       }
     }
@@ -586,7 +586,7 @@ function start ({ communication }) {
 
     const { userId } = req
 
-    let user = await User.query().findById(userId)
+    const user = await User.query().findById(userId)
     if (!user) return { id: userId }
 
     const isOrganization = user.roles.includes(organizationRole)
@@ -595,7 +595,7 @@ function start ({ communication }) {
     // to remove without user:remove:all permission
     const realCurrentUserId = getRealCurrentUserId(req)
     const isSelf = User.isSelf(user, realCurrentUserId)
-    let canRemoveUser = isSelf || req._matchedPermissions['user:remove:all']
+    const canRemoveUser = isSelf || req._matchedPermissions['user:remove:all']
 
     if (!canRemoveUser && isOrganization && realCurrentUserId) {
       if (realCurrentUserId !== user.orgOwnerId) {
@@ -630,7 +630,7 @@ function start ({ communication }) {
       // cannot remove a user who is owner of some organization
       const ownedOrganizations = await User.query().column('id').where({ orgOwnerId: user.id })
       if (ownedOrganizations.length) {
-        throw createError(422, `This user owns organizations. Please delete these first or transfer ownership.`, {
+        throw createError(422, 'This user owns organizations. Please delete these first or transfer ownership.', {
           public: { ownedOrganizationIds: ownedOrganizations.map(o => o.id) }
         })
       }
@@ -689,7 +689,7 @@ function start ({ communication }) {
             platformId,
             env,
             custom: { organizationId: userId, userId: m.id },
-            message: `Fail to create user__organization_left events after deleting an organization.`
+            message: 'Fail to create user__organization_left events after deleting an organization.'
           })
         }
       }, {
@@ -713,7 +713,7 @@ function start ({ communication }) {
       req: origReq
     } = req
 
-    let user = await User.query().findById(userId)
+    const user = await User.query().findById(userId)
     if (!user) {
       throw createError(404)
     }
@@ -794,7 +794,7 @@ function start ({ communication }) {
       req: origReq
     } = req
 
-    let user = await User.query().findById(userId)
+    const user = await User.query().findById(userId)
     if (!user) throw createError(404)
 
     const targetingOrganization = user.roles.includes(organizationRole)

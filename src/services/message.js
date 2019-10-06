@@ -257,7 +257,7 @@ function start ({ communication }) {
       platformData
     } = payload
 
-    let message = await Message.query().findById(messageId)
+    const message = await Message.query().findById(messageId)
     if (!message) {
       throw createError(404)
     }
