@@ -1,4 +1,4 @@
-const { JWKS: { KeyStore } } = require('@panva/jose')
+const { JWKS: { KeyStore } } = require('jose')
 
 function generateJwks () {
   const keystore = new KeyStore()
