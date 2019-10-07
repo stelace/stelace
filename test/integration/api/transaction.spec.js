@@ -212,8 +212,8 @@ test('previews a transaction', async (t) => {
   t.falsy(transaction.takerId)
   t.is(transaction.value, 600)
   t.is(transaction.ownerAmount, 570)
-  t.is(transaction.takerAmount, 705.9)
-  t.is(transaction.platformAmount, 135.9)
+  t.is(transaction.takerAmount, 690)
+  t.is(transaction.platformAmount, 120)
   t.is(transaction.metadata.dummy, true)
 })
 
@@ -582,8 +582,8 @@ test('creates a transaction by specifying pricing', async (t) => {
   t.is(transaction1.assetId, 'ast_0KAm3He1ze11iSSR4ze0')
   t.is(transaction1.value, 500)
   t.is(transaction1.ownerAmount, 475) // computed via passed value
-  t.is(transaction1.takerAmount, 588.2) // computed via passed value
-  t.is(transaction1.platformAmount, 113.2)
+  t.is(transaction1.takerAmount, 575) // computed via passed value
+  t.is(transaction1.platformAmount, 100)
   t.is(transaction1.metadata.dummy, true)
 
   const { body: transaction2 } = await request(t.context.serverUrl)
@@ -607,8 +607,8 @@ test('creates a transaction by specifying pricing', async (t) => {
   t.is(transaction2.assetId, 'ast_0KAm3He1ze11iSSR4ze0')
   t.is(transaction2.value, 500)
   t.is(transaction2.ownerAmount, 400) // computed via passed value
-  t.is(transaction2.takerAmount, 588.2) // computed via passed value
-  t.is(transaction2.platformAmount, 188.2)
+  t.is(transaction2.takerAmount, 575) // computed via passed value
+  t.is(transaction2.platformAmount, 175)
   t.is(transaction2.metadata.dummy, true)
 
   const { body: transaction3 } = await request(t.context.serverUrl)
@@ -631,8 +631,8 @@ test('creates a transaction by specifying pricing', async (t) => {
   t.is(transaction3.assetId, 'ast_0KAm3He1ze11iSSR4ze0')
   t.is(transaction3.value, 600)
   t.is(transaction3.ownerAmount, 600) // overriden value
-  t.is(transaction3.takerAmount, 705.9)
-  t.is(transaction3.platformAmount, 105.9)
+  t.is(transaction3.takerAmount, 690)
+  t.is(transaction3.platformAmount, 90)
   t.is(transaction3.metadata.dummy, true)
 })
 
@@ -1113,8 +1113,8 @@ test('updates a transaction by specifying pricing', async (t) => {
   t.is(updatedTransaction1.assetId, 'ast_0KAm3He1ze11iSSR4ze0')
   t.is(updatedTransaction1.value, 500)
   t.is(updatedTransaction1.ownerAmount, 475) // computed via passed value
-  t.is(updatedTransaction1.takerAmount, 588.2) // computed via passed value
-  t.is(updatedTransaction1.platformAmount, 113.2)
+  t.is(updatedTransaction1.takerAmount, 575) // computed via passed value
+  t.is(updatedTransaction1.platformAmount, 100)
   t.is(updatedTransaction1.metadata.dummy, true)
 
   const { body: updatedTransaction2 } = await request(t.context.serverUrl)
@@ -1138,8 +1138,8 @@ test('updates a transaction by specifying pricing', async (t) => {
   t.is(updatedTransaction2.assetId, 'ast_0KAm3He1ze11iSSR4ze0')
   t.is(updatedTransaction2.value, 500)
   t.is(updatedTransaction2.ownerAmount, 400) // computed via passed value
-  t.is(updatedTransaction2.takerAmount, 588.2) // computed via passed value
-  t.is(updatedTransaction2.platformAmount, 188.2)
+  t.is(updatedTransaction2.takerAmount, 575) // computed via passed value
+  t.is(updatedTransaction2.platformAmount, 175)
   t.is(updatedTransaction2.metadata.dummy, true)
 
   const { body: updatedTransaction3 } = await request(t.context.serverUrl)
@@ -1162,8 +1162,8 @@ test('updates a transaction by specifying pricing', async (t) => {
   t.is(updatedTransaction3.assetId, 'ast_0KAm3He1ze11iSSR4ze0')
   t.is(updatedTransaction3.value, 600)
   t.is(updatedTransaction3.ownerAmount, 600) // overriden value
-  t.is(updatedTransaction3.takerAmount, 705.9)
-  t.is(updatedTransaction3.platformAmount, 105.9)
+  t.is(updatedTransaction3.takerAmount, 690)
+  t.is(updatedTransaction3.platformAmount, 90)
   t.is(updatedTransaction3.metadata.dummy, true)
 })
 

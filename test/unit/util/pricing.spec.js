@@ -101,9 +101,9 @@ test('computes price after fees', (t) => {
         ownerFees: 5,
         ownerFeesPercent: 5,
         ownerNetIncome: 95,
-        takerFees: 17.6,
+        takerFees: 15,
         takerFeesPercent: 15,
-        takerPrice: 117.6
+        takerPrice: 115
       }
     },
     {
