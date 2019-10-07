@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const serializeError = require('serialize-error')
+const { serializeError } = require('serialize-error')
 
 const PROD = process.env.NODE_ENV === 'production'
 

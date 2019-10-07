@@ -1,5 +1,5 @@
 const log = require('roarr').default
-const serializeError = require('serialize-error')
+const { serializeError } = require('serialize-error')
 const apm = require('elastic-apm-node')
 const _ = require('lodash')
 

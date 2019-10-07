@@ -94,64 +94,64 @@ function isValidObjectId ({ id, prefix = '', env = 'test', platformId, unitTest 
   return hasValidFormat && hasValidTimestamp && hasValidZone && validPlatformId
 }
 
-const objectIdParamsSchema = Joi.object().keys({
-  id: Joi.string().required()
+const objectIdParamsSchema = customJoi.object().keys({
+  id: customJoi.string().required()
 }).required()
 
 function getRangeFilter (joiType) {
-  return Joi.alternatives().try(
+  return customJoi.alternatives().try(
     joiType,
-    Joi.object().pattern(
-      Joi.string().valid('lt', 'lte', 'gt', 'gte'),
+    customJoi.object().pattern(
+      customJoi.string().valid('lt', 'lte', 'gt', 'gte'),
       joiType
     )
   )
 }
 
-const idsSchema = Joi.array().unique().items(Joi.string()).single()
+const idsSchema = customJoi.array().unique().items(customJoi.string()).single()
 
-const locationSchema = Joi.object().unknown().keys({
-  latitude: Joi.number().min(-90).max(90).required(),
-  longitude: Joi.number().min(-180).max(180).required()
+const locationSchema = customJoi.object().unknown().keys({
+  latitude: customJoi.number().min(-90).max(90).required(),
+  longitude: customJoi.number().min(-180).max(180).required()
 })
 
-const sortSchema = Joi.array().items(
-  Joi.object().length(1).pattern(/.*/, Joi.string().allow('desc', 'asc'))
+const sortSchema = customJoi.array().items(
+  customJoi.object().length(1).pattern(/.*/, customJoi.string().allow('desc', 'asc'))
 ).single() // converts unique {sortStep} to [{sortStep}]
 
-const availabilityFilterSchema = Joi.object().keys({
-  enabled: Joi.boolean(),
-  fullPeriod: Joi.boolean(),
+const availabilityFilterSchema = customJoi.object().keys({
+  enabled: customJoi.boolean(),
+  fullPeriod: customJoi.boolean(),
   unavailableWhen: [
-    Joi.string().allow(null),
-    Joi.array().items(Joi.string()).allow(null)
+    customJoi.string().allow(null),
+    customJoi.array().items(customJoi.string()).allow(null)
   ],
 })
 
-const searchSchema = Joi.object().keys({
-  query: Joi.string().allow(''),
+const searchSchema = customJoi.object().keys({
+  query: customJoi.string().allow(''),
   categoryId: idsSchema,
   assetTypeId: idsSchema,
   location: locationSchema,
-  maxDistance: Joi.number().integer().min(1),
-  startDate: Joi.string().isoDate(),
-  endDate: Joi.string().isoDate(),
-  quantity: Joi.number().integer().min(1),
+  maxDistance: customJoi.number().integer().min(1),
+  startDate: customJoi.string().isoDate(),
+  endDate: customJoi.string().isoDate(),
+  quantity: customJoi.number().integer().min(1),
   without: idsSchema,
   similarTo: idsSchema,
-  page: Joi.number().integer().min(1),
-  nbResultsPerPage: Joi.number().integer().min(1).max(100),
-  customAttributes: Joi.object(),
-  filter: Joi.string().max(512),
-  validated: Joi.boolean(),
+  page: customJoi.number().integer().min(1),
+  nbResultsPerPage: customJoi.number().integer().min(1).max(100),
+  customAttributes: customJoi.object(),
+  filter: customJoi.string().max(512),
+  validated: customJoi.boolean(),
   // Active filter can now be inverted with false value or ignored with null value
-  active: Joi.boolean().allow(null),
+  active: customJoi.boolean().allow(null),
   // Add sort array/object
   sort: sortSchema,
   availabilityFilter: availabilityFilterSchema,
 
-  createdBefore: Joi.string().isoDate().allow(null),
-  createdAfter: Joi.string().isoDate().allow(null)
+  createdBefore: customJoi.string().isoDate().allow(null),
+  createdAfter: customJoi.string().isoDate().allow(null)
 })
 
 module.exports = {

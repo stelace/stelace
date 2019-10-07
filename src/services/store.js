@@ -1,6 +1,6 @@
 const path = require('path')
 const createError = require('http-errors')
-const serializeError = require('serialize-error')
+const { serializeError } = require('serialize-error')
 
 const {
   createSchema,

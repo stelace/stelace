@@ -122,9 +122,10 @@ test('list events with advanced filter', async (t) => {
   })
 
   const futureDate = computeDate(now, '5y')
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
 
   const { body: obj5b } = await request(t.context.serverUrl)
-    .get(`/events?createdDate[gte]=${futureDate}`)
+    .get(`/events?createdDate=${encode({ gte: futureDate })}`) // alternative list query syntax
     .set(authorizationHeaders)
     .expect(200)
 

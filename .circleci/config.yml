@@ -8,16 +8,17 @@ executors:
       CI_PREFIX: CI
       # https://docs.docker.com/develop/develop-images/build_enhancements
       DOCKER_BUILDKIT: 1
-  ubuntu-build:
+  ubuntu-dlc:
     <<: *ubuntu
     machine:
-        image: ubuntu-1604:201903-01
-        docker_layer_caching: true
+      image: ubuntu-1604:201903-01
+      # Using this billed option on master and dev branches to make CI process faster
+      docker_layer_caching: true
 
 jobs:
   build:
-    executor: ubuntu-build
-    steps:
+    executor: ubuntu
+    steps: &build-steps
       - checkout
       - run:
           name: Set Node version
@@ -126,7 +127,13 @@ jobs:
             - docker-compose*
             - Dockerfile*
 
-  test:
+  # CircleCI does not currently offer conditional workflow jobs,
+  # so that we simply duplicate jobs for now.
+  build-with-dlc:
+    executor: ubuntu-dlc
+    steps: *build-steps
+
+  test: &test-job
     executor: ubuntu
     parameters:
       deploy:
@@ -198,6 +205,8 @@ jobs:
       - store_test_results:
           path: /tmp/test-results
 
+  test-after-dlc: *test-job
+
   deploy:
     executor: ubuntu
     steps:
@@ -232,14 +241,28 @@ workflows:
     jobs:
       - build:
           context: stelace-server
+          filters:
+            branches:
+              ignore: &dlc-branches
+                - master
+                - dev
+      - build-with-dlc:
+          context: stelace-server
+          filters:
+            branches:
+              only: *dlc-branches
       - test:
           context: stelace-server
           requires:
             - build
+      - test-after-dlc:
+          context: stelace-server
+          requires:
+            - build-with-dlc
       - deploy:
           context: stelace-server
           requires:
-            - test
+            - test-after-dlc
           filters:
             branches:
               only: master
