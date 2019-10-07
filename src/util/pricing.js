@@ -194,7 +194,6 @@ function getPriceAfterFees (args) {
   if (useFees) {
     ownerFees = args.ownerFees || 0
     takerFees = args.takerFees || 0
-    takerPrice = _roundPrice(ownerPrice + takerFees)
 
     ownerFeesPercent = getFeesPercent(ownerFees, ownerPrice)
     takerPrice = _roundPrice(ownerPrice + takerFees)
