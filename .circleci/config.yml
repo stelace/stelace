@@ -217,7 +217,7 @@ jobs:
             docker pull $DOCKERHUB_USER/stelace:$CI_TAG
             VERSION=$(git log --format=%s -n 1 $CIRCLE_SHA1 | sed -e 's/release:\s\+//I')
             echo Version:$VERSION
-            if [[ "$VERSION" =~ ^([0-9]+\.){2}[0-9]+$ ]]
+            if [[ "$VERSION" =~ ^([0-9]+\.){2}[0-9a-z.-]+$ ]]
             then
               docker tag $DOCKERHUB_USER/stelace:$CI_TAG $DOCKERHUB_USER/stelace:latest
               docker push $DOCKERHUB_USER/stelace:latest
