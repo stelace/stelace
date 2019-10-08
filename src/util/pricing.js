@@ -194,9 +194,9 @@ function getPriceAfterFees (args) {
   if (useFees) {
     ownerFees = args.ownerFees || 0
     takerFees = args.takerFees || 0
-    takerPrice = _roundPrice(ownerPrice + takerFees)
 
     ownerFeesPercent = getFeesPercent(ownerFees, ownerPrice)
+    takerPrice = _roundPrice(ownerPrice + takerFees)
     takerFeesPercent = getFeesPercent(takerFees, takerPrice)
   } else { // useFeesPercent
     ownerFeesPercent = args.ownerFeesPercent || 0
@@ -208,10 +208,10 @@ function getPriceAfterFees (args) {
 
     ownerFees = _roundPrice(ownerFeesRate * ownerPrice)
     takerFees = _roundPrice(reverseTakerFeesRate * ownerPrice)
+    takerPrice = _roundPrice(ownerPrice + takerFees)
   }
 
   const ownerNetIncome = _roundPrice(ownerPrice - ownerFees)
-  takerPrice = _roundPrice(ownerPrice + takerFees)
 
   return {
     ownerNetIncome,
@@ -223,6 +223,7 @@ function getPriceAfterFees (args) {
   }
 
   function getFeesPercent (fees, price) {
+    if (price === 0) return 0
     return Math.round(fees * 100 / price)
   }
 

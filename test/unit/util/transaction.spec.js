@@ -373,6 +373,30 @@ test('get pricing for transaction without prices override', (t) => {
     takerFees: 44.4,
     platformAmount: 64.4
   })
+
+  const transaction3 = {
+    quantity: 4,
+    startDate: '2019-01-01T00:00:00.000Z',
+    duration: { h: 12 },
+    timeUnit: 'd',
+    unitPrice: 0,
+    currency: 'USD',
+    assetType: {
+      pricing: {
+        ownerFeesPercent: 5,
+        takerFeesPercent: 10
+      }
+    }
+  }
+
+  t.deepEqual(getTransactionPricing(transaction3), {
+    value: 0,
+    ownerAmount: 0,
+    takerAmount: 0,
+    ownerFees: 0,
+    takerFees: 0,
+    platformAmount: 0
+  })
 })
 
 test('get pricing for transaction with prices override', (t) => {
@@ -404,5 +428,29 @@ test('get pricing for transaction with prices override', (t) => {
     ownerFees: 10,
     takerFees: 10,
     platformAmount: 20
+  })
+
+  const transaction2 = {
+    quantity: 4,
+    startDate: '2019-01-01T00:00:00.000Z',
+    duration: { h: 12 },
+    timeUnit: 'd',
+    unitPrice: 200,
+    currency: 'USD',
+    assetType: {
+      pricing: {
+        ownerFeesPercent: 5,
+        takerFeesPercent: 10
+      }
+    }
+  }
+
+  t.deepEqual(getTransactionPricing(transaction2, { value: 0 }), {
+    value: 0,
+    ownerAmount: 0,
+    takerAmount: 0,
+    ownerFees: 0,
+    takerFees: 0,
+    platformAmount: 0
   })
 })
