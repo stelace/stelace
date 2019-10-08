@@ -171,6 +171,7 @@ server.use(restify.plugins.acceptParser(server.acceptable))
 server.use(restify.plugins.queryParser())
 server.use(restify.plugins.gzipResponse())
 server.use(restify.plugins.bodyParser())
+const restifyAuthorizationParser = restify.plugins.authorizationParser()
 
 server.pre(cors.preflight)
 server.use(cors.actual)
@@ -328,7 +329,8 @@ const StelaceParams = {
   versions,
 
   middlewares: {
-    checkPermissions
+    checkPermissions,
+    restifyAuthorizationParser
   },
 
   routes: {
@@ -769,6 +771,7 @@ routes.init(server, {
   middlewares: {
     allowSystem,
     checkPermissions,
+    restifyAuthorizationParser,
     ...middlewares.getAll() // shared between all plugins and core server
   },
   helpers: {
