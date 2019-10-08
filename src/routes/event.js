@@ -29,7 +29,8 @@ function init (server, { middlewares, helpers } = {}) {
       'objectType',
       'objectId',
       'emitter',
-      'emitterId'
+      'emitterId',
+      'metadata',
     ]
 
     const payload = _.pick(req.query, fields)
