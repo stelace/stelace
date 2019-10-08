@@ -88,7 +88,7 @@ test('gets the price with custom duration config', (t) => {
   })
 })
 
-test('computes price after fees', (t) => {
+test('applies takerFeesPercent and ownerFeesPercent to ownerPrice', (t) => {
   const tests = [
     {
       input: {
@@ -101,9 +101,9 @@ test('computes price after fees', (t) => {
         ownerFees: 5,
         ownerFeesPercent: 5,
         ownerNetIncome: 95,
-        takerFees: 17.6,
+        takerFees: 15,
         takerFeesPercent: 15,
-        takerPrice: 117.6
+        takerPrice: 115
       }
     },
     {

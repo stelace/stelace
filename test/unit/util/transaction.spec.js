@@ -344,10 +344,10 @@ test('get pricing for transaction without prices override', (t) => {
   t.deepEqual(getTransactionPricing(transaction1), {
     value: 100,
     ownerAmount: 95,
-    takerAmount: 111.1,
+    takerAmount: 110,
     ownerFees: 5,
-    takerFees: 11.1,
-    platformAmount: 16.1
+    takerFees: 10,
+    platformAmount: 15
   })
 
   const transaction2 = {
@@ -368,10 +368,10 @@ test('get pricing for transaction without prices override', (t) => {
   t.deepEqual(getTransactionPricing(transaction2), {
     value: 400,
     ownerAmount: 380,
-    takerAmount: 444.4,
+    takerAmount: 440,
     ownerFees: 20,
-    takerFees: 44.4,
-    platformAmount: 64.4
+    takerFees: 40,
+    platformAmount: 60
   })
 
   const transaction3 = {
@@ -415,10 +415,10 @@ test('get pricing for transaction with prices override', (t) => {
   t.deepEqual(getTransactionPricing(transaction1, { value: 200 }), {
     value: 200,
     ownerAmount: 190,
-    takerAmount: 222.2,
+    takerAmount: 220,
     ownerFees: 10,
-    takerFees: 22.2,
-    platformAmount: 32.2
+    takerFees: 20,
+    platformAmount: 30
   })
 
   t.deepEqual(getTransactionPricing(transaction1, { value: 200, takerAmount: 210 }), {

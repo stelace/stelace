@@ -204,10 +204,9 @@ function getPriceAfterFees (args) {
 
     const ownerFeesRate = ownerFeesPercent / 100
     const takerFeesRate = takerFeesPercent / 100
-    const reverseTakerFeesRate = takerFeesRate / (1 - takerFeesRate)
 
     ownerFees = _roundPrice(ownerFeesRate * ownerPrice)
-    takerFees = _roundPrice(reverseTakerFeesRate * ownerPrice)
+    takerFees = _roundPrice(takerFeesRate * ownerPrice)
     takerPrice = _roundPrice(ownerPrice + takerFees)
   }
 
