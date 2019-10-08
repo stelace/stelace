@@ -1118,10 +1118,10 @@ aws-param-store@^3.0.0:
   resolved "https://registry.yarnpkg.com/aws-param-store/-/aws-param-store-3.0.0.tgz#d3ac572fb93832ea4d02c460c3ec6601910826d7"
   integrity sha512-DKeJgRYoWlwVCKRVxDiBWXZWyGBf/w8zW0zt3bQIE0oOTb/ouX/G6WgzDMDHU6jhdO/pJQ/DZ6yc1BDazYdN+w==
 
-aws-sdk@^2.543.0:
-  version "2.543.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.543.0.tgz#08b69a6fab9b3ab08e329888d06a8c4ee583f26d"
-  integrity sha512-ABHsA4W7LLYnTBCgtbTt0NF7+66nMCtdcJuAn30+RGzF0bOw3lCguqzootFrMlIOXklddQFJ9kKTXd+p/+uCVQ==
+aws-sdk@^2.544.0:
+  version "2.544.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.544.0.tgz#d99eeada8237ee67699ce6644f8070eeb84996e7"
+  integrity sha512-wwiBJgAUGKXY/xoCSrUXVZnNtefoH3YcPwGxQrQXOIDnLMQ32yh/SWc52qmwdxA7WJzpTcIj8y+5keH3P1LYaw==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
@@ -4181,15 +4181,10 @@ iconv-lite@^0.4.4:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
-ieee754@1.1.13:
+ieee754@1.1.13, ieee754@^1.1.4:
   version "1.1.13"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.13.tgz#ec168558e95aa181fd87d37f55c32bbcb6708b84"
   integrity sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg==
-
-ieee754@^1.1.4:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
-  integrity sha1-vjPUCsEO8ZJnAfbwii2G+/0a0+Q=
 
 ignore-by-default@^1.0.0:
   version "1.0.1"
@@ -7544,12 +7539,12 @@ safe-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sax@1.2.1, sax@>=0.6.0:
+sax@1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.1.tgz#7b8e656190b228e81a66aea748480d828cd2d37a"
   integrity sha1-e45lYZCyKOgaZq6nSEgNgozS03o=
 
-sax@^1.2.4:
+sax@>=0.6.0, sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
@@ -8792,12 +8787,12 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@3.3.2, uuid@^3.3.2:
+uuid@3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
 
-uuid@^3.3.3:
+uuid@^3.3.2, uuid@^3.3.3:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
   integrity sha512-pW0No1RGHgzlpHJO1nsVrHKpOEIxkGg1xB+v0ZmdNH5OAeAwzAVrCnI2/6Mtx+Uys6iaylxa+D3g4j63IKKjSQ==
