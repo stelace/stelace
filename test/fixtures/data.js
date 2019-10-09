@@ -987,7 +987,12 @@ module.exports = {
       parentId: null,
       emitter: 'custom',
       emitterId: 'random',
-      metadata: {}
+      metadata: {
+        nested: {
+          object: true,
+          string: 'true'
+        }
+      }
     }),
 
     createModel({
@@ -1002,7 +1007,14 @@ module.exports = {
       parentId: null,
       emitter: 'custom',
       emitterId: 'Delorean',
-      metadata: {}
+      metadata: {
+        someTags: ['Doc', 'Brown'],
+        name: 'DMC-12',
+        nested: {
+          object: true,
+          string: 'true'
+        }
+      }
     })
   ],
 

@@ -410,9 +410,8 @@ function start ({ communication }) {
         },
         data: {
           value: data,
-          query: (queryBuilder, data) => {
-            queryBuilder.whereRaw('??::jsonb @> ?::jsonb', ['data', data])
-          }
+          dbField: 'data',
+          query: 'jsonSupersetOf'
         }
       },
       paginationActive: true,

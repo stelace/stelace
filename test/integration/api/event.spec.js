@@ -50,7 +50,7 @@ test('list events with id filter', async (t) => {
   t.is(obj.results.length, 1)
 })
 
-test('list events with advanced filter', async (t) => {
+test('list events with filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
   const now = new Date().toISOString()
@@ -153,6 +153,97 @@ test('list events with advanced filter', async (t) => {
   obj7.results.forEach(event => {
     t.is(event.type, 'future_event')
   })
+})
+
+test('list events with metadata object filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
+
+  const { body: obj1 } = await request(t.context.serverUrl)
+    .get('/events?metadata[name]=DMC-12')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj1.results.length, obj1.nbResults)
+  t.is(obj1.nbResults, 1)
+  obj1.results.forEach(event => {
+    t.is(event.metadata.name, 'DMC-12')
+  })
+
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get('/events?metadata[nested][string]=true')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj2.results.length, obj2.nbResults)
+  t.is(obj2.nbResults, 2)
+  obj2.results.forEach(event => {
+    t.is(event.metadata.nested.string, 'true')
+  })
+
+  const { body: obj3 } = await request(t.context.serverUrl)
+    .get('/events?metadata[name]=DMC-12&metadata[nested][string]=true')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj3.results.length, obj3.nbResults)
+  t.is(obj3.nbResults, 1)
+  obj3.results.forEach(event => {
+    t.is(event.metadata.name, 'DMC-12')
+    t.is(event.metadata.nested.string, 'true')
+  })
+
+  const { body: obj4 } = await request(t.context.serverUrl)
+    .get('/events?metadata[name]=DMC-12&metadata[nested][string]=false')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj4.results.length, obj4.nbResults)
+  t.is(obj4.nbResults, 0)
+
+  const supersetOf = {
+    someTags: ['Brown'],
+    nested: { object: true },
+    name: 'DMC-12'
+  }
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
+  const checkEvent = event => {
+    t.is(event.metadata.name, 'DMC-12')
+    t.true(supersetOf.someTags.every(t => event.metadata.someTags.includes(t)))
+    t.is(event.metadata.nested.object, supersetOf.nested.object)
+  }
+
+  const { body: obj5 } = await request(t.context.serverUrl)
+    .get(`/events?metadata=${encode(supersetOf)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj5.results.length, obj5.nbResults)
+  t.is(obj5.nbResults, 1)
+  obj5.results.forEach(checkEvent)
+
+  await request(t.context.serverUrl)
+    // can’t mix syntaxes
+    .get(`/events?metadata=${encode(supersetOf)}&metadata[nested][string]=true`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  supersetOf.nested.object = 'true' // string instead of boolean
+  const { body: obj6 } = await request(t.context.serverUrl)
+    .get(`/events?metadata=${encode(supersetOf)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj6.results.length, obj6.nbResults)
+  t.is(obj6.nbResults, 0)
+
+  supersetOf.nested.object = false // false instead of true
+  const { body: obj7 } = await request(t.context.serverUrl)
+    .get(`/events?metadata=${encode(supersetOf)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj7.results.length, obj7.nbResults)
+  t.is(obj7.nbResults, 0)
 })
 
 test('finds an event', async (t) => {

@@ -31,7 +31,8 @@ schemas['2019-05-20'].list = {
     objectType: [Joi.string(), Joi.array().unique().items(Joi.string())],
     objectId: [Joi.string(), Joi.array().unique().items(Joi.string())],
     emitter: Joi.string().valid('core', 'custom', 'task'),
-    emitterId: [Joi.string(), Joi.array().unique().items(Joi.string())]
+    emitterId: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    metadata: Joi.object().unknown()
   })
 }
 schemas['2019-05-20'].read = {

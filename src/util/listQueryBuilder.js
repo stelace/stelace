@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const { Joi } = require('./validation')
 const { parseArrayValues, getPaginationMeta } = require('./list')
 
@@ -11,7 +13,7 @@ const filtersSchema = Joi.object().pattern(
       Joi.func()
     ),
     query: Joi.alternatives().try(
-      Joi.string().valid('range', 'inList'),
+      Joi.string().valid('range', 'inList', 'jsonSupersetOf'),
       Joi.func()
     )
   })
@@ -104,6 +106,8 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
         }
       } else if (query === 'inList') {
         queryBuilder.whereIn(dbField, transformedValue)
+      } else if (query === 'jsonSupersetOf') {
+        whereJsonbColumnSupersetOf(queryBuilder, { columnName: dbField, data: value })
       }
     } else if (isCustomQuery) {
       query(queryBuilder, transformedValue, transformedValues)
@@ -242,6 +246,21 @@ async function performListQuery ({
     const results = await queryBuilder
     return results
   }
+}
+
+/**
+ * Equivalent to `whereJsonSupersetOf` method of Objection.js, using PostgreSQL JSONB operator
+ * applying to whole DB column instead of a specific nested field.
+ * https://vincit.github.io/objection.js/api/query-builder/find-methods.html#wherejsonsupersetof
+ * @param {Object} queryBuilder - Objection.js query builder
+ * @param {Object} params
+ * @param {String} params.columnName - DB column name
+ * @param {Object} params.data - data object the column should be a superset of
+ */
+function whereJsonbColumnSupersetOf (queryBuilder, { columnName, data }) {
+  if (!_.isString(columnName)) throw new Error('String `columnName` expected.')
+  if (!_.isPlainObject(data)) throw new Error('`data` object expected')
+  queryBuilder.whereRaw('??::jsonb @> ?::jsonb', [columnName, data])
 }
 
 module.exports = {

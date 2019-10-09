@@ -33,7 +33,8 @@ function start ({ communication }) {
       objectType,
       objectId,
       emitter,
-      emitterId
+      emitterId,
+      metadata
     } = req
 
     const queryBuilder = Event.query()
@@ -80,6 +81,11 @@ function start ({ communication }) {
           transformValue: 'array',
           query: 'inList'
         },
+        metadata: {
+          value: metadata,
+          dbField: 'metadata',
+          query: 'jsonSupersetOf'
+        }
       },
       paginationActive: true,
       paginationConfig: {

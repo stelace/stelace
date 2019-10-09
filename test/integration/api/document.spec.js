@@ -616,6 +616,19 @@ test('list documents with data object filters', async (t) => {
   t.is(_.get(doc.data, 'tags.timesSeen'), 10)
   t.true(Array.isArray(_.get(doc.data, 'tags.heroes')))
   t.true(doc.data.tags.heroes.includes('Sheeta'))
+
+  const { body: noHit } = await request(t.context.serverUrl)
+    .get(`/documents?type=movie&data=${encode({
+      tags: {
+        awesome: true,
+        timesSeen: 10,
+        heroes: ['Unknown']
+      }
+    })}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(noHit.results.length, 0)
 })
 
 test('list documents with label filter', async (t) => {
