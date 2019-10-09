@@ -348,8 +348,6 @@ const StelaceParams = {
   apm,
 }
 
-let noApiKeyRoutes = []
-
 try {
   // plugins can use Stelace core dependencies if they provide a function
   const injectStelaceParams = (pluginObject) => {
@@ -404,9 +402,6 @@ try {
         registerPermission(injectStelaceParams(permission))
       })
     }
-    if (plugin.noApiKeyRoutes) {
-      noApiKeyRoutes = noApiKeyRoutes.concat(plugin.noApiKeyRoutes)
-    }
   })
 } catch (err) {
   logError(err, { message: 'Loading plugins error' })
@@ -432,25 +427,21 @@ server.use((req, res, next) => {
 server.use((req, res, next) => {
   const isSystemUrl = req.url.startsWith('/system/')
   const isStoreUrl = req.url.startsWith('/store/')
-  const isTestUrl = req.url.startsWith('/test')
   const isRobotsTxtUrl = req.url === '/robots.txt'
   const isHomeUrl = req.url === '/'
   const isTokenConfirmCheckUrl = req.url.startsWith('/token/check/') && req.url !== '/token/check/request'
   const isSSOUrl = req.url.startsWith('/auth/sso')
 
-  const pluginRouteBypass = noApiKeyRoutes.reduce((memo, route) => {
-    if (route.startsWith && req.url.startsWith(route.startsWith)) {
-      return true
-    }
-    return memo
-  }, false)
+  const { spec: { optionalApiKey, manualAuth } } = req.getRoute() || { spec: {} }
+  req._optionalApiKeyRoute = Boolean(optionalApiKey) // Authorization header may still be required (e.g. token)
+  req._manualAuthRoute = Boolean(manualAuth) // no Authorization info required at all
 
   req._allowMissingPlatformId = isSystemUrl ||
     isStoreUrl ||
-    isTestUrl ||
     isRobotsTxtUrl ||
     isHomeUrl ||
-    pluginRouteBypass ||
+    req._optionalApiKeyRoute ||
+    req._manualAuthRoute ||
     isTokenConfirmCheckUrl ||
     isSSOUrl
 
@@ -527,7 +518,14 @@ server.use(async (req, res, next) => {
 
   try {
     parseAuthorizationHeader(req)
+  } catch (err) { // still trying to parse authorization header for convenience when not required
+    if (!req._manualAuthRoute) {
+      apmSpan && apmSpan.end()
+      return next(err)
+    }
+  }
 
+  try {
     const setPlanAndVersion = async ({ errParams } = {}) => {
       try {
         const info = await getPlatformEnvData(req.platformId, req.env, [

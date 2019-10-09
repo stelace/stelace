@@ -5,8 +5,4 @@ module.exports = {
 
   routes: require('./routes'),
   versions: require('./versions'),
-
-  noApiKeyRoutes: [
-    { startsWith: '/providers/stripe/webhooks/' }
-  ]
 }
