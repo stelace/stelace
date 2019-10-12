@@ -29,8 +29,8 @@ test('permissions can be checked', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(permissionsObject['category:list:all'], true)
-  t.is(permissionsObject['category:list'], false)
+  t.true(permissionsObject['category:list:all'])
+  t.false(permissionsObject['category:list'])
 
   // unknown permissions are handled
   const { body: permissionsObject2 } = await request(t.context.serverUrl)
@@ -43,14 +43,14 @@ test('permissions can be checked', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(permissionsObject2.unknownPermission, false)
+  t.false(permissionsObject2.unknownPermission)
 
-  // check public permissions
+  // check public permissions (no auth token used)
   const { body: permissionsObject3 } = await request(t.context.serverUrl)
     .post('/permissions/check')
     .send({
       permissions: [
-        'category:list:all',
+        'category:list:all', // 'public' role permission
         'role:create:all'
       ]
     })
@@ -60,10 +60,10 @@ test('permissions can be checked', async (t) => {
     })
     .expect(200)
 
-  t.is(permissionsObject3['category:list:all'], true)
-  t.is(permissionsObject3['role:create:all'], false)
+  t.true(permissionsObject3['category:list:all'],)
+  t.false(permissionsObject3['role:create:all'])
 
-  // permissions to check are needed
+  // at least one permission to check is needed
   await request(t.context.serverUrl)
     .post('/permissions/check')
     .set({
@@ -87,7 +87,7 @@ test('cannot access/create/modify a resource only with platformData:edit:all per
   t.pass()
 })
 
-test('use system features but check the provided permissions', async (t) => {
+test('uses system features but checks provided permissions with optional header', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: [] }) // no permissions
   const systemKey = getSystemKey()
 

@@ -75,14 +75,17 @@ function start ({ communication }) {
       })
     }
 
-    // missing `object:action` plan permission has no impact if `object:action:all` is active
-    // so that we remove these
+    // Plan permissions:
+    // Plugin can set `req.plan.allPermissions` hash of permissions `{ "object:action": true }`.
+    // Missing `'object:action': false` self-scoped permission has no impact when globally-scoped
+    // permission is granted (`object:action:all: true`), so that we can ignore the former.
+    // We always keep checking more specific scoped permission like `object:action:scope` though.
     const allScopePermissionRegex = /:all$/
     missingPlanPermissions = missingPlanPermissions.filter(p => {
-      const allScopeP = allScopePermissionRegex.test(p) || p.split(':').length === 3
+      const overarchingP = (allScopePermissionRegex.test(p) || p.split(':').length > 2)
         ? p
         : `${p}:all`
-      return !planPermissions[allScopeP]
+      return !planPermissions[overarchingP]
     })
 
     return {

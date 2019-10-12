@@ -30,10 +30,15 @@ function init (server, { middlewares, helpers } = {}) {
       })
     })
 
-    const permissionsObject = {}
+    const permissionsObject = {
+      missingPlanPermissions: []
+    }
 
-    permissionsToCheck.forEach(permissionName => {
-      permissionsObject[permissionName] = req.matchedPermissions[permissionName] || false
+    permissionsToCheck.forEach(p => {
+      permissionsObject[p] = req.matchedPermissions[p] || false
+      if (req.missingPlanPermissions.includes(p)) {
+        permissionsObject.missingPlanPermissions.push(p)
+      }
     })
 
     return permissionsObject
