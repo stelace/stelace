@@ -487,22 +487,21 @@ server.use(async (req, res, next) => {
 
     const rawWorkflowHeader = req.headers['x-stelace-workflow-key']
     const workflowKey = getLocalInstanceKey()
-    let isWorkflowRequest = false
 
-    const [hostname, port] = _.get(req.headers, 'host', '').split(':')
-    const localPort = server.address().port
-    // Local server port should not be publicly accessible in production, hidden behind load balancer
-    // but we also check hostname, which is ok as long as workflows steps are executed on same instance
-    const isLocal = ['localhost', '127.0.0.1'].includes(hostname) && parseInt(port, 10) === localPort
+    // Detect workflow requests, currently executed by same instance only.
+    // Unlike HTTP host, req.connection is hard to spoof.
+    // https://github.com/expressjs/express/issues/2518
+    const isLocal = req.connection.localAddress === req.connection.remoteAddress
 
     if (rawWorkflowHeader && workflowKey === rawWorkflowHeader && isLocal) {
-      isWorkflowRequest = true
+      // could be turned into an object with additional metadata in the future
+      req._workflow = true
     }
 
-    // if the header 'x-platform-id' or 'x-stelace-env' are present and allowed to be used
-    // they override the platformId and env usually set by API key
-    // TODO: use API Key in tests to align with production NODE_ENV (cf. test/auth.js getAccessTokenHeaders)
-    const usePlatformHeaders = process.env.NODE_ENV === 'test' || isWorkflowRequest || isSystem(req._systemHash)
+    // If the header 'x-platform-id' or 'x-stelace-env' are present and allowed to be used
+    // they override the platformId and env usually set by API key.
+    // TODO: use API Key in tests to align with 'production' NODE_ENV (cf. test/auth.js getAccessTokenHeaders)
+    const usePlatformHeaders = TEST || Boolean(req._workflow) || isSystem(req._systemHash)
 
     const rawPlatformIdHeader = req.headers['x-platform-id']
     const rawEnvHeader = req.headers['x-stelace-env']
@@ -644,7 +643,8 @@ function getAuthorizationParams (req) {
     env: req.env,
     _systemHash: req._systemHash,
     _plan: req._plan, // can be set by some plugin
-    _selectedVersion: req._selectedVersion
+    _selectedVersion: req._selectedVersion,
+    _workflow: req._workflow,
   }
 }
 
