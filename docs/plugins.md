@@ -39,41 +39,59 @@ An external plugin blueprint should be available soon.
 
 #### Running plugin tests
 
-Your external plugin can load itself with the following code to include at the beginning of `test/*.spec.js` files:
+You can easily run external plugin tests with 'stelace-server' as a devDependency.
+
+Add this script to package.json file in your plugin repository:
+
+```json
+// plugin loads itself before starting tests
+"scripts": {
+  "test": "cross-env STELACE_PLUGINS_PATHS=$(shx pwd) NODE_ENV=test ava --c $(node -p 'Math.max(os.cpus().length - 1, 1)')",
+}
+```
+
+Include the following lines at the beginning of `test/*.spec.js` files:
 
 ```js
-require('dotenv').config()
-
 const test = require('ava')
-const path = require('path')
-
-// Loading plugin manually _before_ loading server to run plugin tests
-const { loadPlugin } = require('stelace-server/plugins')
-loadPlugin(path.resolve(__dirname, '..')) // points to root directory of plugin
 
 const {
-  testTools: { /* … */ }
+  testTools: {
+    lifecycle,
+    /* … */
+  }
 } = require('stelace-server')
 
-// Tests
+const { before, beforeEach, after } = lifecycle
+
+test.before(before({ name: 'event' }))
+test.beforeEach(beforeEach())
+test.after(after())
+
+test('Some test name', async (t) => {
+  /* … */
+})
+// …
 ```
+
+And run plugin tests with `yarn test` on the command line.
 
 #### Running plugin & server tests
 
-You can also ensure your plugin does not break the server using:
+You can also ensure your plugin does not break the server using the following command with stelace-server:
 
 ```sh
 STELACE_PLUGINS_PATHS=/path/to/local/plugin/repo yarn test:server
 ```
 
-_Note: this makes use of `npm explore`, which may not work on Windows._
+_Note: you can make use of `npm explore` to use this from within your plugin repository with stelace-server installed as a devDependency._
 
 ## Continuous integration and tests
 
 During continuous integration with circleCI:
 
 - missing `INSTALLED_PLUGINS` are automatically installed using `yarn plugins:install --save` script, which updates package.json before building Docker image.
-- After build, `yarn plugins:pretest` copies installed plugins from `node_modules` to local `plugins` directory to run all of server and plugin tests before ending CI process.
+- After build, `yarn plugins:pretest` rewrites some `require('stelace-server')` calls to run all of server and plugin tests with local server before ending CI process.
 
 To support private plugins, `Dockerfile.prod` is configured to accept SSH key from ssh-agent as a secret during circleCI build.
 This way it does not leak into any Docker image layer.

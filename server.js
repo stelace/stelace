@@ -29,12 +29,12 @@ const cors = corsMiddleware({
   ]
 })
 
-const { logTrace, logError } = require('./logger')
-
 const { getPlugins, loadPlugin } = require('./plugins')
 
 const { getRequestContext } = require('./src/util/request')
+
 const polyfills = require('./src/util/polyfills')
+polyfills.initErrors()
 
 const Base = require('./src/models/Base')
 
@@ -46,31 +46,22 @@ const elasticsearchReindex = require('./src/elasticsearch-reindex')
 const elasticsearchSync = require('./src/elasticsearch-sync')
 const elasticsearchTemplates = require('./src/elasticsearch-templates')
 const models = require('./src/models')
-const permissions = require('./src/permissions')
-const redis = require('./src/redis')
-const roles = require('./src/roles')
-const versions = require('./src/versions')
+
+const {
+  communication,
+  permissions,
+  redis,
+  roles,
+  versions,
+
+  logger,
+  utils,
+} = require('./index')
+
+const { logTrace, logError } = logger
 
 const { registerPermission } = permissions
 const { getPlatformEnvData, setPlatformEnvData } = redis
-
-// util objects to share with plugins
-const utils = {
-  authentication: require('./src/util/authentication'),
-  availability: require('./src/util/availability'),
-  currency: require('./src/util/currency'),
-  encoding: require('./src/util/encoding'),
-  environment: require('./src/util/environment'),
-  list: require('./src/util/list'),
-  listQueryBuilder: require('./src/util/listQueryBuilder'),
-  locale: require('./src/util/locale'),
-  pricing: require('./src/util/pricing'),
-  time: require('./src/util/time'),
-  transaction: require('./src/util/transaction'),
-  transition: require('./src/util/transition'),
-  user: require('./src/util/user'),
-  validation: require('./src/util/validation'),
-}
 
 const {
   apiVersions,
@@ -82,7 +73,7 @@ const {
   registerRequestChanges,
   registerResponseChanges,
   registerObjectChanges
-} = require('./src/versions')
+} = versions
 
 const auth = require('./auth')
 const {
@@ -98,22 +89,19 @@ const {
   getSystemKeyHashFunction
 } = auth
 
-const communication = require('./src/communication')
-
-const { isValidEnvironment, getDefaultEnvironment } = require('./src/util/environment')
+const {
+  environment: {
+    isValidEnvironment,
+    getDefaultEnvironment
+  }
+} = utils
 
 const middlewares = require('./src/middlewares')
 const routes = require('./src/routes')
 const services = require('./src/services')
 const crons = require('./src/crons')
 
-const testTools = require('./test')
-
 const { name, version } = require('./package.json')
-
-polyfills.initErrors()
-
-const server = restify.createServer({ name, version })
 
 const PROD = process.env.NODE_ENV === 'production'
 const TEST = process.env.NODE_ENV === 'test'
@@ -141,166 +129,8 @@ process.on('uncaughtException', (err) => {
   logError(err, { message: 'Uncaught exception' })
 })
 
-server.on('after', restify.plugins.metrics({ server }, (err, metrics, req/*, res, route */) => {
-  if (err) {
-    // do nothing
-  }
-
-  const requestContext = getRequestContext(req)
-  const loggingParams = Object.assign({}, requestContext, {
-    metrics
-  })
-
-  // clean for garbage collection
-  req.apmSpans = {}
-
-  logTrace(loggingParams, 'Metrics')
-}))
-
-// create an object that can be used to store any APM spans
-server.use((req, res, next) => {
-  req.apmSpans = {}
-
-  req.apmSpans.restifyPlugins = apm.startSpan('Restify plugins')
-  next()
-})
-
-server.pre(restify.plugins.pre.context())
-
-server.use(restify.plugins.acceptParser(server.acceptable))
-server.use(restify.plugins.queryParser())
-server.use(restify.plugins.gzipResponse())
-server.use(restify.plugins.bodyParser())
 const restifyAuthorizationParser = restify.plugins.authorizationParser()
-
-server.pre(cors.preflight)
-server.use(cors.actual)
-
-const allowedErrorFields = [
-  'message',
-  'code',
-  'public',
-  'statusCode' // must be present because it is used by Restify to display custom error fields
-]
-const indexedErrorFields = _.keyBy(allowedErrorFields)
-
-// Errors can have a property `expose` (which is automatically created by http-errors)
-// if `expose` is true, the error message is displayed as is
-// otherwise the standard HTTP error message is displayed: https://nodejs.org/api/http.html#http_http_status_codes
-// This is to prevent leaking unwanted internal information outside
-
-// By default, `expose` is false if status code >= 500
-// but this behaviour can be overriden by `createError(500, 'My custom error message', { expose: true })
-
-// If an error has the property `public`, the server will convert it into `data` and expose it
-// even if `expose` is false.
-function getFormattedError (err, statusCode) {
-  const alt = serializeError(err)
-
-  Object.getOwnPropertyNames(alt).forEach(key => {
-    if (!indexedErrorFields[key]) {
-      delete alt[key]
-    }
-  })
-
-  // if the error object have a field `public` (data that can be exposed to public)
-  // rename it into `data` for API response
-  if (err.public) {
-    alt.data = err.public
-    delete alt.public
-  }
-
-  // Show the error stack if the environment isn't PROD
-  if (!PROD && err.stack) {
-    alt._stack = err.stack.split('\n')
-  }
-
-  // Hide the error message if the error isn't exposed
-  if (!err.expose) {
-    if (!PROD) {
-      alt._message = err.message
-    }
-    alt.message = http.STATUS_CODES[statusCode]
-  }
-
-  return alt
-}
-
-function logRequestError (req, res, err) {
-  const requestContext = getRequestContext(req)
-  const metrics = {
-    statusCode: res.statusCode,
-    method: req.method,
-    path: req.path()
-  }
-
-  logError(err, {
-    custom: {
-      metrics, // manually rebuild the metrics object to have the same fields as the real metrics
-      requestContext
-    },
-    enableApmLog: false, // disable APM logs here, as errors are already handled by APM connect middleware
-    message: 'Error'
-  })
-}
-
-server.on('restifyError', function (req, res, err, next) {
-  const statusCode = err.statusCode || 500
-  err.statusCode = statusCode
-
-  res.status(statusCode)
-
-  if (statusCode === 401) {
-    // https://tools.ietf.org/html/draft-ietf-httpbis-p7-auth-19#section-4.4
-    const realm = 'Stelace API'
-    const realmAsUser = `${realm} as a user`
-    res.header('www-authenticate',
-      // Returning Basic scheme first
-      // http://test.greenbytes.de/tech/tc/httpauth/#multibasicunknown
-      `Basic realm="${realm}", Bearer realm="${realmAsUser}", Stelace-v1 realm="${realmAsUser}"`
-    )
-  }
-
-  // Prevents 'undefined' string from showing up in APM route errors
-  // https://github.com/elastic/apm-agent-nodejs/blob/v2.17.0/lib/parsers.js#L26
-  err.params = err.params || []
-
-  if (typeof err === 'object' && !(err instanceof Error)) {
-    logRequestError(req, res, err)
-
-    const newError = getFormattedError(err, statusCode)
-
-    const keys = _.uniq(Object.getOwnPropertyNames(err).concat(Object.keys(newError)))
-
-    // copy newError into err
-    keys.forEach(key => {
-      if (newError[key]) {
-        err[key] = newError[key]
-      } else {
-        delete err[key]
-      }
-    })
-
-    res.send(err)
-    return next()
-  }
-
-  err.toJSON = () => {
-    logRequestError(req, res, err)
-
-    // only expose body (used in Restify validation error)
-    if (typeof err.body === 'object') {
-      return err.body
-    }
-
-    return getFormattedError(err, statusCode)
-  }
-
-  res.send(err)
-  return next()
-})
-
-const StelaceParams = {
+const stelaceTooling = {
   // utility functions often used
   logError,
   createError,
@@ -348,278 +178,502 @@ const StelaceParams = {
   apm,
 }
 
-try {
-  // plugins can use Stelace core dependencies if they provide a function
-  const injectStelaceParams = (pluginObject) => {
-    if (typeof pluginObject === 'function') return pluginObject(StelaceParams)
-    else return pluginObject
+function loadServer () {
+  const server = restify.createServer({ name, version })
+
+  server.on('after', restify.plugins.metrics({ server }, (err, metrics, req/*, res, route */) => {
+    if (err) {
+      // do nothing
+    }
+
+    const requestContext = getRequestContext(req)
+    const loggingParams = Object.assign({}, requestContext, {
+      metrics
+    })
+
+    // clean for garbage collection
+    req.apmSpans = {}
+
+    logTrace(loggingParams, 'Metrics')
+  }))
+
+  // create an object that can be used to store any APM spans
+  server.use((req, res, next) => {
+    req.apmSpans = {}
+
+    req.apmSpans.restifyPlugins = apm.startSpan('Restify plugins')
+    next()
+  })
+
+  server.pre(restify.plugins.pre.context())
+
+  server.use(restify.plugins.acceptParser(server.acceptable))
+  server.use(restify.plugins.queryParser())
+  server.use(restify.plugins.gzipResponse())
+  server.use(restify.plugins.bodyParser())
+
+  server.pre(cors.preflight)
+  server.use(cors.actual)
+
+  const allowedErrorFields = [
+    'message',
+    'code',
+    'public',
+    'statusCode' // must be present because it is used by Restify to display custom error fields
+  ]
+  const indexedErrorFields = _.keyBy(allowedErrorFields)
+
+  // Errors can have a property `expose` (which is automatically created by http-errors)
+  // if `expose` is true, the error message is displayed as is
+  // otherwise the standard HTTP error message is displayed: https://nodejs.org/api/http.html#http_http_status_codes
+  // This is to prevent leaking unwanted internal information outside
+
+  // By default, `expose` is false if status code >= 500
+  // but this behaviour can be overriden by `createError(500, 'My custom error message', { expose: true })
+
+  // If an error has the property `public`, the server will convert it into `data` and expose it
+  // even if `expose` is false.
+  function getFormattedError (err, statusCode) {
+    const alt = serializeError(err)
+
+    Object.getOwnPropertyNames(alt).forEach(key => {
+      if (!indexedErrorFields[key]) {
+        delete alt[key]
+      }
+    })
+
+    // if the error object have a field `public` (data that can be exposed to public)
+    // rename it into `data` for API response
+    if (err.public) {
+      alt.data = err.public
+      delete alt.public
+    }
+
+    // Show the error stack if the environment isn't PROD
+    if (!PROD && err.stack) {
+      alt._stack = err.stack.split('\n')
+    }
+
+    // Hide the error message if the error isn't exposed
+    if (!err.expose) {
+      if (!PROD) {
+        alt._message = err.message
+      }
+      alt.message = http.STATUS_CODES[statusCode]
+    }
+
+    return alt
   }
 
-  // Let external plugins self-load using command line for tests.
-  // Please refer to docs/plugins.md.
-  const toLoad = (process.env.STELACE_PLUGINS_PATHS || '')
-    // Comma-separated list of plugin absolute paths to load before starting server.
-    .split(',')
-    .filter(Boolean)
-    .map(s => s.trim())
-  if (Array.isArray(toLoad) && toLoad.length) toLoad.forEach(loadPlugin)
+  function logRequestError (req, res, err) {
+    const requestContext = getRequestContext(req)
+    const metrics = {
+      statusCode: res.statusCode,
+      method: req.method,
+      path: req.path()
+    }
 
-  // Register all plugins
-  const plugins = getPlugins()
+    logError(err, {
+      custom: {
+        metrics, // manually rebuild the metrics object to have the same fields as the real metrics
+        requestContext
+      },
+      enableApmLog: false, // disable APM logs here, as errors are already handled by APM connect middleware
+      message: 'Error'
+    })
+  }
 
-  plugins.forEach(plugin => {
-    if (plugin.routes) {
-      const name = plugin.name
-      routes.registerRoutes(name, plugin.routes)
+  server.on('restifyError', function (req, res, err, next) {
+    const statusCode = err.statusCode || 500
+    err.statusCode = statusCode
+
+    res.status(statusCode)
+
+    if (statusCode === 401) {
+      // https://tools.ietf.org/html/draft-ietf-httpbis-p7-auth-19#section-4.4
+      const realm = 'Stelace API'
+      const realmAsUser = `${realm} as a user`
+      res.header('www-authenticate',
+        // Returning Basic scheme first
+        // http://test.greenbytes.de/tech/tc/httpauth/#multibasicunknown
+        `Basic realm="${realm}", Bearer realm="${realmAsUser}", Stelace-v1 realm="${realmAsUser}"`
+      )
     }
-    if (plugin.middlewares) {
-      middlewares.register(injectStelaceParams(plugin.middlewares))
-    }
-    if (plugin.versions) {
-      if (plugin.versions.validation) {
-        plugin.versions.validation.forEach(v => {
-          registerValidationVersions(injectStelaceParams(v))
-        })
-      }
-      if (plugin.versions.request) {
-        plugin.versions.request.forEach(change => {
-          registerRequestChanges(injectStelaceParams(change))
-        })
-      }
-      if (plugin.versions.response) {
-        plugin.versions.response.forEach(change => {
-          registerResponseChanges(injectStelaceParams(change))
-        })
-      }
-      if (plugin.versions.object) {
-        plugin.versions.object.forEach(change => {
-          registerObjectChanges(injectStelaceParams(change))
-        })
-      }
-    }
-    if (plugin.permissions) {
-      plugin.permissions.forEach(permission => {
-        registerPermission(injectStelaceParams(permission))
+
+    // Prevents 'undefined' string from showing up in APM route errors
+    // https://github.com/elastic/apm-agent-nodejs/blob/v2.17.0/lib/parsers.js#L26
+    err.params = err.params || []
+
+    if (typeof err === 'object' && !(err instanceof Error)) {
+      logRequestError(req, res, err)
+
+      const newError = getFormattedError(err, statusCode)
+
+      const keys = _.uniq(Object.getOwnPropertyNames(err).concat(Object.keys(newError)))
+
+      // copy newError into err
+      keys.forEach(key => {
+        if (newError[key]) {
+          err[key] = newError[key]
+        } else {
+          delete err[key]
+        }
       })
+
+      res.send(err)
+      return next()
+    }
+
+    err.toJSON = () => {
+      logRequestError(req, res, err)
+
+      // only expose body (used in Restify validation error)
+      if (typeof err.body === 'object') {
+        return err.body
+      }
+
+      return getFormattedError(err, statusCode)
+    }
+
+    res.send(err)
+    return next()
+  })
+
+  try {
+    // plugins can use Stelace core dependencies if they provide a function
+    const injectStelaceTooling = (pluginObject) => {
+      if (typeof pluginObject === 'function') return pluginObject(stelaceTooling)
+      else return pluginObject
+    }
+
+    // Let external plugins self-load using command line for tests.
+    // Please refer to docs/plugins.md.
+    const toLoad = (process.env.STELACE_PLUGINS_PATHS || '')
+      // Comma-separated list of plugin absolute paths to load before starting server.
+      .split(',')
+      .filter(Boolean)
+      .map(s => s.trim())
+    if (Array.isArray(toLoad) && toLoad.length) toLoad.forEach(loadPlugin)
+
+    // Register all plugins
+    const plugins = getPlugins()
+
+    plugins.forEach(plugin => {
+      if (plugin.routes) {
+        const name = plugin.name
+        routes.registerRoutes(name, plugin.routes)
+      }
+      if (plugin.middlewares) {
+        middlewares.register(injectStelaceTooling(plugin.middlewares))
+      }
+      if (plugin.versions) {
+        if (plugin.versions.validation) {
+          plugin.versions.validation.forEach(v => {
+            registerValidationVersions(injectStelaceTooling(v))
+          })
+        }
+        if (plugin.versions.request) {
+          plugin.versions.request.forEach(change => {
+            registerRequestChanges(injectStelaceTooling(change))
+          })
+        }
+        if (plugin.versions.response) {
+          plugin.versions.response.forEach(change => {
+            registerResponseChanges(injectStelaceTooling(change))
+          })
+        }
+        if (plugin.versions.object) {
+          plugin.versions.object.forEach(change => {
+            registerObjectChanges(injectStelaceTooling(change))
+          })
+        }
+      }
+      if (plugin.permissions) {
+        plugin.permissions.forEach(permission => {
+          registerPermission(injectStelaceTooling(permission))
+        })
+      }
+    })
+  } catch (err) {
+    logError(err, { message: 'Loading plugins error' })
+    process.exit(1)
+  }
+
+  server.use((req, res, next) => {
+    req.apmSpans.restifyPlugin && req.apmSpans.restifyPlugins.end()
+    req.apmSpans.restifyPlugins = null
+
+    req.apmSpans.requestInit = apm.startSpan('Request initialization')
+
+    req._requestId = Uuid.v4()
+    req._ip = getIp(req)
+
+    // set this header for CORS
+    res.header('access-control-allow-credentials', true)
+
+    next()
+  })
+
+  // Add any routes here that don't need a platform ID
+  server.use((req, res, next) => {
+    const isSystemUrl = req.url.startsWith('/system/')
+    const isStoreUrl = req.url.startsWith('/store/')
+    const isRobotsTxtUrl = req.url === '/robots.txt'
+    const isHomeUrl = req.url === '/'
+    const isTokenConfirmCheckUrl = req.url.startsWith('/token/check/') && req.url !== '/token/check/request'
+    const isSSOUrl = req.url.startsWith('/auth/sso')
+
+    const { spec: { optionalApiKey, manualAuth } } = req.getRoute() || { spec: {} }
+    req._optionalApiKeyRoute = Boolean(optionalApiKey) // Authorization header may still be required (e.g. token)
+    req._manualAuthRoute = Boolean(manualAuth) // no Authorization info required at all
+
+    req._allowMissingPlatformId = isSystemUrl ||
+      isStoreUrl ||
+      isRobotsTxtUrl ||
+      isHomeUrl ||
+      req._optionalApiKeyRoute ||
+      req._manualAuthRoute ||
+      isTokenConfirmCheckUrl ||
+      isSSOUrl
+
+    req.apmSpans.requestInit && req.apmSpans.requestInit.end()
+    req.apmSpans.requestInit = null
+
+    next()
+  })
+
+  // /////// //
+  // WARNING //
+  // /////// //
+
+  // Updating the below code must be done with extra care
+  // because it allows the API requester to override the default behaviour
+  // (getting platform information from public/secret API key)
+
+  // Only few use cases need that override behaviour:
+  // - test environment
+  // - workflows
+  server.use(async (req, res, next) => {
+    const apmSpan = apm.startSpan('System headers')
+
+    try {
+      const rawSystemKey = req.headers['x-stelace-system-key']
+      if (rawSystemKey) {
+        if (!systemHashFunction) {
+          systemHashFunction = getSystemKeyHashFunction(systemHashPassphrase)
+        }
+
+        // store the system hash so any service can determine if the request comes from system
+        req._systemHash = systemHashFunction(rawSystemKey)
+      }
+
+      const rawWorkflowHeader = req.headers['x-stelace-workflow-key']
+      const workflowKey = getLocalInstanceKey()
+
+      // Detect workflow requests, currently executed by same instance only.
+      // Unlike HTTP host, req.connection is hard to spoof.
+      // https://github.com/expressjs/express/issues/2518
+      const isLocal = req.connection.localAddress === req.connection.remoteAddress
+
+      if (rawWorkflowHeader && workflowKey === rawWorkflowHeader && isLocal) {
+        // could be turned into an object with additional metadata in the future
+        req._workflow = true
+      }
+
+      // If the header 'x-platform-id' or 'x-stelace-env' are present and allowed to be used
+      // they override the platformId and env usually set by API key.
+      // TODO: use API Key in tests to align with 'production' NODE_ENV (cf. test/auth.js getAccessTokenHeaders)
+      const usePlatformHeaders = TEST || Boolean(req._workflow) || isSystem(req._systemHash)
+
+      const rawPlatformIdHeader = req.headers['x-platform-id']
+      const rawEnvHeader = req.headers['x-stelace-env']
+
+      if (rawPlatformIdHeader && usePlatformHeaders) {
+        req.platformId = rawPlatformIdHeader
+      }
+      if (rawEnvHeader && usePlatformHeaders) {
+        req.env = rawEnvHeader
+      }
+
+      next()
+    } catch (err) {
+      next(err)
+    } finally {
+      apmSpan && apmSpan.end()
     }
   })
-} catch (err) {
-  logError(err, { message: 'Loading plugins error' })
-  process.exit(1)
-}
 
-server.use((req, res, next) => {
-  req.apmSpans.restifyPlugin && req.apmSpans.restifyPlugins.end()
-  req.apmSpans.restifyPlugins = null
+  // Get platform information (platformId, env, version, plan…) from API key
+  server.use(async (req, res, next) => {
+    const apmSpan = apm.startSpan('Parse Authorization and get platform info')
 
-  req.apmSpans.requestInit = apm.startSpan('Request initialization')
+    try {
+      parseAuthorizationHeader(req)
+    } catch (err) { // still trying to parse authorization header for convenience when not required
+      if (!req._manualAuthRoute) {
+        apmSpan && apmSpan.end()
+        return next(err)
+      }
+    }
 
-  req._requestId = Uuid.v4()
-  req._ip = getIp(req)
-
-  // set this header for CORS
-  res.header('access-control-allow-credentials', true)
-
-  next()
-})
-
-// Add any routes here that don't need a platform ID
-server.use((req, res, next) => {
-  const isSystemUrl = req.url.startsWith('/system/')
-  const isStoreUrl = req.url.startsWith('/store/')
-  const isRobotsTxtUrl = req.url === '/robots.txt'
-  const isHomeUrl = req.url === '/'
-  const isTokenConfirmCheckUrl = req.url.startsWith('/token/check/') && req.url !== '/token/check/request'
-  const isSSOUrl = req.url.startsWith('/auth/sso')
-
-  const { spec: { optionalApiKey, manualAuth } } = req.getRoute() || { spec: {} }
-  req._optionalApiKeyRoute = Boolean(optionalApiKey) // Authorization header may still be required (e.g. token)
-  req._manualAuthRoute = Boolean(manualAuth) // no Authorization info required at all
-
-  req._allowMissingPlatformId = isSystemUrl ||
-    isStoreUrl ||
-    isRobotsTxtUrl ||
-    isHomeUrl ||
-    req._optionalApiKeyRoute ||
-    req._manualAuthRoute ||
-    isTokenConfirmCheckUrl ||
-    isSSOUrl
-
-  req.apmSpans.requestInit && req.apmSpans.requestInit.end()
-  req.apmSpans.requestInit = null
-
-  next()
-})
-
-// /////// //
-// WARNING //
-// /////// //
-
-// Updating the below code must be done with extra care
-// because it allows the API requester to override the default behaviour
-// (getting platform information from public/secret API key)
-
-// Only few use cases need that override behaviour:
-// - test environment
-// - workflows
-server.use(async (req, res, next) => {
-  const apmSpan = apm.startSpan('System headers')
-
-  try {
-    const rawSystemKey = req.headers['x-stelace-system-key']
-    if (rawSystemKey) {
-      if (!systemHashFunction) {
-        systemHashFunction = getSystemKeyHashFunction(systemHashPassphrase)
+    try {
+      const setPlanAndVersion = async ({ errParams } = {}) => {
+        try {
+          const info = await getPlatformEnvData(req.platformId, req.env, [
+            'plan', // can be set by some plugin
+            'version'
+          ])
+          req._plan = info ? info.plan : null
+          req._platformVersion = info ? info.version : null
+        } catch (err) {
+          if (Array.isArray(errParams)) throw createError(...errParams)
+          else throw err
+        }
       }
 
-      // store the system hash so any service can determine if the request comes from system
-      req._systemHash = systemHashFunction(rawSystemKey)
-    }
+      const rawApiKey = req.authorization.apiKey || req.headers['x-api-key']
+      // get the platformId from the api key
+      if (!req.platformId && rawApiKey) {
+        const parsedApiKey = parseApiKey(rawApiKey)
+        if (_.get(parsedApiKey, 'hasValidFormat')) {
+          req.platformId = parsedApiKey.platformId
+          req.env = parsedApiKey.env
 
-    const rawWorkflowHeader = req.headers['x-stelace-workflow-key']
-    const workflowKey = getLocalInstanceKey()
+          await setPlanAndVersion({
+            platformId: req.platformId,
+            env: req.env,
+            errParams: [401, 'Invalid API Key']
+          })
+        }
+      }
 
-    // Detect workflow requests, currently executed by same instance only.
-    // Unlike HTTP host, req.connection is hard to spoof.
-    // https://github.com/expressjs/express/issues/2518
-    const isLocal = req.connection.localAddress === req.connection.remoteAddress
+      // Do not load the plan for routes where platformId and env can be omitted:
+      // - general routes (e.g. /system/health, /robots.txt)
+      // - public routes like SSO
+      // - some plugin routes
+      const shouldSetPlan = !req._plan && req.platformId && req.env
+      if (shouldSetPlan) {
+        await setPlanAndVersion({ errParams: [400, 'Invalid platformId or env'] })
+      }
 
-    if (rawWorkflowHeader && workflowKey === rawWorkflowHeader && isLocal) {
-      // could be turned into an object with additional metadata in the future
-      req._workflow = true
-    }
+      if (!req.env) {
+        const defaultEnv = getDefaultEnvironment()
+        if (defaultEnv) {
+          req.env = defaultEnv
+        }
+      }
 
-    // If the header 'x-platform-id' or 'x-stelace-env' are present and allowed to be used
-    // they override the platformId and env usually set by API key.
-    // TODO: use API Key in tests to align with 'production' NODE_ENV (cf. test/auth.js getAccessTokenHeaders)
-    const usePlatformHeaders = TEST || Boolean(req._workflow) || isSystem(req._systemHash)
+      if ((!req.platformId || !req.env) && !req._allowMissingPlatformId) {
+        if (rawApiKey) throw createError(401, 'Invalid API key')
+        else throw createError(401, 'Please provide a secret or publishable API key')
+      }
 
-    const rawPlatformIdHeader = req.headers['x-platform-id']
-    const rawEnvHeader = req.headers['x-stelace-env']
+      if (req.env && !isValidEnvironment(req.env)) {
+        throw createError(400, `Environment "${req.env}" not supported'`)
+      }
 
-    if (rawPlatformIdHeader && usePlatformHeaders) {
-      req.platformId = rawPlatformIdHeader
-    }
-    if (rawEnvHeader && usePlatformHeaders) {
-      req.env = rawEnvHeader
-    }
-
-    next()
-  } catch (err) {
-    next(err)
-  } finally {
-    apmSpan && apmSpan.end()
-  }
-})
-
-// Get platform information (platformId, env, version, plan…) from API key
-server.use(async (req, res, next) => {
-  const apmSpan = apm.startSpan('Parse Authorization and get platform info')
-
-  try {
-    parseAuthorizationHeader(req)
-  } catch (err) { // still trying to parse authorization header for convenience when not required
-    if (!req._manualAuthRoute) {
+      next()
+    } catch (err) {
+      next(err)
+    } finally {
       apmSpan && apmSpan.end()
-      return next(err)
     }
-  }
+  })
 
-  try {
-    const setPlanAndVersion = async ({ errParams } = {}) => {
-      try {
-        const info = await getPlatformEnvData(req.platformId, req.env, [
-          'plan', // can be set by some plugin
-          'version'
-        ])
-        req._plan = info ? info.plan : null
-        req._platformVersion = info ? info.version : null
-      } catch (err) {
-        if (Array.isArray(errParams)) throw createError(...errParams)
-        else throw err
-      }
-    }
+  server.use(async (req, res, next) => {
+    const apmSpan = apm.startSpan('Stelace version')
+    const { platformId, env } = req
 
-    const rawApiKey = req.authorization.apiKey || req.headers['x-api-key']
-    // get the platformId from the api key
-    if (!req.platformId && rawApiKey) {
-      const parsedApiKey = parseApiKey(rawApiKey)
-      if (_.get(parsedApiKey, 'hasValidFormat')) {
-        req.platformId = parsedApiKey.platformId
-        req.env = parsedApiKey.env
+    try {
+      const selectedVersion = req.headers['x-stelace-version']
 
-        await setPlanAndVersion({
-          platformId: req.platformId,
-          env: req.env,
-          errParams: [401, 'Invalid API Key']
+      if (selectedVersion && !apiVersions.includes(selectedVersion)) {
+        throw createError(400, `Invalid Stelace version '${selectedVersion}'`, {
+          public: { versionsAvailable: apiVersions }
         })
       }
-    }
 
-    // Do not load the plan for routes where platformId and env can be omitted:
-    // - general routes (e.g. /system/health, /robots.txt)
-    // - public routes like SSO
-    // - some plugin routes
-    const shouldSetPlan = !req._plan && req.platformId && req.env
-    if (shouldSetPlan) {
-      await setPlanAndVersion({ errParams: [400, 'Invalid platformId or env'] })
-    }
+      req._apiVersions = apiVersions
+      req._latestVersion = apiVersions[0]
+      req._selectedVersion = selectedVersion || req._platformVersion || req._latestVersion
 
-    if (!req.env) {
-      const defaultEnv = getDefaultEnvironment()
-      if (defaultEnv) {
-        req.env = defaultEnv
+      // Update the platform default API version if not set yet
+      if (!req._platformVersion && platformId && env) {
+        await setPlatformEnvData(platformId, env, 'version', req._latestVersion)
       }
-    }
 
-    if ((!req.platformId || !req.env) && !req._allowMissingPlatformId) {
-      if (rawApiKey) throw createError(401, 'Invalid API key')
-      else throw createError(401, 'Please provide a secret or publishable API key')
+      next()
+    } catch (err) {
+      next(err)
+    } finally {
+      apmSpan && apmSpan.end()
     }
+  })
 
-    if (req.env && !isValidEnvironment(req.env)) {
-      throw createError(400, `Environment "${req.env}" not supported'`)
-    }
+  loadStrategies(server)
+
+  server.use((req, res, next) => {
+    addRequestContext(apm, req)
 
     next()
-  } catch (err) {
-    next(err)
-  } finally {
-    apmSpan && apmSpan.end()
-  }
-})
+  })
 
-server.use(async (req, res, next) => {
-  const apmSpan = apm.startSpan('Stelace version')
-  const { platformId, env } = req
+  server.use(validator())
 
-  try {
-    const selectedVersion = req.headers['x-stelace-version']
+  // ensure request compatibility
+  server.use(async (req, res, next) => {
+    try {
+      const fromVersion = req._selectedVersion
+      const toVersion = req._latestVersion
+      const target = req.route.spec.name
 
-    if (selectedVersion && !apiVersions.includes(selectedVersion)) {
-      throw createError(400, `Invalid Stelace version '${selectedVersion}'`, {
-        public: { versionsAvailable: apiVersions }
-      })
+      await applyRequestChanges({ target, fromVersion, toVersion, params: { req } })
+
+      next()
+    } catch (err) {
+      next(err)
     }
+  })
 
-    req._apiVersions = apiVersions
-    req._latestVersion = apiVersions[0]
-    req._selectedVersion = selectedVersion || req._platformVersion || req._latestVersion
+  // Dismiss polite bots
+  server.get('/robots.txt', function (req, res, next) {
+    res.set({
+      'Content-Type': 'text/plain'
+    })
+    res.send('User-Agent: *\nDisallow: /')
+    next() // need to call next to have metrics correctly populated
+  })
 
-    // Update the platform default API version if not set yet
-    if (!req._platformVersion && platformId && env) {
-      await setPlatformEnvData(platformId, env, 'version', req._latestVersion)
-    }
-
+  server.get('/', (req, res, next) => {
+    res.json({
+      message: 'Welcome to Stelace API. Please have a look at https://stelace.com/docs to see what we can build together.'
+    })
     next()
-  } catch (err) {
-    next(err)
-  } finally {
-    apmSpan && apmSpan.end()
-  }
-})
+  })
 
-loadStrategies(server)
+  middlewares.beforeRoutes(server, stelaceTooling)
+
+  routes.init(server, {
+    middlewares: {
+      allowSystem,
+      checkPermissions,
+      restifyAuthorizationParser,
+      ...middlewares.getAll() // shared between all plugins and core server
+    },
+    helpers: {
+      wrapAction,
+      populateRequesterParams,
+      getRequestContext: getRouteRequestContext
+    }
+  })
+
+  // must be the last middleware before error middleware
+  if (isApmActive) {
+    server.use(apm.middleware.connect())
+  }
+
+  return server
+}
 
 function getAuthorizationParams (req) {
   return {
@@ -724,67 +778,8 @@ function wrapAction (fn, { routeAction = true } = {}) {
   }
 }
 
-server.use((req, res, next) => {
-  addRequestContext(apm, req)
-
-  next()
-})
-
-server.use(validator())
-
-// ensure request compatibility
-server.use(async (req, res, next) => {
-  try {
-    const fromVersion = req._selectedVersion
-    const toVersion = req._latestVersion
-    const target = req.route.spec.name
-
-    await applyRequestChanges({ target, fromVersion, toVersion, params: { req } })
-
-    next()
-  } catch (err) {
-    next(err)
-  }
-})
-
-// Dismiss polite bots
-server.get('/robots.txt', function (req, res, next) {
-  res.set({
-    'Content-Type': 'text/plain'
-  })
-  res.send('User-Agent: *\nDisallow: /')
-  next() // need to call next to have metrics correctly populated
-})
-
-server.get('/', (req, res, next) => {
-  res.json({
-    message: 'Welcome to Stelace API. Please have a look at https://stelace.com/docs to see what we can build together.'
-  })
-  next()
-})
-
-middlewares.beforeRoutes(server, StelaceParams)
-
-routes.init(server, {
-  middlewares: {
-    allowSystem,
-    checkPermissions,
-    restifyAuthorizationParser,
-    ...middlewares.getAll() // shared between all plugins and core server
-  },
-  helpers: {
-    wrapAction,
-    populateRequesterParams,
-    getRequestContext: getRouteRequestContext
-  }
-})
-
-// must be the last middleware before error middleware
-if (isApmActive) {
-  server.use(apm.middleware.connect())
-}
-
 let configRequester
+let stl // keeping track of server (last one if several were started)
 
 /**
  * @param {Boolean} [enableSignal = true] - has an impact on performance and can be disabled
@@ -797,6 +792,9 @@ function start ({
   communicationEnv
 } = {}) {
   return new Promise((resolve, reject) => {
+    const server = loadServer()
+    stl = server
+
     if (communicationEnv) {
       communication.setEnvironment(communicationEnv)
     }
@@ -822,7 +820,7 @@ function start ({
 
       communication.setServerPort(serverPort)
 
-      const startParams = Object.assign({}, StelaceParams, {
+      const startParams = Object.assign({}, stelaceTooling, {
         serverPort,
         stelaceIO
       })
@@ -858,20 +856,15 @@ function start ({
 }
 
 /**
- * @param {Object} [server]
+ * @param {Object} [server] - Server to stop, defaults to server started last
+ * @param {Number} [gracefulStopDuration] - in milliseconds
  */
 function stop ({
-  server: serverToStop,
+  server: serverToStop = stl,
   gracefulStopDuration = 1000
 } = {}) {
-  let stoppingServer = server
-
-  if (serverToStop) {
-    stoppingServer = serverToStop
-  }
-
   return new Promise((resolve) => {
-    ;(stoppingServer.stelaceIO || stoppingServer).close(() => {
+    ;(serverToStop.stelaceIO || serverToStop).close(() => {
       auth.stop()
       services.stop()
       routes.stop()
@@ -888,15 +881,6 @@ function stop ({
 }
 
 module.exports = {
-  server,
   start,
-  stop,
-
-  permissions,
-  redis,
-  roles,
-  versions,
-
-  utils,
-  testTools,
+  stop
 }
