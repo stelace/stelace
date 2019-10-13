@@ -149,7 +149,8 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.post({
     name: 'stripe.webhooks.subscription',
-    path: '/providers/stripe/webhooks/:key/subscriptions'
+    path: '/providers/stripe/webhooks/:key/subscriptions',
+    optionalApiKey: true
   }, wrapAction(async (req, res) => {
     const {
       key

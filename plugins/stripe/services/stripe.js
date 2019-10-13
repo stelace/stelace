@@ -374,8 +374,7 @@ module.exports = function createService (deps) {
     } = req
 
     const privateConfig = await configRequester.communicate(req)({
-      type: 'read',
-      _matchedPermissions: { 'config:read:all': true },
+      type: '_getConfig',
       access: 'private'
     })
 
@@ -449,8 +448,7 @@ module.exports = function createService (deps) {
     }
 
     const privateConfig = await configRequester.communicate(req)({
-      type: 'read',
-      _matchedPermissions: { 'config:read:all': true },
+      type: '_getConfig',
       access: 'private'
     })
 
