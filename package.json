@@ -70,7 +70,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
     "ms": "^2.1.2",
-    "nodemailer": "^6.3.0",
+    "nodemailer": "^6.3.1",
     "objection": "https://github.com/stelace/objection.js.git#stelace",
     "objection-db-errors": "^1.1.1",
     "openid-client": "3.7.3",
