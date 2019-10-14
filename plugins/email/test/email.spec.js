@@ -76,80 +76,102 @@ test.serial('sends email for real and check that information is correct', async 
     return
   }
 
-  await setEmailConfig(t, {
-    stelace: {
-      email: {
-        host: account.smtp.host,
-        port: account.smtp.port,
-        secure: account.smtp.secure,
-        auth: {
-          user: account.user,
-          pass: account.pass
-        },
-        defaults: {
-          from: account.user,
-          cc: 'user1@example.com, "User2" <user2@example.com>',
-          bcc: [
-            {
-              name: 'User3',
-              address: 'user3@example.com'
-            },
-            'user4@example.com, "User5" <user5@example.com>'
-          ]
+  async function runEmailsTest (debugEmails) {
+    process.env.DEBUG_EMAILS = debugEmails
+
+    await setEmailConfig(t, {
+      stelace: {
+        email: {
+          host: account.smtp.host,
+          port: account.smtp.port,
+          secure: account.smtp.secure,
+          auth: {
+            user: account.user,
+            pass: account.pass
+          },
+          defaults: {
+            from: account.user,
+            cc: 'user1@example.com, "User2" <user2@example.com>',
+            bcc: [
+              {
+                name: 'User3',
+                address: 'user3@example.com'
+              },
+              'user4@example.com, "User5" <user5@example.com>'
+            ]
+          }
         }
       }
-    }
-  })
+    })
 
-  const payload = {
-    html: '<div>Hello world!</div>',
-    text: 'Hello world',
-    to: 'Example user <test@example.com>',
-    subject: 'Test subject',
-    replyTo: 'support@company.com'
+    const payload = {
+      html: '<div>Hello world!</div>',
+      text: 'Hello world',
+      to: 'Example user <test@example.com>',
+      subject: 'Test subject',
+      replyTo: 'support@company.com'
+    }
+
+    const { body: { emailContext, nodemailerInfo } } = await request(t.context.serverUrl)
+      .post('/emails/send?_forceSend=true')
+      .set(authorizationHeaders)
+      .send(payload)
+      .expect(200)
+
+    t.is(payload.html, emailContext.html)
+    t.is(payload.text, emailContext.text)
+    t.is(payload.subject, emailContext.subject)
+    t.is(payload.replyTo, emailContext.replyTo)
+
+    if (debugEmails) {
+      t.is(debugEmails, emailContext.to)
+    } else {
+      t.is(payload.to, emailContext.to)
+    }
+
+    t.is(nodemailerInfo.envelope.from, account.user)
+    t.true(nodemailerInfo.response.toLowerCase().includes('accepted'))
+
+    // no way to easily distinguish to, cc, bcc from Nodemailer info
+    const toRecipients = debugEmails ? debugEmails.split(',') : ['test@example.com']
+
+    const recipients = toRecipients.concat([
+      'user1@example.com',
+      'user2@example.com',
+      'user3@example.com',
+      'user4@example.com',
+      'user5@example.com'
+    ])
+
+    t.deepEqual(nodemailerInfo.accepted, nodemailerInfo.envelope.to)
+    t.is(_.difference(nodemailerInfo.envelope.to, recipients).length, 0)
+
+    // check that default values are overridden
+    const newFrom = 'super@mail.com'
+    const { body: { nodemailerInfo: nodemailerInfo2 } } = await request(t.context.serverUrl)
+      .post('/emails/send?_forceSend=true')
+      .set(authorizationHeaders)
+      .send(Object.assign({}, payload, { from: newFrom }))
+      .expect(200)
+
+    t.is(nodemailerInfo2.envelope.from, newFrom)
+    t.true(nodemailerInfo2.response.toLowerCase().includes('accepted'))
+
+    t.deepEqual(nodemailerInfo2.accepted, nodemailerInfo2.envelope.to)
+    t.is(_.difference(nodemailerInfo2.envelope.to, recipients).length, 0)
   }
 
-  const { body: { emailContext, nodemailerInfo } } = await request(t.context.serverUrl)
-    .post('/emails/send?_forceSend=true')
-    .set(authorizationHeaders)
-    .send(payload)
-    .expect(200)
+  const originalDebugEmails = process.env.DEBUG_EMAILS
+  const testDebugEmails = 'debug1@example.com,debug2@example.com'
 
-  t.is(payload.html, emailContext.html)
-  t.is(payload.text, emailContext.text)
-  t.is(payload.to, emailContext.to)
-  t.is(payload.subject, emailContext.subject)
-  t.is(payload.replyTo, emailContext.replyTo)
+  // remove any debug emails from environment so they won't interfere with this test
+  await runEmailsTest('')
 
-  t.is(nodemailerInfo.envelope.from, account.user)
-  t.true(nodemailerInfo.response.toLowerCase().includes('accepted'))
+  // send emails with debug emails set
+  await runEmailsTest(testDebugEmails)
 
-  // no way to easily distinguish to, cc, bcc from Nodemailer info
-  const recipients = [
-    'test@example.com',
-    'user1@example.com',
-    'user2@example.com',
-    'user3@example.com',
-    'user4@example.com',
-    'user5@example.com'
-  ]
-
-  t.deepEqual(nodemailerInfo.accepted, nodemailerInfo.envelope.to)
-  t.is(_.difference(nodemailerInfo.envelope.to, recipients).length, 0)
-
-  // check that default values are overridden
-  const newFrom = 'super@mail.com'
-  const { body: { nodemailerInfo: nodemailerInfo2 } } = await request(t.context.serverUrl)
-    .post('/emails/send?_forceSend=true')
-    .set(authorizationHeaders)
-    .send(Object.assign({}, payload, { from: newFrom }))
-    .expect(200)
-
-  t.is(nodemailerInfo2.envelope.from, newFrom)
-  t.true(nodemailerInfo2.response.toLowerCase().includes('accepted'))
-
-  t.deepEqual(nodemailerInfo2.accepted, nodemailerInfo2.envelope.to)
-  t.is(_.difference(nodemailerInfo2.envelope.to, recipients).length, 0)
+  // reset environment variable `DEBUG_EMAILS` to its original value
+  process.env.DEBUG_EMAILS = originalDebugEmails
 
   // reset email config for other tests
   await setEmailConfig(t)
