@@ -76,8 +76,8 @@ test.serial('sends email for real and check that information is correct', async 
     return
   }
 
-  async function runEmailsTest (debugEmails) {
-    process.env.DEBUG_EMAILS = debugEmails
+  async function runEmailsTest (debugAddresses = '') {
+    process.env.DEBUG_EMAILS = debugAddresses
 
     await setEmailConfig(t, {
       stelace: {
@@ -123,8 +123,8 @@ test.serial('sends email for real and check that information is correct', async 
     t.is(payload.subject, emailContext.subject)
     t.is(payload.replyTo, emailContext.replyTo)
 
-    if (debugEmails) {
-      t.is(debugEmails, emailContext.to)
+    if (debugAddresses) {
+      t.is(debugAddresses, emailContext.to)
     } else {
       t.is(payload.to, emailContext.to)
     }
@@ -133,7 +133,7 @@ test.serial('sends email for real and check that information is correct', async 
     t.true(nodemailerInfo.response.toLowerCase().includes('accepted'))
 
     // no way to easily distinguish to, cc, bcc from Nodemailer info
-    const toRecipients = debugEmails ? debugEmails.split(',') : ['test@example.com']
+    const toRecipients = debugAddresses ? debugAddresses.split(',') : ['test@example.com']
 
     const recipients = toRecipients.concat([
       'user1@example.com',
@@ -162,13 +162,13 @@ test.serial('sends email for real and check that information is correct', async 
   }
 
   const originalDebugEmails = process.env.DEBUG_EMAILS
-  const testDebugEmails = 'debug1@example.com,debug2@example.com'
+  const testDebugAddresses = 'debug1@example.com,debug2@example.com'
 
   // remove any debug emails from environment so they won't interfere with this test
-  await runEmailsTest('')
+  await runEmailsTest()
 
   // send emails with debug emails set
-  await runEmailsTest(testDebugEmails)
+  await runEmailsTest(testDebugAddresses)
 
   // reset environment variable `DEBUG_EMAILS` to its original value
   process.env.DEBUG_EMAILS = originalDebugEmails
