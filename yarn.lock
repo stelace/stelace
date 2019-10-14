@@ -1118,10 +1118,10 @@ aws-param-store@^3.0.0:
   resolved "https://registry.yarnpkg.com/aws-param-store/-/aws-param-store-3.0.0.tgz#d3ac572fb93832ea4d02c460c3ec6601910826d7"
   integrity sha512-DKeJgRYoWlwVCKRVxDiBWXZWyGBf/w8zW0zt3bQIE0oOTb/ouX/G6WgzDMDHU6jhdO/pJQ/DZ6yc1BDazYdN+w==
 
-aws-sdk@^2.544.0:
-  version "2.544.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.544.0.tgz#d99eeada8237ee67699ce6644f8070eeb84996e7"
-  integrity sha512-wwiBJgAUGKXY/xoCSrUXVZnNtefoH3YcPwGxQrQXOIDnLMQ32yh/SWc52qmwdxA7WJzpTcIj8y+5keH3P1LYaw==
+aws-sdk@^2.548.0:
+  version "2.548.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.548.0.tgz#20a3c7a77e1c6fd694cdb5e0ecc0ccf0d0542674"
+  integrity sha512-dnG1MEc3uOonGDswHPiq7TYn6EOG3+IQhF2LSRambz9adaZxwRgFOII7UVPJjh33FtxKpMzOSmf62R+EX822Nw==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
