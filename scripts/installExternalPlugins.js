@@ -38,7 +38,7 @@ if (installs.length) {
   // so we can run their tests with AVA along with other core server tests
   getInstalledPluginsNames().forEach(p => {
     // Getting plugin root directory
-    log('Copying plugin tests and files to plugins/installed directory')
+    log(`Copying ${p} plugin tests and files to plugins/installed directory`)
     const pluginDirectory = path.dirname(require.resolve(`${p}/package.json`))
     const pluginFiles = `${pluginDirectory}/.`
     execSync(`mkdir -p ${installedPluginsDir}/${p} && cp -a ${pluginFiles} ${installedPluginsDir}/${p}`, {

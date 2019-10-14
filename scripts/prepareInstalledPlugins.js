@@ -1,5 +1,7 @@
 /**
- * This scripts prepares tests of installed plugins to run with core server tests
+ * This scripts prepares installed plugins to run with local server
+ * by rewriting require('stelace-server') calls.
+ * Docker/CI build process requires to separate this step from plugin install.
  * TODO: Use ShellJS for better portability https://github.com/shelljs/shelljs
  */
 
