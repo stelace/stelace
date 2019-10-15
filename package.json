@@ -56,7 +56,7 @@
     "cron-converter": "^1.0.0",
     "debug": "~4.1.0",
     "dotenv": "^8.1.0",
-    "elastic-apm-node": "~2.17.2",
+    "elastic-apm-node": "~3.0.0",
     "elasticsearch": "^16.4.0",
     "glob": "^7.1.4",
     "handlebars": "^4.4.3",
