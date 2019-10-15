@@ -34,6 +34,6 @@ RUN mkdir -p /usr/src/app && cd /usr/src/app && ln -s /tmp/node_modules
 # Copy app directory
 COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN --mount=type=secret,id=env,dst=/usr/src/app/.env yarn plugins:pretest
+RUN --mount=type=secret,id=env,dst=/usr/src/app/.env yarn plugins:prepare
 
 CMD [ "node", "start.js" ]

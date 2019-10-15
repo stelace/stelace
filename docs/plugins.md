@@ -16,10 +16,13 @@ All official plugins are currently included in `plugins` directory of Stelace se
 You can:
 
 - Exclude local plugins with `IGNORED_LOCAL_PLUGINS` environment variable
-- `npm install`/`yarn add` any additional plugins and add them to `INSTALLED_PLUGINS` environment variable
-- or simply add Github repository URLs to `INSTALLED_PLUGINS` comma-separated list and run `yarn plugins:install` if you have private plugins you don’t want to commit into package.json.
+- `npm install`/`yarn add` any additional plugins (added to package.json) and add them to `INSTALLED_PLUGINS` environment variable
+- or simply add Github repository URLs to `INSTALLED_PLUGINS` comma-separated list and run `yarn plugins`
 
-When using `INSTALLED_PLUGINS`, you’ll have to run `yarn plugins:pretest` before running tests, so that `require('stelace-server`)` calls in installed plugins are replaced with references to local server.
+When using `INSTALLED_PLUGINS` and `yarn plugins`, this runs two commands internally, supporting __private plugins__:
+
+- `yarn plugins:install` adds `INSTALLED_PLUGINS` to node_modules without updating package.json, unless you pass `--save` flag. Modules are then copied to `plugins/installed` `.gitignore`’d directory to avoid tampering with node_modules.
+- `yarn plugins:prepare` rewrites `require('stelace-server')` calls to use local server.
 
 ## Develop
 
@@ -91,7 +94,7 @@ _Note: you can make use of `npm explore` to use this from within your plugin rep
 During continuous integration with circleCI:
 
 - missing `INSTALLED_PLUGINS` are automatically installed using `yarn plugins:install --save` script, which updates package.json before building Docker image.
-- After build, `yarn plugins:pretest` rewrites some `require('stelace-server')` calls to run all of server and plugin tests with local server before ending CI process.
+- After build, `yarn plugins:prepare` rewrites some `require('stelace-server')` calls to run all of server and plugin tests with local server before ending CI process.
 
 To support private plugins, `Dockerfile.prod` is configured to accept SSH key from ssh-agent as a secret during circleCI build.
 This way it does not leak into any Docker image layer.

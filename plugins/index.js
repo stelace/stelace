@@ -17,6 +17,7 @@ const { version: serverVersion } = require(path.join(__dirname, '../package.json
 
 const { IGNORED_LOCAL_PLUGINS, INSTALLED_PLUGINS } = process.env
 
+const stelaceServerPath = path.resolve(__dirname, '..')
 const pluginsLoadedManually = []
 const logged = {}
 
@@ -42,7 +43,7 @@ function getPlugins () {
 
   let externalPlugins = []
   if (INSTALLED_PLUGINS) {
-    externalPlugins = getInstalledPluginsNames().map(load)
+    externalPlugins = getInstalledPluginsNames().map(p => load(p, { useInstalledCopy: true }))
   }
 
   return [
@@ -80,16 +81,20 @@ function loadPlugin (path) {
   load(path, { isManual: true })
 }
 
-function load (file, { isLocalModule, isManual } = {}) {
+function load (name, { isLocalModule, isManual, useInstalledCopy } = {}) {
   let p
   try {
-    p = require(isLocalModule ? `./${file}` : file)
+    let mod = isLocalModule ? `./${name}` : name
+    if (useInstalledCopy) mod = path.join(stelaceServerPath, 'plugins/installed', name)
+    p = require(mod)
   } catch (err) {
-    const shouldInstall = !isLocalModule && !isManual
+    const installedModuleError = err.code === 'MODULE_NOT_FOUND' &&
+      /plugins[\\/]index\.js/.test(_.get(err, 'requireStack[0]', ''))
+    const shouldInstall = !isLocalModule && !isManual && installedModuleError
     const note = shouldInstall ? `Maybe you just forgot to run \`${
       chalk.bold('yarn plugins:install')
     }\`.\n` : ''
-    warn(err, `\n${chalk.bold(file)} plugin not found`, note)
+    warn(err, `\n${chalk.bold(name)} plugin error`, note)
     process.exit(0)
   }
   const { supportedServerVersions: versions } = p
