@@ -9,8 +9,8 @@ Open-source backend and API stack empowering dev teams to <strong>build, run and
 
 <p align="center">
   <a href="https://stelace.com">Stelace.com</a> |
-  <a href="https://forum.stelace.com">Forum</a> |
   <a href="https://stelace.com/docs">Documentation</a> |
+  <a href="https://forum.stelace.com">Forum</a> |
   <a href="https://stelace.com/blog">Blog</a> |
   <a href="https://twitter.com/StelaceAPI">Twitter</a>
 </p>
@@ -33,7 +33,7 @@ For a full-stack experience, you can get started [here](https://stelace.com/docs
 
 [![CircleCI](https://circleci.com/gh/stelace/stelace.svg?style=svg)](https://circleci.com/gh/stelace/stelace)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstelace%2Fstelace.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstelace%2Fstelace?ref=badge_shield)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-purple.svg)](https://standardjs.com)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-purple.svg)](https://conventionalcommits.org)
 
 ---
@@ -300,7 +300,7 @@ Before contributing to Stelace:
 
 ## License
 
-Stelace server is licensed under the terms of the GNU General Public License Version 3.
+Stelace API server for Web platforms is licensed under the terms of the GNU General Public License Version 3.
 
 Please [contact us](https://stelace.com/contact) to discuss other licensing options or have look at our [SaaS plans](https://stelace.com/pricing) for hosted backend and premium support.
 
