@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const test = require('ava')
+const _ = require('lodash')
 
 const {
   isIntersection,
@@ -56,25 +57,52 @@ test('validates the timezone', (t) => {
   t.false(isValidTimezone('Unknown/Timezone'))
 })
 
-test('computes recurring dates with default timezone', (t) => {
-  const recurringDates = computeRecurringDates('0 0 * * *', {
-    startDate: '2018-01-01T00:00:00.000Z',
-    endDate: '2018-01-05T00:00:00.000Z'
-  })
+const padDayOrMonth = n => _.padStart(n + 1, 2, '0')
 
-  t.deepEqual(recurringDates, [
-    '2018-01-01T00:00:00.000Z',
-    '2018-01-02T00:00:00.000Z',
-    '2018-01-03T00:00:00.000Z',
-    '2018-01-04T00:00:00.000Z'
-  ])
+/**
+ * @param {Function} expectedDatesFn - Accepts an object with the following arguments:
+ *   - `m`: month such as '02'
+ *   - `daysOfMonth`: array of all day strings like '28' to test in current month
+ *   - `recurringDates`: value returned by computeRecurringDates function to test
+ * @param {Object} options - for use in computeRecurringDates (timezone key/value expected)
+ */
+const testOverMonths = (expectedDatesFn, options = {}) => {
+  const months = _.range(12).map(padDayOrMonth)
+
+  // Test (almost) every day of the year to include Daylight Saving Time (DST)
+  // switch dates of any timezone used by the matching running tests.
+  // This test is mostly relevant on personal computers, generally not having UTC as timezone,
+  // unlike most CI servers where test is therefore unlikely to fail since UTC
+  // will be used as local timezone by underlying moment.js library anyway.
+  for (const m of months) {
+    const daysOfMonth = m === '02' ? 28 : 30
+    // No DST switch happened on the 31th of any month in 2018.
+    const recurringDates = computeRecurringDates('0 0 * * *', {
+      startDate: `2018-${m}-01T00:00:00.000Z`,
+      endDate: `2018-${m}-${daysOfMonth}T00:00:00.001Z`,
+      ...options
+      // timezone: 'UTC' // should be the default
+    })
+
+    expectedDatesFn({ m, daysOfMonth, recurringDates })
+  }
+}
+
+test('computes recurring dates with UTC by default, ignoring any local DST shift', (t) => {
+  testOverMonths(({ m, daysOfMonth, recurringDates }) => {
+    const expectedDates = _.range(daysOfMonth).map(padDayOrMonth)
+      .map(d => `2018-${m}-${d}T00:00:00.000Z`) // no DST shift
+
+    t.deepEqual(recurringDates, expectedDates)
+  })
 })
 
 test('computes recurring dates with custom timezone', (t) => {
+  const timezone = 'Europe/Paris'
   const recurringDates = computeRecurringDates('0 0 * * *', {
     startDate: '2018-01-01T00:00:00.000Z',
     endDate: '2018-01-05T00:00:00.000Z',
-    timezone: 'Europe/Paris'
+    timezone
   })
 
   t.deepEqual(recurringDates, [
@@ -83,6 +111,25 @@ test('computes recurring dates with custom timezone', (t) => {
     '2018-01-03T23:00:00.000Z',
     '2018-01-04T23:00:00.000Z'
   ])
+
+  const extractHour = date => date.match(/T(\d{2})/)[1]
+  const monthHours = dates => dates.reduce((h, d) => h.add(extractHour(d)), new Set())
+
+  testOverMonths(({ m, recurringDates }) => {
+    const month = parseInt(m, 10)
+    const hours = monthHours(recurringDates) // Set
+    if (month < 3 || month > 10) { // no DST
+      t.is(hours.size, 1)
+      t.true(hours.has('23'))
+    } else if (month === 3 || month === 10) { // DST switch during the month
+      t.is(hours.size, 2)
+      t.true(hours.has('22'))
+      t.true(hours.has('23'))
+    } else { // DST
+      t.is(hours.size, 1)
+      t.true(hours.has('22'))
+    }
+  }, { timezone })
 })
 
 test('computes recurring dates with fancy pattern', (t) => {

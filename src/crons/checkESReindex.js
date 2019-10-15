@@ -22,7 +22,7 @@ const job = new CronJob(
   checkReindexing,
   null,
   null,
-  'Europe/London'
+  'UTC'
 )
 
 async function checkReindexing () {

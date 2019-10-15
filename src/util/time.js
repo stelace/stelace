@@ -1,4 +1,7 @@
-const moment = require('moment-timezone')
+const moment = require('moment')
+// use plain moment library when moment-timezone is not needed
+// for safer version upgrades (moment-timezone is still in v0)
+const momentTimezone = require('moment-timezone')
 const ms = require('ms')
 const CronConverter = require('cron-converter')
 
@@ -68,7 +71,7 @@ function getPureDate (date) {
     throw new Error('Expected a valid date')
   }
 
-  const m = moment(date)
+  const m = moment.utc(date)
   return m.format('YYYY-MM-DD') + 'T00:00:00.000Z'
 }
 
@@ -129,7 +132,7 @@ function computeDate (isoDate, duration) {
       return memo
     }, {})
 
-    return moment(isoDate).add(momentDuration).toISOString()
+    return moment.utc(isoDate).add(momentDuration).toISOString()
   } else {
     return new Date(new Date(isoDate).getTime() + convertToMs(duration)).toISOString()
   }
@@ -151,7 +154,7 @@ function getRoundedDate (date, nbMinutes = 1) {
 function isValidTimezone (timezone) {
   if (typeof timezone !== 'string') return false
 
-  return !!moment.tz.zone(timezone)
+  return !!momentTimezone.tz.zone(timezone)
 }
 
 function isValidCronPattern (pattern) {
@@ -169,10 +172,10 @@ function isValidCronPattern (pattern) {
  * @param {Object} attrs
  * @param {String} attrs.startDate - inclusive
  * @param {String} attrs.endDate - exclusive
- * @param {String} [attrs.timezone] - defaults to Greenwich time
- * @param {String[]} dates
+ * @param {String} [attrs.timezone='UTC'] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ * @returns {String[]} ISO Dates
  */
-function computeRecurringDates (pattern, { startDate, endDate, timezone = 'Europe/London' } = {}) {
+function computeRecurringDates (pattern, { startDate, endDate, timezone = 'UTC' } = {}) {
   if (!isDateString(startDate) || !isDateString(endDate)) {
     throw new Error('Expected start and end dates')
   }
@@ -211,12 +214,12 @@ function computeRecurringDates (pattern, { startDate, endDate, timezone = 'Europ
 * @param {String} options.startDate
 * @param {String} options.endDate
 * @param {String|Object} options.duration
-* @param {String} [options.timezone]
+* @param {String} [options.timezone='UTC'] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 * @return {Object[]} dates
 * @return {String}   dates[i].startDate
 * @return {String}   dates[i].endDate
 */
-function computeRecurringPeriods (pattern, { startDate, endDate, timezone, duration }) {
+function computeRecurringPeriods (pattern, { startDate, endDate, timezone = 'UTC', duration }) {
   const startDates = computeRecurringDates(pattern, { startDate, endDate, timezone })
 
   return startDates.map(startDate => {
@@ -239,7 +242,7 @@ function getMomentTimeUnit (timeUnit) {
  */
 function diffDates (endDate, startDate, timeUnit) {
   return moment.duration(
-    moment(endDate).diff(moment(startDate))
+    moment.utc(endDate).diff(moment.utc(startDate))
   ).as(getMomentTimeUnit(timeUnit))
 }
 

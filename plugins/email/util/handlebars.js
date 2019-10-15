@@ -1,11 +1,11 @@
-const moment = require('moment')
+const moment = require('moment').utc()
 const Handlebars = require('handlebars')
 
 registerHbsHelpers(Handlebars)
 
 function registerHbsHelpers (Handlebars) {
   Handlebars.registerHelper('date', format => {
-    return moment().format(format)
+    return moment.utc().format(format)
   })
 }
 

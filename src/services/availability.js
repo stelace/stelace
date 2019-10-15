@@ -214,11 +214,8 @@ function start ({ communication }) {
       startDate,
       endDate,
       recurringPattern,
-      recurringDuration
-    } = payload
-
-    let {
-      recurringTimezone
+      recurringDuration,
+      recurringTimezone,
     } = payload
 
     const platformId = req.platformId
@@ -249,7 +246,6 @@ function start ({ communication }) {
         throw createError(400, 'Missing recurring duration')
       }
       if (!recurringTimezone) {
-        recurringTimezone = 'Europe/London'
         createAttrs.recurringTimezone = recurringTimezone
       }
 
@@ -366,12 +362,9 @@ function start ({ communication }) {
       endDate,
       recurringPattern,
       recurringDuration,
+      recurringTimezone,
       metadata,
       platformData
-    } = payload
-
-    let {
-      recurringTimezone
     } = payload
 
     const updateAttrs = _.omit(payload, ['metadata', 'platformData'])
@@ -406,8 +399,7 @@ function start ({ communication }) {
         if (!recurringDuration) {
           throw createError(400, 'Missing recurring duration')
         }
-        if (!recurringTimezone) {
-          recurringTimezone = 'Europe/London'
+        if (recurringTimezone) {
           updateAttrs.recurringTimezone = recurringTimezone
         }
       }
@@ -440,7 +432,7 @@ function start ({ communication }) {
       const maxEndDate = getAvailabilityMaxEndDate(newStartDate)
       if (maxEndDate < newEndDate) {
         throw createError(422,
-          'Recurring availbility period cannot exceed one year. ' +
+          'Recurring availability period cannot exceed one year. ' +
           `End date must be before the date "${maxEndDate}"`
         )
       }
