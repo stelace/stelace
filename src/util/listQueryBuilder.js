@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const createError = require('http-errors')
 
 const { Joi } = require('./validation')
 const { parseArrayValues, getPaginationMeta } = require('./list')
@@ -70,6 +71,14 @@ function getTransformedValues (filters) {
   return values
 }
 
+/**
+ * @param {Object} queryBuilder - Knex.js query builder
+ *   do not use Objection.js functions because `addFiltersToQueryBuilder` is used for list and aggregation.
+ *   However aggregations don't work so great with Objection.js due to `defaultSchema` that is applied to all queries
+ *   even to WITH queries while this is unwanted
+ * @param {Object} filters
+ * @param {Object} transformedValues
+ */
 function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
   Object.keys(filters).forEach(key => {
     const filter = filters[key]
@@ -155,12 +164,13 @@ function checkPaginationConfig (paginationConfig) {
 
 /**
  * Generic query function to address filters, sort and pagination for list endpoints
- * @param {Object}  params.queryBuilder - Objection.js query builder
+ * @param {Object}  params.queryBuilder - Knex.js query builder
  * @param {Object}  [params.filters] - Filters for the query (like select on some IDs)
  * @param {Object}  [params.filters[key]]
- * @param {Object}  [params.filters[key].dbField]
- * @param {Object}  [params.filters[key].type]
- * @param {Object}  [params.filters[key].]
+ * @param {String}  [params.filters[key].dbField]
+ * @param {String}  [params.filters[key].type]
+ * @param {String|Function}  [params.filters[key].transformValue]
+ * @param {String|Function}  [params.filters[key].query]
  *
  * @param {Boolean} [params.paginationActive = true]
  * @param {Object}  [params.paginationConfig]
@@ -252,7 +262,7 @@ async function performListQuery ({
  * Equivalent to `whereJsonSupersetOf` method of Objection.js, using PostgreSQL JSONB operator
  * applying to whole DB column instead of a specific nested field.
  * https://vincit.github.io/objection.js/api/query-builder/find-methods.html#wherejsonsupersetof
- * @param {Object} queryBuilder - Objection.js query builder
+ * @param {Object} queryBuilder - Knex.js query builder
  * @param {Object} params
  * @param {String} params.columnName - DB column name
  * @param {Object} params.data - data object the column should be a superset of
@@ -263,6 +273,189 @@ function whereJsonbColumnSupersetOf (queryBuilder, { columnName, data }) {
   queryBuilder.whereRaw('??::jsonb @> ?::jsonb', [columnName, data])
 }
 
+/**
+ * Generic query function to address filters, sort and pagination for stats endpoints
+ * @param {Object}  params.queryBuilder - Knex.js query builder
+ * @param {String}  [params.schema = 'public']
+ * @param {String}  params.groupBy - Field to group by (can be nested like `metadata.nested.custom`)
+ * @param {String}  [params.field] - Group by on this field if provided (can be nested like `metadata.nested.custom`)
+ * @param {Number}  [params.avgPrecision = 2] - Round the average amount to this precision
+ * @param {Object}  [params.filters] - Filters for the query (like select on some IDs)
+ * @param {Object}  [params.filters[key]]
+ * @param {String}  [params.filters[key].dbField]
+ * @param {String}  [params.filters[key].type]
+ * @param {String|Function}  [params.filters[key].transformValue]
+ * @param {String|Function}  [params.filters[key].query]
+ *
+ * @param {Object}  params.paginationConfig
+ * @param {Number}  params.paginationConfig.page
+ * @param {Number}  params.paginationConfig.nbResultsPerPage
+ *
+ * @param {Object}  params.orderConfig
+ * @param {Object}  params.orderConfig.orderBy - Order field
+ * @param {Object}  params.orderConfig.order - Must be 'asc' or 'desc'
+ *
+ * @return {Object} paginationMeta
+ * @return {Number} paginationMeta.nbResults
+ * @return {Number} paginationMeta.nbPages
+ * @return {Number} paginationMeta.page
+ * @return {Number} paginationMeta.nbResultsPerPage
+ * @return {Object[]} paginationMeta.results
+ */
+async function performAggregationQuery ({
+  queryBuilder,
+  schema = 'public',
+  groupBy,
+  field,
+  avgPrecision = 2,
+  filters,
+  paginationConfig,
+  orderConfig
+}) {
+  checkOrderConfig(orderConfig)
+
+  if (filters) {
+    checkFilters(filters)
+  }
+  checkPaginationConfig(paginationConfig)
+
+  if (field === groupBy) {
+    throw createError(422, `${field} cannot be field and groupBy at the same time`)
+  }
+
+  const knex = queryBuilder
+
+  const sqlGroupByExpression = getSqlExpression(groupBy)
+  const sqlStatsFieldExpression = field ? getSqlExpression(field) : null
+
+  queryBuilder = queryBuilder.with('aggregations', qb => {
+    const selectExpressions = [
+      knex.raw(`${sqlGroupByExpression} as "groupByField"`)
+    ]
+
+    qb
+      .from(`${schema}.event`)
+      .select(selectExpressions)
+      .count()
+      .groupBy('groupByField')
+      .orderBy(orderBy, order)
+
+    // If the stats field isn't provided, we cannot perform aggregation operations except for count (done above)
+    if (sqlStatsFieldExpression) {
+      // Convert the stats field into real (PostgreSQL decimal number)
+      // from default json text value
+      // Aggregation operations can only work with numbers
+      qb
+        .avg({ avg: knex.raw(`(${sqlStatsFieldExpression})::REAL`) })
+        .sum({ sum: knex.raw(`(${sqlStatsFieldExpression})::REAL`) })
+        .min({ min: knex.raw(`(${sqlStatsFieldExpression})::REAL`) })
+        .max({ max: knex.raw(`(${sqlStatsFieldExpression})::REAL`) })
+    }
+
+    let transformedValues
+
+    if (filters) {
+      transformedValues = getTransformedValues(filters)
+      addFiltersToQueryBuilder(qb, filters, transformedValues)
+    }
+
+    return qb
+  })
+
+  queryBuilder
+    .select()
+    .from('aggregations')
+    .whereNotNull('groupByField')
+
+  // Clone the query builder to have the count for all matched results before pagination filtering
+  const countQueryBuilder = queryBuilder.clone()
+
+  const { orderBy, order } = orderConfig
+  queryBuilder.orderBy(orderBy, order)
+
+  const { page, nbResultsPerPage } = paginationConfig
+
+  queryBuilder
+    .offset((page - 1) * nbResultsPerPage)
+    .limit(nbResultsPerPage)
+
+  let results
+  let nbResults
+
+  try {
+    const [
+      queryResults,
+      [{ count }]
+    ] = await Promise.all([
+      queryBuilder,
+      countQueryBuilder.count()
+    ])
+
+    results = queryResults
+    nbResults = count
+  } catch (err) {
+    // PostgreSQL error codes
+    // https://www.postgresql.org/docs/10/errcodes-appendix.html
+    if (err.code === '22P02') { // invalid_text_representation
+      // fail to convert a non-number to real in the aggregation query
+      throw createError(422, `Non-number value was found for field "${field}"`)
+    } else {
+      throw err
+    }
+  }
+
+  const paginationMeta = getPaginationMeta({
+    nbResults,
+    nbResultsPerPage,
+    page
+  })
+
+  paginationMeta.results = results.map(r => {
+    const clonedResult = _.cloneDeep(r)
+
+    clonedResult.groupBy = groupBy
+    clonedResult.groupByValue = clonedResult.groupByField
+    delete clonedResult.groupByField
+
+    if (clonedResult.count) clonedResult.count = parseInt(clonedResult.count, 10)
+    if (_.isNumber(clonedResult.avg)) clonedResult.avg = getFloatWithPrecision(clonedResult.avg, avgPrecision)
+
+    const operators = ['avg', 'sum', 'min', 'max']
+    operators.forEach(op => {
+      if (_.isUndefined(clonedResult[op])) clonedResult[op] = null
+    })
+
+    return clonedResult
+  })
+  return paginationMeta
+}
+
+function getFloatWithPrecision (number, precision) {
+  return parseFloat(number.toFixed(precision))
+}
+
+/**
+ * Transform attribute passed to API to expression that can be used in SQL query
+ * e.g.
+ * `someAttribute` => `"someAttribute"`
+ * `root.property` => `"root"->>'property'`
+ * `root.nested.property` => `("root"->>'nested')::JSON->>'property'`
+ * @param {String} attr
+ * @return {String} expr - SQL expression
+ */
+function getSqlExpression (attr) {
+  const parts = attr.split('.')
+
+  if (parts.length === 1) return `"${parts[0]}"`
+
+  return parts.reduce((expr, p, i) => {
+    if (i === 0) return `"${p}"`
+    else if (i === 1) return `${expr}->>'${p}'`
+    return `(${expr})::JSONB->>'${p}'`
+  }, '')
+}
+
 module.exports = {
-  performListQuery
+  performListQuery,
+  performAggregationQuery
 }
