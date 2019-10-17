@@ -486,6 +486,20 @@ test('get aggregated field stats with average rounded to integer', async (t) => 
   })
 })
 
+test('fails to get aggregated stats with non-number field', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+
+  const groupBy = 'authorId'
+  const field = 'data.title'
+
+  const { body: error } = await request(t.context.serverUrl)
+    .get(`/documents/stats?type=movie&groupBy=${groupBy}&field=${field}`)
+    .set(authorizationHeaders)
+    .expect(422)
+
+  t.true(error.message.includes(`Non-number value was found for field "${field}"`))
+})
+
 test('list documents', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:list:all'] })
 

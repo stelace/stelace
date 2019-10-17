@@ -270,9 +270,26 @@ function start ({ communication }) {
 
     let paginationMeta
 
+    const handleNumberConversionError = (err) => {
+      // PostgreSQL error codes
+      // https://www.postgresql.org/docs/10/errcodes-appendix.html
+      if (err.code === '22P02') { // invalid_text_representation
+        // fail to convert a non-number to real in the aggregation query
+        throw createError(422, `Non-number value was found for field "${field}"`)
+      } else {
+        throw err
+      }
+    }
+
     if (multipleLabels && uniqueGroupByResult) {
       const labelPromises = parsedLabels.map(label => getQueryBuilderByLabel(label))
-      const statsByLabel = await Promise.all(labelPromises)
+      let statsByLabel
+
+      try {
+        statsByLabel = await Promise.all(labelPromises)
+      } catch (err) {
+        handleNumberConversionError(err)
+      }
 
       const aggregatedStats = {}
 
@@ -314,27 +331,31 @@ function start ({ communication }) {
         .offset((page - 1) * nbResultsPerPage)
         .limit(nbResultsPerPage)
 
-      const [
-        documentStats,
-        [{ count: nbDocuments }]
-      ] = await Promise.all([
-        queryBuilder,
-        countQueryBuilder.count()
-      ])
+      try {
+        const [
+          documentStats,
+          [{ count: nbDocuments }]
+        ] = await Promise.all([
+          queryBuilder,
+          countQueryBuilder.count()
+        ])
 
-      paginationMeta = getPaginationMeta({
-        nbResults: nbDocuments,
-        nbResultsPerPage,
-        page
-      })
-
-      paginationMeta.results = documentStats.map(doc => {
-        return transformDocStats(doc, {
-          computeRanking,
-          groupBy,
-          avgPrecision
+        paginationMeta = getPaginationMeta({
+          nbResults: nbDocuments,
+          nbResultsPerPage,
+          page
         })
-      })
+
+        paginationMeta.results = documentStats.map(doc => {
+          return transformDocStats(doc, {
+            computeRanking,
+            groupBy,
+            avgPrecision
+          })
+        })
+      } catch (err) {
+        handleNumberConversionError(err)
+      }
     }
 
     return paginationMeta
