@@ -34,6 +34,7 @@ function init (server, { middlewares, helpers } = {}) {
       'objectId',
       'emitter',
       'emitterId',
+      'object',
       'metadata',
     ]
 
@@ -69,6 +70,7 @@ function init (server, { middlewares, helpers } = {}) {
       'objectId',
       'emitter',
       'emitterId',
+      'object',
       'metadata',
     ]
 

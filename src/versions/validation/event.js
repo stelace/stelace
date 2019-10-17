@@ -57,6 +57,7 @@ schemas['2019-05-20'].getStats = {
     objectId: [Joi.string(), Joi.array().unique().items(Joi.string())],
     emitter: Joi.string().valid('core', 'custom', 'task'),
     emitterId: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    object: Joi.object().unknown(),
     metadata: Joi.object().unknown()
   })
 }
@@ -78,6 +79,7 @@ schemas['2019-05-20'].list = {
     objectId: [Joi.string(), Joi.array().unique().items(Joi.string())],
     emitter: Joi.string().valid('core', 'custom', 'task'),
     emitterId: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    object: Joi.object().unknown(),
     metadata: Joi.object().unknown()
   })
 }

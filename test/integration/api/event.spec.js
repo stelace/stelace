@@ -267,6 +267,33 @@ test('get aggregated field stats with complex filters', async (t) => {
     field,
     events: events2
   })
+
+  const assetSupersetOf = {
+    customAttributes: {
+      seatingCapacity: 4
+    },
+    validated: true
+  }
+
+  const filters3 = `objectType=${objectType}&object=${encode(assetSupersetOf)}`
+
+  const { body: { results: events3 } } = await request(t.context.serverUrl)
+    .get(`/events?${filters3}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: obj3 } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters3}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj: obj3,
+    groupBy,
+    field,
+    events: events3
+  })
 })
 
 test('fails to get aggregated stats with non-number field', async (t) => {
@@ -541,6 +568,27 @@ test('list events with metadata object filters', async (t) => {
 
   t.is(obj7.results.length, obj7.nbResults)
   t.is(obj7.nbResults, 0)
+
+  const assetSupersetOf = {
+    customAttributes: {
+      seatingCapacity: 4
+    },
+    validated: true
+  }
+
+  const checkAssetEvent = event => {
+    t.is(event.object.customAttributes.seatingCapacity, 4)
+    t.is(event.object.validated, true)
+  }
+
+  const { body: obj8 } = await request(t.context.serverUrl)
+    .get(`/events?object=${encode(assetSupersetOf)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj8.results.length, obj8.nbResults)
+  t.is(obj8.nbResults, 3)
+  obj8.results.forEach(checkAssetEvent)
 })
 
 test('finds an event', async (t) => {

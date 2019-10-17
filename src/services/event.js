@@ -38,6 +38,7 @@ function start ({ communication }) {
       objectId,
       emitter,
       emitterId,
+      object,
       metadata
     } = req
 
@@ -89,6 +90,11 @@ function start ({ communication }) {
           transformValue: 'array',
           query: 'inList'
         },
+        object: {
+          value: object,
+          dbField: 'object',
+          query: 'jsonSupersetOf'
+        },
         metadata: {
           value: metadata,
           dbField: 'metadata',
@@ -127,6 +133,7 @@ function start ({ communication }) {
       objectId,
       emitter,
       emitterId,
+      object,
       metadata
     } = req
 
@@ -173,6 +180,11 @@ function start ({ communication }) {
           value: emitterId,
           transformValue: 'array',
           query: 'inList'
+        },
+        object: {
+          value: object,
+          dbField: 'object',
+          query: 'jsonSupersetOf'
         },
         metadata: {
           value: metadata,
