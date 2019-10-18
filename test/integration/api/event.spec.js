@@ -2,12 +2,10 @@ require('dotenv').config()
 
 const test = require('ava')
 const request = require('supertest')
-const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { computeDate } = require('../../util')
-const { roundDecimal } = require('../../../src/util/math')
+const { computeDate, checkStatsObject } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -15,68 +13,6 @@ test.before(async t => {
 })
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
-
-/**
- * @param {Object}   params
- * @param {Object}   params.t - AVA test object
- * @param {Object}   params.obj - stats object returned by API
- * @param {String}   params.groupBy
- * @param {String}   [params.field]
- * @param {Object[]} params.events
- * @param {Number}   nbFilteredEvents - check the total number of events
- * @param {Number}   [avgPrecision = 2] - check the average precision
- */
-function checkStatsObject ({
-  t,
-  obj,
-  groupBy,
-  field,
-  events,
-  avgPrecision = 2
-}) {
-  // only consider events whose `groupBy` value is not `undefined`
-  events = events.filter(e => !_.isUndefined(_.get(e, groupBy)))
-  const eventsByType = _.groupBy(events, groupBy)
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-  t.is(obj.nbResults, obj.results.length)
-
-  obj.results.forEach(result => {
-    const events = eventsByType[result.groupByValue] || []
-    const count = events.length
-
-    const nullIfNone = (count, nb) => count === 0 ? null : nb
-
-    const avg = nullIfNone(count, events.reduce((nb, e) => nb + _.get(e, field), 0) / events.length)
-    const sum = nullIfNone(count, events.reduce((nb, e) => nb + _.get(e, field), 0))
-    const min = nullIfNone(count, events.reduce((nb, e) => Math.min(_.get(e, field), nb), _.get(events[0], field)))
-    const max = nullIfNone(count, events.reduce((nb, e) => Math.max(_.get(e, field), nb), _.get(events[0], field)))
-
-    t.is(result.groupBy, groupBy)
-    t.is(typeof result.groupByValue, 'string')
-    t.is(result.count, count)
-
-    if (field) {
-      t.is(result.avg, roundDecimal(avg, avgPrecision))
-      t.is(result.sum, sum)
-      t.is(result.min, min)
-      t.is(result.max, max)
-    } else {
-      t.is(result.avg, null)
-      t.is(result.sum, null)
-      t.is(result.min, null)
-      t.is(result.max, null)
-    }
-  })
-
-  const totalCount = obj.results.reduce((total, r) => total + r.count, 0)
-  t.is(totalCount, events.length)
-}
 
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
@@ -105,7 +41,7 @@ test.serial('get simple events stats', async (t) => {
     t,
     obj,
     groupBy,
-    events
+    results: events
   })
 })
 
@@ -134,7 +70,7 @@ test('get simple events stats with nested groupBy', async (t) => {
     t,
     obj,
     groupBy,
-    events
+    results: events
   })
 })
 
@@ -167,7 +103,7 @@ test('get aggregated field stats', async (t) => {
     groupBy,
     field,
     avgPrecision,
-    events
+    results: events
   })
 })
 
@@ -202,7 +138,7 @@ test('get aggregated field stats with filters', async (t) => {
     obj,
     groupBy,
     field,
-    events
+    results: events
   })
 })
 
@@ -236,7 +172,7 @@ test('get aggregated field stats with complex filters', async (t) => {
     obj,
     groupBy,
     field,
-    events
+    results: events
   })
 
   const supersetOf = {
@@ -264,7 +200,7 @@ test('get aggregated field stats with complex filters', async (t) => {
     obj: obj2,
     groupBy,
     field,
-    events: events2
+    results: events2
   })
 
   const assetSupersetOf = {
@@ -291,7 +227,7 @@ test('get aggregated field stats with complex filters', async (t) => {
     obj: obj3,
     groupBy,
     field,
-    events: events3
+    results: events3
   })
 })
 
