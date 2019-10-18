@@ -3,6 +3,7 @@ const createError = require('http-errors')
 
 const { Joi } = require('./validation')
 const { parseArrayValues, getPaginationMeta } = require('./list')
+const { roundDecimal } = require('./math')
 
 const filtersSchema = Joi.object().pattern(
   Joi.string(),
@@ -418,7 +419,7 @@ async function performAggregationQuery ({
     delete clonedResult.groupByField
 
     if (clonedResult.count) clonedResult.count = parseInt(clonedResult.count, 10)
-    if (_.isNumber(clonedResult.avg)) clonedResult.avg = getFloatWithPrecision(clonedResult.avg, avgPrecision)
+    if (_.isNumber(clonedResult.avg)) clonedResult.avg = roundDecimal(clonedResult.avg, avgPrecision)
 
     const operators = ['avg', 'sum', 'min', 'max']
     operators.forEach(op => {
@@ -428,10 +429,6 @@ async function performAggregationQuery ({
     return clonedResult
   })
   return paginationMeta
-}
-
-function getFloatWithPrecision (number, precision) {
-  return parseFloat(number.toFixed(precision))
 }
 
 /**

@@ -7,6 +7,7 @@ const _ = require('lodash')
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
 const { computeDate } = require('../../util')
+const { roundDecimal } = require('../../../src/util/math')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -61,9 +62,7 @@ function checkStatsObject ({
     t.is(result.count, count)
 
     if (field) {
-      const divisor = Math.pow(10, avgPrecision)
-
-      t.is(result.avg, Math.round(avg * divisor) / divisor)
+      t.is(result.avg, roundDecimal(avg, avgPrecision))
       t.is(result.sum, sum)
       t.is(result.min, min)
       t.is(result.max, max)
