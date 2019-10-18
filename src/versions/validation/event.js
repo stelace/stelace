@@ -10,7 +10,8 @@ const orderByFields = [
 
 const schemas = {}
 
-const getObjectSchema = (name) => Joi.string().regex(new RegExp(`^${name}\\.\\w+$`))
+// match string value like 'a.b.c' or 'a[0].b.c[2]'
+const getObjectSchema = (name) => Joi.string().regex(new RegExp(`^${name}((\\[(\\d+)\\]|\\.\\w+)*)$`))
 
 const groupBySchema = Joi.alternatives().try(
   Joi.string().valid(
@@ -50,13 +51,13 @@ schemas['2019-05-20'].getStats = {
     avgPrecision: Joi.number().integer().min(0).default(2),
 
     // filters
-    id: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    id: Joi.array().unique().items(Joi.string()).single(),
     createdDate: getRangeFilter(Joi.string().isoDate()),
-    type: [Joi.string(), Joi.array().unique().items(Joi.string())],
-    objectType: [Joi.string(), Joi.array().unique().items(Joi.string())],
-    objectId: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    type: Joi.array().unique().items(Joi.string()).single(),
+    objectType: Joi.array().unique().items(Joi.string()).single(),
+    objectId: Joi.array().unique().items(Joi.string()).single(),
     emitter: Joi.string().valid('core', 'custom', 'task'),
-    emitterId: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    emitterId: Joi.array().unique().items(Joi.string()).single(),
     object: Joi.object().unknown(),
     metadata: Joi.object().unknown()
   })

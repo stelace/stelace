@@ -435,21 +435,20 @@ async function performAggregationQuery ({
  * Transform attribute passed to API to expression that can be used in SQL query
  * e.g.
  * `someAttribute` => `"someAttribute"`
- * `root.property` => `"root"->>'property'`
- * `root.nested.property` => `("root"->>'nested')::JSON->>'property'`
+ * `root.property` => `"root"#>>'{property}'`
+ * `root.nested.property` => `"root"#>>'{nested,property}'`
+ * `root.nested.property[index]` => `"root"#>>'{nested,property,index}'`
  * @param {String} attr
  * @return {String} expr - SQL expression
  */
 function getSqlExpression (attr) {
-  const parts = attr.split('.')
+  // transform 'root.nested.property[index]' into `['root', 'nested', 'property', index]`
+  const parts = attr.split(/\.|\[|\]/).filter(str => str)
 
-  if (parts.length === 1) return `"${parts[0]}"`
+  const column = parts[0]
+  if (parts.length === 1) return `"${column}"`
 
-  return parts.reduce((expr, p, i) => {
-    if (i === 0) return `"${p}"`
-    else if (i === 1) return `${expr}->>'${p}'`
-    return `(${expr})::JSONB->>'${p}'`
-  }, '')
+  return `"${column}"#>>'{${parts.slice(1).join(',')}}'`
 }
 
 module.exports = {

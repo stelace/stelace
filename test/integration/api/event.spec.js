@@ -142,6 +142,56 @@ test('get aggregated field stats with filters', async (t) => {
   })
 })
 
+test('get aggregated field stats with deeply nested properties', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const objectType = 'transaction'
+  const filters = `objectType=${objectType}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'object.metadata.otherObject.status'
+  const field = 'object.metadata.someObject.someValue'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: events
+  })
+
+  const groupBy2 = 'object.metadata.otherObject.arrayStatuses[0]'
+  const field2 = 'object.metadata.someObject.arrayValues[0].deepArrayValue[0]'
+
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy2}&field=${field2}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj: obj2,
+    groupBy: groupBy2,
+    field: field2,
+    results: events
+  })
+})
+
 test('get aggregated field stats with complex filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({
     t,

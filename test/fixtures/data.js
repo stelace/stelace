@@ -165,7 +165,18 @@ const validatedTransaction1 = {
   completedDate: null,
   cancelledDate: null,
   cancellationReason: null,
-  metadata: {},
+  metadata: {
+    someObject: {
+      someValue: 10,
+      arrayValues: [{
+        deepArrayValue: [10]
+      }]
+    },
+    otherObject: {
+      status: 'validated',
+      arrayStatuses: ['validated']
+    }
+  },
   platformData: {}
 }
 
@@ -201,7 +212,18 @@ const validatedTransaction2 = {
   completedDate: null,
   cancelledDate: null,
   cancellationReason: null,
-  metadata: {},
+  metadata: {
+    someObject: {
+      someValue: 2,
+      arrayValues: [{
+        deepArrayValue: [2]
+      }]
+    },
+    otherObject: {
+      status: 'validated',
+      arrayStatuses: ['validated']
+    }
+  },
   platformData: {}
 }
 
@@ -236,7 +258,18 @@ const paidTransaction = {
   completedDate: null,
   cancelledDate: null,
   cancellationReason: null,
-  metadata: {},
+  metadata: {
+    someObject: {
+      someValue: 3,
+      arrayValues: [{
+        deepArrayValue: [3]
+      }]
+    },
+    otherObject: {
+      status: 'pending-acceptance',
+      arrayStatuses: ['pending-acceptance']
+    }
+  },
   platformData: {}
 }
 
@@ -271,7 +304,18 @@ const acceptedTransaction = {
   completedDate: null,
   cancelledDate: null,
   cancellationReason: null,
-  metadata: {},
+  metadata: {
+    someObject: {
+      someValue: 5,
+      arrayValues: [{
+        deepArrayValue: [5]
+      }]
+    },
+    otherObject: {
+      status: 'accepted',
+      arrayStatuses: ['accepted']
+    }
+  },
   platformData: {}
 }
 
