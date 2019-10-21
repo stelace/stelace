@@ -11,7 +11,10 @@ const orderByFields = [
 const schemas = {}
 
 // match string value like 'a.b.c' or 'a[0].b.c[2]'
-const getObjectSchema = (name) => Joi.string().regex(new RegExp(`^${name}((\\[(\\d+)\\]|\\.\\w+)*)$`))
+const getObjectSchema = (name) => Joi.string()
+  .pattern(new RegExp(`^${name}((\\[(\\d+)\\]|\\.\\w+)*)$`), {
+    name: `accessor string like ${name}.nested.arr[1]`
+  })
 
 const groupBySchema = Joi.alternatives().try(
   Joi.string().valid(
