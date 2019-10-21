@@ -5,7 +5,7 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { computeDate } = require('../../util')
+const { computeDate, checkStatsObject } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -13,6 +13,315 @@ test.before(async t => {
 })
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
+
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('get simple events stats', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'type'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+test('get simple events stats with nested groupBy', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'object.status'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+test('get aggregated field stats', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'object.status'
+  const field = 'object.value'
+  const avgPrecision = 5
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&avgPrecision=${avgPrecision}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    avgPrecision,
+    results: events
+  })
+})
+
+test('get aggregated field stats with filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const filters = `objectType=${objectType}&objectId=${objectId}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'object.status'
+  const field = 'object.value'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: events
+  })
+})
+
+test('get aggregated field stats with deeply nested properties', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const objectType = 'transaction'
+  const filters = `objectType=${objectType}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'object.metadata.otherObject.status'
+  const field = 'object.metadata.someObject.someValue'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: events
+  })
+
+  const groupBy2 = 'object.metadata.otherObject.arrayStatuses[0]'
+  const field2 = 'object.metadata.someObject.arrayValues[0].deepArrayValue[0]'
+
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy2}&field=${field2}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj: obj2,
+    groupBy: groupBy2,
+    field: field2,
+    results: events
+  })
+})
+
+test('get aggregated field stats with complex filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const objectType = 'asset'
+  const filters = `objectType=${objectType}&metadata[nested][string]=true`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'type'
+  const field = 'object.price'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: events
+  })
+
+  const supersetOf = {
+    someTags: ['Brown'],
+    nested: { object: true },
+    name: 'DMC-12'
+  }
+
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
+
+  const filters2 = `objectType=${objectType}&metadata=${encode(supersetOf)}`
+
+  const { body: { results: events2 } } = await request(t.context.serverUrl)
+    .get(`/events?${filters2}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters2}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj: obj2,
+    groupBy,
+    field,
+    results: events2
+  })
+
+  const assetSupersetOf = {
+    customAttributes: {
+      seatingCapacity: 4
+    },
+    validated: true
+  }
+
+  const filters3 = `objectType=${objectType}&object=${encode(assetSupersetOf)}`
+
+  const { body: { results: events3 } } = await request(t.context.serverUrl)
+    .get(`/events?${filters3}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: obj3 } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters3}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj: obj3,
+    groupBy,
+    field,
+    results: events3
+  })
+})
+
+test('fails to get aggregated stats with non-number field', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all'
+    ]
+  })
+
+  const objectType = 'transaction'
+  const filters = `objectType=${objectType}`
+
+  const groupBy = 'object.status'
+  const field = 'object.createdDate'
+
+  const { body: error } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(422)
+
+  t.true(error.message.includes(`Non-number value was found for field "${field}"`))
+})
+
+test('aggregation works even if the specified nested property does not exist', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all'
+    ]
+  })
+
+  const groupBy = 'object.unknown'
+  const field = 'object.unknown2'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&field=${field}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(typeof obj === 'object')
+  t.is(obj.nbResults, 0)
+})
 
 test('list events', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
@@ -244,6 +553,27 @@ test('list events with metadata object filters', async (t) => {
 
   t.is(obj7.results.length, obj7.nbResults)
   t.is(obj7.nbResults, 0)
+
+  const assetSupersetOf = {
+    customAttributes: {
+      seatingCapacity: 4
+    },
+    validated: true
+  }
+
+  const checkAssetEvent = event => {
+    t.is(event.object.customAttributes.seatingCapacity, 4)
+    t.is(event.object.validated, true)
+  }
+
+  const { body: obj8 } = await request(t.context.serverUrl)
+    .get(`/events?object=${encode(assetSupersetOf)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj8.results.length, obj8.nbResults)
+  t.is(obj8.nbResults, 3)
+  obj8.results.forEach(checkAssetEvent)
 })
 
 test('finds an event', async (t) => {

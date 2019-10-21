@@ -4,11 +4,12 @@ const test = require('ava')
 const request = require('supertest')
 
 const {
-  testTools: { lifecycle, auth }
+  testTools: { lifecycle, auth, util }
 } = require('../../serverTooling')
 
 const { before, beforeEach, after } = lifecycle
 const { getAccessTokenHeaders } = auth
+const { checkStatsObject } = util
 
 test.before(async t => {
   await before({ name: 'rating' })(t)
@@ -17,43 +18,43 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
-test('gets simple rating stats', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:stats:all'] })
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('gets simple rating stats', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'rating:stats:all',
+      'rating:list:all'
+    ]
+  })
 
-  const result = await request(t.context.serverUrl)
-    .get('/ratings/stats?groupBy=authorId')
+  const groupBy = 'authorId'
+
+  const { body: { results: ratings } } = await request(t.context.serverUrl)
+    .get('/ratings')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/ratings/stats?groupBy=${groupBy}`)
+    .set(authorizationHeaders)
+    .expect(200)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field: 'score', // implicit for Rating API
+    avgPrecision: 0, // implicit for Rating API
+    results: ratings,
+    orderBy: 'avg',
+    order: 'desc',
+    expandedGroupByField: false
+  })
+
   // cf. plugin middleware test below
   t.is(typeof obj.workingTestMiddleware, 'undefined')
-
-  obj.results.forEach(result => {
-    t.truthy(result.authorId)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-  })
-
-  // check order: avg desc by default
-  let avg
-  obj.results.forEach(result => {
-    if (typeof avg === 'undefined') {
-      avg = result.avg
-    } else {
-      t.true(avg >= result.avg)
-    }
-  })
 })
 
 test('integrates plugin middleware', async (t) => {
@@ -69,51 +70,53 @@ test('integrates plugin middleware', async (t) => {
   t.true(obj.workingTestMiddleware)
 })
 
-test('gets aggregated rating stats with ranking', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:stats:all'] })
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('gets aggregated rating stats with ranking', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'rating:stats:all',
+      'rating:list:all'
+    ]
+  })
 
-  const result = await request(t.context.serverUrl)
-    .get('/ratings/stats?groupBy=authorId&computeRanking=true')
+  const groupBy = 'authorId'
+
+  const { body: { results: ratings } } = await request(t.context.serverUrl)
+    .get('/ratings')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(result => {
-    t.truthy(result.authorId)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'number')
-    t.is(typeof result.lowestRanking, 'number')
-
-    t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
-  })
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/ratings/stats?groupBy=${groupBy}&computeRanking=true`)
+    .set(authorizationHeaders)
+    .expect(200)
 
   let ranking
-  let avg
-  obj.results.forEach(result => {
-    // check ranking order
-    if (typeof ranking === 'undefined') {
-      ranking = result.ranking
-    } else {
-      t.true(ranking < result.ranking)
-    }
 
-    // check order: avg desc by default
-    if (typeof avg === 'undefined') {
-      avg = result.avg
-    } else {
-      t.true(avg >= result.avg)
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field: 'score', // implicit for Rating API
+    avgPrecision: 0, // implicit for Rating API
+    results: ratings,
+    orderBy: 'avg',
+    order: 'desc',
+    expandedGroupByField: false,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'number')
+      t.is(typeof result.lowestRanking, 'number')
+
+      t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
+
+      // check ranking order
+      if (typeof ranking === 'undefined') {
+        ranking = result.ranking
+      } else {
+        t.true(ranking < result.ranking)
+      }
     }
   })
 })

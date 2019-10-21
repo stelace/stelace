@@ -123,6 +123,7 @@ const coreListObjectPermissions = [
   {
     object: 'event',
     actions: [
+      'stats:all',
       'list:all',
       'read:all',
       'create:all'

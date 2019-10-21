@@ -133,6 +133,192 @@ const assetType2 = {
   platformData: {}
 }
 
+const validatedTransaction1 = {
+  id: 'trn_Wm1fQps1I3a1gJYz2I3a',
+  createdDate: now,
+  updatedDate: now,
+  assetId: asset1.id,
+  assetSnapshot: asset1,
+  assetTypeId: assetType1.id,
+  assetType: assetType1,
+  status: 'validated',
+  statusHistory: [
+    { status: 'validated', date: now },
+    { status: 'pending-acceptance', date: now },
+    { status: 'draft', date: now }
+  ],
+  ownerId: 'usr_QVQfQps1I3a1gJYz2I3a',
+  takerId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+  quantity: 1,
+  startDate: computeDate(now, '1 days'),
+  endDate: computeDate(now, '2 days'),
+  duration: { d: 1 },
+  timeUnit: 'd',
+  unitPrice: 100,
+  value: 100,
+  ownerAmount: 95,
+  takerAmount: 118,
+  platformAmount: 23,
+  ownerFees: 5,
+  takerFees: 18,
+  currency: 'USD',
+  completedDate: null,
+  cancelledDate: null,
+  cancellationReason: null,
+  metadata: {
+    someObject: {
+      someValue: 10,
+      arrayValues: [{
+        deepArrayValue: [10]
+      }]
+    },
+    otherObject: {
+      status: 'validated',
+      arrayStatuses: ['validated']
+    }
+  },
+  platformData: {}
+}
+
+const validatedTransaction2 = {
+  id: 'trn_VHgfQps1I3a1gJYz2I3a',
+  createdDate: now,
+  updatedDate: now,
+  assetId: asset1.id,
+  assetSnapshot: asset1,
+  assetTypeId: assetType1.id,
+  assetType: assetType1,
+  status: 'validated',
+  statusHistory: [
+    { status: 'validated', date: now },
+    { status: 'pending-acceptance', date: now },
+    { status: 'draft', date: now }
+  ],
+  ownerId: 'usr_QVQfQps1I3a1gJYz2I3a',
+  takerId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+  quantity: 1,
+  startDate: computeDate(now, '5 days'),
+  endDate: computeDate(now, '7 days'),
+  duration: { d: 2 },
+  timeUnit: 'd',
+  unitPrice: 100,
+  value: 200,
+  ownerAmount: 190,
+  takerAmount: 236,
+  platformAmount: 46,
+  ownerFees: 10,
+  takerFees: 36,
+  currency: 'USD',
+  completedDate: null,
+  cancelledDate: null,
+  cancellationReason: null,
+  metadata: {
+    someObject: {
+      someValue: 2,
+      arrayValues: [{
+        deepArrayValue: [2]
+      }]
+    },
+    otherObject: {
+      status: 'validated',
+      arrayStatuses: ['validated']
+    }
+  },
+  platformData: {}
+}
+
+const paidTransaction = {
+  id: 'trn_RjhfQps1I3a1gJYz2I3a',
+  createdDate: now,
+  updatedDate: now,
+  assetId: asset1.id,
+  assetSnapshot: asset1,
+  assetTypeId: assetType1.id,
+  assetType: assetType1,
+  status: 'pending-acceptance',
+  statusHistory: [
+    { status: 'pending-acceptance', date: now },
+    { status: 'draft', date: now }
+  ],
+  ownerId: 'fd7b4ea9-a899-4dba-b9b0-ef8537a70efe',
+  takerId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
+  quantity: 1,
+  startDate: computeDate(now, '25 days'),
+  endDate: computeDate(now, '30 days'),
+  duration: { d: 5 },
+  timeUnit: 'd',
+  unitPrice: 100,
+  value: 500,
+  ownerAmount: 475,
+  takerAmount: 589,
+  platformAmount: 114,
+  ownerFees: 25,
+  takerFees: 89,
+  currency: 'USD',
+  completedDate: null,
+  cancelledDate: null,
+  cancellationReason: null,
+  metadata: {
+    someObject: {
+      someValue: 3,
+      arrayValues: [{
+        deepArrayValue: [3]
+      }]
+    },
+    otherObject: {
+      status: 'pending-acceptance',
+      arrayStatuses: ['pending-acceptance']
+    }
+  },
+  platformData: {}
+}
+
+const acceptedTransaction = {
+  id: 'trn_ZVZfQps1I3a1gJYz2I3a',
+  createdDate: now,
+  updatedDate: now,
+  assetId: asset1.id,
+  assetSnapshot: asset1,
+  assetTypeId: assetType1.id,
+  assetType: assetType1,
+  status: 'accepted',
+  statusHistory: [
+    { status: 'accepted', date: now },
+    { status: 'draft', date: now }
+  ],
+  ownerId: 'fd7b4ea9-a899-4dba-b9b0-ef8537a70efe',
+  takerId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
+  quantity: 1,
+  startDate: computeDate(now, '7 days'),
+  endDate: computeDate(now, '12 days'),
+  duration: { d: 5 },
+  timeUnit: 'd',
+  unitPrice: 100,
+  value: 500,
+  ownerAmount: 475,
+  takerAmount: 589,
+  platformAmount: 114,
+  ownerFees: 25,
+  takerFees: 89,
+  currency: 'USD',
+  completedDate: null,
+  cancelledDate: null,
+  cancellationReason: null,
+  metadata: {
+    someObject: {
+      someValue: 5,
+      arrayValues: [{
+        deepArrayValue: [5]
+      }]
+    },
+    otherObject: {
+      status: 'accepted',
+      arrayStatuses: ['accepted']
+    }
+  },
+  platformData: {}
+}
+
 module.exports = {
 
   apiKey: [
@@ -1015,7 +1201,189 @@ module.exports = {
           string: 'true'
         }
       }
-    })
+    }),
+
+    createModel({
+      id: 'evt_EYtSSge1EZX1iZboZEZX',
+      createdDate: now,
+      type: 'transaction__created',
+      objectType: 'transaction',
+      objectId: validatedTransaction1.id,
+      object: Object.assign({}, validatedTransaction1, {
+        status: 'draft',
+        statusHistory: validatedTransaction1.statusHistory
+          .filter(status => status === 'draft')
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_1OX9pme1s7z1jDAKUs7z',
+      createdDate: now,
+      type: 'transaction__status_changed',
+      objectType: 'transaction',
+      objectId: validatedTransaction1.id,
+      object: Object.assign({}, validatedTransaction1, {
+        status: 'pending-acceptance',
+        statusHistory: validatedTransaction1.statusHistory
+          .filter(status => ['draft', 'pending-acceptance'].includes(status))
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_IFmuYue1w2s1jH5Daw2s',
+      createdDate: now,
+      type: 'transaction__status_changed',
+      objectType: 'transaction',
+      objectId: validatedTransaction1.id,
+      object: validatedTransaction1,
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_ujdqLfe1q0i1jB33jq0i',
+      createdDate: now,
+      type: 'transaction__created',
+      objectType: 'transaction',
+      objectId: validatedTransaction2.id,
+      object: Object.assign({}, validatedTransaction2, {
+        status: 'draft',
+        statusHistory: validatedTransaction2.statusHistory
+          .filter(status => status === 'draft')
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_dDbZfEe1sxw1jE0Kusxw',
+      createdDate: now,
+      type: 'transaction__status_changed',
+      objectType: 'transaction',
+      objectId: validatedTransaction2.id,
+      object: Object.assign({}, validatedTransaction2, {
+        status: 'pending-acceptance',
+        statusHistory: validatedTransaction2.statusHistory
+          .filter(status => ['draft', 'pending-acceptance'].includes(status))
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_FOCH8le1GgB1ibiWuGgB',
+      createdDate: now,
+      type: 'transaction__status_changed',
+      objectType: 'transaction',
+      objectId: validatedTransaction2.id,
+      object: validatedTransaction2,
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_rS0eIbe11GD1iMIZt1GD',
+      createdDate: now,
+      type: 'transaction__created',
+      objectType: 'transaction',
+      objectId: paidTransaction.id,
+      object: Object.assign({}, paidTransaction, {
+        status: 'draft',
+        statusHistory: paidTransaction.statusHistory
+          .filter(status => status === 'draft')
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_j5braLe1vv31jGxPyvv3',
+      createdDate: now,
+      type: 'transaction__status_changed',
+      objectType: 'transaction',
+      objectId: paidTransaction.id,
+      object: Object.assign({}, paidTransaction, {
+        status: 'pending-acceptance',
+        statusHistory: paidTransaction.statusHistory
+          .filter(status => ['draft', 'pending-acceptance'].includes(status))
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_0fB70Ie1Mt31ihvQRMt3',
+      createdDate: now,
+      type: 'transaction__created',
+      objectType: 'transaction',
+      objectId: acceptedTransaction.id,
+      object: Object.assign({}, acceptedTransaction, {
+        status: 'draft',
+        statusHistory: acceptedTransaction.statusHistory
+          .filter(status => status === 'draft')
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
+
+    createModel({
+      id: 'evt_o6onJ4e1dzz1iz2MWdzz',
+      createdDate: now,
+      type: 'transaction__status_changed',
+      objectType: 'transaction',
+      objectId: acceptedTransaction.id,
+      object: Object.assign({}, acceptedTransaction, {
+        status: 'accepted',
+        statusHistory: acceptedTransaction.statusHistory
+          .filter(status => ['draft', 'accepted'].includes(status))
+      }),
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'core',
+      emitterId: null,
+      metadata: {}
+    }),
   ],
 
   entry: [
@@ -1889,76 +2257,10 @@ module.exports = {
     }),
 
     // transaction paid
-    createModel({
-      id: 'trn_RjhfQps1I3a1gJYz2I3a',
-      createdDate: now,
-      updatedDate: now,
-      assetId: asset1.id,
-      assetSnapshot: asset1,
-      assetTypeId: assetType1.id,
-      assetType: assetType1,
-      status: 'pending-acceptance',
-      statusHistory: [
-        { status: 'pending-acceptance', date: now },
-        { status: 'draft', date: now }
-      ],
-      ownerId: 'fd7b4ea9-a899-4dba-b9b0-ef8537a70efe',
-      takerId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
-      quantity: 1,
-      startDate: computeDate(now, '25 days'),
-      endDate: computeDate(now, '30 days'),
-      duration: { d: 5 },
-      timeUnit: 'd',
-      unitPrice: 100,
-      value: 500,
-      ownerAmount: 475,
-      takerAmount: 589,
-      platformAmount: 114,
-      ownerFees: 25,
-      takerFees: 89,
-      currency: 'USD',
-      completedDate: null,
-      cancelledDate: null,
-      cancellationReason: null,
-      metadata: {},
-      platformData: {}
-    }),
+    createModel(paidTransaction),
 
     // transaction accepted
-    createModel({
-      id: 'trn_ZVZfQps1I3a1gJYz2I3a',
-      createdDate: now,
-      updatedDate: now,
-      assetId: asset1.id,
-      assetSnapshot: asset1,
-      assetTypeId: assetType1.id,
-      assetType: assetType1,
-      status: 'accepted',
-      statusHistory: [
-        { status: 'accepted', date: now },
-        { status: 'draft', date: now }
-      ],
-      ownerId: 'fd7b4ea9-a899-4dba-b9b0-ef8537a70efe',
-      takerId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
-      quantity: 1,
-      startDate: computeDate(now, '7 days'),
-      endDate: computeDate(now, '12 days'),
-      duration: { d: 5 },
-      timeUnit: 'd',
-      unitPrice: 100,
-      value: 500,
-      ownerAmount: 475,
-      takerAmount: 589,
-      platformAmount: 114,
-      ownerFees: 25,
-      takerFees: 89,
-      currency: 'USD',
-      completedDate: null,
-      cancelledDate: null,
-      cancellationReason: null,
-      metadata: {},
-      platformData: {}
-    }),
+    createModel(acceptedTransaction),
 
     // transaction to cancel
     createModel({
@@ -1996,78 +2298,10 @@ module.exports = {
     }),
 
     // transaction paid and accepted
-    createModel({
-      id: 'trn_Wm1fQps1I3a1gJYz2I3a',
-      createdDate: now,
-      updatedDate: now,
-      assetId: asset1.id,
-      assetSnapshot: asset1,
-      assetTypeId: assetType1.id,
-      assetType: assetType1,
-      status: 'validated',
-      statusHistory: [
-        { status: 'validated', date: now },
-        { status: 'pending-acceptance', date: now },
-        { status: 'draft', date: now }
-      ],
-      ownerId: 'usr_QVQfQps1I3a1gJYz2I3a',
-      takerId: 'usr_Y0tfQps1I3a1gJYz2I3a',
-      quantity: 1,
-      startDate: computeDate(now, '1 days'),
-      endDate: computeDate(now, '2 days'),
-      duration: { d: 1 },
-      timeUnit: 'd',
-      unitPrice: 100,
-      value: 100,
-      ownerAmount: 95,
-      takerAmount: 118,
-      platformAmount: 23,
-      ownerFees: 5,
-      takerFees: 18,
-      currency: 'USD',
-      completedDate: null,
-      cancelledDate: null,
-      cancellationReason: null,
-      metadata: {},
-      platformData: {}
-    }),
+    createModel(validatedTransaction1),
 
     // transaction paid and accepted
-    createModel({
-      id: 'trn_VHgfQps1I3a1gJYz2I3a',
-      createdDate: now,
-      updatedDate: now,
-      assetId: asset1.id,
-      assetSnapshot: asset1,
-      assetTypeId: assetType1.id,
-      assetType: assetType1,
-      status: 'validated',
-      statusHistory: [
-        { status: 'validated', date: now },
-        { status: 'pending-acceptance', date: now },
-        { status: 'draft', date: now }
-      ],
-      ownerId: 'usr_QVQfQps1I3a1gJYz2I3a',
-      takerId: 'usr_Y0tfQps1I3a1gJYz2I3a',
-      quantity: 1,
-      startDate: computeDate(now, '5 days'),
-      endDate: computeDate(now, '7 days'),
-      duration: { d: 2 },
-      timeUnit: 'd',
-      unitPrice: 100,
-      value: 200,
-      ownerAmount: 190,
-      takerAmount: 236,
-      platformAmount: 46,
-      ownerFees: 10,
-      takerFees: 36,
-      currency: 'USD',
-      completedDate: null,
-      cancelledDate: null,
-      cancellationReason: null,
-      metadata: {},
-      platformData: {}
-    }),
+    createModel(validatedTransaction2),
 
     // transaction in Euro
     createModel({

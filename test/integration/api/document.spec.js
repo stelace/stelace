@@ -6,6 +6,7 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
+const { checkStatsObject } = require('../../util')
 
 test.before(async (t) => {
   await before({ name: 'document' })(t)
@@ -15,234 +16,220 @@ test.before(async (t) => {
 test.after(after())
 
 test('get simple documents stats', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const result = await request(t.context.serverUrl)
-    .get('/documents/stats?type=movie&groupBy=data.director')
+  const groupBy = 'data.director'
+  const filters = 'type=movie'
+
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(result => {
-    t.is(result.groupBy, 'data.director')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(result.sum, null)
-    t.is(result.avg, null)
-    t.is(result.min, null)
-    t.is(result.max, null)
-  })
-
-  // check order: count desc by default
-  let count
-  obj.results.forEach(result => {
-    if (typeof count === 'undefined') {
-      count = result.count
-    } else {
-      t.true(count >= result.count)
-    }
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    results: documents
   })
 })
 
 test('get aggregated field stats', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const result = await request(t.context.serverUrl)
-    .get('/documents/stats?type=movie&groupBy=data.director&field=data.score&orderBy=avg&order=asc')
+  const groupBy = 'data.director'
+  const field = 'data.score'
+  const filters = 'type=movie'
+  const orderBy = 'avg'
+  const order = 'asc'
+
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(result => {
-    t.is(result.groupBy, 'data.director')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'undefined')
-    t.is(typeof result.lowestRanking, 'undefined')
-  })
-
-  // check order: avg asc
-  let avg
-  obj.results.forEach(result => {
-    if (typeof avg === 'undefined') {
-      avg = result.avg
-    } else {
-      t.true(avg <= result.avg)
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: documents,
+    orderBy,
+    order,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'undefined')
+      t.is(typeof result.lowestRanking, 'undefined')
     }
   })
 })
 
 test('get aggregated field stats by authorId and filter on an authorId', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const result = await request(t.context.serverUrl)
-    .get('/documents/stats?type=movie&groupBy=authorId&field=data.score&orderBy=avg&order=asc&authorId=user-external-id')
+  const groupBy = 'authorId'
+  const field = 'data.score'
+  const filters = 'type=movie&authorId=user-external-id'
+  const orderBy = 'avg'
+  const order = 'asc'
+
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(result => {
-    t.is(result.groupBy, 'authorId')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'undefined')
-    t.is(typeof result.lowestRanking, 'undefined')
-  })
-
-  // check order: avg asc
-  let avg
-  obj.results.forEach(result => {
-    if (typeof avg === 'undefined') {
-      avg = result.avg
-    } else {
-      t.true(avg <= result.avg)
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: documents,
+    orderBy,
+    order,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'undefined')
+      t.is(typeof result.lowestRanking, 'undefined')
     }
   })
 })
 
 test('get aggregated field stats with ranking', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const result = await request(t.context.serverUrl)
-    .get('/documents/stats?type=movie&groupBy=data.director&field=data.score&orderBy=avg&order=asc&computeRanking=true')
+  const groupBy = 'data.director'
+  const field = 'data.score'
+  const filters = 'type=movie&authorId=user-external-id'
+  const orderBy = 'avg'
+  const order = 'asc'
+
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(result => {
-    t.truthy(result.groupBy, 'data.director')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'number')
-    t.is(typeof result.lowestRanking, 'number')
-
-    t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
-  })
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters}&computeRanking=true`)
+    .set(authorizationHeaders)
+    .expect(200)
 
   let ranking
-  let avg
-  obj.results.forEach(result => {
-    // check ranking order
-    if (typeof ranking === 'undefined') {
-      ranking = result.ranking
-    } else {
-      t.true(ranking < result.ranking)
-    }
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: documents,
+    orderBy,
+    order,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'number')
+      t.is(typeof result.lowestRanking, 'number')
 
-    // check order: avg asc
-    if (typeof avg === 'undefined') {
-      avg = result.avg
-    } else {
-      t.true(avg <= result.avg)
+      t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
+
+      // check ranking order
+      if (typeof ranking === 'undefined') {
+        ranking = result.ranking
+      } else {
+        t.true(ranking < result.ranking)
+      }
     }
   })
 })
 
 test('get aggregated field stats with ranking with specified label', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const queryParams = 'type=movie&groupBy=data.director&field=data.score&orderBy=avg&order=asc' +
-    '&computeRanking=true&label=source:imdb'
+  const groupBy = 'data.director'
+  const field = 'data.score'
+  const filters = 'type=movie&label=source:imdb'
+  const orderBy = 'avg'
+  const order = 'asc'
 
-  const result = await request(t.context.serverUrl)
-    .get(`/documents/stats?${queryParams}`)
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(result => {
-    t.truthy(result.groupBy, 'data.director')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'number')
-    t.is(typeof result.lowestRanking, 'number')
-
-    t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
-  })
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters}&computeRanking=true`)
+    .set(authorizationHeaders)
+    .expect(200)
 
   let ranking
-  let avg
-  obj.results.forEach(result => {
-    // check ranking order
-    if (typeof ranking === 'undefined') {
-      ranking = result.ranking
-    } else {
-      t.true(ranking < result.ranking)
-    }
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: documents,
+    orderBy,
+    order,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'number')
+      t.is(typeof result.lowestRanking, 'number')
 
-    // check order: avg asc
-    if (typeof avg === 'undefined') {
-      avg = result.avg
-    } else {
-      t.true(avg <= result.avg)
+      t.is(result.lowestRanking, obj.nbResults) // is true because there is no filter
+
+      // check ranking order
+      if (typeof ranking === 'undefined') {
+        ranking = result.ranking
+      } else {
+        t.true(ranking < result.ranking)
+      }
     }
   })
 
-  const queryParams2 = 'type=movie&groupBy=data.director&field=data.score&orderBy=avg&order=asc' +
-    '&computeRanking=true&label=source:random'
+  const filters2 = 'type=movie&label=source:random'
 
-  const result2 = await request(t.context.serverUrl)
-    .get(`/documents/stats?${queryParams2}`)
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters2}&computeRanking=true`)
     .set(authorizationHeaders)
     .expect(200)
-
-  const obj2 = result2.body
 
   t.true(obj.results[0].avg !== obj2.results[0].avg)
 })
@@ -289,14 +276,25 @@ test('get aggregated field stats with ranking with wildcard label', async (t) =>
 })
 
 test('get aggregated field stats with ranking and postranking filter', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const beforeResult = await request(t.context.serverUrl)
-    .get('/documents/stats?type=movie&groupBy=data.director&field=data.score&orderBy=avg&order=asc&computeRanking=true')
+  const groupBy = 'data.director'
+  const field = 'data.score'
+  const filters = 'type=movie'
+  const orderBy = 'avg'
+  const order = 'asc'
+
+  const { body: beforeObj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters}&computeRanking=true`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const beforeObj = beforeResult.body
   const lowestRanking = beforeObj.nbResults
 
   const directorRanking = beforeObj.results.reduce((memo, result) => {
@@ -307,52 +305,60 @@ test('get aggregated field stats with ranking and postranking filter', async (t)
   }, null)
 
   // Now only filter on the director, ranking stats should not changed
-  const queryParams = 'type=movie&groupBy=data.director&field=data.score&orderBy=avg' +
-    '&order=asc&computeRanking=true&data[director]=Hayao+Miyazaki'
+  const filters2 = 'type=movie&data[director]=Hayao+Miyazaki'
 
-  const result = await request(t.context.serverUrl)
-    .get(`/documents/stats?${queryParams}`)
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters2}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters2}&computeRanking=true`)
+    .set(authorizationHeaders)
+    .expect(200)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.is(obj.nbResults, 1)
-  t.true(Array.isArray(obj.results))
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: documents,
+    orderBy,
+    order,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'number')
+      t.is(typeof result.lowestRanking, 'number')
 
-  obj.results.forEach(result => {
-    t.is(result.groupBy, 'data.director')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'number')
-    t.is(typeof result.lowestRanking, 'number')
-
-    t.is(result.ranking, directorRanking)
-    t.is(result.lowestRanking, lowestRanking)
+      t.is(result.ranking, directorRanking)
+      t.is(result.lowestRanking, lowestRanking)
+    }
   })
 })
 
 test('get aggregated field stats with ranking and preranking filter', async (t) => {
-  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'document:stats:all',
+      'document:list:all'
+    ]
+  })
 
-  const queryParams = 'type=movie&groupBy=data.director&field=data.score&orderBy=avg' +
-    '&order=asc&computeRanking=true&data[composer]=Masaru+Sato'
+  const groupBy = 'data.director'
+  const field = 'data.score'
+  const filters = 'type=movie&data[composer]=Masaru+Sato'
+  const orderBy = 'avg'
+  const order = 'asc'
 
-  const result = await request(t.context.serverUrl)
-    .get(`/documents/stats?${queryParams}`)
+  const { body: { results: documents } } = await request(t.context.serverUrl)
+    .get(`/documents?${filters}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/documents/stats?groupBy=${groupBy}&field=${field}&orderBy=${orderBy}&order=${order}&${filters}&computeRanking=true`)
+    .set(authorizationHeaders)
+    .expect(200)
 
   t.true(typeof obj === 'object')
   t.true(typeof obj.nbResults === 'number')
@@ -361,16 +367,18 @@ test('get aggregated field stats with ranking and preranking filter', async (t) 
   t.true(typeof obj.nbResultsPerPage === 'number')
   t.true(Array.isArray(obj.results))
 
-  obj.results.forEach(result => {
-    t.is(result.groupBy, 'data.director')
-    t.truthy(result.groupByValue)
-    t.is(typeof result.count, 'number')
-    t.is(typeof result.sum, 'number')
-    t.is(typeof result.avg, 'number')
-    t.is(typeof result.min, 'number')
-    t.is(typeof result.max, 'number')
-    t.is(typeof result.ranking, 'number')
-    t.is(typeof result.lowestRanking, 'number')
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    field,
+    results: documents,
+    orderBy,
+    order,
+    additionalResultCheckFn: (result) => {
+      t.is(typeof result.ranking, 'number')
+      t.is(typeof result.lowestRanking, 'number')
+    }
   })
 })
 
@@ -484,6 +492,20 @@ test('get aggregated field stats with average rounded to integer', async (t) => 
   obj2.results.forEach(result2 => {
     t.true(isInteger(result2.avg))
   })
+})
+
+test('fails to get aggregated stats with non-number field', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+
+  const groupBy = 'authorId'
+  const field = 'data.title'
+
+  const { body: error } = await request(t.context.serverUrl)
+    .get(`/documents/stats?type=movie&groupBy=${groupBy}&field=${field}`)
+    .set(authorizationHeaders)
+    .expect(422)
+
+  t.true(error.message.includes(`Non-number value was found for field "${field}"`))
 })
 
 test('list documents', async (t) => {

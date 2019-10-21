@@ -14,14 +14,13 @@ module.exports = {
 const _ = require('lodash')
 
 const {
+  roundDecimal
+} = require('./math')
+
+const {
   getCurrencyDecimal,
   isValidCurrency
 } = require('./currency')
-
-function roundDecimal (num, decimal, roundingFn = Math.round) {
-  const divisor = Math.pow(10, decimal)
-  return roundingFn(num * divisor) / divisor
-}
 
 function roundPrice (price) {
   if (typeof price === 'string') {
