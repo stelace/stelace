@@ -549,6 +549,8 @@ test('sends an email via a template with ICU content', async (t) => {
     })
     .expect(200)
 
+  const availableDateStr = '2019-03-15T12:45:12.000Z'
+
   const payload = {
     name: 'registration',
     to: 'Example user <test@example.com>',
@@ -559,7 +561,7 @@ test('sends an email via a template with ICU content', async (t) => {
       nbAssets: 7,
       discountRate: 0.2,
       deliveryMethod: 'home',
-      availableDate: '2019-03-15T12:45:12.000Z'
+      availableDate: availableDateStr
     },
     locale: 'fr'
   }
@@ -578,7 +580,12 @@ test('sends an email via a template with ICU content', async (t) => {
   t.true(html.includes('une réduction de 20 %'))
   t.true(html.includes('Votre colis sera livré à votre domicile'))
   t.true(html.includes('à partir du 15/03/2019 (vendredi 15 mars 2019)'))
-  t.true(html.includes('13:45:12'))
+
+  // get hours, minutes and seconds from Date object
+  // because they may differ depending on local time
+  const availableDate = new Date(availableDateStr)
+  const time = `${availableDate.getHours()}:${availableDate.getMinutes()}:${availableDate.getSeconds()}`
+  t.true(html.includes(time))
 })
 
 test('uses general email content when specific email content is missing', async (t) => {
