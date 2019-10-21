@@ -191,6 +191,15 @@ test('creates several single-step Stelace workflows', async (t) => {
           startDate: 'new Date().toISOString()',
           endDate: 'new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000)).toISOString()',
           isCurrentTest: '_.get(changesRequested, "metadata.singleStepWorkflow")',
+
+          // localized date in Chinese format
+          localizedDate: `
+            new Intl.DateTimeFormat('zh-CH', {
+              day: 'numeric',
+              month : 'long',
+              year : 'numeric'
+            }).format(new Date('2019-02-05'))
+          `,
           nestedObjects: [
             {
               nested: true
@@ -210,7 +219,8 @@ test('creates several single-step Stelace workflows', async (t) => {
             futurePrice: 'computed.futurePrice',
             var: 'env.TEST_ENV_VARIABLE',
             otherVar: 'env.OTHER_ENV_VARIABLE', // should be undefined (cf. config fixtures)
-            nestedObjects: 'computed.nestedObjects'
+            nestedObjects: 'computed.nestedObjects',
+            localizedDate: 'computed.localizedDate'
           },
           platformData: {
             platformDataField: '"test"'
@@ -279,6 +289,7 @@ test('creates several single-step Stelace workflows', async (t) => {
   t.is(workflow1LogsCall1.metadata.endpointPayload.metadata.futurePrice, 24)
   t.is(workflow1LogsCall1.metadata.endpointPayload.metadata.var, 'true')
   t.deepEqual(workflow1LogsCall1.metadata.endpointPayload.metadata.nestedObjects, [{ nested: true }])
+  t.is(workflow1LogsCall1.metadata.endpointPayload.metadata.localizedDate, '2019年2月5日')
   t.is(typeof workflow1LogsCall1.metadata.endpointPayload.metadata.otherVar, 'undefined')
   t.is(workflow1AfterRun1.stats.nbActionsCompleted, 1)
   t.is(workflow1AfterRun1.stats.nbTimesRun, workflow1AfterRun1.stats.nbWorkflowNotifications)

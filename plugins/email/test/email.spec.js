@@ -511,8 +511,31 @@ test('sends an email via a template with ICU content', async (t) => {
   })
 
   const entryPayload = {
-    subject: 'Welcome {userName}',
-    content: 'You are the {userNum, selectordinal, =1 {first} =2 {second} =3 {third} other {#th}} user.'
+    // testing ICU:
+    // - simple placeholder
+    // - plural
+    // - select ordinal
+    // - number type
+    // - select
+    // - date and time
+    subject: 'Bienvenue {userName}',
+    content: `
+      Vous avez commandé {nbAssets} {nbAssets, plural,
+        one {article}
+        other {articles}
+      }.
+      Et parce que vous êtes le {userNum, selectordinal,
+        =1 {premier}
+        =2 {second}
+        other {#ème}
+      } utilisateur, nous vous offrons une réduction de {discountRate, number, percent}.
+      Votre colis sera livré {deliveryMethod, select,
+        home {à votre domicile}
+        other {à récupérer à notre boutique}
+      }
+      à partir du {availableDate, date, short} ({availableDate, date, full})
+      {availableDate, time, medium}.
+    `.replace(/\\n/g, ' ')
   }
 
   await request(t.context.serverUrl)
@@ -520,7 +543,7 @@ test('sends an email via a template with ICU content', async (t) => {
     .set(authorizationHeaders)
     .send({
       collection: 'email',
-      locale: 'en',
+      locale: 'fr',
       name: 'registration',
       fields: entryPayload
     })
@@ -532,8 +555,13 @@ test('sends an email via a template with ICU content', async (t) => {
     replyTo: 'support@company.com',
     data: {
       userName: 'Foo',
-      userNum: 2
-    }
+      userNum: 2,
+      nbAssets: 7,
+      discountRate: 0.2,
+      deliveryMethod: 'home',
+      availableDate: '2019-03-15T12:45:12.000Z'
+    },
+    locale: 'fr'
   }
 
   const { body: { emailContext } } = await request(t.context.serverUrl)
@@ -542,8 +570,15 @@ test('sends an email via a template with ICU content', async (t) => {
     .send(payload)
     .expect(200)
 
-  t.is(emailContext.subject, 'Welcome Foo')
-  t.true(emailContext.html.includes('You are the second user.'))
+  const html = emailContext.html.replace(/ /g, ' ') // eslint-disable-line no-irregular-whitespace
+
+  t.is(emailContext.subject, 'Bienvenue Foo')
+  t.true(html.includes('Vous avez commandé 7 articles.'))
+  t.true(html.includes('vous êtes le second utilisateur'))
+  t.true(html.includes('une réduction de 20 %'))
+  t.true(html.includes('Votre colis sera livré à votre domicile'))
+  t.true(html.includes('à partir du 15/03/2019 (vendredi 15 mars 2019)'))
+  t.true(html.includes('13:45:12'))
 })
 
 test('uses general email content when specific email content is missing', async (t) => {
