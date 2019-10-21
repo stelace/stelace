@@ -73,7 +73,7 @@
     "lodash": "4.17.15",
     "mobitel-iso-4217-currencies": "^1.1.1",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.26",
+    "moment-timezone": "^0.5.27",
     "ms": "^2.1.2",
     "nodemailer": "^6.3.1",
     "objection": "https://github.com/stelace/objection.js.git#stelace",
