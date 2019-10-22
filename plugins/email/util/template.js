@@ -107,16 +107,18 @@ function computeGeneralFieldsBlock (fields) {
  * @param {Object}   [options]
  * @param {String}   [options.locale]
  * @param {String}   [options.currency]
+ * @param {String}   [options.timezone]
  * @param {Function} [options.beforeCompileTemplate] - can alter fields before Handlebars compilation
  */
 function generateTemplate ({ template, fields, data, options = {} }) {
   const {
     locale,
     currency,
+    timezone,
     beforeCompileTemplate
   } = options
 
-  let newFields = formatMessages(fields, data, { locale, currency })
+  let newFields = formatMessages(fields, data, { locale, currency, timezone })
 
   if (typeof beforeCompileTemplate === 'function') {
     newFields = beforeCompileTemplate(newFields)

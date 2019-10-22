@@ -3,11 +3,13 @@ if (!global.Intl) {
 }
 
 const IntlMessageFormat = require('intl-messageformat')
+const momentTimezone = require('moment-timezone')
+const memoizeIntlConstructor = require('intl-format-cache').default
 
 const { isDateString } = require('../../../src/util/time')
 const { getCurrencyDecimal } = require('../../../src/util/currency')
 
-function formatMessages (messages, values, { locale, currency }) {
+function formatMessages (messages, values, { locale, currency, timezone }) {
   const transformedValues = transformValues(values)
 
   let currentKey
@@ -20,7 +22,7 @@ function formatMessages (messages, values, { locale, currency }) {
       currentKey = key
       currentValue = message
 
-      memo[key] = formatMessage(message, transformedValues, { locale, currency, noTransformValues: true })
+      memo[key] = formatMessage(message, transformedValues, { locale, currency, timezone, noTransformValues: true })
       return memo
     }, {})
   } catch (err) {
@@ -31,12 +33,18 @@ function formatMessages (messages, values, { locale, currency }) {
   }
 }
 
-function formatMessage (message, values, { locale, currency, noTransformValues = false, messageTypeChecking = true } = {}) {
+function formatMessage (message, values, {
+  locale,
+  currency,
+  timezone,
+  noTransformValues = false,
+  messageTypeChecking = true
+} = {}) {
   if (messageTypeChecking) {
     if (typeof message !== 'string') return message
   }
 
-  const formatter = getFormatMessage(message, locale, { currency })
+  const formatter = getFormatMessage(message, locale, { currency, timezone })
 
   let passedValues = values
   if (!noTransformValues) {
@@ -45,7 +53,7 @@ function formatMessage (message, values, { locale, currency, noTransformValues =
   return formatter.format(passedValues)
 }
 
-function getFormatMessage (message, locale, { currency }) {
+function getFormatMessage (message, locale, { currency, timezone }) {
   let numberFormat
 
   if (currency) {
@@ -66,7 +74,38 @@ function getFormatMessage (message, locale, { currency }) {
     customFormats.number = numberFormat
   }
 
-  return new IntlMessageFormat(message, locale, customFormats)
+  let additionalOptions
+
+  if (timezone) {
+    // https://github.com/formatjs/formatjs/tree/master/packages/intl-messageformat#formatters
+    // customize formatters to be able to render dates to a specific timezone
+    additionalOptions = {
+      formatters: {
+        getNumberFormat: memoizeIntlConstructor(Intl.NumberFormat),
+        getPluralRules: memoizeIntlConstructor(Intl.PluralRules),
+
+        getDateTimeFormat (locales, intlOptions) {
+          return {
+            format (date) {
+              if (!(date instanceof Date)) throw new Error('Invalid valid date passed to format')
+
+              const zone = momentTimezone.tz.zone(timezone)
+              if (!zone) throw new Error('Invalid timezone')
+
+              const clonedDate = new Date(date.getTime())
+              const fromOffset = clonedDate.getTimezoneOffset()
+              const toOffset = zone.parse(clonedDate)
+
+              const newDate = new Date(clonedDate.getTime() - (toOffset - fromOffset) * 60 * 1000)
+              return new Intl.DateTimeFormat(locales, intlOptions).format(newDate)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return new IntlMessageFormat(message, locale, customFormats, additionalOptions)
 }
 
 function transformValue (value) {

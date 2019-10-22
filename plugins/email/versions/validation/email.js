@@ -71,6 +71,7 @@ schemas['2019-05-20'].sendTemplate = {
     data: singleLvlObjectSchema,
     locale: Joi.string(),
     currency: Joi.string(),
+    timezone: Joi.string(),
     from: emailSchema,
     to: Joi.alternatives().try(
       emailSchema,

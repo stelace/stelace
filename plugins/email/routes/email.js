@@ -58,6 +58,7 @@ function init (server, { middlewares, helpers } = {}) {
       'data',
       'locale',
       'currency',
+      'timezone',
       'from',
       'fromName',
       'to',

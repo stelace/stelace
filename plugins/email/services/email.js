@@ -19,7 +19,8 @@ module.exports = function createService (deps) {
   const {
     createError,
     utils: {
-      locale: { parseLocale }
+      locale: { parseLocale },
+      time: { isValidTimezone }
     },
 
     configRequester,
@@ -96,6 +97,7 @@ module.exports = function createService (deps) {
       name,
       locale: requestedLocale,
       currency: requestedCurrency,
+      timezone,
       data,
       from,
 
@@ -107,6 +109,8 @@ module.exports = function createService (deps) {
       to,
       replyTo
     } = req
+
+    if (timezone && !isValidTimezone(timezone)) throw createError(422, 'Invalid timezone')
 
     const emailParams = await checkAndGetEmailParameters({
       platformId,
@@ -180,7 +184,8 @@ module.exports = function createService (deps) {
     try {
       const generatedResult = generateGeneralTemplate(templateFields, enrichedData, {
         locale,
-        currency
+        currency,
+        timezone
       })
 
       newTemplate = generatedResult.newTemplate
