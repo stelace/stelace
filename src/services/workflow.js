@@ -389,6 +389,9 @@ function start ({ communication, serverPort }) {
         // Users must be informed before any major or minor version updates
         // but (security) patch updates should be applied on an ongoing basis.
         vm.freeze(_, '_')
+
+        // Expose Intl with all loaded locales
+        vm.freeze(global.Intl, 'Intl')
       }
 
       let currentWorkflowId

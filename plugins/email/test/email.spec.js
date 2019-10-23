@@ -511,8 +511,31 @@ test('sends an email via a template with ICU content', async (t) => {
   })
 
   const entryPayload = {
-    subject: 'Welcome {userName}',
-    content: 'You are the {userNum, selectordinal, =1 {first} =2 {second} =3 {third} other {#th}} user.'
+    // testing ICU:
+    // - simple placeholder
+    // - plural
+    // - select ordinal
+    // - number type
+    // - select
+    // - date and time
+    subject: 'Bienvenue {userName}',
+    content: `
+      Vous avez commandé {nbAssets} {nbAssets, plural,
+        one {article}
+        other {articles}
+      }.
+      Et parce que vous êtes le {userNum, selectordinal,
+        =1 {premier}
+        =2 {second}
+        other {#ème}
+      } utilisateur, nous vous offrons une réduction de {discountRate, number, percent}.
+      Votre colis sera livré {deliveryMethod, select,
+        home {à votre domicile}
+        other {à récupérer à notre boutique}
+      }
+      à partir du {availableDate, date, short} ({availableDate, date, full})
+      {availableDate, time, medium}.
+    `.replace(/\\n/g, ' ')
   }
 
   await request(t.context.serverUrl)
@@ -520,11 +543,13 @@ test('sends an email via a template with ICU content', async (t) => {
     .set(authorizationHeaders)
     .send({
       collection: 'email',
-      locale: 'en',
+      locale: 'fr',
       name: 'registration',
       fields: entryPayload
     })
     .expect(200)
+
+  const availableDateStr = '2019-03-15T18:45:12.000Z'
 
   const payload = {
     name: 'registration',
@@ -532,8 +557,13 @@ test('sends an email via a template with ICU content', async (t) => {
     replyTo: 'support@company.com',
     data: {
       userName: 'Foo',
-      userNum: 2
-    }
+      userNum: 2,
+      nbAssets: 7,
+      discountRate: 0.2,
+      deliveryMethod: 'home',
+      availableDate: availableDateStr
+    },
+    locale: 'fr'
   }
 
   const { body: { emailContext } } = await request(t.context.serverUrl)
@@ -542,8 +572,58 @@ test('sends an email via a template with ICU content', async (t) => {
     .send(payload)
     .expect(200)
 
-  t.is(emailContext.subject, 'Welcome Foo')
-  t.true(emailContext.html.includes('You are the second user.'))
+  const html = emailContext.html.replace(/ /g, ' ') // eslint-disable-line no-irregular-whitespace
+
+  t.is(emailContext.subject, 'Bienvenue Foo')
+  t.true(html.includes('Vous avez commandé 7 articles.'))
+  t.true(html.includes('vous êtes le second utilisateur'))
+  t.true(html.includes('une réduction de 20 %'))
+  t.true(html.includes('Votre colis sera livré à votre domicile'))
+  t.true(html.includes('à partir du 15/03/2019 (vendredi 15 mars 2019)'))
+
+  // get hours, minutes and seconds from Date object
+  // because they may differ depending on local time
+  const availableDate = new Date(availableDateStr)
+  const time = `${availableDate.getHours()}:${availableDate.getMinutes()}:${availableDate.getSeconds()}`
+  t.true(html.includes(time))
+
+  const payload2 = Object.assign({}, payload, {
+    timezone: 'America/New_York'
+  })
+
+  const { body: { emailContext: emailContext2 } } = await request(t.context.serverUrl)
+    .post('/emails/send-template')
+    .set(authorizationHeaders)
+    .send(payload2)
+    .expect(200)
+
+  t.true(emailContext2.html.includes('à partir du 15/03/2019 (vendredi 15 mars 2019)'))
+  t.true(emailContext2.html.includes('14:45:12'))
+
+  const payload3 = Object.assign({}, payload, {
+    timezone: 'Asia/Tokyo'
+  })
+
+  const { body: { emailContext: emailContext3 } } = await request(t.context.serverUrl)
+    .post('/emails/send-template')
+    .set(authorizationHeaders)
+    .send(payload3)
+    .expect(200)
+
+  t.true(emailContext3.html.includes('à partir du 16/03/2019 (samedi 16 mars 2019)'))
+  t.true(emailContext3.html.includes('3:45:12'))
+
+  const payload4 = Object.assign({}, payload, {
+    timezone: 'unknownTimezone'
+  })
+
+  const { body: error } = await request(t.context.serverUrl)
+    .post('/emails/send-template')
+    .set(authorizationHeaders)
+    .send(payload4)
+    .expect(422)
+
+  t.true(error.message.toLowerCase().includes('invalid timezone'))
 })
 
 test('uses general email content when specific email content is missing', async (t) => {
@@ -989,6 +1069,7 @@ test('fails to send an email with template if missing or invalid parameters', as
       data: true,
       locale: true,
       currency: true,
+      timezone: true,
       from: true,
       to: true,
 
@@ -1007,6 +1088,7 @@ test('fails to send an email with template if missing or invalid parameters', as
   t.true(error.message.includes('"data" must be of type object'))
   t.true(error.message.includes('"locale" must be a string'))
   t.true(error.message.includes('"currency" must be a string'))
+  t.true(error.message.includes('"timezone" must be a string'))
   t.true(error.message.includes('"from" must be one of [string, object]'))
   t.true(error.message.includes('"to" must be one of [string, object]'))
 

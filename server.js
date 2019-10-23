@@ -12,6 +12,7 @@ const corsMiddleware = require('restify-cors-middleware2')
 const socketIO = require('socket.io')
 const apm = require('elastic-apm-node')
 const { isActive: isApmActive, addRequestContext } = require('./apm')
+const { applyIntlPolyfill } = require('./src/util/intl')
 
 const cors = corsMiddleware({
   origin: ['*'], // default, only appropriate domain is included in response
@@ -214,6 +215,8 @@ function loadServer () {
 
   server.pre(cors.preflight)
   server.use(cors.actual)
+
+  applyIntlPolyfill()
 
   const allowedErrorFields = [
     'message',
