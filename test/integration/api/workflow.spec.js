@@ -194,7 +194,7 @@ test('creates several single-step Stelace workflows', async (t) => {
 
           // localized date in Chinese format
           localizedDate: `
-            new Intl.DateTimeFormat('zh-CH', {
+            new Intl.DateTimeFormat('zh-CN', {
               day: 'numeric',
               month : 'long',
               year : 'numeric'
