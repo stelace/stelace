@@ -67,7 +67,7 @@
     "http-errors": "^1.7.3",
     "intl": "^1.2.5",
     "intl-format-cache": "^4.2.3",
-    "intl-messageformat": "^4.4.0",
+    "intl-messageformat": "^7.3.3",
     "jose": "^1.10.1",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.19.5",
