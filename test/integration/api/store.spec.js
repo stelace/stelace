@@ -178,6 +178,68 @@ test('sync elasticsearch', async (t) => {
   t.true(obj.success)
 })
 
+test('sync cache', async (t) => {
+  const systemKey = getSystemKey()
+
+  const platformId = t.context.platformId
+
+  const { body: { cache: { ok: beforeCheck } } } = await request(t.context.serverUrl)
+    .get(`/store/platforms/${platformId}/check`)
+    .set({
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': t.context.env
+    })
+    .expect(200)
+
+  t.false(beforeCheck)
+
+  // synchronize existing active tasks
+  await request(t.context.serverUrl)
+    .post(`/store/platforms/${platformId}/cache/sync`)
+    .set({
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': 'test'
+    })
+    .expect(200)
+
+  await request(t.context.serverUrl)
+    .post(`/store/platforms/${platformId}/cache/sync`)
+    .set({
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': 'live'
+    })
+    .expect(200)
+
+  const { body: { cache: { ok: afterCheck } } } = await request(t.context.serverUrl)
+    .get(`/store/platforms/${platformId}/check`)
+    .set({
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': t.context.env
+    })
+    .expect(200)
+
+  t.true(afterCheck)
+
+  // delete all tasks from cache
+  await request(t.context.serverUrl)
+    .post(`/store/platforms/${platformId}/cache/delete`)
+    .set({
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': t.context.env
+    })
+    .expect(200)
+
+  const { body: { cache: { ok: checkAfterDelete } } } = await request(t.context.serverUrl)
+    .get(`/store/platforms/${platformId}/check`)
+    .set({
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': t.context.env
+    })
+    .expect(200)
+
+  t.false(checkAfterDelete)
+})
+
 test('creates a platform, init and reset databases', async (t) => {
   const systemKey = getSystemKey()
 
