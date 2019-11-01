@@ -41,6 +41,10 @@ const {
   syncAssetsWithElasticsearch
 } = require('../elasticsearch-sync')
 
+const {
+  removeReindexingTask
+} = require('../elasticsearch-reindex')
+
 const { logError } = require('../../logger')
 const { getEnvironments } = require('../util/environment')
 
@@ -423,6 +427,8 @@ function start ({ communication }) {
     }
 
     if (client) await client.indices.delete({ index: indexPattern })
+
+    await removeReindexingTask({ platformId, env })
 
     return { success: true }
   })
