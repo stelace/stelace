@@ -1,9 +1,9 @@
-# Restore Stelace API data into own infrastructure
+# Restore your Stelace API data to another infrastructure
 
-Prerequisite:
-- Fulfill the .env file as indicating in README.md
+Prerequisites:
+- Get your PostgreSQL database dump. If hosted in SaaS, get in touch with support to have your database exported.
+- Fulfill the .env file in the new infrastructure as indicated
 - Start your databases and Stelace API server
-- Have the Stelace dump
 
 ## Restore PostgreSQL data via dump
 
@@ -11,7 +11,7 @@ Prerequisite:
 pg_restore -h <host> --port <port> -d <database_name> -U <user> --no-owner --role=<user> <dump_name>.dump
 ```
 
-This will restore data from test and live environments.
+This will restore data from test and live environments as long as dump includes them both.
 
 ## Configure Redis
 
@@ -84,8 +84,7 @@ GET http://localhost:4100/users
 
 In Stelace API, you were using the API with a specific version. Let's set the same version.
 
-Perform any request to Stelace API and retrieve the header 'x-stelace-version' from the response.
-It will indicate the API version you're currently using.
+Perform any request to you current Stelace API infrastructure as you did with previous infrastructure. If you’re unsubscribing from Stelace hosted infrastructure, some specific search filters may not be available anymore. Please refer to README.md.
 
 Now let's set it into your new system:
 

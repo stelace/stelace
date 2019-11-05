@@ -321,9 +321,9 @@ function init (server, { middlewares, helpers } = {}) {
     })
   }))
 
-  server.post({
+  server.del({
     name: 'store.deleteCache',
-    path: '/store/platforms/:id/cache/delete'
+    path: '/store/platforms/:id/cache'
   }, allowSystem, wrapAction(async (req, res) => {
     const {
       id: platformId

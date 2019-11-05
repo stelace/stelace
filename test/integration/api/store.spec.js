@@ -222,7 +222,7 @@ test('sync cache', async (t) => {
 
   // delete all tasks from cache
   await request(t.context.serverUrl)
-    .post(`/store/platforms/${platformId}/cache/delete`)
+    .delete(`/store/platforms/${platformId}/cache`)
     .set({
       'x-stelace-system-key': systemKey,
       'x-stelace-env': t.context.env
