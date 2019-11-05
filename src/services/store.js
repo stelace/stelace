@@ -1,6 +1,8 @@
 const path = require('path')
 const createError = require('http-errors')
 const { serializeError } = require('serialize-error')
+const _ = require('lodash')
+const bluebird = require('bluebird')
 
 const {
   createSchema,
@@ -15,7 +17,12 @@ const {
 
   getPlatformEnvData,
   setPlatformEnvData,
-  removePlatformEnvData
+  removePlatformEnvData,
+
+  getAllStelaceTasks,
+  setStelaceTask,
+  removeStelaceTask,
+  removeStelaceTaskExecutionDates,
 } = require('../redis')
 
 const {
@@ -33,6 +40,10 @@ const {
 const {
   syncAssetsWithElasticsearch
 } = require('../elasticsearch-sync')
+
+const {
+  removeReindexingTask
+} = require('../elasticsearch-reindex')
 
 const { logError } = require('../../logger')
 const { getEnvironments } = require('../util/environment')
@@ -255,6 +266,10 @@ function start ({ communication }) {
       elasticsearch: {
         ok: true,
         envErrors: {}
+      },
+      cache: {
+        ok: true,
+        envErrors: {}
       }
     }
 
@@ -278,6 +293,21 @@ function start ({ communication }) {
       } catch (err) {
         result.elasticsearch.ok = false
         result.elasticsearch.envErrors[env] = serializeError(err)
+      }
+    }
+
+    for (const env of environments) {
+      try {
+        const { Task } = await getModels({ platformId, env })
+
+        const cachedTasks = await getAllStelaceTasks({ platformId, env })
+        const tasks = await Task.query().where({ active: true })
+
+        const { needSync } = computeCacheDifference({ tasks, cachedTasks: cachedTasks.map(t => t.task) })
+        result.cache.ok = !needSync
+      } catch (err) {
+        result.cache.ok = false
+        result.cache.envErrors[env] = serializeError(err)
       }
     }
 
@@ -398,6 +428,43 @@ function start ({ communication }) {
 
     if (client) await client.indices.delete({ index: indexPattern })
 
+    await removeReindexingTask({ platformId, env })
+
+    return { success: true }
+  })
+
+  responder.on('syncCache', async (req) => {
+    const {
+      platformId,
+      env
+    } = req
+
+    const exists = await hasPlatform(platformId)
+    if (!exists) throw createError(404, 'Platform does not exist')
+
+    const { Task } = await getModels({ platformId, env })
+
+    const cachedTasks = await getAllStelaceTasks({ platformId, env })
+    const tasks = await Task.query().where({ active: true })
+
+    const cacheDifference = computeCacheDifference({ tasks, cachedTasks: cachedTasks.map(t => t.task) })
+    await syncCache(Object.assign({}, cacheDifference, { platformId, env }))
+
+    return { success: true }
+  })
+
+  responder.on('deleteCache', async (req) => {
+    const {
+      platformId,
+      env
+    } = req
+
+    const exists = await hasPlatform(platformId)
+    if (!exists) throw createError(404, 'Platform does not exist')
+
+    const removedTaskIds = await removeStelaceTask({ platformId, env, taskId: '*' })
+    await removeStelaceTaskExecutionDates({ taskId: removedTaskIds })
+
     return { success: true }
   })
 }
@@ -450,6 +517,55 @@ async function initElasticsearch ({ platformId, env }) {
   const customAttributes = await CustomAttribute.query()
 
   await createIndex({ platformId, env, useAlias: true, customAttributes })
+}
+
+function omitTaskMetadata (task) {
+  return _.omit(task, ['metadata', 'platformData'])
+}
+
+function computeCacheDifference ({ tasks, cachedTasks }) {
+  const tasksById = _.keyBy(tasks, 'id')
+  const cachedTasksById = _.keyBy(cachedTasks, 'id')
+
+  const allIds = _.uniqBy(
+    tasks.map(t => t.id)
+      .concat(cachedTasks.map(t => t.id))
+  )
+
+  const tasksToAdd = []
+  const taskIdsToRemove = []
+  const tasksUpdated = []
+
+  allIds.forEach(id => {
+    const task = tasksById[id]
+    const cachedTask = cachedTasksById[id]
+
+    if (task && !cachedTask) {
+      tasksToAdd.push(task)
+    } else if (!task && cachedTask) {
+      taskIdsToRemove.push(cachedTask.id)
+    } else if (!_.isEqual(omitTaskMetadata(task), omitTaskMetadata(cachedTask))) {
+      tasksUpdated.push(task)
+    }
+  })
+
+  const needSync = !!(tasksToAdd.length || taskIdsToRemove.length || tasksUpdated.length)
+
+  return {
+    tasksToAdd,
+    taskIdsToRemove,
+    tasksUpdated,
+    needSync
+  }
+}
+
+async function syncCache ({ platformId, env, tasksToAdd, taskIdsToRemove, tasksUpdated }) {
+  await removeStelaceTask({ platformId, env, taskId: taskIdsToRemove })
+  await removeStelaceTaskExecutionDates({ taskId: taskIdsToRemove })
+
+  await bluebird.map(tasksToAdd.concat(tasksUpdated), (task) => {
+    return setStelaceTask({ platformId, env, task: omitTaskMetadata(task) })
+  }, { concurrency: 10 })
 }
 
 function stop () {

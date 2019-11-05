@@ -302,6 +302,42 @@ function init (server, { middlewares, helpers } = {}) {
 
     return result
   }))
+
+  server.post({
+    name: 'store.syncCache',
+    path: '/store/platforms/:id/cache/sync'
+  }, allowSystem, wrapAction(async (req, res) => {
+    const {
+      id: platformId
+    } = req.params
+    const env = req.env
+
+    if (!env) throw createError(400, 'Missing environment')
+
+    return requester.send({
+      type: 'syncCache',
+      platformId,
+      env
+    })
+  }))
+
+  server.del({
+    name: 'store.deleteCache',
+    path: '/store/platforms/:id/cache'
+  }, allowSystem, wrapAction(async (req, res) => {
+    const {
+      id: platformId
+    } = req.params
+    const env = req.env
+
+    if (!env) throw createError(400, 'Missing environment')
+
+    return requester.send({
+      type: 'deleteCache',
+      platformId,
+      env
+    })
+  }))
 }
 
 function start ({ communication }) {

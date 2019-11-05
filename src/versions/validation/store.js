@@ -83,6 +83,14 @@ schemas['2019-05-20'].dropElasticsearch = {
   params: platformIdParamsSchema
 }
 
+// CACHE
+schemas['2019-05-20'].syncCache = {
+  params: platformIdParamsSchema
+}
+schemas['2019-05-20'].deleteCache = {
+  params: platformIdParamsSchema
+}
+
 const validationVersions = {
   '2019-05-20': [
     {
@@ -151,6 +159,15 @@ const validationVersions = {
     {
       target: 'store.dropElasticsearch',
       schema: schemas['2019-05-20'].dropElasticsearch
+    },
+
+    {
+      target: 'store.syncCache',
+      schema: schemas['2019-05-20'].syncCache
+    },
+    {
+      target: 'store.deleteCache',
+      schema: schemas['2019-05-20'].deleteCache
     },
   ]
 }
