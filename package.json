@@ -88,7 +88,7 @@
     "redlock": "^4.0.0",
     "restify": "^8.4.0",
     "restify-cors-middleware2": "~2.0.0",
-    "roarr": "^2.14.2",
+    "roarr": "^2.14.4",
     "serialize-error": "^5.0.0",
     "sinon": "^7.5.0",
     "socket.io": "^2.3.0",
