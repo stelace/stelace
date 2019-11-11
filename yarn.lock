@@ -1079,10 +1079,10 @@ ava@~2.4.0:
     update-notifier "^3.0.1"
     write-file-atomic "^3.0.0"
 
-aws-param-store@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/aws-param-store/-/aws-param-store-3.0.0.tgz#d3ac572fb93832ea4d02c460c3ec6601910826d7"
-  integrity sha512-DKeJgRYoWlwVCKRVxDiBWXZWyGBf/w8zW0zt3bQIE0oOTb/ouX/G6WgzDMDHU6jhdO/pJQ/DZ6yc1BDazYdN+w==
+aws-param-store@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/aws-param-store/-/aws-param-store-3.1.0.tgz#a47c580051f9ac26d40255137c47c61e84fdc587"
+  integrity sha512-cgoQIWxrHfEnqKKJ+olRhC3gMQSZp4rSm+qAMFjBDqvBeFYyrLjtdXlrbJ/WXVMwPM/5p4US/te5lfjlgnXayA==
 
 aws-sdk@^2.556.0:
   version "2.556.0"
