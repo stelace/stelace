@@ -79,7 +79,7 @@
     "nodemailer": "^6.3.1",
     "objection": "https://github.com/stelace/objection.js.git#stelace",
     "objection-db-errors": "^1.1.1",
-    "openid-client": "3.7.3",
+    "openid-client": "3.8.3",
     "parse-github-url": "^1.0.2",
     "path-to-regexp": "^3.1.0",
     "pegjs": "0.10.0",
