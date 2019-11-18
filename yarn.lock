@@ -4670,10 +4670,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.10.0, jose@^1.10.1, jose@^1.12.0:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.12.0.tgz#3847623ba1e9ba61dc37ff9d3ae9b1c69bffcfe2"
-  integrity sha512-pVfsVLMNerEIaPfCvc901iDxhp6loCUEud2nwfiJZrpcOOuYVYny22Wto/7SDnvT+7v5COV5lHgO9UQRY94X5w==
+jose@^1.10.0, jose@^1.12.0, jose@^1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.12.1.tgz#d1109ef328c359a1df9889c1e1f443f2af3e4b0d"
+  integrity sha512-81nkIOgR+CrWQ2Y5EhiidXtdBy2CahKrjxy9Cu8qmSnznD8d6Yu9Mu6yEiB/eJhgKhf+soE9Z5JTbTUWE71JPQ==
   dependencies:
     asn1.js "^5.2.0"
 
