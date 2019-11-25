@@ -4231,22 +4231,23 @@ interpret@^2.0.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.0.0.tgz#b783ffac0b8371503e9ab39561df223286aa5433"
   integrity sha512-e0/LknJ8wpMMhTiWcjivB+ESwIuvHnBSlBbmP/pSb8CQJldoj1p2qv7xGZ/+BtbTziYRFSz8OsvdbiX45LtYQA==
 
-intl-format-cache@^4.2.6:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.6.tgz#bd921d1e49b3c2229e95e08c5d472c93b68fd7d9"
-  integrity sha512-2iNv1haP8ExnejLleEJuJi1OLUtclz+lnryKhDPyw3pRhCqYK6imhFEGllXYTzTow1N22wl8M76oNMyCEDylAA==
+intl-format-cache@^4.2.10, intl-format-cache@^4.2.6:
+  version "4.2.10"
+  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.10.tgz#5a79c8374d88eeb5f0cea78ed40069310b449c48"
+  integrity sha512-GE9/50WluoMLxi1mP8fX5dcKfYfRNFhH3dy6Sgx96RsBla/9YApNL58Gzg9nHTipVUgX3VUz4PsssrKVlcQvWA==
 
-intl-messageformat-parser@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/intl-messageformat-parser/-/intl-messageformat-parser-1.8.1.tgz#0eb14c5618333be4c95c409457b66c8c33ddcc01"
-  integrity sha512-IMSCKVf0USrM/959vj3xac7s8f87sc+80Y/ipBzdKy4ifBv5Gsj2tZ41EAaURVg01QU71fYr77uA8Meh6kELbg==
+intl-messageformat-parser@^3.2.6:
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/intl-messageformat-parser/-/intl-messageformat-parser-3.2.6.tgz#a3b9e614d6073f2fb7dec0b49b0515ee84e2671b"
+  integrity sha512-AtyA6Xa5DwtvhW9c2q071m9gRjwx2HkLKRnU3BzNGBnyNEkwAkrfF9dLPDMvorIx5GYgCtesHLxI1cF6GsOWWg==
 
-intl-messageformat@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/intl-messageformat/-/intl-messageformat-4.4.0.tgz#aa196a4d04b573f4090bc417f982d81de4f74fad"
-  integrity sha512-z+Bj2rS3LZSYU4+sNitdHrwnBhr0wO80ZJSW8EzKDBowwUe3Q/UsvgCGjrwa+HPzoGCLEb9HAjfJgo4j2Sac8w==
+intl-messageformat@^7.5.6:
+  version "7.5.6"
+  resolved "https://registry.yarnpkg.com/intl-messageformat/-/intl-messageformat-7.5.6.tgz#f586d071c98c159c840df69599abe62cb4560cbd"
+  integrity sha512-MTFtbKLpGMRe1/3kK1kCvm+38UkBnBRiTbakoRV6b9wAoLxWgXoSR1Wu7OvkcyfSNk7j4zLeI/e/OuQdyxv69A==
   dependencies:
-    intl-messageformat-parser "^1.8.1"
+    intl-format-cache "^4.2.10"
+    intl-messageformat-parser "^3.2.6"
 
 intl@^1.2.5:
   version "1.2.5"
