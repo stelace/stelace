@@ -4,7 +4,6 @@ const moment = require('moment')
 const momentTimezone = require('moment-timezone')
 const ms = require('ms')
 const { CronTime } = require('cron')
-const CronConverter = require('cron-converter')
 
 const allowedTimeUnits = [
   'm', // minute
@@ -158,10 +157,15 @@ function isValidTimezone (timezone) {
   return !!momentTimezone.tz.zone(timezone)
 }
 
-function isValidCronPattern (pattern) {
-  const cronInstance = new CronConverter()
+function isValidCronPattern (pattern, { allowSeconds = false } = {}) {
   try {
-    cronInstance.fromString(pattern)
+    if (typeof pattern !== 'string') return false
+
+    const nbParts = pattern.split(' ').length
+    if (nbParts < 5 || nbParts > 6) return false
+    if (!allowSeconds && nbParts !== 5) return false
+
+    new CronTime(pattern) // eslint-disable-line no-new
     return true
   } catch (e) {
     return false

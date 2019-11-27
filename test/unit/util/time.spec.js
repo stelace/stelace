@@ -7,6 +7,7 @@ const {
   isIntersection,
   computeDate,
   getRoundedDate,
+  isValidCronPattern,
   isValidTimezone,
   computeRecurringDates,
   computeRecurringPeriods
@@ -55,6 +56,36 @@ test('validates the timezone', (t) => {
   t.true(isValidTimezone('Europe/London'))
   t.true(isValidTimezone('America/New_York'))
   t.false(isValidTimezone('Unknown/Timezone'))
+})
+
+test('detects valid and invalid cron patterns', (t) => {
+  const validPatterns = [
+    '* * * * *',
+    '0 * * * *',
+    '8 8 8 8 5',
+    '0-10 1-10 1-10 0-6 0-1'
+  ]
+  const validPatternsWithSeconds = validPatterns.map(p => `* ${p}`)
+  const invalidPatterns = [
+    '* * *',
+    '* * * * * * *',
+    '* * * * 1234',
+    '* * * * 0*',
+    '* * * 1/0 *',
+    '* 2-1 * * *',
+    '* /4 * * *'
+  ]
+  const invalidPatternsWithSeconds = invalidPatterns.map(p => `* ${p}`)
+
+  validPatterns.forEach(pattern => t.true(isValidCronPattern(pattern)))
+  invalidPatterns.forEach(pattern => t.false(isValidCronPattern(pattern)))
+  validPatternsWithSeconds.forEach(pattern => t.false(isValidCronPattern(pattern)))
+  invalidPatternsWithSeconds.forEach(pattern => t.false(isValidCronPattern(pattern), pattern))
+
+  validPatternsWithSeconds.forEach(pattern => t.true(isValidCronPattern(pattern, { allowSeconds: true })))
+  validPatterns.forEach(pattern => t.true(isValidCronPattern(pattern, { allowSeconds: true })))
+  invalidPatterns.forEach(pattern => t.false(isValidCronPattern(pattern, { allowSeconds: true })))
+  invalidPatternsWithSeconds.forEach(pattern => t.false(isValidCronPattern(pattern, { allowSeconds: true })))
 })
 
 const padDayOrMonth = n => _.padStart(n + 1, 2, '0')
