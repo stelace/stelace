@@ -603,10 +603,10 @@
   dependencies:
     "@types/koa" "*"
 
-"@types/koa@*", "@types/koa@^2.0.51":
-  version "2.0.52"
-  resolved "https://registry.yarnpkg.com/@types/koa/-/koa-2.0.52.tgz#7dd11de4189ab339ad66c4ccad153716b14e525f"
-  integrity sha512-cp/GTOhOYwomlSKqEoG0kaVEVJEzP4ojYmfa7EKaGkmkkRwJ4B/1VBLbQZ49Z+WJNvzXejQB/9GIKqMo9XLgFQ==
+"@types/koa@*", "@types/koa@^2.0.52":
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/@types/koa/-/koa-2.11.0.tgz#394a3e9ec94f796003a6c8374b4dbc2778746f20"
+  integrity sha512-Hgx/1/rVlJvqYBrdeCsS7PDiR2qbxlMt1RnmNWD4Uxi5FF9nwkYqIldo7urjc+dfNpk+2NRGcnAYd4L5xEhCcQ==
   dependencies:
     "@types/accepts" "*"
     "@types/cookies" "*"
@@ -625,10 +625,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/node@*", "@types/node@^12.12.0":
-  version "12.12.7"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.7.tgz#01e4ea724d9e3bd50d90c11fd5980ba317d8fa11"
-  integrity sha512-E6Zn0rffhgd130zbCbAr/JdXfXkoOUFAKNs/rF8qnafSJ8KYaA/j3oz7dcwal+lYjLA7xvdd5J4wdYpCTlP8+w==
+"@types/node@*", "@types/node@^12.12.14":
+  version "12.12.14"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.14.tgz#1c1d6e3c75dba466e0326948d56e8bd72a1903d2"
+  integrity sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -2594,10 +2594,10 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
-ejs@^2.7.1:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.7.1.tgz#5b5ab57f718b79d4aca9254457afecd36fa80228"
-  integrity sha512-kS/gEPzZs3Y1rRsbGX4UOSjtP/CeJP0CxSNZHYxGfVM/VgLcv0ZqM7C45YyTj2DI2g7+P9Dd24C+IMIg6D0nYQ==
+ejs@^2.7.4:
+  version "2.7.4"
+  resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.7.4.tgz#48661287573dcc53e366c7a1ae52c3a120eec9ba"
+  integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 elastic-apm-http-client@^9.0.0:
   version "9.0.0"
@@ -4701,10 +4701,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.10.0, jose@^1.12.0, jose@^1.12.1:
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.12.1.tgz#d1109ef328c359a1df9889c1e1f443f2af3e4b0d"
-  integrity sha512-81nkIOgR+CrWQ2Y5EhiidXtdBy2CahKrjxy9Cu8qmSnznD8d6Yu9Mu6yEiB/eJhgKhf+soE9Z5JTbTUWE71JPQ==
+jose@^1.10.0, jose@^1.12.1, jose@^1.14.0:
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.15.1.tgz#79e03d40abc74a35782980590985c73f42a1072a"
+  integrity sha512-Gp+53zIEb68qTuyagcalDMVn1s0WrxiGBQJbEjShOdv3CYmbPIJEAN0Qtn4rCa7XgODoEa7HHuz8GoYgIpIzog==
   dependencies:
     asn1.js "^5.2.0"
 
@@ -5717,10 +5717,10 @@ nan@2.14.0, nan@^2.3.3:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
 
-nanoid@^2.1.6:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.1.6.tgz#0665418f692e54cf44f34d4010761f3240a03314"
-  integrity sha512-2NDzpiuEy3+H0AVtdt8LoFi7PnqkOnIzYmJQp7xsEU6VexLluHQwKREuiz57XaQC5006seIadPrIZJhyS2n7aw==
+nanoid@^2.1.7:
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.1.7.tgz#d775e3e7c6470bbaaae3da9a647a80e228e0abf7"
+  integrity sha512-fmS3qwDldm4bE01HCIRqNk+f255CNjnAoeV3Zzzv0KemObHKqYgirVaZA9DtKcjogicWjYcHkJs4D5A8CjnuVQ==
 
 nanomatch@^1.2.9:
   version "1.2.9"
@@ -6054,26 +6054,26 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-oidc-provider@^6.14.2:
-  version "6.14.2"
-  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.14.2.tgz#a1135807ab78dd0f8268ad4241a8481a700b95d1"
-  integrity sha512-JArCOnfhnT/c8iUHu0x1+NxTYoYrVND6py5sZzRc1nQNdD8xMafqUABiQxRmzn/K+s/JAik4gmWGCTx6L/O3eg==
+oidc-provider@^6.16.1:
+  version "6.16.1"
+  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.16.1.tgz#578096042994d1ddc7444e31e3ec8c14d184c0fd"
+  integrity sha512-ZasLShN8+9JeRrV/ft1GVjDbFMKmluymBZAbw2x8SMxNFoVC+AkPZW+82joEki1Q/UEQwDq+tA3Yrrup8yAeDQ==
   dependencies:
     "@koa/cors" "^3.0.0"
-    "@types/koa" "^2.0.51"
-    "@types/node" "^12.12.0"
+    "@types/koa" "^2.0.52"
+    "@types/node" "^12.12.14"
     debug "^4.1.1"
-    ejs "^2.7.1"
+    ejs "^2.7.4"
     got "^9.6.0"
-    jose "^1.12.0"
+    jose "^1.14.0"
     jsesc "^2.5.2"
     koa "^2.11.0"
     koa-compose "^4.1.0"
     lodash "^4.17.15"
     lru-cache "^5.1.1"
-    nanoid "^2.1.6"
+    nanoid "^2.1.7"
     object-hash "^2.0.0"
-    oidc-token-hash "^4.0.0"
+    oidc-token-hash "^5.0.0"
     raw-body "^2.4.1"
 
 oidc-token-hash@^3.0.2:
@@ -6081,10 +6081,10 @@ oidc-token-hash@^3.0.2:
   resolved "https://registry.yarnpkg.com/oidc-token-hash/-/oidc-token-hash-3.0.2.tgz#5bd4716cc48ad433f4e4e99276811019b165697e"
   integrity sha512-dTzp80/y/da+um+i+sOucNqiPpwRL7M/xPwj7pH1TFA2/bqQ+OK2sJahSXbemEoLtPkHcFLyhLhLWZa9yW5+RA==
 
-oidc-token-hash@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/oidc-token-hash/-/oidc-token-hash-4.0.0.tgz#a3c98a6db0f689875dd009412296ca74687c085b"
-  integrity sha512-CqbuRvuV+tfiAvU7fQsOkmQ3ROTSFChZy/3z2OMs5xetxz1q/j1B4/FDaK1M9xNsPGfdJxdiLbPbOXZDtHI2NA==
+oidc-token-hash@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/oidc-token-hash/-/oidc-token-hash-5.0.0.tgz#acdfb1f4310f58e64d5d74a4e8671a426986e888"
+  integrity sha512-8Yr4CZSv+Tn8ZkN3iN2i2w2G92mUKClp4z7EGUfdsERiYSbj7P4i/NHm72ft+aUdsiFx9UdIPSTwbyzQ6C4URg==
 
 on-finished@^2.3.0, on-finished@~2.3.0:
   version "2.3.0"
