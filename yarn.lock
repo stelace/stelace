@@ -4250,10 +4250,10 @@ interpret@^2.0.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.0.0.tgz#b783ffac0b8371503e9ab39561df223286aa5433"
   integrity sha512-e0/LknJ8wpMMhTiWcjivB+ESwIuvHnBSlBbmP/pSb8CQJldoj1p2qv7xGZ/+BtbTziYRFSz8OsvdbiX45LtYQA==
 
-intl-format-cache@^4.2.6:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.6.tgz#bd921d1e49b3c2229e95e08c5d472c93b68fd7d9"
-  integrity sha512-2iNv1haP8ExnejLleEJuJi1OLUtclz+lnryKhDPyw3pRhCqYK6imhFEGllXYTzTow1N22wl8M76oNMyCEDylAA==
+intl-format-cache@^4.2.12:
+  version "4.2.12"
+  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.12.tgz#7165f25bd9dbed87b7af521463746ac62440bda6"
+  integrity sha512-Dy3DTz9DacuS9Z2CPym96yz/PS617mpbHhzHsYMsNKefcyi6bRqgRTzwE1OmqYEfO5XDEUOEmBuE2+KVXA+fCA==
 
 intl-messageformat-parser@^1.8.1:
   version "1.8.1"
