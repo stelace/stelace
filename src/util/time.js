@@ -177,7 +177,8 @@ function isValidCronPattern (pattern, { allowSeconds = false } = {}) {
  * @param {Object} attrs
  * @param {String} attrs.startDate - inclusive
  * @param {String} attrs.endDate - exclusive
- * @param {String} [attrs.timezone='UTC'] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ * @param {String} [attrs.timezone] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ *                  if falsy, the timezone is automatically set to 'UTC'
  * @returns {String[]} ISO Dates
  */
 function computeRecurringDates (pattern, { startDate, endDate, timezone } = {}) {

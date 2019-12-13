@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const test = require('ava')
 const _ = require('lodash')
+const { CronTime } = require('cron')
 
 const {
   isIntersection,
@@ -56,6 +57,11 @@ test('validates the timezone', (t) => {
   t.true(isValidTimezone('Europe/London'))
   t.true(isValidTimezone('America/New_York'))
   t.false(isValidTimezone('Unknown/Timezone'))
+})
+
+test('checks the existence of the private function _getNextDateFrom from the library cron', (t) => {
+  const cronTime = new CronTime('* * * * *', 'UTC')
+  t.is(typeof cronTime._getNextDateFrom, 'function')
 })
 
 test('detects valid and invalid cron patterns', (t) => {
@@ -169,7 +175,7 @@ test('computes recurring dates with UTC by default, ignoring any local DST shift
   testOverMonths(({ m, daysOfMonth, recurringDates, endDate }) => {
     const expectedDates = getExpectedDates({ m, daysOfMonth, frequency: 'hour', endDate })
     t.deepEqual(recurringDates, expectedDates)
-  }, 'hour')
+  }, 'hour', { timezone: null })
 })
 
 test('computes recurring dates with custom timezone', (t) => {
