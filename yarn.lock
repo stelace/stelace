@@ -586,6 +586,15 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/got@^9.6.9":
+  version "9.6.9"
+  resolved "https://registry.yarnpkg.com/@types/got/-/got-9.6.9.tgz#b3192188b96c871b9c67dc80d1b0336441432a38"
+  integrity sha512-w+ZE+Ovp6fM+1sHwJB7RN3f3pTJHZkyABuULqbtknqezQyWadFEp5BzOXaZzRqAw2md6/d3ybxQJt+BNgpvzOg==
+  dependencies:
+    "@types/node" "*"
+    "@types/tough-cookie" "*"
+    form-data "^2.5.0"
+
 "@types/http-assert@*":
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/@types/http-assert/-/http-assert-1.5.1.tgz#d775e93630c2469c2f980fc27e3143240335db3b"
@@ -647,6 +656,11 @@
   dependencies:
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
+
+"@types/tough-cookie@*":
+  version "2.3.6"
+  resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.6.tgz#c880579e087d7a0db13777ff8af689f4ffc7b0d5"
+  integrity sha512-wHNBMnkoEBiRAd3s8KTKwIuO9biFtTf0LehITzBhSco+HQI0xkXZbLOD55SW3Aqw3oUkHstkm5SPv58yaAdFPQ==
 
 JSONStream@^1.0.4:
   version "1.3.5"
@@ -3507,6 +3521,15 @@ form-data@^2.3.3:
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
 
+form-data@^2.5.0:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.5.1.tgz#f2cbec57b5e59e23716e128fe44d4e5dd23895f4"
+  integrity sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.6"
+    mime-types "^2.1.12"
+
 formidable@^1.2.0, formidable@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.1.tgz#70fb7ca0290ee6ff961090415f4b3df3d2082659"
@@ -4698,10 +4721,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.10.0, jose@^1.12.1, jose@^1.16.1:
-  version "1.16.2"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.16.2.tgz#2bca4ab0d173bca417cd75d79e08bf7882c60dd0"
-  integrity sha512-fybhbghQ9Zhi7qd0nCXXLULCLcwFcAEOO66Mw/jgIQF+EH+r1mnb98ed2in3wj5JQbQVcU0z4xIBVdHIN+3/uQ==
+jose@^1.12.1, jose@^1.16.1, jose@^1.17.2:
+  version "1.17.2"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.17.2.tgz#46155dfe31c8c6f3a75698978ccf86864afb1f30"
+  integrity sha512-HYbLNZACDgH2duIHY21ZYXWCX50V0sHdcuvPMPCiDRbL9ukVSkOTFyJjPGsdieUIooEOHCjCM9wnT60ZrTYcoQ==
   dependencies:
     asn1.js "^5.2.0"
 
@@ -5934,11 +5957,6 @@ object-filter-sequence@^1.0.0:
   resolved "https://registry.yarnpkg.com/object-filter-sequence/-/object-filter-sequence-1.0.0.tgz#10bb05402fff100082b80d7e83991b10db411692"
   integrity sha512-CsubGNxhIEChNY4cXYuA6KXafztzHqzLLZ/y3Kasf3A+sa3lL9thq3z+7o0pZqzEinjXT6lXDPAfVWI59dUyzQ==
 
-object-hash@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-1.3.1.tgz#fde452098a951cb145f039bb7d455449ddc126df"
-  integrity sha512-OSuu/pU4ENM9kmREg0BdNrUDIl1heYa4mBZacJc+vVWz4GtAwu7jO8s4AIt2aGRUTqxykpWzI3Oqnsm13tTMDA==
-
 object-hash@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-2.0.1.tgz#cef18a0c940cc60aa27965ecf49b782cbf101d96"
@@ -6073,11 +6091,6 @@ oidc-provider@^6.17.2:
     oidc-token-hash "^5.0.0"
     raw-body "^2.4.1"
 
-oidc-token-hash@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/oidc-token-hash/-/oidc-token-hash-3.0.2.tgz#5bd4716cc48ad433f4e4e99276811019b165697e"
-  integrity sha512-dTzp80/y/da+um+i+sOucNqiPpwRL7M/xPwj7pH1TFA2/bqQ+OK2sJahSXbemEoLtPkHcFLyhLhLWZa9yW5+RA==
-
 oidc-token-hash@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/oidc-token-hash/-/oidc-token-hash-5.0.0.tgz#acdfb1f4310f58e64d5d74a4e8671a426986e888"
@@ -6121,19 +6134,20 @@ opencollective-postinstall@^2.0.2:
   resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.2.tgz#5657f1bede69b6e33a45939b061eb53d3c6c3a89"
   integrity sha512-pVOEP16TrAO2/fjej1IdOyupJY8KDUM1CvsaScRbw6oddvpQoOfGk4ywha0HKKVAD6RkW4x6Q+tNBwhf3Bgpuw==
 
-openid-client@3.7.3:
-  version "3.7.3"
-  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-3.7.3.tgz#05e544530780b03f9bbefd487a0c1f1a0b1da63b"
-  integrity sha512-t7GL9Yl9tL6ybY8040pzIVw8+akF5z3GgMEG8iZ2UbFfuMEXSKmHiCU00LvWF9dL4UNMlIjTSBpskQIIeJBwpw==
+openid-client@3.9.2:
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-3.9.2.tgz#d042f494a043d1855a7b22bde7e0039df5eae075"
+  integrity sha512-EFysZbCyZeDIHtkx5wjFMxdFwhDtVQ0E5UbFIjOgGKoLHznUgN5XIl0EjwO5qmyrrZonDcwl4ohQtjmuA7Jvwg==
   dependencies:
+    "@types/got" "^9.6.9"
     base64url "^3.0.1"
     got "^9.6.0"
-    jose "^1.10.0"
-    lodash "^4.17.13"
+    jose "^1.17.2"
+    lodash "^4.17.15"
     lru-cache "^5.1.1"
     make-error "^1.3.5"
-    object-hash "^1.3.1"
-    oidc-token-hash "^3.0.2"
+    object-hash "^2.0.1"
+    oidc-token-hash "^5.0.0"
     p-any "^2.1.0"
 
 optimist@^0.6.1:
