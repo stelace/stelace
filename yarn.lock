@@ -4887,12 +4887,12 @@ knex@0.9.0:
     tildify "~1.0.0"
     v8flags "^2.0.2"
 
-knex@^0.20.4:
-  version "0.20.4"
-  resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.4.tgz#ee9575abb0611f44232a1579ea7c72d0fdff4ebe"
-  integrity sha512-gNpYj9BtacWnQwkyPaHOlzHRLJ7N6Abz8AKYb4OqoDA/iCY50VAUSpigjkS7Z4sr7uW64sxW2cVoXudaLN1ZQw==
+knex@^0.20.6:
+  version "0.20.6"
+  resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.6.tgz#81eda6ec6580c05164a6317d3d4818ba20fca7bb"
+  integrity sha512-yuqAwRShmUOXqFiQMyQz+iBTJYiUcPAiE3Vy7Biuo64LLBDu7afwJeGhrr5/qwIgJ9idC/2kORGIwU9YrnLXEw==
   dependencies:
-    bluebird "^3.7.1"
+    bluebird "^3.7.2"
     colorette "1.1.0"
     commander "^4.0.1"
     debug "4.1.1"
