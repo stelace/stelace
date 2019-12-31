@@ -4,6 +4,7 @@ const moment = require('moment')
 const momentTimezone = require('moment-timezone')
 const ms = require('ms')
 const { CronTime } = require('cron')
+const _ = require('lodash')
 
 const allowedTimeUnits = [
   'm', // minute
@@ -177,19 +178,19 @@ function isValidCronPattern (pattern, { allowSeconds = false } = {}) {
  * @param {Object} attrs
  * @param {String} attrs.startDate - inclusive
  * @param {String} attrs.endDate - exclusive
- * @param {String} [attrs.timezone] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
- *                  if falsy, the timezone is automatically set to 'UTC'
+ * @param {String} [attrs.timezone='UTC'] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ *                  if `null`, `timezone` will also be set to the default value ('UTC')
  * @returns {String[]} ISO Dates
  */
-function computeRecurringDates (pattern, { startDate, endDate, timezone } = {}) {
+function computeRecurringDates (pattern, { startDate, endDate, timezone = 'UTC' } = {}) {
+  if (_.isNil(timezone)) timezone = 'UTC'
+
   if (!isDateString(startDate) || !isDateString(endDate)) {
     throw new Error('Expected start and end dates')
   }
   if (endDate < startDate) {
     throw new Error('Invalid dates')
   }
-
-  timezone = timezone || 'UTC'
 
   const cronTime = new CronTime(pattern, timezone)
 
