@@ -68,7 +68,7 @@
     "intl": "^1.2.5",
     "intl-format-cache": "^4.2.12",
     "intl-messageformat": "^4.4.0",
-    "jose": "^1.12.1",
+    "jose": "^1.17.2",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.20.6",
     "lodash": "4.17.15",
