@@ -3,7 +3,8 @@ const moment = require('moment')
 // for safer version upgrades (moment-timezone is still in v0)
 const momentTimezone = require('moment-timezone')
 const ms = require('ms')
-const CronConverter = require('cron-converter')
+const { CronTime } = require('cron')
+const _ = require('lodash')
 
 const allowedTimeUnits = [
   'm', // minute
@@ -157,10 +158,15 @@ function isValidTimezone (timezone) {
   return !!momentTimezone.tz.zone(timezone)
 }
 
-function isValidCronPattern (pattern) {
-  const cronInstance = new CronConverter()
+function isValidCronPattern (pattern, { allowSeconds = false } = {}) {
   try {
-    cronInstance.fromString(pattern)
+    if (typeof pattern !== 'string') return false
+
+    const nbParts = pattern.split(' ').length
+    if (nbParts < 5 || nbParts > 6) return false
+    if (!allowSeconds && nbParts !== 5) return false
+
+    new CronTime(pattern) // eslint-disable-line no-new
     return true
   } catch (e) {
     return false
@@ -173,9 +179,12 @@ function isValidCronPattern (pattern) {
  * @param {String} attrs.startDate - inclusive
  * @param {String} attrs.endDate - exclusive
  * @param {String} [attrs.timezone='UTC'] - https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ *                  if `null`, `timezone` will also be set to the default value ('UTC')
  * @returns {String[]} ISO Dates
  */
 function computeRecurringDates (pattern, { startDate, endDate, timezone = 'UTC' } = {}) {
+  if (_.isNil(timezone)) timezone = 'UTC'
+
   if (!isDateString(startDate) || !isDateString(endDate)) {
     throw new Error('Expected start and end dates')
   }
@@ -183,25 +192,22 @@ function computeRecurringDates (pattern, { startDate, endDate, timezone = 'UTC' 
     throw new Error('Invalid dates')
   }
 
-  const cronInstance = new CronConverter({
-    timezone
-  })
-  cronInstance.fromString(pattern)
-
-  const schedule = cronInstance.schedule(startDate)
+  const cronTime = new CronTime(pattern, timezone)
 
   let continueLoop = true
   const dates = []
+  let cronISODate = new Date(new Date(startDate).getTime() - 1) // start from `startDate` minus 1 millisecond
 
   while (continueLoop) {
-    const momentDate = schedule.next()
+    // `_getNextDateFrom` is a private method from `CronTime.prototype`
+    // Please check its availability when upgrading the library `cron`
+    const cronMomentDate = cronTime._getNextDateFrom(cronISODate, timezone)
 
-    const date = momentDate.toISOString()
-
-    continueLoop = date < endDate
+    cronISODate = cronMomentDate.toISOString()
+    continueLoop = cronISODate < endDate
 
     if (continueLoop) {
-      dates.push(date)
+      dates.push(cronISODate)
     }
   }
 

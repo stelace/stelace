@@ -2,11 +2,13 @@ require('dotenv').config()
 
 const test = require('ava')
 const _ = require('lodash')
+const { CronTime } = require('cron')
 
 const {
   isIntersection,
   computeDate,
   getRoundedDate,
+  isValidCronPattern,
   isValidTimezone,
   computeRecurringDates,
   computeRecurringPeriods
@@ -57,17 +59,62 @@ test('validates the timezone', (t) => {
   t.false(isValidTimezone('Unknown/Timezone'))
 })
 
+test('checks the existence of the private function _getNextDateFrom from the library cron', (t) => {
+  const cronTime = new CronTime('* * * * *', 'UTC')
+  t.is(typeof cronTime._getNextDateFrom, 'function')
+})
+
+test('detects valid and invalid cron patterns', (t) => {
+  const validPatterns = [
+    '* * * * *',
+    '0 * * * *',
+    '8 8 8 8 5',
+    '0-10 1-10 1-10 0-6 0-1'
+  ]
+  const validPatternsWithSeconds = validPatterns.map(p => `* ${p}`)
+  const invalidPatterns = [
+    '* * *',
+    '* * * * * * *',
+    '* * * * 1234',
+    '* * * * 0*',
+    '* * * 1/0 *',
+    '* 2-1 * * *',
+    '* /4 * * *'
+  ]
+  const invalidPatternsWithSeconds = invalidPatterns.map(p => `* ${p}`)
+
+  validPatterns.forEach(pattern => t.true(isValidCronPattern(pattern)))
+  invalidPatterns.forEach(pattern => t.false(isValidCronPattern(pattern)))
+  validPatternsWithSeconds.forEach(pattern => t.false(isValidCronPattern(pattern)))
+  invalidPatternsWithSeconds.forEach(pattern => t.false(isValidCronPattern(pattern), pattern))
+
+  validPatternsWithSeconds.forEach(pattern => t.true(isValidCronPattern(pattern, { allowSeconds: true })))
+  validPatterns.forEach(pattern => t.true(isValidCronPattern(pattern, { allowSeconds: true })))
+  invalidPatterns.forEach(pattern => t.false(isValidCronPattern(pattern, { allowSeconds: true })))
+  invalidPatternsWithSeconds.forEach(pattern => t.false(isValidCronPattern(pattern, { allowSeconds: true })))
+})
+
 const padDayOrMonth = n => _.padStart(n + 1, 2, '0')
+const padTime = t => _.padStart(t, 2, '0')
 
 /**
  * @param {Function} expectedDatesFn - Accepts an object with the following arguments:
  *   - `m`: month such as '02'
  *   - `daysOfMonth`: array of all day strings like '28' to test in current month
  *   - `recurringDates`: value returned by computeRecurringDates function to test
+ * @param {String} [frequency='day'] - allowed value: 'day', 'hour', 'minute'
  * @param {Object} options - for use in computeRecurringDates (timezone key/value expected)
  */
-const testOverMonths = (expectedDatesFn, options = {}) => {
+const testOverMonths = (expectedDatesFn, frequency = 'day', options = {}) => {
   const months = _.range(12).map(padDayOrMonth)
+
+  const patterns = {
+    day: '0 0 * * *',
+    hour: '0 * * * *',
+    minute: '* * * * *'
+  }
+
+  const pattern = patterns[frequency]
 
   // Test (almost) every day of the year to include Daylight Saving Time (DST)
   // switch dates of any timezone used by the matching running tests.
@@ -77,24 +124,58 @@ const testOverMonths = (expectedDatesFn, options = {}) => {
   for (const m of months) {
     const daysOfMonth = m === '02' ? 28 : 30
     // No DST switch happened on the 31th of any month in 2018.
-    const recurringDates = computeRecurringDates('0 0 * * *', {
-      startDate: `2018-${m}-01T00:00:00.000Z`,
-      endDate: `2018-${m}-${daysOfMonth}T00:00:00.001Z`,
+    const startDate = `2018-${m}-01T00:00:00.000Z`
+    const endDate = `2018-${m}-${daysOfMonth}T00:00:00.001Z`
+
+    const recurringDates = computeRecurringDates(pattern, {
+      startDate,
+      endDate,
       ...options
       // timezone: 'UTC' // should be the default
     })
 
-    expectedDatesFn({ m, daysOfMonth, recurringDates })
+    expectedDatesFn({ m, daysOfMonth, recurringDates, startDate, endDate })
   }
 }
 
 test('computes recurring dates with UTC by default, ignoring any local DST shift', (t) => {
-  testOverMonths(({ m, daysOfMonth, recurringDates }) => {
-    const expectedDates = _.range(daysOfMonth).map(padDayOrMonth)
-      .map(d => `2018-${m}-${d}T00:00:00.000Z`) // no DST shift
+  const getExpectedDates = ({ m, daysOfMonth, endDate, frequency = 'day' }) => {
+    if (frequency === 'day') {
+      return _.range(daysOfMonth).map(padDayOrMonth)
+        .map(d => `2018-${m}-${d}T00:00:00.000Z`)
+    } else if (frequency === 'hour') {
+      const dates = _.range(daysOfMonth).map(padDayOrMonth)
+        .map(d => `2018-${m}-${d}`)
 
+      return dates.reduce((expected, d) => {
+        const time = _.range(0, 24).map(padTime)
+          .map(h => `${h}:00:00.000Z`)
+
+        const fullDates = time.map(t => `${d}T${t}`)
+        return expected.concat(fullDates).filter(d => d < endDate)
+      }, [])
+    }
+  }
+
+  testOverMonths(({ m, daysOfMonth, recurringDates }) => {
+    const expectedDates = getExpectedDates({ m, daysOfMonth })
     t.deepEqual(recurringDates, expectedDates)
   })
+
+  testOverMonths(({ m, daysOfMonth, recurringDates }) => {
+    const expectedDates = getExpectedDates({ m, daysOfMonth })
+    t.deepEqual(recurringDates, expectedDates)
+  }, 'day', { timezone: null })
+
+  testOverMonths(({ m, daysOfMonth, recurringDates, endDate }) => {
+    const expectedDates = getExpectedDates({ m, daysOfMonth, frequency: 'hour', endDate })
+    t.deepEqual(recurringDates, expectedDates)
+  }, 'hour')
+
+  testOverMonths(({ m, daysOfMonth, recurringDates, endDate }) => {
+    const expectedDates = getExpectedDates({ m, daysOfMonth, frequency: 'hour', endDate })
+    t.deepEqual(recurringDates, expectedDates)
+  }, 'hour', { timezone: null })
 })
 
 test('computes recurring dates with custom timezone', (t) => {
@@ -129,7 +210,7 @@ test('computes recurring dates with custom timezone', (t) => {
       t.is(hours.size, 1)
       t.true(hours.has('22'))
     }
-  }, { timezone })
+  }, 'day', { timezone })
 })
 
 test('computes recurring dates with fancy pattern', (t) => {

@@ -2135,18 +2135,9 @@ cote@0.21.1:
     socket.io "2.2.0"
     uuid "^3.3.3"
 
-cron-converter@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/cron-converter/-/cron-converter-1.0.0.tgz#83140dea518e24df479cb30b162bf367b5cf92ee"
-  integrity sha512-org2ua/GhK5YdXxAyg0dP5Mt9ehCYAxxt+arIPpXY6mW74FRzL23GKcJ7GRXbD377d3M3XCitEfcqMu1E1joqg==
-  dependencies:
-    moment-timezone "~0.5"
-    sprintf-js "~1"
-
-cron@^1.7.2:
+"cron@https://github.com/kelektiv/node-cron#2f4bb4756406885ec9b087a7687e1e89dadff7e5":
   version "1.7.2"
-  resolved "https://registry.yarnpkg.com/cron/-/cron-1.7.2.tgz#2ea1f35c138a07edac2ac5af5084ed6fee5723db"
-  integrity sha512-+SaJ2OfeRvfQqwXQ2kgr0Y5pzBR/lijf5OpnnaruwWnmI799JfWr2jN2ItOV9s3A/+TFOt6mxvKzQq5F0Jp6VQ==
+  resolved "https://github.com/kelektiv/node-cron#2f4bb4756406885ec9b087a7687e1e89dadff7e5"
   dependencies:
     moment-timezone "^0.5.x"
 
@@ -5663,7 +5654,7 @@ module-details-from-path@^1.0.3:
   resolved "https://registry.yarnpkg.com/module-details-from-path/-/module-details-from-path-1.0.3.tgz#114c949673e2a8a35e9d35788527aa37b679da2b"
   integrity sha1-EUyUlnPiqKNenTV4hSeqN7Z52is=
 
-moment-timezone@^0.5.27, moment-timezone@^0.5.x, moment-timezone@~0.5:
+moment-timezone@^0.5.27, moment-timezone@^0.5.x:
   version "0.5.27"
   resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.27.tgz#73adec8139b6fe30452e78f210f27b1f346b8877"
   integrity sha512-EIKQs7h5sAsjhPCqN6ggx6cEbs94GK050254TIJySD1bzoM5JTYDwAU1IoVOeTOL6Gm27kYJ51/uuvq1kIlrbw==
@@ -7840,7 +7831,7 @@ split@^1.0.0:
   dependencies:
     through "2"
 
-sprintf-js@^1.1.2, sprintf-js@~1:
+sprintf-js@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.2.tgz#da1765262bf8c0f571749f2ad6c26300207ae673"
   integrity sha512-VE0SOVEHCk7Qc8ulkWw3ntAzXuqf7S2lvwQaDLRnUeIEaKNQJzV6BwmLKhOqT61aGhfUMrXeaBk+oDGCzvhcug==
