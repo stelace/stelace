@@ -1,4 +1,4 @@
-const pathToRegexp = require('path-to-regexp')
+const { pathToRegexp } = require('path-to-regexp')
 const qs = require('querystring')
 
 function parseParams (path, regexp, keys) {
