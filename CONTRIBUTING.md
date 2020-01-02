@@ -18,9 +18,7 @@ For more information on
 There are many other ways to contribute to Stelace besides code, including:
 
 - Reporting [bugs and issues](https://github.com/stelace/stelace/issues)
-- Requesting Features on our [community forum](https://forum.stelace.com/)
+- Requesting Features
 - Documentation and typos
-
-For anything else, just start a new topic on [community forum](https://forum.stelace.com/) and let us know what you’re interested in working on.
 
 *Thanks for your help!*

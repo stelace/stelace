@@ -10,7 +10,6 @@ Open-source backend and API stack empowering dev teams to <strong>build, run and
 <p align="center">
   <a href="https://stelace.com">Stelace.com</a> |
   <a href="https://stelace.com/docs">Documentation</a> |
-  <a href="https://forum.stelace.com">Forum</a> |
   <a href="https://stelace.com/blog">Blog</a> |
   <a href="https://twitter.com/StelaceAPI">Twitter</a>
 </p>
@@ -33,8 +32,8 @@ For a full-stack experience, you can get started [here](https://stelace.com/docs
 
 [![CircleCI](https://circleci.com/gh/stelace/stelace.svg?style=svg)](https://circleci.com/gh/stelace/stelace)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstelace%2Fstelace.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstelace%2Fstelace?ref=badge_shield)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-purple.svg)](https://standardjs.com)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-purple.svg)](https://conventionalcommits.org)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-yellow.svg)](https://standardjs.com)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 ---
 
@@ -81,7 +80,7 @@ With:
 - Redis 5.x
 - Docker
 - [Objection.js](https://github.com/Vincit/objection.js/) ORM (Knex)
-- Microservice-ready with [Côte](https://github.com/dashersw/cote)
+- [Microservice-ready](https://inconshreveable.com/10-07-2015/the-neomonolith/) with [Côte](https://github.com/dashersw/cote)
 - Tested with [AVA](https://github.com/avajs/ava) :rocket:
 - Monitored with [Elastic APM](https://www.elastic.co/products/apm)
 
@@ -292,7 +291,6 @@ Before contributing to Stelace:
 1. You’ll be prompted to read and sign our [**Contributor License Agreement**](https://cla-assistant.io/stelace/stelace), which ensures we can maintain appropriate governance of the project as a community in the long run.
 2. Dig into [**CONTRIBUTING.MD**](CONTRIBUTING.md), about submitting issues, requesting new features, etc.
 3. Ensure we collaborate [with mutual respect](https://github.com/stelace/stelace/docs/code-of-conduct.md).
-4. Not sure about how you can help? Get in touch on our [community forum](https://forum.stelace.com).
 
 ## Dependencies
 
