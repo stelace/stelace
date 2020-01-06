@@ -85,7 +85,7 @@
     "pg": "^7.15.1",
     "redis": "^2.8.0",
     "redlock": "^4.0.0",
-    "restify": "^8.4.0",
+    "restify": "^8.5.1",
     "restify-cors-middleware2": "~2.0.0",
     "roarr": "^2.14.5",
     "serialize-error": "^5.0.0",

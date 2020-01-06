@@ -6791,17 +6791,12 @@ q@^1.5.1:
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
-qs@6.7.0, qs@^6.7.0:
+qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
   integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
 
-qs@^6.5.1:
-  version "6.5.2"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
-  integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
-
-qs@^6.6.0:
+qs@^6.5.1, qs@^6.6.0, qs@^6.7.0:
   version "6.9.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.0.tgz#d1297e2a049c53119cb49cca366adbbacc80b409"
   integrity sha512-27RP4UotQORTpmNQDX8BHPukOnBP3p1uUJY5UnDhaJB+rMt9iMsok724XL+UHU23bEFOHRMQ2ZhI99qOWUMGFA==
@@ -7238,10 +7233,10 @@ restify-cors-middleware2@~2.0.0:
   dependencies:
     assert-plus "^1.0.0"
 
-restify-errors@^8.0.0:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/restify-errors/-/restify-errors-8.0.1.tgz#9f970cb16afad652379b49b4d6a666f7426c2b92"
-  integrity sha512-EFQpxS828J0SBTNuJjh+rHD0OE8BoqnaxMAzuKHRNnGt5BV/212HHQIelZG4zjZYpTDEiuVAhQYHwSGSzAz0Ag==
+restify-errors@^8.0.2:
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/restify-errors/-/restify-errors-8.0.2.tgz#0b9678738e37888e4fefe52aa6ee92771ec954e9"
+  integrity sha512-UsXUVQo7M26xoQzeUcZQ0+H8L2t9DGzrXcAgR3WB/1vnbl+UdI4tZ1PqYsN+sS5WnqHKZ0Xy9w0CKf83bbrwYA==
   dependencies:
     "@netflix/nerror" "^1.0.0"
     assert-plus "^1.0.0"
@@ -7249,10 +7244,10 @@ restify-errors@^8.0.0:
   optionalDependencies:
     safe-json-stringify "^1.0.4"
 
-restify@^8.4.0:
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/restify/-/restify-8.4.0.tgz#530fd320d95787272c4f1f4b1e32821e9aa83fed"
-  integrity sha512-yqS/wJI0ZU78whO2VfCCnFY7/JSqJt7wTDIdaQUo/a4TzAaC5KXUzxbs+xW4afJCk3NefGYYuiSrFSBWwVw/NA==
+restify@^8.5.1:
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/restify/-/restify-8.5.1.tgz#1cbab41ef6a0990e7abac62a5b12182f591c1a0c"
+  integrity sha512-g+xciouvSDg2vmCZuCinztt2mvQynCfnGIE1y8vMjfcUrjBo4AP8DJ9RNheu0mdGpiI0cMoCHYA/GdZ3TEW+DA==
   dependencies:
     assert-plus "^1.0.0"
     bunyan "^1.8.12"
@@ -7269,7 +7264,7 @@ restify@^8.4.0:
     once "^1.4.0"
     pidusage "^2.0.17"
     qs "^6.7.0"
-    restify-errors "^8.0.0"
+    restify-errors "^8.0.2"
     semver "^6.1.1"
     send "^0.16.2"
     spdy "^4.0.0"
