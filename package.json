@@ -59,7 +59,7 @@
     "cron": "https://github.com/kelektiv/node-cron#2f4bb4756406885ec9b087a7687e1e89dadff7e5",
     "debug": "~4.1.0",
     "dotenv": "^8.2.0",
-    "elastic-apm-node": "~3.1.0",
+    "elastic-apm-node": "~3.3.0",
     "elasticsearch": "^16.4.0",
     "glob": "^7.1.6",
     "handlebars": "^4.5.3",

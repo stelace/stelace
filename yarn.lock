@@ -1095,6 +1095,11 @@ ava@~2.4.0:
     update-notifier "^3.0.1"
     write-file-atomic "^3.0.0"
 
+await-event@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/await-event/-/await-event-2.1.0.tgz#78e9f92684bae4022f9fa0b5f314a11550f9aa76"
+  integrity sha1-eOn5JoS65AIvn6C18xShFVD5qnY=
+
 aws-param-store@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/aws-param-store/-/aws-param-store-3.2.0.tgz#93fa7a2e5bf7a759692b765fdd0320d51cb8e4f6"
@@ -2614,10 +2619,10 @@ ejs@^3.0.1:
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-3.0.1.tgz#30c8f6ee9948502cc32e85c37a3f8b39b5a614a5"
   integrity sha512-cuIMtJwxvzumSAkqaaoGY/L6Fc/t6YvoP9/VIaK0V/CyqKLEQ8sqODmYfy/cjXEdZ9+OOL8TecbJu+1RsofGDw==
 
-elastic-apm-http-client@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.0.0.tgz#1c4647c7b95a6e29cfb3462275e7af15c9691574"
-  integrity sha512-LM3LInhOnstiGr0Pw3YV917RqVxh5Xy3iTjKq6W/Dvl8FPd17XCHucWCXbSLWuVbVpwL6rY/VKmozKi4VdVP5Q==
+elastic-apm-http-client@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.3.0.tgz#fcbb3b4f2af209dc304ac496438d381ef19b9b44"
+  integrity sha512-vxySk7S1oPN7uPcjv0+GLs3Y1cmN7WDVTEHBJixEDg+L6DJMysgxIGst+32Nc0ZmeU5NIjV/Ds9b+6S/yXRdIQ==
   dependencies:
     breadth-filter "^2.0.0"
     container-info "^1.0.1"
@@ -2629,10 +2634,10 @@ elastic-apm-http-client@^9.0.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.1.0.tgz#1e39c315c25516958cf6db2eb0f281ea5eae18c6"
-  integrity sha512-ZpYgpdGphAK7e6YsFOQew4q0TNvRi1jXI+9/iGofbjsnAV8nbmEYNvD9ZsIYvsNWScJSIH1xEHSMQ3dcuSr6sA==
+elastic-apm-node@~3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.3.0.tgz#c29fb42ab0bf2d2d7292ab2b650cfbe65b0ccbb6"
+  integrity sha512-rJNv/NSzJUaGfFkvHXRaNrFKTPCM4h3xt1OmHBq+foMqSnRBFU0o41HCkNtXw9JWKkMblxIknC3EHkwJ8yWiDA==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
@@ -2640,10 +2645,11 @@ elastic-apm-node@~3.1.0:
     console-log-level "^1.4.1"
     cookie "^0.4.0"
     core-util-is "^1.0.2"
-    elastic-apm-http-client "^9.0.0"
-    end-of-stream "^1.4.1"
+    elastic-apm-http-client "^9.3.0"
+    end-of-stream "^1.4.4"
     fast-safe-stringify "^2.0.7"
     http-headers "^3.0.2"
+    http-request-to-url "^1.0.0"
     is-native "^1.0.1"
     measured-reporting "^1.51.1"
     monitor-event-loop-delay "^1.0.0"
@@ -2654,9 +2660,10 @@ elastic-apm-node@~3.1.0:
     redact-secrets "^1.0.0"
     relative-microtime "^2.0.0"
     require-ancestors "^1.0.0"
-    require-in-the-middle "^5.0.0"
-    semver "^6.1.1"
+    require-in-the-middle "^5.0.2"
+    semver "^6.3.0"
     set-cookie-serde "^1.0.0"
+    shallow-clone-shim "^2.0.0"
     sql-summary "^1.0.1"
     stackman "^4.0.0"
     traceparent "^1.0.0"
@@ -4067,6 +4074,14 @@ http-headers@^3.0.2:
   integrity sha512-87E1I+2Wg4dxxz4rcxElo3dxO/w1ZtgL1yA0Sb6vH3qU16vRKq1NjWQv9SCY3ly2OQROcoxHZOUpmelS+k6wOw==
   dependencies:
     next-line "^1.1.0"
+
+http-request-to-url@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/http-request-to-url/-/http-request-to-url-1.0.0.tgz#e56b9418f79f29d344fed05cfe2c56ccb8cc79ac"
+  integrity sha512-YYx0lKXG9+T1fT2q3ZgXLczMI3jW09g9BvIA6L3BG0tFqGm83Ka/+RUZGANRG7Ut/yueD7LPcZQ/+pA5ndNajw==
+  dependencies:
+    await-event "^2.1.0"
+    socket-location "^1.0.0"
 
 http-signature@^1.2.0:
   version "1.2.0"
@@ -7127,10 +7142,10 @@ require-directory@^2.1.1:
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
   integrity sha1-jGStX9MNqxyXbiNE/+f3kqam30I=
 
-require-in-the-middle@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/require-in-the-middle/-/require-in-the-middle-5.0.0.tgz#7e352bc7361cd79f6c2fe2bab1620b3458527878"
-  integrity sha512-92TmKFoE6qS0AbZvHPekkgon45OY5bbHl4+cCHm0qBx8+ktV9gEAQoYtuB1ArJnTbqb0020bn5Co9QzjsGkyJg==
+require-in-the-middle@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/require-in-the-middle/-/require-in-the-middle-5.0.2.tgz#ce3593007a61583b39ccdcd2c167a2a326c670b2"
+  integrity sha512-l2r6F9i6t5xp4OE9cw/daB/ooQKHZOOW1AYPADhEvk/Tj/THJDS8gePp76Zyuht6Cj57a0KL+eHK5Dyv7wZnKA==
   dependencies:
     debug "^4.1.1"
     module-details-from-path "^1.0.3"
@@ -7434,7 +7449,7 @@ semver@4.3.2:
   resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.2.tgz#c7a07158a80bedd052355b770d82d6640f803be7"
   integrity sha1-x6BxWKgL7dBSNVt3DYLWZA+AO+c=
 
-semver@6.3.0, semver@^6.0.0, semver@^6.1.0, semver@^6.1.1, semver@^6.1.2, semver@^6.2.0:
+semver@6.3.0, semver@^6.0.0, semver@^6.1.0, semver@^6.1.1, semver@^6.1.2, semver@^6.2.0, semver@^6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
@@ -7544,6 +7559,11 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
+shallow-clone-shim@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/shallow-clone-shim/-/shallow-clone-shim-2.0.0.tgz#b62bf55aed79f4c1430ea1dc4d293a193f52cf91"
+  integrity sha512-YRNymdiL3KGOoS67d73TEmk4tdPTO9GSMCoiphQsTcC9EtC+AOmMPjkyBkRoCJfW9ASsaZw1craaiw1dPN2D3Q==
+
 shebang-command@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/shebang-command/-/shebang-command-1.2.0.tgz#44aac65b695b03398968c39f363fee5deafdf1ea"
@@ -7627,6 +7647,13 @@ snapdragon@^0.8.1:
     source-map "^0.5.6"
     source-map-resolve "^0.5.0"
     use "^3.1.0"
+
+socket-location@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/socket-location/-/socket-location-1.0.0.tgz#6f0c6f891c9a61c9a750265c14921d12196d266f"
+  integrity sha512-TwxpRM0pPE/3b24XQGLx8zq2J8kOwTy40FtiNC1KrWvl/Tsf7RYXruE9icecMhQwicXMo/HUJlGap8DNt2cgYw==
+  dependencies:
+    await-event "^2.1.0"
 
 socket.io-adapter@~1.1.0:
   version "1.1.1"
