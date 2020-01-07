@@ -379,6 +379,19 @@
     redis "^2.7.1"
     uuid "^3.3.2"
 
+"@formatjs/intl-unified-numberformat@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-unified-numberformat/-/intl-unified-numberformat-3.0.2.tgz#0485443ab4b4c8d6a2a7fc48dc88fad75da9b18c"
+  integrity sha512-C5Qtykibb334YtxiaTi12Pax5uMYOqbQwcXdFzzgJeHSV5mA19RJYuOQ4yO/vBCg24UkQAYBbXtkAR2hXhEThQ==
+  dependencies:
+    "@formatjs/intl-utils" "^2.0.2"
+    unicode-12.1.0 "0.8"
+
+"@formatjs/intl-utils@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-utils/-/intl-utils-2.0.2.tgz#5861bc4be8cdd06484a713122026d1e4065849eb"
+  integrity sha512-FpMVkOKg73soaA019turLO3kCPW9CbIViYgyUtR4uyNvJS9wH1QCbdPIcjDMskjIzQV+FG3+hW1VvrI8begmKQ==
+
 "@hapi/address@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-4.0.0.tgz#36affb4509b5a6adc628bcc394450f2a7d51d111"
@@ -4263,22 +4276,25 @@ interpret@^2.0.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.0.0.tgz#b783ffac0b8371503e9ab39561df223286aa5433"
   integrity sha512-e0/LknJ8wpMMhTiWcjivB+ESwIuvHnBSlBbmP/pSb8CQJldoj1p2qv7xGZ/+BtbTziYRFSz8OsvdbiX45LtYQA==
 
-intl-format-cache@^4.2.12:
-  version "4.2.12"
-  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.12.tgz#7165f25bd9dbed87b7af521463746ac62440bda6"
-  integrity sha512-Dy3DTz9DacuS9Z2CPym96yz/PS617mpbHhzHsYMsNKefcyi6bRqgRTzwE1OmqYEfO5XDEUOEmBuE2+KVXA+fCA==
+intl-format-cache@^4.2.12, intl-format-cache@^4.2.17:
+  version "4.2.17"
+  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.17.tgz#e63150f73558adab004c21f0075e437ea9e0468a"
+  integrity sha512-d9CQrsTqMZOJqlwQ3qr4YVIyUVB4C1Z1yETiZDaYcK61EFzXgi401SNdjlYRNpLpz0V/VL5OAPtnqhrsyyWeFA==
 
-intl-messageformat-parser@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/intl-messageformat-parser/-/intl-messageformat-parser-1.8.1.tgz#0eb14c5618333be4c95c409457b66c8c33ddcc01"
-  integrity sha512-IMSCKVf0USrM/959vj3xac7s8f87sc+80Y/ipBzdKy4ifBv5Gsj2tZ41EAaURVg01QU71fYr77uA8Meh6kELbg==
-
-intl-messageformat@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/intl-messageformat/-/intl-messageformat-4.4.0.tgz#aa196a4d04b573f4090bc417f982d81de4f74fad"
-  integrity sha512-z+Bj2rS3LZSYU4+sNitdHrwnBhr0wO80ZJSW8EzKDBowwUe3Q/UsvgCGjrwa+HPzoGCLEb9HAjfJgo4j2Sac8w==
+intl-messageformat-parser@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/intl-messageformat-parser/-/intl-messageformat-parser-3.6.0.tgz#acd98e27ef1e62e684ca8f719fc29cc667390884"
+  integrity sha512-vSNH4J7SgdsuULhgI4LFSc9G7I+1aQiIyUs4mRrhhsav9u+t0kICBGj7tfFaEw9uSfeZF1wqHajssV+K4qYWOA==
   dependencies:
-    intl-messageformat-parser "^1.8.1"
+    "@formatjs/intl-unified-numberformat" "^3.0.2"
+
+intl-messageformat@^7.8.0:
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/intl-messageformat/-/intl-messageformat-7.8.0.tgz#a966d0bf9078329a5f0edb630f5e2cb67226ec18"
+  integrity sha512-QFoUCOVjnSqhp8QuiFj0raxAJ/ewZKgijPrLZogWfs5c6PbbJzpoNM5W6w3siky89/z/qIH4NAj4aZnYI7K9qg==
+  dependencies:
+    intl-format-cache "^4.2.17"
+    intl-messageformat-parser "^3.6.0"
 
 intl@^1.2.5:
   version "1.2.5"
@@ -8469,6 +8485,11 @@ unc-path-regex@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
   integrity sha1-5z3T17DXxe2G+6xrCufYxqadUPo=
+
+unicode-12.1.0@0.8:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/unicode-12.1.0/-/unicode-12.1.0-0.8.0.tgz#260f6dd899eefd42a8eae550bcbb62654c90c79d"
+  integrity sha512-OhxidkE3tKlMAouqWtdYtDP2RHVIo1lNdjEruNdVxLrACcbw79TaOcupYKxz6F7ldC1nx8CDygzN5kGmXAU60Q==
 
 unicode-byte-truncate@^1.0.0:
   version "1.0.0"
