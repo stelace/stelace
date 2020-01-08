@@ -60,7 +60,7 @@
     "debug": "~4.1.0",
     "dotenv": "^8.2.0",
     "elastic-apm-node": "~3.3.0",
-    "elasticsearch": "^16.4.0",
+    "elasticsearch": "^16.5.0",
     "glob": "^7.1.6",
     "handlebars": "^4.5.3",
     "http-errors": "^1.7.3",
