@@ -1,4 +1,4 @@
-function getRequestContext (req) {
+function getLoggingContext (req) {
   return {
     method: req.method,
     routeName: req.route && req.route.name,
@@ -13,5 +13,5 @@ function getRequestContext (req) {
 }
 
 module.exports = {
-  getRequestContext
+  getLoggingContext
 }

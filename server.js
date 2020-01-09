@@ -32,7 +32,7 @@ const cors = corsMiddleware({
 
 const { getPlugins, loadPlugin } = require('./plugins')
 
-const { getRequestContext } = require('./src/util/request')
+const { getLoggingContext } = require('./src/util/logging')
 
 const polyfills = require('./src/util/polyfills')
 polyfills.initErrors()
@@ -187,7 +187,7 @@ function loadServer () {
       // do nothing
     }
 
-    const requestContext = getRequestContext(req)
+    const requestContext = getLoggingContext(req)
     const loggingParams = Object.assign({}, requestContext, {
       metrics
     })
@@ -269,7 +269,7 @@ function loadServer () {
   }
 
   function logRequestError (req, res, err) {
-    const requestContext = getRequestContext(req)
+    const requestContext = getLoggingContext(req)
     const metrics = {
       statusCode: res.statusCode,
       method: req.method,
