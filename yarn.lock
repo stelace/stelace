@@ -6044,10 +6044,10 @@ object.values@^1.1.0:
     function-bind "^1.1.1"
     has "^1.0.3"
 
-objection-db-errors@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/objection-db-errors/-/objection-db-errors-1.1.1.tgz#27ebd44bfc0a6dae112f65a830a86947c670704b"
-  integrity sha512-WklFhl7ckK+9RQz+2AtLK21KIx+qgchwN6e8w2vblxC9A7SDcWmGXKaGw590HKaoURzdjaBnBeu//JgQeOHWGw==
+objection-db-errors@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/objection-db-errors/-/objection-db-errors-1.1.2.tgz#ab0734d1398e1f3084ae5a6bbe04bedc2ed3949e"
+  integrity sha512-WIxQQHmPuCk+GYQy1pvnyqB0MJXpmiD+HCyIAafXFecvgfCwlLtD+IgthkMQxrJP79j3ETvpB4ArVYEk8Hq5sw==
   dependencies:
     db-errors "^0.2.1"
 
