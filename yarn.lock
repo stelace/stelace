@@ -636,10 +636,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/node@*", "@types/node@^12.12.14":
-  version "12.12.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.14.tgz#1c1d6e3c75dba466e0326948d56e8bd72a1903d2"
-  integrity sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
+"@types/node@*", "@types/node@^12.12.21":
+  version "12.12.24"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.24.tgz#d4606afd8cf6c609036b854360367d1b2c78931f"
+  integrity sha512-1Ciqv9pqwVtW6FsIUKSZNB82E5Cu1I2bBTj1xuIHXLe/1zYLl3956Nbhg2MzSYHVfl9/rmanjbQIb7LibfCnug==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -4729,7 +4729,7 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.16.1, jose@^1.17.2, jose@^1.18.1:
+jose@^1.17.2, jose@^1.18.1:
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/jose/-/jose-1.18.1.tgz#5ba2a3b66bd25f0134d0af64b328f69b2ed53c44"
   integrity sha512-JRPxDCY48qjP9QVVwLVfq/nNuVdd3UPpyBDY0eDSPMtkDtCEISPy4Zx8anv5Zc2rebPrlenX2fca5rISNKDWXQ==
@@ -5740,10 +5740,10 @@ nan@2.14.0, nan@^2.3.3:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
 
-nanoid@^2.1.7:
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.1.7.tgz#d775e3e7c6470bbaaae3da9a647a80e228e0abf7"
-  integrity sha512-fmS3qwDldm4bE01HCIRqNk+f255CNjnAoeV3Zzzv0KemObHKqYgirVaZA9DtKcjogicWjYcHkJs4D5A8CjnuVQ==
+nanoid@^2.1.8:
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.1.9.tgz#edc71de7b16fc367bbb447c7a638ccebe07a17a1"
+  integrity sha512-J2X7aUpdmTlkAuSe9WaQ5DsTZZPW1r/zmEWKsGhbADO6Gm9FMd2ZzJ8NhsmP4OtA9oFhXfxNqPlreHEDOGB4sg==
 
 nanomatch@^1.2.9:
   version "1.2.9"
@@ -6072,24 +6072,24 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-oidc-provider@^6.17.2:
-  version "6.17.2"
-  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.17.2.tgz#b0fab830042a6af0fa7a1170a5aff896a6a2f684"
-  integrity sha512-gjzdSn0lfehKqzSy/q7Oax3qBF95c9nEowOJX7l6no0do9gIfRjqIvbQ7vkPYmH+g/XVqnQ6wMLVvDfEdwJhWA==
+oidc-provider@^6.18.1:
+  version "6.18.1"
+  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.18.1.tgz#85d4fc113a180820c86144cf43fe135e66e8dddc"
+  integrity sha512-ndjIx9G6QKJT6o6ldSyCPN4ubDqU3E89L7fJe9XFOBCwAPggyc0x2TeiqZvHoEdEzss8YYJW729s2/M0mMk8+A==
   dependencies:
     "@koa/cors" "^3.0.0"
     "@types/koa" "^2.11.0"
-    "@types/node" "^12.12.14"
+    "@types/node" "^12.12.21"
     debug "^4.1.1"
     ejs "^3.0.1"
     got "^9.6.0"
-    jose "^1.16.1"
+    jose "^1.17.2"
     jsesc "^2.5.2"
     koa "^2.11.0"
     koa-compose "^4.1.0"
     lodash "^4.17.15"
     lru-cache "^5.1.1"
-    nanoid "^2.1.7"
+    nanoid "^2.1.8"
     object-hash "^2.0.1"
     oidc-token-hash "^5.0.0"
     raw-body "^2.4.1"
