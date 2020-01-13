@@ -62,7 +62,7 @@
     "elastic-apm-node": "~3.3.0",
     "elasticsearch": "^16.5.0",
     "glob": "^7.1.6",
-    "handlebars": "^4.5.3",
+    "handlebars": "^4.7.1",
     "http-errors": "^1.7.3",
     "intl": "^1.2.5",
     "intl-format-cache": "^4.2.19",
