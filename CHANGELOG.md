@@ -8,6 +8,13 @@ __API version `yyyy-mm-dd`__
 
 __Latest version: `2019-05-20`__
 
+## [1.0.0-beta.3](https://github.com/stelace/stelace/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2019-10-25)
+
+### Features
+
+* Intl polyfill to localize dates ([#45](https://github.com/stelace/stelace/issues/45)) ([b8fc2bf](https://github.com/stelace/stelace/commit/b8fc2bf))
+* **Event:** jsonb filters and aggregations ([#36](https://github.com/stelace/stelace/issues/36)) ([7ce879a](https://github.com/stelace/stelace/commit/7ce879a))
+
 ## [1.0.0-beta.2](https://github.com/stelace/stelace/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2019-10-15)
 
 ### BREAKING CHANGES
