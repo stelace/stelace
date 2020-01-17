@@ -167,21 +167,23 @@ function start ({ communication, stelaceIO }) {
           else if (typeof authToken !== 'string') return disconnect('String authentication token expected')
 
           try {
-            const { decodedToken } = await checkAuthToken({
+            const { decodedToken, isTokenExpired } = await checkAuthToken({
               authToken,
               platformId,
               env,
               apmLabel: 'Signal authToken check'
             })
 
-            userId = decodedToken.sub || decodedToken.userId
-            hasInternalUserId = isValidObjectId({
-              id: userId,
-              prefix: User.idPrefix,
-              platformId,
-              env
-            })
-            if (hasInternalUserId) channelsToJoin.push(prefixChannel(userId, { platformId, env }))
+            if (!isTokenExpired) {
+              userId = decodedToken.sub || decodedToken.userId
+              hasInternalUserId = isValidObjectId({
+                id: userId,
+                prefix: User.idPrefix,
+                platformId,
+                env
+              })
+              if (hasInternalUserId) channelsToJoin.push(prefixChannel(userId, { platformId, env }))
+            }
           } catch (err) {
             return disconnect('Invalid authentication token')
           }

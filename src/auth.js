@@ -113,6 +113,7 @@ async function checkAuthToken ({
 
   let decodedToken
   let isStelaceAuthToken
+  let isTokenExpired = false
 
   try {
     const secret = await authenticationRequester.send({
@@ -127,7 +128,8 @@ async function checkAuthToken ({
     try {
       jwt.decode(authToken, { complete: true })
       jwt.verify(authToken, secret, options, (err, decoded) => {
-        if (err) throw err
+        if (err && err.name === 'TokenExpiredError') isTokenExpired = true
+        if (err && !isTokenExpired) throw err
         decodedToken = decoded
       })
     } catch (err) {
@@ -139,7 +141,8 @@ async function checkAuthToken ({
 
   return {
     decodedToken,
-    isStelaceAuthToken
+    isStelaceAuthToken,
+    isTokenExpired
   }
 }
 
@@ -150,14 +153,16 @@ function loadStrategies (server) {
     if (bypassAuthTokenCheck || !hasToken) return next()
 
     try {
-      const { decodedToken, isStelaceAuthToken } = await checkAuthToken({
+      const { decodedToken, isStelaceAuthToken, isTokenExpired } = await checkAuthToken({
         authToken: req.authorization.token,
         platformId: req.platformId,
         env: req.env
       })
 
-      req.auth = decodedToken
-      req._stelaceAuthToken = isStelaceAuthToken
+      if (!isTokenExpired) {
+        req.auth = decodedToken
+        req._stelaceAuthToken = isStelaceAuthToken
+      }
 
       next()
     } catch (err) {
@@ -683,7 +688,7 @@ function allowSpecifyTargetUserId (permissions, matchedPermissions) {
   })
 }
 
-function parseAuthorizationHeader (req) {
+function parseAuthorizationHeader (req, { noThrowIfError = false } = {}) {
   req.authorization = {}
   if (!req.headers.authorization) return
 
@@ -728,13 +733,17 @@ function parseAuthorizationHeader (req) {
       break
 
     default:
-      throwInvalid()
+      if (noThrowIfError) return
+      else throwInvalid()
   }
 
   if (apiKey) validApiKeyFormat = _.get(parseKey(apiKey), 'hasValidFormat')
   if (token) validTokenFormat = !_.isEmpty(jwt.decode(token))
 
-  if ([validApiKeyFormat, validTokenFormat].some(v => !v)) throw createError(401)
+  if ([validApiKeyFormat, validTokenFormat].some(v => !v)) {
+    if (noThrowIfError) return
+    else throw createError(401)
+  }
 
   if (apiKey) req.authorization.apiKey = apiKey
   if (token) req.authorization.token = token

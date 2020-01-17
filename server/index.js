@@ -425,6 +425,7 @@ function loadServer () {
     const isHomeUrl = req.url === '/'
     const isTokenConfirmCheckUrl = req.url.startsWith('/token/check/') && req.url !== '/token/check/request'
     const isSSOUrl = req.url.startsWith('/auth/sso')
+    const isAuthCheckUrl = req.url === '/auth/check'
 
     const { spec: { optionalApiKey, manualAuth } } = req.getRoute() || { spec: {} }
     req._optionalApiKeyRoute = Boolean(optionalApiKey) // Authorization header may still be required (e.g. token)
@@ -437,7 +438,8 @@ function loadServer () {
       req._optionalApiKeyRoute ||
       req._manualAuthRoute ||
       isTokenConfirmCheckUrl ||
-      isSSOUrl
+      isSSOUrl ||
+      isAuthCheckUrl
 
     req.apmSpans.requestInit && req.apmSpans.requestInit.end()
     req.apmSpans.requestInit = null
@@ -511,7 +513,9 @@ function loadServer () {
     const apmSpan = apm.startSpan('Parse Authorization and get platform info')
 
     try {
-      parseAuthorizationHeader(req)
+      const isAuthCheckUrl = req.url === '/auth/check'
+
+      parseAuthorizationHeader(req, { noThrowIfError: isAuthCheckUrl })
     } catch (err) { // still trying to parse authorization header for convenience when not required
       if (!req._manualAuthRoute) {
         apmSpan && apmSpan.end()

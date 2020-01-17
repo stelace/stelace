@@ -271,6 +271,28 @@ function init (server, { middlewares, helpers } = {}) {
 
     return requester.send(params)
   }))
+
+  server.post({
+    name: 'auth.check',
+    path: '/auth/check'
+  }, wrapAction(async (req, res) => {
+    const {
+      apiKey,
+      authorization
+    } = req.body || {} // body can be missing if only the header `authorization` is passed
+    const parsedAuthorizationHeader = req.authorization
+    const authorizationHeader = req.headers.authorization
+
+    const params = populateRequesterParams(req)({
+      type: 'authCheck',
+      apiKey,
+      authorization,
+      parsedAuthorizationHeader,
+      authorizationHeader
+    })
+
+    return requester.send(params)
+  }))
 }
 
 function start ({ communication }) {

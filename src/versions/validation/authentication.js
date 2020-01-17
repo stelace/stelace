@@ -85,6 +85,12 @@ schemas['2019-05-20'].confirmTokenCheck = {
     redirect: Joi.boolean()
   })
 }
+schemas['2019-05-20'].authCheck = {
+  body: Joi.object().keys({
+    apiKey: Joi.string(),
+    authorization: Joi.string()
+  })
+}
 
 const validationVersions = {
   '2019-05-20': [
