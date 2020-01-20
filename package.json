@@ -48,7 +48,7 @@
     "release": "standard-version"
   },
   "dependencies": {
-    "@hapi/bourne": "^1.3.2",
+    "@hapi/bourne": "^2.0.0",
     "@hapi/joi": "^17.0.2",
     "aws-param-store": "^3.2.0",
     "aws-sdk": "^2.590.0",
