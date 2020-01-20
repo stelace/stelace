@@ -2,7 +2,7 @@ const createError = require('http-errors')
 const _ = require('lodash')
 const debug = require('debug')('stelace:api:search')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 
 const {
   getIndex,

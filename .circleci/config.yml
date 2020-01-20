@@ -8,6 +8,12 @@ executors:
       CI_PREFIX: CI
       # https://docs.docker.com/develop/develop-images/build_enhancements
       DOCKER_BUILDKIT: 1
+      # overriding .env (default .env.example)
+      # https://circleci.com/docs/2.0/env-vars/#environment-variable-usage-options
+      REDIS_HOST: redis
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 6543
+      ELASTIC_SEARCH_HOST: elasticsearch
   ubuntu-dlc:
     <<: *ubuntu
     machine:
@@ -57,7 +63,7 @@ jobs:
           command: npm run lint
       - run:
           name: Set .env
-          command: cp .env.ci .env
+          command: cp .env.example .env
       - restore_cache:
           name: Restore Dockerfile.elasticsearch checksum
           key: elasticsearch-checksum-v1-{{ checksum "Dockerfile.elasticsearch" }}
@@ -83,7 +89,7 @@ jobs:
               docker build -f Dockerfile.prod -t stelace --ssh default --progress plain \
                 --secret id=env,src=.env .
             fi
-            rm .env && cp .env.ci .env
+            rm .env && cp .env.example .env
             # Persisting images to workspace is too slow (~90s to persist and same to load)
             #
             # Explicit repo name stelace_api makes sure name is kept when loading tar

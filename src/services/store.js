@@ -45,7 +45,7 @@ const {
   removeReindexingTask
 } = require('../elasticsearch-reindex')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getEnvironments } = require('../util/environment')
 
 let responder

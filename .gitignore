@@ -2,7 +2,6 @@
 
 .env*
 !.env.example
-!.env.ci
 
 # Installed plugins, including tests
 

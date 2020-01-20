@@ -1,7 +1,7 @@
 const createError = require('http-errors')
 const { UniqueViolationError } = require('objection-db-errors')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 
 const { getObjectId } = require('stelace-util-keys')

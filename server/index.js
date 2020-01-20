@@ -1,5 +1,5 @@
 require('dotenv').config()
-require('./src/secure-env').config()
+require('../src/secure-env').config()
 
 const restify = require('restify')
 const debug = require('debug')('stelace:api')
@@ -12,7 +12,7 @@ const corsMiddleware = require('restify-cors-middleware2')
 const socketIO = require('socket.io')
 const apm = require('elastic-apm-node')
 const { isActive: isApmActive, addRequestContext } = require('./apm')
-const { applyIntlPolyfill } = require('./src/util/intl')
+const { applyIntlPolyfill } = require('../src/util/intl')
 
 const cors = corsMiddleware({
   origin: ['*'], // default, only appropriate domain is included in response
@@ -30,23 +30,23 @@ const cors = corsMiddleware({
   ]
 })
 
-const { getPlugins, loadPlugin } = require('./plugins')
+const { getPlugins, loadPlugin } = require('../plugins')
 
-const { getLoggingContext } = require('./src/util/logging')
+const { getLoggingContext } = require('../src/util/logging')
 
-const polyfills = require('./src/util/polyfills')
+const polyfills = require('../src/util/polyfills')
 polyfills.initErrors()
 
-const Base = require('./src/models/Base')
+const Base = require('../src/models/Base')
 
 const { parseKey: parseApiKey } = require('stelace-util-keys')
 
-const database = require('./src/database')
-const elasticsearch = require('./src/elasticsearch')
-const elasticsearchReindex = require('./src/elasticsearch-reindex')
-const elasticsearchSync = require('./src/elasticsearch-sync')
-const elasticsearchTemplates = require('./src/elasticsearch-templates')
-const models = require('./src/models')
+const database = require('../src/database')
+const elasticsearch = require('../src/elasticsearch')
+const elasticsearchReindex = require('../src/elasticsearch-reindex')
+const elasticsearchSync = require('../src/elasticsearch-sync')
+const elasticsearchTemplates = require('../src/elasticsearch-templates')
+const models = require('../src/models')
 
 const {
   communication,
@@ -57,7 +57,7 @@ const {
 
   logger,
   utils,
-} = require('./index')
+} = require('../index')
 
 const { logTrace, logError } = logger
 
@@ -76,7 +76,7 @@ const {
   registerObjectChanges
 } = versions
 
-const auth = require('./auth')
+const auth = require('../src/auth')
 const {
   loadStrategies,
   checkPermissions,
@@ -97,10 +97,10 @@ const {
   }
 } = utils
 
-const middlewares = require('./src/middlewares')
-const routes = require('./src/routes')
-const services = require('./src/services')
-const crons = require('./src/crons')
+const middlewares = require('../src/middlewares')
+const routes = require('../src/routes')
+const services = require('../src/services')
+const crons = require('../src/crons')
 
 const { name, version } = require('./package.json')
 

@@ -4,11 +4,11 @@ const bluebird = require('bluebird')
 const { raw, transaction } = require('objection')
 const { UniqueViolationError } = require('objection-db-errors')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 const { getObjectId } = require('stelace-util-keys')
 
-const { checkPermissions } = require('../../auth')
+const { checkPermissions } = require('../auth')
 
 const { performListQuery } = require('../util/listQueryBuilder')
 

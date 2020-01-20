@@ -4,7 +4,7 @@ const bluebird = require('bluebird')
 
 const { getModels } = require('../models')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 
 const {
   setStelaceTask,

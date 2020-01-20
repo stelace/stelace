@@ -3,7 +3,7 @@ const Redlock = require('redlock')
 const _ = require('lodash')
 const apm = require('elastic-apm-node')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 
 const {
   getRedisClient,

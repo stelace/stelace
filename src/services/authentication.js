@@ -3,7 +3,7 @@ const { Issuer, generators } = require('openid-client')
 const _ = require('lodash')
 const { transaction } = require('objection')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 
 const { getPlatformEnvData, setPlatformEnvData } = require('../redis')

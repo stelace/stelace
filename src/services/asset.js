@@ -5,7 +5,7 @@ const bluebird = require('bluebird')
 
 const { getObjectId } = require('stelace-util-keys')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 
 const { isValidCurrency } = require('../util/currency')

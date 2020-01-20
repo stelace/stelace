@@ -119,7 +119,7 @@ class Base extends DbErrors(Model) {
     req,
     accessFields
   } = {}) {
-    const { systemNamespaces, isSystem } = require('../../auth') // require here to prevent circular dependency
+    const { systemNamespaces, isSystem } = require('../auth') // require here to prevent circular dependency
 
     let object = _.cloneDeep(element)
 

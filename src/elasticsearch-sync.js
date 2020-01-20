@@ -1,7 +1,7 @@
 const bluebird = require('bluebird')
 const _ = require('lodash')
 
-const { logError } = require('../logger')
+const { logError } = require('../server/logger')
 
 const {
   getIndex,
