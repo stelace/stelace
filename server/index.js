@@ -102,7 +102,7 @@ const routes = require('../src/routes')
 const services = require('../src/services')
 const crons = require('../src/crons')
 
-const { name, version } = require('./package.json')
+const { name, version } = require('../package.json')
 
 const PROD = process.env.NODE_ENV === 'production'
 const TEST = process.env.NODE_ENV === 'test'
