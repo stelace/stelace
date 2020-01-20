@@ -1,8 +1,8 @@
-// With current version (12.7) of Node.js, `small-icu` is embedded by default
+// With current version (12.14) of Node.js, `small-icu` is embedded by default
 // (only English support for dates and numbers)
 // https://nodejs.org/api/intl.html#intl_options_for_building_node_js
 
-// There is a plan to include `full-icu` by default in a future version
+// `full-icu` is included by default starting from v13
 // https://github.com/nodejs/node/pull/29522
 
 // For the time being, we need to apply a polyfill to support all locales.

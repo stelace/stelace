@@ -125,7 +125,7 @@
     "tap-xunit": "^2.4.1"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=12.14"
   },
   "husky": {
     "hooks": {
