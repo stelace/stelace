@@ -6,12 +6,12 @@ const crypto = require('crypto')
 
 const { parseKey } = require('stelace-util-keys')
 
-const { logError } = require('./logger')
+const { logError } = require('../server/logger')
 
-const Base = require('./src/models/Base')
+const Base = require('./models/Base')
 
-const { decodeBase64 } = require('./src/util/encoding')
-const { parsePermission } = require('./src/permissions')
+const { decodeBase64 } = require('./util/encoding')
+const { parsePermission } = require('./permissions')
 
 const systemNamespaces = [
   'system',

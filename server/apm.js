@@ -1,8 +1,8 @@
 const apm = require('elastic-apm-node')
 const _ = require('lodash')
 
-const { getCurrentUserId } = require('./src/util/user')
-const { isSystem } = require('./auth')
+const { getCurrentUserId } = require('../src/util/user')
+const { isSystem } = require('../src/auth')
 
 const serverUrl = process.env.ELASTIC_APM_SERVER_URL
 const secretToken = process.env.ELASTIC_APM_SECRET_TOKEN

@@ -1,7 +1,7 @@
 const CronJob = require('cron').CronJob
 const Redlock = require('redlock')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getRedisClient } = require('../redis')
 
 const { checkReindexing: esCheckReindexing } = require('../elasticsearch-reindex')

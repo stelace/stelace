@@ -3,7 +3,7 @@ const createError = require('http-errors')
 const bluebird = require('bluebird')
 const request = require('superagent')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 
 const { getObjectId } = require('stelace-util-keys')

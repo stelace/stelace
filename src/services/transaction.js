@@ -3,7 +3,7 @@ const _ = require('lodash')
 const { raw, transaction: knexTransaction } = require('objection')
 const bluebird = require('bluebird')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 
 const {

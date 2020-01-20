@@ -6,9 +6,9 @@ const {
   getUserContextFromRequest,
   getCustomContextFromRequest,
   getLabelsFromRequest
-} = require('../../apm')
+} = require('../../server/apm')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 
 class CustomResponder extends Cote.Responder {
   // Inherit on method to log the processing duration

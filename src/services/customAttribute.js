@@ -3,7 +3,7 @@ const _ = require('lodash')
 const bluebird = require('bluebird')
 const { raw } = require('objection')
 
-const { logError } = require('../../logger')
+const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
 
 const {

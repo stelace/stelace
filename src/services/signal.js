@@ -10,8 +10,8 @@ const User = require('../models/User')
 
 const { getRedisClient } = require('../redis')
 const { isValidObjectId } = require('../util/validation')
-const { checkAuthToken } = require('../../auth')
-const { logError } = require('../../logger')
+const { checkAuthToken } = require('../auth')
+const { logError } = require('../../server/logger')
 
 let isServiceActive
 
