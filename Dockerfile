@@ -1,4 +1,4 @@
-FROM node:12.7-alpine
+FROM node:12.14-alpine
 
 # Puppeteer installation process inspired by:
 # https://github.com/GoogleChrome/puppeteer/issues/1793#issuecomment-442730223
