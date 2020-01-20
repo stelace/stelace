@@ -90,6 +90,8 @@ schemas['2019-05-20'].authCheck = {
     apiKey: Joi.string(),
     authorization: Joi.string()
   })
+    .xor('apiKey', 'authorization')
+    .required()
 }
 
 const validationVersions = {
@@ -121,6 +123,10 @@ const validationVersions = {
     {
       target: 'auth.ssoLogoutCallback',
       schema: schemas['2019-05-20'].ssoLogoutCallback
+    },
+    {
+      target: 'auth.check',
+      schema: schemas['2019-05-20'].authCheck
     },
     {
       target: 'password.changePassword',

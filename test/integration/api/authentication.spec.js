@@ -1966,25 +1966,10 @@ test('check authentication information', async (t) => {
     })
     .expect(200)
 
-  const { body: apiKeyObj2 } = await request(t.context.serverUrl)
-    .post('/api-keys')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      name: 'Other api key',
-      roles: ['user'],
-      type: 'other'
-    })
-    .expect(200)
-
-  const getApiKeyAuthorization = key => `Basic ${encodeBase64(`${key}:`)}`
+  const getBasicAuthHeader = key => `Basic ${encodeBase64(`${key}:`)}`
 
   const apiKey = apiKeyObj.key
-  const apiKeyAuthorization = getApiKeyAuthorization(apiKey)
-
-  const apiKey2 = apiKeyObj2.key
+  const apiKeyAuthorization = getBasicAuthHeader(apiKey)
 
   const { body: loginObj } = await request(t.context.serverUrl)
     .post('/auth/login')
@@ -1997,23 +1982,11 @@ test('check authentication information', async (t) => {
     })
     .expect(200)
 
-  const { body: loginObj2 } = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      authorization: apiKeyAuthorization
-    })
-    .send({
-      username: 'user2',
-      password: 'user2'
-    })
-    .expect(200)
-
   const decodedToken = jwt.decode(loginObj.accessToken)
   const userAuthorization = `Stelace-v1 apiKey=${apiKey}, token=${loginObj.accessToken}`
-  const userAuthorization2 = `Stelace-v1 apiKey=${apiKey2}, token=${loginObj2.accessToken}`
 
   const invalidApiKey = 'invalid_api_key'
-  const invalidApiKeyAuthorization = getApiKeyAuthorization(invalidApiKey)
+  const invalidApiKeyAuthorization = getBasicAuthHeader(invalidApiKey)
   const invalidUserAuthorization1 = `Stelace-v1 apiKey=${invalidApiKey}, token=${loginObj.accessToken}`
   const invalidUserAuthorization2 = `Stelace-v1 apiKey=${apiKey}, token=a.b.c`
 
@@ -2133,103 +2106,24 @@ test('check authentication information', async (t) => {
   // AUTHORIZATION HEADER  //
   // ///////////////////// //
 
-  const { body: authorizationHeaderCheck1 } = await request(t.context.serverUrl)
+  await request(t.context.serverUrl)
     .post('/auth/check')
     .set({
-      authorization: apiKeyAuthorization
+      authorization: apiKeyAuthorization // authorization isn't used in this endpoint
     })
-    .expect(200)
+    .expect(400)
 
-  t.is(authorizationHeaderCheck1.valid, true)
-  t.is(authorizationHeaderCheck1.user, null)
-  t.is(authorizationHeaderCheck1.tokenExpired, null)
-  checkValidApiKey(authorizationHeaderCheck1.apiKey)
+  // /////////////////// //
+  // MULTIPLE PARAMETERS //
+  // /////////////////// //
 
-  const { body: authorizationHeaderCheck2 } = await request(t.context.serverUrl)
+  await request(t.context.serverUrl)
     .post('/auth/check')
-    .set({
+    .send({
+      apiKey,
       authorization: userAuthorization
     })
-    .expect(200)
-
-  t.is(authorizationHeaderCheck2.valid, true)
-  t.is(authorizationHeaderCheck2.tokenExpired, false)
-  checkValidApiKey(authorizationHeaderCheck2.apiKey)
-  checkValidToken(authorizationHeaderCheck2.user)
-
-  const { body: authorizationHeaderCheck3 } = await request(t.context.serverUrl)
-    .post('/auth/check')
-    .set({
-      authorization: invalidUserAuthorization1
-    })
-    .expect(200)
-
-  t.is(authorizationHeaderCheck3.valid, false)
-  t.is(authorizationHeaderCheck3.apiKey, null)
-  t.is(authorizationHeaderCheck3.user, null)
-  t.is(authorizationHeaderCheck3.tokenExpired, null)
-
-  const { body: authorizationHeaderCheck4 } = await request(t.context.serverUrl)
-    .post('/auth/check')
-    .set({
-      authorization: invalidUserAuthorization2
-    })
-    .expect(200)
-
-  t.is(authorizationHeaderCheck4.valid, false)
-  t.is(authorizationHeaderCheck4.apiKey, null)
-  t.is(authorizationHeaderCheck4.user, null)
-  t.is(authorizationHeaderCheck4.tokenExpired, null)
-
-  // /////////////////////////////////// //
-  // PARAMETERS AND AUTHORIZATION HEADER //
-  // /////////////////////////////////// //
-
-  const { body: mixedCheck1 } = await request(t.context.serverUrl)
-    .post('/auth/check')
-    .send({
-      apiKey: apiKey2 // has priority
-    })
-    .set({
-      authorization: userAuthorization2
-    })
-    .expect(200)
-
-  t.is(mixedCheck1.valid, true)
-  t.is(mixedCheck1.user, null)
-  t.is(mixedCheck1.tokenExpired, null)
-  checkValidApiKey(mixedCheck1.apiKey, 'other')
-
-  const { body: mixedCheck2 } = await request(t.context.serverUrl)
-    .post('/auth/check')
-    .send({
-      authorization: userAuthorization // has priority
-    })
-    .set({
-      authorization: apiKeyAuthorization
-    })
-    .expect(200)
-
-  t.is(mixedCheck2.valid, true)
-  t.is(mixedCheck2.tokenExpired, false)
-  checkValidApiKey(mixedCheck2.apiKey)
-  checkValidToken(mixedCheck2.user)
-
-  const { body: mixedCheck3 } = await request(t.context.serverUrl)
-    .post('/auth/check')
-    .send({
-      apiKey, // has priority
-      authorization: userAuthorization
-    })
-    .set({
-      authorization: apiKeyAuthorization
-    })
-    .expect(200)
-
-  t.is(mixedCheck3.valid, true)
-  t.is(mixedCheck3.user, null)
-  t.is(mixedCheck3.tokenExpired, null)
-  checkValidApiKey(mixedCheck3.apiKey)
+    .expect(400)
 
   // ////////////////// //
   // MISSING PARAMETERS //

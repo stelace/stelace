@@ -279,16 +279,12 @@ function init (server, { middlewares, helpers } = {}) {
     const {
       apiKey,
       authorization
-    } = req.body || {} // body can be missing if only the header `authorization` is passed
-    const parsedAuthorizationHeader = req.authorization
-    const authorizationHeader = req.headers.authorization
+    } = req.body
 
     const params = populateRequesterParams(req)({
       type: 'authCheck',
       apiKey,
-      authorization,
-      parsedAuthorizationHeader,
-      authorizationHeader
+      authorization
     })
 
     return requester.send(params)
