@@ -2009,6 +2009,9 @@ test('check authentication information', async (t) => {
   const { body: apiKeyCheck1 } = await request(t.context.serverUrl)
     .post('/auth/check')
     .send({ apiKey })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(200)
 
   t.is(apiKeyCheck1.valid, true)
@@ -2019,6 +2022,9 @@ test('check authentication information', async (t) => {
   const { body: apiKeyCheck2 } = await request(t.context.serverUrl)
     .post('/auth/check')
     .send({ apiKey: 'invalid_api_key' })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(200)
 
   t.is(apiKeyCheck2.valid, false)
@@ -2035,6 +2041,9 @@ test('check authentication information', async (t) => {
     .send({
       authorization: apiKeyAuthorization
     })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(200)
 
   t.is(authorizationCheck1.valid, true)
@@ -2046,6 +2055,9 @@ test('check authentication information', async (t) => {
     .post('/auth/check')
     .send({
       authorization: invalidApiKeyAuthorization
+    })
+    .set({
+      authorization: apiKeyAuthorization
     })
     .expect(200)
 
@@ -2059,6 +2071,9 @@ test('check authentication information', async (t) => {
     .send({
       authorization: userAuthorization
     })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(200)
 
   t.is(authorizationCheck3.valid, true)
@@ -2070,6 +2085,9 @@ test('check authentication information', async (t) => {
     .post('/auth/check')
     .send({
       authorization: invalidUserAuthorization1
+    })
+    .set({
+      authorization: apiKeyAuthorization
     })
     .expect(200)
 
@@ -2083,6 +2101,9 @@ test('check authentication information', async (t) => {
     .send({
       authorization: invalidUserAuthorization1
     })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(200)
 
   t.is(authorizationCheck5.valid, false)
@@ -2094,6 +2115,9 @@ test('check authentication information', async (t) => {
     .post('/auth/check')
     .send({
       authorization: invalidUserAuthorization2
+    })
+    .set({
+      authorization: apiKeyAuthorization
     })
     .expect(200)
 
@@ -2111,6 +2135,9 @@ test('check authentication information', async (t) => {
     .set({
       authorization: apiKeyAuthorization // authorization isn't used in this endpoint
     })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(400)
 
   // /////////////////// //
@@ -2123,6 +2150,9 @@ test('check authentication information', async (t) => {
       apiKey,
       authorization: userAuthorization
     })
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(400)
 
   // ////////////////// //
@@ -2131,5 +2161,16 @@ test('check authentication information', async (t) => {
 
   await request(t.context.serverUrl)
     .post('/auth/check')
+    .set({
+      authorization: apiKeyAuthorization
+    })
     .expect(400)
+
+  // /////////////// //
+  // MISSING API KEY //
+  // /////////////// //
+
+  await request(t.context.serverUrl)
+    .post('/auth/check')
+    .expect(401)
 })
