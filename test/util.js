@@ -1,6 +1,7 @@
 const { computeDate } = require('../src/util/time')
 const { getModels } = require('../src/models')
 const { roundDecimal } = require('../src/util/math')
+const WebhookManager = require('./webhook-manager')
 const _ = require('lodash')
 
 /**
@@ -12,6 +13,7 @@ const testEventDelay = 1000 // ms
 
 module.exports = {
   testEventDelay,
+  WebhookManager,
 
   computeDate,
   nullOrUndefinedFallback,
