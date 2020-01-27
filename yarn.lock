@@ -4563,10 +4563,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.18.1, jose@^1.20.0:
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.20.0.tgz#1cf2d12ecd5e49940beafa8bbaf65acdf407dfb7"
-  integrity sha512-z38qBpt4+BkdmP38kxEwF1W2hvLrXWx3uNsxMoshd43e7C02RLF8+iMcnJITSDGEv2gg718GUCEu26zgMDhHFA==
+jose@^1.18.1, jose@^1.20.0, jose@^1.21.1:
+  version "1.21.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.21.1.tgz#8f0ebb34e2e436059cbf424c69ca7ca6623aaa3e"
+  integrity sha512-+PYDNfE/AgtaGNYbpmsCaGap7TD12PAh6AGekFEh2xlHYdNPNWb6YUjcGcK+NNEUflrr2fGEBsbV9aAHrZGLew==
   dependencies:
     asn1.js "^5.3.0"
 
