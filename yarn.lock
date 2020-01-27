@@ -2101,9 +2101,10 @@ cote@1.0.0:
     socket.io "^2.3.0"
     uuid "^3.3.3"
 
-"cron@https://github.com/kelektiv/node-cron#2f4bb4756406885ec9b087a7687e1e89dadff7e5":
-  version "1.7.2"
-  resolved "https://github.com/kelektiv/node-cron#2f4bb4756406885ec9b087a7687e1e89dadff7e5"
+cron@^1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/cron/-/cron-1.8.2.tgz#4ac5e3c55ba8c163d84f3407bde94632da8370ce"
+  integrity sha512-Gk2c4y6xKEO8FSAUTklqtfSr7oTq0CiPQeLBG5Fl0qoXpZyMcj1SG59YL+hqq04bu6/IuEA7lMkYDAplQNKkyg==
   dependencies:
     moment-timezone "^0.5.x"
 
