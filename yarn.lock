@@ -4608,10 +4608,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.18.1, jose@^1.20.0:
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.20.0.tgz#1cf2d12ecd5e49940beafa8bbaf65acdf407dfb7"
-  integrity sha512-z38qBpt4+BkdmP38kxEwF1W2hvLrXWx3uNsxMoshd43e7C02RLF8+iMcnJITSDGEv2gg718GUCEu26zgMDhHFA==
+jose@^1.18.1, jose@^1.21.1:
+  version "1.21.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.21.1.tgz#8f0ebb34e2e436059cbf424c69ca7ca6623aaa3e"
+  integrity sha512-+PYDNfE/AgtaGNYbpmsCaGap7TD12PAh6AGekFEh2xlHYdNPNWb6YUjcGcK+NNEUflrr2fGEBsbV9aAHrZGLew==
   dependencies:
     asn1.js "^5.3.0"
 
@@ -5909,10 +5909,10 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-oidc-provider@^6.18.2:
-  version "6.18.2"
-  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.18.2.tgz#ebbef70d6cd3786bf7d3280c78de78e2c759e2a0"
-  integrity sha512-A0nxow9O9udM/1Da/pWW6YmNl8l1cJHznDR7HSV9inmQa3gVBUXW0Bf6uriNtSl7TIPfSuJaE5421t76tghDFA==
+oidc-provider@^6.19.2:
+  version "6.19.2"
+  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.19.2.tgz#b343356d37ae46d5cfbf1ad79f58abbad7f9d738"
+  integrity sha512-pG85XTWtSZjnBf2HOJ8e8zBMf0JTXDklLr27QKfrBY6khh7kUSRwtOZdpUjaSwDm5ov7TXGArvbyqm95OW6lsQ==
   dependencies:
     "@koa/cors" "^3.0.0"
     "@types/koa" "^2.11.0"
@@ -5920,7 +5920,7 @@ oidc-provider@^6.18.2:
     debug "^4.1.1"
     ejs "^3.0.1"
     got "^9.6.0"
-    jose "^1.20.0"
+    jose "^1.21.1"
     jsesc "^2.5.2"
     koa "^2.11.0"
     koa-compose "^4.1.0"
