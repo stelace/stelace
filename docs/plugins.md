@@ -11,7 +11,7 @@ __This means plugins are very powerful and should be installed with care if they
 
 ## Import
 
-All official plugins are currently included in `plugins` directory of Stelace server repository and automatically loaded on startup.
+Most official plugins are currently included in `plugins` directory of Stelace server repository and automatically loaded on startup.
 
 You can:
 
@@ -28,6 +28,8 @@ When using `INSTALLED_PLUGINS` and `yarn plugins`, this runs two commands intern
 
 Have a look at official `rating` plugin to get a complete working example.
 
+Search filter Domain-Specific Language is also enabled by [a standalone plugin](https://github.com/stelace/stelace-search-filter-dsl-parser), as another working example.
+
 Plugins are expected to export the following properties from `index.js` file, in addition to optional properties mentioned in the intro above:
 
 - `name`
@@ -38,7 +40,7 @@ Plugins are expected to export the following properties from `index.js` file, in
 
 When developing a plugin as an external repository, you can `yarn add -D https://github.com/stelace/stelace.git` as a devDependency to be able to use exports from `server.js` using `require('stelace-server')`.
 
-An external plugin blueprint should be available soon.
+Look at official [Search filter DSL parser plugin](https://github.com/stelace/stelace-search-filter-dsl-parser) for a blueprint.
 
 #### Running plugin tests
 

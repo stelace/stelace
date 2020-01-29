@@ -88,10 +88,7 @@ With:
 
 __All APIs__ listed in [docs](https://stelace.com/docs) and [API Reference](https://docs.api.stelace.com).
 
-Two features are not open-source and certainly won’t be unless community and staff [collaborate](#contributing) to make this happen:
-
-- Admin Dashboard UI, tied with our [SaaS plans](https://stelace.com/pricing)
-- Search [filter DSL](https://stelace.com/docs/search/#filtering)
+Admin Dashboard UI is tied with our [Software-as-a-Service offer](https://stelace.com/pricing) and is not open-source. It certainly won’t ever be unless community and staff [collaborate](#contributing) to make this happen.
 
 That’s it!
 
