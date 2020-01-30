@@ -123,6 +123,12 @@ It’s how Stelace team develops and tests API server.
 
 Please note that you should use proper databases in production though.
 
+Let’s start with your own `.env` file to customize if needed:
+
+```sh
+cp .env.example .env
+```
+
 ### Start development databases
 
 Build the Docker images:
@@ -141,25 +147,31 @@ _Shorthand for: `docker-compose up -d elasticsearch postgresql redis`_
 
 ### Run server
 
-Run `yarn` to install dependencies.
+- Run `yarn` to install dependencies.
 
-Run the database migration to automatically create or update tables:
+- Run the database migration to automatically create or update tables:
 
 ```sh
 yarn knex migrate:latest # or `npm run knex migrate:latest`
 ```
 
-You can also seed the database with hard-coded development API keys, so you can always use the same keys for development with local server.
-
-_Tip: use one of our [_Stelace Instant_ open-source templates](
-  https://stelace.com/docs/getting-started
-) for blazing fast full-stack development._
+- You can also seed the database with hard-coded development API keys, so you can always use the same keys for development with local server:
 
 ```sh
 yarn seed
 ```
 
-Now you can start the server with:
+_Tip: use one of our [_Stelace Instant_ open-source templates](
+  https://stelace.com/docs/getting-started
+) for blazing fast full-stack development._
+
+- Install external [plugins](docs/plugins.md):
+
+```sh
+yarn plugins
+```
+
+- Start the server:
 
 ```sh
 yarn start # or `npm start`
@@ -177,7 +189,8 @@ Here is how you can install dependencies and init database:
 
 ```sh
 # ephemeral container with --rm option
-docker-compose run --rm api yarn && yarn seed
+docker-compose run --rm api yarn
+docker-compose run --rm api yarn seed
 ```
 
 _Note: project root directory is used as a Docker volume during development, including `node_modules` that are shared._
