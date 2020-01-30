@@ -6,7 +6,7 @@ const { start: startApm } = require('./apm')
 // start the APM service before Restify server so it can monitor all application lifecycle
 startApm()
 
-const { start, stop } = require('./server')
+const { start, stop } = require('./index')
 const { onClose } = require('./close')
 
 start()

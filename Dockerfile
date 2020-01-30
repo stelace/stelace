@@ -19,4 +19,4 @@ WORKDIR /usr/src/app
 
 USER node
 
-CMD [ "node", "start.js" ]
+CMD [ "node", "server/start.js" ]

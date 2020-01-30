@@ -26,7 +26,7 @@
     "headless-cms"
   ],
   "scripts": {
-    "start": "node start.js",
+    "start": "node server/start.js",
     "dev": "ROARR_LOG=true npm run start",
     "pretest": "NODE_ENV=test node test/pretest.js",
     "plugins": "npm run plugins:install && npm run plugins:prepare",

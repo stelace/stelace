@@ -36,4 +36,4 @@ COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=secret,id=env,dst=/usr/src/app/.env yarn plugins:prepare
 
-CMD [ "node", "start.js" ]
+CMD [ "node", "server/start.js" ]
