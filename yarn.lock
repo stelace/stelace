@@ -4626,10 +4626,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.18.1, jose@^1.21.1:
-  version "1.21.1"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.21.1.tgz#8f0ebb34e2e436059cbf424c69ca7ca6623aaa3e"
-  integrity sha512-+PYDNfE/AgtaGNYbpmsCaGap7TD12PAh6AGekFEh2xlHYdNPNWb6YUjcGcK+NNEUflrr2fGEBsbV9aAHrZGLew==
+jose@^1.18.1, jose@^1.21.1, jose@^1.22.0:
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.22.0.tgz#8a97c20f33125d7f839a36581b1aedf33b5969f2"
+  integrity sha512-9477X7qh6rZIvFRrf7z1jow6VWlgPIFrnKQO8vQr5NHVkbD7S7OwpF/jo8VEl1waxa9W7vRIXJq6eY+1hoYnfw==
   dependencies:
     asn1.js "^5.3.0"
 
@@ -5992,15 +5992,15 @@ opencollective-postinstall@^2.0.2:
   resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.2.tgz#5657f1bede69b6e33a45939b061eb53d3c6c3a89"
   integrity sha512-pVOEP16TrAO2/fjej1IdOyupJY8KDUM1CvsaScRbw6oddvpQoOfGk4ywha0HKKVAD6RkW4x6Q+tNBwhf3Bgpuw==
 
-openid-client@3.11.0:
-  version "3.11.0"
-  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-3.11.0.tgz#3d6597f0929631b9109f1b6c9dd5b9ab42edcf16"
-  integrity sha512-0ADlGIwSdeDhySMzUtnmfBFmqb22XTMaSH97QLNQWfxw6YwPJ8rU6m58AsRJ62bPVRnHZxmOPuxIS3obN2jSVQ==
+openid-client@3.12.2:
+  version "3.12.2"
+  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-3.12.2.tgz#695daf28b053fea810e2740758dada6d625717f4"
+  integrity sha512-Fv2buVLuzNsmToi9PAHLDH3FP1YgQmShBI39LUCv9bRtaUGwduQRAuRv37DzltDMnizIqxS8KQMo6hYxzHZIiw==
   dependencies:
     "@types/got" "^9.6.9"
     base64url "^3.0.1"
     got "^9.6.0"
-    jose "^1.18.1"
+    jose "^1.22.0"
     lodash "^4.17.15"
     lru-cache "^5.1.1"
     make-error "^1.3.5"
