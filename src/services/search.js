@@ -616,10 +616,11 @@ function start ({ communication, isSystem }) {
         return { success: true }
       }
 
-      results = await client.search({
+      const { body: searchResults } = await client.search({
         index,
         body
       })
+      results = searchResults
 
       if (!_.isNumber(nbTotalResults)) {
         nbTotalResults = getNbTotalResults(results)

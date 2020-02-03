@@ -48,6 +48,7 @@
     "release": "standard-version"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.5.0",
     "@hapi/bourne": "^2.0.0",
     "@hapi/joi": "^17.1.0",
     "aws-param-store": "^3.2.0",
@@ -60,7 +61,6 @@
     "debug": "~4.1.0",
     "dotenv": "^8.2.0",
     "elastic-apm-node": "~3.3.0",
-    "elasticsearch": "^16.6.0",
     "glob": "^7.1.6",
     "handlebars": "^4.7.2",
     "http-errors": "^1.7.3",

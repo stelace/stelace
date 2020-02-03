@@ -17,7 +17,7 @@ module.exports = {
 }
 
 // Elasticsearch Node.js API: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html
-const elasticsearch = require('elasticsearch')
+const { Client } = require('@elastic/elasticsearch')
 const createError = require('http-errors')
 const _ = require('lodash')
 
@@ -63,19 +63,22 @@ function getConnectionClient (connection = {}) {
 
   const useAuth = user && password
 
+  const hidePort = (port === '80' && protocol === 'http') ||
+    (port === '443' && protocol === 'https')
+
+  // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-configuration.html
   const params = {
-    host: {
-      host,
-      protocol,
-      port
-    }
+    node: `${protocol}:${host}${hidePort ? '' : ':' + port}`
   }
 
   if (useAuth) {
-    params.host.auth = `${user}:${password}`
+    params.auth = {
+      user,
+      password
+    }
   }
 
-  const client = new elasticsearch.Client(params)
+  const client = new Client(params)
 
   connectionClients[key] = client
   return client
@@ -155,7 +158,7 @@ async function getListIndices ({ platformId, env, type }) {
   const client = await getClient({ platformId, env })
   const indexPattern = getIndex({ platformId, env, type }) + '*'
 
-  const result = await client.indices.getAlias({
+  const { body: result } = await client.indices.getAlias({
     index: indexPattern
   })
 
@@ -166,7 +169,7 @@ async function isIndexExisting ({ platformId, env, type, tag } = {}) {
   const client = await getClient({ platformId, env })
   const index = getIndex({ platformId, env, type, tag })
 
-  const indexExists = await client.indices.exists({ index })
+  const { body: indexExists } = await client.indices.exists({ index })
   return indexExists
 }
 
@@ -245,7 +248,7 @@ async function getMapping ({ platformId, env, type, tag }) {
   const client = await getClient({ platformId, env })
   const index = getIndex({ platformId, env, type, tag })
 
-  const result = await client.indices.getMapping({
+  const { body: result } = await client.indices.getMapping({
     index
   })
 
@@ -263,13 +266,8 @@ async function updateMapping ({ platformId, env, type = 'asset', customAttribute
   const client = await getClient({ platformId, env })
   const index = getIndex({ platformId, env, type, tag })
 
-  // With elasticsearch SDK, we need to pass type: '_doc' and set include_type_name to true
-  // Without them, an "Unable to build a path with those params" error occurs
-  // TODO: probably fixed with new SDK @elastic/elasticsearch we’ll have to migrate to
   await client.indices.putMapping({
     index,
-    type: '_doc',
-    include_type_name: true,
     body: mapping
   })
 }
