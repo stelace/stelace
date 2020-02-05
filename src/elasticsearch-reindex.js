@@ -59,7 +59,7 @@ async function checkReindexing ({ COMMUNICATION_ID }) {
 
     const client = await getClient({ platformId, env })
 
-    const result = await client.tasks.get({ taskId })
+    const { body: result } = await client.tasks.get({ taskId })
     if (result && result.completed) {
       await _endReindexingProcess({
         platformId,
@@ -92,7 +92,7 @@ async function startReindexingProcess ({ platformId, env, customAttributes, newC
     }
   })
 
-  const reindexResult = await client.reindex({
+  const { body: reindexResult } = await client.reindex({
     body: {
       conflicts: 'proceed',
       source: {
@@ -128,12 +128,12 @@ async function startReindexingProcess ({ platformId, env, customAttributes, newC
 async function _endReindexingProcess ({ platformId, env, fromIndex, toIndex }) {
   const client = await getClient({ platformId, env })
 
-  const fromIndexExists = await client.indices.exists({ index: fromIndex })
-  const toIndexExists = await client.indices.exists({ index: toIndex })
+  const { body: fromIndexExists } = await client.indices.exists({ index: fromIndex })
+  const { body: toIndexExists } = await client.indices.exists({ index: toIndex })
 
   if (!fromIndexExists || !toIndexExists) return
 
-  const fromIndexSettings = await client.indices.getSettings({
+  const { body: fromIndexSettings } = await client.indices.getSettings({
     index: fromIndex
   })
   const fromSettings = fromIndexSettings[fromIndex].settings
