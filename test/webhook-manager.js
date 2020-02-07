@@ -6,11 +6,13 @@ const { getAccessTokenHeaders } = require('./auth')
 const noop = () => Promise.resolve()
 
 // Utility to test external service webhooks integration into Stelace
-// Two modes of functioning:
-// - test webhooks for real via Ngrok
-// - simulate webhooks by fetching and creating events
-//    (suitable if webhooks cannot be created via API and one cannot have access to Ngrok paid plan
-//     for reserved subdomains)
+// Two operating modes:
+// - Test external webhook integration for real via Ngrok,
+//     as long as the external service lets you create webhooks with some API,
+//     or you have a paid ngrok plan and a stable URL to use for a longlived test webhook
+// - Simulate external webhook by polling external service events
+//    and propagate them to some Stelace endpoint, provided the external service
+//    has some Event API to fetch latest external events.
 class WebhookManager {
   /**
    * @param {Object}   params
@@ -27,11 +29,16 @@ class WebhookManager {
    *   async simulateWebhookSince(lastFetchTimestamp) {
    *     // we recommend to apply deduplication on events
    *     // because events created at the same second can be not available at the same time
-   *     // via Events API
-   *     const events = await exampleSdk.events.list({ gt: lastFetchTimestamp })
+   *
+   *     // timestamps can be expressed in seconds or milliseconds depending on external APIs
+   *     // so use the unit scale that is easier to use in events list filter
+   *     const now = getTimestamp() // implement this function
+   *     const filterParams = lastFetchTimestamp ? { gt: lastFetchTimestamp } : { gt: now }
+   *
+   *     const events = await externalServiceSdk.events.list(filterParams)
    *
    *     for (const event of events) {
-   *       if (processedEventIds[event.id]) continue
+   *       if (processedEventIds[event.id]) continue // via external Events API
    *
    *       await request(t.context.serverUrl)
    *         .post(webhookUrl)
@@ -42,14 +49,17 @@ class WebhookManager {
    *       processedEventIds[event.id] = true
    *     }
    *
+   *     const smallestTimestampStep = 1 // customize this value if needed
+   *
    *     const timestamps = events.map(e => e.created)
-   *     const maxTimestamp = _.max(timestamps) - 1 // to be sure to fetch processed events
-   *     return maxTimestamp ? maxTimestamp - 1 : null
+   *     const maxTimestamp = _.max(timestamps)
+   *     return maxTimestamp ? maxTimestamp - smallestTimestampStep : null // to be sure to fetch processed events
    *   }
    *
-   * @param {Boolean}  [params.webhookFetchInterval = 2000] - specify the duration in milliseconds for events fetching
+   * @param {Boolean}  [params.webhookFetchInterval = 2000] - interval in milliseconds between calls to external Events API
    *   if isWebhookSimulated is true
    * @param {Function} [params.createWebhook(tunnelUrl)] - can be provided if isWebhookSimulated is false
+   *   tunnelUrl being the ngrok endpoint to prepend to Stelace API endpoint path.
    * @param {Function} [params.removeWebhook] - can be provided if isWebhookSimulated is false
    *
    * Please refer to ngrok options (https://github.com/bubenshchykov/ngrok#options)
@@ -57,6 +67,29 @@ class WebhookManager {
    * @param {String}   [params.tunnel.subdomain]
    * @param {String}   [params.tunnel.auth]
    * @param {String}   [params.tunnel.authToken]
+   *
+   * @example Webhook manager usage in non-simulating mode
+   *   const webhookUrl = `/stelace_api/webhook/url/with/platform_identifiers/e${t.context.platformId}_${t.context.env}`
+   *   let webhook
+   *
+   *   const createWebhook = async (tunnelUrl) => {
+   *     webhook = await externalServiceSdk.webhooks.create({
+   *       url: `${tunnelUrl}${webhookUrl}`
+   *     })
+   *   }
+   *
+   *   const removeWebhook = async () => {
+   *     await externalServiceSdk.webhooks.delete(webhook.id)
+   *   }
+   *
+   *   const webhookManager = new WebhookManager({
+   *     t, // AVA test object
+   *     tunnel, // ngrok tunnel configuration object
+   *     isWebhookSimulated: false,
+   *     createWebhook,
+   *     removeWebhook
+   *   })
+   *   await webhookManager.start()
    */
   constructor ({
     t,
@@ -69,8 +102,7 @@ class WebhookManager {
   }) {
     this.t = t
 
-    // minus one second to handle cases events are generated during the same second of webhook manager creation
-    this.lastEventTimestamp = getTimestamp() - 1
+    this.lastEventTimestamp = null
 
     this.isWebhookSimulated = isWebhookSimulated
     this.tunnel = tunnel || {}
@@ -117,8 +149,7 @@ class WebhookManager {
     }
   }
 
-  // if isWebhookSimulated is false, really wait webhooks events
-  // otherwise, fetch events not retrieved from last time to simulate a real webhook running
+  // expose this function as convenience to wait for events before testing them
   async waitForEvents (waitDurationMs = 10000) {
     return new Promise(resolve => setTimeout(resolve, waitDurationMs))
   }
@@ -137,10 +168,6 @@ class WebhookManager {
       .set(authorizationHeaders)
       .expect(200)
   }
-}
-
-function getTimestamp () {
-  return Math.round(new Date().getTime() / 1000)
 }
 
 module.exports = WebhookManager
