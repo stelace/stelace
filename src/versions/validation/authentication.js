@@ -85,6 +85,14 @@ schemas['2019-05-20'].confirmTokenCheck = {
     redirect: Joi.boolean()
   })
 }
+schemas['2019-05-20'].authCheck = {
+  body: Joi.object().keys({
+    apiKey: Joi.string(),
+    authorization: Joi.string()
+  })
+    .xor('apiKey', 'authorization')
+    .required()
+}
 
 const validationVersions = {
   '2019-05-20': [
@@ -115,6 +123,10 @@ const validationVersions = {
     {
       target: 'auth.ssoLogoutCallback',
       schema: schemas['2019-05-20'].ssoLogoutCallback
+    },
+    {
+      target: 'auth.check',
+      schema: schemas['2019-05-20'].authCheck
     },
     {
       target: 'password.changePassword',

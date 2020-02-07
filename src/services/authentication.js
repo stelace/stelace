@@ -28,10 +28,16 @@ const {
 const { setSearchParams } = require('../util/url')
 
 const {
+  parseAuthorizationHeader,
+  checkAuthToken
+} = require('../auth')
+
+const {
   getRandomString,
   getObjectId,
   extractDataFromObjectId,
-  parsePublicPlatformId
+  parsePublicPlatformId,
+  parseKey
 } = require('stelace-util-keys')
 
 const tokenPrefix = 'tok_'
@@ -1036,6 +1042,28 @@ function start ({ communication, serverPort, isSystem }) {
     })
   })
 
+  responder.on('authCheck', async (req) => {
+    const {
+      apiKey,
+      authorization
+    } = req
+
+    if (apiKey) {
+      return parseAuthInformation({ apiKey })
+    } else if (authorization) {
+      const tmpReq = { headers: { authorization } }
+
+      // `auth.parseAuthorizationHeader` function will decompose the `authorization` header into
+      // `apiKey` and/or `token` whatever the scheme is (Basic or Stelace-V1)
+      // e.g. Stelace-V1 apiKey=secretApiKey, token=secretToken
+      // will be parsed into { authorization: { apiKey: 'secretApiKey', token: 'secretToken' } }
+      parseAuthorizationHeader(tmpReq, { noThrowIfError: true })
+      return parseAuthInformation(tmpReq.authorization || {})
+    } else {
+      throw createError(400, 'Please pass the parameters `apiKey` or `authorization`')
+    }
+  })
+
   // INTERNAL
 
   responder.on('_getAuthSecret', async (req) => {
@@ -1204,6 +1232,43 @@ function start ({ communication, serverPort, isSystem }) {
     const result = createLoginTokens({ platformId, env, user, userAgent, provider, idToken })
 
     await AuthToken.query().patchAndFetchById(authToken.id, { reference: { checked: true } })
+
+    return result
+  }
+
+  async function parseAuthInformation ({ apiKey, token }) {
+    const result = {
+      valid: false,
+      apiKey: null,
+      user: null,
+      tokenExpired: null
+    }
+
+    if (!apiKey) return result
+
+    const parsedApiKey = parseKey(apiKey)
+    result.valid = parsedApiKey.hasValidFormat
+
+    if (!result.valid) return result
+
+    result.apiKey = parsedApiKey
+    const platformId = parsedApiKey.platformId
+    const env = parsedApiKey.env
+
+    if (token) {
+      const { decodedToken, isTokenExpired } = await checkAuthToken({
+        authToken: token,
+        platformId,
+        env,
+      })
+
+      result.valid = !!decodedToken
+
+      if (decodedToken && result.valid) {
+        result.user = decodedToken
+        result.tokenExpired = isTokenExpired
+      }
+    }
 
     return result
   }

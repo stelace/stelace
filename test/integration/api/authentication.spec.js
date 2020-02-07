@@ -11,6 +11,7 @@ const puppeteer = require('puppeteer-core')
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, refreshAccessToken, getSystemKey, getAccessToken } = require('../../auth')
 const { getObjectEvent, testEventMetadata } = require('../../util')
+const { encodeBase64 } = require('../../../src/util/encoding')
 
 const createOidcServer = require('../../../test/oauth/server')
 
@@ -1945,4 +1946,231 @@ test('fails to confirm the password reset if missing or invalid parameters', asy
   error = result.body
   t.true(error.message.includes('"resetToken" must be a string'))
   t.true(error.message.includes('"newPassword" must be a string'))
+})
+
+test('check authentication information', async (t) => {
+  // ////////////// //
+  // INITIALIZATION //
+  // ////////////// //
+
+  const { body: apiKeyObj } = await request(t.context.serverUrl)
+    .post('/api-keys')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      name: 'New custom api key',
+      roles: ['dev'],
+      type: 'custom'
+    })
+    .expect(200)
+
+  const getBasicAuthHeader = key => `Basic ${encodeBase64(`${key}:`)}`
+
+  const apiKey = apiKeyObj.key
+  const apiKeyAuthorization = getBasicAuthHeader(apiKey)
+
+  const { body: loginObj } = await request(t.context.serverUrl)
+    .post('/auth/login')
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .send({
+      username: 'user',
+      password: 'user'
+    })
+    .expect(200)
+
+  const decodedToken = jwt.decode(loginObj.accessToken)
+  const userAuthorization = `Stelace-v1 apiKey=${apiKey}, token=${loginObj.accessToken}`
+
+  const invalidApiKey = 'invalid_api_key'
+  const invalidApiKeyAuthorization = getBasicAuthHeader(invalidApiKey)
+  const invalidUserAuthorization1 = `Stelace-v1 apiKey=${invalidApiKey}, token=${loginObj.accessToken}`
+  const invalidUserAuthorization2 = `Stelace-v1 apiKey=${apiKey}, token=a.b.c`
+
+  function checkValidApiKey (apiKey, type = 'custom') {
+    t.is(typeof apiKey, 'object')
+    t.is(apiKey.type, type)
+    t.is(apiKey.env, t.context.env)
+    t.is(apiKey.platformId, t.context.platformId)
+    t.is(apiKey.hasValidFormat, true)
+  }
+
+  function checkValidToken (token, decoded = decodedToken) {
+    t.deepEqual(token, decoded)
+  }
+
+  // ///////////////// //
+  // PARAMETER API KEY //
+  // ///////////////// //
+
+  const { body: apiKeyCheck1 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({ apiKey })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(apiKeyCheck1.valid, true)
+  t.is(apiKeyCheck1.user, null)
+  t.is(apiKeyCheck1.tokenExpired, null)
+  checkValidApiKey(apiKeyCheck1.apiKey)
+
+  const { body: apiKeyCheck2 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({ apiKey: 'invalid_api_key' })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(apiKeyCheck2.valid, false)
+  t.is(apiKeyCheck2.apiKey, null)
+  t.is(apiKeyCheck2.user, null)
+  t.is(apiKeyCheck2.tokenExpired, null)
+
+  // /////////////////////// //
+  // PARAMETER AUTHORIZATION //
+  // /////////////////////// //
+
+  const { body: authorizationCheck1 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      authorization: apiKeyAuthorization
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(authorizationCheck1.valid, true)
+  t.is(authorizationCheck1.user, null)
+  t.is(authorizationCheck1.tokenExpired, null)
+  checkValidApiKey(authorizationCheck1.apiKey)
+
+  const { body: authorizationCheck2 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      authorization: invalidApiKeyAuthorization
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(authorizationCheck2.valid, false)
+  t.is(authorizationCheck2.apiKey, null)
+  t.is(authorizationCheck2.user, null)
+  t.is(authorizationCheck2.tokenExpired, null)
+
+  const { body: authorizationCheck3 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      authorization: userAuthorization
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(authorizationCheck3.valid, true)
+  t.is(authorizationCheck3.tokenExpired, false)
+  checkValidApiKey(authorizationCheck3.apiKey)
+  checkValidToken(authorizationCheck3.user)
+
+  const { body: authorizationCheck4 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      authorization: invalidUserAuthorization1
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(authorizationCheck4.valid, false)
+  t.is(authorizationCheck4.apiKey, null)
+  t.is(authorizationCheck4.user, null)
+  t.is(authorizationCheck4.tokenExpired, null)
+
+  const { body: authorizationCheck5 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      authorization: invalidUserAuthorization1
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(authorizationCheck5.valid, false)
+  t.is(authorizationCheck5.apiKey, null)
+  t.is(authorizationCheck5.user, null)
+  t.is(authorizationCheck5.tokenExpired, null)
+
+  const { body: authorizationCheck6 } = await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      authorization: invalidUserAuthorization2
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(200)
+
+  t.is(authorizationCheck6.valid, false)
+  t.is(authorizationCheck6.apiKey, null)
+  t.is(authorizationCheck6.user, null)
+  t.is(authorizationCheck6.tokenExpired, null)
+
+  // ///////////////////// //
+  // AUTHORIZATION HEADER  //
+  // ///////////////////// //
+
+  await request(t.context.serverUrl)
+    .post('/auth/check')
+    .set({
+      authorization: apiKeyAuthorization // authorization isn't used in this endpoint
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(400)
+
+  // /////////////////// //
+  // MULTIPLE PARAMETERS //
+  // /////////////////// //
+
+  await request(t.context.serverUrl)
+    .post('/auth/check')
+    .send({
+      apiKey,
+      authorization: userAuthorization
+    })
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(400)
+
+  // ////////////////// //
+  // MISSING PARAMETERS //
+  // ////////////////// //
+
+  await request(t.context.serverUrl)
+    .post('/auth/check')
+    .set({
+      authorization: apiKeyAuthorization
+    })
+    .expect(400)
+
+  // /////////////// //
+  // MISSING API KEY //
+  // /////////////// //
+
+  await request(t.context.serverUrl)
+    .post('/auth/check')
+    .expect(401)
 })
