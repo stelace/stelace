@@ -124,12 +124,7 @@ schemas['2019-05-20'].updatePrivate = {
           ).allow(null),
           replyTo: emailSchema.allow(null)
         }).allow(null)
-      }).allow(null),
-
-      instant: Joi.object().keys({
-        stripeSecretKey: Joi.string().allow('', null),
-        stripeWebhookSubscriptionSecret: Joi.string().allow('', null)
-      }).unknown()
+      }).allow(null)
     }).unknown()
   }).required()
 }
