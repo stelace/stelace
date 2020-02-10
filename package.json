@@ -117,7 +117,7 @@
     "lru-cache": "^5.1.1",
     "oidc-provider": "^6.19.2",
     "puppeteer-core": "^2.0.0",
-    "semver": "^7.1.1",
+    "semver": "^7.1.2",
     "socket.io-client": "^2.3.0",
     "sql-fixtures": "^1.0.1",
     "standard-version": "^7.1.0",
