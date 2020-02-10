@@ -386,10 +386,10 @@
     redis "^2.7.1"
     uuid "^3.3.2"
 
-"@elastic/elasticsearch@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-7.5.0.tgz#a54b07001e1a3912792bf9f34e6ec6a4fe0aef0c"
-  integrity sha512-ahzu451ppXepQMb3Zr8eFfWn8QR7yCcUWQjU1dS4X63Ctin0GNwwSPertt4WwDkm6MnZ25o932wAEgyMFLwzdA==
+"@elastic/elasticsearch@^7.5.1":
+  version "7.5.1"
+  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-7.5.1.tgz#2d44d7b7cc4f986560395fb7a582717f7bb20344"
+  integrity sha512-MoZ8/DgwYDf2KaOIVonvPv+ywslacCBHSQwzPjRRzUxs5TD4HTNbaxhhc2S8cjHA1XqT5i7zLepDXbvAYyYDeQ==
   dependencies:
     debug "^4.1.1"
     decompress-response "^4.2.0"
