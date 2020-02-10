@@ -4643,7 +4643,7 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.21.1, jose@^1.22.0:
+jose@^1.22.0:
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/jose/-/jose-1.22.0.tgz#8a97c20f33125d7f839a36581b1aedf33b5969f2"
   integrity sha512-9477X7qh6rZIvFRrf7z1jow6VWlgPIFrnKQO8vQr5NHVkbD7S7OwpF/jo8VEl1waxa9W7vRIXJq6eY+1hoYnfw==
@@ -5950,10 +5950,10 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-oidc-provider@^6.19.2:
-  version "6.19.2"
-  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.19.2.tgz#b343356d37ae46d5cfbf1ad79f58abbad7f9d738"
-  integrity sha512-pG85XTWtSZjnBf2HOJ8e8zBMf0JTXDklLr27QKfrBY6khh7kUSRwtOZdpUjaSwDm5ov7TXGArvbyqm95OW6lsQ==
+oidc-provider@^6.20.1:
+  version "6.20.1"
+  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.20.1.tgz#f8554d5f5f872f2515b43d7718ccca84e2f1161b"
+  integrity sha512-ehoYWBIL+kmyej24+YI8xEJl4PnUzrHp6k8UMOwX2CpRDN03D0yI2It7YcVtzYSJAYrEL8QDRhpasGGDLZOcZA==
   dependencies:
     "@koa/cors" "^3.0.0"
     "@types/koa" "^2.11.0"
@@ -5961,7 +5961,7 @@ oidc-provider@^6.19.2:
     debug "^4.1.1"
     ejs "^3.0.1"
     got "^9.6.0"
-    jose "^1.21.1"
+    jose "^1.22.0"
     jsesc "^2.5.2"
     koa "^2.11.0"
     koa-compose "^4.1.0"
