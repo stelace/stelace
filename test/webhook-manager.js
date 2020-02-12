@@ -144,6 +144,8 @@ class WebhookManager {
     if (this.isWebhookSimulated) {
       clearInterval(this.simulateWebhookInterval)
     } else {
+      await this.removeWebhook()
+
       // https://github.com/bubenshchykov/ngrok#disconnect
       await ngrok.disconnect(this.tunnelUrl)
     }
