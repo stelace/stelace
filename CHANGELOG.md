@@ -8,6 +8,24 @@ __API version `yyyy-mm-dd`__
 
 __Latest version: `2019-05-20`__
 
+## [1.0.0-beta.4](https://github.com/stelace/stelace/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2020-02-13)
+
+### BREAKING CHANGES
+
+* bump node version to v12.14 ([c620022](https://github.com/stelace/stelace/commit/c620022))
+* remove deprecated Stripe plugin ([c7d6e83](https://github.com/stelace/stelace/commit/c7d6e83)), replaced with new [stelace-stripe plugin](https://github.com/stelace/stelace-stripe)
+
+### Bug Fixes
+
+* broken commands after [#138](https://github.com/stelace/stelace/issues/138) ([8d22588](https://github.com/stelace/stelace/commit/8d22588))
+* ES6 path-to-regexp module ([1791088](https://github.com/stelace/stelace/commit/1791088))
+* missing `removeWebhook()` call after [#159](https://github.com/stelace/stelace/issues/159) ([611af91](https://github.com/stelace/stelace/commit/611af91))
+* obsolete package.json path ([1d6d354](https://github.com/stelace/stelace/commit/1d6d354))
+
+### Features
+
+* verify and decrypt authentication information ([#127](https://github.com/stelace/stelace/issues/127)) ([bad191c](https://github.com/stelace/stelace/commit/bad191c))
+
 ## [1.0.0-beta.3](https://github.com/stelace/stelace/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2019-10-25)
 
 ### Features
