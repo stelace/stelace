@@ -68,12 +68,12 @@ function getConnectionClient (connection = {}) {
 
   // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-configuration.html
   const params = {
-    node: `${protocol}:${host}${hidePort ? '' : ':' + port}`
+    node: `${protocol}://${host}${hidePort ? '' : ':' + port}`
   }
 
   if (useAuth) {
     params.auth = {
-      user,
+      username: user,
       password
     }
   }
