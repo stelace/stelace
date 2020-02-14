@@ -44,6 +44,13 @@ services:
     environment:
       - http.host=0.0.0.0
       - transport.host=127.0.0.1
+
+      # Enable authentication
+      # If `xpack.security.enabled` is omitted or false, Elasticsearch won't verify the sent credentials
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html#general-security-settings
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/built-in-users.html
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_SEARCH_PASSWORD}
     volumes:
       - es-v7.3.2-data:/usr/share/elasticsearch/data
 
