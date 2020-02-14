@@ -2,11 +2,16 @@
 
 All notable changes to Stelace server are documented in this file, using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-New [Stelace API versions](https://docs.api.stelace.com/?version=latest#7fc05fea-be99-413b-8dd9-660bba01b6e9) are denoted as such:
+## [1.0.0-beta.5](https://github.com/stelace/stelace/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2020-02-14)
 
-__API version `yyyy-mm-dd`__
+### BREAKING CHANGES
 
-__Latest version: `2019-05-20`__
+* enable Elasticsearch security feature ([80e5a92](https://github.com/stelace/stelace/commit/80e5a92))
+
+### Bug Fixes
+
+* incorrect Elasticsearch configuration after [#158](https://github.com/stelace/stelace/issues/158) ([bd90a64](https://github.com/stelace/stelace/commit/bd90a64))
+* enable Elasticsearch security feature ([80e5a92](https://github.com/stelace/stelace/commit/80e5a92))
 
 ## [1.0.0-beta.4](https://github.com/stelace/stelace/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2020-02-13)
 
