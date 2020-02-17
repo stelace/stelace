@@ -83,7 +83,7 @@
     "path-to-regexp": "^6.1.0",
     "pegjs": "0.10.0",
     "pg": "^7.18.1",
-    "redis": "^2.8.0",
+    "redis": "^3.0.2",
     "redlock": "^4.1.0",
     "restify": "^8.5.1",
     "restify-cors-middleware2": "~2.0.0",
