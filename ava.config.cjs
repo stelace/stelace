@@ -15,15 +15,12 @@ if (TESTS === 'integration') tests.push(...integrationTests)
 else if (TESTS === 'unit') tests.push(...unitTests)
 else tests = [...unitTests, ...integrationTests]
 
-export default () => ({
+module.exports = () => ({
   files: [
     ...tests,
     ...pluginTestsToIgnore
   ],
-  sources: [
-    '**/*.js',
-    '!node_modules/**/*'
-  ],
   serial: false,
-  cache: false
+  cache: false,
+  timeout: '30s'
 })
