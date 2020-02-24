@@ -2298,10 +2298,10 @@ elastic-apm-http-client@^9.3.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.3.0.tgz#c29fb42ab0bf2d2d7292ab2b650cfbe65b0ccbb6"
-  integrity sha512-rJNv/NSzJUaGfFkvHXRaNrFKTPCM4h3xt1OmHBq+foMqSnRBFU0o41HCkNtXw9JWKkMblxIknC3EHkwJ8yWiDA==
+elastic-apm-node@~3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.4.0.tgz#74c4d5e31a3d94a9e418668949bb8bdaeb56db1e"
+  integrity sha512-0TPNPd6NUIVtgN0/xM5+uR7wQaZWphYpv30WUAXwKzpwzEfqQw4bl95xzu4OatHAkjnxP9Oih+nLtz0+TFCiJg==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
@@ -2320,11 +2320,11 @@ elastic-apm-node@~3.3.0:
     object-filter-sequence "^1.0.0"
     object-identity-map "^1.0.2"
     original-url "^1.2.3"
-    read-pkg-up "^7.0.0"
+    read-pkg-up "^7.0.1"
     redact-secrets "^1.0.0"
     relative-microtime "^2.0.0"
     require-ancestors "^1.0.0"
-    require-in-the-middle "^5.0.2"
+    require-in-the-middle "^5.0.3"
     semver "^6.3.0"
     set-cookie-serde "^1.0.0"
     shallow-clone-shim "^2.0.0"
@@ -6422,10 +6422,10 @@ read-pkg-up@^3.0.0:
     find-up "^2.0.0"
     read-pkg "^3.0.0"
 
-read-pkg-up@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/read-pkg-up/-/read-pkg-up-7.0.0.tgz#3f3e53858ec5ae5e6fe14bc479da0a7c98f85ff3"
-  integrity sha512-t2ODkS/vTTcRlKwZiZsaLGb5iwfx9Urp924aGzVyboU6+7Z2i6eGr/G1Z4mjvwLLQV3uFOBKobNRGM3ux2PD/w==
+read-pkg-up@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/read-pkg-up/-/read-pkg-up-7.0.1.tgz#f3a6135758459733ae2b95638056e1854e7ef507"
+  integrity sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==
   dependencies:
     find-up "^4.1.0"
     read-pkg "^5.2.0"
@@ -6711,10 +6711,10 @@ require-directory@^2.1.1:
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
   integrity sha1-jGStX9MNqxyXbiNE/+f3kqam30I=
 
-require-in-the-middle@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/require-in-the-middle/-/require-in-the-middle-5.0.2.tgz#ce3593007a61583b39ccdcd2c167a2a326c670b2"
-  integrity sha512-l2r6F9i6t5xp4OE9cw/daB/ooQKHZOOW1AYPADhEvk/Tj/THJDS8gePp76Zyuht6Cj57a0KL+eHK5Dyv7wZnKA==
+require-in-the-middle@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/require-in-the-middle/-/require-in-the-middle-5.0.3.tgz#ef8bfd771760db573bc86d1341d8ae411a04c600"
+  integrity sha512-p/ICV8uMlqC4tjOYabLMxAWCIKa0YUQgZZ6KDM0xgXJNgdGQ1WmL2A07TwmrZw+wi6ITUFKzH5v3n+ENEyXVkA==
   dependencies:
     debug "^4.1.1"
     module-details-from-path "^1.0.3"
