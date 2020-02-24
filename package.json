@@ -73,7 +73,7 @@
     "lodash": "4.17.15",
     "mobitel-iso-4217-currencies": "^1.1.1",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.27",
+    "moment-timezone": "^0.5.28",
     "ms": "^2.1.2",
     "ngrok": "^3.2.7",
     "nodemailer": "^6.4.3",
