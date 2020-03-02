@@ -10,7 +10,7 @@ const users = [
     name: 'OpenID user'
   },
   {
-    id: 123456789,
+    id: '123456789',
     email: 'oauth2@github.com',
     email_verified: false,
     name: 'Github user',
