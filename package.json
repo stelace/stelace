@@ -90,7 +90,7 @@
     "restify-cors-middleware2": "~2.0.0",
     "roarr": "^2.15.2",
     "serialize-error": "^5.0.0",
-    "sinon": "^8.1.1",
+    "sinon": "^9.0.0",
     "socket.io": "^2.3.0",
     "socket.io-redis": "^5.2.0",
     "stelace-util-keys": "https://github.com/stelace/stelace-util-keys.git#3.0.1",
