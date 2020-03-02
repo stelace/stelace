@@ -22,7 +22,7 @@ let authorizationServerUrl
 let authorizationApp
 
 const oauthSSOData = {
-  userId: 123456789, // integer ID
+  userId: '123456789',
   name: 'Github user',
   email: 'oauth2@github.com'
 }
