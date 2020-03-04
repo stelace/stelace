@@ -205,6 +205,16 @@ jobs:
               run api npm run test:ci:integration | \
               grep -Ei '^[[:space:]<]' | grep -Ev '^[[:space:]]*$' > \
               /tmp/test-results/integration-test-results.xml
+      - run:
+          name: Check seeding works correctly
+          no_output_timeout: 1m
+          command: |
+            # Only one job must execute the following command
+            # Otherwise this will fail for other jobs because there is only one file
+            if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
+              docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
+              run api npm run seed:ci
+            fi
       - run: docker logout
       - store_artifacts:
           path: /tmp/test-results
