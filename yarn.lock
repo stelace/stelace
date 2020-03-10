@@ -7341,10 +7341,10 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sql-fixtures@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/sql-fixtures/-/sql-fixtures-1.0.1.tgz#601d5218caf324d4d18b317b60c660831a6f34b9"
-  integrity sha512-ETCm4sj5LEbMJfrqNjHnxqsKP6W8HZPxNbr1PDhaMSKToz20H3dihb+F9tqzyb8ZSA6LzsFjND85aHBx7tZ08w==
+sql-fixtures@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/sql-fixtures/-/sql-fixtures-1.0.2.tgz#775a441fffb2ead68b793c8218634b08c18b8495"
+  integrity sha512-tSnYVvZbilQPBxdOTiEnEoFjEVsQOCW11jcua4jvLnNUdLkNKAoTLTwHepWVGdJ1q0cGSv+gg14HyjRyhFic9w==
   dependencies:
     bluebird "3.2.2"
     knex "^0.20.3"
