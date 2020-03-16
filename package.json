@@ -50,7 +50,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.6.0",
     "@hapi/bourne": "^2.0.0",
-    "@hapi/joi": "^17.1.0",
+    "@hapi/joi": "^17.1.1",
     "aws-param-store": "^3.2.0",
     "aws-sdk": "^2.635.0",
     "bcrypt": "^4.0.1",
