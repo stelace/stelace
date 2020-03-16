@@ -2294,10 +2294,10 @@ elastic-apm-http-client@^9.3.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.4.0.tgz#74c4d5e31a3d94a9e418668949bb8bdaeb56db1e"
-  integrity sha512-0TPNPd6NUIVtgN0/xM5+uR7wQaZWphYpv30WUAXwKzpwzEfqQw4bl95xzu4OatHAkjnxP9Oih+nLtz0+TFCiJg==
+elastic-apm-node@~3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.5.0.tgz#af8b6533d870269a1f48f67d81d4c2ca5a79390e"
+  integrity sha512-s0masF1sJSrUFwydd2Nrk888BRA/YSxUvQFSrO2Pbd69+iqnjC9Yd9yQvAwfaI0HF4ViVqDXqmmZ1l3FqYgb1Q==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
@@ -2307,6 +2307,7 @@ elastic-apm-node@~3.4.0:
     core-util-is "^1.0.2"
     elastic-apm-http-client "^9.3.0"
     end-of-stream "^1.4.4"
+    error-stack-parser "^2.0.6"
     fast-safe-stringify "^2.0.7"
     http-headers "^3.0.2"
     http-request-to-url "^1.0.0"
@@ -2434,6 +2435,13 @@ error-inject@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/error-inject/-/error-inject-1.0.0.tgz#e2b3d91b54aed672f309d950d154850fa11d4f37"
   integrity sha1-4rPZG1Su1nLzCdlQ0VSFD6EdTzc=
+
+error-stack-parser@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/error-stack-parser/-/error-stack-parser-2.0.6.tgz#5a99a707bd7a4c58a797902d48d82803ede6aad8"
+  integrity sha512-d51brTeqC+BHlwF0BhPtcYgF5nlzf9ZZ0ZIUQNZpc9ZB9qw5IJ2diTrBY9jlCJkTLITYPjmiX6OWCwH+fuyNgQ==
+  dependencies:
+    stackframe "^1.1.1"
 
 es-abstract@^1.12.0, es-abstract@^1.7.0:
   version "1.13.0"
@@ -7386,6 +7394,11 @@ stack-utils@^2.0.1:
   integrity sha512-BvBTnHGm8boe+HiJFqP19ywEsGlfQAKqW78pbfvUuzCbUuxPPUyLrH5dYFY+Xn9IpLY3b5ZmMcl8jAqXB4wddg==
   dependencies:
     escape-string-regexp "^2.0.0"
+
+stackframe@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/stackframe/-/stackframe-1.1.1.tgz#ffef0a3318b1b60c3b58564989aca5660729ec71"
+  integrity sha512-0PlYhdKh6AfFxRyK/v+6/k+/mMfyiEBbTM5L94D0ZytQnJ166wuwoTYLHFWGbs2dpA8Rgq763KGWmN1EQEYHRQ==
 
 stackman@^4.0.0:
   version "4.0.0"
