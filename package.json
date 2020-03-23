@@ -69,7 +69,7 @@
     "intl-messageformat": "^4.4.0",
     "jose": "^1.25.0",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.20.11",
+    "knex": "^0.20.13",
     "lodash": "4.17.15",
     "mobitel-iso-4217-currencies": "^1.1.1",
     "moment": "^2.24.0",

@@ -4447,10 +4447,10 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.2.tgz#01146b36a6218e64e58f3a8d66de5d7fc6f6d051"
   integrity sha512-s5kLOcnH0XqDO+FvuaLX8DDjZ18CGFk7VygH40QoKPUQhW4e2rvM0rwUq0t8IQDOwYSeLK01U90OjzBTme2QqA==
 
-knex@^0.20.11, knex@^0.20.3:
-  version "0.20.11"
-  resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.11.tgz#c25167cdd562b08252a53b833b91cb6436e76a35"
-  integrity sha512-8H3dUVSQOxDRVxRd9YcfL3Xli5BdblYy8Yg4hGSaII2XHEqfGhWrcMxuL2hogBuQ5CL85Bzp+dUEeRCHb94fCw==
+knex@^0.20.13, knex@^0.20.3:
+  version "0.20.13"
+  resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.13.tgz#056c310d963f7efce1b3c7397576add1323f1146"
+  integrity sha512-YVl//Te0G5suc+d9KyeI6WuhtgVlxu6HXYQB+WqrccFkSZAbHqlqZlUMogYG3UoVq69c3kiFbbxgUNkrO0PVfg==
   dependencies:
     colorette "1.1.0"
     commander "^4.1.1"
