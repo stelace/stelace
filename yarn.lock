@@ -8214,10 +8214,10 @@ virgen-acl@^0.0.22:
   resolved "https://registry.yarnpkg.com/virgen-acl/-/virgen-acl-0.0.22.tgz#24246cd60ae8d917a817a7865a08624dfad49ee8"
   integrity sha1-JCRs1gro2ReoF6eGWghiTfrUnug=
 
-vm2@^3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.0.tgz#00fd8c84bffcef3ce12df29a8db39171f4a485a2"
-  integrity sha512-Bsnvxu50AryMYOsarSAuFmmAQO5X/H5fF/VCVkcDKTj3slrpHQuepUP45U90aaqjk4OdNmlmHfoF6oou3aUJRw==
+vm2@^3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.1.tgz#11b9390a07745fcfb0b682078e84fcad147aae97"
+  integrity sha512-cLW0IgjWO9i4+kZ55mH7MWTmOHgAz1/lxGYpsEJa4KVB/obJZB7c/oeZGsw96srpVFJD4HIRqKc7HheO82moyA==
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"
