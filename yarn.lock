@@ -3860,10 +3860,10 @@ interpret@^2.0.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.0.0.tgz#b783ffac0b8371503e9ab39561df223286aa5433"
   integrity sha512-e0/LknJ8wpMMhTiWcjivB+ESwIuvHnBSlBbmP/pSb8CQJldoj1p2qv7xGZ/+BtbTziYRFSz8OsvdbiX45LtYQA==
 
-intl-format-cache@^4.2.24:
-  version "4.2.24"
-  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.24.tgz#d6a264430553db233aa444acefc4150762d603e4"
-  integrity sha512-eea8rHu7ipmUilSd9+MCglgR07E+xJXmTYVFODmeLKsO3Psr/OrixDr6vWprz1whli7cwRdSc1/jHVBxrd+QBw==
+intl-format-cache@^4.2.25:
+  version "4.2.25"
+  resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-4.2.25.tgz#f148fe96e94f5de6f2aa009c85d2ffe22885b7f4"
+  integrity sha512-ZwHX7n/Inusc8j/8+Ng6Ik4xHmDkSxOk/kT0KOnEqxpIQQ/2o9TV5aUeorf+RbYA84yLawOcBy4SRZAHSTNTAA==
 
 intl-messageformat-parser@^1.8.1:
   version "1.8.1"
