@@ -101,7 +101,7 @@
     "vm2": "^3.9.1"
   },
   "devDependencies": {
-    "ava": "~3.7.1",
+    "ava": "~3.8.0",
     "body-parser": "^1.19.0",
     "chalk": "^4.0.0",
     "commander": "^5.1.0",
