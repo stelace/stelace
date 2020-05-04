@@ -8176,10 +8176,10 @@ virgen-acl@^0.0.22:
   resolved "https://registry.yarnpkg.com/virgen-acl/-/virgen-acl-0.0.22.tgz#24246cd60ae8d917a817a7865a08624dfad49ee8"
   integrity sha1-JCRs1gro2ReoF6eGWghiTfrUnug=
 
-vm2@^3.9.1:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.1.tgz#11b9390a07745fcfb0b682078e84fcad147aae97"
-  integrity sha512-cLW0IgjWO9i4+kZ55mH7MWTmOHgAz1/lxGYpsEJa4KVB/obJZB7c/oeZGsw96srpVFJD4HIRqKc7HheO82moyA==
+vm2@^3.9.2:
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.2.tgz#a4085d2d88a808a1b3c06d5478c2db3222a9cc30"
+  integrity sha512-nzyFmHdy2FMg7mYraRytc2jr4QBaUY3TEGe3q3bK8EgS9WC98wxn2jrPxS/ruWm+JGzrEIIeufKweQzVoQEd+Q==
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"
