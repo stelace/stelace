@@ -4318,10 +4318,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.23.0, jose@^1.25.0, jose@^1.25.2:
-  version "1.26.1"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.26.1.tgz#3d5f7a89d0e050563b5500a350b3ab8290500482"
-  integrity sha512-2WQu8SezuTI/1FqvzEJGNLiSojGyFwnZK562rwoz2yx02Ad8k0IQ37bt7UaF/oyQiyn7he4VFfQnOAB5EHHUVw==
+jose@^1.23.0, jose@^1.25.2, jose@^1.27.0:
+  version "1.27.0"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.27.0.tgz#2b2b70978efdeeb0a0804e930a07992aede1ab91"
+  integrity sha512-SxYPCM9pWDaK070CXbxgL4ktVzLlE0yJxevDJtbWxv2WMQwYfpBZLYlG8PhChsiOfOXp6FrceRgTuZh1vZeDlg==
   dependencies:
     "@panva/asn1.js" "^1.0.0"
 
@@ -8226,7 +8226,7 @@ uuid@^3.3.2, uuid@^3.3.3:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
-uuid@^7.0.1, uuid@^7.0.2:
+uuid@^7.0.1, uuid@^7.0.2, uuid@^7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
   integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
