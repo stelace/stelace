@@ -48,7 +48,7 @@
     "release": "standard-version"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^7.6.1",
+    "@elastic/elasticsearch": "^7.7.1",
     "@hapi/bourne": "^2.0.0",
     "@hapi/joi": "^17.1.1",
     "aws-param-store": "^3.2.0",
