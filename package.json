@@ -65,7 +65,7 @@
     "handlebars": "^4.7.6",
     "http-errors": "^1.7.3",
     "intl": "^1.2.5",
-    "intl-format-cache": "^4.2.27",
+    "intl-format-cache": "^4.2.28",
     "intl-messageformat": "^4.4.0",
     "jose": "^1.27.0",
     "jsonwebtoken": "^8.5.1",
