@@ -332,7 +332,6 @@ function start ({ communication, isSystem }) {
                       multi_match: {
                         fields: ['allContent'],
                         query,
-                        cutoff_frequency: 0.05,
                         fuzziness: 'AUTO',
                         prefix_length: 3,
                         minimum_should_match: '70%' // 1 of 2 tokens, 2 of 3/4, 3 of 5, 4 of 6/7
@@ -359,7 +358,6 @@ function start ({ communication, isSystem }) {
             match: {
               allContent: {
                 query,
-                cutoff_frequency: 0.05,
                 fuzziness: 'AUTO',
                 prefix_length: 3
               },
