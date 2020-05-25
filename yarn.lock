@@ -2311,10 +2311,10 @@ ejs@^3.0.1:
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-3.0.1.tgz#30c8f6ee9948502cc32e85c37a3f8b39b5a614a5"
   integrity sha512-cuIMtJwxvzumSAkqaaoGY/L6Fc/t6YvoP9/VIaK0V/CyqKLEQ8sqODmYfy/cjXEdZ9+OOL8TecbJu+1RsofGDw==
 
-elastic-apm-http-client@^9.3.0:
-  version "9.3.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.3.0.tgz#fcbb3b4f2af209dc304ac496438d381ef19b9b44"
-  integrity sha512-vxySk7S1oPN7uPcjv0+GLs3Y1cmN7WDVTEHBJixEDg+L6DJMysgxIGst+32Nc0ZmeU5NIjV/Ds9b+6S/yXRdIQ==
+elastic-apm-http-client@^9.4.0:
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.4.0.tgz#1c985923369f0c511b94d5c20f6d13aef588cb55"
+  integrity sha512-/jOZDyfzLNwHrNkPAI+AspLg0TXYXODWT+I1eoAWRCB7gP1vKvzUQAsP5iChodVqCbAj1eUNXB0KrvM6b07Thw==
   dependencies:
     breadth-filter "^2.0.0"
     container-info "^1.0.1"
@@ -2326,10 +2326,10 @@ elastic-apm-http-client@^9.3.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.5.0.tgz#af8b6533d870269a1f48f67d81d4c2ca5a79390e"
-  integrity sha512-s0masF1sJSrUFwydd2Nrk888BRA/YSxUvQFSrO2Pbd69+iqnjC9Yd9yQvAwfaI0HF4ViVqDXqmmZ1l3FqYgb1Q==
+elastic-apm-node@~3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.6.1.tgz#bce1bca37ff92db6c36df20c7fe6c51ea865c8e6"
+  integrity sha512-4BdcLtlGm1oJtyKO0EVudVp8zyyf+ueIamdIaYYPJoImMrHGi5MhA/xrYrDwxHc3O02xdtII6YPR5XOblkU+Ng==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
@@ -2337,7 +2337,7 @@ elastic-apm-node@~3.5.0:
     console-log-level "^1.4.1"
     cookie "^0.4.0"
     core-util-is "^1.0.2"
-    elastic-apm-http-client "^9.3.0"
+    elastic-apm-http-client "^9.4.0"
     end-of-stream "^1.4.4"
     error-stack-parser "^2.0.6"
     fast-safe-stringify "^2.0.7"
@@ -2358,7 +2358,7 @@ elastic-apm-node@~3.5.0:
     set-cookie-serde "^1.0.0"
     shallow-clone-shim "^2.0.0"
     sql-summary "^1.0.1"
-    stackman "^4.0.0"
+    stackman "^4.0.1"
     traceparent "^1.0.0"
     unicode-byte-truncate "^1.0.0"
 
@@ -2451,10 +2451,10 @@ equal-length@^1.0.0:
   resolved "https://registry.yarnpkg.com/equal-length/-/equal-length-1.0.1.tgz#21ca112d48ab24b4e1e7ffc0e5339d31fdfc274c"
   integrity sha1-IcoRLUirJLTh5//A5TOdMf38J0w=
 
-error-callsites@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/error-callsites/-/error-callsites-2.0.2.tgz#55c17a9490a85d72158563f13dc078851ca05b1e"
-  integrity sha512-s35ELWAKAY9oPqnnfP1V4AnasWV0r2ihaLlpsCGrykZgcR/YKsMXV3q8Ap4Mmp8U90VxJqxKJE5Io0IkkRhJIg==
+error-callsites@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/error-callsites/-/error-callsites-2.0.3.tgz#c9278de0d7d4b4861150af295bb92891393ff24a"
+  integrity sha512-v036z4IEffZFE5kBkV5/F2MzhLnG0vuDyN+VXpzCf4yWXvX/1WJCI0A+TGTr8HWzBfCw5k8gr9rwAo09V+obTA==
 
 error-ex@^1.2.0:
   version "1.3.2"
@@ -7510,15 +7510,15 @@ stackframe@^1.1.1:
   resolved "https://registry.yarnpkg.com/stackframe/-/stackframe-1.1.1.tgz#ffef0a3318b1b60c3b58564989aca5660729ec71"
   integrity sha512-0PlYhdKh6AfFxRyK/v+6/k+/mMfyiEBbTM5L94D0ZytQnJ166wuwoTYLHFWGbs2dpA8Rgq763KGWmN1EQEYHRQ==
 
-stackman@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/stackman/-/stackman-4.0.0.tgz#3ccdc8682fee36373ed2492dc3dad546eb44647d"
-  integrity sha512-JHhUxla4KkXVzPRJoBdIolVbXWBv2qIUe/XdsH9/fkXCgsIdFhCny91tqy9Zld66ROj+dZ0E54l/I3vL3y3Uiw==
+stackman@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/stackman/-/stackman-4.0.1.tgz#b5709446f078db9b9dadbb317f296224d9a35b5b"
+  integrity sha512-lntIge3BFEElgvpZT2ld5f4U+mF84fRtJ8vA3ymUVx1euVx43ZMkd09+5RWW4FmvYDFhZwPh1gvtdsdnJyF4Fg==
   dependencies:
     after-all-results "^2.0.0"
     async-cache "^1.1.0"
     debug "^4.1.1"
-    error-callsites "^2.0.2"
+    error-callsites "^2.0.3"
     load-source-map "^1.0.0"
 
 standard-version@^8.0.0:
