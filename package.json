@@ -52,7 +52,7 @@
     "@hapi/bourne": "^2.0.0",
     "@hapi/joi": "^17.1.1",
     "aws-param-store": "^3.2.0",
-    "aws-sdk": "^2.678.0",
+    "aws-sdk": "^2.683.0",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.3",
