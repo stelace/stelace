@@ -20,12 +20,13 @@ Open-source backend and API stack empowering dev teams to <strong>build, run and
 
 Includes:
 
-- [Search & matchmaking](https://stelace.com/docs/search/): storing and searching any kind of [_Asset_](https://stelace.com/docs/assets/) relevant to your platform, from cars and housing to profiles or skills.
+- [Search & matchmaking](https://stelace.com/docs/search/): storing and searching any kind of [_Asset_](https://stelace.com/docs/assets/) relevant to your platform, from products, cars and housing to profiles or skills.
 - [User](https://stelace.com/docs/users) authentication, social login and Enterprise SSO
-- Automation with [Events](https://stelace.com/docs/command/events) and [Workflows](https://stelace.com/docs/command/workflows), bringing _serverless_ logic to any app
 - Customizable [Transaction](https://stelace.com/docs/transactions) process
+- Countless integrations with [Events](https://stelace.com/docs/command/events) and [Webhooks](https://stelace.com/docs/command/webhooks.html)
+- Business automation with [Workflows](https://stelace.com/docs/command/workflows)
 - [Content management API](https://stelace.com/docs/content) (headless CMS)
-- [Plugin system](docs/plugins.md) to build literally anything
+- Server [Plugin system](docs/plugins.md) to build literally anything
 - … and [even more (docs)](https://stelace.com/docs)
 
 For a full-stack experience, you can get started [here](https://stelace.com/docs/getting-started) with open-source Vue.js front-end templates.
@@ -39,7 +40,7 @@ For a full-stack experience, you can get started [here](https://stelace.com/docs
 
 ## Stelace as-a-service
 
-The easiest way to deploy and leverage Stelace is with our official [managed infrastructure](https://stelace.com/pricing). You can have a fresh platform backend up and running in minutes with high-availability deployment, automatic scaling, built-in test and live environments and admin dashboard. SLA and premium support are also available for [Enterprise customers](https://stelace.com/contact).
+The easiest way to deploy and leverage Stelace is with our official [managed infrastructure](https://stelace.com/pricing). You can have a fresh platform backend up and running in minutes with high-availability deployment, automatic scaling, built-in test and live environments and admin dashboard. SLA, dedicated infrastructure and premium support are also available for [Enterprise customers](https://stelace.com/contact).
 
 ---
 
