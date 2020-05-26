@@ -13,8 +13,8 @@ function getLinesFromTransactions (transactions) {
     lines.push({
       transactionId: transaction.id,
       reversal: false,
-      senderId: transaction.takerId,
-      senderAmount: transactionPricing.takerAmount,
+      payerId: transaction.takerId,
+      payerAmount: transactionPricing.takerAmount,
       receiverId: null,
       receiverAmount: 0,
       platformAmount: transactionPricing.takerFees || 0,
@@ -30,8 +30,8 @@ function getLinesFromTransactions (transactions) {
     lines.push({
       transactionId: transaction.id,
       reversal: false,
-      senderId: null,
-      senderAmount: 0,
+      payerId: null,
+      payerAmount: 0,
       receiverId: transaction.ownerId,
       receiverAmount: transactionPricing.ownerAmount,
       platformAmount: transactionPricing.ownerFees || 0,
@@ -46,21 +46,21 @@ function getLinesFromTransactions (transactions) {
 
 function getInformationFromLines (lines) {
   const result = {
-    senderId: null,
+    payerId: null,
     receiverIds: [],
     transactionIds: [],
     currency: null,
-    totalSenderAmount: 0,
+    totalPayerAmount: 0,
     totalReceiverAmount: 0,
     totalPlatformAmount: 0,
-    totalReversedSenderAmount: 0,
+    totalReversedPayerAmount: 0,
     totalReversedReceiverAmount: 0,
     totalReversedPlatformAmount: 0
   }
 
   lines.forEach(line => {
-    if (!result.senderId) {
-      result.senderId = line.senderId
+    if (!result.payerId) {
+      result.payerId = line.payerId
     }
     if (!result.currency) {
       result.currency = line.currency
@@ -71,11 +71,11 @@ function getInformationFromLines (lines) {
     if (line.transactionId) {
       result.transactionIds.push(line.transactionId)
     }
-    if (typeof line.senderAmount === 'number') {
+    if (typeof line.payerAmount === 'number') {
       if (line.reversal) {
-        result.totalReversedSenderAmount += line.senderAmount
+        result.totalReversedPayerAmount += line.payerAmount
       } else {
-        result.totalSenderAmount += line.senderAmount
+        result.totalPayerAmount += line.payerAmount
       }
     }
     if (typeof line.receiverAmount === 'number') {
@@ -102,21 +102,21 @@ function getInformationFromLines (lines) {
 
 function getInformationFromMoves (moves) {
   const result = {
-    senderId: null,
+    payerId: null,
     receiverIds: [],
     transactionIds: [],
     currency: null,
-    totalSenderAmount: 0,
+    totalPayerAmount: 0,
     totalReceiverAmount: 0,
     totalPlatformAmount: 0,
-    totalReversedSenderAmount: 0,
+    totalReversedPayerAmount: 0,
     totalReversedReceiverAmount: 0,
     totalReversedPlatformAmount: 0
   }
 
   moves.forEach(move => {
-    if (!result.senderId) {
-      result.senderId = move.senderId
+    if (!result.payerId) {
+      result.payerId = move.payerId
     }
     if (!result.currency) {
       result.currency = move.currency
@@ -127,11 +127,11 @@ function getInformationFromMoves (moves) {
     if (move.transactionId) {
       result.transactionIds.push(move.transactionId)
     }
-    if (typeof move.senderAmount === 'number') {
+    if (typeof move.payerAmount === 'number') {
       if (move.reversal) {
-        result.totalReversedSenderAmount += move.senderAmount
+        result.totalReversedPayerAmount += move.payerAmount
       } else {
-        result.totalSenderAmount += move.senderAmount
+        result.totalPayerAmount += move.payerAmount
       }
     }
     if (typeof move.receiverAmount === 'number') {
@@ -159,11 +159,11 @@ function getInformationFromMoves (moves) {
 function getOrderMeta (order, { moves, linesInformation, movesInformation }) {
   const meta = {}
 
-  const amountDue = linesInformation.totalSenderAmount
-  const amountPaid = movesInformation.totalSenderAmount
+  const amountDue = linesInformation.totalPayerAmount
+  const amountPaid = movesInformation.totalPayerAmount
   const amountRemaining = amountDue - amountPaid
   const currency = linesInformation.currency
-  const senderId = linesInformation.senderId
+  const payerId = linesInformation.payerId
   const paymentAttempted = !!moves.length
 
   if (order.amountDue !== amountDue) {
@@ -178,8 +178,8 @@ function getOrderMeta (order, { moves, linesInformation, movesInformation }) {
   if (order.currency !== currency) {
     meta.currency = currency
   }
-  if (order.senderId !== senderId) {
-    meta.senderId = senderId
+  if (order.payerId !== payerId) {
+    meta.payerId = payerId
   }
   if (order.paymentAttempted !== paymentAttempted) {
     meta.paymentAttempted = paymentAttempted

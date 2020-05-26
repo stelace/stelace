@@ -113,7 +113,7 @@ function start ({ communication }) {
       nbResultsPerPage,
 
       id,
-      senderId,
+      payerId,
       receiverId,
       transactionId
     } = req
@@ -131,9 +131,9 @@ function start ({ communication }) {
           transformValue: 'array',
           query: 'inList'
         },
-        sendersIds: {
-          dbField: 'senderId',
-          value: senderId,
+        payersIds: {
+          dbField: 'payerId',
+          value: payerId,
           transformValue: 'array',
           query: 'inList'
         },
@@ -154,14 +154,14 @@ function start ({ communication }) {
       },
       beforeQueryFn: async ({ values }) => {
         const {
-          sendersIds,
+          payersIds,
           receiverId
         } = values
 
         if (!req._matchedPermissions['order:list:all']) {
           const isAllowed = currentUserId &&
             (
-              (sendersIds && sendersIds.length === 1 && sendersIds.includes(currentUserId)) ||
+              (payersIds && payersIds.length === 1 && payersIds.includes(currentUserId)) ||
               (receiverId && receiverId === currentUserId)
             )
 
@@ -367,8 +367,8 @@ function start ({ communication }) {
       'orderId',
       'transactionId',
       'reversal',
-      'senderId',
-      'senderAmount',
+      'payerId',
+      'payerAmount',
       'receiverId',
       'receiverAmount',
       'platformAmount',
@@ -386,7 +386,7 @@ function start ({ communication }) {
       reversal
     } = payload
     let {
-      senderId
+      payerId
     } = payload
 
     const knex = Order.knex()
@@ -411,21 +411,21 @@ function start ({ communication }) {
         if (!transaction) {
           throw createError(422, 'Transaction not found')
         }
-        if (senderId && transaction.takerId !== senderId) {
-          throw createError(422, `The sender (${senderId}) doesn't match the transaction taker (${transaction.takerId})`)
+        if (payerId && transaction.takerId !== payerId) {
+          throw createError(422, `The payer (${payerId}) doesn't match the transaction taker (${transaction.takerId})`)
         }
-        if (!senderId && typeof senderAmount === 'number') {
-          senderId = transaction.takerId
-          payload.senderId = senderId
+        if (!payerId && typeof payerAmount === 'number') {
+          payerId = transaction.takerId
+          payload.payerId = payerId
         }
       }
 
-      if (!order.senderId && !senderId) {
-        const msg = 'There is no senderId associated with the order. Please create an order line with a senderId.'
+      if (!order.payerId && !payerId) {
+        const msg = 'There is no payerId associated with the order. Please create an order line with a payerId.'
         throw createError(422, msg)
       }
-      if (senderId && senderId !== order.senderId) {
-        const msg = `The provided sender (${senderId}) doesn't match with the order's sender (${order.senderId})`
+      if (payerId && payerId !== order.payerId) {
+        const msg = `The provided payer (${payerId}) doesn't match with the order's payer (${order.payerId})`
         throw createError(422, msg)
       }
 
@@ -448,8 +448,8 @@ function start ({ communication }) {
         updatedDate: now,
         transactionId: null,
         reversal: false,
-        senderId: null,
-        senderAmount: null,
+        payerId: null,
+        payerAmount: null,
         receiverId: null,
         receiverAmount: null,
         platformAmount: null,
@@ -487,8 +487,8 @@ function start ({ communication }) {
     const orderLineId = req.orderLineId
 
     const fields = [
-      'senderId',
-      'senderAmount',
+      'payerId',
+      'payerAmount',
       'receiverId',
       'receiverAmount',
       'platformAmount',
@@ -499,8 +499,8 @@ function start ({ communication }) {
     const payload = _.pick(req, fields)
 
     const {
-      senderId,
-      senderAmount,
+      payerId,
+      payerAmount,
       receiverId,
       receiverAmount,
       platformAmount,
@@ -533,8 +533,8 @@ function start ({ communication }) {
         throw createError(403)
       }
 
-      const updatingCoreData = typeof senderId !== 'undefined' ||
-        typeof senderAmount !== 'undefined' ||
+      const updatingCoreData = typeof payerId !== 'undefined' ||
+        typeof payerAmount !== 'undefined' ||
         typeof receiverId !== 'undefined' ||
         typeof receiverAmount !== 'undefined' ||
         typeof platformAmount !== 'undefined'
@@ -557,8 +557,8 @@ function start ({ communication }) {
 
       if (updatingCoreData) {
         const coreValues = {
-          senderId,
-          senderAmount,
+          payerId,
+          payerAmount,
           receiverId,
           receiverAmount,
           platformAmount
@@ -575,11 +575,11 @@ function start ({ communication }) {
       const linesInformation = getInformationFromLines(newLines)
 
       if (updatingCoreData) {
-        if (!linesInformation.senderId) {
-          throw createError(422, 'The attribute senderId is missing in the order lines')
+        if (!linesInformation.payerId) {
+          throw createError(422, 'The attribute payerId is missing in the order lines')
         }
-        if (senderId && senderId !== linesInformation.senderId) {
-          throw createError(422, 'The specified senderId does not match with the order one')
+        if (payerId && payerId !== linesInformation.payerId) {
+          throw createError(422, 'The specified payerId does not match with the order one')
         }
       }
 
@@ -638,8 +638,8 @@ function start ({ communication }) {
       'orderId',
       'transactionId',
       'reversal',
-      'senderId',
-      'senderAmount',
+      'payerId',
+      'payerAmount',
       'receiverId',
       'receiverAmount',
       'platformAmount',
@@ -653,7 +653,7 @@ function start ({ communication }) {
 
     const {
       currency,
-      senderId,
+      payerId,
       receiverId,
       transactionId,
       orderId
@@ -680,8 +680,8 @@ function start ({ communication }) {
       if (transactionId && !linesInformation.transactionIds.includes(transactionId)) {
         throw createError(422, `The provided transactionId (${transactionId}) doesn't match any order line`)
       }
-      if (senderId && senderId !== order.senderId) {
-        const msg = `The provided sender (${senderId}) doesn't match with the order's sender (${order.senderId})`
+      if (payerId && payerId !== order.payerId) {
+        const msg = `The provided payer (${payerId}) doesn't match with the order's payer (${order.payerId})`
         throw createError(422, msg)
       }
       if (receiverId && !linesInformation.receiverIds.includes(receiverId)) {
@@ -703,8 +703,8 @@ function start ({ communication }) {
         updatedDate: now,
         transactionId: null,
         reversal: false,
-        senderId: null,
-        senderAmount: null,
+        payerId: null,
+        payerAmount: null,
         receiverId: null,
         receiverAmount: null,
         platformAmount: null,
@@ -713,8 +713,8 @@ function start ({ communication }) {
       }, payload)
 
       if (newOrderMove.real) {
-        if (typeof newOrderMove.real.senderAmount === 'undefined') {
-          newOrderMove.real.senderAmount = null
+        if (typeof newOrderMove.real.payerAmount === 'undefined') {
+          newOrderMove.real.payerAmount = null
         }
         if (typeof newOrderMove.real.receiverAmount === 'undefined') {
           newOrderMove.real.receiverAmount = null
@@ -802,8 +802,8 @@ function start ({ communication }) {
         if (real === null) {
           newOrderMove.real = null
         } else {
-          if (typeof real.senderAmount !== 'undefined') {
-            newOrderMove.real.senderAmount = real.senderAmount
+          if (typeof real.payerAmount !== 'undefined') {
+            newOrderMove.real.payerAmount = real.payerAmount
           }
           if (typeof real.receiverAmount !== 'undefined') {
             newOrderMove.real.receiverAmount = real.receiverAmount
@@ -947,7 +947,7 @@ function start ({ communication }) {
   }
 
   function checkTransactions (transactions) {
-    let senderId
+    let payerId
     let currency
 
     transactions.forEach(transaction => {
@@ -961,11 +961,11 @@ function start ({ communication }) {
         throw createError(422, `Missing asset for the transaction with ID ${transaction.id}`)
       }
 
-      if (senderId !== transaction.takerId) {
-        if (!senderId) {
-          senderId = transaction.takerId
+      if (payerId !== transaction.takerId) {
+        if (!payerId) {
+          payerId = transaction.takerId
         } else {
-          throw createError(422, `Multiple senders detected: ${senderId}, ${transaction.takerId}`)
+          throw createError(422, `Multiple payers detected: ${payerId}, ${transaction.takerId}`)
         }
       }
 
@@ -980,17 +980,17 @@ function start ({ communication }) {
   }
 
   function checkLines (lines, { transactions }) {
-    let senderId
+    let payerId
     let currency
 
     const indexedTransactions = _.keyBy(transactions, 'id')
 
     lines.forEach(line => {
-      if (senderId !== line.senderId) {
-        if (!senderId) {
-          senderId = line.senderId
+      if (payerId !== line.payerId) {
+        if (!payerId) {
+          payerId = line.payerId
         } else {
-          throw createError(422, `Multiple senders detected: ${senderId}, ${line.senderId}`)
+          throw createError(422, `Multiple payers detected: ${payerId}, ${line.payerId}`)
         }
       }
 
@@ -1008,8 +1008,8 @@ function start ({ communication }) {
           throw createError(422, `Transaction ID ${line.transactionId} not found`)
         }
 
-        if (line.senderId && transaction.takerId !== line.senderId) {
-          throw createError(`The sender ${line.senderId} doesn't match with the transaction taker ${transaction.takerId}`)
+        if (line.payerId && transaction.takerId !== line.payerId) {
+          throw createError(`The payer ${line.payerId} doesn't match with the transaction taker ${transaction.takerId}`)
         }
         if (line.currency !== transaction.currency) {
           throw createError(422, `Line's currency (${line.currency}) doesn't match with the transaction ${transaction.id} (${transaction.currency})`)
@@ -1019,15 +1019,15 @@ function start ({ communication }) {
   }
 
   function checkMoves (moves) {
-    let senderId
+    let payerId
     let currency
 
     moves.forEach(move => {
-      if (senderId !== move.senderId) {
-        if (!senderId) {
-          senderId = move.senderId
+      if (payerId !== move.payerId) {
+        if (!payerId) {
+          payerId = move.payerId
         } else {
-          throw createError(422, `Multiple senders detected: ${senderId}, ${move.senderId}`)
+          throw createError(422, `Multiple payers detected: ${payerId}, ${move.payerId}`)
         }
       }
 
@@ -1099,8 +1099,8 @@ function start ({ communication }) {
     const movesInformation = getInformationFromMoves(moves)
 
     if (moves && moves.length) {
-      if (linesInformation.senderId !== movesInformation.senderId) {
-        const msg = `Order lines and moves senders don't match: ${linesInformation.senderId}, ${movesInformation.senderId}`
+      if (linesInformation.payerId !== movesInformation.payerId) {
+        const msg = `Order lines and moves payers don't match: ${linesInformation.payerId}, ${movesInformation.payerId}`
         throw createError(422, msg)
       }
       if (linesInformation.currency !== movesInformation.currency) {
@@ -1121,12 +1121,12 @@ function start ({ communication }) {
       }
     }
 
-    if (lines.length && !linesInformation.senderId) {
-      throw createError(422, 'There is no senderId specified in order lines')
+    if (lines.length && !linesInformation.payerId) {
+      throw createError(422, 'There is no payerId specified in order lines')
     }
 
     // a user can only create an order if it's for herself
-    if (!hasAllPermissions && linesInformation.senderId !== currentUserId) {
+    if (!hasAllPermissions && linesInformation.payerId !== currentUserId) {
       throw createError(403)
     }
 

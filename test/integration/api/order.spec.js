@@ -79,7 +79,7 @@ test('previews an order with lines', async (t) => {
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' },
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' },
         { receiverId: 'user-external-id2', receiverAmount: 100, platformAmount: 10, currency: 'EUR' }
       ]
     })
@@ -107,11 +107,11 @@ test('previews an order with lines and moves', async (t) => {
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' },
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' },
         { receiverId: 'user-external-id2', receiverAmount: 100, platformAmount: 10, currency: 'EUR' }
       ],
       moves: [
-        { senderId: 'user-external-id1', senderAmount: 50, platformAmount: 10, currency: 'EUR' }
+        { payerId: 'user-external-id1', payerAmount: 50, platformAmount: 10, currency: 'EUR' }
       ]
     })
     .expect(200)
@@ -177,14 +177,14 @@ test('list orders with advanced filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['order:list:all'] })
 
   const result1 = await request(t.context.serverUrl)
-    .get('/orders?senderId=ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c')
+    .get('/orders?payerId=ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c')
     .set(authorizationHeaders)
     .expect(200)
 
   const obj1 = result1.body
 
   obj1.results.forEach(order => {
-    t.true(['ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c'].includes(order.senderId))
+    t.true(['ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c'].includes(order.payerId))
   })
 
   const result2 = await request(t.context.serverUrl)
@@ -214,7 +214,7 @@ test('list orders with advanced filters', async (t) => {
   })
 })
 
-test('finds an order', async (t) => {
+test.only('finds an order', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['order:read:all'] })
 
   const { body: order } = await request(t.context.serverUrl)
@@ -266,34 +266,34 @@ test('creates an order with reference to transactions', async (t) => {
 
   const groupedOrderLinesByTransaction = _.groupBy(order.lines, 'transactionId')
 
-  const senderLine1 = groupedOrderLinesByTransaction[transactionId1].find(line => line.senderId)
+  const payerLine1 = groupedOrderLinesByTransaction[transactionId1].find(line => line.payerId)
   const receiverLine1 = groupedOrderLinesByTransaction[transactionId1].find(line => line.receiverId)
 
   // works because asset type has 'day' as time unit
   const receiverAmount1 = transaction1.duration.d * transaction1.unitPrice * transaction1.quantity
 
-  t.true(senderLine1.senderAmount === receiverAmount1)
-  t.true(senderLine1.receiverAmount === 0)
-  t.true(senderLine1.platformAmount === 0)
-  t.is(senderLine1.currency, transaction1.currency)
+  t.true(payerLine1.payerAmount === receiverAmount1)
+  t.true(payerLine1.receiverAmount === 0)
+  t.true(payerLine1.platformAmount === 0)
+  t.is(payerLine1.currency, transaction1.currency)
 
-  t.true(receiverLine1.senderAmount === 0)
+  t.true(receiverLine1.payerAmount === 0)
   t.true(receiverLine1.receiverAmount === receiverAmount1)
   t.true(receiverLine1.platformAmount === 0)
   t.is(receiverLine1.currency, transaction1.currency)
 
-  const senderLine2 = groupedOrderLinesByTransaction[transactionId2].find(line => line.senderId)
+  const payerLine2 = groupedOrderLinesByTransaction[transactionId2].find(line => line.payerId)
   const receiverLine2 = groupedOrderLinesByTransaction[transactionId2].find(line => line.receiverId)
 
   // works because asset type has 'day' as time unit
   const receiverAmount2 = transaction2.duration.d * transaction2.unitPrice * transaction2.quantity
 
-  t.true(senderLine2.senderAmount === receiverAmount2)
-  t.true(senderLine2.receiverAmount === 0)
-  t.true(senderLine2.platformAmount === 0)
-  t.is(senderLine2.currency, transaction2.currency)
+  t.true(payerLine2.payerAmount === receiverAmount2)
+  t.true(payerLine2.receiverAmount === 0)
+  t.true(payerLine2.platformAmount === 0)
+  t.is(payerLine2.currency, transaction2.currency)
 
-  t.true(receiverLine2.senderAmount === 0)
+  t.true(receiverLine2.payerAmount === 0)
   t.true(receiverLine2.receiverAmount === receiverAmount2)
   t.true(receiverLine2.platformAmount === 0)
   t.is(receiverLine2.currency, transaction2.currency)
@@ -331,7 +331,7 @@ test('creates an order with lines', async (t) => {
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' },
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' },
         { receiverId: 'user-external-id2', receiverAmount: 100, platformAmount: 10, currency: 'EUR' }
       ],
       metadata: { dummy: true }
@@ -361,11 +361,11 @@ test('creates an order with lines and moves', async (t) => {
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' },
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' },
         { receiverId: 'user-external-id2', receiverAmount: 100, platformAmount: 10, currency: 'EUR' }
       ],
       moves: [
-        { senderId: 'user-external-id1', senderAmount: 50, platformAmount: 10, currency: 'EUR' }
+        { payerId: 'user-external-id1', payerAmount: 50, platformAmount: 10, currency: 'EUR' }
       ],
       metadata: { dummy: true }
     })
@@ -401,12 +401,12 @@ test('cannot create an order with mismatch information between lines and moves',
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' },
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' },
         { receiverId: 'user-external-id2', receiverAmount: 100, platformAmount: 10, currency: 'EUR' }
       ],
       moves: [
-        // unknown sender
-        { senderId: 'unknown-user', senderAmount: 50, platformAmount: 10, currency: 'EUR' }
+        // unknown payer
+        { payerId: 'unknown-user', payerAmount: 50, platformAmount: 10, currency: 'EUR' }
       ],
       metadata: { dummy: true }
     })
@@ -417,12 +417,12 @@ test('cannot create an order with mismatch information between lines and moves',
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' },
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' },
         { receiverId: 'user-external-id2', receiverAmount: 100, platformAmount: 10, currency: 'EUR' }
       ],
       moves: [
         // currency mismatch
-        { senderId: 'user-external-id1', senderAmount: 50, platformAmount: 10, currency: 'USD' }
+        { payerId: 'user-external-id1', payerAmount: 50, platformAmount: 10, currency: 'USD' }
       ],
       metadata: { dummy: true }
     })
@@ -433,7 +433,7 @@ test('cannot create an order with mismatch information between lines and moves',
     .set(authorizationHeaders)
     .send({
       lines: [
-        { senderId: 'user-external-id1', senderAmount: 120, platformAmount: 20, currency: 'EUR' }
+        { payerId: 'user-external-id1', payerAmount: 120, platformAmount: 20, currency: 'EUR' }
       ],
       moves: [
         // receiver not referenced in lines
@@ -494,22 +494,22 @@ test('creates an order line', async (t) => {
     .send({
       orderId: 'ord_ax0hwes1jwf1gxMLCjwf',
       transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
-      senderId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
-      senderAmount: 10,
+      payerId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
+      payerAmount: 10,
       currency: 'EUR'
     })
     .expect(200)
 
   t.is(orderLine.transactionId, 'trn_a3BfQps1I3a1gJYz2I3a')
-  t.is(orderLine.senderId, 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c')
-  t.is(orderLine.senderAmount, 10)
+  t.is(orderLine.payerId, 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c')
+  t.is(orderLine.payerAmount, 10)
 
   const { body: afterOrder } = await request(t.context.serverUrl)
     .get('/orders/ord_ax0hwes1jwf1gxMLCjwf')
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(beforeOrder.amountDue + orderLine.senderAmount, afterOrder.amountDue)
+  t.is(beforeOrder.amountDue + orderLine.payerAmount, afterOrder.amountDue)
 })
 
 test('cannot create an order line if payment is attempted except if it is reversal', async (t) => {
@@ -521,8 +521,8 @@ test('cannot create an order line if payment is attempted except if it is revers
     .send({
       orderId: 'ord_om2DV3s1R5E1geUuCR5E',
       transactionId: 'trn_Wm1fQps1I3a1gJYz2I3a',
-      senderId: 'usr_Y0tfQps1I3a1gJYz2I3a',
-      senderAmount: 10,
+      payerId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      payerAmount: 10,
       currency: 'USD'
     })
     .expect(422)
@@ -533,15 +533,15 @@ test('cannot create an order line if payment is attempted except if it is revers
     .send({
       orderId: 'ord_om2DV3s1R5E1geUuCR5E',
       transactionId: 'trn_Wm1fQps1I3a1gJYz2I3a',
-      senderId: 'usr_Y0tfQps1I3a1gJYz2I3a',
-      senderAmount: -10,
+      payerId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      payerAmount: -10,
       currency: 'USD',
       reversal: true
     })
     .expect(200)
 
   t.is(orderLine.reversal, true)
-  t.is(orderLine.senderId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(orderLine.payerId, 'usr_Y0tfQps1I3a1gJYz2I3a')
   t.is(orderLine.transactionId, 'trn_Wm1fQps1I3a1gJYz2I3a')
 })
 
@@ -572,13 +572,13 @@ test('updates an order line and changes amounts', async (t) => {
     .patch('/order_lines/ordl_KdA9vs1st51h6q3wst5')
     .set(authorizationHeaders)
     .send({
-      senderAmount: 2200,
+      payerAmount: 2200,
       platformAmount: 200,
       metadata: { test: true }
     })
     .expect(200)
 
-  t.is(orderLine.senderAmount, 2200)
+  t.is(orderLine.payerAmount, 2200)
   t.is(orderLine.platformAmount, 200)
   t.is(orderLine.metadata.test, true)
 
@@ -624,22 +624,22 @@ test('creates an order move', async (t) => {
     .send({
       orderId: 'ord_ax1hwes1jwf1gxMLCjwf',
       transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
-      senderId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
-      senderAmount: 10,
+      payerId: 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c',
+      payerAmount: 10,
       currency: 'EUR'
     })
     .expect(200)
 
   t.is(orderMove.transactionId, 'trn_a3BfQps1I3a1gJYz2I3a')
-  t.is(orderMove.senderId, 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c')
-  t.is(orderMove.senderAmount, 10)
+  t.is(orderMove.payerId, 'ff4bf0dd-b1d9-49c9-8c61-3e3baa04181c')
+  t.is(orderMove.payerAmount, 10)
 
   const { body: afterOrder } = await request(t.context.serverUrl)
     .get('/orders/ord_ax1hwes1jwf1gxMLCjwf')
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(beforeOrder.amountPaid + orderMove.senderAmount, afterOrder.amountPaid)
+  t.is(beforeOrder.amountPaid + orderMove.payerAmount, afterOrder.amountPaid)
 })
 
 test('updates an order move', async (t) => {
@@ -774,8 +774,8 @@ test('fails to create an order line if missing or invalid parameters', async (t)
       orderId: true,
       transactionId: true,
       reversal: 'invalid',
-      senderId: true,
-      senderAmount: true,
+      payerId: true,
+      payerAmount: true,
       receiverId: true,
       receiverAmount: true,
       platformAmount: true,
@@ -789,8 +789,8 @@ test('fails to create an order line if missing or invalid parameters', async (t)
   t.true(error.message.includes('"orderId" must be a string'))
   t.true(error.message.includes('"transactionId" must be a string'))
   t.true(error.message.includes('"reversal" must be a boolean'))
-  t.true(error.message.includes('"senderId" must be a string'))
-  t.true(error.message.includes('"senderAmount" must be a number'))
+  t.true(error.message.includes('"payerId" must be a string'))
+  t.true(error.message.includes('"payerAmount" must be a number'))
   t.true(error.message.includes('"receiverId" must be a string'))
   t.true(error.message.includes('"receiverAmount" must be a number'))
   t.true(error.message.includes('"platformAmount" must be a number'))
@@ -873,8 +873,8 @@ test('fails to create an order move if missing or invalid parameters', async (t)
       orderId: true,
       transactionId: true,
       reversal: 'invalid',
-      senderId: true,
-      senderAmount: true,
+      payerId: true,
+      payerAmount: true,
       receiverId: true,
       receiverAmount: true,
       platformAmount: true,
@@ -889,8 +889,8 @@ test('fails to create an order move if missing or invalid parameters', async (t)
   t.true(error.message.includes('"orderId" must be a string'))
   t.true(error.message.includes('"transactionId" must be a string'))
   t.true(error.message.includes('"reversal" must be a boolean'))
-  t.true(error.message.includes('"senderId" must be a string'))
-  t.true(error.message.includes('"senderAmount" must be a number'))
+  t.true(error.message.includes('"payerId" must be a string'))
+  t.true(error.message.includes('"payerAmount" must be a number'))
   t.true(error.message.includes('"receiverId" must be a string'))
   t.true(error.message.includes('"receiverAmount" must be a number'))
   t.true(error.message.includes('"platformAmount" must be a number'))

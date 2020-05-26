@@ -10,8 +10,8 @@ const lineSchema = Joi.object()
   .keys({
     transactionId: Joi.string(),
     reversal: Joi.boolean().default(false),
-    senderId: Joi.string(),
-    senderAmount: Joi.number(),
+    payerId: Joi.string(),
+    payerAmount: Joi.number(),
     receiverId: Joi.string(),
     receiverAmount: Joi.number(),
     platformAmount: Joi.number(),
@@ -19,20 +19,20 @@ const lineSchema = Joi.object()
     metadata: Joi.object().unknown(),
     platformData: Joi.object().unknown()
   })
-  .with('senderAmount', 'senderId')
+  .with('payerAmount', 'payerId')
   .with('receiverAmount', 'receiverId')
 
 const moveSchema = Joi.object()
   .keys({
     transactionId: Joi.string(),
     reversal: Joi.boolean().default(false),
-    senderId: Joi.string(),
-    senderAmount: Joi.number(),
+    payerId: Joi.string(),
+    payerAmount: Joi.number(),
     receiverId: Joi.string(),
     receiverAmount: Joi.number(),
     platformAmount: Joi.number(),
     real: Joi.object().keys({
-      senderAmount: Joi.number(),
+      payerAmount: Joi.number(),
       receiverAmount: Joi.number(),
       platformAmount: Joi.number(),
       currency: Joi.string().required()
@@ -41,7 +41,7 @@ const moveSchema = Joi.object()
     metadata: Joi.object().unknown(),
     platformData: Joi.object().unknown()
   })
-  .with('senderAmount', 'senderId')
+  .with('payerAmount', 'payerId')
   .with('receiverAmount', 'receiverId')
 
 const schemas = {}
@@ -69,7 +69,7 @@ schemas['2019-05-20'].list = {
 
     // filters
     id: [Joi.string(), Joi.array().unique().items(Joi.string())],
-    senderId: [Joi.string(), Joi.array().unique().items(Joi.string())],
+    payerId: [Joi.string(), Joi.array().unique().items(Joi.string())],
     receiverId: Joi.string(),
     transactionId: Joi.string()
   })
@@ -105,8 +105,8 @@ schemas['2019-05-20'].createLine = {
 }
 schemas['2019-05-20'].updateLine = {
   body: Joi.object().keys({
-    senderId: Joi.string().allow(null),
-    senderAmount: Joi.number().allow(null),
+    payerId: Joi.string().allow(null),
+    payerAmount: Joi.number().allow(null),
     receiverId: Joi.string().allow(null),
     receiverAmount: Joi.number().allow(null),
     platformAmount: Joi.number().allow(null),
@@ -127,7 +127,7 @@ schemas['2019-05-20'].createMove = {
 schemas['2019-05-20'].updateMove = {
   body: Joi.object().keys({
     real: Joi.object().keys({
-      senderAmount: Joi.number().allow(null),
+      payerAmount: Joi.number().allow(null),
       receiverAmount: Joi.number().allow(null),
       platformAmount: Joi.number().allow(null),
       currency: Joi.string().required()

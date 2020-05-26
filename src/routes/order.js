@@ -50,7 +50,7 @@ function init (server, { middlewares, helpers } = {}) {
       'nbResultsPerPage',
 
       'id',
-      'senderId',
+      'payerId',
       'receiverId',
       'transactionId'
     ]
@@ -159,8 +159,8 @@ function init (server, { middlewares, helpers } = {}) {
       'orderId',
       'transactionId',
       'reversal',
-      'senderId',
-      'senderAmount',
+      'payerId',
+      'payerAmount',
       'receiverId',
       'receiverAmount',
       'platformAmount',
@@ -192,8 +192,8 @@ function init (server, { middlewares, helpers } = {}) {
       'orderId',
       'transactionId',
       'reversal',
-      'senderId',
-      'senderAmount',
+      'payerId',
+      'payerAmount',
       'receiverId',
       'receiverAmount',
       'platformAmount',
@@ -250,8 +250,8 @@ function init (server, { middlewares, helpers } = {}) {
   ], { checkData: true }), wrapAction(async (req, res) => {
     const orderLineId = req.params.id
     const fields = [
-      'senderId',
-      'senderAmount',
+      'payerId',
+      'payerAmount',
       'receiverId',
       'receiverAmount',
       'platformAmount',

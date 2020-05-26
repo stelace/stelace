@@ -56,7 +56,7 @@ class Order extends Base {
           type: 'string',
           maxLength: 255
         },
-        senderId: {
+        payerId: {
           type: ['string', 'null'],
           maxLength: 255,
           default: null
@@ -117,7 +117,7 @@ class Order extends Base {
         'amountPaid',
         'amountRemaining',
         'currency',
-        'senderId',
+        'payerId',
         'isExternal',
         'paymentAttempted',
         'metadata',
@@ -139,8 +139,8 @@ class Order extends Base {
         'orderId',
         'transactionId',
         'reversal',
-        'senderId',
-        'senderAmount',
+        'payerId',
+        'payerAmount',
         'receiverId',
         'receiverAmount',
         'platformAmount',
@@ -165,8 +165,8 @@ class Order extends Base {
         'orderId',
         'transactionId',
         'reversal',
-        'senderId',
-        'senderAmount',
+        'payerId',
+        'payerAmount',
         'receiverId',
         'receiverAmount',
         'platformAmount',
@@ -183,7 +183,7 @@ class Order extends Base {
   }
 
   static isSelf (order, userId) {
-    const isSender = order.senderId === userId
+    const isPayer = order.payerId === userId
     const isReceiverFromLines = order.lines.reduce((memo, line) => {
       return memo || line.receiverId === userId
     }, false)
@@ -191,15 +191,15 @@ class Order extends Base {
       return memo || move.receiverId === userId
     }, false)
 
-    return isSender || isReceiverFromLines || isReceiverFromMoves
+    return isPayer || isReceiverFromLines || isReceiverFromMoves
   }
 
   static isSelfForLine (line, userId) {
-    return userId && [line.senderId, line.receiverId].includes(userId)
+    return userId && [line.payerId, line.receiverId].includes(userId)
   }
 
   static isSelfForMove (move, userId) {
-    return userId && [move.senderId, move.receiverId].includes(userId)
+    return userId && [move.payerId, move.receiverId].includes(userId)
   }
 
   static expose (element, options = {}) {
