@@ -2,6 +2,15 @@
 
 All notable changes to Stelace server are documented in this file, using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+__Current API Version `2019-05-20`__
+
+## [1.0.0-beta.6](https://github.com/stelace/stelace/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2020-05-26)
+
+### Bug Fixes
+
+* **Search:** remove deprecated cutoff_frequency ([923511a](https://github.com/stelace/stelace/commit/923511a074c8b157b9be19c0bd6d362992fdb98a))
+* Broken seeding script and missing test ([#295](https://github.com/stelace/stelace/issues/295)) ([8f7ca1b](https://github.com/stelace/stelace/commit/8f7ca1bc9d347f334915502e3421cfbb47d55904))
+
 ## [1.0.0-beta.5](https://github.com/stelace/stelace/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2020-02-14)
 
 ### BREAKING CHANGES
