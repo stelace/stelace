@@ -656,6 +656,246 @@ test('updates an order move', async (t) => {
   t.is(orderMove.metadata.test, true)
 })
 
+test('simulates a payment process', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'asset:list:all',
+      'asset:create:all',
+      'transaction:transition:all',
+      'order:read:all',
+      'order:create:all',
+      'orderMove:create:all',
+    ]
+  })
+
+  const sellingAssetTypeId = 'typ_MGsfQps1I3a1gJYz2I3a'
+  const ownerId = 'usr_em9SToe1nI01iG4yRnHz'
+
+  // /////////////// //
+  // ASSETS CREATION //
+  // /////////////// //
+
+  const { body: asset1 } = await request(t.context.serverUrl)
+    .post('/assets')
+    .send({
+      name: 'Chevrolet',
+      ownerId,
+      assetTypeId: sellingAssetTypeId,
+      quantity: 5,
+      currency: 'USD',
+      price: 50000,
+    })
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: asset2 } = await request(t.context.serverUrl)
+    .post('/assets')
+    .send({
+      name: 'Toyota',
+      ownerId,
+      assetTypeId: sellingAssetTypeId,
+      quantity: 10,
+      currency: 'USD',
+      price: 40500,
+    })
+    .set(authorizationHeaders)
+    .expect(200)
+
+  // /////////////////// //
+  // USER AUTHENTICATION //
+  // /////////////////// //
+
+  const { body: loginObject } = await request(t.context.serverUrl)
+    .post('/auth/login')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      username: 'user',
+      password: 'user'
+    })
+    .expect(200)
+
+  const userHeaders = {
+    'x-platform-id': t.context.platformId,
+    'x-stelace-env': t.context.env,
+    authorization: `${loginObject.tokenType} ${loginObject.accessToken}`
+  }
+
+  let { body: user } = await request(t.context.serverUrl)
+    .get(`/users/${loginObject.userId}`)
+    .set(userHeaders)
+    .expect(200)
+
+  // //////// //
+  // SCENARIO //
+  // //////// //
+
+  // update cart without creating any transaction
+  user = await updateCart(user, { assetId: asset1.id, quantity: 4 })
+  t.is(getCart(user).length, 1)
+
+  user = await updateCart(user, { assetId: asset2.id, quantity: 2 })
+  t.is(getCart(user).length, 2)
+
+  user = await updateCart(user, { assetId: asset1.id, quantity: 0 })
+  t.is(getCart(user).length, 1)
+
+  user = await updateCart(user, { assetId: asset1.id, quantity: 5 })
+  t.is(getCart(user).length, 2)
+
+  // get information before payment
+  const previewedTransactions = await getPreviewedTransactions(user)
+  previewedTransactions.forEach(preview => {
+    t.true(_.isString(preview.assetId))
+    t.true(_.isNumber(preview.quantity))
+    t.true(_.isNumber(preview.unitPrice))
+    t.true(_.isNumber(preview.value))
+  })
+
+  const asset1PreviewedTransaction = previewedTransactions.find(p => p.assetId === asset1.id)
+  const asset2PreviewedTransaction = previewedTransactions.find(p => p.assetId === asset2.id)
+
+  t.is(asset1PreviewedTransaction.quantity, 5)
+  t.is(asset2PreviewedTransaction.quantity, 2)
+
+  // when user attempts to pay:
+  // creation of transactions and order
+  const transactions = await createTransactionsFromCart(user)
+
+  t.is(transactions.length, previewedTransactions.length)
+
+  const order = await createOrderFromTransactions(transactions)
+
+  t.true(order.amountRemaining !== 0)
+
+  // receive payment confirmation (server-side)
+  const updatedOrder = await payOrder(order)
+
+  t.true(updatedOrder.amountRemaining === 0)
+
+  // ///////////////// //
+  // HELPERS FUNCTIONS //
+  // ///////////////// //
+
+  function getCart (user) {
+    return _.get(user, 'metadata._private.cart', [])
+  }
+
+  async function saveCartIntoUser (user, cart) {
+    const { body: updatedUser } = await request(t.context.serverUrl)
+      .patch(`/users/${user.id}`)
+      .send({
+        metadata: {
+          _private: { cart }
+        }
+      })
+      .set(userHeaders)
+      .expect(200)
+
+    return updatedUser
+  }
+
+  async function updateCart (user, { assetId, quantity = 1 }) {
+    let cart = getCart(user)
+
+    if (quantity === 0) {
+      cart = cart.filter(l => l.assetId !== assetId)
+    } else {
+      const line = cart.find(l => l.assetId === assetId)
+
+      if (line) {
+        cart = cart.map(l => {
+          if (l.assetId === assetId) return { assetId, quantity }
+          else return l
+        })
+      } else {
+        cart = cart.concat([{ assetId, quantity }])
+      }
+    }
+
+    return saveCartIntoUser(user, cart)
+  }
+
+  async function getPreviewedTransactions (user) {
+    const cart = getCart(user)
+    const previewedTransactions = []
+
+    for (const cartLine of cart) {
+      const { body: preview } = await request(t.context.serverUrl)
+        .post('/transactions/preview')
+        .send(cartLine)
+        .set(userHeaders)
+        .expect(200)
+
+      previewedTransactions.push(preview)
+    }
+
+    return previewedTransactions
+  }
+
+  async function createTransactionsFromCart (user) {
+    const cart = getCart(user)
+    const transactions = []
+
+    for (const cartLine of cart) {
+      const { body: transaction } = await request(t.context.serverUrl)
+        .post('/transactions')
+        .send(cartLine)
+        .set(userHeaders)
+        .expect(200)
+
+      transactions.push(transaction)
+    }
+
+    return transactions
+  }
+
+  async function createOrderFromTransactions (transactions) {
+    const { body: order } = await request(t.context.serverUrl)
+      .post('/orders')
+      .send({
+        transactionIds: transactions.map(t => t.id)
+      })
+      .set(userHeaders)
+      .expect(200)
+
+    return order
+  }
+
+  async function payOrder (order) {
+    const transactionIds = _.uniq(order.lines.map(l => l.transactionId))
+
+    for (const transactionId of transactionIds) {
+      await request(t.context.serverUrl)
+        .post(`/transactions/${transactionId}/transitions`)
+        .send({ name: 'pay' })
+        .set(authorizationHeaders)
+        .expect(200)
+    }
+
+    await request(t.context.serverUrl)
+      .post('/order-moves')
+      .send({
+        orderId: order.id,
+        payerId: order.payerId,
+        payerAmount: order.amountDue,
+        currency: order.currency,
+      })
+      .set(authorizationHeaders)
+      .expect(200)
+
+    const { body: updatedOrder } = await request(t.context.serverUrl)
+      .get(`/orders/${order.id}`)
+      .set(authorizationHeaders)
+      .expect(200)
+
+    return updatedOrder
+  }
+})
+
 // ////////// //
 // VALIDATION //
 // ////////// //
