@@ -467,7 +467,7 @@ test('finds an order line', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['orderLine:read:all'] })
 
   const { body: orderLine } = await request(t.context.serverUrl)
-    .get('/order_lines/ordl_KdA9vs1st51h6q3wst5')
+    .get('/order-lines/ordl_KdA9vs1st51h6q3wst5')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -489,7 +489,7 @@ test('creates an order line', async (t) => {
     .expect(200)
 
   const { body: orderLine } = await request(t.context.serverUrl)
-    .post('/order_lines')
+    .post('/order-lines')
     .set(authorizationHeaders)
     .send({
       orderId: 'ord_ax0hwes1jwf1gxMLCjwf',
@@ -516,7 +516,7 @@ test('cannot create an order line if payment is attempted except if it is revers
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['orderLine:create:all'] })
 
   await request(t.context.serverUrl)
-    .post('/order_lines')
+    .post('/order-lines')
     .set(authorizationHeaders)
     .send({
       orderId: 'ord_om2DV3s1R5E1geUuCR5E',
@@ -528,7 +528,7 @@ test('cannot create an order line if payment is attempted except if it is revers
     .expect(422)
 
   const { body: orderLine } = await request(t.context.serverUrl)
-    .post('/order_lines')
+    .post('/order-lines')
     .set(authorizationHeaders)
     .send({
       orderId: 'ord_om2DV3s1R5E1geUuCR5E',
@@ -549,7 +549,7 @@ test('updates an order line', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['orderLine:edit:all'] })
 
   const { body: orderLine } = await request(t.context.serverUrl)
-    .patch('/order_lines/ordl_KdA9vs1st51h6q3wst5')
+    .patch('/order-lines/ordl_KdA9vs1st51h6q3wst5')
     .set(authorizationHeaders)
     .send({
       metadata: { test: true }
@@ -569,7 +569,7 @@ test('updates an order line and changes amounts', async (t) => {
   })
 
   const { body: orderLine } = await request(t.context.serverUrl)
-    .patch('/order_lines/ordl_KdA9vs1st51h6q3wst5')
+    .patch('/order-lines/ordl_KdA9vs1st51h6q3wst5')
     .set(authorizationHeaders)
     .send({
       payerAmount: 2200,
@@ -597,7 +597,7 @@ test('finds an order move', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['orderMove:read:all'] })
 
   const { body: orderMove } = await request(t.context.serverUrl)
-    .get('/order_moves/ordm_yJLKVs101Q1gDyYe01Q')
+    .get('/order-moves/ordm_yJLKVs101Q1gDyYe01Q')
     .set(authorizationHeaders)
     .expect(200)
 
@@ -619,7 +619,7 @@ test('creates an order move', async (t) => {
     .expect(200)
 
   const { body: orderMove } = await request(t.context.serverUrl)
-    .post('/order_moves')
+    .post('/order-moves')
     .set(authorizationHeaders)
     .send({
       orderId: 'ord_ax1hwes1jwf1gxMLCjwf',
@@ -646,7 +646,7 @@ test('updates an order move', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['orderMove:edit:all'] })
 
   const { body: orderMove } = await request(t.context.serverUrl)
-    .patch('/order_moves/ordm_yJLKVs101Q1gDyYe01Q')
+    .patch('/order-moves/ordm_yJLKVs101Q1gDyYe01Q')
     .set(authorizationHeaders)
     .send({
       metadata: { test: true }
@@ -740,7 +740,7 @@ test('fails to create an order line if missing or invalid parameters', async (t)
 
   // missing body
   result = await request(t.context.serverUrl)
-    .post('/order_lines')
+    .post('/order-lines')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -752,7 +752,7 @@ test('fails to create an order line if missing or invalid parameters', async (t)
 
   // missing required parameters
   result = await request(t.context.serverUrl)
-    .post('/order_lines')
+    .post('/order-lines')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -765,7 +765,7 @@ test('fails to create an order line if missing or invalid parameters', async (t)
 
   // parameters with wrong type
   result = await request(t.context.serverUrl)
-    .post('/order_lines')
+    .post('/order-lines')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -805,7 +805,7 @@ test('fails to update an order line if missing or invalid parameters', async (t)
 
   // missing body
   result = await request(t.context.serverUrl)
-    .patch('/order_lines/ordl_BPlQws16p51gKm3w6p5')
+    .patch('/order-lines/ordl_BPlQws16p51gKm3w6p5')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -817,7 +817,7 @@ test('fails to update an order line if missing or invalid parameters', async (t)
 
   // parameters with wrong type
   result = await request(t.context.serverUrl)
-    .patch('/order_lines/ordl_BPlQws16p51gKm3w6p5')
+    .patch('/order-lines/ordl_BPlQws16p51gKm3w6p5')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -839,7 +839,7 @@ test('fails to create an order move if missing or invalid parameters', async (t)
 
   // missing body
   result = await request(t.context.serverUrl)
-    .post('/order_moves')
+    .post('/order-moves')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -851,7 +851,7 @@ test('fails to create an order move if missing or invalid parameters', async (t)
 
   // missing required parameters
   result = await request(t.context.serverUrl)
-    .post('/order_moves')
+    .post('/order-moves')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -864,7 +864,7 @@ test('fails to create an order move if missing or invalid parameters', async (t)
 
   // parameters with wrong type
   result = await request(t.context.serverUrl)
-    .post('/order_moves')
+    .post('/order-moves')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -906,7 +906,7 @@ test('fails to update an order move if missing or invalid parameters', async (t)
 
   // missing body
   result = await request(t.context.serverUrl)
-    .patch('/order_moves/ordm_yJLKVs101Q1gDyYe01Q')
+    .patch('/order-moves/ordm_yJLKVs101Q1gDyYe01Q')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env
@@ -918,7 +918,7 @@ test('fails to update an order move if missing or invalid parameters', async (t)
 
   // parameters with wrong type
   result = await request(t.context.serverUrl)
-    .patch('/order_moves/ordm_yJLKVs101Q1gDyYe01Q')
+    .patch('/order-moves/ordm_yJLKVs101Q1gDyYe01Q')
     .set({
       'x-platform-id': t.context.platformId,
       'x-stelace-env': t.context.env

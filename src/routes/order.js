@@ -87,7 +87,7 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.get({
     name: 'orderLine.read',
-    path: '/order_lines/:id'
+    path: '/order-lines/:id'
   }, checkPermissions([
     'orderLine:read',
     'orderLine:read:all'
@@ -105,7 +105,7 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.get({
     name: 'orderMove.read',
-    path: '/order_moves/:id'
+    path: '/order-moves/:id'
   }, checkPermissions([
     'orderMove:read',
     'orderMove:read:all'
@@ -150,7 +150,7 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.post({
     name: 'orderLine.create',
-    path: '/order_lines'
+    path: '/order-lines'
   }, checkPermissions([
     'orderLine:create',
     'orderLine:create:all'
@@ -183,7 +183,7 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.post({
     name: 'orderMove.create',
-    path: '/order_moves'
+    path: '/order-moves'
   }, checkPermissions([
     'orderMove:create',
     'orderMove:create:all'
@@ -243,7 +243,7 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.patch({
     name: 'orderLine.update',
-    path: '/order_lines/:id'
+    path: '/order-lines/:id'
   }, checkPermissions([
     'orderLine:edit',
     'orderLine:edit:all'
@@ -274,7 +274,7 @@ function init (server, { middlewares, helpers } = {}) {
 
   server.patch({
     name: 'orderMove.update',
-    path: '/order_moves/:id'
+    path: '/order-moves/:id'
   }, checkPermissions([
     'orderMove:edit',
     'orderMove:edit:all'
