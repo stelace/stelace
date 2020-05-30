@@ -54,7 +54,6 @@ function start ({ communication }) {
     subscribesTo: [
       'orderCreated',
       'orderUpdated',
-      'orderDeleted'
     ]
   })
 
@@ -747,7 +746,7 @@ function start ({ communication }) {
       })
     })
 
-    return Order.exposeLine(newOrderMove, { req })
+    return Order.exposeMove(newOrderMove, { req })
   })
 
   responder.on('updateMove', async (req) => {
@@ -892,33 +891,6 @@ function start ({ communication }) {
         env,
         custom: { orderId },
         message: 'Fail to create event order__updated'
-      })
-    }
-  })
-
-  subscriber.on('orderDeleted', async ({
-    orderId,
-    order,
-    eventDate,
-    platformId,
-    env,
-    req
-  } = {}) => {
-    try {
-      const { Event, Order } = await getModels({ platformId, env })
-
-      await Event.createEvent({
-        createdDate: eventDate,
-        type: 'order__deleted',
-        objectId: orderId,
-        object: Order.expose(order, { req, namespaces: ['*'] })
-      }, { platformId, env })
-    } catch (err) {
-      logError(err, {
-        platformId,
-        env,
-        custom: { orderId },
-        message: 'Fail to create event order__deleted'
       })
     }
   })

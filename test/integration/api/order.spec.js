@@ -214,7 +214,7 @@ test('list orders with advanced filters', async (t) => {
   })
 })
 
-test.only('finds an order', async (t) => {
+test('finds an order', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['order:read:all'] })
 
   const { body: order } = await request(t.context.serverUrl)

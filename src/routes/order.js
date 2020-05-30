@@ -298,24 +298,6 @@ function init (server, { middlewares, helpers } = {}) {
     const result = await requester.send(params)
     return result
   }))
-
-  server.del({
-    name: 'order.remove',
-    path: '/orders/:id'
-  }, checkPermissions([
-    'order:remove',
-    'order:remove:all'
-  ]), wrapAction(async (req, res) => {
-    const { id } = req.params
-
-    const params = populateRequesterParams(req)({
-      type: 'remove',
-      orderId: id
-    })
-
-    const result = await requester.send(params)
-    return result
-  }))
 }
 
 function start ({ communication }) {
