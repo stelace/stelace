@@ -656,7 +656,7 @@ test('updates an order move', async (t) => {
   t.is(orderMove.metadata.test, true)
 })
 
-test('simulates a payment process', async (t) => {
+test('simulates a payment process based on a shopping cart', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({
     t,
     permissions: [
