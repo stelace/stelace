@@ -4,6 +4,10 @@ All notable changes to Stelace server are documented in this file, using [Conven
 
 __Current API Version `2019-05-20`__
 
+## [1.0.0-beta.7](https://github.com/stelace/stelace/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2020-06-02)
+
+* **Order:** finalize order API ([#297](https://github.com/stelace/stelace/commit/64ba1b2b7b651f9e0628dd8d68e7baba9e920dd3))
+
 ## [1.0.0-beta.6](https://github.com/stelace/stelace/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2020-05-26)
 
 ### Bug Fixes

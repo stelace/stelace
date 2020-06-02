@@ -1,6 +1,6 @@
 {
   "name": "stelace-server",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "description": "API server for Platforms built to last",
   "private": true,
   "repository": {
