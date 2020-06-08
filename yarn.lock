@@ -6801,10 +6801,10 @@ responselike@^1.0.2:
   dependencies:
     lowercase-keys "^1.0.0"
 
-restify-cors-middleware2@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/restify-cors-middleware2/-/restify-cors-middleware2-2.0.0.tgz#790c757631d5d1483f823c7061015574af6791d5"
-  integrity sha512-czCulmCZVqYmXaV4LnjwTkFyEa4a88lWESwUjoAf13QtCfPPq2gmjX0ReoGO4zqzNPb7u+G0CD37hlA/jkVaLg==
+restify-cors-middleware2@~2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/restify-cors-middleware2/-/restify-cors-middleware2-2.1.0.tgz#602ea627122199380ee1463335816d9705e8b409"
+  integrity sha512-gDs2LbFXPEPdn7hGyDk5xIg2zNuMJM8AiOFk2Gsf11QFSlnSjGM6uo+Ic9DEcT0RePn/ctG2Q2iMsce/TCLFXA==
   dependencies:
     assert-plus "^1.0.0"
 
