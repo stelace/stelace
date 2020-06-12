@@ -3,6 +3,8 @@ const { apiVersions, transformConfigsIntoChanges } = require('../util')
 
 const listRequestChangeConfigs = [
   require('./beforeAll'),
+
+  require('./workflow'),
 ]
 
 const changes = transformConfigsIntoChanges(listRequestChangeConfigs)

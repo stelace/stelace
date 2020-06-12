@@ -15,7 +15,13 @@ let userApp
 const { apiVersions } = require('../../../src/versions')
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
 
 const { encodeBase64 } = require('../../../src/util/encoding')
 
@@ -78,17 +84,45 @@ test.after(async (t) => {
   await userApp.close()
 })
 
-test('list workflows', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list workflows', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['workflow:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/workflows')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/workflows',
+    authorizationHeaders,
+  })
+})
+
+test('list workflows with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['workflow:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/workflows?id=wfw_SEIfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflows = result.body
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
+})
 
-  t.true(Array.isArray(workflows))
+test('list workflows with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['workflow:list:all'] })
+
+  const minDate = '2019-01-01T00:00:00.000Z'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/workflows?createdDate[gte]=${encodeURIComponent(minDate)}&active=true`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkResultsFn = (t, workflow) => {
+    t.true(workflow.active)
+    t.true(workflow.createdDate >= minDate)
+  }
+
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list workflows with custom namespace', async (t) => {
@@ -98,12 +132,14 @@ test('list workflows with custom namespace', async (t) => {
     readNamespaces: ['custom']
   })
 
-  const { body: workflows } = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/workflows')
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(Array.isArray(workflows))
+  checkCursorPaginatedListObject(t, obj)
+
+  const workflows = obj.results
 
   const hasAtLeastOneCustomNamespace = workflows.some(w => typeof w.platformData._custom !== 'undefined')
   t.true(hasAtLeastOneCustomNamespace)
@@ -2034,4 +2070,42 @@ test('fails to update a workflow with an invalid API version', async (t) => {
     .expect(400)
 
   t.pass()
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: list workflows', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['workflow:list:all']
+  })
+
+  const { body: workflows } = await request(t.context.serverUrl)
+    .get('/workflows')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(workflows))
+})
+
+test('2019-05-20: list workflows with custom namespace', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['workflow:list:all'],
+    readNamespaces: ['custom']
+  })
+
+  const { body: workflows } = await request(t.context.serverUrl)
+    .get('/workflows')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(workflows))
+
+  const hasAtLeastOneCustomNamespace = workflows.some(w => typeof w.platformData._custom !== 'undefined')
+  t.true(hasAtLeastOneCustomNamespace)
 })

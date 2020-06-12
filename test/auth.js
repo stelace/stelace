@@ -24,7 +24,7 @@ async function getAccessTokenHeaders ({
     authorization: `Bearer ${accessToken}`,
     // TODO: use an API key instead of these special headers
     'x-platform-id': t.context.platformId,
-    'x-stelace-env': t.context.env
+    'x-stelace-env': t.context.env,
   }
 
   // allows to skip `x-stelace-version` header in individual requests
