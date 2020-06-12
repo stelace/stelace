@@ -12,7 +12,12 @@ let userApp
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { testEventDelay } = require('../../util')
+const {
+  testEventDelay,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
 const { apiVersions } = require('../../../src/versions')
 
 let userWebhookUrl
@@ -53,15 +58,33 @@ test.after(async (t) => {
   await userApp.close()
 })
 
-test('list webhooks', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list webhooks', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['webhook:list:all'] })
 
-  const { body: webhooks } = await request(t.context.serverUrl)
-    .get('/webhooks')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/webhooks',
+    authorizationHeaders,
+  })
+})
+
+test('list webhooks with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['webhook:list:all'] })
+
+  const minDate = '2019-01-01T00:00:00.000Z'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/webhooks?createdDate[gte]=${encodeURIComponent(minDate)}&active=true`)
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(Array.isArray(webhooks))
+  const checkResultsFn = (t, webhook) => {
+    t.true(webhook.active)
+    t.true(webhook.createdDate >= minDate)
+  }
+
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list webhooks with custom namespace', async (t) => {
@@ -71,12 +94,14 @@ test('list webhooks with custom namespace', async (t) => {
     readNamespaces: ['custom']
   })
 
-  const { body: webhooks } = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/webhooks')
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(Array.isArray(webhooks))
+  checkCursorPaginatedListObject(t, obj)
+
+  const webhooks = obj.results
 
   let hasAtLeastOneCustomNamespace = false
   webhooks.forEach(webhook => {
@@ -489,4 +514,46 @@ test('fails to update a webhook with an invalid API version', async (t) => {
     .expect(400)
 
   t.pass()
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: list webhooks', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['webhook:list:all']
+  })
+
+  const { body: webhooks } = await request(t.context.serverUrl)
+    .get('/webhooks')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(webhooks))
+})
+
+test('2019-05-20: list webhooks with custom namespace', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['webhook:list:all'],
+    readNamespaces: ['custom']
+  })
+
+  const { body: webhooks } = await request(t.context.serverUrl)
+    .get('/webhooks')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(webhooks))
+
+  let hasAtLeastOneCustomNamespace = false
+  webhooks.forEach(webhook => {
+    hasAtLeastOneCustomNamespace = typeof webhook.platformData._custom !== 'undefined'
+  })
+
+  t.true(hasAtLeastOneCustomNamespace)
 })

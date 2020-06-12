@@ -41,18 +41,72 @@ function start ({ communication }) {
     const env = req.env
     const { Webhook } = await getModels({ platformId, env })
 
+    const {
+      orderBy,
+      order,
+
+      nbResultsPerPage,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      id,
+      createdDate,
+      updatedDate,
+      event,
+      active,
+    } = req
+
     const queryBuilder = Webhook.query()
 
-    const webhooks = await performListQuery({
+    const paginationMeta = await performListQuery({
       queryBuilder,
-      paginationActive: false,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdDate',
+          value: createdDate,
+          query: 'range'
+        },
+        updatedDate: {
+          dbField: 'updatedDate',
+          value: updatedDate,
+          query: 'range'
+        },
+        events: {
+          dbField: 'event',
+          value: event,
+          transformValue: 'array',
+          query: 'inList',
+        },
+        active: {
+          dbField: 'active',
+          value: active
+        },
+      },
+      paginationActive: true,
+      paginationConfig: {
+        nbResultsPerPage,
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
+      },
       orderConfig: {
-        orderBy: 'createdDate',
-        order: 'desc'
+        orderBy,
+        order
       }
     })
 
-    return Webhook.exposeAll(webhooks, { req })
+    paginationMeta.results = Webhook.exposeAll(paginationMeta.results, { req })
+
+    return paginationMeta
   })
 
   responder.on('read', async (req) => {
