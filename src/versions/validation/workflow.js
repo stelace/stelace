@@ -7,9 +7,13 @@ const contextSchema = Joi.array().unique().items(Joi.string()).single()
 const descriptionSchema = Joi.string().max(2048).allow('', null)
 const booleanExpressionSchema = Joi.string().max(1024).allow('', null)
 
-const orderByFields = [
+const workflowOrderByFields = [
   'createdDate',
   'updatedDate',
+]
+
+const workflowLogOrderByFields = [
+  'createdDate',
 ]
 
 const runSchema = Joi.array().items(Joi.object({
@@ -39,7 +43,7 @@ schemas['2020-08-10'].list = {
   query: Joi.object()
     .keys({
       // order
-      orderBy: Joi.string().valid(...orderByFields).default('createdDate'),
+      orderBy: Joi.string().valid(...workflowOrderByFields).default('createdDate'),
       order: Joi.string().valid('asc', 'desc').default('desc'),
 
       // cursor pagination
@@ -55,6 +59,34 @@ schemas['2020-08-10'].list = {
       active: Joi.boolean(),
     })
     .oxor('startingAfter', 'endingBefore')
+}
+
+schemas['2020-08-10'].listLogs = {
+  query: Joi.object()
+    .keys({
+      // order
+      orderBy: Joi.string().valid(...workflowLogOrderByFields).default('createdDate'),
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+
+      // cursor pagination
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+      nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+
+      // filters
+      id: Joi.array().unique().items(Joi.string()).single(),
+      createdDate: getRangeFilter(Joi.string().isoDate()),
+      workflowId: Joi.array().unique().items(Joi.string()).single(),
+      eventId: Joi.array().unique().items(Joi.string()).single(),
+      runId: Joi.array().unique().items(Joi.string()).single(),
+      type: Joi.array().unique().items(Joi.string()).single(),
+      statusCode: Joi.array().unique().items(Joi.string()).single(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+}
+
+schemas['2020-08-10'].readLog = {
+  params: objectIdParamsSchema
 }
 
 // ////////// //
@@ -94,6 +126,14 @@ const validationVersions = {
     {
       target: 'workflow.list',
       schema: schemas['2020-08-10'].list
+    },
+    {
+      target: 'workflow.listLogs',
+      schema: schemas['2020-08-10'].listLogs
+    },
+    {
+      target: 'workflow.readLog',
+      schema: schemas['2020-08-10'].readLog
     },
   ],
 

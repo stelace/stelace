@@ -150,6 +150,61 @@ function init (server, { middlewares, helpers } = {}) {
     const result = await requester.send(params)
     return result
   }))
+
+  // //////////// //
+  // WORKFLOW LOG //
+  // //////////// //
+
+  server.get({
+    name: 'workflow.listLogs',
+    path: '/workflow-logs'
+  }, checkPermissions([
+    'workflowLog:list:all'
+  ]), wrapAction(async (req, res) => {
+    const fields = [
+      'orderBy',
+      'order',
+      'nbResultsPerPage',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
+
+      'id',
+      'createdDate',
+      'workflowId',
+      'eventId',
+      'runId',
+      'statusCode',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
+      type: 'listLogs',
+      workflowType: req.query.type,
+    })
+
+    params = Object.assign({}, params, payload)
+
+    return requester.send(params)
+  }))
+
+  server.get({
+    name: 'workflow.readLog',
+    path: '/workflow-logs/:id'
+  }, checkPermissions([
+    'workflowLog:read:all'
+  ]), wrapAction(async (req, res) => {
+    const { id } = req.params
+
+    const params = populateRequesterParams(req)({
+      type: 'readLog',
+      workflowLogId: id
+    })
+
+    return requester.send(params)
+  }))
 }
 
 function start ({ communication }) {

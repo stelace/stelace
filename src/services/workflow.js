@@ -17,6 +17,7 @@ const { getObjectId } = require('stelace-util-keys')
 const { apiVersions, applyObjectChanges } = require('../versions')
 
 const { performListQuery } = require('../util/listQueryBuilder')
+const { getRetentionLimitDate } = require('../util/timeSeries')
 
 // Stelace Workflows: reuse sandbox for performance
 const { VM } = require('vm2')
@@ -327,6 +328,125 @@ function start ({ communication, serverPort }) {
     await Workflow.query().deleteById(workflowId)
 
     return { id: workflowId }
+  })
+
+  // //////////// //
+  // WORKFLOW LOG //
+  // //////////// //
+
+  responder.on('listLogs', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { WorkflowLog } = await getModels({ platformId, env })
+
+    const {
+      orderBy,
+      order,
+
+      nbResultsPerPage,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      id,
+      createdDate,
+      workflowId,
+      eventId,
+      runId,
+      workflowType: type,
+      statusCode,
+    } = req
+
+    const queryBuilder = WorkflowLog.query()
+
+    const minCreatedDate = getRetentionLimitDate()
+
+    const paginationMeta = await performListQuery({
+      queryBuilder,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdDate',
+          value: createdDate,
+          query: 'range',
+          defaultValue: { gte: minCreatedDate },
+          minValue: minCreatedDate
+        },
+        workflowIds: {
+          dbField: 'workflowId',
+          value: workflowId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        eventIds: {
+          dbField: 'eventId',
+          value: eventId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        runIds: {
+          dbField: 'runId',
+          value: runId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        types: {
+          dbField: 'type',
+          value: type,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        statusCodes: {
+          dbField: 'statusCode',
+          value: statusCode,
+          transformValue: 'array',
+          query: 'inList'
+        },
+      },
+      paginationActive: true,
+      paginationConfig: {
+        nbResultsPerPage,
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
+      },
+      orderConfig: {
+        orderBy,
+        order
+      }
+    })
+
+    paginationMeta.results = WorkflowLog.exposeAll(paginationMeta.results, { req })
+
+    return paginationMeta
+  })
+
+  responder.on('readLog', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { WorkflowLog } = await getModels({ platformId, env })
+
+    const workflowLogId = req.workflowLogId
+
+    const minCreatedDate = getRetentionLimitDate()
+
+    // without this filter, compressed chunk would be queried so the response would be long
+    const workflowLog = await WorkflowLog.query()
+      .findById(workflowLogId)
+      .where('createdTimestamp', '>=', minCreatedDate)
+
+    if (!workflowLog) {
+      throw createError(404)
+    }
+
+    return WorkflowLog.expose(workflowLog, { req })
   })
 
   // EVENTS
