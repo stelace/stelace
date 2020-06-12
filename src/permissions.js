@@ -294,6 +294,13 @@ const coreListObjectPermissions = [
     ]
   },
   {
+    object: 'webhookLog',
+    actions: [
+      'list:all',
+      'read:all'
+    ]
+  },
+  {
     object: 'workflow',
     actions: [
       'list:all',

@@ -11,6 +11,7 @@ const { getObjectId } = require('stelace-util-keys')
 const { apiVersions } = require('../versions')
 
 const { performListQuery } = require('../util/listQueryBuilder')
+const { getRetentionLimitDate } = require('../util/timeSeries')
 
 let responder
 let eventSubscriber
@@ -251,6 +252,111 @@ function start ({ communication }) {
     await Webhook.query().deleteById(webhookId)
 
     return { id: webhookId }
+  })
+
+  // /////////// //
+  // WEBHOOK LOG //
+  // /////////// //
+
+  responder.on('listLogs', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { WebhookLog } = await getModels({ platformId, env })
+
+    const {
+      orderBy,
+      order,
+
+      nbResultsPerPage,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      id,
+      createdDate,
+      webhookId,
+      eventId,
+      status,
+    } = req
+
+    const queryBuilder = WebhookLog.query()
+
+    const minCreatedDate = getRetentionLimitDate()
+
+    const paginationMeta = await performListQuery({
+      queryBuilder,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdDate',
+          value: createdDate,
+          query: 'range',
+          defaultValue: { gte: minCreatedDate },
+          minValue: minCreatedDate
+        },
+        webhookIds: {
+          dbField: 'webhookId',
+          value: webhookId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        eventIds: {
+          dbField: 'eventId',
+          value: eventId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        statuses: {
+          dbField: 'statusCode',
+          value: status,
+          transformValue: 'array',
+          query: 'inList'
+        },
+      },
+      paginationActive: true,
+      paginationConfig: {
+        nbResultsPerPage,
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
+      },
+      orderConfig: {
+        orderBy,
+        order
+      }
+    })
+
+    paginationMeta.results = WebhookLog.exposeAll(paginationMeta.results, { req })
+
+    return paginationMeta
+  })
+
+  responder.on('readLog', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { WebhookLog } = await getModels({ platformId, env })
+
+    const webhookLogId = req.webhookLogId
+
+    const minCreatedDate = getRetentionLimitDate()
+
+    // without this filter, compressed chunk would be queried so the response would be long
+    const webhookLog = await WebhookLog.query()
+      .findById(webhookLogId)
+      .where('createdTimestamp', '>=', minCreatedDate)
+
+    if (!webhookLog) {
+      throw createError(404)
+    }
+
+    return WebhookLog.expose(webhookLog, { req })
   })
 
   // EVENTS

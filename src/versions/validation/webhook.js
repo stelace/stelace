@@ -4,9 +4,13 @@ const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const schemas = {}
 
-const orderByFields = [
+const webhookOrderByFields = [
   'createdDate',
   'updatedDate',
+]
+
+const webhookLogOrderByFields = [
+  'createdDate',
 ]
 
 // ////////// //
@@ -17,7 +21,7 @@ schemas['2020-08-10'].list = {
   query: Joi.object()
     .keys({
       // order
-      orderBy: Joi.string().valid(...orderByFields).default('createdDate'),
+      orderBy: Joi.string().valid(...webhookOrderByFields).default('createdDate'),
       order: Joi.string().valid('asc', 'desc').default('desc'),
 
       // cursor pagination
@@ -33,6 +37,32 @@ schemas['2020-08-10'].list = {
       active: Joi.boolean(),
     })
     .oxor('startingAfter', 'endingBefore')
+}
+
+schemas['2020-08-10'].listLogs = {
+  query: Joi.object()
+    .keys({
+      // order
+      orderBy: Joi.string().valid(...webhookLogOrderByFields).default('createdDate'),
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+
+      // cursor pagination
+      nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+
+      // filters
+      id: Joi.array().unique().items(Joi.string()).single(),
+      createdDate: getRangeFilter(Joi.string().isoDate()),
+      webhookId: Joi.array().unique().items(Joi.string()).single(),
+      eventId: Joi.array().unique().items(Joi.string()).single(),
+      statusCode: Joi.array().unique().items(Joi.string()).single(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+}
+
+schemas['2020-08-10'].readLog = {
+  params: objectIdParamsSchema
 }
 
 // ////////// //
@@ -69,6 +99,14 @@ const validationVersions = {
     {
       target: 'webhook.list',
       schema: schemas['2020-08-10'].list
+    },
+    {
+      target: 'webhook.listLogs',
+      schema: schemas['2020-08-10'].listLogs
+    },
+    {
+      target: 'webhook.readLog',
+      schema: schemas['2020-08-10'].readLog
     },
   ],
 
