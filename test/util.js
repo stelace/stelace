@@ -176,7 +176,7 @@ function checkStatsObject ({
       // Better compare the difference below a small threshold
       // than performing a strict equality because of floating operation precision
       // 8.1 + 8.2 = 16.299999999999997
-      const isEqual = (nb1, nb2) => Math.abs(nb1 - nb2) <= 1e-10 // not using Number.EPSILON because it's too small
+      const isEqual = (nb1, nb2) => Math.abs(nb1 - nb2) <= 1e-4 // not using Number.EPSILON because it's too small
       t.true(isEqual(result.sum, sum))
 
       t.is(result.min, min)
