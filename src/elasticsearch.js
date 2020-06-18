@@ -1,6 +1,7 @@
 module.exports = {
 
   getClient,
+  isReady,
 
   isIndexExisting,
   createIndex,
@@ -127,6 +128,21 @@ async function getClient ({ platformId, env } = {}) {
 
   cacheClients[cacheKey] = client
   return client
+}
+
+async function isReady ({ platformId, env, nbAttempts = 3, attemptsInterval = 2000 }) {
+  const client = await getClient({ platformId, env })
+
+  for (let i = 1; i <= nbAttempts; i++) {
+    try {
+      await client.info()
+      return true
+    } catch (err) {
+      await new Promise(resolve => setTimeout(resolve, attemptsInterval))
+    }
+  }
+
+  return false
 }
 
 /**
