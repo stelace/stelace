@@ -1,4 +1,4 @@
-const { isIndexExisting, createIndex, getClient, getIndex } = require('../src/elasticsearch')
+const { isIndexExisting, createIndex, getClient, getIndex, isReady } = require('../src/elasticsearch')
 
 const { getModels } = require('../src/models')
 
@@ -32,5 +32,6 @@ async function reset ({ platformId, env }) {
 
 module.exports = {
   init,
-  reset
+  reset,
+  isReady,
 }

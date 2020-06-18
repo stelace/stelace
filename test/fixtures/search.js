@@ -5,6 +5,8 @@ const request = require('supertest')
 const { getAccessTokenHeaders } = require('../auth')
 const { computeDate } = require('../util')
 
+const { isReady: isElasticsearchReady } = require('../elasticsearch')
+
 const fixturesParams = {
   ownerId: 'c12ca46b-995c-487c-a940-d9e41e0ff178',
   assetsIds: {},
@@ -23,6 +25,7 @@ const fixturesParams = {
 
 module.exports = {
   fixturesParams,
+  isElasticsearchReady,
   initElasticsearch
 }
 
