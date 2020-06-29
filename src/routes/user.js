@@ -135,7 +135,8 @@ function init (server, { middlewares, helpers } = {}) {
     path: '/users/:id'
   }, checkPermissions([
     'user:edit',
-    'user:edit:all'
+    'user:edit:all',
+    'user:edit:organization'
   ], {
     checkData: true,
     editProtectedNamespaces: true,

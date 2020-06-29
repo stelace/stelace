@@ -2149,6 +2149,13 @@ module.exports = {
     }),
 
     createModel({
+      id: 'role_WhgRVs1C7m1gxihuC7m',
+      createdDate: now,
+      updatedDate: now,
+      ...roles.orgManager
+    }),
+
+    createModel({
       id: 'role_2tem1s1CSC1gTgJYCSC',
       createdDate: now,
       updatedDate: now,
@@ -2489,7 +2496,7 @@ module.exports = {
       roles: ['dev', 'user', 'provider'],
       organizations: {
         org_xC3ZlGs1Jo71gb2G0Jo7: {
-          roles: ['user', 'provider']
+          roles: ['user', 'provider', 'org-manager']
         }
       },
       metadata: {},

@@ -62,7 +62,18 @@ module.exports = {
     editNamespaces: [],
     parentId: null,
     customRole: false,
-  }
+  },
+  orgManager: {
+    name: 'Organization manager',
+    value: 'org-manager',
+    permissions: [
+      'user:edit:organization'
+    ],
+    readNamespaces: [],
+    editNamespaces: [],
+    parentId: null,
+    customRole: false
+  },
 }
 
 function getUserPermissions () {
@@ -300,6 +311,7 @@ function getPublicPermissions () {
     // 'user:create:all',
     // 'user:edit',
     // 'user:edit:all',
+    // 'user:edit:organization',
     // 'user:remove',
     // 'user:remove:all',
     // 'user:config:all',

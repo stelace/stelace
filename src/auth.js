@@ -339,9 +339,12 @@ function checkPermissions (permissions = [], {
               })
             }
 
+            // allows members to be able to have org manager permissions
+            const restrictedRoles = organization.roles.concat(['org-manager'])
+
             accessInfo = await computeAccessInfo({
               roles: addPublicRole(userRoles),
-              restrictedRoles: organization.roles,
+              restrictedRoles,
               ...computeAccessParams
             })
 

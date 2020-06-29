@@ -276,6 +276,7 @@ const coreListObjectPermissions = [
       'create:all',
       'edit',
       'edit:all',
+      'edit:organization',
       'remove',
       'remove:all',
       'config:all',

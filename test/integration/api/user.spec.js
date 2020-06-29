@@ -957,9 +957,6 @@ test('updates a user username', async (t) => {
 test('updates an organization if the user is a member', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({
     t,
-    permissions: [
-      'user:edit'
-    ],
     userId: 'usr_WHlfQps1I3a1gJYz2I3a'
   })
 
@@ -977,6 +974,26 @@ test('updates an organization if the user is a member', async (t) => {
   t.is(organization.id, 'org_xC3ZlGs1Jo71gb2G0Jo7')
   t.is(organization.firstname, 'Firstname')
   t.is(organization.lastname, 'Lastname')
+})
+
+test('cannot update an organization if the user has not appropriate permissions', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    userId: 'usr_AAtfQps1I3a1gJYz2I3a'
+  })
+
+  await request(t.context.serverUrl)
+    .patch('/users/org_xC3ZlGs1Jo71gb2G0Jo7')
+    .set(Object.assign({}, authorizationHeaders, {
+      'x-stelace-organization-id': 'org_xC3ZlGs1Jo71gb2G0Jo7'
+    }))
+    .send({
+      firstname: 'Firstname',
+      lastname: 'Lastname'
+    })
+    .expect(403)
+
+  t.pass()
 })
 
 test('transfers organization ownership as an owner', async (t) => {

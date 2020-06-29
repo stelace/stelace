@@ -443,9 +443,18 @@ function start ({ communication }) {
       throw createError(400, 'An organization cannot have a username')
     }
 
+    const realCurrentUserId = getRealCurrentUserId(req)
     const isSelf = User.isSelf(user, currentUserId)
-    if (!req._matchedPermissions['user:edit:all'] && !isSelf) {
-      throw createError(403)
+
+    if (!req._matchedPermissions['user:edit:all']) {
+      if (!isSelf ||
+        (targetingOrganization && !req._matchedPermissions['user:edit:organization']) ||
+        (!targetingOrganization && !req._matchedPermissions['user:edit'])
+      ) {
+        console.log(!isSelf, targetingOrganization && !req._matchedPermissions['user:edit:organization'], !targetingOrganization && !req._matchedPermissions['user:edit'])
+
+        throw createError(403)
+      }
     }
 
     // Must be authenticated as the owner of the organization to transfer ownership
@@ -492,7 +501,8 @@ function start ({ communication }) {
       editNamespaces: req._editNamespaces,
       object: Object.assign({}, user, { metadata, platformData }),
       deltaObject: { metadata, platformData },
-      currentUserId
+      currentUserId,
+      realCurrentUserId
     })
 
     if (!isValidEditNamespaces) {
