@@ -56,7 +56,7 @@ schemas['2020-08-10'].listLogs = {
       createdDate: getRangeFilter(Joi.string().isoDate()),
       webhookId: Joi.array().unique().items(Joi.string()).single(),
       eventId: Joi.array().unique().items(Joi.string()).single(),
-      statusCode: Joi.array().unique().items(Joi.string()).single(),
+      status: Joi.array().unique().items(Joi.string()).single(),
     })
     .oxor('startingAfter', 'endingBefore')
 }

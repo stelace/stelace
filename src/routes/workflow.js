@@ -175,14 +175,13 @@ function init (server, { middlewares, helpers } = {}) {
       'workflowId',
       'eventId',
       'runId',
-      'statusCode',
     ]
 
     const payload = _.pick(req.query, fields)
 
     let params = populateRequesterParams(req)({
       type: 'listLogs',
-      workflowType: req.query.type,
+      logType: req.query.type,
     })
 
     params = Object.assign({}, params, payload)

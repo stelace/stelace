@@ -354,8 +354,7 @@ function start ({ communication, serverPort }) {
       workflowId,
       eventId,
       runId,
-      workflowType: type,
-      statusCode,
+      logType: type,
     } = req
 
     const queryBuilder = WorkflowLog.query()
@@ -399,12 +398,6 @@ function start ({ communication, serverPort }) {
         types: {
           dbField: 'type',
           value: type,
-          transformValue: 'array',
-          query: 'inList'
-        },
-        statusCodes: {
-          dbField: 'statusCode',
-          value: statusCode,
           transformValue: 'array',
           query: 'inList'
         },
