@@ -4,12 +4,12 @@ This plugin enables Email API with Nodemailer.
 
 ## Testing environment
 
-Emails are not sent but stored in `build` folder of this plugin.
-Some tests will send actually emails via external fake SMTP service [Ethereal](https://ethereal.email).
+Emails are not sent but stored in `build` folder of this plugin when `NODE_ENV` is set to `test`.
+Some tests will actually send emails via external fake SMTP service [Ethereal](https://ethereal.email) using `nodemailer.createTestAccount`.
 
 ## Debugging
 
-To activate the debugging and send emails for real, `NODE_ENV` must not be `test`.
+To debug with emails sent for real, `NODE_ENV` must not be `test`.
 
 You can add `DEBUG_EMAILS=user1@example.com,user2@example.com` to your `.env` file so that:
 
