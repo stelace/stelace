@@ -64,7 +64,7 @@
     "elastic-apm-node": "~3.6.1",
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",
-    "http-errors": "^1.7.3",
+    "http-errors": "^1.8.0",
     "intl": "^1.2.5",
     "intl-format-cache": "^4.2.46",
     "intl-messageformat": "^4.4.0",
