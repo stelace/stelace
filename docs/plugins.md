@@ -40,22 +40,22 @@ Plugins are expected to export the following properties from `index.js` file, in
 
 When developing a plugin as an external repository, you can `yarn add -D https://github.com/stelace/stelace.git` as a devDependency to be able to use exports from `server.js` using `require('stelace-server')`.
 
-Look at official [Search filter DSL parser plugin](https://github.com/stelace/stelace-search-filter-dsl-parser) for a blueprint.
+Look at official [Search filter DSL parser plugin](https://github.com/stelace/stelace-search-filter-dsl-parser) or [Stripe plugin](https://github.com/stelace/stelace-stripe) for a blueprint.
 
 #### Running plugin tests
 
-You can easily run external plugin tests with 'stelace-server' as a devDependency.
+You can easily run your own external plugin tests with 'stelace-server' as a devDependency.
 
 Add this script to package.json file in your plugin repository:
 
 ```json
-// plugin loads itself before starting tests
+// plugin loads itself before starting AVA tests (test/*.spec.js)
 "scripts": {
   "test": "cross-env STELACE_PLUGINS_PATHS=$(shx pwd) NODE_ENV=test ava --c $(node -p 'Math.max(os.cpus().length - 1, 1)')",
 }
 ```
 
-Include the following lines at the beginning of `test/*.spec.js` files:
+Include the following lines at the beginning of your `test/*.spec.js` files:
 
 ```js
 const test = require('ava')
@@ -83,20 +83,20 @@ And run plugin tests with `yarn test` on the command line.
 
 #### Running plugin & server tests
 
-You can also ensure your plugin does not break the server using the following command with stelace-server:
+You can also ensure your plugin does not break the server using the following command to run all tests of stelace-server:
 
 ```sh
 STELACE_PLUGINS_PATHS=/path/to/local/plugin/repo yarn test:server
 ```
 
-_Note: you can make use of `npm explore` to use this from within your plugin repository with stelace-server installed as a devDependency._
+_Note: this relies on `npm explore`._
 
 ## Continuous integration and tests
 
 During continuous integration with circleCI:
 
 - missing `INSTALLED_PLUGINS` are automatically installed using `yarn plugins:install --save` script, which updates package.json before building Docker image.
-- After build, `yarn plugins:prepare` rewrites some `require('stelace-server')` calls to run all of server and plugin tests with local server before ending CI process.
+- After build, `yarn plugins:prepare` in `Dockerfile.prod` rewrites some `require('stelace-server')` calls to run all of server and plugin tests with local server before ending CI process.
 
 To support private plugins, `Dockerfile.prod` is configured to accept SSH key from ssh-agent as a secret during circleCI build.
 This way it does not leak into any Docker image layer.
