@@ -1077,6 +1077,14 @@ test.serial('performs an OpenID authentication', async (t) => {
 })
 
 if (shouldExecuteBuiltInSSOTest) {
+  // Please note Github may apply a verification code at login when a new detected device
+  // even if 2-factor authentication is disabled
+  // https://github.blog/changelog/2019-07-01-verified-devices
+  // https://github.community/t/disable-remove-email-device-verification-prompt-on-login-not-the-2fa/2333
+
+  // You should login to Github with your test account credentials (username, password) before running
+  // this test in local environment
+  // This security measure makes CI testing really hard
   if (getOAuthConfiguration('github')) {
     // Must run serially because config is updated
     test.serial('Github OAuth authentication works', async (t) => {
