@@ -99,10 +99,11 @@ function isBuiltInSSOProvider ({ provider, ssoConnection = {} } = {}) {
 }
 
 const oAuth2BuiltInConnections = {
+  // https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
   facebook: {
     protocol: 'oauth2',
-    authorizationUrl: 'https://www.facebook.com/v3.3/dialog/oauth',
-    tokenUrl: 'https://graph.facebook.com/v3.3/oauth/access_token',
+    authorizationUrl: 'https://www.facebook.com/v7.0/dialog/oauth',
+    tokenUrl: 'https://graph.facebook.com/v7.0/oauth/access_token',
     userInfoUrl: 'https://graph.facebook.com/me',
     userInfoMapping: {
       email: 'email',
@@ -111,6 +112,8 @@ const oAuth2BuiltInConnections = {
       lastname: 'last_name'
     }
   },
+
+  // https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps
   github: {
     protocol: 'oauth2',
     authorizationUrl: 'https://github.com/login/oauth/authorize',
@@ -121,18 +124,21 @@ const oAuth2BuiltInConnections = {
       email: 'email'
     }
   },
+
+  // https://developers.google.com/identity/protocols/oauth2/openid-connect#discovery
+  // JSON configuration: https://accounts.google.com/.well-known/openid-configuration
   google: {
     protocol: 'oauth2',
     authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenUrl: 'https://accounts.google.com/o/oauth2/token',
+    tokenUrl: 'https://oauth2.googleapis.com/token',
     scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-    userInfoUrl: 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json',
+    userInfoUrl: 'https://openidconnect.googleapis.com/v1/userinfo',
     userInfoMapping: {
       email: 'email',
       displayName: 'name',
       firstname: 'given_name',
       lastname: 'family_name',
-      'platformData.instant.emailVerified': 'verified_email'
+      'platformData.instant.emailVerified': 'email_verified'
     }
   }
 }
