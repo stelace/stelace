@@ -93,11 +93,11 @@ async function dropTestPlatforms () {
   await store.setPlatformId(10)
 }
 
-function before ({ name, platformId, env, enableSignal = true } = {}) {
+function before ({ name, platformId, env, enableSignal = true, useFreePort } = {}) {
   const fn = async (t) => {
     const systemKey = getSystemKey()
 
-    const result = await createServer({ enableSignal })
+    const result = await createServer({ enableSignal, useFreePort })
     const server = result.server
     const serverPort = result.serverPort
 
@@ -197,11 +197,11 @@ function after () {
   return fn
 }
 
-async function createServer ({ enableSignal }) {
+async function createServer ({ enableSignal, useFreePort = true }) {
   const { start } = require('../server')
 
   const server = await start({
-    useFreePort: true,
+    useFreePort,
     communicationEnv: Uuid.v4(),
     enableSignal
   })
