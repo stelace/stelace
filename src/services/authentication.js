@@ -1689,7 +1689,9 @@ function getSSOLoginUrlClient ({ client, authorizationParams, ssoConnection }) {
   return ssoLoginUrl
 }
 
-function getTokenTypeTransformationsOrder (provider) {
+function getTokenTypeTransformationsToTry (provider) {
+  // Facebook only accepts capitalized token type value
+  // example: returned token_type is 'bearer' but userinfo endpoint only accepts 'Bearer'
   if (provider === 'facebook') {
     return [
       'CAPITALIZE',
@@ -1703,9 +1705,10 @@ function getTokenTypeTransformationsOrder (provider) {
   }
 }
 
-// Note: tokenSet is can be mutated during the fetching process
+// Note: tokenSet can be mutated by this function
+// when transformation of its token_type is required by provider
 async function fetchOAuth2UserInfo ({ tokenSet, provider, client }) {
-  const tokenTypeTransformationsOrder = getTokenTypeTransformationsOrder(provider)
+  const tokenTypeTransformationsOrder = getTokenTypeTransformationsToTry(provider)
   const rawTokenType = tokenSet.token_type
 
   const userInfo = await bluebird.reduce(tokenTypeTransformationsOrder, (userInfo, transformation) => {

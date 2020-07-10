@@ -42,6 +42,10 @@ const OAUTH_TEST_CONFIGS = (() => {
 })()
 
 const shouldExecuteBuiltInSSOTest = (() => {
+  // Do not run the real OAuth test when the branch is dev or from dependabot
+  // Running the test too often may rise security barriers from the providers
+  // that cannot be handled by Puppeteer
+  // (Captcha, SMS verification...)
   return typeof !process.env.CIRCLECI ||
     (
       process.env.CIRCLECI &&
@@ -148,6 +152,9 @@ async function checkOAuthProcess ({ t, provider, ssoConnection, afterAuthenticat
 
   await executeBrowserScenario({ browser, page })
 
+  // add one second delay to ensure the final redirection URL after login
+  // is the application URL
+  // `page.waitForNavigation()` doesn't seem to always work (multiple redirections)
   await new Promise(resolve => setTimeout(resolve, 1000))
 
   const afterLoginRedirectUrl = page.url()
@@ -215,17 +222,17 @@ async function checkOAuthProcess ({ t, provider, ssoConnection, afterAuthenticat
 }
 
 test.before(async t => {
-  // set fixed values to be able to test OAuth authentication with external providers
+  // set fixed port numbers to be able to test OAuth authentication with external providers
   // with stable URLs
   // App URL: http://localhost:9461
-  // Authorization callback URL: http://localhost:7645/auth/sso/e8_test/${provider}/callback
+  // Authorization callback URL: http://localhost:7645/auth/sso/e3_test/${provider}/callback
   // Current tested providers: 'github', 'facebook'
   process.env.SERVER_PORT = 7645
   const oauthServerPort = 9461
 
   await before({
     name: 'authentication',
-    platformId: 8,
+    platformId: 3,
     useFreePort: false
   })(t)
   await beforeEach()(t)
@@ -1085,6 +1092,7 @@ if (shouldExecuteBuiltInSSOTest) {
   // You should login to Github with your test account credentials (username, password) before running
   // this test in local environment
   // This security measure makes CI testing really hard
+  // and `github` provider should generally be omitted in `OAUTH_TEST_CONFIGS`
   if (getOAuthConfiguration('github')) {
     // Must run serially because config is updated
     test.serial('Github OAuth authentication works', async (t) => {
