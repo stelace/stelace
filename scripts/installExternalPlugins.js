@@ -1,10 +1,10 @@
 /**
- * Used to install plugins during CI process
- * TODO: Use ShellJS for better portability https://github.com/shelljs/shelljs
+ * First step to install external plugins during CI and Docker image build process
+ * and development as well.
  */
 
 require('dotenv').config()
-const { execSync } = require('child_process')
+const shell = require('shelljs')
 const path = require('path')
 const script = require('commander')
 
@@ -24,14 +24,14 @@ if (installs.length) {
   const list = installs.join(' ')
   if (script.save) {
     log('Installing plugins, updating package.json')
-    execSync(`yarn add -D ${list}`, { stdio: 'inherit' })
+    shell.exec(`yarn add -D ${list}`)
   } else {
     // Hack needed to install without updating package.json & yarn.lock
     // https://github.com/yarnpkg/yarn/issues/1743
     log('Installing plugins without updating package.json')
-    execSync(`cp ${packageFile} ${packageFile}.bckp`, { stdio: 'inherit' })
-    execSync(`yarn add -D ${list} --no-lockfile`, { stdio: 'inherit' })
-    execSync(`mv ${packageFile}.bckp ${packageFile}`, { stdio: 'inherit' })
+    shell.cp(packageFile, `${packageFile}.bckp`)
+    shell.exec(`yarn add -D ${list} --no-lockfile`)
+    shell.mv(`${packageFile}.bckp`, packageFile)
   }
 
   // We copy installed plugins from `node_modules` to `plugins/installed` directory
@@ -40,12 +40,12 @@ if (installs.length) {
     // Getting plugin root directory
     log(`Copying ${p} plugin tests and files to plugins/installed directory`)
     const pluginDirectory = path.dirname(require.resolve(`${p}/package.json`))
-    const pluginFiles = `${pluginDirectory}/.`
-    execSync(`mkdir -p ${installedPluginsDir}/${p} && cp -a ${pluginFiles} ${installedPluginsDir}/${p}`, {
-      stdio: 'inherit'
-    })
-    // nested package.json file changes the way `require` resolved relative paths in plugin,
+    shell.mkdir('-p', `${installedPluginsDir}/${p}`)
+    // currently no -a option in shelljs (https://github.com/shelljs/shelljs/issues/771)
+    // and -P option doesn’t work with -R (https://github.com/shelljs/shelljs/issues/937)
+    shell.cp('-R', `${pluginDirectory}/*`, `${installedPluginsDir}/${p}`)
+    // nested package.json file changes the way `require` resolves relative paths in plugin,
     // which can break tests.
-    execSync(`rm ${installedPluginsDir}/${p}/package.json`, { stdio: 'inherit' })
+    shell.rm(`${installedPluginsDir}/${p}/package.json`)
   })
 }

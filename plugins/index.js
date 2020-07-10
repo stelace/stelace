@@ -92,7 +92,7 @@ function load (name, { isLocalModule, isManual, useInstalledCopy } = {}) {
       /plugins[\\/]index\.js/.test(_.get(err, 'requireStack[0]', ''))
     const shouldInstall = !isLocalModule && !isManual && installedModuleError
     const note = shouldInstall ? `Maybe you just forgot to run \`${
-      chalk.bold('yarn plugins:install')
+      chalk.bold('yarn plugins')
     }\`.\n` : ''
     warn(err, `\n${chalk.bold(name)} plugin error`, note)
     process.exit(0)

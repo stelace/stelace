@@ -72,6 +72,7 @@ jobs:
           name: Build Docker containers
           command: |
             yarn plugins:install --save
+            # Reference any private plugin set in $INSTALLED_PLUGINS environment variable in CircleCI
             sed -i 's|^\(INSTALLED_PLUGINS=\).*$|\1'"$INSTALLED_PLUGINS"'|' .env
             # Set docker image CI_TAG
             echo "export CI_TAG=${CIRCLE_SHA1:0:7}$CI_PREFIX$CIRCLE_BUILD_NUM" | tee -a $BASH_ENV vars.txt
