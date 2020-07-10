@@ -15,6 +15,100 @@ const { encodeBase64 } = require('../../../src/util/encoding')
 
 const createOidcServer = require('../../../test/oauth/server')
 
+const OAUTH_TEST_CONFIGS = (() => {
+  try {
+    /**
+     * process.env.OAUTH_TEST_CONFIGS must be a JSON stringified object with the following format:
+     * {
+     *   "<provider>": {
+     *     "credentials": {
+     *       "username": ""
+     *       "password": ""
+     *     },
+     *     "ssoConnection": {
+     *       "clientId": "",
+     *       "clientSecret": ""
+     *     }
+     *   }
+     * }
+     *
+     * Currently, the following providers are tested: 'github' and 'facebook'
+     */
+
+    return JSON.parse(process.env.OAUTH_TEST_CONFIGS)
+  } catch (err) {
+    return {}
+  }
+})()
+
+const shouldExecuteBuiltInSSOTest = (() => {
+  // Do not run the real OAuth test when the branch is dev or from dependabot
+  // Running the test too often may rise security barriers from the providers
+  // that cannot be handled by Puppeteer
+  // (Captcha, SMS verification...)
+  return typeof !process.env.CIRCLECI ||
+    (
+      process.env.CIRCLECI &&
+        (process.env.CIRCLE_BRANCH !== 'dev' || !process.env.CIRCLE_BRANCH.startsWith('dependabot/'))
+    )
+})()
+
+function getOAuthConfiguration (provider) {
+  const config = OAUTH_TEST_CONFIGS[provider]
+  if (!config) return
+
+  if (!config.credentials || !config.credentials.username || !config.credentials.password) {
+    throw new Error(`Invalid credentials for provider: ${provider}`)
+  }
+
+  if (!config.ssoConnection || !config.ssoConnection.clientId || !config.ssoConnection.clientSecret) {
+    throw new Error(`Invalid SSO connection for provider: ${provider}`)
+  }
+
+  return {
+    credentials: OAUTH_TEST_CONFIGS[provider].credentials,
+    ssoConnection: OAUTH_TEST_CONFIGS[provider].ssoConnection,
+  }
+}
+
+async function checkElementVisible (page, selector, { timeout = 5000, isButton = true } = {}) {
+  try {
+    if (isButton) {
+      // https://github.com/puppeteer/puppeteer/blob/v5.0.0/docs/api.md#framewaitforfunctionpagefunction-options-args
+      // waits until the element exists, is visible and isn't disabled
+      await page.waitForFunction(selector => {
+        // visibility logic copied from:
+        // https://github.com/puppeteer/puppeteer/blob/e2e050259f9749fad676b4ea5c78f748db8f6bcb/src/common/DOMWorld.ts#L549-L559
+
+        const element = document.querySelector(selector)
+        if (!element) return false
+
+        const style = window.getComputedStyle(element)
+        const isVisible = style && style.visibility !== 'hidden' && hasVisibleBoundingBox()
+        const isDisabled = style && (
+          element.classList.contains('disabled') ||
+          element.getAttribute('disabled') !== null
+        )
+
+        return isVisible && !isDisabled
+
+        function hasVisibleBoundingBox () {
+          const rect = element.getBoundingClientRect()
+          return !!(rect.top || rect.bottom || rect.width || rect.height)
+        }
+      }, { timeout }, selector)
+    } else {
+      // https://github.com/puppeteer/puppeteer/blob/v5.0.0/docs/api.md#pagewaitforselectorselector-options
+      // waits until the element exists and is visible
+      await page.waitForSelector(selector, { timeout, visible: true })
+    }
+
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
 const adminUserId = 'usr_WHlfQps1I3a1gJYz2I3a' // username: 'admin'
 
 let authorizationServerPort
@@ -49,8 +143,125 @@ const authorizationServerInfo = {
 let apiServerUrl
 let publicPlatformId
 
+async function checkOAuthProcess ({ t, provider, ssoConnection, afterAuthenticationUrl, executeBrowserScenario }) {
+  const systemKey = getSystemKey()
+
+  // add SSO connection
+  await request(t.context.serverUrl)
+    .patch('/config/private')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-system-key': systemKey,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      stelace: {
+        ssoConnections: {
+          [provider]: Object.assign({}, ssoConnection, {
+            protocol: 'oauth2',
+            afterAuthenticationUrl,
+            active: true
+          })
+        }
+      }
+    })
+    .expect(200)
+
+  const browser = await puppeteer.launch({
+    executablePath: '/usr/bin/chromium-browser',
+    args: ['--disable-dev-shm-usage', '--no-sandbox']
+  })
+
+  const page = await browser.newPage()
+
+  // Chrome on Linux
+  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36')
+
+  await executeBrowserScenario({ browser, page })
+
+  // add one second delay to ensure the final redirection URL after login
+  // is the application URL
+  // `page.waitForNavigation()` doesn't seem to always work (multiple redirections)
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
+  const afterLoginRedirectUrl = page.url()
+  t.true(afterLoginRedirectUrl.startsWith(afterAuthenticationUrl))
+
+  const applicationCodeUrlObj = new URL(afterLoginRedirectUrl)
+  t.is(typeof applicationCodeUrlObj.searchParams.get('code'), 'string')
+  t.is(applicationCodeUrlObj.searchParams.get('status'), 'success')
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .post('/auth/token')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      code: applicationCodeUrlObj.searchParams.get('code'),
+      grantType: 'authorizationCode'
+    })
+    .expect(200)
+
+  t.is(typeof obj, 'object')
+  t.is(obj.tokenType, 'Bearer')
+  t.is(typeof obj.accessToken, 'string')
+  t.is(typeof obj.refreshToken, 'string')
+  t.truthy(obj.userId)
+
+  const token = jwt.decode(obj.accessToken)
+  t.is(typeof token, 'object')
+  t.is(typeof token.loggedAt, 'number')
+  t.deepEqual(token.roles, ['user', 'provider'])
+  t.truthy(token.userId)
+
+  // Tokens can only be fetched once
+  const { body: getTokenError } = await request(t.context.serverUrl)
+    .post('/auth/token')
+    .set({
+      'x-platform-id': t.context.platformId,
+      'x-stelace-env': t.context.env
+    })
+    .send({
+      code: applicationCodeUrlObj.searchParams.get('code'),
+      grantType: 'authorizationCode'
+    })
+    .expect(422)
+
+  t.true(getTokenError.message.includes('already used'))
+
+  const ssoAuthorizationHeaders = {
+    'x-platform-id': t.context.platformId,
+    'x-stelace-env': t.context.env,
+    authorization: `${obj.tokenType} ${obj.accessToken}`
+  }
+
+  // fetch the created user
+  const { body: user } = await request(t.context.serverUrl)
+    .get(`/users/${token.userId}`)
+    .set(ssoAuthorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(user.roles, ['user', 'provider'])
+  t.true(user.platformData.ssoProviders.includes(provider))
+
+  await browser.close()
+}
+
 test.before(async t => {
-  await before({ name: 'authentication' })(t)
+  // set fixed port numbers to be able to test OAuth authentication with external providers
+  // with stable URLs
+  // App URL: http://localhost:9461
+  // Authorization callback URL: http://localhost:7645/auth/sso/e3_test/${provider}/callback
+  // Current tested providers: 'github', 'facebook'
+  process.env.SERVER_PORT = 7645
+  const oauthServerPort = 9461
+
+  await before({
+    name: 'authentication',
+    platformId: 3,
+    useFreePort: false
+  })(t)
   await beforeEach()(t)
 
   publicPlatformId = `e${t.context.platformId}_${t.context.env}`
@@ -80,7 +291,7 @@ test.before(async t => {
       next()
     })
 
-    authorizationApp = authorizationServer.listen(authorizationServerPort, (err) => {
+    authorizationApp = authorizationServer.listen(oauthServerPort, (err) => {
       if (err) return reject(err)
 
       // dynamically get a free port
@@ -898,6 +1109,151 @@ test.serial('performs an OpenID authentication', async (t) => {
 
   await browser.close()
 })
+
+if (shouldExecuteBuiltInSSOTest) {
+  // Please note Github may apply a verification code at login when a new detected device
+  // even if 2-factor authentication is disabled
+  // https://github.blog/changelog/2019-07-01-verified-devices
+  // https://github.community/t/disable-remove-email-device-verification-prompt-on-login-not-the-2fa/2333
+
+  // You should login to Github with your test account credentials (username, password) before running
+  // this test in local environment
+  // This security measure makes CI testing really hard
+  // and `github` provider should generally be omitted in `OAUTH_TEST_CONFIGS`
+  if (getOAuthConfiguration('github')) {
+    // Must run serially because config is updated
+    test.serial('Github OAuth authentication works', async (t) => {
+      const provider = 'github'
+
+      const config = getOAuthConfiguration(provider)
+      if (!config) return t.pass()
+
+      const { credentials, ssoConnection } = config
+
+      const { username, password } = credentials
+
+      const executeBrowserScenario = async ({ page }) => {
+        // trigger the SSO authentication (user clicks on the SSO button)
+        await page.goto(`${apiServerUrl}/auth/sso/${publicPlatformId}/${provider}`)
+
+        const usernameSelector = 'input[name="login"]'
+
+        await page.waitForSelector(usernameSelector)
+
+        // fill login form
+        await page.type(usernameSelector, username)
+        await page.type('input[type="password"]', password)
+        await page.click('input[type="submit"]')
+
+        // authorize form is displayed the first time
+        const authorizeButtonSelector = 'button[name="authorize"]'
+        const authorizeButtonExists = await checkElementVisible(
+          page,
+          authorizeButtonSelector,
+          { isButton: true }
+        )
+        if (authorizeButtonExists) {
+          await page.click(authorizeButtonSelector)
+          await page.waitForNavigation()
+        }
+      }
+
+      await checkOAuthProcess({
+        t,
+        provider,
+        ssoConnection,
+        afterAuthenticationUrl: authorizationServerUrl,
+        executeBrowserScenario
+      })
+    })
+  }
+
+  if (getOAuthConfiguration('facebook')) {
+    // Must run serially because config is updated
+    test.serial('Facebook OAuth authentication works', async (t) => {
+      const provider = 'facebook'
+
+      const config = getOAuthConfiguration(provider)
+      if (!config) return t.pass()
+
+      const { credentials, ssoConnection } = config
+      const { username, password } = credentials
+
+      const executeBrowserScenario = async ({ page }) => {
+        // trigger the SSO authentication (user clicks on the SSO button)
+        await page.goto(`${apiServerUrl}/auth/sso/${publicPlatformId}/${provider}`)
+
+        const usernameSelector = 'input[name="email"]'
+
+        await page.waitForSelector(usernameSelector)
+
+        // fill login form
+        await page.type(usernameSelector, username)
+        await page.type('input[type="password"]', password)
+        await page.click('button[type="submit"]')
+
+        // authorize form is displayed the first time
+        const authorizeButtonSelector = 'button.layerConfirm[type="submit"]'
+        const authorizeButtonExists = await checkElementVisible(
+          page,
+          authorizeButtonSelector,
+          { isButton: true }
+        )
+        if (authorizeButtonExists) {
+          await page.click(authorizeButtonSelector)
+          await page.waitForNavigation()
+        }
+      }
+
+      await checkOAuthProcess({
+        t,
+        provider,
+        ssoConnection,
+        afterAuthenticationUrl: authorizationServerUrl,
+        executeBrowserScenario
+      })
+    })
+  }
+
+  // The Google OAuth test implemented below doesn't work as the authentication process is different from real user
+  // (e.g. popup appearing only for puppeteer and difficult to )
+  if (getOAuthConfiguration('google')) {
+    // Must run serially because config is updated
+    // test.serial('Google OAuth authentication works', async (t) => {
+    //   const provider = 'google'
+
+    //   const { credentials, ssoConnection } = getOAuthConfiguration(provider)
+    //   const { username, password } = credentials
+
+    //   const executeBrowserScenario = async ({ page }) => {
+    //     // trigger the SSO authentication (user clicks on the SSO button)
+    //     await page.goto(`${apiServerUrl}/auth/sso/${publicPlatformId}/${provider}`)
+
+    //     const usernameSelector = 'input[name="identifier"]'
+
+    //     await page.waitForSelector(usernameSelector)
+
+    //     // fill identifier form
+    //     await page.type(usernameSelector, username)
+    //     await page.click('#identifierNext')
+
+    //     // fill password form
+    //     await page.type('input[type="password"]', password)
+    //     await page.click('#passwordNext')
+
+    //     await page.waitForNavigation()
+    //   }
+
+    //   await checkOAuthProcess({
+    //     t,
+    //     provider,
+    //     ssoConnection,
+    //     afterAuthenticationUrl: authorizationServerUrl,
+    //     executeBrowserScenario
+    //   })
+    // })
+  }
+}
 
 test('rejects if the user agent does not match the user agent that created the refresh token', async (t) => {
   const userAgent = 'Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.2) Gecko/20010725 Netscape6/6.1'

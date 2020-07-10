@@ -2,6 +2,7 @@ const createError = require('http-errors')
 const { Issuer, generators } = require('openid-client')
 const _ = require('lodash')
 const { transaction } = require('objection')
+const bluebird = require('bluebird')
 
 const { logError } = require('../../server/logger')
 const { getModels } = require('../models')
@@ -41,6 +42,11 @@ const {
 } = require('stelace-util-keys')
 
 const tokenPrefix = 'tok_'
+
+const TOKEN_TYPE_TRANSFORMATIONS = {
+  IDENTITY: _.identity,
+  CAPITALIZE: _.capitalize,
+}
 
 let responder
 let configRequester
@@ -466,7 +472,7 @@ function start ({ communication, serverPort, isSystem }) {
             }
           )
 
-          userInfo = await client.userinfo(tokenSet)
+          userInfo = await fetchOAuth2UserInfo({ tokenSet, provider, client })
           tokensToStore = tokenSet
         } else if (protocol === 'openid') {
           if (!isValidOpenIdConnection(ssoConnection, provider)) {
@@ -581,7 +587,7 @@ function start ({ communication, serverPort, isSystem }) {
 
             updateAttrsBeforeFullDataMerge = Object.assign({}, updateAttrs)
 
-            const ssoProviders = _.get(user, 'platformData.ssoProviders', [])
+            const ssoProviders = _.get(user, 'platformData.ssoProviders')
             if (!Array.isArray(ssoProviders)) { // can happen if API consumers set this property to an arbitrary value
               const rawPlatformData = {
                 ssoProviders: [provider]
@@ -1681,6 +1687,43 @@ function getSSOLoginUrlClient ({ client, authorizationParams, ssoConnection }) {
   }
 
   return ssoLoginUrl
+}
+
+function getTokenTypeTransformationsToTry (provider) {
+  // Facebook only accepts capitalized token type value
+  // example: returned token_type is 'bearer' but userinfo endpoint only accepts 'Bearer'
+  if (provider === 'facebook') {
+    return [
+      'CAPITALIZE',
+      'IDENTITY',
+    ]
+  } else {
+    return [
+      'IDENTITY',
+      'CAPITALIZE',
+    ]
+  }
+}
+
+// Note: tokenSet can be mutated by this function
+// when transformation of its token_type is required by provider
+async function fetchOAuth2UserInfo ({ tokenSet, provider, client }) {
+  const tokenTypeTransformationsOrder = getTokenTypeTransformationsToTry(provider)
+  const rawTokenType = tokenSet.token_type
+
+  const userInfo = await bluebird.reduce(tokenTypeTransformationsOrder, (userInfo, transformation) => {
+    const transformationFn = TOKEN_TYPE_TRANSFORMATIONS[transformation]
+    if (!transformationFn) throw new Error(`Unknown token type transformation: ${transformation}`)
+
+    if (userInfo) return userInfo
+
+    tokenSet.token_type = transformationFn(rawTokenType)
+    return client.userinfo(tokenSet).catch(() => null)
+  }, null)
+
+  if (!userInfo) throw createError(422, 'Unable to retrieve user info')
+
+  return userInfo
 }
 
 function stop () {
