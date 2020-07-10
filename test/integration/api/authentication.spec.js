@@ -71,11 +71,38 @@ function getOAuthConfiguration (provider) {
   }
 }
 
-async function checkElementVisible (page, selector, timeout = 5000) {
+async function checkElementVisible (page, selector, { timeout = 5000, isButton = true } = {}) {
   try {
-    // https://github.com/puppeteer/puppeteer/blob/v5.0.0/docs/api.md#pagewaitforselectorselector-options
-    // waits until the element exists and is visible
-    await page.waitForSelector(selector, { timeout, visible: true })
+    if (isButton) {
+      // https://github.com/puppeteer/puppeteer/blob/v5.0.0/docs/api.md#framewaitforfunctionpagefunction-options-args
+      // waits until the element exists, is visible and isn't disabled
+      await page.waitForFunction(selector => {
+        // visibility logic copied from:
+        // https://github.com/puppeteer/puppeteer/blob/e2e050259f9749fad676b4ea5c78f748db8f6bcb/src/common/DOMWorld.ts#L549-L559
+
+        const element = document.querySelector(selector)
+        if (!element) return false
+
+        const style = window.getComputedStyle(element)
+        const isVisible = style && style.visibility !== 'hidden' && hasVisibleBoundingBox()
+        const isDisabled = style && (
+          element.classList.contains('disabled') ||
+          element.getAttribute('disabled') !== null
+        )
+
+        return isVisible && !isDisabled
+
+        function hasVisibleBoundingBox () {
+          const rect = element.getBoundingClientRect()
+          return !!(rect.top || rect.bottom || rect.width || rect.height)
+        }
+      }, { timeout }, selector)
+    } else {
+      // https://github.com/puppeteer/puppeteer/blob/v5.0.0/docs/api.md#pagewaitforselectorselector-options
+      // waits until the element exists and is visible
+      await page.waitForSelector(selector, { timeout, visible: true })
+    }
+
     return true
   } catch (err) {
     return false
@@ -1120,11 +1147,12 @@ if (shouldExecuteBuiltInSSOTest) {
 
         // authorize form is displayed the first time
         const authorizeButtonSelector = 'button[name="authorize"]'
-        const authorizeButtonExists = await checkElementVisible(page, authorizeButtonSelector)
+        const authorizeButtonExists = await checkElementVisible(
+          page,
+          authorizeButtonSelector,
+          { isButton: true }
+        )
         if (authorizeButtonExists) {
-          // wait a little bit before clicking the button as it can be disabled at first
-          await new Promise(resolve => setTimeout(resolve, 1000))
-
           await page.click(authorizeButtonSelector)
           await page.waitForNavigation()
         }
@@ -1166,11 +1194,12 @@ if (shouldExecuteBuiltInSSOTest) {
 
         // authorize form is displayed the first time
         const authorizeButtonSelector = 'button.layerConfirm[type="submit"]'
-        const authorizeButtonExists = await checkElementVisible(page, authorizeButtonSelector)
+        const authorizeButtonExists = await checkElementVisible(
+          page,
+          authorizeButtonSelector,
+          { isButton: true }
+        )
         if (authorizeButtonExists) {
-          // wait a little bit before clicking the button as it can be disabled at first
-          await new Promise(resolve => setTimeout(resolve, 1000))
-
           await page.click(authorizeButtonSelector)
           await page.waitForNavigation()
         }
