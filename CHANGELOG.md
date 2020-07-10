@@ -4,6 +4,16 @@ All notable changes to Stelace server are documented in this file, using [Conven
 
 __Current API Version `2019-05-20`__
 
+## [1.0.0-beta.8](https://github.com/stelace/stelace/compare/v1.0.0-beta.7...v1.0.0-beta.8) (2020-07-10)
+
+### Features
+
+* **Authentication**: bump built-in OAuth providers’ endpoints ([#340](https://github.com/stelace/stelace/commit/1a012d5999cdf16b95ed7b9414903b5de1199c51))
+
+### Bug Fixes
+
+* **Plugins:** cross-platform installation ([#339](https://github.com/stelace/stelace/issues/339)) ([654ea5a](https://github.com/stelace/stelace/commit/654ea5afc38bc4f99595edce01bde6d4e433d51c)), closes [#270](https://github.com/stelace/stelace/issues/270)
+
 ## [1.0.0-beta.7](https://github.com/stelace/stelace/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2020-06-02)
 
 * **Order:** finalize order API ([#297](https://github.com/stelace/stelace/commit/64ba1b2b7b651f9e0628dd8d68e7baba9e920dd3))
