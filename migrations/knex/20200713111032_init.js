@@ -1,4 +1,5 @@
 const { mergeFunction, mergeFunctionName } = require('../util/stl_jsonb_deep_merge')
+const { createHypertable } = require('../util/timescaleDB')
 
 exports.up = async (knex) => {
   const { schema } = knex.client.connectionSettings || {}
@@ -225,8 +226,9 @@ exports.up = async (knex) => {
   })
 
   await knex.schema.createTable('event', table => {
-    table.string('id').primary()
+    table.string('id')
     table.string('createdDate', 24)
+    table.timestamp('createdTimestamp', { precision: 3 })
     table.string('type')
     table.string('objectType')
     table.string('objectId')
@@ -239,7 +241,8 @@ exports.up = async (knex) => {
     table.string('emitterId')
     table.jsonb('metadata')
 
-    table.index(['createdDate', 'id'], 'event_createdDate_id_index')
+    table.index('id', 'event_id_index')
+    table.index(['createdTimestamp', 'id'], 'event_createdTimestamp_id_index')
     table.index('type', 'event_type_index')
     table.index('objectId', 'event_objectId_index')
     table.index('objectType', 'event_objectType_index')
@@ -428,14 +431,16 @@ exports.up = async (knex) => {
   })
 
   await knex.schema.createTable('webhookLog', table => {
-    table.string('id').primary()
+    table.string('id')
     table.string('createdDate', 24)
+    table.timestamp('createdTimestamp', { precision: 3 })
     table.string('webhookId')
     table.string('eventId')
     table.string('status')
     table.jsonb('metadata')
 
-    table.index(['createdDate', 'id'], 'webhookLog_createdDate_id_index')
+    table.index('id', 'webhookLog_id_index')
+    table.index(['createdTimestamp', 'id'], 'webhookLog_createdTimestamp_id_index')
     table.index('status', 'webhookLog_status_index')
     table.index('webhookId', 'webhookLog_webhookId_index')
     table.index('eventId', 'webhookLog_eventId_index')
@@ -464,8 +469,9 @@ exports.up = async (knex) => {
   })
 
   await knex.schema.createTable('workflowLog', table => {
-    table.string('id').primary()
+    table.string('id')
     table.string('createdDate', 24)
+    table.timestamp('createdTimestamp', { precision: 3 })
     table.string('workflowId')
     table.string('eventId')
     table.string('runId')
@@ -474,12 +480,17 @@ exports.up = async (knex) => {
     table.jsonb('step')
     table.jsonb('metadata')
 
-    table.index(['createdDate', 'id'], 'workflowLog_createdDate_id_index')
+    table.index('id', 'workflowLog_id_index')
+    table.index(['createdTimestamp', 'id'], 'workflowLog_createdTimestamp_id_index')
     table.index('type', 'workflowLog_type_index')
     table.index('workflowId', 'workflowLog_workflowId_index')
     table.index('eventId', 'workflowLog_eventId_index')
     table.index('runId', 'workflowLog_runId_index')
   })
+
+  await knex.schema.raw(createHypertable(schema, 'event'))
+  await knex.schema.raw(createHypertable(schema, 'webhookLog'))
+  await knex.schema.raw(createHypertable(schema, 'workflowLog'))
 }
 
 exports.down = async (knex) => {

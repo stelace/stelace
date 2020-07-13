@@ -58,7 +58,7 @@ function start ({ communication }) {
           query: 'inList'
         },
         createdDate: {
-          dbField: 'createdDate',
+          dbField: 'createdTimestamp',
           value: createdDate,
           query: 'range'
         },
@@ -149,7 +149,7 @@ function start ({ communication }) {
           query: 'inList'
         },
         createdDate: {
-          dbField: 'createdDate',
+          dbField: 'createdTimestamp',
           value: createdDate,
           query: 'range'
         },
