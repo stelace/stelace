@@ -5619,10 +5619,10 @@ opencollective-postinstall@^2.0.2:
   resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.2.tgz#5657f1bede69b6e33a45939b061eb53d3c6c3a89"
   integrity sha512-pVOEP16TrAO2/fjej1IdOyupJY8KDUM1CvsaScRbw6oddvpQoOfGk4ywha0HKKVAD6RkW4x6Q+tNBwhf3Bgpuw==
 
-openid-client@3.15.5:
-  version "3.15.5"
-  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-3.15.5.tgz#95ad07227b12e210fb21fbe81d5843c0bdaba3ae"
-  integrity sha512-UR+YfxyUrltY3Qqksg/UPU5dz6Nb5MQzBrARtg8+ZU3C1wib7/W1mmhMQS0fRpSmMs01CNhZMpM0oA8njIcn5g==
+openid-client@3.15.6:
+  version "3.15.6"
+  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-3.15.6.tgz#341c9f72592169a980666f7d9fe7255ba9daeb13"
+  integrity sha512-DDLaq2vXYzvRtI+5t2AugxD1m26lW1ei2nhkcmMAJMC/5kUNLMWObXKBvCsbNWwywHsQntoh9DES0vUWzvCcDQ==
   dependencies:
     "@types/got" "^9.6.9"
     base64url "^3.0.1"
