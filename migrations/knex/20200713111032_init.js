@@ -268,14 +268,14 @@ exports.up = async (knex) => {
     table.float('amountPaid')
     table.float('amountRemaining')
     table.string('currency')
-    table.string('senderId')
+    table.string('payerId')
     table.boolean('paymentAttempted')
     table.jsonb('metadata')
     table.jsonb('platformData')
 
     table.index('lines', 'order_lines_gin_index', 'GIN')
     table.index('moves', 'order_moves_gin_index', 'GIN')
-    table.index('senderId')
+    table.index('payerId')
   })
 
   await knex.schema.createTable('role', table => {
@@ -356,10 +356,12 @@ exports.up = async (knex) => {
     table.text('description')
     table.jsonb('roles')
     table.jsonb('organizations')
+    table.string('orgOwnerId')
     table.jsonb('metadata')
     table.jsonb('platformData')
 
     table.unique('username')
+    table.index('orgOwnerId')
     table.index('roles', 'user_roles_index', 'GIN')
   })
 
