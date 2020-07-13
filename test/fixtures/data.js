@@ -1207,6 +1207,29 @@ module.exports = {
     }),
 
     createModel({
+      id: 'evt_Qtup0Ae1BJI1k6MK0BJI',
+      createdDate: computeDate(now, '-30 years'),
+      createdTimestamp: computeDate(now, '-30 years'),
+      type: 'compressed_event',
+      objectType: 'asset',
+      objectId: 'ast_lCfxJNs10rP1g2Mww0rP',
+      object: asset1,
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'custom',
+      emitterId: 'Delorean',
+      metadata: {
+        someTags: ['Doc', 'Brown'],
+        name: 'DMC-12',
+        nested: {
+          object: true,
+          string: 'true'
+        }
+      }
+    }),
+
+    createModel({
       id: 'evt_EYtSSge1EZX1iZboZEZX',
       createdDate: now,
       createdTimestamp: now,

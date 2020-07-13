@@ -10,6 +10,8 @@ const filtersSchema = Joi.object().pattern(
   Joi.object().keys({
     dbField: Joi.string(),
     value: Joi.any(),
+    minValue: Joi.any(),
+    defaultValue: Joi.any(),
     transformValue: Joi.alternatives().try(
       Joi.string().valid('array'),
       Joi.func()
@@ -50,21 +52,23 @@ function getTransformedValues (filters) {
 
   Object.keys(filters).forEach(key => {
     const filter = filters[key]
-    const { value, transformValue } = filter
+    const { value, transformValue, defaultValue } = filter
 
     let newValue
 
-    if (typeof transformValue === 'undefined') {
+    if (_.isUndefined(transformValue)) {
       newValue = value
-    } else if (typeof transformValue === 'string') {
+    } else if (_.isString(transformValue)) {
       if (transformValue === 'array') {
         newValue = parseArrayValues(value)
       }
-    } else if (typeof transformValue === 'function') {
+    } else if (_.isFunction(transformValue)) {
       newValue = transformValue(value)
     } else {
       throw new Error(`Unknown transformation value for filter on field ${filter.dbField}`)
     }
+
+    if (_.isUndefined(newValue) && !_.isUndefined(defaultValue)) newValue = defaultValue
 
     values[key] = newValue
   })
@@ -83,24 +87,40 @@ function getTransformedValues (filters) {
 function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
   Object.keys(filters).forEach(key => {
     const filter = filters[key]
-    const { dbField, value, query } = filter
+    const { dbField, value, query, minValue } = filter
     const transformedValue = transformedValues[key]
 
-    // skip the filter if the value is not defined
-    if (typeof value === 'undefined') {
-      return
-    }
+    // skip the filter if the value is not defined,
+    if (_.isUndefined(transformedValue)) return
 
-    const isCustomQuery = typeof query === 'function'
+    const isCustomQuery = _.isFunction(query)
     if (!isCustomQuery && !dbField) {
       throw new Error(`dbField is needed for filter with key ${key}`)
     }
 
-    if (typeof query === 'undefined') {
+    if (_.isUndefined(query)) {
       queryBuilder.where(dbField, transformedValue)
-    } else if (typeof query === 'string') {
+    } else if (_.isString(query)) {
       if (query === 'range') {
         checkRangeFilter(transformedValue, key)
+
+        const isSingleValue = !_.isPlainObject(transformedValue)
+
+        if (!_.isUndefined(minValue)) {
+          const throwMinValueError = () => {
+            throw createError(400, `${key} value cannot be lower than ${minValue}`)
+          }
+
+          if (isSingleValue) {
+            if (transformedValue < minValue) throwMinValueError()
+          } else {
+            if (_.isUndefined(transformedValue.gt) && _.isUndefined(transformedValue.gte)) {
+              transformedValue.gte = minValue
+            } else {
+              if (transformedValue.gt < minValue || transformedValue.gte < minValue) throwMinValueError()
+            }
+          }
+        }
 
         if (transformedValue.lt) {
           queryBuilder.where(dbField, '<', transformedValue.lt)
@@ -217,7 +237,7 @@ async function performListQuery ({
     addFiltersToQueryBuilder(queryBuilder, filters, transformedValues)
   }
 
-  if (typeof beforeQueryFn === 'function') {
+  if (_.isFunction(beforeQueryFn)) {
     await beforeQueryFn({ queryBuilder, values: transformedValues })
   }
 

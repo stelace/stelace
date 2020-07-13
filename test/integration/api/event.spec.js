@@ -323,6 +323,76 @@ test('aggregation works even if the specified nested property does not exist', a
   t.is(obj.nbResults, 0)
 })
 
+// run this test serially because some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('get events stats with date filter only works within the rentention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'type'
+
+  const now = new Date().toISOString()
+
+  const invalidMinCreatedDate = computeDate(now, '-200d')
+  const validMinCreatedDate = computeDate(now, '-10d')
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
+
+  await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate[gte]=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate=${encode({ gte: invalidMinCreatedDate })}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate[gte]=${validMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    results: events.filter(e => e.createdDate >= validMinCreatedDate)
+  })
+})
+
+test('get events stats only within retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+    ]
+  })
+
+  const groupBy = 'type'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&type=compressed_event`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj.nbResults, 0)
+})
+
 test('list events', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
@@ -462,6 +532,52 @@ test('list events with filters', async (t) => {
   obj7.results.forEach(event => {
     t.is(event.type, 'future_event')
   })
+})
+
+test('list events with date filter only works within the rentention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
+
+  const now = new Date().toISOString()
+
+  const invalidMinCreatedDate = computeDate(now, '-200d')
+  const validMinCreatedDate = computeDate(now, '-10d')
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
+
+  await request(t.context.serverUrl)
+    .get(`/events?createdDate[gte]=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  await request(t.context.serverUrl)
+    .get(`/events?createdDate=${encode({ gte: invalidMinCreatedDate })}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  await request(t.context.serverUrl)
+    .get(`/events?createdDate=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events?createdDate[gte]=${validMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj.results.length, obj.nbResults)
+  obj.results.forEach(event => {
+    t.true(event.createdDate >= validMinCreatedDate)
+  })
+})
+
+test('list events only within retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/events?type=compressed_event')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj.nbResults, 0)
 })
 
 test('list events with metadata object filters', async (t) => {

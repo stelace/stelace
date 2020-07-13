@@ -1,5 +1,5 @@
 const { mergeFunction, mergeFunctionName } = require('../util/stl_jsonb_deep_merge')
-const { createHypertable } = require('../util/timescaleDB')
+const { createHypertable, addCompressionPolicy } = require('../util/timescaleDB')
 
 exports.up = async (knex) => {
   const { schema } = knex.client.connectionSettings || {}
@@ -491,6 +491,10 @@ exports.up = async (knex) => {
   await knex.schema.raw(createHypertable(schema, 'event'))
   await knex.schema.raw(createHypertable(schema, 'webhookLog'))
   await knex.schema.raw(createHypertable(schema, 'workflowLog'))
+
+  await knex.schema.raw(addCompressionPolicy(schema, 'event', 'objectId'))
+  await knex.schema.raw(addCompressionPolicy(schema, 'webhookLog', 'webhookId'))
+  await knex.schema.raw(addCompressionPolicy(schema, 'workflowLog', 'workflowId'))
 }
 
 exports.down = async (knex) => {

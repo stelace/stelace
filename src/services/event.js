@@ -2,6 +2,7 @@ const createError = require('http-errors')
 const { getModels, getModelInfo } = require('../models')
 
 const { performListQuery, performAggregationQuery } = require('../util/listQueryBuilder')
+const { getRetentionLimitDate } = require('../util/timeSeries')
 
 let responder
 
@@ -44,6 +45,8 @@ function start ({ communication }) {
 
     const queryBuilder = Event.knex()
 
+    const minCreatedDate = getRetentionLimitDate()
+
     const paginationMeta = await performAggregationQuery({
       queryBuilder,
       groupBy,
@@ -60,7 +63,9 @@ function start ({ communication }) {
         createdDate: {
           dbField: 'createdTimestamp',
           value: createdDate,
-          query: 'range'
+          query: 'range',
+          defaultValue: { gte: minCreatedDate },
+          minValue: minCreatedDate
         },
         types: {
           dbField: 'type',
@@ -139,6 +144,8 @@ function start ({ communication }) {
 
     const queryBuilder = Event.query()
 
+    const minCreatedDate = getRetentionLimitDate()
+
     const paginationMeta = await performListQuery({
       queryBuilder,
       filters: {
@@ -151,7 +158,9 @@ function start ({ communication }) {
         createdDate: {
           dbField: 'createdTimestamp',
           value: createdDate,
-          query: 'range'
+          query: 'range',
+          defaultValue: { gte: minCreatedDate },
+          minValue: minCreatedDate
         },
         types: {
           dbField: 'type',
@@ -215,7 +224,10 @@ function start ({ communication }) {
 
     const eventId = req.eventId
 
-    const event = await Event.query().findById(eventId)
+    const minCreatedDate = getRetentionLimitDate()
+
+    // without filter, compressed chunk will be queried so the response will be long
+    const event = await Event.query().findById(eventId).where('createdTimestamp', '>=', minCreatedDate)
     if (!event) {
       throw createError(404)
     }
