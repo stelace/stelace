@@ -1,7 +1,7 @@
 const createError = require('http-errors')
 const { getModels, getModelInfo } = require('../models')
 
-const { performListQuery, performAggregationQuery } = require('../util/listQueryBuilder')
+const { performListQuery, performAggregationQuery, performHistoryQuery } = require('../util/listQueryBuilder')
 const { getRetentionLimitDate } = require('../util/timeSeries')
 
 let responder
@@ -14,6 +14,93 @@ function start ({ communication }) {
   responder = getResponder({
     name: 'Event Responder',
     key: 'event'
+  })
+
+  responder.on('getHistory', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { Event } = await getModels({ platformId, env })
+
+    const {
+      order,
+
+      page,
+      nbResultsPerPage,
+
+      groupBy,
+
+      id,
+      createdDate,
+      eventType: type,
+      objectType,
+      objectId,
+      emitter,
+      emitterId
+    } = req
+
+    const queryBuilder = Event.knex()
+
+    const retentionLimitDate = getRetentionLimitDate()
+
+    const paginationMeta = await performHistoryQuery({
+      queryBuilder,
+      schema: Event.defaultSchema,
+      table: Event.tableName,
+      groupBy,
+      retentionLimitDate,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdTimestamp',
+          value: createdDate,
+          query: 'range',
+          defaultValue: { gte: retentionLimitDate }
+        },
+        types: {
+          dbField: 'type',
+          value: type,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        objectTypes: {
+          dbField: 'objectType',
+          value: objectType,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        objectIds: {
+          dbField: 'objectId',
+          value: objectId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        emitter: {
+          dbField: 'emitter',
+          value: emitter
+        },
+        emitterIds: {
+          dbField: 'emitterId',
+          value: emitterId,
+          transformValue: 'array',
+          query: 'inList'
+        }
+      },
+      paginationConfig: {
+        page,
+        nbResultsPerPage
+      },
+      orderConfig: {
+        orderBy: groupBy,
+        order
+      }
+    })
+
+    return paginationMeta
   })
 
   responder.on('getStats', async (req) => {

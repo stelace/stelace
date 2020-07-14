@@ -12,6 +12,42 @@ function init (server, { middlewares, helpers } = {}) {
   } = helpers
 
   server.get({
+    name: 'event.getHistory',
+    path: '/events/history'
+  }, checkPermissions([
+    'event:stats:all'
+  ]), wrapAction(async (req, res) => {
+    const fields = [
+      'orderBy',
+      'order',
+      'page',
+      'nbResultsPerPage',
+
+      'groupBy',
+
+      'id',
+      // 'type' // parsing manually below to avoid conflict with côte requester 'type'
+      'createdDate',
+      'objectType',
+      'objectId',
+      'emitter',
+      'emitterId',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
+      type: 'getHistory'
+    })
+
+    params = Object.assign({}, params, payload)
+
+    if (req.query) params.eventType = req.query.type
+
+    return requester.send(params)
+  }))
+
+  server.get({
     name: 'event.getStats',
     path: '/events/stats'
   }, checkPermissions([

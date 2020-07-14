@@ -104,21 +104,17 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
       if (query === 'range') {
         checkRangeFilter(transformedValue, key)
 
-        const isSingleValue = !_.isPlainObject(transformedValue)
+        const throwMinValueError = () => {
+          throw createError(400, `${key} value cannot be lower than ${minValue}`)
+        }
 
-        if (!_.isUndefined(minValue)) {
-          const throwMinValueError = () => {
-            throw createError(400, `${key} value cannot be lower than ${minValue}`)
-          }
-
-          if (isSingleValue) {
-            if (transformedValue < minValue) throwMinValueError()
-          } else {
-            if (_.isUndefined(transformedValue.gt) && _.isUndefined(transformedValue.gte)) {
-              transformedValue.gte = minValue
-            } else {
-              if (transformedValue.gt < minValue || transformedValue.gte < minValue) throwMinValueError()
-            }
+        const minRangeValue = getMinRangeValue(transformedValue)
+        if (minRangeValue) {
+          if (minRangeValue < minValue) throwMinValueError()
+        } else {
+          const isSingleValue = !_.isPlainObject(transformedValue)
+          if (!isSingleValue && _.isUndefined(transformedValue.gt) && _.isUndefined(transformedValue.gte)) {
+            transformedValue.gte = minValue
           }
         }
 
@@ -452,6 +448,119 @@ async function performAggregationQuery ({
 }
 
 /**
+ * Generic query function to address filters, sort and pagination for stats endpoints
+ * @param {Object}  params.queryBuilder - Knex.js query builder
+ * @param {String}  params.schema
+ * @param {String}  params.table
+ * @param {String}  [params.timeFilter = 'createdDate'] - Other filters will be disabled
+ *    if date filter is beyond retention period
+ * @param {String}  [params.timeColumn = 'createdTimestamp'] - Internal name of time column
+ * @param {String}  params.retentionLimitDate - Beyond that limit, all filters (except time) will be disabled
+ * @param {String}  params.groupBy - Field to group by (must be 'hour', 'day' or 'month')
+ * @param {Object}  [params.filters] - Filters for the query (like select on some IDs)
+ * @param {Object}  [params.filters[key]]
+ * @param {String}  [params.filters[key].dbField]
+ * @param {String}  [params.filters[key].type]
+ * @param {String|Function}  [params.filters[key].transformValue]
+ * @param {String|Function}  [params.filters[key].query]
+ *
+ * @param {Object}  params.paginationConfig
+ * @param {Number}  params.paginationConfig.page
+ * @param {Number}  params.paginationConfig.nbResultsPerPage
+ *
+ * @param {Object}  params.orderConfig
+ * @param {Object}  params.orderConfig.order - Must be 'asc' or 'desc'
+ *
+ * @return {Object} paginationMeta
+ * @return {Number} paginationMeta.nbResults
+ * @return {Number} paginationMeta.nbPages
+ * @return {Number} paginationMeta.page
+ * @return {Number} paginationMeta.nbResultsPerPage
+ * @return {Object[]} paginationMeta.results
+ */
+async function performHistoryQuery ({
+  queryBuilder,
+  schema,
+  table,
+  timeFilter = 'createdDate',
+  timeColumn = 'createdTimestamp',
+  retentionLimitDate,
+  groupBy,
+  filters,
+  paginationConfig,
+  orderConfig
+}) {
+  checkOrderConfig(orderConfig)
+
+  let onlyTimeFilter = true
+
+  if (filters) {
+    checkFilters(filters)
+
+    const nonTimeFilterKeys = _.without(Object.keys(filters), [timeFilter])
+    onlyTimeFilter = nonTimeFilterKeys.map(key => _.get(filters, `${key}.value`)).every(_.isUndefined)
+    const minRangeValue = getMinRangeValue(filters[timeFilter].value)
+
+    if (minRangeValue && minRangeValue < retentionLimitDate && !onlyTimeFilter) {
+      throw createError(400, `All filters are disabled before ${retentionLimitDate}`)
+    }
+  }
+  checkPaginationConfig(paginationConfig)
+
+  if (!['hour', 'day', 'month'].includes(groupBy)) throw new Error(`Invalid groupBy value: ${groupBy}`)
+
+  const intervals = {
+    hour: '1 hour',
+    day: '1 day',
+
+    // TimescaleDB doesn't support month interval (https://github.com/timescale/timescaledb/issues/414)
+    month: '30 days'
+  }
+
+  const knex = queryBuilder
+
+  const interval = intervals[groupBy]
+
+  // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
+  // otherwise the type 'timestamp' is returned and the date won't be UTC
+  const select = knex.raw(`public.time_bucket(INTERVAL '${interval}', ??) AT TIME ZONE 'UTC' as ??`, [timeColumn, groupBy])
+
+  queryBuilder = queryBuilder
+    .select(select)
+    .from(knex.raw('??.??', [schema, table]))
+    .count()
+    .groupBy(groupBy)
+
+  let transformedValues
+
+  if (filters) {
+    transformedValues = getTransformedValues(filters)
+    addFiltersToQueryBuilder(queryBuilder, filters, transformedValues)
+  }
+
+  const { orderBy, order } = orderConfig
+  queryBuilder.orderBy(orderBy, order)
+
+  const { page, nbResultsPerPage } = paginationConfig
+
+  const allResults = await queryBuilder
+
+  // To avoid query complexity, data retrieval for pagination aren't split into results query and count query.
+  // TODO: improve it with the incoming cursor-based pagination
+  const nbResults = allResults.length
+  const results = allResults.slice((page - 1) * nbResultsPerPage, page * nbResultsPerPage)
+
+  const paginationMeta = getPaginationMeta({
+    nbResults,
+    nbResultsPerPage,
+    page
+  })
+
+  paginationMeta.results = results
+  return paginationMeta
+}
+
+/**
  * Transform attribute passed to API to expression that can be used in SQL query
  * e.g.
  * `someAttribute` => `"someAttribute"`
@@ -471,7 +580,24 @@ function getSqlExpression (attr) {
   return `"${column}"#>>'{${parts.slice(1).join(',')}}'`
 }
 
+function getMinRangeValue (rangeOrValue) {
+  if (_.isUndefined(rangeOrValue)) return
+
+  const isSingleValue = !_.isPlainObject(rangeOrValue)
+  if (isSingleValue) return rangeOrValue
+
+  const rangeValues = [rangeOrValue.gt, rangeOrValue.gte]
+  const [minValue] = rangeValues.sort((a, b) => {
+    if (_.isUndefined(a)) return 1
+    else if (_.isUndefined(b)) return -1
+    else return a < b ? -1 : 1
+  })
+
+  return minValue
+}
+
 module.exports = {
   performListQuery,
-  performAggregationQuery
+  performAggregationQuery,
+  performHistoryQuery,
 }

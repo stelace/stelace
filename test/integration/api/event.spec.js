@@ -5,7 +5,7 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { computeDate, checkStatsObject } = require('../../util')
+const { computeDate, checkStatsObject, checkHistoryObject } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -13,6 +13,153 @@ test.before(async t => {
 })
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
+
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('get events history', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupByValues = ['hour', 'day', 'month']
+
+  for (const groupBy of groupByValues) {
+    const { body: dayObj } = await request(t.context.serverUrl)
+      .get(`/events/history?groupBy=${groupBy}`)
+      .set(authorizationHeaders)
+      .expect(200)
+
+    checkHistoryObject({
+      t,
+      obj: dayObj,
+      groupBy,
+      results: events
+    })
+  }
+})
+
+test('get events history with filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const filters = `objectType=${objectType}&objectId=${objectId}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'day'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkHistoryObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+test('get events history with date filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const now = new Date().toISOString()
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const minCreatedDate = computeDate(now, '-10d')
+  const filters = `objectType=${objectType}&objectId=${objectId}&createdDate[gte]=${minCreatedDate}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'day'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkHistoryObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('can apply filters only with created date within the retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const now = new Date().toISOString()
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const oldCreatedDate = computeDate(now, '-1y')
+  const filters = `objectType=${objectType}&objectId=${objectId}&createdDate[gte]=${oldCreatedDate}`
+
+  const groupBy = 'day'
+
+  await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  const minCreatedDate = computeDate(now, '-10d')
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?createdDate[gte]=${minCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&createdDate[gte]=${minCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkHistoryObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
 
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect

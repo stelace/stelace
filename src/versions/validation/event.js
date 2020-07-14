@@ -38,6 +38,28 @@ const fieldSchema = Joi.alternatives().try(
 // 2019-05-20 //
 // ////////// //
 schemas['2019-05-20'] = {}
+schemas['2019-05-20'].getHistory = {
+  query: Joi.object().keys({
+    // order
+    order: Joi.string().valid('asc', 'desc').default('desc'),
+
+    // pagination
+    page: Joi.number().integer().min(1).default(1),
+    nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+
+    // aggregation
+    groupBy: Joi.string().valid('hour', 'day', 'month').required(),
+
+    // filters
+    id: Joi.array().unique().items(Joi.string()).single(),
+    createdDate: getRangeFilter(Joi.string().isoDate()),
+    type: Joi.array().unique().items(Joi.string()).single(),
+    objectType: Joi.array().unique().items(Joi.string()).single(),
+    objectId: Joi.array().unique().items(Joi.string()).single(),
+    emitter: Joi.string().valid('core', 'custom', 'task'),
+    emitterId: Joi.array().unique().items(Joi.string()).single()
+  })
+}
 schemas['2019-05-20'].getStats = {
   query: Joi.object().keys({
     // order
@@ -101,6 +123,10 @@ schemas['2019-05-20'].create = {
 
 const validationVersions = {
   '2019-05-20': [
+    {
+      target: 'event.getHistory',
+      schema: schemas['2019-05-20'].getHistory
+    },
     {
       target: 'event.getStats',
       schema: schemas['2019-05-20'].getStats
