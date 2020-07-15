@@ -455,6 +455,9 @@ async function performAggregationQuery ({
  * @param {String}  [params.timeFilter = 'createdDate'] - Other filters will be disabled
  *    if date filter is beyond retention period
  * @param {String}  [params.timeColumn = 'createdTimestamp'] - Internal name of time column
+ * @param {Object}  [params.groupByViews] - Views configuration that will be used to speed up query
+ *    when only time filter is provided
+ * @param {String}  [params.views[groupBy]] - View name
  * @param {String}  params.retentionLimitDate - Beyond that limit, all filters (except time) will be disabled
  * @param {String}  params.groupBy - Field to group by (must be 'hour', 'day' or 'month')
  * @param {Object}  [params.filters] - Filters for the query (like select on some IDs)
@@ -484,6 +487,7 @@ async function performHistoryQuery ({
   table,
   timeFilter = 'createdDate',
   timeColumn = 'createdTimestamp',
+  groupByViews = {},
   retentionLimitDate,
   groupBy,
   filters,
@@ -520,30 +524,53 @@ async function performHistoryQuery ({
   const knex = queryBuilder
 
   const interval = intervals[groupBy]
+  const view = groupByViews[groupBy]
 
-  // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
-  // otherwise the type 'timestamp' is returned and the date won't be UTC
-  const select = knex.raw(`public.time_bucket(INTERVAL '${interval}', ??) AT TIME ZONE 'UTC' as ??`, [timeColumn, groupBy])
+  let allResults
 
-  queryBuilder = queryBuilder
-    .select(select)
-    .from(knex.raw('??.??', [schema, table]))
-    .count()
-    .groupBy(groupBy)
+  if (onlyTimeFilter && view) {
+    // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
+    // otherwise the type 'timestamp' is returned and the date won't be UTC
+    const select = knex.raw('?? AT TIME ZONE \'UTC\' as ??, count', [groupBy, groupBy])
 
-  let transformedValues
+    queryBuilder = queryBuilder
+      .select(select)
+      .from(knex.raw('??.??', [schema, view]))
 
-  if (filters) {
-    transformedValues = getTransformedValues(filters)
-    addFiltersToQueryBuilder(queryBuilder, filters, transformedValues)
+    if (filters) {
+      const newFilters = _.pick(filters, timeFilter)
+      newFilters[timeFilter].dbField = groupBy
+      const transformedValues = getTransformedValues(newFilters)
+      addFiltersToQueryBuilder(queryBuilder, newFilters, transformedValues)
+    }
+
+    const { orderBy, order } = orderConfig
+    queryBuilder.orderBy(orderBy, order)
+
+    allResults = await queryBuilder
+  } else {
+    // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
+    // otherwise the type 'timestamp' is returned and the date won't be UTC
+    const select = knex.raw(`public.time_bucket(INTERVAL '${interval}', ??) AT TIME ZONE 'UTC' as ??`, [timeColumn, groupBy])
+
+    queryBuilder = queryBuilder
+      .select(select)
+      .from(knex.raw('??.??', [schema, table]))
+      .count()
+      .groupBy(groupBy)
+
+    if (filters) {
+      const transformedValues = getTransformedValues(filters)
+      addFiltersToQueryBuilder(queryBuilder, filters, transformedValues)
+    }
+
+    const { orderBy, order } = orderConfig
+    queryBuilder.orderBy(orderBy, order)
+
+    allResults = await queryBuilder
   }
 
-  const { orderBy, order } = orderConfig
-  queryBuilder.orderBy(orderBy, order)
-
   const { page, nbResultsPerPage } = paginationConfig
-
-  const allResults = await queryBuilder
 
   // To avoid query complexity, data retrieval for pagination aren't split into results query and count query.
   // TODO: improve it with the incoming cursor-based pagination

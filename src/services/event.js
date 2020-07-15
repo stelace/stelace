@@ -48,6 +48,11 @@ function start ({ communication }) {
       table: Event.tableName,
       groupBy,
       retentionLimitDate,
+      groupByViews: {
+        hour: 'event_hourly',
+        day: 'event_daily',
+        month: 'event_monthly',
+      },
       filters: {
         ids: {
           dbField: 'id',

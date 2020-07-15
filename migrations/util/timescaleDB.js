@@ -22,7 +22,33 @@ function addCompressionPolicy (schema, table, segmentBy, duration = retentionLog
   `
 }
 
+// https://docs.timescale.com/v1.3/using-timescaledb/continuous-aggregates
+function createContinuousAggregate ({
+  viewName,
+  schema,
+  table,
+  interval,
+  timeBucketLabel,
+  column = 'createdTimestamp',
+} = {}) {
+  return `
+    CREATE OR REPLACE VIEW ${schema}.${viewName} WITH (timescaledb.continuous)
+    AS
+    SELECT public.time_bucket(INTERVAL '${interval}', "${column}") as ${timeBucketLabel}, COUNT(*) as count
+    FROM ${schema}."${table}"
+    GROUP BY ${timeBucketLabel}
+  `
+}
+
+function removeContinuousAggregate ({ viewName, schema }) {
+  return `
+    DROP VIEW IF EXISTS "${schema}"."${viewName}" CASCADE
+  `
+}
+
 module.exports = {
   createHypertable,
   addCompressionPolicy,
+  createContinuousAggregate,
+  removeContinuousAggregate,
 }

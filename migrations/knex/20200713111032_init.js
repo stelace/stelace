@@ -1,5 +1,10 @@
 const { mergeFunction, mergeFunctionName } = require('../util/stl_jsonb_deep_merge')
-const { createHypertable, addCompressionPolicy } = require('../util/timescaleDB')
+const {
+  createHypertable,
+  addCompressionPolicy,
+  createContinuousAggregate,
+  removeContinuousAggregate,
+} = require('../util/timescaleDB')
 
 exports.up = async (knex) => {
   const { schema } = knex.client.connectionSettings || {}
@@ -495,9 +500,39 @@ exports.up = async (knex) => {
   await knex.schema.raw(addCompressionPolicy(schema, 'event', 'objectId'))
   await knex.schema.raw(addCompressionPolicy(schema, 'webhookLog', 'webhookId'))
   await knex.schema.raw(addCompressionPolicy(schema, 'workflowLog', 'workflowId'))
+
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'event_hourly',
+    schema,
+    table: 'event',
+    interval: '1 hour',
+    timeBucketLabel: 'hour',
+  }))
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'event_daily',
+    schema,
+    table: 'event',
+    interval: '1 day',
+    timeBucketLabel: 'day',
+  }))
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'event_monthly',
+    schema,
+    table: 'event',
+    interval: '30 day',
+    timeBucketLabel: 'month',
+  }))
 }
 
 exports.down = async (knex) => {
+  const { schema } = knex.client.connectionSettings || {}
+
+  if (!schema) throw new Error('Schema name required to remove continuous aggregates')
+
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'event_hourly', schema }))
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'event_daily', schema }))
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'event_monthly', schema }))
+
   await knex.schema.dropTableIfExists('workflowLog')
   await knex.schema.dropTableIfExists('workflow')
   await knex.schema.dropTableIfExists('webhookLog')
