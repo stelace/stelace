@@ -60,6 +60,7 @@ schemas['2019-05-20'].getHistory = {
     emitterId: Joi.array().unique().items(Joi.string()).single()
   })
 }
+// DEPRECATED:END
 schemas['2019-05-20'].getStats = {
   query: Joi.object().keys({
     // order
@@ -87,6 +88,7 @@ schemas['2019-05-20'].getStats = {
     metadata: Joi.object().unknown()
   })
 }
+// DEPRECATED:END
 schemas['2019-05-20'].list = {
   query: Joi.object().keys({
     // order
@@ -127,10 +129,12 @@ const validationVersions = {
       target: 'event.getHistory',
       schema: schemas['2019-05-20'].getHistory
     },
+    // DEPRECATED:END
     {
       target: 'event.getStats',
       schema: schemas['2019-05-20'].getStats
     },
+    // DEPRECATED:END
     {
       target: 'event.list',
       schema: schemas['2019-05-20'].list

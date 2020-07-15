@@ -108,6 +108,7 @@ function start ({ communication }) {
     return paginationMeta
   })
 
+  // DEPRECATED:END
   responder.on('getStats', async (req) => {
     const platformId = req.platformId
     const env = req.env
@@ -210,6 +211,7 @@ function start ({ communication }) {
 
     return paginationMeta
   })
+  // DEPRECATED:END
 
   responder.on('list', async (req) => {
     const platformId = req.platformId

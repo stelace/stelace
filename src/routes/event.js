@@ -47,6 +47,7 @@ function init (server, { middlewares, helpers } = {}) {
     return requester.send(params)
   }))
 
+  // DEPRECATED
   server.get({
     name: 'event.getStats',
     path: '/events/stats'
@@ -86,6 +87,7 @@ function init (server, { middlewares, helpers } = {}) {
 
     return requester.send(params)
   }))
+  // DEPRECATED:END
 
   server.get({
     name: 'event.list',
