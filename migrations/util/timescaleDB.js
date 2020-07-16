@@ -30,13 +30,15 @@ function createContinuousAggregate ({
   interval,
   timeBucketLabel,
   column = 'createdTimestamp',
+  secondaryColumn
 } = {}) {
   return `
     CREATE OR REPLACE VIEW ${schema}.${viewName} WITH (timescaledb.continuous)
     AS
     SELECT public.time_bucket(INTERVAL '${interval}', "${column}") as ${timeBucketLabel}, COUNT(*) as count
+    ${secondaryColumn ? `, ${secondaryColumn}` : ''}
     FROM ${schema}."${table}"
-    GROUP BY ${timeBucketLabel}
+    GROUP BY ${timeBucketLabel}${secondaryColumn ? `, ${secondaryColumn}` : ''}
   `
 }
 

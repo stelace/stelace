@@ -161,6 +161,42 @@ test.serial('can apply filters only with created date within the retention log p
   })
 })
 
+test('can apply type filter beyond the retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+    ]
+  })
+
+  const now = new Date().toISOString()
+  const oldCreatedDate = computeDate(now, '-1y')
+
+  const groupBy = 'day'
+
+  const filtersWithType = `createdDate[gte]=${oldCreatedDate}&type[]=transaction__created&type[]=custom_event`
+
+  const { body: objWithType } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filtersWithType}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  // cannot check with `checkHistoryObject()` utility function
+  // because individual events cannot be retrieved if the date filter is beyond the retention log period
+  t.true(typeof objWithType === 'object')
+  t.true(typeof objWithType.nbResults === 'number')
+  t.true(typeof objWithType.nbPages === 'number')
+  t.true(typeof objWithType.page === 'number')
+  t.true(typeof objWithType.nbResultsPerPage === 'number')
+  t.true(Array.isArray(objWithType.results))
+
+  objWithType.results.forEach(result => {
+    t.true(typeof result === 'object')
+    t.true(typeof result[groupBy] === 'string')
+    t.true(typeof result.count === 'number')
+  })
+})
+
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
 test.serial('get simple events stats', async (t) => {

@@ -455,6 +455,8 @@ async function performAggregationQuery ({
  * @param {String}  [params.timeFilter = 'createdDate'] - Other filters will be disabled
  *    if date filter is beyond retention period
  * @param {String}  [params.timeColumn = 'createdTimestamp'] - Internal name of time column
+ * @param {String}  [params.secondaryFilter] - If provided, this filter will also be available
+ *     beyond the retention logs period
  * @param {Object}  [params.groupByViews] - Views configuration that will be used to speed up query
  *    when only time filter is provided
  * @param {String}  [params.views[groupBy]] - View name
@@ -487,6 +489,7 @@ async function performHistoryQuery ({
   table,
   timeFilter = 'createdDate',
   timeColumn = 'createdTimestamp',
+  secondaryFilter,
   groupByViews = {},
   retentionLimitDate,
   groupBy,
@@ -496,16 +499,16 @@ async function performHistoryQuery ({
 }) {
   checkOrderConfig(orderConfig)
 
-  let onlyTimeFilter = true
+  let useOnlyNonTimeRestrictedFilters = true
 
   if (filters) {
     checkFilters(filters)
 
-    const nonTimeFilterKeys = _.without(Object.keys(filters), [timeFilter])
-    onlyTimeFilter = nonTimeFilterKeys.map(key => _.get(filters, `${key}.value`)).every(_.isUndefined)
+    const timeRestrictedFilterKeys = _.without(Object.keys(filters), ..._.compact([timeFilter, secondaryFilter]))
+    useOnlyNonTimeRestrictedFilters = timeRestrictedFilterKeys.map(key => _.get(filters, `${key}.value`)).every(_.isUndefined)
     const minRangeValue = getMinRangeValue(filters[timeFilter].value)
 
-    if (minRangeValue && minRangeValue < retentionLimitDate && !onlyTimeFilter) {
+    if (minRangeValue && minRangeValue < retentionLimitDate && !useOnlyNonTimeRestrictedFilters) {
       throw createError(400, `All filters are disabled before ${retentionLimitDate}`)
     }
   }
@@ -528,20 +531,27 @@ async function performHistoryQuery ({
 
   let allResults
 
-  if (onlyTimeFilter && view) {
+  if (useOnlyNonTimeRestrictedFilters && view) {
     // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
     // otherwise the type 'timestamp' is returned and the date won't be UTC
-    const select = knex.raw('?? AT TIME ZONE \'UTC\' as ??, count', [groupBy, groupBy])
+    let select
+    if (secondaryFilter) {
+      select = knex.raw('?? AT TIME ZONE \'UTC\' as ??, sum(count)::REAL as count', [groupBy, groupBy])
+    } else {
+      select = knex.raw('?? AT TIME ZONE \'UTC\' as ??, count', [groupBy, groupBy])
+    }
 
     queryBuilder = queryBuilder
       .select(select)
       .from(knex.raw('??.??', [schema, view]))
 
     if (filters) {
-      const newFilters = _.pick(filters, timeFilter)
+      const newFilters = _.pick(filters, [timeFilter, secondaryFilter])
       newFilters[timeFilter].dbField = groupBy
       const transformedValues = getTransformedValues(newFilters)
       addFiltersToQueryBuilder(queryBuilder, newFilters, transformedValues)
+
+      if (secondaryFilter) queryBuilder.groupBy(groupBy)
     }
 
     const { orderBy, order } = orderConfig

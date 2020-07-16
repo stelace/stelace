@@ -48,6 +48,7 @@ function start ({ communication }) {
       table: Event.tableName,
       groupBy,
       retentionLimitDate,
+      secondaryFilter: 'types',
       groupByViews: {
         hour: 'event_hourly',
         day: 'event_daily',
