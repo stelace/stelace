@@ -507,6 +507,8 @@ exports.up = async (knex) => {
     table: 'event',
     interval: '1 hour',
     timeBucketLabel: 'hour',
+    refreshLag: '1 hour',
+    refreshInterval: '1 hour',
     secondaryColumn: 'type',
   }))
   await knex.schema.raw(createContinuousAggregate({
@@ -515,6 +517,8 @@ exports.up = async (knex) => {
     table: 'event',
     interval: '1 day',
     timeBucketLabel: 'day',
+    refreshLag: '1 day',
+    refreshInterval: '1 day',
     secondaryColumn: 'type',
   }))
   await knex.schema.raw(createContinuousAggregate({
@@ -523,6 +527,8 @@ exports.up = async (knex) => {
     table: 'event',
     interval: '30 day',
     timeBucketLabel: 'month',
+    refreshLag: '1 day',
+    refreshInterval: '1 day',
     secondaryColumn: 'type',
   }))
 }

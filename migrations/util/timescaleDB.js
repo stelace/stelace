@@ -29,16 +29,42 @@ function createContinuousAggregate ({
   table,
   interval,
   timeBucketLabel,
+  secondaryColumn,
   column = 'createdTimestamp',
-  secondaryColumn
+
+  // By default `refresh_lag` is equal to `bucket_width`
+  // and `refresh_interval` is also equal to `bucket_width`
+  // That will leave too many non-materialized data
+
+  // Even though continuous aggregates are real-time aggregates and integrate non-materialized data
+  // from version 1.7, too many non-materialized data can have a bad performance impact.
+  // For instance, for a bucket width of 1 month:
+  // view will be refreshed every month (`refresh_interval`) and data from 2 last months
+  // won't be materialized (`refresh_lag` + `bucket_width`)
+
+  // We recommend to set:
+  // - '1 day' for `refresh_lag` and `refresh_interval` if `bucket_width` superior to '1 day'
+  // - the same value of `bucket_width` if it's inferior to '1 day'
+  refreshLag = '1 day',
+  refreshInterval = '1 day',
+
+  // Any modifications on rows whose date is beyond this period won't be propagated to continuous aggregate
+  // This will enable rows removal (for storage purpose) without impacting continuous aggregates
+  ignoreInvalidationOlderThan = '90 day',
 } = {}) {
   return `
-    CREATE OR REPLACE VIEW ${schema}.${viewName} WITH (timescaledb.continuous)
+    CREATE OR REPLACE VIEW "${schema}"."${viewName}" WITH (timescaledb.continuous)
     AS
     SELECT public.time_bucket(INTERVAL '${interval}', "${column}") as ${timeBucketLabel}, COUNT(*) as count
     ${secondaryColumn ? `, ${secondaryColumn}` : ''}
     FROM ${schema}."${table}"
-    GROUP BY ${timeBucketLabel}${secondaryColumn ? `, ${secondaryColumn}` : ''}
+    GROUP BY ${timeBucketLabel}${secondaryColumn ? `, ${secondaryColumn}` : ''};
+
+    ALTER VIEW "${schema}"."${viewName}" SET (
+      timescaledb.refresh_lag = '${refreshLag}',
+      timescaledb.refresh_interval = '${refreshInterval}',
+      timescaledb.ignore_invalidation_older_than = '${ignoreInvalidationOlderThan}'
+    )
   `
 }
 
