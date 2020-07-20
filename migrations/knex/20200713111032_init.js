@@ -19,7 +19,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.unique('key')
+    table.unique('key', 'apiKey_key_unique')
   })
 
   await knex.schema.createTable('assessment', table => {
@@ -43,11 +43,11 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('assetId')
-    table.index('ownerId')
-    table.index('takerId')
-    table.index('emitterId')
-    table.index('receiverId')
+    table.index('assetId', 'assessment_assetId_index')
+    table.index('ownerId', 'assessment_ownerId_index')
+    table.index('takerId', 'assessment_takerId_index')
+    table.index('emitterId', 'assessment_emitterId_index')
+    table.index('receiverId', 'assessment_receiverId_index')
   })
 
   await knex.schema.createTable('asset', table => {
@@ -69,10 +69,10 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('ownerId')
-    table.index('categoryId')
-    table.index('assetTypeId')
-    table.index('customAttributes', 'asset_customattributes_index', 'GIN')
+    table.index('ownerId', 'asset_ownerId_index')
+    table.index('categoryId', 'asset_categoryId_index')
+    table.index('assetTypeId', 'asset_assetTypeId_index')
+    table.index('customAttributes', 'asset_customAttributes_gin_index', 'GIN')
   })
 
   await knex.schema.createTable('assetType', table => {
@@ -103,8 +103,8 @@ exports.up = async (knex) => {
     table.jsonb('tokens')
     table.string('userId')
 
-    table.index('identifier')
-    table.index('userId')
+    table.index('identifier', 'authMean_identifier_index')
+    table.index('userId', 'authMean_userId_index')
   })
 
   await knex.schema.createTable('authToken', table => {
@@ -117,8 +117,8 @@ exports.up = async (knex) => {
     table.jsonb('reference')
     table.string('expirationDate', 24)
 
-    table.unique('value')
-    table.index('userId')
+    table.unique('value', 'authToken_value_unique')
+    table.index('userId', 'authToken_userId_index')
   })
 
   await knex.schema.createTable('availability', table => {
@@ -135,7 +135,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('assetId')
+    table.index('assetId', 'availability_assetId_index')
   })
 
   await knex.schema.createTable('category', table => {
@@ -157,7 +157,7 @@ exports.up = async (knex) => {
     table.jsonb('custom')
     table.jsonb('theme')
 
-    table.unique('access')
+    table.unique('access', 'config_access_unique')
   })
 
   await knex.schema.createTable('customAttribute', table => {
@@ -170,7 +170,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.unique('name')
+    table.unique('name', 'customAttribute_name_unique')
   })
 
   await knex.schema.createTable('document', table => {
@@ -198,7 +198,7 @@ exports.up = async (knex) => {
     table.jsonb('fields')
     table.jsonb('metadata')
 
-    table.unique(['locale', 'name'])
+    table.unique(['locale', 'name'], 'entry_locale_name_unique')
   })
 
   await knex.schema.createTable('event', table => {
@@ -216,10 +216,10 @@ exports.up = async (knex) => {
     table.string('emitterId')
     table.jsonb('metadata')
 
-    table.index('type')
-    table.index('objectId')
+    table.index('type', 'event_type_index')
+    table.index('objectId', 'event_objectId_index')
     table.index('object', 'event_object_gin_index', 'GIN')
-    table.index('parentId')
+    table.index('parentId', 'event_parentId_index')
   })
 
   await knex.schema.createTable('internalAvailability', table => {
@@ -234,9 +234,9 @@ exports.up = async (knex) => {
     table.timestamp('endDate')
     table.integer('quantity')
 
-    table.index('assetId')
-    table.index('transactionId')
-    table.index(['assetId', 'datesRange'])
+    table.index('assetId', 'internalAvailability_asset_index')
+    table.index('transactionId', 'internalAvailability_transactionId_index')
+    table.index(['assetId', 'datesRange'], 'internalAvailability_assetId_datesRange_index')
   })
 
   await knex.schema.createTable('message', table => {
@@ -253,9 +253,9 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('conversationId')
-    table.index('senderId')
-    table.index('receiverId')
+    table.index('conversationId', 'message_conversationId_index')
+    table.index('senderId', 'message_senderId_index')
+    table.index('receiverId', 'message_receiverId_index')
   })
 
   await knex.schema.createTable('order', table => {
@@ -275,7 +275,7 @@ exports.up = async (knex) => {
 
     table.index('lines', 'order_lines_gin_index', 'GIN')
     table.index('moves', 'order_moves_gin_index', 'GIN')
-    table.index('payerId')
+    table.index('payerId', 'order_payerId_index')
   })
 
   await knex.schema.createTable('role', table => {
@@ -292,7 +292,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('value')
+    table.index('value', 'role_value_index')
   })
 
   await knex.schema.createTable('task', table => {
@@ -341,7 +341,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('assetId')
+    table.index('assetTypeId', 'transaction_assetTypeId_index')
   })
 
   await knex.schema.createTable('user', table => {
@@ -360,9 +360,9 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.unique('username')
-    table.index('orgOwnerId')
-    table.index('roles', 'user_roles_index', 'GIN')
+    table.unique('username', 'user_username_unique')
+    table.index('orgOwnerId', 'user_orgOwnerId_index')
+    table.index('roles', 'user_roles_gin_index', 'GIN')
   })
 
   await knex.schema.createTable('webhook', table => {
@@ -377,7 +377,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('event')
+    table.index('event', 'webhook_event_index')
   })
 
   await knex.schema.createTable('webhookLog', table => {
@@ -388,8 +388,8 @@ exports.up = async (knex) => {
     table.string('status')
     table.jsonb('metadata')
 
-    table.index('webhookId')
-    table.index('eventId')
+    table.index('webhookId', 'webhookLog_webhookId_index')
+    table.index('eventId', 'webhookLog_eventId_index')
   })
 
   await knex.schema.createTable('workflow', table => {
@@ -409,7 +409,7 @@ exports.up = async (knex) => {
     table.jsonb('metadata')
     table.jsonb('platformData')
 
-    table.index('event')
+    table.index('event', 'workflow_event_index')
   })
 
   await knex.schema.createTable('workflowLog', table => {
@@ -423,9 +423,9 @@ exports.up = async (knex) => {
     table.jsonb('step')
     table.jsonb('metadata')
 
-    table.index('workflowId')
-    table.index('eventId')
-    table.index('runId')
+    table.index('workflowId', 'workflowLog_workflowId_index')
+    table.index('eventId', 'workflowLog_eventId_index')
+    table.index('runId', 'workflowLog_runId_index')
   })
 }
 
