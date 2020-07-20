@@ -8,18 +8,7 @@ module.exports = {
 
 }
 
-function getPaginationMeta ({ nbResults, page, nbResultsPerPage, allResults = false }) {
-  if (allResults) {
-    const paginationMeta = {
-      nbResults,
-      nbPages: 1,
-      page: 1,
-      nbResultsPerPage: null
-    }
-
-    return paginationMeta
-  }
-
+function getPaginationMeta ({ nbResults, page, nbResultsPerPage }) {
   let nbPages = Math.floor(nbResults / nbResultsPerPage)
   if (nbResults % nbResultsPerPage !== 0) {
     nbPages += 1
