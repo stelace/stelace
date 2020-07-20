@@ -7,7 +7,8 @@ const {
   testTools: {
     lifecycle,
     auth,
-    fixtures: { search: searchFixtures }
+    fixtures: { search: searchFixtures },
+    util: { checkOffsetPaginationScenario }
   },
   utils: {
     time: { computeDate }
@@ -72,20 +73,15 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
-test('lists saved searches', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('lists saved searches with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['savedSearch:list:all'] })
 
-  const { body: obj } = await request(t.context.serverUrl)
-    .get('/search')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/search',
+    authorizationHeaders,
+  })
 })
 
 test('lists saved searches with id filter', async (t) => {

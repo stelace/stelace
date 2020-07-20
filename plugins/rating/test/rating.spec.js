@@ -9,7 +9,7 @@ const {
 
 const { before, beforeEach, after } = lifecycle
 const { getAccessTokenHeaders } = auth
-const { checkStatsObject } = util
+const { checkStatsObject, checkOffsetPaginationScenario } = util
 
 test.before(async t => {
   await before({ name: 'rating' })(t)
@@ -17,6 +17,18 @@ test.before(async t => {
 })
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('gets simple rating stats with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:stats:all'] })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/ratings/stats?groupBy=authorId',
+    authorizationHeaders,
+    orderBy: 'avg'
+  })
+})
 
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
@@ -178,22 +190,15 @@ test('gets aggregated rating stats with multiple labels', async (t) => {
   checkStatObject(results[0]['main:pricing'])
 })
 
-test('lists ratings', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('lists ratings with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/ratings')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/ratings',
+    authorizationHeaders,
+  })
 })
 
 test('lists ratings with id filter', async (t) => {

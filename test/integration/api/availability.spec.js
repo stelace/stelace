@@ -8,7 +8,8 @@ const { getAccessTokenHeaders } = require('../../auth')
 const {
   computeDate,
   getObjectEvent,
-  testEventMetadata
+  testEventMetadata,
+  checkOffsetPaginationScenario
 } = require('../../util')
 
 test.before(async t => {
@@ -39,22 +40,15 @@ test('get availabilities graph', async (t) => {
   })
 })
 
-test('list availabilities', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list availabilities with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['availability:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/availabilities?assetId=ast_0TYM7rs1OwP1gQRuCOwP&page=2')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/availabilities?assetId=ast_0TYM7rs1OwP1gQRuCOwP',
+    authorizationHeaders,
+  })
 })
 
 test('creates an availability with a fixed quantity', async (t) => {

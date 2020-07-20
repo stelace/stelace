@@ -6,7 +6,7 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
 
 test.before(async (t) => {
   await before({ name: 'order' })(t)
@@ -137,22 +137,15 @@ test('previews an order with lines and moves', async (t) => {
   })
 })
 
-test('list orders', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list orders with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['order:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/orders?page=2')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/orders',
+    authorizationHeaders,
+  })
 })
 
 test('list orders with id filter', async (t) => {

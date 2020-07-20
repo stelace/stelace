@@ -3,10 +3,11 @@ require('dotenv').config()
 const test = require('ava')
 const request = require('supertest')
 const ms = require('ms')
+const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, getApiKey } = require('../../auth')
-const { computeDate } = require('../../util')
+const { computeDate, checkOffsetPaginationScenario } = require('../../util')
 
 const { getRoundedDate } = require('../../../src/util/time')
 const { encodeBase64 } = require('../../../src/util/encoding')
@@ -31,26 +32,18 @@ const restoreClock = async (t, duration = 3000) => {
   await new Promise(resolve => setTimeout(resolve, duration))
 }
 
-test('list tasks', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list tasks with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['task:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/tasks')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(task => {
-    t.truthy(task.id)
-    t.true(typeof task.eventType === 'string')
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/tasks',
+    authorizationHeaders,
+    checkFn: (t, task) => {
+      t.truthy(task.id)
+      t.true(_.isString(task.eventType))
+    }
   })
 })
 

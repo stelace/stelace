@@ -9,7 +9,8 @@ const { getModels } = require('../../../src/models')
 const {
   getObjectEvent,
   testEventMetadata,
-  testEventDelay
+  testEventDelay,
+  checkOffsetPaginationScenario,
 } = require('../../util')
 
 test.before(async t => {
@@ -22,22 +23,15 @@ test.after(after())
 // from fixtures
 const defaultAssetTypeId = 'typ_RFpfQps1I3a1gJYz2I3a'
 
-test('list assets', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list assets with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/assets?page=2')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/assets',
+    authorizationHeaders,
+  })
 })
 
 test('list assets for the current user', async (t) => {

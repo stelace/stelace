@@ -8,7 +8,7 @@ const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
 
 const { getModels } = require('../../../src/models')
-const { computeDate } = require('../../util')
+const { computeDate, checkOffsetPaginationScenario } = require('../../util')
 const { getObjectEvent, testEventMetadata } = require('../../util')
 
 test.before(async t => {
@@ -60,22 +60,15 @@ const createTransactionWithAsset = async (t) => {
   return transaction
 }
 
-test('list transactions', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list transactions with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['transaction:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/transactions')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/transactions',
+    authorizationHeaders,
+  })
 })
 
 test('list transactions for the current user', async (t) => {

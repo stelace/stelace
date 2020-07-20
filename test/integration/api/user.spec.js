@@ -7,7 +7,7 @@ const bluebird = require('bluebird')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, defaultUserId } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
 
 const { encodeBase64 } = require('../../../src/util/encoding')
 
@@ -45,22 +45,15 @@ test('checks if the username is available', async (t) => {
   t.true(available2)
 })
 
-test('list users', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list users with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/users?page=2')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/users',
+    authorizationHeaders,
+  })
 })
 
 test('list users with id filter', async (t) => {

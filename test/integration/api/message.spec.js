@@ -5,7 +5,7 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'message' })(t)
@@ -14,22 +14,15 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
-test('list messages', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list messages with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['message:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/messages')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/messages',
+    authorizationHeaders,
+  })
 })
 
 test('list messages with id filter', async (t) => {

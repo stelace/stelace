@@ -5,7 +5,7 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { computeDate, checkStatsObject, checkHistoryObject } = require('../../util')
+const { computeDate, checkStatsObject, checkHistoryObject, checkOffsetPaginationScenario } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -222,6 +222,18 @@ test('can apply type filter beyond the retention log period', async (t) => {
     t.true(typeof result === 'object')
     t.true(typeof result[groupBy] === 'string')
     t.true(typeof result.count === 'number')
+  })
+})
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('get simple events stats with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:stats:all'] })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/events/stats?groupBy=type',
+    authorizationHeaders,
+    orderBy: 'count'
   })
 })
 
@@ -606,22 +618,15 @@ test('get events stats only within retention log period', async (t) => {
   t.is(obj.nbResults, 0)
 })
 
-test('list events', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list events with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/events')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/events',
+    authorizationHeaders,
+  })
 })
 
 test('list events with id filter', async (t) => {

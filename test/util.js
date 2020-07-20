@@ -3,6 +3,8 @@ const { getModels } = require('../src/models')
 const { roundDecimal } = require('../src/util/math')
 const WebhookManager = require('./webhook-manager')
 const _ = require('lodash')
+const request = require('supertest')
+const qs = require('querystring')
 
 /**
  * May be required to let event propagate before moving on with current test
@@ -19,6 +21,9 @@ module.exports = {
   nullOrUndefinedFallback,
   getObjectEvent,
   testEventMetadata,
+
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
   checkStatsObject,
   checkHistoryObject,
 }
@@ -107,6 +112,110 @@ async function testEventMetadata ({
   else t.true(event.relatedObjectsIds === null, testMessage)
 
   if (metadata) t.deepEqual(event.metadata, metadata, testMessage)
+}
+
+function checkOffsetPaginatedListObject (t, obj, { checkResultsFn } = {}) {
+  t.true(_.isPlainObject(obj))
+  t.true(_.isNumber(obj.nbResults))
+  t.true(_.isNumber(obj.nbPages))
+  t.true(_.isNumber(obj.page))
+  t.true(_.isNumber(obj.nbResultsPerPage))
+  t.true(Array.isArray(obj.results))
+
+  if (obj.nbPages === 1) t.is(obj.results.length, obj.nbResults)
+  if (_.isFunction(checkResultsFn)) obj.results.forEach(r => checkResultsFn(t, r))
+}
+
+async function checkOffsetPaginationScenario ({
+  t,
+  endpointUrl,
+  authorizationHeaders,
+  checkResultsFn,
+  orderBy = 'createdDate',
+  nbResultsPerPage = 2, // small number to be able to fetch several pages
+}) {
+  const isPaginationObject = obj => {
+    checkOffsetPaginatedListObject(t, obj, checkResultsFn)
+  }
+
+  const orders = ['desc', 'asc']
+
+  for (const order of orders) {
+    let orderValue
+    const checkOrder = (results) => {
+      results.forEach(r => {
+        if (!_.isUndefined(orderValue)) {
+          if (order === 'desc') t.true(r[orderBy] <= orderValue)
+          else t.true(r[orderBy] >= orderValue)
+        }
+
+        orderValue = r[orderBy]
+      })
+    }
+
+    // ////////// //
+    // FIRST PAGE //
+    // ////////// //
+    let filters = qs.stringify({
+      page: 1,
+      nbResultsPerPage,
+      orderBy,
+      order,
+    })
+
+    const getEndpoint = (endpointUrl, filters) => {
+      if (endpointUrl.includes('?')) return `${endpointUrl}&${filters}`
+      else return `${endpointUrl}?${filters}`
+    }
+
+    const { body: page1Obj } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page1Obj)
+    checkOrder(page1Obj.results)
+
+    // stop here if there is only one page
+    if (page1Obj.nbPages <= 1) return
+
+    // /////////// //
+    // SECOND PAGE //
+    // /////////// //
+    filters = qs.stringify({
+      page: 2,
+      nbResultsPerPage,
+      orderBy,
+      order,
+    })
+
+    const { body: page2Obj } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page2Obj)
+    checkOrder(page2Obj.results)
+
+    // //////////////// //
+    // FIRST PAGE AGAIN //
+    // //////////////// //
+    filters = qs.stringify({
+      page: 1,
+      nbResultsPerPage,
+      orderBy,
+      order,
+    })
+
+    const { body: page1ObjAgain } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page1ObjAgain)
+
+    t.deepEqual(page1Obj, page1ObjAgain)
+  }
 }
 
 /**

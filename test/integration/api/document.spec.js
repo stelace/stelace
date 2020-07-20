@@ -6,7 +6,7 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { checkStatsObject } = require('../../util')
+const { checkStatsObject, checkOffsetPaginationScenario } = require('../../util')
 
 test.before(async (t) => {
   await before({ name: 'document' })(t)
@@ -14,6 +14,18 @@ test.before(async (t) => {
 })
 // test.beforeEach(beforeEach())
 test.after(after())
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('get simple documents stats with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:stats:all'] })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/documents/stats?type=movie&groupBy=data.director',
+    authorizationHeaders,
+    orderBy: 'count'
+  })
+})
 
 test('get simple documents stats', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({
@@ -508,22 +520,15 @@ test('fails to get aggregated stats with non-number field', async (t) => {
   t.true(error.message.includes(`Non-number value was found for field "${field}"`))
 })
 
-test('list documents', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list documents with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/documents?type=invoice')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/documents?type=invoice',
+    authorizationHeaders,
+  })
 })
 
 test('list documents with id filter', async (t) => {

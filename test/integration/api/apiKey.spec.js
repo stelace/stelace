@@ -6,7 +6,7 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessToken, getAccessTokenHeaders, getSystemKey } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
 const { encodeBase64 } = require('../../../src/util/encoding')
 
 test.before(async t => {
@@ -20,22 +20,15 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
-test('list api keys', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list api keys with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['apiKey:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/api-keys')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/api-keys',
+    authorizationHeaders,
+  })
 })
 
 test('list api keys with id filter', async (t) => {
