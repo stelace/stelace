@@ -9,7 +9,7 @@ const { performListQuery } = require('../util/listQueryBuilder')
 
 const _ = require('lodash')
 
-const { getPaginationMeta } = require('../util/pagination')
+const { getOffsetPaginationMeta, offsetPaginate } = require('../util/pagination')
 const { parseArrayValues } = require('../util/list')
 
 let responder
@@ -256,8 +256,6 @@ function start ({ communication }) {
       queryBuilder
         .select()
         .from('aggregations')
-        .offset((page - 1) * nbResultsPerPage)
-        .limit(nbResultsPerPage)
 
       if (filterPostRanking && computeRanking) {
         queryBuilder.whereIn('groupByField', filterPostRanking.value)
@@ -314,7 +312,7 @@ function start ({ communication }) {
         }
       })
 
-      paginationMeta = getPaginationMeta({
+      paginationMeta = getOffsetPaginationMeta({
         nbResults: 1,
         nbResultsPerPage,
         page
@@ -323,28 +321,16 @@ function start ({ communication }) {
       paginationMeta.results = [aggregatedStats]
     } else {
       const queryBuilder = getQueryBuilderByLabel(label)
-      const countQueryBuilder = queryBuilder.clone()
-
-      queryBuilder
-        .offset((page - 1) * nbResultsPerPage)
-        .limit(nbResultsPerPage)
 
       try {
-        const [
-          documentStats,
-          [{ count: nbDocuments }]
-        ] = await Promise.all([
+        paginationMeta = await offsetPaginate({
           queryBuilder,
-          countQueryBuilder.count()
-        ])
-
-        paginationMeta = getPaginationMeta({
-          nbResults: nbDocuments,
           nbResultsPerPage,
-          page
+          page,
+          applyOrder: false,
         })
 
-        paginationMeta.results = documentStats.map(doc => {
+        paginationMeta.results = paginationMeta.results.map(doc => {
           return transformDocStats(doc, {
             computeRanking,
             groupBy,

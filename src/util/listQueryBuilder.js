@@ -2,7 +2,7 @@ const _ = require('lodash')
 const createError = require('http-errors')
 
 const { Joi } = require('./validation')
-const { getPaginationMeta } = require('./pagination')
+const { getOffsetPaginationMeta, offsetPaginate } = require('./pagination')
 const { parseArrayValues } = require('./list')
 const { roundDecimal } = require('./math')
 
@@ -243,34 +243,16 @@ async function performListQuery ({
   }
 
   if (paginationActive) {
-    // Clone the query builder to have the count for all matched results before pagination filtering
-    const countQueryBuilder = queryBuilder.clone()
-
     const { orderBy, order } = orderConfig
-    queryBuilder.orderBy(orderBy, order)
-
     const { page, nbResultsPerPage } = paginationConfig
 
-    queryBuilder
-      .offset((page - 1) * nbResultsPerPage)
-      .limit(nbResultsPerPage)
-
-    const [
-      results,
-      [{ count: nbResults }]
-    ] = await Promise.all([
+    return offsetPaginate({
       queryBuilder,
-      countQueryBuilder.count()
-    ])
-
-    const paginationMeta = getPaginationMeta({
-      nbResults,
+      orderBy,
+      order,
       nbResultsPerPage,
-      page
+      page,
     })
-
-    paginationMeta.results = results
-    return paginationMeta
   } else {
     const { orderBy, order } = orderConfig
     queryBuilder.orderBy(orderBy, order)
@@ -389,32 +371,19 @@ async function performAggregationQuery ({
     .from('aggregations')
     .whereNotNull('groupByField')
 
-  // Clone the query builder to have the count for all matched results before pagination filtering
-  const countQueryBuilder = queryBuilder.clone()
-
   const { orderBy, order } = orderConfig
-  queryBuilder.orderBy(orderBy, order)
-
   const { page, nbResultsPerPage } = paginationConfig
 
-  queryBuilder
-    .offset((page - 1) * nbResultsPerPage)
-    .limit(nbResultsPerPage)
-
-  let results
-  let nbResults
+  let paginationMeta
 
   try {
-    const [
-      queryResults,
-      [{ count }]
-    ] = await Promise.all([
+    paginationMeta = await offsetPaginate({
       queryBuilder,
-      countQueryBuilder.count()
-    ])
-
-    results = queryResults
-    nbResults = count
+      orderBy,
+      order,
+      nbResultsPerPage,
+      page,
+    })
   } catch (err) {
     // PostgreSQL error codes
     // https://www.postgresql.org/docs/10/errcodes-appendix.html
@@ -426,13 +395,7 @@ async function performAggregationQuery ({
     }
   }
 
-  const paginationMeta = getPaginationMeta({
-    nbResults,
-    nbResultsPerPage,
-    page
-  })
-
-  paginationMeta.results = results.map(r => {
+  paginationMeta.results = paginationMeta.results.map(r => {
     const clonedResult = _.cloneDeep(r)
 
     clonedResult.groupBy = groupBy
@@ -631,7 +594,7 @@ async function performHistoryQuery ({
   const nbResults = allResults.length
   const results = allResults.slice((page - 1) * nbResultsPerPage, page * nbResultsPerPage)
 
-  const paginationMeta = getPaginationMeta({
+  const paginationMeta = getOffsetPaginationMeta({
     nbResults,
     nbResultsPerPage,
     page
