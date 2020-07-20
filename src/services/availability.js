@@ -16,7 +16,6 @@ const { getObjectId } = require('stelace-util-keys')
 const { performListQuery } = require('../util/listQueryBuilder')
 
 const {
-  // getPureDate,
   isValidCronPattern,
   isValidTimezone,
   computeRecurringPeriods,

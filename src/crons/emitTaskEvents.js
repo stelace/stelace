@@ -44,7 +44,7 @@ async function emitTaskEvents () {
 
   try {
     // use ref date because cron job cannot trigger at the specified time (with 0 millisecond)
-    const refDate = getRoundedDate(new Date(), nbMinutes)
+    const refDate = getRoundedDate(new Date(), { nbMinutes })
 
     const taskConfigs = await getAllStelaceTasks()
 

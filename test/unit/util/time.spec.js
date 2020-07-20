@@ -43,14 +43,19 @@ test('computes a date based on an object duration', (t) => {
 })
 
 test('get rounded date', (t) => {
-  // round to nearest minute
+  // round to inferior date UTC
   t.is(getRoundedDate('2018-01-01T00:00:00.000Z'), '2018-01-01T00:00:00.000Z')
-  t.is(getRoundedDate('2018-01-01T00:00:00.001Z'), '2018-01-01T00:00:00.000Z')
-  t.is(getRoundedDate('2018-01-01T00:00:50.000Z'), '2018-01-01T00:01:00.000Z')
+  t.is(getRoundedDate('2018-01-01T12:45:50.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T19:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+
+  // round to nearest minute
+  t.is(getRoundedDate('2018-01-01T00:00:00.000Z', { nbMinutes: 1 }), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T00:00:00.001Z', { nbMinutes: 1 }), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T00:00:50.000Z', { nbMinutes: 1 }), '2018-01-01T00:01:00.000Z')
 
   // round to 5 minutes
-  t.is(getRoundedDate('2018-01-01T00:00:50.000Z', 5), '2018-01-01T00:00:00.000Z')
-  t.is(getRoundedDate('2018-01-01T00:03:10.000Z', 5), '2018-01-01T00:05:00.000Z')
+  t.is(getRoundedDate('2018-01-01T00:00:50.000Z', { nbMinutes: 5 }), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T00:03:10.000Z', { nbMinutes: 5 }), '2018-01-01T00:05:00.000Z')
 })
 
 test('validates the timezone', (t) => {

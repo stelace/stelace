@@ -127,7 +127,7 @@ test('creates a task with an execution date', async (t) => {
     .expect(200)
 
   t.truthy(task.id)
-  t.is(task.executionDate, getRoundedDate(executionDate))
+  t.is(task.executionDate, getRoundedDate(executionDate, { nbMinutes: 1 }))
   t.is(task.eventType, 'asset_timeout')
   t.is(task.eventObjectId, 'ast_2l7fQps1I3a1gJYz2I3a')
   t.is(task.eventMetadata.test, true)
@@ -196,7 +196,7 @@ test.serial('creates a task with an execution date and checks events', async (t)
     .expect(200)
 
   t.truthy(task.id)
-  t.is(task.executionDate, getRoundedDate(executionDate))
+  t.is(task.executionDate, getRoundedDate(executionDate, { nbMinutes: 1 }))
   t.is(task.eventType, eventType)
   t.is(task.eventObjectId, assetId)
   t.is(task.eventMetadata.test, true)
