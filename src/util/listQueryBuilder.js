@@ -2,7 +2,8 @@ const _ = require('lodash')
 const createError = require('http-errors')
 
 const { Joi } = require('./validation')
-const { parseArrayValues, getPaginationMeta } = require('./list')
+const { getPaginationMeta } = require('./pagination')
+const { parseArrayValues } = require('./list')
 const { roundDecimal } = require('./math')
 
 const filtersSchema = Joi.object().pattern(

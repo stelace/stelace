@@ -1,5 +1,5 @@
 const { Joi, objectIdParamsSchema } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const signersSchema = Joi.object().pattern(
   Joi.string().required(),

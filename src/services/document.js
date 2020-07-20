@@ -9,10 +9,8 @@ const { performListQuery } = require('../util/listQueryBuilder')
 
 const _ = require('lodash')
 
-const {
-  getPaginationMeta,
-  parseArrayValues
-} = require('../util/list')
+const { getPaginationMeta } = require('../util/pagination')
+const { parseArrayValues } = require('../util/list')
 
 let responder
 

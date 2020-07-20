@@ -15,6 +15,7 @@ const utils = {
   list: require('./src/util/list'),
   listQueryBuilder: require('./src/util/listQueryBuilder'),
   locale: require('./src/util/locale'),
+  pagination: require('./src/util/pagination'),
   pricing: require('./src/util/pricing'),
   time: require('./src/util/time'),
   transaction: require('./src/util/transaction'),

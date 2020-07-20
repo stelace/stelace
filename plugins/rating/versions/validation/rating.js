@@ -16,7 +16,7 @@ module.exports = function createValidation (deps) {
   const {
     utils: {
       validation: { objectIdParamsSchema },
-      list: { DEFAULT_NB_RESULTS_PER_PAGE }
+      pagination: { DEFAULT_NB_RESULTS_PER_PAGE }
     }
   } = deps
 

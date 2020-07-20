@@ -1,7 +1,7 @@
 const { builtInTypes, customTypeRegex } = require('stelace-util-keys')
 
 const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const orderByFields = [
   'name',

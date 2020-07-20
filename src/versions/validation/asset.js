@@ -1,5 +1,5 @@
 const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const locationSchema = Joi.object().unknown().keys({
   latitude: Joi.number().min(-90).max(90).required(),
