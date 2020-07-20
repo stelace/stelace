@@ -107,7 +107,7 @@
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
-    "eslint": "^7.4.0",
+    "eslint": "^7.5.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-node": "^11.1.0",
