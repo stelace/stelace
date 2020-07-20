@@ -1,6 +1,12 @@
 const { retentionLogDuration } = require('../../src/util/timeSeries')
 
 // https://docs.timescale.com/latest/using-timescaledb/hypertables
+// The option `migrateData` must be true if the table isn't empty, otherwise an error will be thrown
+// It is suitable for small tables (e.g. less than 1M rows)
+
+// For large existing tables, it may be worth to create an empty hypertable and to import data
+// because it would take significantly less time
+// https://docs.timescale.com/latest/getting-started/migrating-data
 function createHypertable (schema, table, { column = 'createdTimestamp', migrateData = false } = {}) {
   return `
     SELECT public.create_hypertable(

@@ -14,6 +14,8 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
+const dateFilterErrorRegexp = /createdDate value cannot be lower than \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/i
+
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
 test.serial('get events history', async (t) => {
@@ -540,10 +542,12 @@ test.serial('get events stats with date filter only works within the rentention 
     .set(authorizationHeaders)
     .expect(400)
 
-  await request(t.context.serverUrl)
+  const { body: error } = await request(t.context.serverUrl)
     .get(`/events/stats?groupBy=${groupBy}&createdDate=${invalidMinCreatedDate}`)
     .set(authorizationHeaders)
     .expect(400)
+
+  t.true(dateFilterErrorRegexp.test(error.message))
 
   const { body: obj } = await request(t.context.serverUrl)
     .get(`/events/stats?groupBy=${groupBy}&createdDate[gte]=${validMinCreatedDate}`)
@@ -726,20 +730,26 @@ test('list events with date filter only works within the rentention log period',
   const validMinCreatedDate = computeDate(now, '-10d')
   const encode = obj => encodeURIComponent(JSON.stringify(obj))
 
-  await request(t.context.serverUrl)
+  const { body: error1 } = await request(t.context.serverUrl)
     .get(`/events?createdDate[gte]=${invalidMinCreatedDate}`)
     .set(authorizationHeaders)
     .expect(400)
 
-  await request(t.context.serverUrl)
+  t.true(dateFilterErrorRegexp.test(error1.message))
+
+  const { body: error2 } = await request(t.context.serverUrl)
     .get(`/events?createdDate=${encode({ gte: invalidMinCreatedDate })}`)
     .set(authorizationHeaders)
     .expect(400)
 
-  await request(t.context.serverUrl)
+  t.true(dateFilterErrorRegexp.test(error2.message))
+
+  const { body: error3 } = await request(t.context.serverUrl)
     .get(`/events?createdDate=${invalidMinCreatedDate}`)
     .set(authorizationHeaders)
     .expect(400)
+
+  t.true(dateFilterErrorRegexp.test(error3.message))
 
   const { body: obj } = await request(t.context.serverUrl)
     .get(`/events?createdDate[gte]=${validMinCreatedDate}`)
@@ -752,7 +762,7 @@ test('list events with date filter only works within the rentention log period',
   })
 })
 
-test('list events only within retention log period', async (t) => {
+test('list events only within retention log period by default', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
   const { body: obj } = await request(t.context.serverUrl)

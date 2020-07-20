@@ -90,7 +90,7 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
     const { dbField, value, query, minValue } = filter
     const transformedValue = transformedValues[key]
 
-    // skip the filter if the value is not defined,
+    // skip the filter if the value is not defined
     if (_.isUndefined(transformedValue)) return
 
     const isCustomQuery = _.isFunction(query)

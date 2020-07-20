@@ -321,7 +321,7 @@ function start ({ communication }) {
 
     const minCreatedDate = getRetentionLimitDate()
 
-    // without filter, compressed chunk will be queried so the response will be long
+    // without this filter, compressed chunk will be queried so the response will be long
     const event = await Event.query().findById(eventId).where('createdTimestamp', '>=', minCreatedDate)
     if (!event) {
       throw createError(404)

@@ -6,6 +6,8 @@ const {
   removeContinuousAggregate,
 } = require('../util/timescaleDB')
 
+const timestampPrecision = 3 // 10E-3 = 1 millisecond
+
 exports.up = async (knex) => {
   const { schema } = knex.client.connectionSettings || {}
   // We need to inject schema name in function body for recursion
@@ -233,7 +235,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('event', table => {
     table.string('id')
     table.string('createdDate', 24)
-    table.timestamp('createdTimestamp', { precision: 3 })
+    table.timestamp('createdTimestamp', { precision: timestampPrecision })
     table.string('type')
     table.string('objectType')
     table.string('objectId')
@@ -438,7 +440,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('webhookLog', table => {
     table.string('id')
     table.string('createdDate', 24)
-    table.timestamp('createdTimestamp', { precision: 3 })
+    table.timestamp('createdTimestamp', { precision: timestampPrecision })
     table.string('webhookId')
     table.string('eventId')
     table.string('status')
@@ -476,7 +478,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('workflowLog', table => {
     table.string('id')
     table.string('createdDate', 24)
-    table.timestamp('createdTimestamp', { precision: 3 })
+    table.timestamp('createdTimestamp', { precision: timestampPrecision })
     table.string('workflowId')
     table.string('eventId')
     table.string('runId')
