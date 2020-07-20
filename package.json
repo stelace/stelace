@@ -122,7 +122,7 @@
     "semver": "^7.3.2",
     "socket.io-client": "^2.3.0",
     "sql-fixtures": "^1.0.2",
-    "standard-version": "^8.0.1",
+    "standard-version": "^8.0.2",
     "supertest": "^4.0.2",
     "tap-xunit": "^2.4.1"
   },
