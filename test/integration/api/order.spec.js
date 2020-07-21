@@ -6,7 +6,12 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject
+} = require('../../util')
 
 test.before(async (t) => {
   await before({ name: 'order' })(t)
@@ -151,19 +156,13 @@ test.serial('list orders with pagination', async (t) => {
 test('list orders with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['order:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/orders?id=ord_eP0hwes1jwf1gxMLCjwf')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list orders with advanced filters', async (t) => {

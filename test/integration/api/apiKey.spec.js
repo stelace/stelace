@@ -6,7 +6,12 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessToken, getAccessTokenHeaders, getSystemKey } = require('../../auth')
-const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject
+} = require('../../util')
 const { encodeBase64 } = require('../../../src/util/encoding')
 
 test.before(async t => {
@@ -34,35 +39,22 @@ test.serial('list api keys with pagination', async (t) => {
 test('list api keys with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['apiKey:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/api-keys?id=apik_aHZQps1I3b1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list api keys with api key', async (t) => {
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/api-keys')
     .set({ authorization: `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  checkOffsetPaginatedListObject(t, obj)
 })
 
 test('rejects invalid api key format with 401 and www-authenticate header', async (t) => {

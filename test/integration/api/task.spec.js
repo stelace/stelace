@@ -7,7 +7,11 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, getApiKey } = require('../../auth')
-const { computeDate, checkOffsetPaginationScenario } = require('../../util')
+const {
+  computeDate,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 
 const { getRoundedDate } = require('../../../src/util/time')
 const { encodeBase64 } = require('../../../src/util/encoding')
@@ -40,7 +44,7 @@ test.serial('list tasks with pagination', async (t) => {
     t,
     endpointUrl: '/tasks',
     authorizationHeaders,
-    checkFn: (t, task) => {
+    checkResultsFn: (t, task) => {
       t.truthy(task.id)
       t.true(_.isString(task.eventType))
     }
@@ -50,19 +54,13 @@ test.serial('list tasks with pagination', async (t) => {
 test('list tasks with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['task:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/tasks?id=task_4bJEZe1bA91i7IQYbA8')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list tasks with advanced filters', async (t) => {

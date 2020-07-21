@@ -8,7 +8,11 @@ const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
 
 const { getModels } = require('../../../src/models')
-const { computeDate, checkOffsetPaginationScenario } = require('../../util')
+const {
+  computeDate,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 const { getObjectEvent, testEventMetadata } = require('../../util')
 
 test.before(async t => {
@@ -109,18 +113,12 @@ test('list transactions for the current user', async (t) => {
 test('list transactions with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['transaction:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/transactions?id=trn_a3BfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
-  t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.results.length, 1)
 })
 
@@ -151,25 +149,18 @@ test('list transactions with advanced filters', async (t) => {
 test('list transactions with pricing filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['transaction:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/transactions?ownerAmount[lte]=500&platformAmount[gt]=10')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-  t.true(obj.nbResults > 0)
-
-  obj.results.forEach(transaction => {
+  const checkResultsFn = (t, transaction) => {
     t.true(transaction.ownerAmount <= 500)
     t.true(transaction.platformAmount > 10)
-  })
+  }
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.true(obj.results.length > 0)
 })
 
 test('previews a transaction', async (t) => {

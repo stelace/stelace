@@ -6,7 +6,11 @@ const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { checkStatsObject, checkOffsetPaginationScenario } = require('../../util')
+const {
+  checkOffsetPaginatedStatsObject,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 
 test.before(async (t) => {
   await before({ name: 'document' })(t)
@@ -49,7 +53,7 @@ test('get simple documents stats', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -82,7 +86,7 @@ test('get aggregated field stats', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -122,7 +126,7 @@ test('get aggregated field stats by authorId and filter on an authorId', async (
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -163,7 +167,7 @@ test('get aggregated field stats with ranking', async (t) => {
     .expect(200)
 
   let ranking
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -213,7 +217,7 @@ test('get aggregated field stats with ranking with specified label', async (t) =
     .expect(200)
 
   let ranking
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -329,7 +333,7 @@ test('get aggregated field stats with ranking and postranking filter', async (t)
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -372,14 +376,7 @@ test('get aggregated field stats with ranking and preranking filter', async (t) 
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -407,13 +404,8 @@ test('get aggregated field stats with multiple labels', async (t) => {
 
   const obj = result.body
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.is(obj.nbResults, 1)
-  t.true(Array.isArray(obj.results))
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 
   const checkStatObject = obj => {
     t.is(typeof obj, 'object')
@@ -534,19 +526,13 @@ test.serial('list documents with pagination', async (t) => {
 test('list documents with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['document:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/documents?type=invoice&id=doc_WWRfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list documents with advanced filters', async (t) => {

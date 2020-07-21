@@ -9,7 +9,11 @@ const {
 
 const { before, beforeEach, after } = lifecycle
 const { getAccessTokenHeaders } = auth
-const { checkStatsObject, checkOffsetPaginationScenario } = util
+const {
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+  checkOffsetPaginatedStatsObject,
+} = util
 
 test.before(async t => {
   await before({ name: 'rating' })(t)
@@ -53,7 +57,7 @@ test.serial('gets simple rating stats', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -107,7 +111,7 @@ test.serial('gets aggregated rating stats with ranking', async (t) => {
 
   let ranking
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -204,18 +208,12 @@ test.serial('lists ratings with pagination', async (t) => {
 test('lists ratings with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/ratings?id=rtg_2l7fQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
-  t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.results.length, 1)
 })
 
@@ -275,45 +273,28 @@ test('lists ratings with advanced filter', async (t) => {
 test('lists ratings with label filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/ratings?label=main:friendliness,main:pricing')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(rating => {
+  const checkResultsFn = (t, rating) => {
     t.true(['main:friendliness', 'main:pricing'].includes(rating.label))
-  })
+  }
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('lists ratings with wildcard label filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['rating:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/ratings?label=main:*')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(rating => {
-    t.true(rating.label.startsWith('main:'))
-  })
+  const checkResultsFn = (t, rating) => t.true(rating.label.startsWith('main:'))
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('finds a rating', async (t) => {

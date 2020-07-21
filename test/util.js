@@ -24,8 +24,8 @@ module.exports = {
 
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
-  checkStatsObject,
-  checkHistoryObject,
+  checkOffsetPaginatedStatsObject,
+  checkOffsetPaginatedHistoryObject,
 }
 
 /**
@@ -236,7 +236,7 @@ async function checkOffsetPaginationScenario ({
  * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check
  *     on each item of results array
  */
-function checkStatsObject ({
+function checkOffsetPaginatedStatsObject ({
   t,
   obj,
   groupBy,
@@ -252,13 +252,7 @@ function checkStatsObject ({
   results = results.filter(e => !_.isUndefined(_.get(e, groupBy)))
   const resultsByType = _.groupBy(results, groupBy)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-  t.is(obj.nbResults, obj.results.length)
+  checkOffsetPaginatedListObject(t, obj)
 
   obj.results.forEach(result => {
     const key = expandedGroupByField ? result.groupByValue : result[groupBy]
@@ -330,7 +324,7 @@ function checkStatsObject ({
  * @param {String}   [order = 'desc']
  * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check on `result`
  */
-function checkHistoryObject ({
+function checkOffsetPaginatedHistoryObject ({
   t,
   obj,
   groupBy,
@@ -350,13 +344,7 @@ function checkHistoryObject ({
     else if (groupBy === 'month') return date
   })
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-  t.is(obj.nbResults, obj.results.length)
+  checkOffsetPaginatedListObject(t, obj)
 
   obj.results.forEach(result => {
     const key = result[groupBy]

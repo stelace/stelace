@@ -5,7 +5,7 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const { getObjectEvent, testEventMetadata, checkOffsetPaginatedListObject } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'assessment' })(t)
@@ -43,19 +43,12 @@ const createAssessment = async (t) => {
 test('list assessments', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['assessment:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/assessments?assetId=ast_2l7fQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  checkOffsetPaginatedListObject(t, obj)
 })
 
 test('finds an assessment', async (t) => {

@@ -7,7 +7,12 @@ const bluebird = require('bluebird')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, defaultUserId } = require('../../auth')
-const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 
 const { encodeBase64 } = require('../../../src/util/encoding')
 
@@ -59,19 +64,13 @@ test.serial('list users with pagination', async (t) => {
 test('list users with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/users?id=usr_WHlfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list users with query filter', async (t) => {
@@ -79,19 +78,13 @@ test('list users with query filter', async (t) => {
 
   const query = 'user2'
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get(`/users?query=${query}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(obj.results.length, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
 
   obj.results.forEach(user => {
     const fields = [
@@ -113,70 +106,45 @@ test('list users with query filter', async (t) => {
 test('list users without type should only return natural users', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/users')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-
-  obj.results.forEach(user => {
-    t.true(!user.roles.includes('organization'))
-  })
+  const checkResultsFn = (t, user) => t.true(!user.roles.includes('organization'))
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list organization users', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/users?type=organization')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-
-  obj.results.forEach(user => {
-    t.true(user.roles.includes('organization'))
-  })
+  const checkResultsFn = (t, user) => t.true(user.roles.includes('organization'))
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list users and organizations', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/users?type=all')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-
   let hasUsers = false
   let hasOrganizations = false
 
-  obj.results.forEach(user => {
+  const checkResultsFn = (t, user) => {
     const isOrg = user.roles.includes('organization')
 
     hasUsers = hasUsers || !isOrg
     hasOrganizations = hasOrganizations || isOrg
-  })
+  }
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
 
   t.true(hasUsers)
   t.true(hasOrganizations)
@@ -185,66 +153,46 @@ test('list users and organizations', async (t) => {
 test('list users and organizations filtering by IDs without providing type', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/users?id[]=usr_WHlfQps1I3a1gJYz2I3a&id[]=org_xC3ZlGs1Jo71gb2G0Jo7')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-
-  obj.results.forEach(user => {
+  const checkResultsFn = (t, user) => {
     t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'org_xC3ZlGs1Jo71gb2G0Jo7'].includes(user.id))
-  })
+  }
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list members of an organization using userOrganizationId filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
   const orgId = 'org_yiBSnhs1zaP1hh8rczaP'
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get(`/users?userOrganizationId=${orgId}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
+  const checkResultsFn = (t, user) => t.true(Object.keys(user.organizations).includes(orgId))
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
   t.is(obj.nbResults, 3)
   t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.true(typeof obj.nbResultsPerPage === 'number')
-
-  obj.results.forEach(user => {
-    t.true(Object.keys(user.organizations).includes(orgId))
-  })
 })
 
 test('list user belonging to every listed using userOrganizationId filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['user:list:all'] })
 
   const orgIds = ['org_xC3ZlGs1Jo71gb2G0Jo7', 'org_yiBSnhs1zaP1hh8rczaP']
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get(`/users?userOrganizationId=${orgIds.join(',')}`)
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.true(typeof obj.nbResultsPerPage === 'number')
-
-  obj.results.forEach(user => {
+  const checkResultsFn = (t, user) => {
     t.true(orgIds.every(id => Object.keys(user.organizations).includes(id)))
-  })
+  }
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.nbResults, 1)
 })
 
 test('finds a user', async (t) => {

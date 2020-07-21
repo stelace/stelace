@@ -11,6 +11,7 @@ const {
   testEventMetadata,
   testEventDelay,
   checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
 } = require('../../util')
 
 test.before(async t => {
@@ -73,19 +74,13 @@ test('list assets for the current user', async (t) => {
 test('list assets with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/assets?id=ast_0TYM7rs1OwP1gQRuCOwP')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list assets with advanced filters', async (t) => {

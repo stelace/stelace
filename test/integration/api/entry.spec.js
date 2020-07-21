@@ -5,7 +5,12 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 
 test.before(async t => {
   await before({ name: 'entry' })(t)
@@ -33,12 +38,8 @@ test('list entries with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list entries with advanced filters', async (t) => {

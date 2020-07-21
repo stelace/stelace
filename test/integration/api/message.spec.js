@@ -5,7 +5,12 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata, checkOffsetPaginationScenario } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 
 test.before(async t => {
   await before({ name: 'message' })(t)
@@ -28,41 +33,28 @@ test.serial('list messages with pagination', async (t) => {
 test('list messages with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['message:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/messages?id=msg_Vuz9KRs10NK1gAHrp0NK')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
   t.is(obj.results[0].id, 'msg_Vuz9KRs10NK1gAHrp0NK')
 })
 
 test('list messages with advanced filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['message:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/messages?senderId=user-external-id')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
+  const checkResultsFn = (t, message) => t.is(message.senderId, 'user-external-id')
 
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-
-  obj.results.forEach(result => {
-    t.is(result.senderId, 'user-external-id')
-  })
 })
 
 test('cannot list messages if the current user does not belong to the conversation', async (t) => {

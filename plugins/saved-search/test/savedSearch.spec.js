@@ -8,7 +8,10 @@ const {
     lifecycle,
     auth,
     fixtures: { search: searchFixtures },
-    util: { checkOffsetPaginationScenario }
+    util: {
+      checkOffsetPaginationScenario,
+      checkOffsetPaginatedListObject,
+    }
   },
   utils: {
     time: { computeDate }
@@ -87,23 +90,17 @@ test.serial('lists saved searches with pagination', async (t) => {
 test('lists saved searches with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['savedSearch:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/search?id=sch_2l7fQps1I3a1gJYz2I3a,sch_emdfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
-  t.is(obj.nbResults, 2)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 2)
-
-  obj.results.forEach(savedSearch => {
+  const checkResultsFn = (t, savedSearch) => {
     t.true(['sch_2l7fQps1I3a1gJYz2I3a', 'sch_emdfQps1I3a1gJYz2I3a'].includes(savedSearch.id))
-  })
+  }
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.results.length, 2)
 })
 
 test('lists saved searches with advanced filter', async (t) => {

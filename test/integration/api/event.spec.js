@@ -5,7 +5,13 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { computeDate, checkStatsObject, checkHistoryObject, checkOffsetPaginationScenario } = require('../../util')
+const {
+  computeDate,
+  checkOffsetPaginatedStatsObject,
+  checkOffsetPaginatedHistoryObject,
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+} = require('../../util')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -40,7 +46,7 @@ test.serial('get events history', async (t) => {
       .set(authorizationHeaders)
       .expect(200)
 
-    checkHistoryObject({
+    checkOffsetPaginatedHistoryObject({
       t,
       obj: dayObj,
       groupBy,
@@ -74,7 +80,7 @@ test('get events history with filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkHistoryObject({
+  checkOffsetPaginatedHistoryObject({
     t,
     obj,
     groupBy,
@@ -110,7 +116,7 @@ test('get events history with date filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkHistoryObject({
+  checkOffsetPaginatedHistoryObject({
     t,
     obj,
     groupBy,
@@ -181,7 +187,7 @@ test.serial('can apply filters only with created date within the retention log p
     .set(authorizationHeaders)
     .expect(200)
 
-  checkHistoryObject({
+  checkOffsetPaginatedHistoryObject({
     t,
     obj,
     groupBy,
@@ -209,7 +215,7 @@ test('can apply type filter beyond the retention log period', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  // cannot check with `checkHistoryObject()` utility function
+  // cannot check with `checkOffsetPaginatedHistoryObject()` utility function
   // because individual events cannot be retrieved if the date filter is beyond the retention log period
   t.true(typeof objWithType === 'object')
   t.true(typeof objWithType.nbResults === 'number')
@@ -260,7 +266,7 @@ test.serial('get simple events stats', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -289,7 +295,7 @@ test('get simple events stats with nested groupBy', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -320,7 +326,7 @@ test('get aggregated field stats', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -356,7 +362,7 @@ test('get aggregated field stats with filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -390,7 +396,7 @@ test('get aggregated field stats with deeply nested properties', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -406,7 +412,7 @@ test('get aggregated field stats with deeply nested properties', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj: obj2,
     groupBy: groupBy2,
@@ -440,7 +446,7 @@ test('get aggregated field stats with complex filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -468,7 +474,7 @@ test('get aggregated field stats with complex filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj: obj2,
     groupBy,
@@ -495,7 +501,7 @@ test('get aggregated field stats with complex filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj: obj3,
     groupBy,
@@ -592,7 +598,7 @@ test.serial('get events stats with date filter only works within the rentention 
     .set(authorizationHeaders)
     .expect(200)
 
-  checkStatsObject({
+  checkOffsetPaginatedStatsObject({
     t,
     obj,
     groupBy,
@@ -632,19 +638,13 @@ test.serial('list events with pagination', async (t) => {
 test('list events with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/events?id=evt_WWRfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
+  checkOffsetPaginatedListObject(t, obj)
   t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 1)
 })
 
 test('list events with filters', async (t) => {
