@@ -54,6 +54,7 @@ test('get rounded date', (t) => {
   // round to nearest date UTC
   t.is(getRoundedDate('2018-01-01T00:00:00.000Z'), '2018-01-01T00:00:00.000Z')
   t.is(getRoundedDate('2018-01-01T05:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T12:00:00.000Z'), '2018-01-02T00:00:00.000Z')
   t.is(getRoundedDate('2018-01-01T12:45:50.000Z'), '2018-01-02T00:00:00.000Z')
   t.is(getRoundedDate('2018-01-01T19:00:00.000Z'), '2018-01-02T00:00:00.000Z')
 
