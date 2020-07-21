@@ -7,6 +7,7 @@ const { CronTime } = require('cron')
 const {
   isIntersection,
   computeDate,
+  truncateDate,
   getRoundedDate,
   isValidCronPattern,
   isValidTimezone,
@@ -42,11 +43,19 @@ test('computes a date based on an object duration', (t) => {
   t.is(computeDate('2018-01-01T00:00:00.000Z', { m: 15 }), '2018-01-01T00:15:00.000Z')
 })
 
+test('truncate date', (t) => {
+  t.is(truncateDate('2018-01-01T00:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(truncateDate('2018-01-01T05:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(truncateDate('2018-01-01T12:45:50.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(truncateDate('2018-01-01T19:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+})
+
 test('get rounded date', (t) => {
-  // round to inferior date UTC
+  // round to nearest date UTC
   t.is(getRoundedDate('2018-01-01T00:00:00.000Z'), '2018-01-01T00:00:00.000Z')
-  t.is(getRoundedDate('2018-01-01T12:45:50.000Z'), '2018-01-01T00:00:00.000Z')
-  t.is(getRoundedDate('2018-01-01T19:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T05:00:00.000Z'), '2018-01-01T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T12:45:50.000Z'), '2018-01-02T00:00:00.000Z')
+  t.is(getRoundedDate('2018-01-01T19:00:00.000Z'), '2018-01-02T00:00:00.000Z')
 
   // round to nearest minute
   t.is(getRoundedDate('2018-01-01T00:00:00.000Z', { nbMinutes: 1 }), '2018-01-01T00:00:00.000Z')

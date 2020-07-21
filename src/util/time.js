@@ -117,7 +117,19 @@ function computeDate (isoDate, duration) {
 }
 
 /**
- * Round the date, by default to the inferior date UTC with 0h0m0s
+ * Truncate the date
+ * e.g. transform '2020-01-01T12:45:56.123Z' into '2020-01-01T00:00:00.000Z'
+ * @param {String|Object} date
+ */
+function truncateDate (date) {
+  const d = isDate(date) ? date : new Date(date)
+
+  const m = moment.utc(d)
+  return m.format('YYYY-MM-DD') + 'T00:00:00.000Z'
+}
+
+/**
+ * Round the date, by default to UTC date with 0h0m0s
  * @param {String|Object} date
  * @param {Number} [options.nbMinutes] - if provided, round to the nearest multiple of minutes
  */
@@ -127,7 +139,8 @@ function getRoundedDate (date, { nbMinutes } = {}) {
   const roundToDate = _.isUndefined(nbMinutes)
 
   if (roundToDate) {
-    const m = moment.utc(date)
+    const m = moment.utc(d)
+    if (m.hours() >= 12) m.add(1, 'd')
     return m.format('YYYY-MM-DD') + 'T00:00:00.000Z'
   } else {
     const ms = nbMinutes * 60 * 1000
@@ -253,6 +266,7 @@ module.exports = {
   isIntersection,
   convertToMs,
   computeDate,
+  truncateDate,
   getRoundedDate,
   isValidTimezone,
   isValidCronPattern,

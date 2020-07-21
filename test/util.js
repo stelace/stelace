@@ -1,4 +1,4 @@
-const { computeDate, isDateString, getRoundedDate } = require('../src/util/time')
+const { computeDate, isDateString, truncateDate } = require('../src/util/time')
 const { getModels } = require('../src/models')
 const { roundDecimal } = require('../src/util/math')
 const WebhookManager = require('./webhook-manager')
@@ -232,7 +232,7 @@ function checkHistoryObject ({
     const date = result.createdDate
 
     if (groupBy === 'hour') return date.slice(0, 14) + '00:00.000Z'
-    else if (groupBy === 'day') return getRoundedDate(date)
+    else if (groupBy === 'day') return truncateDate(date)
 
     // month time unit isn't supported in TimescaleDB
     // and we approximate it as '30 days'
