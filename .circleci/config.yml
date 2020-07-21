@@ -200,7 +200,7 @@ jobs:
               /tmp/test-results/unit-test-results.xml
       - run:
           name: Run integration tests with API endpoints
-          no_output_timeout: 20m
+          no_output_timeout: 12m
           command: |
             docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
               run api npm run test:ci:integration | \
