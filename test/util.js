@@ -1,6 +1,6 @@
 const { computeDate, isDateString, truncateDate } = require('../src/util/time')
 const { getModels } = require('../src/models')
-const { roundDecimal } = require('../src/util/math')
+const { roundDecimal, sumDecimals } = require('../src/util/math')
 const WebhookManager = require('./webhook-manager')
 const _ = require('lodash')
 const request = require('supertest')
@@ -261,8 +261,8 @@ function checkOffsetPaginatedStatsObject ({
 
     const nullIfNone = (count, nb) => count === 0 ? null : nb
 
-    const avg = nullIfNone(count, results.reduce((nb, r) => nb + _.get(r, field), 0) / results.length)
-    const sum = nullIfNone(count, results.reduce((nb, r) => nb + _.get(r, field), 0))
+    const sum = nullIfNone(count, sumDecimals(_.compact(results.map(r => _.get(r, field)))))
+    const avg = nullIfNone(count, sum / results.length)
     const min = nullIfNone(count, results.reduce((nb, r) => Math.min(_.get(r, field), nb), _.get(results[0], field)))
     const max = nullIfNone(count, results.reduce((nb, r) => Math.max(_.get(r, field), nb), _.get(results[0], field)))
 
