@@ -7,6 +7,11 @@ const locationSchema = Joi.object().unknown().keys({
 })
 
 const orderByFields = [
+  'createdDate',
+  'updatedDate',
+]
+
+const oldPaginationOrderByFields = [
   'name',
   'createdDate',
   'updatedDate',
@@ -19,13 +24,29 @@ const orderByFields = [
 const schemas = {}
 
 // ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = () => ({
+  query: schemas['2019-05-20'].list.query
+    .fork('page', schema => schema.forbidden())
+    .fork('orderBy', () => Joi.string().valid(...orderByFields).default('createdDate'))
+    .keys({
+      // cursor pagination
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+})
+
+// ////////// //
 // 2019-05-20 //
 // ////////// //
 schemas['2019-05-20'] = {}
 schemas['2019-05-20'].list = {
   query: Joi.object().keys({
     // order
-    orderBy: Joi.string().valid(...orderByFields).default('createdDate'),
+    orderBy: Joi.string().valid(...oldPaginationOrderByFields).default('createdDate'),
     order: Joi.string().valid('asc', 'desc').default('desc'),
 
     // pagination
@@ -77,6 +98,13 @@ schemas['2019-05-20'].remove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'asset.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'asset.list',

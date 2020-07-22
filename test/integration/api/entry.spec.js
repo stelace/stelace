@@ -8,8 +8,12 @@ const { getAccessTokenHeaders } = require('../../auth')
 const {
   getObjectEvent,
   testEventMetadata,
+
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
 } = require('../../util')
 
 test.before(async t => {
@@ -23,7 +27,7 @@ test.after(after())
 test.serial('list entries with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['entry:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/entries',
     authorizationHeaders,
@@ -38,8 +42,8 @@ test('list entries with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 })
 
 test('list entries with advanced filters', async (t) => {
@@ -50,7 +54,6 @@ test('list entries with advanced filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj1.results.length, obj1.nbResults)
   obj1.results.forEach(entry => {
     t.true(['website', 'email'].includes(entry.collection))
   })
@@ -60,7 +63,6 @@ test('list entries with advanced filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj2.results.length, obj2.nbResults)
   obj2.results.forEach(entry => {
     t.true(['website', 'email'].includes(entry.collection))
     t.true(['en-US', 'zh-Hans-CN'].includes(entry.locale))
@@ -72,7 +74,6 @@ test('list entries with advanced filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj3.results.length, obj3.nbResults)
   obj3.results.forEach(entry => {
     t.true(['website', 'email'].includes(entry.collection))
     t.true(['home', 'signup'].includes(entry.name))
@@ -543,3 +544,34 @@ test.serial('generates entry__* events', async (t) => {
 // //////// //
 // VERSIONS //
 // //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list entries with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['entry:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/entries',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list entries with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['entry:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/entries?id=ent_4KquHhs1WeG1hK71uWeG')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
+})

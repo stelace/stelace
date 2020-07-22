@@ -20,8 +20,9 @@ function init (server, { middlewares, helpers } = {}) {
     const fields = [
       'orderBy',
       'order',
-      'page',
       'nbResultsPerPage',
+      'startingAfter',
+      'endingBefore',
 
       'groupBy',
 
@@ -98,8 +99,14 @@ function init (server, { middlewares, helpers } = {}) {
     const fields = [
       'orderBy',
       'order',
-      'page',
       'nbResultsPerPage',
+
+      // offset pagination
+      'page',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
 
       'id',
       // 'type' // parsing manually below to avoid conflict with côte requester 'type'

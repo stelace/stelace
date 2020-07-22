@@ -9,6 +9,21 @@ const orderByFields = [
 const schemas = {}
 
 // ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = () => ({
+  query: schemas['2019-05-20'].list.query
+    .fork('page', schema => schema.forbidden())
+    .keys({
+      // cursor pagination
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+})
+
+// ////////// //
 // 2019-05-20 //
 // ////////// //
 schemas['2019-05-20'] = {}
@@ -66,6 +81,13 @@ schemas['2019-05-20'].remove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'message.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'message.list',

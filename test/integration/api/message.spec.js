@@ -8,8 +8,12 @@ const { getAccessTokenHeaders } = require('../../auth')
 const {
   getObjectEvent,
   testEventMetadata,
+
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
 } = require('../../util')
 
 test.before(async t => {
@@ -23,7 +27,7 @@ test.after(after())
 test.serial('list messages with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['message:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/messages',
     authorizationHeaders,
@@ -38,8 +42,8 @@ test('list messages with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
   t.is(obj.results[0].id, 'msg_Vuz9KRs10NK1gAHrp0NK')
 })
 
@@ -53,8 +57,8 @@ test('list messages with advanced filters', async (t) => {
 
   const checkResultsFn = (t, message) => t.is(message.senderId, 'user-external-id')
 
-  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.results.length, 1)
 })
 
 test('cannot list messages if the current user does not belong to the conversation', async (t) => {
@@ -441,4 +445,58 @@ test.serial('generates message__* events', async (t) => {
   t.is(messageCreatedEvent.object.name, message.name)
   t.is(messageCreatedEvent.object.timeBased, message.timeBased)
   t.is(messageCreatedEvent.object.metadata._custom.hasDataInNamespace, true)
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list messages with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['message:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/messages',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list messages with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['message:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/messages?id=msg_Vuz9KRs10NK1gAHrp0NK')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
+  t.is(obj.results[0].id, 'msg_Vuz9KRs10NK1gAHrp0NK')
+})
+
+test('2019-05-20: list messages with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['message:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/messages?senderId=user-external-id')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkResultsFn = (t, message) => t.is(message.senderId, 'user-external-id')
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.nbResults, 1)
 })

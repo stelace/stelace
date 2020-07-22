@@ -9,8 +9,12 @@ const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, getApiKey } = require('../../auth')
 const {
   computeDate,
+
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
 } = require('../../util')
 
 const { getRoundedDate } = require('../../../src/util/time')
@@ -40,7 +44,7 @@ const restoreClock = async (t, duration = 3000) => {
 test.serial('list tasks with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['task:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/tasks',
     authorizationHeaders,
@@ -59,8 +63,8 @@ test('list tasks with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 })
 
 test('list tasks with advanced filters', async (t) => {
@@ -302,12 +306,12 @@ test.serial('creates a task with recurring parameters and checks events', async 
 
   await restoreClock(t, 8000)
 
-  const { body: { nbResults, results: afterEvents } } = await request(t.context.serverUrl)
-    .get(`/events?type=${eventType}&objectId=${assetId}`)
+  const { body: { results: afterEvents } } = await request(t.context.serverUrl)
+    .get(`/events?type=${eventType}&objectId=${assetId}&nbResultsPerPage=100`)
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(nbResults, 32)
+  t.is(afterEvents.length, 32)
 
   afterEvents.forEach(event => t.is(event.emitterId, task.id))
 })
@@ -599,4 +603,43 @@ test('fails to update a task if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"active" must be a boolean'))
   t.true(error.message.includes('"metadata" must be of type object'))
   t.true(error.message.includes('"platformData" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list tasks with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['task:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/tasks',
+    authorizationHeaders,
+    checkResultsFn: (t, task) => {
+      t.truthy(task.id)
+      t.true(_.isString(task.eventType))
+    }
+  })
+})
+
+test('2019-05-20: list tasks with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['task:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/tasks?id=task_4bJEZe1bA91i7IQYbA8')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
 })

@@ -8,9 +8,12 @@ const { getAccessTokenHeaders } = require('../../auth')
 const {
   computeDate,
   checkOffsetPaginatedStatsObject,
-  checkOffsetPaginatedHistoryObject,
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
+
+  checkCursorPaginatedHistoryObject,
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
 } = require('../../util')
 
 test.before(async t => {
@@ -21,6 +24,31 @@ test.before(async t => {
 test.after(after())
 
 const dateFilterErrorRegexp = /createdDate value cannot be lower than \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/i
+
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('get events history with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const groupByValues = ['hour', 'day', 'month']
+
+  for (const groupBy of groupByValues) {
+    await checkCursorPaginationScenario({
+      t,
+      endpointUrl: `/events/history?groupBy=${groupBy}`,
+      authorizationHeaders,
+      orderBy: groupBy,
+      passOrderByToQuery: false,
+      nbResultsPerPage: 1, // not many events with different dates, so let's create page of 1 result
+    })
+  }
+})
 
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
@@ -46,7 +74,7 @@ test.serial('get events history', async (t) => {
       .set(authorizationHeaders)
       .expect(200)
 
-    checkOffsetPaginatedHistoryObject({
+    checkCursorPaginatedHistoryObject({
       t,
       obj: dayObj,
       groupBy,
@@ -80,7 +108,7 @@ test('get events history with filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedHistoryObject({
+  checkCursorPaginatedHistoryObject({
     t,
     obj,
     groupBy,
@@ -116,7 +144,7 @@ test('get events history with date filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedHistoryObject({
+  checkCursorPaginatedHistoryObject({
     t,
     obj,
     groupBy,
@@ -187,7 +215,7 @@ test.serial('can apply filters only with created date within the retention log p
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedHistoryObject({
+  checkCursorPaginatedHistoryObject({
     t,
     obj,
     groupBy,
@@ -215,20 +243,16 @@ test('can apply type filter beyond the retention log period', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  // cannot check with `checkOffsetPaginatedHistoryObject()` utility function
+  // cannot check with `checkCursorPaginatedHistoryObject()` utility function
   // because individual events cannot be retrieved if the date filter is beyond the retention log period
-  t.true(typeof objWithType === 'object')
-  t.true(typeof objWithType.nbResults === 'number')
-  t.true(typeof objWithType.nbPages === 'number')
-  t.true(typeof objWithType.page === 'number')
-  t.true(typeof objWithType.nbResultsPerPage === 'number')
-  t.true(Array.isArray(objWithType.results))
-
-  objWithType.results.forEach(result => {
+  const checkResultsFn = (t, result) => {
+    // console.log(result, groupBy)
     t.true(typeof result === 'object')
     t.true(typeof result[groupBy] === 'string')
     t.true(typeof result.count === 'number')
-  })
+  }
+
+  checkCursorPaginatedListObject(t, objWithType, { checkResultsFn })
 })
 
 // need serial to ensure there is no insertion/deletion during pagination scenario
@@ -628,7 +652,7 @@ test('get events stats only within retention log period', async (t) => {
 test.serial('list events with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/events',
     authorizationHeaders,
@@ -643,8 +667,8 @@ test('list events with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 })
 
 test('list events with filters', async (t) => {
@@ -659,7 +683,6 @@ test('list events with filters', async (t) => {
 
   const obj1 = result1.body
 
-  t.is(obj1.results.length, obj1.nbResults)
   obj1.results.forEach(event => {
     t.true(['asset'].includes(event.objectType))
   })
@@ -671,7 +694,6 @@ test('list events with filters', async (t) => {
 
   const obj2 = result2.body
 
-  t.is(obj2.results.length, obj2.nbResults)
   t.true(obj2.results.length >= 1)
   obj2.results.forEach(event => {
     t.true(['ast_lCfxJNs10rP1g2Mww0rP'].includes(event.objectId))
@@ -684,7 +706,6 @@ test('list events with filters', async (t) => {
 
   const obj3 = result3.body
 
-  t.is(obj3.results.length, obj3.nbResults)
   t.true(obj3.results.length >= 1)
   obj3.results.forEach(event => {
     t.is(event.objectType, 'asset')
@@ -697,7 +718,6 @@ test('list events with filters', async (t) => {
 
   const obj4 = result4.body
 
-  t.is(obj4.results.length, obj4.nbResults)
   t.true(obj4.results.length >= 1)
   obj4.results.forEach(event => {
     t.is(event.emitter, 'custom')
@@ -712,7 +732,6 @@ test('list events with filters', async (t) => {
 
   const obj5 = result5.body
 
-  t.is(obj5.results.length, obj5.nbResults)
   obj5.results.forEach(event => {
     t.true(['asset'].includes(event.objectType))
     t.true(event.createdDate >= minCreatedDate)
@@ -726,7 +745,7 @@ test('list events with filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj5b.nbResults, 1)
+  t.is(obj5b.results.length, 1)
   obj5b.results.forEach(event => {
     t.true(event.createdDate >= futureDate)
   })
@@ -736,7 +755,6 @@ test('list events with filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj6.results.length, obj6.nbResults)
   obj6.results.forEach(event => {
     t.true(['random'].includes(event.emitterId))
   })
@@ -746,7 +764,6 @@ test('list events with filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj7.results.length, obj7.nbResults)
   obj7.results.forEach(event => {
     t.is(event.type, 'future_event')
   })
@@ -787,7 +804,6 @@ test('list events with date filter only works within the rentention log period',
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj.results.length, obj.nbResults)
   obj.results.forEach(event => {
     t.true(event.createdDate >= validMinCreatedDate)
   })
@@ -801,7 +817,7 @@ test('list events only within retention log period by default', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj.nbResults, 0)
+  t.is(obj.results.length, 0)
 })
 
 test('list events with metadata object filters', async (t) => {
@@ -812,8 +828,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj1.results.length, obj1.nbResults)
-  t.is(obj1.nbResults, 1)
+  t.is(obj1.results.length, 1)
   obj1.results.forEach(event => {
     t.is(event.metadata.name, 'DMC-12')
   })
@@ -823,8 +838,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj2.results.length, obj2.nbResults)
-  t.is(obj2.nbResults, 2)
+  t.is(obj2.results.length, 2)
   obj2.results.forEach(event => {
     t.is(event.metadata.nested.string, 'true')
   })
@@ -834,8 +848,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj3.results.length, obj3.nbResults)
-  t.is(obj3.nbResults, 1)
+  t.is(obj3.results.length, 1)
   obj3.results.forEach(event => {
     t.is(event.metadata.name, 'DMC-12')
     t.is(event.metadata.nested.string, 'true')
@@ -846,8 +859,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj4.results.length, obj4.nbResults)
-  t.is(obj4.nbResults, 0)
+  t.is(obj4.results.length, 0)
 
   const supersetOf = {
     someTags: ['Brown'],
@@ -866,8 +878,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj5.results.length, obj5.nbResults)
-  t.is(obj5.nbResults, 1)
+  t.is(obj5.results.length, 1)
   obj5.results.forEach(checkEvent)
 
   await request(t.context.serverUrl)
@@ -882,8 +893,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj6.results.length, obj6.nbResults)
-  t.is(obj6.nbResults, 0)
+  t.is(obj6.results.length, 0)
 
   supersetOf.nested.object = false // false instead of true
   const { body: obj7 } = await request(t.context.serverUrl)
@@ -891,8 +901,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj7.results.length, obj7.nbResults)
-  t.is(obj7.nbResults, 0)
+  t.is(obj7.results.length, 0)
 
   const assetSupersetOf = {
     customAttributes: {
@@ -911,8 +920,7 @@ test('list events with metadata object filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(obj8.results.length, obj8.nbResults)
-  t.is(obj8.nbResults, 3)
+  t.is(obj8.results.length, 3)
   obj8.results.forEach(checkAssetEvent)
 })
 
@@ -1101,4 +1109,39 @@ test('fails to create an event if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"objectId" must be a string'))
   t.true(error.message.includes('"emitterId" must be a string'))
   t.true(error.message.includes('"metadata" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list events with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['event:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/events',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list events with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['event:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/events?id=evt_WWRfQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
 })

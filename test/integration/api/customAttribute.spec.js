@@ -9,8 +9,12 @@ const { getAccessTokenHeaders } = require('../../auth')
 const {
   getObjectEvent,
   testEventMetadata,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+
   checkOffsetPaginationScenario,
-  checkOffsetPaginatedListObject
+  checkOffsetPaginatedListObject,
 } = require('../../util')
 
 test.before(async (t) => {
@@ -24,7 +28,7 @@ test.after(after())
 test.serial('list custom attributes with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['customAttribute:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/custom-attributes',
     authorizationHeaders,
@@ -39,8 +43,8 @@ test('list custom attributes with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 })
 
 test('finds a custom attribute', async (t) => {
@@ -594,4 +598,39 @@ test('fails to update a custom attribute if missing or invalid parameters', asyn
   t.true(error.message.includes('"listValues" must be an array'))
   t.true(error.message.includes('"metadata" must be of type object'))
   t.true(error.message.includes('"platformData" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list custom attributes with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['customAttribute:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/custom-attributes',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list custom attributes with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['customAttribute:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/custom-attributes?id=attr_WmwQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
 })

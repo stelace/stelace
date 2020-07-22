@@ -9,8 +9,12 @@ const { getAccessTokenHeaders } = require('../../auth')
 const {
   getObjectEvent,
   testEventMetadata,
+
   checkOffsetPaginationScenario,
-  checkOffsetPaginatedListObject
+  checkOffsetPaginatedListObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
 } = require('../../util')
 
 test.before(async (t) => {
@@ -146,7 +150,7 @@ test('previews an order with lines and moves', async (t) => {
 test.serial('list orders with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['order:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/orders',
     authorizationHeaders,
@@ -161,8 +165,8 @@ test('list orders with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 })
 
 test('list orders with advanced filters', async (t) => {
@@ -1237,4 +1241,39 @@ test.serial('generates order__* events', async (t) => {
     patchPayload
   })
   t.is(orderUpdatedEvent.object.metadata.dummy, false)
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list orders with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['order:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/orders',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list orders with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['order:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/orders?id=ord_eP0hwes1jwf1gxMLCjwf')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
 })

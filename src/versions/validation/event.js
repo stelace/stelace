@@ -2,6 +2,10 @@ const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/valida
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const orderByFields = [
+  'createdDate',
+]
+
+const oldPaginationOrderByFields = [
   'name',
   'createdDate',
   'updatedDate',
@@ -44,8 +48,9 @@ schemas['2020-08-10'].getHistory = {
     order: Joi.string().valid('asc', 'desc').default('desc'),
 
     // pagination
-    page: Joi.number().integer().min(1).default(1),
     nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+    startingAfter: Joi.string(),
+    endingBefore: Joi.string(),
 
     // aggregation
     groupBy: Joi.string().valid('hour', 'day', 'month').required(),
@@ -60,6 +65,17 @@ schemas['2020-08-10'].getHistory = {
     emitterId: Joi.array().unique().items(Joi.string()).single()
   })
 }
+schemas['2020-08-10'].list = () => ({
+  query: schemas['2019-05-20'].list.query
+    .fork('page', schema => schema.forbidden())
+    .fork('orderBy', () => Joi.string().valid(...orderByFields).default('createdDate'))
+    .keys({
+      // cursor pagination
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+})
 
 // ////////// //
 // 2019-05-20 //
@@ -97,7 +113,7 @@ schemas['2019-05-20'].getStats = {
 schemas['2019-05-20'].list = {
   query: Joi.object().keys({
     // order
-    orderBy: Joi.string().valid(...orderByFields).default('createdDate'),
+    orderBy: Joi.string().valid(...oldPaginationOrderByFields).default('createdDate'),
     order: Joi.string().valid('asc', 'desc').default('desc'),
 
     // pagination
@@ -133,6 +149,10 @@ const validationVersions = {
     {
       target: 'event.getHistory',
       schema: schemas['2020-08-10'].getHistory
+    },
+    {
+      target: 'event.list',
+      schema: schemas['2020-08-10'].list
     },
   ],
 

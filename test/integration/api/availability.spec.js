@@ -9,7 +9,8 @@ const {
   computeDate,
   getObjectEvent,
   testEventMetadata,
-  checkOffsetPaginationScenario
+  checkOffsetPaginationScenario,
+  checkCursorPaginationScenario,
 } = require('../../util')
 
 test.before(async t => {
@@ -44,7 +45,7 @@ test('get availabilities graph', async (t) => {
 test.serial('list availabilities with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['availability:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/availabilities?assetId=ast_0TYM7rs1OwP1gQRuCOwP',
     authorizationHeaders,
@@ -733,5 +734,24 @@ test.serial('generates availability__* events', async (t) => {
     event: availabilityDeletedEvent,
     object: availabilityUpdated,
     t
+  })
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list availabilities with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['availability:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/availabilities?assetId=ast_0TYM7rs1OwP1gQRuCOwP',
+    authorizationHeaders,
   })
 })

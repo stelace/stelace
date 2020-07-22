@@ -10,8 +10,12 @@ const { getAccessTokenHeaders } = require('../../auth')
 const { getModels } = require('../../../src/models')
 const {
   computeDate,
+
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
 } = require('../../util')
 const { getObjectEvent, testEventMetadata } = require('../../util')
 
@@ -68,7 +72,7 @@ const createTransactionWithAsset = async (t) => {
 test.serial('list transactions with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['transaction:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/transactions',
     authorizationHeaders,
@@ -118,7 +122,7 @@ test('list transactions with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
+  checkCursorPaginatedListObject(t, obj)
   t.is(obj.results.length, 1)
 })
 
@@ -133,7 +137,6 @@ test('list transactions with advanced filters', async (t) => {
   const obj1 = result1.body
 
   t.is(obj1.results.length, 4)
-  t.is(obj1.nbResults, 4)
 
   const result2 = await request(t.context.serverUrl)
     .get('/transactions?takerId[]=fd7b4ea9-a899-4dba-b9b0-ef8537a70efe&assetId=ast_0TYM7rs1OwP1gQRuCOwP')
@@ -143,7 +146,6 @@ test('list transactions with advanced filters', async (t) => {
   const obj2 = result2.body
 
   t.is(obj2.results.length, 0)
-  t.is(obj2.nbResults, 0)
 })
 
 test('list transactions with pricing filters', async (t) => {
@@ -159,7 +161,7 @@ test('list transactions with pricing filters', async (t) => {
     t.true(transaction.platformAmount > 10)
   }
 
-  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
   t.true(obj.results.length > 0)
 })
 
@@ -1930,3 +1932,55 @@ test.serial('generates transaction__* events', async (t) => {
 // //////// //
 // VERSIONS //
 // //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list transactions with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['transaction:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/transactions',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list transactions with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['transaction:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/transactions?id=trn_a3BfQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
+})
+
+test('2019-05-20: list transactions with pricing filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['transaction:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/transactions?ownerAmount[lte]=500&platformAmount[gt]=10')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkResultsFn = (t, transaction) => {
+    t.true(transaction.ownerAmount <= 500)
+    t.true(transaction.platformAmount > 10)
+  }
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.true(obj.results.length > 0)
+})

@@ -9,6 +9,10 @@ const { getAccessToken, getAccessTokenHeaders, getSystemKey } = require('../../a
 const {
   getObjectEvent,
   testEventMetadata,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject
 } = require('../../util')
@@ -29,7 +33,7 @@ test.after(after())
 test.serial('list api keys with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['apiKey:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/api-keys',
     authorizationHeaders,
@@ -44,8 +48,8 @@ test('list api keys with id filter', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
-  t.is(obj.nbResults, 1)
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
 })
 
 test('list api keys with api key', async (t) => {
@@ -54,7 +58,7 @@ test('list api keys with api key', async (t) => {
     .set({ authorization: `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}` })
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
+  checkCursorPaginatedListObject(t, obj)
 })
 
 test('rejects invalid api key format with 401 and www-authenticate header', async (t) => {
@@ -754,4 +758,51 @@ test.serial('generates api_key__* events', async (t) => {
       event.objectId === apiKeyUpdated.id
   })
   await testEventMetadata({ event: apiKeyDeletedEvent, object: apiKeyUpdated, t })
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list api keys with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['apiKey:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/api-keys',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list api keys with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['apiKey:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/api-keys?id=apik_aHZQps1I3b1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
+})
+
+test('2019-05-20: list api keys with api key', async (t) => {
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/api-keys')
+    .set({
+      authorization: `Basic ${encodeBase64('seck_test_wakWA41rBTUXs1Y5pNRjeY5o:')}`,
+      'x-stelace-version': '2019-05-20'
+    })
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
 })

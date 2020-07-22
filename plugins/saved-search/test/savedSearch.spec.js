@@ -11,6 +11,9 @@ const {
     util: {
       checkOffsetPaginationScenario,
       checkOffsetPaginatedListObject,
+
+      checkCursorPaginationScenario,
+      checkCursorPaginatedListObject,
     }
   },
   utils: {
@@ -80,7 +83,7 @@ test.after(after())
 test.serial('lists saved searches with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['savedSearch:list:all'] })
 
-  await checkOffsetPaginationScenario({
+  await checkCursorPaginationScenario({
     t,
     endpointUrl: '/search',
     authorizationHeaders,
@@ -99,7 +102,7 @@ test('lists saved searches with id filter', async (t) => {
     t.true(['sch_2l7fQps1I3a1gJYz2I3a', 'sch_emdfQps1I3a1gJYz2I3a'].includes(savedSearch.id))
   }
 
-  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
   t.is(obj.results.length, 2)
 })
 
@@ -113,7 +116,6 @@ test('lists saved searches with advanced filter', async (t) => {
 
   const obj1 = result1.body
 
-  t.is(obj1.results.length, obj1.nbResults)
   obj1.results.forEach(savedSearch => {
     t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'user-external-id'].includes(savedSearch.userId))
   })
@@ -125,7 +127,6 @@ test('lists saved searches with advanced filter', async (t) => {
 
   const obj2 = result2.body
 
-  t.is(obj2.results.length, obj2.nbResults)
   obj2.results.forEach(savedSearch => {
     t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'user-external-id'].includes(savedSearch.userId))
   })
@@ -513,4 +514,43 @@ test('fails to update a saved search if missing or invalid parameters', async (t
   t.true(error.message.includes('"active" must be a boolean'))
   t.true(error.message.includes('"metadata" must be of type object'))
   t.true(error.message.includes('"platformData" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: lists saved searches with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['savedSearch:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/search',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: lists saved searches with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['savedSearch:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/search?id=sch_2l7fQps1I3a1gJYz2I3a,sch_emdfQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkResultsFn = (t, savedSearch) => {
+    t.true(['sch_2l7fQps1I3a1gJYz2I3a', 'sch_emdfQps1I3a1gJYz2I3a'].includes(savedSearch.id))
+  }
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.results.length, 2)
 })

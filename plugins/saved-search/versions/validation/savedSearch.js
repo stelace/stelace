@@ -17,6 +17,21 @@ module.exports = function createValidation (deps) {
   const schemas = {}
 
   // ////////// //
+  // 2020-08-10 //
+  // ////////// //
+  schemas['2020-08-10'] = {}
+  schemas['2020-08-10'].list = () => ({
+    query: schemas['2019-05-20'].list.query
+      .fork('page', schema => schema.forbidden())
+      .keys({
+        // cursor pagination
+        startingAfter: Joi.string(),
+        endingBefore: Joi.string(),
+      })
+      .oxor('startingAfter', 'endingBefore')
+  })
+
+  // ////////// //
   // 2019-05-20 //
   // ////////// //
   schemas['2019-05-20'] = {}
@@ -54,6 +69,13 @@ module.exports = function createValidation (deps) {
   }
 
   const validationVersions = {
+    '2020-08-10': [
+      {
+        target: 'savedSearch.list',
+        schema: schemas['2020-08-10'].list
+      },
+    ],
+
     '2019-05-20': [
       {
         target: 'savedSearch.list',

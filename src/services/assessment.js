@@ -64,8 +64,14 @@ function start ({ communication }) {
     const {
       order,
 
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       assetId
     } = req
@@ -84,13 +90,20 @@ function start ({ communication }) {
       },
       paginationActive: true,
       paginationConfig: {
+        nbResultsPerPage,
+
+        // offset pagination
         page,
-        nbResultsPerPage
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
       },
       orderConfig: {
         orderBy,
         order
-      }
+      },
+      useOffsetPagination: req._useOffsetPagination,
     })
 
     paginationMeta.results = paginationMeta.results.map(assessment => {

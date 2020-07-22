@@ -46,8 +46,14 @@ function init (server, { middlewares, helpers } = {}) {
     const fields = [
       'orderBy',
       'order',
-      'page',
       'nbResultsPerPage',
+
+      // offset pagination
+      'page',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
 
       'id',
       'payerId',

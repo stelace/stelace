@@ -27,8 +27,14 @@ module.exports = function createService (deps) {
     const {
       orderBy,
       order,
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       groupBy,
       computeRanking,
@@ -54,13 +60,22 @@ module.exports = function createService (deps) {
       groupBy: documentGroupBy,
       orderBy,
       order,
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
       label,
       authorId,
       targetId,
       avgPrecision: 0,
-      computeRanking
+      computeRanking,
+
+      _useOffsetPagination: req._useOffsetPagination,
     }
 
     const data = {}
@@ -118,8 +133,14 @@ module.exports = function createService (deps) {
       id,
       orderBy,
       order,
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       authorId,
       targetId,
@@ -135,11 +156,20 @@ module.exports = function createService (deps) {
       id,
       orderBy,
       order,
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      page,
       authorId,
       targetId,
-      label
+      label,
+
+      _useOffsetPagination: req._useOffsetPagination,
     }
 
     const data = {}

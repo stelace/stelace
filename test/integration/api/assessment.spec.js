@@ -5,7 +5,12 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata, checkOffsetPaginatedListObject } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkOffsetPaginatedListObject,
+  checkCursorPaginatedListObject,
+} = require('../../util')
 
 test.before(async t => {
   await before({ name: 'assessment' })(t)
@@ -48,7 +53,7 @@ test('list assessments', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  checkOffsetPaginatedListObject(t, obj)
+  checkCursorPaginatedListObject(t, obj)
 })
 
 test('finds an assessment', async (t) => {
@@ -984,4 +989,23 @@ test.serial('generates assessment__* events', async (t) => {
     objectId: assessmentToDelete.id
   })
   await testEventMetadata({ event: assessmentDeletedEvent, object: assessmentToDelete, t })
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: list assessments', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['assessment:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/assessments?assetId=ast_2l7fQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
 })
