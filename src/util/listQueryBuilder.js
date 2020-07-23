@@ -623,14 +623,13 @@ function getMinRangeValue (rangeOrValue) {
   const isSingleValue = !_.isPlainObject(rangeOrValue)
   if (isSingleValue) return rangeOrValue
 
-  const rangeValues = [rangeOrValue.gt, rangeOrValue.gte]
-  const [minValue] = rangeValues.sort((a, b) => {
-    if (_.isUndefined(a)) return 1
-    else if (_.isUndefined(b)) return -1
-    else return a < b ? -1 : 1
-  })
-
-  return minValue
+  if (!_.isUndefined(rangeOrValue.gt) && !_.isUndefined(rangeOrValue.gte)) {
+    return rangeOrValue.gt < rangeOrValue.gte ? rangeOrValue.gt : rangeOrValue.gte
+  } else if (!_.isUndefined(rangeOrValue.gt)) {
+    return rangeOrValue.gt
+  } else if (!_.isUndefined(rangeOrValue.gte)) {
+    return rangeOrValue.gte
+  }
 }
 
 module.exports = {
