@@ -1,28 +1,13 @@
 const path = require('path')
 const SqlFixtures = require('sql-fixtures')
-const Knex = require('knex')
 
 const { createSchema, dropSchema } = require('../src/database')
 const { getModels } = require('../src/models')
 
-function getKnex (connection) {
-  const options = {
-    client: 'pg',
-    useNullAsDefault: true,
-    connection,
-    searchPath: [connection.schema]
-  }
-
-  const knex = Knex(options)
-  return knex
-}
-
 async function init ({ connection }) {
   const { schema } = connection
 
-  await createSchema({ connection: connection, schema })
-
-  const knex = getKnex(connection)
+  const knex = await createSchema({ connection: connection, schema })
 
   await knex.migrate.latest({
     schemaName: schema,
@@ -58,11 +43,9 @@ async function syncInternalAvailability (platformId, env) {
 }
 
 async function reset ({ connection }) {
-  const knex = getKnex(connection)
-
   const { schema } = connection
 
-  await createSchema({ connection, schema })
+  const knex = await createSchema({ connection, schema })
 
   const MIGRATION_CORRUPTION = 'The migration directory is corrupt, the following files are missing'
 
@@ -80,8 +63,8 @@ async function reset ({ connection }) {
       console.log(`Rollback schema ${schema} failed`, err)
     }
 
-    await drop({ connection, cascade: true })
-    await createSchema({ connection, schema })
+    await drop({ knex, connection, cascade: true })
+    await createSchema({ knex, connection, schema })
   }
 
   await knex.destroy()
@@ -90,7 +73,7 @@ async function reset ({ connection }) {
 async function drop ({ connection, cascade }) {
   const { schema } = connection
 
-  await dropSchema({ connection, schema, cascade })
+  await dropSchema({ connection, schema, cascade, returnKnex: true })
 }
 
 module.exports = {

@@ -44,17 +44,17 @@ async function dropColumnsIfExist (knex, tableName, columns) {
  * @param {Object}  connection - provide `connection` or `knex`
  * @param {Object}  knex - Knex.js query builder
  * @param {String}  schema
- * @param {String}  [destroyKnex = true] - if false, knex isn't destroyed so it can be reused
- * @return {Object|Undefined} returns knex if `destroyKnex` is false
+ * @param {String}  [returnKnex = false] - if true, knex is returned so it can be reused
+ * @return {Object|Undefined} returns knex if `returnKnex` is true
  */
-async function createSchema ({ connection, schema, knex, destroyKnex = true }) {
+async function createSchema ({ connection, schema, knex, returnKnex = false }) {
   if (!knex) knex = getKnex({ connection, schema })
 
   const adminUser = process.env.POSTGRES_ADMIN_USER || 'postgres'
 
   await knex.raw('CREATE SCHEMA IF NOT EXISTS ?? AUTHORIZATION ??', [schema, adminUser])
 
-  if (destroyKnex) {
+  if (returnKnex) {
     await knex.destroy()
   } else {
     return knex
@@ -66,10 +66,10 @@ async function createSchema ({ connection, schema, knex, destroyKnex = true }) {
  * @param {Object}  knex - Knex.js query builder
  * @param {String}  schema
  * @param {Boolean} [cascade = false] - if true, will force the schema drop even if there are remaining tables
- * @param {String}  [destroyKnex = true] - if false, knex isn't destroyed so it can be reused
- * @return {Object|Undefined} returns knex if `destroyKnex` is false
+ * @param {String}  [returnKnex = false] - if true, knex is returned so it can be reused
+ * @return {Object|Undefined} returns knex if `returnKnex` is true
  */
-async function dropSchema ({ connection, schema, knex, cascade = false, destroyKnex = true }) {
+async function dropSchema ({ connection, schema, knex, cascade = false, returnKnex = false }) {
   if (!knex) knex = getKnex({ connection, schema })
 
   let sqlQuery = 'DROP SCHEMA IF EXISTS ??'
@@ -82,7 +82,7 @@ async function dropSchema ({ connection, schema, knex, cascade = false, destroyK
 
   await knex.raw(sqlQuery, [schema])
 
-  if (destroyKnex) {
+  if (returnKnex) {
     await knex.destroy()
   } else {
     return knex
@@ -93,10 +93,10 @@ async function dropSchema ({ connection, schema, knex, cascade = false, destroyK
  * @param {Object}  connection - provide `connection` or `knex`
  * @param {Object}  knex - Knex.js query builder
  * @param {String}  schema
- * @param {String}  [destroyKnex = true] - if false, knex isn't destroyed so it can be reused
- * @return {Object|Undefined} returns knex if `destroyKnex` is false
+ * @param {String}  [returnKnex = false] - if true, knex is returned so it can be reused
+ * @return {Object|Undefined} returns knex if `returnKnex` is true
  */
-async function dropSchemaViews ({ connection, schema, knex, destroyKnex = true }) {
+async function dropSchemaViews ({ connection, schema, knex, returnKnex = false }) {
   if (!knex) knex = getKnex({ connection, schema })
 
   const viewsQuery = 'SELECT table_name FROM INFORMATION_SCHEMA.views WHERE table_schema = ?'
@@ -114,7 +114,7 @@ async function dropSchemaViews ({ connection, schema, knex, destroyKnex = true }
     }
   })
 
-  if (destroyKnex) {
+  if (returnKnex) {
     await knex.destroy()
   } else {
     return knex
