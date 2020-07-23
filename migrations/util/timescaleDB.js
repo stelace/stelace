@@ -35,7 +35,16 @@ function createContinuousAggregate ({
   table,
   interval,
   timeBucketLabel,
+
+  // Only one extra column supported for now
+  // because any additional dimension will greatly increase the number of rows
+  // (for each dimension, multiply by the number of possible values)
+  // and will counter compression benefits.
+
+  // However, if there are use cases for more than two dimensions in the future,
+  // transform this variable into array after monitoring the number of rows
   secondaryColumn,
+
   column = 'createdTimestamp',
 
   // By default `refresh_lag` is equal to `bucket_width`
