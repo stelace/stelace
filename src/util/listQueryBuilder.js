@@ -529,56 +529,63 @@ async function performHistoryQuery ({
   const interval = intervals[groupBy]
   const view = groupByViews[groupBy]
 
-  let allResults
+  const useContinuousAggregate = useOnlyNonTimeRestrictedFilters && view
 
-  if (useOnlyNonTimeRestrictedFilters && view) {
-    // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
-    // otherwise the type 'timestamp' is returned and the date won't be UTC
-    let select
-    if (secondaryFilter) {
-      select = knex.raw('?? AT TIME ZONE \'UTC\' as ??, sum(count)::REAL as count', [groupBy, groupBy])
+  const select = (() => {
+    const selectParams = []
+    let selectQuery = ''
+
+    if (useContinuousAggregate) {
+      // Please consult continuous aggregate definition in `migrations/util/timescaleDB.js`
+      // it already embeds `time_bucket` function, thus no need to specify it via request
+      // only reference it via `groupBy` value (hour, day or month)
+      selectQuery += '??'
+      selectParams.push(groupBy)
     } else {
-      select = knex.raw('?? AT TIME ZONE \'UTC\' as ??, count', [groupBy, groupBy])
+      selectQuery += `public.time_bucket(INTERVAL '${interval}', ??)`
+      selectParams.push(timeColumn)
     }
 
-    queryBuilder = queryBuilder
-      .select(select)
-      .from(knex.raw('??.??', [schema, view]))
-
-    if (filters) {
-      const newFilters = _.pick(filters, [timeFilter, secondaryFilter])
-      newFilters[timeFilter].dbField = groupBy
-      const transformedValues = getTransformedValues(newFilters)
-      addFiltersToQueryBuilder(queryBuilder, newFilters, transformedValues)
-
-      if (secondaryFilter) queryBuilder.groupBy(groupBy)
-    }
-
-    const { orderBy, order } = orderConfig
-    queryBuilder.orderBy(orderBy, order)
-
-    allResults = await queryBuilder
-  } else {
     // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
     // otherwise the type 'timestamp' is returned and the date won't be UTC
-    const select = knex.raw(`public.time_bucket(INTERVAL '${interval}', ??) AT TIME ZONE 'UTC' as ??`, [timeColumn, groupBy])
+    selectQuery += ' AT TIME ZONE \'UTC\' as ??'
+    selectParams.push(groupBy)
 
-    queryBuilder = queryBuilder
-      .select(select)
-      .from(knex.raw('??.??', [schema, table]))
-      .count()
-      .groupBy(groupBy)
+    selectQuery += ', '
 
-    if (filters) {
-      const transformedValues = getTransformedValues(filters)
-      addFiltersToQueryBuilder(queryBuilder, filters, transformedValues)
+    if (useContinuousAggregate) {
+      if (secondaryFilter) selectQuery += 'sum(count)::REAL as count'
+      else selectQuery += 'count'
+    } else {
+      selectQuery += 'count(*)'
     }
 
-    const { orderBy, order } = orderConfig
-    queryBuilder.orderBy(orderBy, order)
+    return knex.raw(selectQuery, selectParams)
+  })()
 
-    allResults = await queryBuilder
+  queryBuilder = queryBuilder
+    .select(select)
+    .from(knex.raw('??.??', [schema, useContinuousAggregate ? view : table]))
+
+  if (!useContinuousAggregate || (useContinuousAggregate && secondaryFilter)) queryBuilder.groupBy(groupBy)
+
+  if (filters) {
+    let newFilters = filters
+
+    // filter only on time and secondary filters if using continuous aggregate
+    if (useContinuousAggregate) {
+      newFilters = _.pick(filters, [timeFilter, secondaryFilter])
+      newFilters[timeFilter].dbField = groupBy
+    }
+
+    const transformedValues = getTransformedValues(newFilters)
+    addFiltersToQueryBuilder(queryBuilder, newFilters, transformedValues)
   }
+
+  const { orderBy, order } = orderConfig
+  queryBuilder.orderBy(orderBy, order)
+
+  const allResults = await queryBuilder
 
   const { page, nbResultsPerPage } = paginationConfig
 
