@@ -55,7 +55,7 @@ function createContinuousAggregate ({
   refreshInterval = '1 day',
 
   // Any modifications on rows whose date is beyond this period won't be propagated to continuous aggregate
-  // This will enable rows removal (for storage purpose) without impacting continuous aggregates
+  // This will enable rows removal (to save storage space) without impacting continuous aggregates
   ignoreInvalidationOlderThan = '90 day',
 } = {}) {
   return `

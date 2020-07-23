@@ -124,7 +124,8 @@ async function testEventMetadata ({
  * @param {Number}   [avgPrecision = 2] - check the average precision
  * @param {String}   [orderBy = 'count']
  * @param {String}   [order = 'desc']
- * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check on `result`
+ * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check
+ *     on each item of results array
  */
 function checkStatsObject ({
   t,

@@ -448,7 +448,7 @@ async function performAggregationQuery ({
 }
 
 /**
- * Generic query function to address filters, sort and pagination for stats endpoints
+ * Generic query function to address filters, sort and pagination for history endpoints
  * @param {Object}  params.queryBuilder - Knex.js query builder
  * @param {String}  params.schema
  * @param {String}  params.table
