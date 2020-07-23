@@ -35,10 +35,10 @@ const fieldSchema = Joi.alternatives().try(
 )
 
 // ////////// //
-// 2019-05-20 //
+// 2020-08-10 //
 // ////////// //
-schemas['2019-05-20'] = {}
-schemas['2019-05-20'].getHistory = {
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].getHistory = {
   query: Joi.object().keys({
     // order
     order: Joi.string().valid('asc', 'desc').default('desc'),
@@ -60,6 +60,11 @@ schemas['2019-05-20'].getHistory = {
     emitterId: Joi.array().unique().items(Joi.string()).single()
   })
 }
+
+// ////////// //
+// 2019-05-20 //
+// ////////// //
+schemas['2019-05-20'] = {}
 // DEPRECATED:END
 schemas['2019-05-20'].getStats = {
   query: Joi.object().keys({
@@ -124,11 +129,14 @@ schemas['2019-05-20'].create = {
 }
 
 const validationVersions = {
-  '2019-05-20': [
+  '2020-08-10': [
     {
       target: 'event.getHistory',
-      schema: schemas['2019-05-20'].getHistory
+      schema: schemas['2020-08-10'].getHistory
     },
+  ],
+
+  '2019-05-20': [
     // DEPRECATED:END
     {
       target: 'event.getStats',
