@@ -108,6 +108,10 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
           throw createError(400, `${key} value cannot be lower than ${minValue}`)
         }
 
+        // throw if the `minValue` option is provided
+        // and the provided range value doesn't meet this condition
+        // otherwise if the provided range value is an object but properties `gt` and `gte` aren't present
+        // set `gte` to the `minValue`
         const minRangeValue = getMinRangeValue(transformedValue)
         if (minRangeValue) {
           if (minRangeValue < minValue) throwMinValueError()
@@ -660,6 +664,13 @@ function getSqlExpression (attr) {
   return `"${column}"#>>'{${parts.slice(1).join(',')}}'`
 }
 
+/**
+ * Util function to get the minimum value of a range parameter
+ * Useful to use it to limit filter range values, especially for retention log period
+ *
+ * If the provided argument isn't an object, then return as is
+ * If it's a range object (with properties `gt` and/or `gte`), get the minimum value of those
+ */
 function getMinRangeValue (rangeOrValue) {
   if (_.isUndefined(rangeOrValue)) return
 
