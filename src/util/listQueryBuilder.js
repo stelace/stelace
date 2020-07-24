@@ -535,10 +535,46 @@ async function performHistoryQuery ({
     const selectParams = []
     let selectQuery = ''
 
+    /**
+     * Please consult continuous aggregate definition in `migrations/util/timescaleDB.js`
+     * it already embeds `time_bucket` function, thus no need to specify it via request
+     * only reference it via `groupBy` value (hour, day or month)
+     *
+     * Example of full queries for better understanding of the SQL output
+     * with groupBy = orderBy = 'day' and order = 'desc':
+     *
+     *
+     * Continuous aggregate (one dimension)
+     * - `count` is a column, so we retrieve it directly
+     *
+     * SELECT day AT TIME ZONE 'UTC' as day, count
+     * FROM schema.view
+     * WHERE filters # filter available on date
+     * ORDER BY day desc
+     *
+     *
+     * Continuous aggregate (two dimensions)
+     * - need to sum `count` values and group by day because there is a second dimension
+     *
+     * SELECT day AT TIME ZONE 'UTC' as day, sum(count)::REAL as count
+     * FROM schema.view
+     * WHERE filters # filters available on date and second dimension
+     * GROUP BY day
+     * ORDER BY day desc
+     *
+     *
+     * Raw table
+     * - `time_bucket` is needed to regroup data by time period
+     * - `count` must be computed via the aggregate function `count(*)` (group by day)
+     *
+     * SELECT public.time_bucket(INTERVAL '1 day', "createdTimestamp") AT TIME ZONE 'UTC' as day, count(*)
+     * FROM schema.table
+     * WHERE filters
+     * GROUP BY day
+     * ORDER BY day desc
+     */
+
     if (useContinuousAggregate) {
-      // Please consult continuous aggregate definition in `migrations/util/timescaleDB.js`
-      // it already embeds `time_bucket` function, thus no need to specify it via request
-      // only reference it via `groupBy` value (hour, day or month)
       selectQuery += '??'
       selectParams.push(groupBy)
     } else {
