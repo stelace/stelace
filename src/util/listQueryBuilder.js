@@ -113,7 +113,7 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
         // otherwise if the provided range value is an object but properties `gt` and `gte` aren't present
         // set `gte` to the `minValue`
         const minRangeValue = getMinRangeValue(transformedValue)
-        if (minRangeValue) {
+        if (!_.isUndefined(minRangeValue)) {
           if (minRangeValue < minValue) throwMinValueError()
         } else {
           const isSingleValue = !_.isPlainObject(transformedValue)
@@ -512,7 +512,7 @@ async function performHistoryQuery ({
     useOnlyNonTimeRestrictedFilters = timeRestrictedFilterKeys.map(key => _.get(filters, `${key}.value`)).every(_.isUndefined)
     const minRangeValue = getMinRangeValue(filters[timeFilter].value)
 
-    if (minRangeValue && minRangeValue < retentionLimitDate && !useOnlyNonTimeRestrictedFilters) {
+    if (!_.isUndefined(minRangeValue) && minRangeValue < retentionLimitDate && !useOnlyNonTimeRestrictedFilters) {
       throw createError(400, `All filters are disabled before ${retentionLimitDate}`)
     }
   }
@@ -669,21 +669,15 @@ function getSqlExpression (attr) {
  * Useful to use it to limit filter range values, especially for retention log period
  *
  * If the provided argument isn't an object, then return as is
- * If it's a range object (with properties `gt` and/or `gte`), get the minimum value of those
+ * If it's a range object (with properties `gt` or `gte`), get the minimum value of those
  */
 function getMinRangeValue (rangeOrValue) {
   if (_.isUndefined(rangeOrValue)) return
 
   const isSingleValue = !_.isPlainObject(rangeOrValue)
   if (isSingleValue) return rangeOrValue
-
-  if (!_.isUndefined(rangeOrValue.gt) && !_.isUndefined(rangeOrValue.gte)) {
-    return rangeOrValue.gt < rangeOrValue.gte ? rangeOrValue.gt : rangeOrValue.gte
-  } else if (!_.isUndefined(rangeOrValue.gt)) {
-    return rangeOrValue.gt
-  } else if (!_.isUndefined(rangeOrValue.gte)) {
-    return rangeOrValue.gte
-  }
+  if (!_.isUndefined(rangeOrValue.gt)) return rangeOrValue.gt
+  if (!_.isUndefined(rangeOrValue.gte)) return rangeOrValue.gte
 }
 
 module.exports = {

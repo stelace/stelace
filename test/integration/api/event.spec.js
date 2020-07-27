@@ -118,6 +118,32 @@ test('get events history with date filter', async (t) => {
   })
 })
 
+test('fails to get events history with redundant relational operators', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+    ]
+  })
+
+  const now = new Date().toISOString()
+  const date = computeDate(now, '-10d')
+
+  const { body: error1 } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=day&createdDate[gt]=${date}&createdDate[gte]=${date}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(error1.message.includes('optional exclusive peers'))
+
+  const { body: error2 } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=day&createdDate[lt]=${date}&createdDate[lte]=${date}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(error2.message.includes('optional exclusive peers'))
+})
+
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
 test.serial('can apply filters only with created date within the retention log period', async (t) => {
