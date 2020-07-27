@@ -235,7 +235,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('event', table => {
     table.string('id')
     table.string('createdDate', 24)
-    table.timestamp('createdTimestamp', { precision: timestampPrecision })
+    table.timestamp('createdTimestamp', { useTz: true, precision: timestampPrecision })
     table.string('type')
     table.string('objectType')
     table.string('objectId')
@@ -440,7 +440,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('webhookLog', table => {
     table.string('id')
     table.string('createdDate', 24)
-    table.timestamp('createdTimestamp', { precision: timestampPrecision })
+    table.timestamp('createdTimestamp', { useTz: true, precision: timestampPrecision })
     table.string('webhookId')
     table.string('eventId')
     table.string('status')
@@ -478,7 +478,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('workflowLog', table => {
     table.string('id')
     table.string('createdDate', 24)
-    table.timestamp('createdTimestamp', { precision: timestampPrecision })
+    table.timestamp('createdTimestamp', { useTz: true, precision: timestampPrecision })
     table.string('workflowId')
     table.string('eventId')
     table.string('runId')

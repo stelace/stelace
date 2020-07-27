@@ -551,7 +551,7 @@ async function performHistoryQuery ({
      * Continuous aggregate (one dimension)
      * - `count` is a column, so we retrieve it directly
      *
-     * SELECT day AT TIME ZONE 'UTC' as day, count
+     * SELECT day, count
      * FROM schema.view
      * WHERE filters # filter available on date
      * ORDER BY day desc
@@ -560,7 +560,7 @@ async function performHistoryQuery ({
      * Continuous aggregate (two dimensions)
      * - need to sum `count` values and group by day because there is a second dimension
      *
-     * SELECT day AT TIME ZONE 'UTC' as day, sum(count)::REAL as count
+     * SELECT day, sum(count)::REAL as count
      * FROM schema.view
      * WHERE filters # filters available on date and second dimension
      * GROUP BY day
@@ -571,7 +571,7 @@ async function performHistoryQuery ({
      * - `time_bucket` is needed to regroup data by time period
      * - `count` must be computed via the aggregate function `count(*)` (group by day)
      *
-     * SELECT public.time_bucket(INTERVAL '1 day', "createdTimestamp") AT TIME ZONE 'UTC' as day, count(*)
+     * SELECT public.time_bucket(INTERVAL '1 day', "createdTimestamp") as day, count(*)
      * FROM schema.table
      * WHERE filters
      * GROUP BY day
@@ -582,14 +582,10 @@ async function performHistoryQuery ({
       selectQuery += '??'
       selectParams.push(groupBy)
     } else {
-      selectQuery += `public.time_bucket(INTERVAL '${interval}', ??)`
+      selectQuery += `public.time_bucket(INTERVAL '${interval}', ??) as ??`
       selectParams.push(timeColumn)
+      selectParams.push(groupBy)
     }
-
-    // `AT TIME ZONE 'UTC'` statement is important to add to have the type 'timestamptz'
-    // otherwise the type 'timestamp' is returned and the date won't be UTC
-    selectQuery += ' AT TIME ZONE \'UTC\' as ??'
-    selectParams.push(groupBy)
 
     selectQuery += ', '
 
