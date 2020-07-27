@@ -24,6 +24,12 @@ let userWebhookUrl
 
 const defaultTestDelay = 4000
 
+const isErrorLog = log => ['preRunError', 'runError'].includes(log.type)
+const isActionLog = log => log.type === 'action'
+const isSkippedLog = log => log.type === 'skipped'
+const isStoppedLog = log => log.type === 'stopped'
+const isNotificationLog = log => log.type === 'notification'
+
 test.before(async (t) => {
   await before({ name: 'workflow' })(t)
   await beforeEach()(t)
@@ -31,7 +37,7 @@ test.before(async (t) => {
   userServer.use(bodyParser.json())
   userServer.all('*', function (req, res, next) {
     req._workflowName = req.path.replace('/', '')
-    req._stopped = _.get(req.body, 'lastStep.stopped') // falsy `filter` or truthy `stop` in some step
+    req._stopped = req.body.type === 'stopped'
 
     if (!Array.isArray(userServerCallsHeaders[req._workflowName])) {
       userServerCallsHeaders[req._workflowName] = []
@@ -273,11 +279,8 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflow1AfterRun1ErrorLogs = workflow1AfterRun1.logs.filter(log => log.step.error)
-  const workflow1AfterRun1Actions = workflow1AfterRun1.logs.filter(
-    // ignore filtered runs due to other tests
-    log => log.type === 'action' && !log.step.stopped && !log.step.error
-  )
+  const workflow1AfterRun1ErrorLogs = workflow1AfterRun1.logs.filter(isErrorLog)
+  const workflow1AfterRun1Actions = workflow1AfterRun1.logs.filter(isActionLog)
 
   t.is(workflow1AfterRun1ErrorLogs.length, 0)
   t.is(workflow1AfterRun1Actions.length, 1)
@@ -415,11 +418,9 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflow1AfterRun2ErrorLogs = workflow1AfterRun2.logs.filter(log => log.step.error)
-  const workflowAfterRun2Notifications = workflow1AfterRun2.logs.filter(log => log.type === 'notification')
-  const workflow1AfterRun2Actions = workflow1AfterRun2.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflow1AfterRun2ErrorLogs = workflow1AfterRun2.logs.filter(isErrorLog)
+  const workflowAfterRun2Notifications = workflow1AfterRun2.logs.filter(isNotificationLog)
+  const workflow1AfterRun2Actions = workflow1AfterRun2.logs.filter(isActionLog)
 
   t.is(workflow1AfterRun2ErrorLogs.length, 0)
   t.is(workflow1AfterRun2Actions.length, 2)
@@ -433,7 +434,7 @@ test('creates several single-step Stelace workflows', async (t) => {
   t.is(workflow1LogsCall2.metadata.endpointPayload.metadata.var, 'true')
   t.is(typeof workflow1LogsCall2.metadata.endpointPayload.metadata.otherVar, 'undefined')
 
-  t.is(workflowAfterRun2Notifications[0].metadata.notifyPayload.status, 'success')
+  t.is(workflowAfterRun2Notifications[0].metadata.notifyPayload.type, 'action')
   t.true(workflowAfterRun2Notifications.some(log => log.metadata.notifyUrl === workflow1NotifyUrl))
 
   t.is(workflow1AfterRun2.stats.nbActionsCompleted, 2)
@@ -654,10 +655,8 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
   const afterDummyLogs = workflowAfterDummy.logs.filter(
     log => log.metadata.eventObjectId === dummyAssetId
   )
-  const workflowAfterDummyErrorLogs = workflowAfterDummy.logs.filter(log => log.step.error)
-  const workflowAfterDummyActions = workflowAfterDummy.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowAfterDummyErrorLogs = workflowAfterDummy.logs.filter(isErrorLog)
+  const workflowAfterDummyActions = workflowAfterDummy.logs.filter(isActionLog)
 
   t.is(workflowAfterDummyErrorLogs.length, 0)
   t.is(workflowAfterDummyActions.length, 0)
@@ -734,10 +733,8 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(log => log.step.error)
-  const workflowAfterRunActions = workflowAfterRun.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(isErrorLog)
+  const workflowAfterRunActions = workflowAfterRun.logs.filter(isActionLog)
 
   t.is(workflowAfterRunErrorLogs.length, 0)
   t.is(workflowAfterRunActions.length, 2)
@@ -920,10 +917,8 @@ test('creates multi-step workflow triggered by custom events and calling externa
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowCustomEventAfterRunErrorLogs = workflowCustomEventAfterRun.logs.filter(log => log.step.error)
-  const workflowCustomEventAfterRunActions = workflowCustomEventAfterRun.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowCustomEventAfterRunErrorLogs = workflowCustomEventAfterRun.logs.filter(isErrorLog)
+  const workflowCustomEventAfterRunActions = workflowCustomEventAfterRun.logs.filter(isActionLog)
 
   t.is(workflowCustomEventAfterRunErrorLogs.length, 0)
   t.is(workflowCustomEventAfterRunActions.length, workflowCustomEvent.run.length)
@@ -1056,25 +1051,20 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
     .expect(200)
 
   const afterRunLogs = workflowHandlingErrorsAfterRun.logs
-  const afterRunErrorLogs = afterRunLogs.filter(log => log.step.error)
-  const afterRunActions = afterRunLogs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const afterRunErrorLogs = afterRunLogs.filter(isErrorLog)
+  const afterRunActions = afterRunLogs.filter(l => isActionLog(l) || isSkippedLog(l))
 
   t.is(afterRunErrorLogs.length, 1)
   t.is(afterRunErrorLogs[0].statusCode, 404)
   t.is(afterRunErrorLogs[0].step.name, 'handledError')
   t.is(afterRunActions.length, workflowHandlingErrors.run.length - 1)
-  t.truthy(afterRunLogs.find(l => !l.step.error && l.step.name === 'skippedError'))
+  t.truthy(afterRunLogs.find(l => !isErrorLog(l) && l.step.name === 'skippedError'))
 
   let lastAction = afterRunActions[0]
   t.is(lastAction.metadata.endpointMethod, 'PATCH')
   t.is(lastAction.statusCode, 200)
   t.deepEqual(lastAction.step, {
     name: null,
-    error: false,
-    skipped: false,
-    stopped: false,
     handleErrors: false
   })
 
@@ -1135,9 +1125,9 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
   const notHandlingErrLogs = workflowNotHandlingErrorsAfterRun.logs.filter(
     l => l.runId !== lastAction.runId
   )
-  const notHandlingErrErrorLogs = notHandlingErrLogs.filter(log => log.step.error)
+  const notHandlingErrErrorLogs = notHandlingErrLogs.filter(isErrorLog)
   const notHandlingErrActions = notHandlingErrLogs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
+    log => isActionLog(log) || isSkippedLog(log) || isStoppedLog(log)
   )
   t.is(notHandlingErrErrorLogs.length, 1)
   t.is(notHandlingErrErrorLogs[0].statusCode, 404)
@@ -1148,7 +1138,7 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
   t.is(lastAction.metadata.endpointMethod, 'POST')
   // not logged as an error since erroneous code was skipped
   t.is(lastAction.step.name, 'skippedError')
-  t.is(lastAction.step.skipped, true)
+  t.is(lastAction.type, 'skipped')
 })
 
 test('creates workflow and uses related objects', async (t) => {
@@ -1212,10 +1202,8 @@ test('creates workflow and uses related objects', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowRelatedObjectsAfterRunErrorLogs = workflowRelatedObjectsAfterRun.logs.filter(log => log.step.error)
-  const workflowRelatedObjectsAfterRunActions = workflowRelatedObjectsAfterRun.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowRelatedObjectsAfterRunErrorLogs = workflowRelatedObjectsAfterRun.logs.filter(isErrorLog)
+  const workflowRelatedObjectsAfterRunActions = workflowRelatedObjectsAfterRun.logs.filter(isActionLog)
 
   t.is(workflowRelatedObjectsAfterRunErrorLogs.length, 0)
   t.is(workflowRelatedObjectsAfterRunActions.length, workflowRelatedObjects.run.length)
@@ -1316,10 +1304,8 @@ test('accepts nested arrays of literals as endpoint payload parameters', async (
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowTestArrayAfterRunErrorLogs = workflowTestArrayAfterRun.logs.filter(log => log.step.error)
-  const workflowTestArrayAfterRunActions = workflowTestArrayAfterRun.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowTestArrayAfterRunErrorLogs = workflowTestArrayAfterRun.logs.filter(isErrorLog)
+  const workflowTestArrayAfterRunActions = workflowTestArrayAfterRun.logs.filter(isActionLog)
 
   t.is(workflowTestArrayAfterRunErrorLogs.length, 0)
   t.is(workflowTestArrayAfterRunActions.length, 1)
@@ -1409,10 +1395,8 @@ test('accepts nested object as endpoint payload parameters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowTestNestedObjectAfterRunErrorLogs = workflowTestNestedObjectAfterRun.logs.filter(log => log.step.error)
-  const workflowTestNestedObjectAfterRunActions = workflowTestNestedObjectAfterRun.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowTestNestedObjectAfterRunErrorLogs = workflowTestNestedObjectAfterRun.logs.filter(isErrorLog)
+  const workflowTestNestedObjectAfterRunActions = workflowTestNestedObjectAfterRun.logs.filter(isActionLog)
 
   t.is(workflowTestNestedObjectAfterRunErrorLogs.length, 0)
   t.is(workflowTestNestedObjectAfterRunActions.length, 1)
@@ -1531,8 +1515,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
   const AfterStepsErrorsRunId = afterStepsErrorsLogs[0].runId
   t.truthy(typeof AfterStepsErrorsRunId, 'string')
   t.is(AfterStepsErrorsRunId.length, 36)
-  t.is(lastErrorLog.type, 'action')
-  t.true(lastErrorLog.step.error)
+  t.is(lastErrorLog.type, 'runError')
   t.is(lastErrorLog.statusCode, 400)
   t.is(lastErrorLog.metadata.endpointMethod, 'PATCH')
 
@@ -1544,7 +1527,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
   t.is(Object.keys(lastErrorLog.metadata.endpointPayload).length, 2)
   t.true(lastErrorLog.metadata.endpointPayload.invalidAttribute)
 
-  const workflowAfterStepsErrorsLogs = afterStepsErrorsLogs.filter(log => log.step.error)
+  const workflowAfterStepsErrorsLogs = afterStepsErrorsLogs.filter(log => log.type === 'runError')
   // no successful action
   t.is(workflowAfterStepsErrorsLogs.length, afterStepsErrorsLogs.length)
 
@@ -1591,14 +1574,13 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
   const afterHandleErrorsEnabledLogs = workflowWithHandleErrorsEnabled.logs.filter(
     log => log.metadata.eventObjectId === userId
   )
-  const workflowWithHandleErrorsEnabledErrorLogs = afterHandleErrorsEnabledLogs.filter(
-    log => log.step.error
-  )
+  const workflowWithHandleErrorsEnabledErrorLogs = afterHandleErrorsEnabledLogs.filter(isErrorLog)
   t.is(workflowWithHandleErrorsEnabledErrorLogs.filter(
     log => log.runId !== AfterStepsErrorsRunId
   ).length, 2)
 
   lastErrorLog = workflowWithHandleErrorsEnabledErrorLogs[0]
+  t.is(lastErrorLog.type, 'preRunError')
   t.is(lastErrorLog.metadata.endpointMethod, 'POST')
   t.true(lastErrorLog.metadata.message.includes('ReferenceError'))
   t.true(lastErrorLog.metadata.message.includes('typ_MWNfQps1I3a1gJYz2I3a is not defined'))
@@ -1643,7 +1625,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
   const afterStep2FixLogs = workflowAfterStep2Fix.logs.filter(
     log => log.metadata.eventObjectId === userId
   )
-  const workflowAfterStep2FixErrorLogs = afterStep2FixLogs.filter(log => log.step.error)
+  const workflowAfterStep2FixErrorLogs = afterStep2FixLogs.filter(isErrorLog)
   const AfterStep2FixRunId = workflowAfterStep2FixErrorLogs[0].runId
   t.is(AfterStep2FixRunId.length, 36)
   t.not(AfterStep2FixRunId, AfterStepsErrorsRunId)
@@ -1692,10 +1674,8 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowAfterStepsFixedErrorLogs = workflowAfterStepsFixed.logs.filter(log => log.step.error)
-  const workflowAfterStepsFixedActions = workflowAfterStepsFixed.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
+  const workflowAfterStepsFixedErrorLogs = workflowAfterStepsFixed.logs.filter(isErrorLog)
+  const workflowAfterStepsFixedActions = workflowAfterStepsFixed.logs.filter(isActionLog)
   const AfterStepsFixedRunId1 = workflowAfterStepsFixedActions[0].runId
   const AfterStepsFixedRunId2 = workflowAfterStepsFixedActions[1].runId
 
@@ -1781,11 +1761,9 @@ test('passes basic security checks', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(log => log.step.error)
-  const workflowAfterRunActions = workflowAfterRun.logs.filter(
-    log => log.type === 'action' && !log.step.error && !log.step.stopped
-  )
-  const workflowAfterRunNotifications = workflowAfterRun.logs.filter(log => log.type === 'notification')
+  const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(isErrorLog)
+  const workflowAfterRunActions = workflowAfterRun.logs.filter(isActionLog)
+  const workflowAfterRunNotifications = workflowAfterRun.logs.filter(isNotificationLog)
 
   t.is(workflowAfterRunErrorLogs.length, 1)
   t.is(workflowAfterRunActions.length, 1)
@@ -1806,7 +1784,7 @@ test('passes basic security checks', async (t) => {
     nbWorkflowNotifications: 1
   })
 
-  t.is(workflowAfterRunNotifications[0].metadata.notifyPayload.status, 'error')
+  t.is(workflowAfterRunNotifications[0].metadata.notifyPayload.type, 'preRunError')
 
   const runProcessPatch = workflow.run
   runProcessPatch[0].computed = {
@@ -1842,7 +1820,7 @@ test('passes basic security checks', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflowWithProcessErrorLogs = workflowWithProcess.logs.filter(log => log.step.error)
+  const workflowWithProcessErrorLogs = workflowWithProcess.logs.filter(isErrorLog)
   workflowLastError = workflowWithProcessErrorLogs[0]
   t.is(workflowWithProcessErrorLogs.length, 2)
   t.is(workflowLastError.statusCode, 422)
