@@ -533,12 +533,79 @@ exports.up = async (knex) => {
     refreshInterval: '1 day',
     secondaryColumn: 'type',
   }))
+
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'webhookLog_hourly',
+    schema,
+    table: 'webhookLog',
+    interval: '1 hour',
+    timeBucketLabel: 'hour',
+    refreshLag: '1 hour',
+    refreshInterval: '1 hour',
+  }))
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'webhookLog_daily',
+    schema,
+    table: 'webhookLog',
+    interval: '1 day',
+    timeBucketLabel: 'day',
+    refreshLag: '1 day',
+    refreshInterval: '1 day',
+  }))
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'webhookLog_monthly',
+    schema,
+    table: 'webhookLog',
+    interval: '30 day',
+    timeBucketLabel: 'month',
+    refreshLag: '1 day',
+    refreshInterval: '1 day',
+  }))
+
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'workflowLog_hourly',
+    schema,
+    table: 'workflowLog',
+    interval: '1 hour',
+    timeBucketLabel: 'hour',
+    refreshLag: '1 hour',
+    refreshInterval: '1 hour',
+    secondaryColumn: 'type',
+  }))
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'workflowLog_daily',
+    schema,
+    table: 'workflowLog',
+    interval: '1 day',
+    timeBucketLabel: 'day',
+    refreshLag: '1 day',
+    refreshInterval: '1 day',
+    secondaryColumn: 'type',
+  }))
+  await knex.schema.raw(createContinuousAggregate({
+    viewName: 'workflowLog_monthly',
+    schema,
+    table: 'workflowLog',
+    interval: '30 day',
+    timeBucketLabel: 'month',
+    refreshLag: '1 day',
+    refreshInterval: '1 day',
+    secondaryColumn: 'type',
+  }))
 }
 
 exports.down = async (knex) => {
   const { schema } = knex.client.connectionSettings || {}
 
   if (!schema) throw new Error('Schema name required to remove continuous aggregates')
+
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'workflowLog_hourly', schema }))
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'workflowLog_daily', schema }))
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'workflowLog_monthly', schema }))
+
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'webhookLog_hourly', schema }))
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'webhookLog_daily', schema }))
+  await knex.schema.raw(removeContinuousAggregate({ viewName: 'webhookLog_monthly', schema }))
 
   await knex.schema.raw(removeContinuousAggregate({ viewName: 'event_hourly', schema }))
   await knex.schema.raw(removeContinuousAggregate({ viewName: 'event_daily', schema }))
