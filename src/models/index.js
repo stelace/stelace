@@ -79,6 +79,34 @@ function loadTypeParser () {
   })
 }
 
+// SSL options are available since this Knex.js PR: https://github.com/knex/knex/pull/3410
+// using the library pg-connection-string
+// https://github.com/iceddev/pg-connection-string
+function getSSLOptions (configuration) {
+  const {
+    ssl,
+    sslcert,
+    sslkey,
+    sslca,
+  } = configuration
+
+  let sslOptions
+
+  const useSSLObject = Boolean(sslcert || sslkey || sslca)
+  const useSSL = Boolean(ssl)
+
+  if (useSSLObject) {
+    sslOptions = {}
+    if (sslcert) sslOptions.cert = sslcert
+    if (sslkey) sslOptions.key = sslkey
+    if (sslca) sslOptions.ca = sslca
+  } else if (useSSL) {
+    sslOptions = true
+  }
+
+  return sslOptions
+}
+
 async function getConnection ({ platformId, env } = {}) {
   if (!platformId) {
     throw new Error('Missing platformId when retrieving PostgreSQL connection')
@@ -91,6 +119,8 @@ async function getConnection ({ platformId, env } = {}) {
   let schema
 
   const useRemoteStore = process.env.REMOTE_STORE === 'true'
+
+  let sslOptions
 
   if (useRemoteStore) {
     const postgresqlData = await getPlatformEnvData(platformId, env, 'postgresql')
@@ -106,6 +136,9 @@ async function getConnection ({ platformId, env } = {}) {
       port: postgresqlData.port,
       schema: postgresqlData.schema
     }
+
+    sslOptions = getSSLOptions(postgresqlData)
+
     schema = postgresqlData.schema
   } else {
     connection = {
@@ -116,8 +149,18 @@ async function getConnection ({ platformId, env } = {}) {
       port: process.env.POSTGRES_PORT,
       schema: 'public'
     }
+
+    sslOptions = getSSLOptions({
+      ssl: process.env.POSTGRES_SSL,
+      sslcert: process.env.POSTGRES_SSL_CERT,
+      sslkey: process.env.POSTGRES_SSL_KEY,
+      sslca: process.env.POSTGRES_SSL_CA,
+    })
+
     schema = 'public'
   }
+
+  if (sslOptions) connection.ssl = sslOptions
 
   return {
     connection,
@@ -284,6 +327,7 @@ function getModelInfo ({ objectId, objectType, idPrefix, Models = models }) {
 }
 
 module.exports = Object.assign({}, models, {
+  getSSLOptions,
   getConnection,
   getModels,
 

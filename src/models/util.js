@@ -11,7 +11,8 @@ function getKnex (connection = {}, options = {}) {
     user,
     password,
     database,
-    port
+    port,
+    ssl,
   } = connection
   const {
     pool = {
@@ -28,7 +29,8 @@ function getKnex (connection = {}, options = {}) {
       user,
       password,
       database,
-      port
+      port,
+      ssl,
     },
     pool
   })
@@ -44,7 +46,8 @@ function getKnexCacheKey (connection) {
     user,
     password,
     database,
-    port
+    port,
+    ssl,
   } = connection
 
   return JSON.stringify({
@@ -52,7 +55,8 @@ function getKnexCacheKey (connection) {
     user,
     password,
     database,
-    port
+    port,
+    ssl,
   })
 }
 

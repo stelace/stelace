@@ -6,7 +6,11 @@ const request = require('supertest')
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getSystemKey } = require('../../auth')
 const { getEnvironments } = require('../../../src/util/environment')
-const { getPostgresqlConnection, getElasticsearchConnection } = require('../../connection')
+const {
+  getPostgresqlConnection,
+  getElasticsearchConnection,
+  getSslCertificateContent
+} = require('../../connection')
 
 const instanceEnv = getEnvironments()[0] || 'test'
 
@@ -347,6 +351,78 @@ test('creates a platform, init and reset databases', async (t) => {
     .expect(200)
 
   await areDatabasesUp({ postgresql: true, elasticsearch: true })
+
+  t.pass()
+})
+
+test('establishes SSL connection with PostgreSQL', async (t) => {
+  const systemKey = getSystemKey()
+
+  const createPlatform = async () => {
+    const { body: { id: platformId } } = await request(t.context.serverUrl)
+      .post('/store/platforms')
+      .set({ 'x-stelace-system-key': systemKey })
+      .expect(200)
+
+    t.true(isNonEmptyIntegerString(platformId))
+
+    return platformId
+  }
+
+  const env = t.context.env
+
+  const setPostgreSQLConnection = async ({ platformId, ...sslOptions } = {}) => {
+    await request(t.context.serverUrl)
+      .put(`/store/platforms/${platformId}/data/${env}/postgresql`)
+      .set({ 'x-stelace-system-key': systemKey })
+      .send(getPostgresqlConnection({ platformId, env, testingSSL: true, ...sslOptions }))
+      .expect(200)
+  }
+
+  const initDatabase = async ({ platformId, status }) => {
+    await request(t.context.serverUrl)
+      .post(`/store/platforms/${platformId}/database/migrate`)
+      .set({
+        'x-stelace-system-key': systemKey,
+        'x-stelace-env': env
+      })
+      .expect(status)
+  }
+
+  const dropDatabase = async ({ platformId }) => {
+    await request(t.context.serverUrl)
+      .post(`/store/platforms/${platformId}/database/drop`)
+      .set({
+        'x-stelace-system-key': systemKey,
+        'x-stelace-env': env
+      })
+      .expect(200)
+  }
+
+  const testSSLConnection = async (status, { ...sslOptions } = {}) => {
+    const platformId = await createPlatform()
+
+    await setPostgreSQLConnection({ platformId, ...sslOptions })
+    await initDatabase({ platformId, status })
+
+    // clean databases
+    await setPostgreSQLConnection({ platformId, sslca: getSslCertificateContent() })
+    await dropDatabase({ platformId })
+  }
+
+  // didn't find a way to force Docker PostgreSQL to accept only SSL connections
+  await testSSLConnection(200) // ssl: false
+
+  await testSSLConnection(500, { ssl: true }) // no certificate provided
+  await testSSLConnection(500, { ssl: getSslCertificateContent() }) // bad field
+
+  // Pass the content of a .crt file into the field sslkey will trigger an uncaught exception that
+  // kills the process even if process.on('uncaughtException', fn) is specified
+  // Please be careful when configuring SSL
+  // await testSSLConnection(500, { sslkey: getSslCertificateContent() }) // bad field
+
+  await testSSLConnection(500, { sslcert: getSslCertificateContent() }) // bad field
+  await testSSLConnection(200, { sslca: getSslCertificateContent() }) // correct field
 
   t.pass()
 })

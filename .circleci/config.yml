@@ -173,13 +173,14 @@ jobs:
           name: Docker Compose
           command: |
             docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
-              up -d postgresql elasticsearch redis
+              up -d postgresql elasticsearch redis postgresql-ssl
       - run:
           name: Wait for PostgreSQL, ElasticSearch and Redis init
           no_output_timeout: 1m
           command: |
             docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml run api /bin/sh -c \
-            'until nc -z -v -w30 elasticsearch 9200 && nc -z -v -w30 postgresql 5432 && nc -z -v -w30 redis 6379
+            'until nc -z -v -w30 elasticsearch 9200 && nc -z -v -w30 postgresql 5432 && nc -z -v -w30 redis 6379 && \
+            nc -z -v -w30 postgresql-ssl 5432
             do
               echo "Waiting for PostgreSQL, ElasticSearch and Redis…"
               sleep 2

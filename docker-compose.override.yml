@@ -35,6 +35,22 @@ services:
     volumes:
       - timescaledb-v1.7.1-pg12-data:/var/lib/postgresql/data/pgdata
 
+  # Service used only test environment to check if SSL database connections work
+  postgresql-ssl:
+    build:
+      context: "."
+      dockerfile: Dockerfile.postgresqlSSL
+    ports:
+      - "7654:5432"
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - timescaledb-v1.7.1-pg12-ssl-data:/var/lib/postgresql/data/pgdata
+
   elasticsearch:
     build:
       context: "."
@@ -65,5 +81,6 @@ services:
 
 volumes:
   timescaledb-v1.7.1-pg12-data:
+  timescaledb-v1.7.1-pg12-ssl-data:
   es-v7.3.2-data:
   redis-v5.0.1-data:
