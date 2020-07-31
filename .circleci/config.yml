@@ -134,6 +134,7 @@ jobs:
             - vars.txt
             - docker-compose*
             - Dockerfile*
+            - test/ssl/server.*
 
   # CircleCI does not currently offer conditional workflow jobs,
   # so that we simply duplicate jobs for now.
