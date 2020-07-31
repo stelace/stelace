@@ -410,7 +410,7 @@ test('establishes SSL connection with PostgreSQL', async (t) => {
     await dropDatabase({ platformId })
   }
 
-  // didn't find a way to force Docker PostgreSQL to accept only SSL connections
+  // SSL cannot be forced for PostgreSQL client that connects via localhost
   await testSSLConnection(200) // ssl: false
 
   await testSSLConnection(500, { ssl: true }) // no certificate provided
