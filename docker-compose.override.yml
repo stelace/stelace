@@ -4,6 +4,7 @@ services:
   api:
     depends_on:
       - postgresql
+      - postgresql-ssl
       - elasticsearch
       - redis
     environment:
