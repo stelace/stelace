@@ -86,8 +86,10 @@ jobs:
               # and --secret to avoid persisting .env in docker image
               docker build -f Dockerfile.prod -t stelace --ssh default --progress plain \
                 --secret id=env,src=.env .
+              docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml build postgresql
               docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml build elasticsearch
             else
+              docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml build postgresql
               docker build -f Dockerfile.prod -t stelace --ssh default --progress plain \
                 --secret id=env,src=.env .
             fi
@@ -174,14 +176,13 @@ jobs:
           name: Docker Compose
           command: |
             docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \
-              up -d postgresql elasticsearch redis postgresql-ssl
+              up -d postgresql elasticsearch redis
       - run:
           name: Wait for PostgreSQL, ElasticSearch and Redis init
           no_output_timeout: 1m
           command: |
             docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml run api /bin/sh -c \
-            'until nc -z -v -w30 elasticsearch 9200 && nc -z -v -w30 postgresql 5432 && nc -z -v -w30 redis 6379 && \
-            nc -z -v -w30 postgresql-ssl 5432
+            'until nc -z -v -w30 elasticsearch 9200 && nc -z -v -w30 postgresql 5432 && nc -z -v -w30 redis 6379
             do
               echo "Waiting for PostgreSQL, ElasticSearch and Redis…"
               sleep 2

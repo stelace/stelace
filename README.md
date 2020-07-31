@@ -144,7 +144,7 @@ And start the databases:
 yarn docker:db
 ```
 
-_Shorthand for: `docker-compose up -d elasticsearch postgresql redis postgresql-ssl`_
+_Shorthand for: `docker-compose up -d elasticsearch postgresql redis`_
 
 ### Run server
 

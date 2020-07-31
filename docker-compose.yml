@@ -9,7 +9,6 @@ services:
     restart: on-failure
     depends_on:
       - postgresql
-      - postgresql-ssl
       - elasticsearch
       - redis
     ports:

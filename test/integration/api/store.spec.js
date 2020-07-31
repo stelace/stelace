@@ -375,7 +375,7 @@ test('establishes SSL connection with PostgreSQL', async (t) => {
     await request(t.context.serverUrl)
       .put(`/store/platforms/${platformId}/data/${env}/postgresql`)
       .set({ 'x-stelace-system-key': systemKey })
-      .send(getPostgresqlConnection({ platformId, env, testingSSL: true, ...sslOptions }))
+      .send(getPostgresqlConnection({ platformId, env, ...sslOptions }))
       .expect(200)
   }
 

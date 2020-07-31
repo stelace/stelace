@@ -43,7 +43,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "knex": "knex",
-    "docker:db": "docker-compose up -d postgresql redis elasticsearch postgresql-ssl",
+    "docker:db": "docker-compose up -d postgresql redis elasticsearch",
     "docker:db:reset": "docker-compose down && docker volume prune -f",
     "docker:apm": "COMPOSE_PROJECT_NAME=stelace_monitoring docker-compose -f docker-compose.monitoring.yml",
     "release": "standard-version"

@@ -1,9 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 
-// port defined for service postgresql-ssl in docker-compose.override.yml
-const POSTGRES_SSL_PORT = 7654
-
 let sslCertificateContent
 
 function getSslCertificateContent () {
@@ -17,7 +14,6 @@ function getPostgresqlConnection ({
   platformId,
   env,
 
-  testingSSL = false,
   ssl,
   sslcert,
   sslkey,
@@ -28,9 +24,7 @@ function getPostgresqlConnection ({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
-    port: testingSSL
-      ? POSTGRES_SSL_PORT
-      : process.env.POSTGRES_PORT,
+    port: process.env.POSTGRES_PORT,
     schema: `s${platformId}_${env}`,
 
     ssl,
