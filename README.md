@@ -279,6 +279,12 @@ docker-compose run --rm api yarn test
 # instead of standard local server with `yarn test`
 ```
 
+## Production
+
+As mentioned above, we recommend using proper databases for production. You may self-host the databases or externalize them by using database providers.
+
+Please find detailed procedures to [configure SSL for database](./docs/ssl-database.md).
+
 ## Versioning
 
 Stelace API public versions introducing breaking changes are publicly dated like `2019-05-20` but the repository itself follows [semver](https://semver.org/) rules.
