@@ -94,11 +94,25 @@ function start ({ communication, serverPort }) {
     if (populateLogs) {
       const queryBuilder = WorkflowLog.query().where({ workflowId: workflow.id })
       const actionCountQueryBuilder = queryBuilder.clone()
-        .whereIn('type', ['action'])
-        .whereJsonNotSupersetOf('step', { stopped: true })
-        .whereJsonNotSupersetOf('step', { skipped: true })
-        .whereJsonNotSupersetOf('step', { error: true, handleErrors: false })
-      const startedACountQueryBuilder = queryBuilder.clone().whereIn('type', ['action'])
+        .where(qb => {
+          return qb
+            .where(qb2 => {
+              return qb2
+                .whereIn('type', ['action'])
+
+                // DEPRECATED: old step object properties
+                .whereJsonNotSupersetOf('step', { stopped: true })
+                .whereJsonNotSupersetOf('step', { skipped: true })
+                .whereJsonNotSupersetOf('step', { error: true, handleErrors: false })
+                // DEPRECATED:END
+            })
+            .orWhere(qb2 => {
+              return qb2
+                .where('type', 'runError')
+                .whereJsonSupersetOf('step', { handleErrors: true })
+            })
+        })
+      const startedACountQueryBuilder = queryBuilder.clone().whereNotIn('type', ['notification', 'preRunError'])
       const notificationCountQueryBuilder = queryBuilder.clone().whereIn('type', ['notification'])
 
       const [
@@ -438,8 +452,12 @@ function start ({ communication, serverPort }) {
             const runApmSpan = apm.startSpan(`Run step ${i}`)
 
             const handledErr = i > 0 && workflow.run[i - 1].handleErrors
-            if (_.get(previousStepLog, 'step.stopped')) return previousStepLog
-            if (_.get(previousStepLog, 'step.error') && !handledErr) return previousStepLog
+
+            const isPreviousStepStopped = previousStepLog.type === 'stopped'
+            const hasPreviousStepError = ['preRunError', 'runError'].includes(previousStepLog.type)
+
+            if (isPreviousStepStopped) return previousStepLog
+            if (hasPreviousStepError && !handledErr) return previousStepLog
 
             // update computed object in each step
             const currentStepComputedScript = _getComputedValuesScript(workflowStep.computed)
@@ -473,7 +491,7 @@ function start ({ communication, serverPort }) {
                   workflowId: currentWorkflowId,
                   eventId: event.id,
                   runId,
-                  type: 'runError',
+                  type: 'preRunError',
                   statusCode: prepareWorkflowError.statusCode || null,
                   step: _getWorkflowLogStep({ error: true }),
                   metadata: _.omit(prepareWorkflowError, 'statusCode')
@@ -499,17 +517,17 @@ function start ({ communication, serverPort }) {
                 debug(`passFilter: ${passFilter}\nskipStep: ${skipStep}`)
               }
 
+              let type
+              if (!passFilter) type = 'stopped'
+              else if (skipStep) type = 'skipped'
+
               return WorkflowLog.query().insert({
                 id: await getObjectId({ prefix: WorkflowLog.idPrefix, platformId, env }),
                 workflowId: currentWorkflowId,
                 eventId: event.id,
                 runId,
-                type: 'action',
-                step: _getWorkflowLogStep({
-                  workflowStep,
-                  stopped: !passFilter,
-                  skipped: skipStep
-                }),
+                type,
+                step: _getWorkflowLogStep({ workflowStep }),
                 metadata: _getWorkflowLogMetadata({ workflowStep, endpointUri, endpointHeaders, event })
               })
             } finally {
@@ -916,12 +934,9 @@ function start ({ communication, serverPort }) {
             workflowId: workflow.id,
             eventId: event.id,
             runId,
-            type: 'action',
+            type: isError ? 'runError' : 'action',
             statusCode: log.statusCode || res.statusCode,
-            step: _getWorkflowLogStep({
-              workflowStep,
-              error: isError
-            }),
+            step: _getWorkflowLogStep({ workflowStep }),
             metadata: _.omit(log, 'statusCode')
           })
 
@@ -957,9 +972,10 @@ async function notifyAfterCompleted ({
 }) {
   const payload = {
     event: exposedEvent,
-    // if last step was successful, stopped/filtered or just skipped, this means the workflow was successful.
-    // An error interrupts the workflow.
-    status: lastLog.step.error ? 'error' : 'success',
+
+    // needs to pass `type` as skipped, stopped and error information isn't in step object anymore
+    type: lastLog.type,
+
     lastStep: lastLog.step,
     workflowId: workflow.id,
     workflowName: workflow.name,
@@ -973,7 +989,6 @@ async function notifyAfterCompleted ({
       payload,
     }
   })
-  let isError
   let statusCode
 
   return request.post(workflow.notifyUrl)
@@ -988,8 +1003,6 @@ async function notifyAfterCompleted ({
       statusCode = res.statusCode
     })
     .catch(err => {
-      isError = true
-
       logError(err.response ? err.response.body : err, {
         platformId,
         env,
@@ -1011,10 +1024,7 @@ async function notifyAfterCompleted ({
         runId,
         type: 'notification', // isError ? 'notificationError' : 'notification'
         statusCode: logDetails.statusCode || statusCode,
-        step: _getWorkflowLogStep({
-          name: 'workflowWebhook',
-          error: isError
-        }),
+        step: _getWorkflowLogStep({ name: 'workflowWebhook' }),
         metadata: _.omit(logDetails, 'statusCode')
       })
 
@@ -1045,13 +1055,10 @@ function _getWorkflowLogMetadata ({
   return details
 }
 
-function _getWorkflowLogStep ({ workflowStep = {}, name, error, stopped, skipped }) {
+function _getWorkflowLogStep ({ workflowStep = {}, name }) {
   return {
     name: name || workflowStep.name || null,
     handleErrors: workflowStep.handleErrors || false,
-    error: error || false,
-    stopped: stopped || false,
-    skipped: skipped || false
   }
 }
 
