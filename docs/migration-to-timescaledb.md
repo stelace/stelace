@@ -30,7 +30,7 @@ You’ve just replaced PostgreSQL container with TimescaleDB container.
 
 ### Existing data
 
-To migrate data from a PostgreSQL database to a TimescaleDB database, Stelace provides a script (gist URL) you can use.
+To migrate data from a PostgreSQL database to a TimescaleDB database, Stelace provides a [script](../scripts/migrateToTimescaleDB.js) you can use.
 
 *Please note this script is suitable if your time-series tables (event, webhookLog, workflowLog) don’t have more than about 1 million rows each. Otherwise, you may need to adapt the script to import/export those tables in CSV format as explained in the [official documentation](https://docs.timescale.com/latest/getting-started/migrating-data). It will be a lot faster than transforming PostgreSQL tables into TimescaleDB hypertables.*
 
