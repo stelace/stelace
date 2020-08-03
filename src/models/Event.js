@@ -54,6 +54,9 @@ class Event extends Base {
           type: 'string',
           maxLength: 24
         },
+        createdTimestamp: { // time column for hypertable
+          type: 'string',
+        },
         type: {
           type: 'string',
           maxLength: 255
@@ -122,8 +125,13 @@ class Event extends Base {
   $beforeInsert () {
     const now = new Date().toISOString()
 
-    if (!this.createdDate) {
+    if (!this.createdDate && !this.createdTimestamp) {
       this.createdDate = now
+      this.createdTimestamp = now
+    } else if (!this.createdDate) {
+      this.createdDate = this.createdTimestamp
+    } else if (!this.createdTimestamp) {
+      this.createdTimestamp = this.createdDate
     }
 
     if (_.isEmpty(this.relatedObjectsIds) && !_.isEmpty(this.object)) {

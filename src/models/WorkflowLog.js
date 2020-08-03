@@ -20,6 +20,9 @@ class WorkflowLog extends Base {
           type: 'string',
           maxLength: 24
         },
+        createdTimestamp: { // time column for hypertable
+          type: 'string',
+        },
         workflowId: {
           type: 'string'
         },
@@ -60,6 +63,7 @@ class WorkflowLog extends Base {
     const now = new Date().toISOString()
 
     this.createdDate = now
+    this.createdTimestamp = now
     // no updatedDate
   }
 

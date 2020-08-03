@@ -200,6 +200,9 @@ jobs:
               /tmp/test-results/unit-test-results.xml
       - run:
           name: Run integration tests with API endpoints
+          # Timeout can be exceeded in rare cases
+          # Authentication tests with puppeteer browsing can have an initialization error
+          # that prevents test suite from finishing
           no_output_timeout: 12m
           command: |
             docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml \

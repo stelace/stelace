@@ -1,4 +1,4 @@
-const { computeDate } = require('../src/util/time')
+const { computeDate, isDateString, truncateDate } = require('../src/util/time')
 const { getModels } = require('../src/models')
 const { roundDecimal } = require('../src/util/math')
 const WebhookManager = require('./webhook-manager')
@@ -19,7 +19,8 @@ module.exports = {
   nullOrUndefinedFallback,
   getObjectEvent,
   testEventMetadata,
-  checkStatsObject
+  checkStatsObject,
+  checkHistoryObject,
 }
 
 /**
@@ -123,7 +124,8 @@ async function testEventMetadata ({
  * @param {Number}   [avgPrecision = 2] - check the average precision
  * @param {String}   [orderBy = 'count']
  * @param {String}   [order = 'desc']
- * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check on `result`
+ * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check
+ *     on each item of results array
  */
 function checkStatsObject ({
   t,
@@ -176,7 +178,7 @@ function checkStatsObject ({
       // Better compare the difference below a small threshold
       // than performing a strict equality because of floating operation precision
       // 8.1 + 8.2 = 16.299999999999997
-      const isEqual = (nb1, nb2) => Math.abs(nb1 - nb2) <= 1e-10 // not using Number.EPSILON because it's too small
+      const isEqual = (nb1, nb2) => Math.abs(nb1 - nb2) <= 1e-4 // not using Number.EPSILON because it's too small
       t.true(isEqual(result.sum, sum))
 
       t.is(result.min, min)
@@ -202,6 +204,78 @@ function checkStatsObject ({
       else t.true(number <= result[orderBy])
 
       number = result[orderBy]
+    }
+
+    if (typeof additionalResultCheckFn === 'function') {
+      additionalResultCheckFn(result)
+    }
+  })
+}
+
+/**
+ * @param {Object}   params
+ * @param {Object}   params.t - AVA test object
+ * @param {Object}   params.obj - stats object returned by API
+ * @param {String}   params.groupBy
+ * @param {Object[]} params.results
+ * @param {String}   [order = 'desc']
+ * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check on `result`
+ */
+function checkHistoryObject ({
+  t,
+  obj,
+  groupBy,
+  results,
+  order = 'desc',
+  additionalResultCheckFn
+}) {
+  const resultsByType = _.groupBy(results, result => {
+    const date = result.createdDate
+
+    if (groupBy === 'hour') return date.slice(0, 14) + '00:00.000Z'
+    else if (groupBy === 'day') return truncateDate(date)
+
+    // month time unit isn't supported in TimescaleDB
+    // and we approximate it as '30 days'
+    // which makes impossible to group like TimescaleDB
+    else if (groupBy === 'month') return date
+  })
+
+  t.true(typeof obj === 'object')
+  t.true(typeof obj.nbResults === 'number')
+  t.true(typeof obj.nbPages === 'number')
+  t.true(typeof obj.page === 'number')
+  t.true(typeof obj.nbResultsPerPage === 'number')
+  t.true(Array.isArray(obj.results))
+  t.is(obj.nbResults, obj.results.length)
+
+  obj.results.forEach(result => {
+    const key = result[groupBy]
+    const results = resultsByType[key] || []
+    const count = results.length
+
+    t.true(isDateString(result[groupBy]))
+
+    // month time unit isn't supported in TimescaleDB
+    if (groupBy !== 'month') {
+      t.is(result.count, count)
+    }
+  })
+
+  const totalCount = obj.results.reduce((total, r) => total + r.count, 0)
+  t.is(totalCount, results.length)
+
+  // check order
+  const orderBy = groupBy
+  let date
+  obj.results.forEach(result => {
+    if (typeof date === 'undefined') {
+      date = result[orderBy]
+    } else {
+      if (order === 'desc') t.true(date >= result[orderBy])
+      else t.true(date <= result[orderBy])
+
+      date = result[orderBy]
     }
 
     if (typeof additionalResultCheckFn === 'function') {

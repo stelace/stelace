@@ -20,6 +20,9 @@ class WebhookLog extends Base {
           type: 'string',
           maxLength: 24
         },
+        createdTimestamp: { // time column for hypertable
+          type: 'string',
+        },
         webhookId: {
           type: 'string'
         },
@@ -41,6 +44,7 @@ class WebhookLog extends Base {
     const now = new Date().toISOString()
 
     this.createdDate = now
+    this.createdTimestamp = now
     // no updatedDate
   }
 

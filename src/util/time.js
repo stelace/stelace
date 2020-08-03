@@ -53,29 +53,6 @@ function isDateString (value, { onlyDate = false } = {}) {
   return isDate(date)
 }
 
-/**
-* Check if the date has 0 unit below days (0 hour, 0 minute, 0 second, 0 millisecond)
-* If true, that means the date is probably an automated date (not created by user)
-* @param  {String|Object}  date
-* @return {Boolean}
-*/
-function isPureDate (date) {
-  if (!isDateString(date) && !isDate(date)) {
-    throw new Error('Expected a valid date')
-  }
-
-  return date.slice(11) === '00:00:00.000Z'
-}
-
-function getPureDate (date) {
-  if (!isDateString(date) && !isDate(date)) {
-    throw new Error('Expected a valid date')
-  }
-
-  const m = moment.utc(date)
-  return m.format('YYYY-MM-DD') + 'T00:00:00.000Z'
-}
-
 function isIntersection (array, value) {
   return array.reduce((memo, element) => {
     if (value.endDate <= element.startDate || element.endDate <= value.startDate) {
@@ -140,16 +117,36 @@ function computeDate (isoDate, duration) {
 }
 
 /**
- * Round the date, by default to the nearest minute
+ * Truncate the date
+ * e.g. transform '2020-01-01T12:45:56.123Z' into '2020-01-01T00:00:00.000Z'
  * @param {String|Object} date
- * @param {Number} [nbMinutes = 1]
  */
-function getRoundedDate (date, nbMinutes = 1) {
+function truncateDate (date) {
   const d = isDate(date) ? date : new Date(date)
 
-  const ms = nbMinutes * 60 * 1000
-  const roundedDate = new Date(Math.round(d.getTime() / ms) * ms)
-  return roundedDate.toISOString()
+  const m = moment.utc(d)
+  return m.format('YYYY-MM-DD') + 'T00:00:00.000Z'
+}
+
+/**
+ * Round the date, by default to UTC date with 0h0m0s
+ * @param {String|Object} date
+ * @param {Number} [options.nbMinutes] - if provided, round to the nearest multiple of minutes
+ */
+function getRoundedDate (date, { nbMinutes } = {}) {
+  const d = isDate(date) ? date : new Date(date)
+
+  const roundToDate = _.isUndefined(nbMinutes)
+
+  if (roundToDate) {
+    const m = moment.utc(d)
+    if (m.hours() >= 12) m.add(1, 'd')
+    return m.format('YYYY-MM-DD') + 'T00:00:00.000Z'
+  } else {
+    const ms = nbMinutes * 60 * 1000
+    const roundedDate = new Date(Math.round(d.getTime() / ms) * ms)
+    return roundedDate.toISOString()
+  }
 }
 
 function isValidTimezone (timezone) {
@@ -266,11 +263,10 @@ module.exports = {
 
   isDate,
   isDateString,
-  isPureDate,
-  getPureDate,
   isIntersection,
   convertToMs,
   computeDate,
+  truncateDate,
   getRoundedDate,
   isValidTimezone,
   isValidCronPattern,

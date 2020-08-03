@@ -1,7 +1,8 @@
 const createError = require('http-errors')
 const { getModels, getModelInfo } = require('../models')
 
-const { performListQuery, performAggregationQuery } = require('../util/listQueryBuilder')
+const { performListQuery, performAggregationQuery, performHistoryQuery } = require('../util/listQueryBuilder')
+const { getRetentionLimitDate } = require('../util/timeSeries')
 
 let responder
 
@@ -15,6 +16,100 @@ function start ({ communication }) {
     key: 'event'
   })
 
+  responder.on('getHistory', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { Event } = await getModels({ platformId, env })
+
+    const {
+      order,
+
+      page,
+      nbResultsPerPage,
+
+      groupBy,
+
+      id,
+      createdDate,
+      eventType: type,
+      objectType,
+      objectId,
+      emitter,
+      emitterId
+    } = req
+
+    const queryBuilder = Event.knex()
+
+    const retentionLimitDate = getRetentionLimitDate()
+
+    const paginationMeta = await performHistoryQuery({
+      queryBuilder,
+      schema: Event.defaultSchema,
+      table: Event.tableName,
+      groupBy,
+      retentionLimitDate,
+      secondaryFilter: 'types',
+      groupByViews: {
+        hour: 'event_hourly',
+        day: 'event_daily',
+        month: 'event_monthly',
+      },
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdTimestamp',
+          value: createdDate,
+          query: 'range',
+          defaultValue: { gte: retentionLimitDate }
+        },
+        types: {
+          dbField: 'type',
+          value: type,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        objectTypes: {
+          dbField: 'objectType',
+          value: objectType,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        objectIds: {
+          dbField: 'objectId',
+          value: objectId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        emitter: {
+          dbField: 'emitter',
+          value: emitter
+        },
+        emitterIds: {
+          dbField: 'emitterId',
+          value: emitterId,
+          transformValue: 'array',
+          query: 'inList'
+        }
+      },
+      paginationConfig: {
+        page,
+        nbResultsPerPage
+      },
+      orderConfig: {
+        orderBy: groupBy,
+        order
+      }
+    })
+
+    return paginationMeta
+  })
+
+  // DEPRECATED:END
   responder.on('getStats', async (req) => {
     const platformId = req.platformId
     const env = req.env
@@ -44,6 +139,8 @@ function start ({ communication }) {
 
     const queryBuilder = Event.knex()
 
+    const minCreatedDate = getRetentionLimitDate()
+
     const paginationMeta = await performAggregationQuery({
       queryBuilder,
       groupBy,
@@ -58,9 +155,11 @@ function start ({ communication }) {
           query: 'inList'
         },
         createdDate: {
-          dbField: 'createdDate',
+          dbField: 'createdTimestamp',
           value: createdDate,
-          query: 'range'
+          query: 'range',
+          defaultValue: { gte: minCreatedDate },
+          minValue: minCreatedDate
         },
         types: {
           dbField: 'type',
@@ -113,6 +212,7 @@ function start ({ communication }) {
 
     return paginationMeta
   })
+  // DEPRECATED:END
 
   responder.on('list', async (req) => {
     const platformId = req.platformId
@@ -139,6 +239,8 @@ function start ({ communication }) {
 
     const queryBuilder = Event.query()
 
+    const minCreatedDate = getRetentionLimitDate()
+
     const paginationMeta = await performListQuery({
       queryBuilder,
       filters: {
@@ -149,9 +251,11 @@ function start ({ communication }) {
           query: 'inList'
         },
         createdDate: {
-          dbField: 'createdDate',
+          dbField: 'createdTimestamp',
           value: createdDate,
-          query: 'range'
+          query: 'range',
+          defaultValue: { gte: minCreatedDate },
+          minValue: minCreatedDate
         },
         types: {
           dbField: 'type',
@@ -215,7 +319,10 @@ function start ({ communication }) {
 
     const eventId = req.eventId
 
-    const event = await Event.query().findById(eventId)
+    const minCreatedDate = getRetentionLimitDate()
+
+    // without this filter, compressed chunk would be queried so the response would be long
+    const event = await Event.query().findById(eventId).where('createdTimestamp', '>=', minCreatedDate)
     if (!event) {
       throw createError(404)
     }

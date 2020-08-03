@@ -6,7 +6,8 @@ const bluebird = require('bluebird')
 
 const {
   createSchema,
-  dropSchema
+  dropSchema,
+  dropSchemaViews,
 } = require('../database')
 
 const {
@@ -472,7 +473,7 @@ function start ({ communication }) {
 async function migrateDatabase ({ platformId, env }) {
   const { connection, schema } = await getConnection({ platformId, env })
 
-  const knex = await createSchema({ connection, schema, destroyKnex: false })
+  const knex = await createSchema({ connection, schema })
 
   const useCustomSchema = schema !== 'public'
 
@@ -486,7 +487,13 @@ async function migrateDatabase ({ platformId, env }) {
 async function dropDatabase ({ platformId, env }) {
   try {
     const { connection, schema } = await getConnection({ platformId, env })
-    await dropSchema({ connection, schema, cascade: true, destroyKnex: true })
+
+    // Must drop views (that can be TimescaleDB continuous aggregates) before dropping schema
+    // because it seems that the drop schema cascade option doesn't propagate well
+    // (at least for TimescaleDB continuous aggregates)
+    // If continuous aggregates aren't dropped first, schema won't be dropped.
+    const knex = await dropSchemaViews({ connection, schema })
+    await dropSchema({ knex, schema, cascade: true, returnKnex: true })
   } catch (err) {
     logError(err, { // should mostly affect tests, we’re logging this just in case
       platformId,

@@ -175,7 +175,7 @@ function start ({ communication }) {
     }
 
     if (executionDate) {
-      createAttrs.executionDate = getRoundedDate(executionDate)
+      createAttrs.executionDate = getRoundedDate(executionDate, { nbMinutes: 1 })
     }
 
     if (Event.isCoreEventFormat(eventType)) {
@@ -242,7 +242,7 @@ function start ({ communication }) {
     }
 
     if (executionDate) {
-      updateAttrs.executionDate = getRoundedDate(executionDate)
+      updateAttrs.executionDate = getRoundedDate(executionDate, { nbMinutes: 1 })
     }
 
     if (eventType && Event.isCoreEventFormat(eventType)) {

@@ -1145,6 +1145,7 @@ module.exports = {
     createModel({
       id: 'evt_WWRfQps1I3a1gJYz2I3a',
       createdDate: now,
+      createdTimestamp: now,
       type: 'asset__created',
       objectType: 'asset',
       objectId: asset1.id,
@@ -1164,6 +1165,7 @@ module.exports = {
     createModel({
       id: 'evt_K00gGqs1BeT1h6gywBeT',
       createdDate: now,
+      createdTimestamp: now,
       type: 'custom_event',
       objectType: 'asset',
       objectId: 'ast_lCfxJNs10rP1g2Mww0rP',
@@ -1184,7 +1186,31 @@ module.exports = {
     createModel({
       id: 'evt_J00gGqs1BeT1h6gywBeT',
       createdDate: computeDate(now, '30 years'),
+      createdTimestamp: computeDate(now, '30 years'),
       type: 'future_event',
+      objectType: 'asset',
+      objectId: 'ast_lCfxJNs10rP1g2Mww0rP',
+      object: asset1,
+      relatedObjectsIds: {},
+      apiVersion: '2019-05-20',
+      parentId: null,
+      emitter: 'custom',
+      emitterId: 'Delorean',
+      metadata: {
+        someTags: ['Doc', 'Brown'],
+        name: 'DMC-12',
+        nested: {
+          object: true,
+          string: 'true'
+        }
+      }
+    }),
+
+    createModel({
+      id: 'evt_Qtup0Ae1BJI1k6MK0BJI',
+      createdDate: computeDate(now, '-30 years'),
+      createdTimestamp: computeDate(now, '-30 years'),
+      type: 'compressed_event',
       objectType: 'asset',
       objectId: 'ast_lCfxJNs10rP1g2Mww0rP',
       object: asset1,
@@ -1206,6 +1232,7 @@ module.exports = {
     createModel({
       id: 'evt_EYtSSge1EZX1iZboZEZX',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__created',
       objectType: 'transaction',
       objectId: validatedTransaction1.id,
@@ -1225,6 +1252,7 @@ module.exports = {
     createModel({
       id: 'evt_1OX9pme1s7z1jDAKUs7z',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__status_changed',
       objectType: 'transaction',
       objectId: validatedTransaction1.id,
@@ -1244,6 +1272,7 @@ module.exports = {
     createModel({
       id: 'evt_IFmuYue1w2s1jH5Daw2s',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__status_changed',
       objectType: 'transaction',
       objectId: validatedTransaction1.id,
@@ -1259,6 +1288,7 @@ module.exports = {
     createModel({
       id: 'evt_ujdqLfe1q0i1jB33jq0i',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__created',
       objectType: 'transaction',
       objectId: validatedTransaction2.id,
@@ -1278,6 +1308,7 @@ module.exports = {
     createModel({
       id: 'evt_dDbZfEe1sxw1jE0Kusxw',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__status_changed',
       objectType: 'transaction',
       objectId: validatedTransaction2.id,
@@ -1297,6 +1328,7 @@ module.exports = {
     createModel({
       id: 'evt_FOCH8le1GgB1ibiWuGgB',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__status_changed',
       objectType: 'transaction',
       objectId: validatedTransaction2.id,
@@ -1312,6 +1344,7 @@ module.exports = {
     createModel({
       id: 'evt_rS0eIbe11GD1iMIZt1GD',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__created',
       objectType: 'transaction',
       objectId: paidTransaction.id,
@@ -1331,6 +1364,7 @@ module.exports = {
     createModel({
       id: 'evt_j5braLe1vv31jGxPyvv3',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__status_changed',
       objectType: 'transaction',
       objectId: paidTransaction.id,
@@ -1350,6 +1384,7 @@ module.exports = {
     createModel({
       id: 'evt_0fB70Ie1Mt31ihvQRMt3',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__created',
       objectType: 'transaction',
       objectId: acceptedTransaction.id,
@@ -1369,6 +1404,7 @@ module.exports = {
     createModel({
       id: 'evt_o6onJ4e1dzz1iz2MWdzz',
       createdDate: now,
+      createdTimestamp: now,
       type: 'transaction__status_changed',
       objectType: 'transaction',
       objectId: acceptedTransaction.id,

@@ -40,22 +40,21 @@ async function dropColumnsIfExist (knex, tableName, columns) {
   })
 }
 
-async function createSchema ({ connection, schema, destroyKnex = true }) {
-  const params = {
-    client: 'pg',
-    useNullAsDefault: true,
-    connection,
-    searchPath: [schema]
-  }
-
-  // get a new connection because we have to set schema if needed
-  const knex = Knex(params)
+/**
+ * @param {Object}  connection - provide `connection` or `knex`
+ * @param {Object}  knex - Knex.js query builder
+ * @param {String}  schema
+ * @param {String}  [returnKnex = false] - if true, knex is returned so it can be reused
+ * @return {Object|Undefined} returns knex if `returnKnex` is true
+ */
+async function createSchema ({ connection, schema, knex, returnKnex = false }) {
+  if (!knex) knex = getKnex({ connection, schema })
 
   const adminUser = process.env.POSTGRES_ADMIN_USER || 'postgres'
 
   await knex.raw('CREATE SCHEMA IF NOT EXISTS ?? AUTHORIZATION ??', [schema, adminUser])
 
-  if (destroyKnex) {
+  if (returnKnex) {
     await knex.destroy()
   } else {
     return knex
@@ -63,22 +62,15 @@ async function createSchema ({ connection, schema, destroyKnex = true }) {
 }
 
 /**
- * @param {Object}  connection
+ * @param {Object}  connection - provide `connection` or `knex`
+ * @param {Object}  knex - Knex.js query builder
  * @param {String}  schema
  * @param {Boolean} [cascade = false] - if true, will force the schema drop even if there are remaining tables
- * @param {String}  [destroyKnex = true] - if false, knex isn't destroyed so it can be reused
- * @return {Object|Undefined} returns knex if `destroyKnex` is false
+ * @param {String}  [returnKnex = false] - if true, knex is returned so it can be reused
+ * @return {Object|Undefined} returns knex if `returnKnex` is true
  */
-async function dropSchema ({ connection, schema, cascade = false, destroyKnex = true }) {
-  const params = {
-    client: 'pg',
-    useNullAsDefault: true,
-    connection,
-    searchPath: [schema]
-  }
-
-  // get a new connection because we have to set schema if needed
-  const knex = Knex(params)
+async function dropSchema ({ connection, schema, knex, cascade = false, returnKnex = false }) {
+  if (!knex) knex = getKnex({ connection, schema })
 
   let sqlQuery = 'DROP SCHEMA IF EXISTS ??'
 
@@ -90,11 +82,54 @@ async function dropSchema ({ connection, schema, cascade = false, destroyKnex = 
 
   await knex.raw(sqlQuery, [schema])
 
-  if (destroyKnex) {
+  if (returnKnex) {
     await knex.destroy()
   } else {
     return knex
   }
+}
+
+/**
+ * @param {Object}  connection - provide `connection` or `knex`
+ * @param {Object}  knex - Knex.js query builder
+ * @param {String}  schema
+ * @param {String}  [returnKnex = false] - if true, knex is returned so it can be reused
+ * @return {Object|Undefined} returns knex if `returnKnex` is true
+ */
+async function dropSchemaViews ({ connection, schema, knex, returnKnex = false }) {
+  if (!knex) knex = getKnex({ connection, schema })
+
+  const viewsQuery = 'SELECT table_name FROM INFORMATION_SCHEMA.views WHERE table_schema = ?'
+
+  const { rows } = await knex.raw(viewsQuery, [schema])
+  const views = rows.map(({ table_name }) => table_name) // eslint-disable-line camelcase
+
+  // dropping TimescaleDB continuous aggregates requires cascade option
+  // https://docs.timescale.com/latest/using-timescaledb/continuous-aggregates#alter-drop
+  const dropView = 'DROP VIEW IF EXISTS ??.?? CASCADE'
+
+  await knex.transaction(async (trx) => {
+    for (const view of views) {
+      await trx.raw(dropView, [schema, view])
+    }
+  })
+
+  if (returnKnex) {
+    await knex.destroy()
+  } else {
+    return knex
+  }
+}
+
+function getKnex ({ connection, schema }) {
+  const params = {
+    client: 'pg',
+    useNullAsDefault: true,
+    connection,
+    searchPath: [schema]
+  }
+
+  return Knex(params)
 }
 
 /**
@@ -108,6 +143,8 @@ module.exports = {
 
   createSchema,
   dropSchema,
+
+  dropSchemaViews,
 
   mergeFunctionName
 }

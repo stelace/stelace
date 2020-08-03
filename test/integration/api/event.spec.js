@@ -5,7 +5,7 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { computeDate, checkStatsObject } = require('../../util')
+const { computeDate, checkStatsObject, checkHistoryObject } = require('../../util')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -13,6 +13,217 @@ test.before(async t => {
 })
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
+
+const dateFilterErrorRegexp = /createdDate value cannot be lower than \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/i
+
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('get events history', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupByValues = ['hour', 'day', 'month']
+
+  for (const groupBy of groupByValues) {
+    const { body: dayObj } = await request(t.context.serverUrl)
+      .get(`/events/history?groupBy=${groupBy}`)
+      .set(authorizationHeaders)
+      .expect(200)
+
+    checkHistoryObject({
+      t,
+      obj: dayObj,
+      groupBy,
+      results: events
+    })
+  }
+})
+
+test('get events history with filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const filters = `objectType=${objectType}&objectId=${objectId}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'day'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkHistoryObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+test('get events history with date filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const now = new Date().toISOString()
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const minCreatedDate = computeDate(now, '-10d')
+  const filters = `objectType=${objectType}&objectId=${objectId}&createdDate[gte]=${minCreatedDate}`
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'day'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkHistoryObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+test('fails to get events history with redundant relational operators', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+    ]
+  })
+
+  const now = new Date().toISOString()
+  const date = computeDate(now, '-10d')
+
+  const { body: error1 } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=day&createdDate[gt]=${date}&createdDate[gte]=${date}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(error1.message.includes('optional exclusive peers'))
+
+  const { body: error2 } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=day&createdDate[lt]=${date}&createdDate[lte]=${date}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(error2.message.includes('optional exclusive peers'))
+})
+
+// run this test serially because there is no filter and some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('can apply filters only with created date within the retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const now = new Date().toISOString()
+
+  const objectType = 'transaction'
+  const objectId = 'trn_Wm1fQps1I3a1gJYz2I3a'
+  const oldCreatedDate = computeDate(now, '-1y')
+  const filters = `objectType=${objectType}&objectId=${objectId}&createdDate[gte]=${oldCreatedDate}`
+
+  const groupBy = 'day'
+
+  await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filters}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  const minCreatedDate = computeDate(now, '-10d')
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get(`/events?createdDate[gte]=${minCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&createdDate[gte]=${minCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkHistoryObject({
+    t,
+    obj,
+    groupBy,
+    results: events
+  })
+})
+
+test('can apply type filter beyond the retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+    ]
+  })
+
+  const now = new Date().toISOString()
+  const oldCreatedDate = computeDate(now, '-1y')
+
+  const groupBy = 'day'
+
+  const filtersWithType = `createdDate[gte]=${oldCreatedDate}&type[]=transaction__created&type[]=custom_event`
+
+  const { body: objWithType } = await request(t.context.serverUrl)
+    .get(`/events/history?groupBy=${groupBy}&${filtersWithType}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  // cannot check with `checkHistoryObject()` utility function
+  // because individual events cannot be retrieved if the date filter is beyond the retention log period
+  t.true(typeof objWithType === 'object')
+  t.true(typeof objWithType.nbResults === 'number')
+  t.true(typeof objWithType.nbPages === 'number')
+  t.true(typeof objWithType.page === 'number')
+  t.true(typeof objWithType.nbResultsPerPage === 'number')
+  t.true(Array.isArray(objWithType.results))
+
+  objWithType.results.forEach(result => {
+    t.true(typeof result === 'object')
+    t.true(typeof result[groupBy] === 'string')
+    t.true(typeof result.count === 'number')
+  })
+})
 
 // run this test serially because there is no filter and some other tests create events
 // that can turn the check on `count` property incorrect
@@ -323,6 +534,78 @@ test('aggregation works even if the specified nested property does not exist', a
   t.is(obj.nbResults, 0)
 })
 
+// run this test serially because some other tests create events
+// that can turn the check on `count` property incorrect
+test.serial('get events stats with date filter only works within the rentention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all'
+    ]
+  })
+
+  const { body: { results: events } } = await request(t.context.serverUrl)
+    .get('/events')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const groupBy = 'type'
+
+  const now = new Date().toISOString()
+
+  const invalidMinCreatedDate = computeDate(now, '-200d')
+  const validMinCreatedDate = computeDate(now, '-10d')
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
+
+  await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate[gte]=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate=${encode({ gte: invalidMinCreatedDate })}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  const { body: error } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(dateFilterErrorRegexp.test(error.message))
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&createdDate[gte]=${validMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkStatsObject({
+    t,
+    obj,
+    groupBy,
+    results: events.filter(e => e.createdDate >= validMinCreatedDate)
+  })
+})
+
+test('get events stats only within retention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+    ]
+  })
+
+  const groupBy = 'type'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events/stats?groupBy=${groupBy}&type=compressed_event`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj.nbResults, 0)
+})
+
 test('list events', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
 
@@ -462,6 +745,58 @@ test('list events with filters', async (t) => {
   obj7.results.forEach(event => {
     t.is(event.type, 'future_event')
   })
+})
+
+test('list events with date filter only works within the rentention log period', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
+
+  const now = new Date().toISOString()
+
+  const invalidMinCreatedDate = computeDate(now, '-200d')
+  const validMinCreatedDate = computeDate(now, '-10d')
+  const encode = obj => encodeURIComponent(JSON.stringify(obj))
+
+  const { body: error1 } = await request(t.context.serverUrl)
+    .get(`/events?createdDate[gte]=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(dateFilterErrorRegexp.test(error1.message))
+
+  const { body: error2 } = await request(t.context.serverUrl)
+    .get(`/events?createdDate=${encode({ gte: invalidMinCreatedDate })}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(dateFilterErrorRegexp.test(error2.message))
+
+  const { body: error3 } = await request(t.context.serverUrl)
+    .get(`/events?createdDate=${invalidMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(400)
+
+  t.true(dateFilterErrorRegexp.test(error3.message))
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/events?createdDate[gte]=${validMinCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj.results.length, obj.nbResults)
+  obj.results.forEach(event => {
+    t.true(event.createdDate >= validMinCreatedDate)
+  })
+})
+
+test('list events only within retention log period by default', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/events?type=compressed_event')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.is(obj.nbResults, 0)
 })
 
 test('list events with metadata object filters', async (t) => {
