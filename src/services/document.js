@@ -355,7 +355,6 @@ function start ({ communication }) {
             queryBuilder,
             nbResultsPerPage,
             page,
-            applyOrder: false,
           })
         } else {
           const cursorProps = [

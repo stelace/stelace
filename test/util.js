@@ -154,15 +154,15 @@ async function checkCursorPaginationScenario ({
   const orders = ['desc', 'asc']
 
   for (const order of orders) {
-    let orderValue
+    let previousValue
     const checkOrder = (results) => {
       results.forEach(r => {
-        if (!_.isUndefined(orderValue)) {
-          if (order === 'desc') t.true(r[orderBy] <= orderValue)
-          else t.true(r[orderBy] >= orderValue)
+        if (!_.isUndefined(previousValue)) {
+          if (order === 'desc') t.true(r[orderBy] <= previousValue)
+          else t.true(r[orderBy] >= previousValue)
         }
 
-        orderValue = r[orderBy]
+        previousValue = r[orderBy]
       })
     }
 
@@ -209,6 +209,7 @@ async function checkCursorPaginationScenario ({
 
     isPaginationObject(page2Obj)
     checkOrder(page2Obj.results)
+    t.is(_.intersectionWith(page1Obj.results, page2Obj.results, _.isEqual).length, 0)
 
     t.true(page2Obj.hasPreviousPage)
 
@@ -259,15 +260,15 @@ async function checkOffsetPaginationScenario ({
   const orders = ['desc', 'asc']
 
   for (const order of orders) {
-    let orderValue
+    let previousValue
     const checkOrder = (results) => {
       results.forEach(r => {
-        if (!_.isUndefined(orderValue)) {
-          if (order === 'desc') t.true(r[orderBy] <= orderValue)
-          else t.true(r[orderBy] >= orderValue)
+        if (!_.isUndefined(previousValue)) {
+          if (order === 'desc') t.true(r[orderBy] <= previousValue)
+          else t.true(r[orderBy] >= previousValue)
         }
 
-        orderValue = r[orderBy]
+        previousValue = r[orderBy]
       })
     }
 

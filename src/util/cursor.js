@@ -6,7 +6,7 @@ const allowedTypes = [
   'boolean',
   'string',
 
-  // Date instances are returned from database for timestamptz type
+  // This refers to timestamptz dates returned from PostgreSQL
   // which is different from date stored in string type
   'date',
 ]

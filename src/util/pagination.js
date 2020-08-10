@@ -5,7 +5,7 @@ const { createCursor, parseCursor } = require('./cursor')
 const reverseOrder = (order) => order === 'asc' ? 'desc' : 'asc'
 const reverseOperator = (operator) => {
   // reverse the order, not negate the operator
-  // negation of '>' is '<='
+  // (e.g. negation of '>' is '<=')
   const map = {
     '>': '<',
     '>=': '<=',
@@ -50,12 +50,11 @@ async function offsetPaginate ({
   order,
   nbResultsPerPage,
   page,
-  applyOrder = true,
 }) {
   // Clone the query builder to have the count for all matched results before pagination filtering
   const countQueryBuilder = queryBuilder.clone()
 
-  if (applyOrder) {
+  if (orderBy && order) {
     queryBuilder.orderBy(orderBy, order)
   }
 
@@ -89,8 +88,8 @@ async function offsetPaginate ({
  * @param {Object}   queryBuilder - Knex.js query builder
  *
  * `startingAfter` and `endingBefore` are mutually exclusive
- * @param {String}   [startingAfter] - if specified, fetch results after this cursor
- * @param {String}   [endingBefore] - if specified, fetch results before this cursor
+ * @param {String}   [startingAfter] - if specified, fetch first results after this cursor
+ * @param {String}   [endingBefore] - if specified, fetch last results before this cursor
  *
  * @param {Number}   nbResultsPerPage
  *
@@ -109,6 +108,8 @@ async function cursorPaginate ({
   cursorProps,
   order,
 }) {
+  if (startingAfter && endingBefore) throw new Error('Cannot provide both `startingAfter` and `endingBefore`')
+
   // if `endingBefore` is specified, this is equivalent to retrieving
   // the `nbResultsPerPage` last results.
   // To achieve it, this is done with 2 steps:
@@ -224,15 +225,20 @@ function applyCursorPaginationParameters ({
         operatorWithEqual = reverseOperator(operatorWithEqual)
       }
 
+      // We need to query results that are ordered before or after the cursor (depending on the order)
+      // but we also need to include the cursor result to determine if there is a previous page
       if (cursorProps.length === 1) {
+        // if one-column cursor, use operator with equal
         qb.where(firstProp, operatorWithEqual, decodedCursor[firstProp])
       } else {
+        // if two-columns cursor, the query is split into two parts:
+        // 1. fetch results strictly before or after the first column value
+        // 2. OR fetch results whose first column value is equal to cursor first column value
+        //    and use operator with equal to include the second column value,
+        //    because the second column will make the difference
         qb
           .where(firstProp, operator, decodedCursor[firstProp])
           .orWhere(qb2 => {
-            // if two-columns cursor
-            // use operator with equal on the secondary column to include the cursor result
-            // to determine if there is a previous page
             return qb2
               .where(firstProp, decodedCursor[firstProp])
               .where(secondaryProp, operatorWithEqual, decodedCursor[secondaryProp])
