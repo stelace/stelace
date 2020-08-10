@@ -4687,7 +4687,7 @@ lodash.templatesettings@^4.0.0:
   dependencies:
     lodash._reinterpolate "^3.0.0"
 
-lodash@4.17.19, lodash@^4.0.0, lodash@^4.15.0, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19:
+lodash@4.17.19, lodash@^4.0.0, lodash@^4.15.0, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19:
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
@@ -7290,14 +7290,14 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sql-fixtures@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/sql-fixtures/-/sql-fixtures-1.0.2.tgz#775a441fffb2ead68b793c8218634b08c18b8495"
-  integrity sha512-tSnYVvZbilQPBxdOTiEnEoFjEVsQOCW11jcua4jvLnNUdLkNKAoTLTwHepWVGdJ1q0cGSv+gg14HyjRyhFic9w==
+sql-fixtures@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/sql-fixtures/-/sql-fixtures-1.0.4.tgz#b34e5c0c2a625e500e6b21d82c5c8a2b3e674754"
+  integrity sha512-2FNcaQWyoh5gOcGXeSImT9p6WzwZMPF5CRqjGomcCv4lLQWt1/OI7hI2DbTi1h23ct4hvA+Q6JBfYy1u5Pwj6g==
   dependencies:
     bluebird "3.2.2"
     knex "^0.20.3"
-    lodash "^4.17.12"
+    lodash "^4.17.19"
 
 sql-summary@^1.0.1:
   version "1.0.1"
