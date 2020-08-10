@@ -94,10 +94,10 @@ async function offsetPaginate ({
  *
  * @param {Number}   nbResultsPerPage
  *
- * @param {Object[]} cursorConfig - will be used to create/parse cursor
- * @param {Object}   cursorConfig[i]
- * @param {String}   cursorConfig[i].prop - object property to encode
- * @param {String}   cursorConfig[i].type - allowed value: 'number', 'boolean', 'date', 'string'
+ * @param {Object[]} cursorProps - will be used to create/parse cursor
+ * @param {Object}   cursorProps[i]
+ * @param {String}   cursorProps[i].name - object property to encode
+ * @param {String}   cursorProps[i].type - allowed value: 'number', 'boolean', 'date', 'string'
  *
  * @param {String}   order - allowed values: 'asc', 'desc'
  */
@@ -106,7 +106,7 @@ async function cursorPaginate ({
   startingAfter,
   endingBefore,
   nbResultsPerPage,
-  cursorConfig,
+  cursorProps,
   order,
 }) {
   // if `endingBefore` is specified, this is equivalent to retrieving
@@ -121,11 +121,11 @@ async function cursorPaginate ({
 
   try {
     if (cursor) {
-      decodedCursor = parseCursor(cursor, cursorConfig)
+      decodedCursor = parseCursor(cursor, cursorProps)
 
       queryBuilder = applyCursorPaginationParameters({
         queryBuilder,
-        cursorConfig,
+        cursorProps,
         decodedCursor,
         order,
         shouldReverseOrder,
@@ -136,8 +136,8 @@ async function cursorPaginate ({
   }
 
   queryBuilder.orderBy(
-    cursorConfig.map(c => ({
-      column: c.prop,
+    cursorProps.map(p => ({
+      column: p.name,
       order: shouldReverseOrder ? reverseOrder(order) : order
     }))
   )
@@ -162,8 +162,8 @@ async function cursorPaginate ({
   const firstResult = _.first(results)
   const lastResult = _.last(results)
 
-  paginationMeta.startCursor = firstResult ? createCursor(firstResult, cursorConfig) : null
-  paginationMeta.endCursor = lastResult ? createCursor(lastResult, cursorConfig) : null
+  paginationMeta.startCursor = firstResult ? createCursor(firstResult, cursorProps) : null
+  paginationMeta.endCursor = lastResult ? createCursor(lastResult, cursorProps) : null
 
   paginationMeta.results = results
   return paginationMeta
@@ -206,15 +206,15 @@ function getCursorPaginationMeta ({
 
 function applyCursorPaginationParameters ({
   queryBuilder,
-  cursorConfig,
+  cursorProps,
   decodedCursor,
   order,
   shouldReverseOrder,
 }) {
   return queryBuilder
     .where(qb => {
-      const firstProp = cursorConfig[0].prop
-      const secondaryProp = cursorConfig.length === 2 ? cursorConfig[1].prop : null
+      const firstProp = cursorProps[0].name
+      const secondaryProp = cursorProps.length === 2 ? cursorProps[1].name : null
 
       let operator = order === 'asc' ? '>' : '<'
       let operatorWithEqual = order === 'asc' ? '>=' : '<='
@@ -224,10 +224,7 @@ function applyCursorPaginationParameters ({
         operatorWithEqual = reverseOperator(operatorWithEqual)
       }
 
-      if (cursorConfig.length === 1) {
-        // if one-column cursor
-        // use operator with equal to include the cursor result
-        // to determine if there is a previous page
+      if (cursorProps.length === 1) {
         qb.where(firstProp, operatorWithEqual, decodedCursor[firstProp])
       } else {
         qb

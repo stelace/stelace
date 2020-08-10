@@ -358,11 +358,11 @@ function start ({ communication }) {
             applyOrder: false,
           })
         } else {
-          const cursorConfig = [
+          const cursorProps = [
             // In most cases, it is the type string (`authorId` and `targetId`)
             // but we cannot be sure as users can provide any field via `data.prop`
             // TODO: maybe perform a request to retrieve a row with the existing prop
-            { prop: 'groupByField', type: 'string' },
+            { name: 'groupByField', type: 'string' },
           ]
 
           paginationMeta = await cursorPaginate({
@@ -370,7 +370,7 @@ function start ({ communication }) {
             nbResultsPerPage,
             startingAfter,
             endingBefore,
-            cursorConfig,
+            cursorProps,
           })
         }
 

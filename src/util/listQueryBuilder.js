@@ -292,9 +292,9 @@ async function performListQuery ({
       const { orderBy, order, orderType } = orderConfig
       const { nbResultsPerPage, startingAfter, endingBefore } = paginationConfig
 
-      const cursorConfig = [
-        { prop: orderBy, type: orderType || 'string' },
-        { prop: 'id', type: 'string' },
+      const cursorProps = [
+        { name: orderBy, type: orderType || 'string' },
+        { name: 'id', type: 'string' },
       ]
 
       return cursorPaginate({
@@ -302,7 +302,7 @@ async function performListQuery ({
         startingAfter,
         endingBefore,
         order,
-        cursorConfig,
+        cursorProps,
         nbResultsPerPage,
       })
     }
@@ -642,8 +642,8 @@ async function performHistoryQuery ({
   const { orderBy, order } = orderConfig
   const { nbResultsPerPage, startingAfter, endingBefore } = paginationConfig
 
-  const cursorConfig = [
-    { prop: orderBy, type: 'date' },
+  const cursorProps = [
+    { name: orderBy, type: 'date' },
   ]
 
   return cursorPaginate({
@@ -651,7 +651,7 @@ async function performHistoryQuery ({
     startingAfter,
     endingBefore,
     order,
-    cursorConfig,
+    cursorProps,
     nbResultsPerPage,
   })
 }
