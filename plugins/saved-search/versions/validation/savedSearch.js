@@ -9,7 +9,7 @@ const orderByFields = [
 module.exports = function createValidation (deps) {
   const {
     utils: {
-      validation: { objectIdParamsSchema },
+      validation: { objectIdParamsSchema, replaceOffsetWithCursorPagination },
       pagination: { DEFAULT_NB_RESULTS_PER_PAGE }
     }
   } = deps
@@ -21,14 +21,7 @@ module.exports = function createValidation (deps) {
   // ////////// //
   schemas['2020-08-10'] = {}
   schemas['2020-08-10'].list = () => ({
-    query: schemas['2019-05-20'].list.query
-      .fork('page', schema => schema.forbidden())
-      .keys({
-        // cursor pagination
-        startingAfter: Joi.string(),
-        endingBefore: Joi.string(),
-      })
-      .oxor('startingAfter', 'endingBefore')
+    query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].list.query)
   })
 
   // ////////// //

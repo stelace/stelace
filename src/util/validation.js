@@ -160,6 +160,16 @@ const searchSchema = customJoi.object().keys({
   createdAfter: customJoi.string().isoDate().allow(null)
 })
 
+function replaceOffsetWithCursorPagination (schema) {
+  return schema
+    .fork('page', schema => schema.forbidden())
+    .keys({
+      startingAfter: customJoi.string(),
+      endingBefore: customJoi.string(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+}
+
 module.exports = {
   Joi: customJoi,
   isUUIDV4,
@@ -167,5 +177,6 @@ module.exports = {
 
   objectIdParamsSchema,
   searchSchema,
-  getRangeFilter
+  getRangeFilter,
+  replaceOffsetWithCursorPagination,
 }

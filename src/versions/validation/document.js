@@ -1,4 +1,8 @@
-const { Joi, objectIdParamsSchema } = require('../../util/validation')
+const {
+  Joi,
+  objectIdParamsSchema,
+  replaceOffsetWithCursorPagination,
+} = require('../../util/validation')
 const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const orderByFields = [
@@ -24,24 +28,10 @@ const schemas = {}
 // ////////// //
 schemas['2020-08-10'] = {}
 schemas['2020-08-10'].getStats = () => ({
-  query: schemas['2019-05-20'].getStats.query
-    .fork('page', schema => schema.forbidden())
-    .keys({
-      // cursor pagination
-      startingAfter: Joi.string(),
-      endingBefore: Joi.string(),
-    })
-    .oxor('startingAfter', 'endingBefore')
+  query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].getStats.query)
 })
 schemas['2020-08-10'].list = () => ({
-  query: schemas['2019-05-20'].list.query
-    .fork('page', schema => schema.forbidden())
-    .keys({
-      // cursor pagination
-      startingAfter: Joi.string(),
-      endingBefore: Joi.string(),
-    })
-    .oxor('startingAfter', 'endingBefore')
+  query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].list.query)
 })
 
 // ////////// //
