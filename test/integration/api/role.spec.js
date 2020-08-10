@@ -5,6 +5,11 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
+const {
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
+const { computeDate } = require('../../../src/util/time')
 
 test.before(async t => {
   await before({ name: 'role' })(t)
@@ -13,17 +18,43 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
-test('lists roles', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('lists roles', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['role:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/roles')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/roles',
+    authorizationHeaders
+  })
+})
+
+test('list roles with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/roles?id=role_C5ZIBs105v1gHK1i05v')
     .set(authorizationHeaders)
     .expect(200)
 
-  const roles = result.body
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
+})
 
-  t.is(Array.isArray(roles), true)
+test('list roles with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+
+  const now = new Date().toISOString()
+  const minCreatedDate = computeDate(now, '-10d')
+
+  const { body: obj1 } = await request(t.context.serverUrl)
+    .get(`/roles?createdDate[gte]=${minCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  obj1.results.forEach(category => {
+    t.true(category.createdDate >= minCreatedDate)
+  })
 })
 
 test('finds a role', async (t) => {
@@ -264,4 +295,25 @@ test('fails to update a role if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"editNamespaces" must be an array'))
   t.true(error.message.includes('"metadata" must be of type object'))
   t.true(error.message.includes('"platformData" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: lists roles', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['role:list:all']
+  })
+
+  const result = await request(t.context.serverUrl)
+    .get('/roles')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const roles = result.body
+
+  t.is(Array.isArray(roles), true)
 })

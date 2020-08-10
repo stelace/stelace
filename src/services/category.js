@@ -49,18 +49,67 @@ function start ({ communication }) {
     const env = req.env
     const { Category } = await getModels({ platformId, env })
 
+    const {
+      orderBy,
+      order,
+
+      nbResultsPerPage,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      id,
+      createdDate,
+      updatedDate,
+      parentId,
+    } = req
+
     const queryBuilder = Category.query()
 
-    const categories = await performListQuery({
+    const paginationMeta = await performListQuery({
       queryBuilder,
-      paginationActive: false,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdDate',
+          value: createdDate,
+          query: 'range'
+        },
+        updatedDate: {
+          dbField: 'updatedDate',
+          value: updatedDate,
+          query: 'range'
+        },
+        parentIds: {
+          dbField: 'parentId',
+          value: parentId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+      },
+      paginationActive: true,
+      paginationConfig: {
+        nbResultsPerPage,
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
+      },
       orderConfig: {
-        orderBy: 'name',
-        order: 'asc'
-      }
+        orderBy,
+        order
+      },
+      useOffsetPagination: false,
     })
 
-    return Category.exposeAll(categories, { req })
+    paginationMeta.results = Category.exposeAll(paginationMeta.results, { req })
+    return paginationMeta
   })
 
   responder.on('read', async (req) => {

@@ -53,18 +53,69 @@ function start ({ communication }) {
     const env = req.env
     const { AssetType } = await getModels({ platformId, env })
 
+    const {
+      orderBy,
+      order,
+
+      nbResultsPerPage,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      id,
+      createdDate,
+      updatedDate,
+      isDefault,
+      active
+    } = req
+
     const queryBuilder = AssetType.query()
 
-    const assetTypes = await performListQuery({
+    const paginationMeta = await performListQuery({
       queryBuilder,
-      paginationActive: false,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdDate',
+          value: createdDate,
+          query: 'range'
+        },
+        updatedDate: {
+          dbField: 'updatedDate',
+          value: updatedDate,
+          query: 'range'
+        },
+        isDefault: {
+          dbField: 'isDefault',
+          value: isDefault
+        },
+        active: {
+          dbField: 'active',
+          value: active
+        },
+      },
+      paginationActive: true,
+      paginationConfig: {
+        nbResultsPerPage,
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
+      },
       orderConfig: {
-        orderBy: 'createdDate',
-        order: 'asc'
-      }
+        orderBy,
+        order
+      },
     })
 
-    return AssetType.exposeAll(assetTypes, { req })
+    paginationMeta.results = AssetType.exposeAll(paginationMeta.results, { req })
+    return paginationMeta
   })
 
   responder.on('read', async (req) => {

@@ -3,6 +3,9 @@ const VersionTransformer = require('../transformer')
 const { transformConfigsIntoChanges } = require('../util')
 
 const listResponseChangeConfigs = [
+  require('./assetType'),
+  require('./category'),
+  require('./role'),
   require('./webhook'),
   require('./workflow'),
 ]

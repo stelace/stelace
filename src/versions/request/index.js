@@ -4,6 +4,9 @@ const { apiVersions, transformConfigsIntoChanges } = require('../util')
 const listRequestChangeConfigs = [
   require('./beforeAll'),
 
+  require('./assetType'),
+  require('./category'),
+  require('./role'),
   require('./webhook'),
   require('./workflow'),
 ]
