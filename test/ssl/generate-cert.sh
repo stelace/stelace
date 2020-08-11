@@ -1,21 +1,36 @@
 #!/bin/bash
 
 # Generate SSL certificate to test SSL connections to PostgreSQL
-# Inspired by https://gist.github.com/mrw34/c97bb03ea1054afb551886ffc8b63c3b
+# OpenSSL cheatsheet: https://www.freecodecamp.org/news/openssl-command-cheatsheet-b441be1e8c4a
 
-# If certificates need to be generated again, please remove extra information if present:
-# Above -----BEGIN CERTIFICATE----- for server.crt
-# Above -----BEGIN RSA PRIVATE KEY----- for server.key
+# Inspired blog post:
+# https://itnext.io/postgresql-docker-image-with-ssl-certificate-signed-by-a-custom-certificate-authority-ca-3df41b5b53
+
+# As explained in the blog post, generating a self-signed certificate isn't sufficient.
+# The generated certificate has also to be signed by another certificate (custom Certificate Authority).
+# Otherwise Node.js will throw the error 'DEPTH_ZERO_SELF_SIGNED_CERT'.
 
 BASEDIR=$(pwd)/$(dirname "$0")
 
-echo $BASEDIR
+# Generate key for rootCA certificate
+openssl genrsa -des3 -passout pass:abcd -out ${BASEDIR}/rootCA.pass.key 2048
+openssl rsa -passin pass:abcd -in ${BASEDIR}/rootCA.pass.key -out ${BASEDIR}/rootCA.key
+rm ${BASEDIR}/rootCA.pass.key
 
-openssl req -new -text -passout pass:abcd -subj /CN=localhost -out ${BASEDIR}/server.req -keyout ${BASEDIR}/privkey.pem
-openssl rsa -in ${BASEDIR}/privkey.pem -passin pass:abcd -out ${BASEDIR}/server.key
+# Create self-signed root CA certificate
+openssl req -x509 -new -nodes -key ${BASEDIR}/rootCA.key -sha256 -days 1024 -out ${BASEDIR}/rootCA.crt -subj /CN=stelace-ca
 
-# Certificate expires in 100 years
-openssl req -x509 -in ${BASEDIR}/server.req -text -key ${BASEDIR}/server.key -days 36500 -out ${BASEDIR}/server.crt
+# Generate key for server certificate
+openssl genrsa -des3 -passout pass:abcd -out ${BASEDIR}/server.pass.key 2048
+openssl rsa -passin pass:abcd -in ${BASEDIR}/server.pass.key -out ${BASEDIR}/server.key
+rm ${BASEDIR}/server.pass.key
 
-rm ${BASEDIR}/server.req
-rm ${BASEDIR}/privkey.pem
+# Create a certificate request for the server. Use a config file to include multiple domains
+# (localhost and postgresql for CircleCI)
+openssl req -new -key ${BASEDIR}/server.key -out ${BASEDIR}/server.csr -config ${BASEDIR}/openssl.conf
+
+# USe the CA certificate and key to create a signed version of the server certificate
+openssl x509 -req -sha256 -days 365 -in ${BASEDIR}/server.csr -CA ${BASEDIR}/rootCA.crt -CAkey ${BASEDIR}/rootCA.key -CAcreateserial -out ${BASEDIR}/server.crt -extensions req_ext -extfile ${BASEDIR}/openssl.conf
+
+rm ${BASEDIR}/server.csr
+rm ${BASEDIR}/server.srl

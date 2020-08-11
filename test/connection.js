@@ -1,13 +1,21 @@
 const fs = require('fs')
 const path = require('path')
 
-let sslCertificateContent
+let pgSSLServerCertificate
+let pgSSLCACertificate
 
-function getSslCertificateContent () {
-  if (sslCertificateContent) return sslCertificateContent
+function getPgSSLServerCertificate () {
+  if (pgSSLServerCertificate) return pgSSLServerCertificate
 
-  sslCertificateContent = fs.readFileSync(path.join(__dirname, 'ssl/server.crt'), 'utf8')
-  return sslCertificateContent
+  pgSSLServerCertificate = fs.readFileSync(path.join(__dirname, 'ssl/server.crt'), 'utf8')
+  return pgSSLServerCertificate
+}
+
+function getPgSSLCACertificate () {
+  if (pgSSLCACertificate) return pgSSLCACertificate
+
+  pgSSLCACertificate = fs.readFileSync(path.join(__dirname, 'ssl/rootCA.crt'), 'utf8')
+  return pgSSLCACertificate
 }
 
 function getPostgresqlConnection ({
@@ -51,7 +59,8 @@ function getAuthenticationSettings () {
 }
 
 module.exports = {
-  getSslCertificateContent,
+  getPgSSLServerCertificate,
+  getPgSSLCACertificate,
 
   getPostgresqlConnection,
   getElasticsearchConnection,

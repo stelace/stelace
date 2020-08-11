@@ -9,7 +9,9 @@ const { getEnvironments } = require('../../../src/util/environment')
 const {
   getPostgresqlConnection,
   getElasticsearchConnection,
-  getSslCertificateContent
+
+  getPgSSLServerCertificate,
+  getPgSSLCACertificate,
 } = require('../../connection')
 
 const instanceEnv = getEnvironments()[0] || 'test'
@@ -406,7 +408,11 @@ test('establishes SSL connection with PostgreSQL', async (t) => {
     await initDatabase({ platformId, status })
 
     // clean databases
-    await setPostgreSQLConnection({ platformId, sslca: getSslCertificateContent() })
+    await setPostgreSQLConnection({
+      platformId,
+      sslcert: getPgSSLServerCertificate(),
+      sslca: getPgSSLCACertificate(),
+    })
     await dropDatabase({ platformId })
   }
 
@@ -414,15 +420,27 @@ test('establishes SSL connection with PostgreSQL', async (t) => {
   await testSSLConnection(200) // ssl: false
 
   await testSSLConnection(500, { ssl: true }) // no certificate provided
-  await testSSLConnection(500, { ssl: getSslCertificateContent() }) // bad field
+  await testSSLConnection(500, { ssl: getPgSSLServerCertificate() }) // bad field
 
   // Pass the content of a .crt file into the field sslkey will trigger an uncaught exception that
   // kills the process even if process.on('uncaughtException', fn) is specified
   // Please be careful when configuring SSL
-  // await testSSLConnection(500, { sslkey: getSslCertificateContent() }) // bad field
+  // await testSSLConnection(500, { sslkey: getPgSSLServerCertificate() }) // bad field
 
-  await testSSLConnection(500, { sslcert: getSslCertificateContent() }) // bad field
-  await testSSLConnection(200, { sslca: getSslCertificateContent() }) // correct field
+  await testSSLConnection(500, { sslcert: getPgSSLServerCertificate() }) // missing CA certificate
+  await testSSLConnection(500, { sslca: getPgSSLServerCertificate() }) // bad field
+
+  // bad values
+  await testSSLConnection(500, {
+    sslcert: getPgSSLCACertificate(),
+    sslca: getPgSSLServerCertificate()
+  })
+
+  // correct fields
+  await testSSLConnection(200, {
+    sslcert: getPgSSLServerCertificate(),
+    sslca: getPgSSLCACertificate()
+  })
 
   t.pass()
 })
