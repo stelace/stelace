@@ -27,8 +27,7 @@ async function getAccessTokenHeaders ({
     'x-stelace-env': t.context.env
   }
 
-  // optional versioning header per request
-  // specifying the API version allows to test compatibility with old functionalities
+  // allows to skip `x-stelace-version` header in individual requests
   if (apiVersion) {
     headers['x-stelace-version'] = apiVersion
   }
