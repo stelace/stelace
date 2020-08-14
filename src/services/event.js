@@ -23,9 +23,9 @@ function start ({ communication }) {
 
     const {
       order,
-
-      page,
       nbResultsPerPage,
+      startingAfter,
+      endingBefore,
 
       groupBy,
 
@@ -97,13 +97,14 @@ function start ({ communication }) {
         }
       },
       paginationConfig: {
-        page,
-        nbResultsPerPage
+        nbResultsPerPage,
+        startingAfter,
+        endingBefore,
       },
       orderConfig: {
         orderBy: groupBy,
         order
-      }
+      },
     })
 
     return paginationMeta
@@ -223,8 +224,14 @@ function start ({ communication }) {
       orderBy,
       order,
 
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       id,
       createdDate,
@@ -298,13 +305,20 @@ function start ({ communication }) {
       },
       paginationActive: true,
       paginationConfig: {
+        nbResultsPerPage,
+
+        // offset pagination
         page,
-        nbResultsPerPage
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
       },
       orderConfig: {
         orderBy,
         order
-      }
+      },
+      useOffsetPagination: req._useOffsetPagination,
     })
 
     paginationMeta.results = Event.exposeAll(paginationMeta.results, { req })

@@ -141,7 +141,10 @@ async function stelaceApiRequest (endpointUri, {
   const defaultHeaders = {
     'x-platform-id': platformId,
     'x-stelace-env': env,
-    'x-stelace-system-key': process.env.SYSTEM_KEY
+    'x-stelace-system-key': process.env.SYSTEM_KEY,
+
+    // force the new version to have cursor pagination
+    'x-stelace-version': '2020-08-10'
   }
 
   const headersToSend = Object.assign({}, defaultHeaders, headers || {})
@@ -180,7 +183,7 @@ async function stelaceApiRequest (endpointUri, {
 
   function iterator (params = {}) {
     const state = {
-      page: _.isFinite(params.page) ? params.page - 1 : 0
+      hasPreviousPage: false
     }
 
     return {
@@ -190,15 +193,17 @@ async function stelaceApiRequest (endpointUri, {
             if (apmSpan) apmSpan.end()
             return Promise.resolve({ done: true })
           }
-          state.page++
 
-          if (apmSpan && state.page > 1) {
+          if (apmSpan && state.hasPreviousPage) {
             pageApmSpan = apm.startSpan('Paging through Internal HTTP API')
           }
 
-          return stelaceRequest(Object.assign({}, params, { page: state.page }))
+          return stelaceRequest(Object.assign({}, params, { startingAfter: state.endCursor }))
             .then(({ body: response }) => {
               if (!hasNextPage(response)) state.done = true
+
+              state.hasPreviousPage = response.hasPreviousPage
+              state.endCursor = response.endCursor
               return { value: response }
             })
             .finally(() => {
@@ -210,8 +215,7 @@ async function stelaceApiRequest (endpointUri, {
   }
 
   function hasNextPage (response) {
-    const { page, nbPages } = response
-    return page && nbPages && page < nbPages
+    return response.hasNextPage
   }
 }
 

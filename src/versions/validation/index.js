@@ -112,7 +112,11 @@ const middleware = () => {
       return setImmediate(next)
     }
 
-    const { schema } = validationDefinition
+    const { schema: schemaObjOrFunction } = validationDefinition
+
+    let schema
+    if (_.isFunction(schemaObjOrFunction)) schema = schemaObjOrFunction()
+    else schema = schemaObjOrFunction
 
     const toValidate = keysToValidate.reduce((accum, key) => {
       // only include keys present in the validation object

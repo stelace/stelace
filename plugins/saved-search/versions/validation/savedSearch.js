@@ -9,12 +9,20 @@ const orderByFields = [
 module.exports = function createValidation (deps) {
   const {
     utils: {
-      validation: { objectIdParamsSchema },
-      list: { DEFAULT_NB_RESULTS_PER_PAGE }
+      validation: { objectIdParamsSchema, replaceOffsetWithCursorPagination },
+      pagination: { DEFAULT_NB_RESULTS_PER_PAGE }
     }
   } = deps
 
   const schemas = {}
+
+  // ////////// //
+  // 2020-08-10 //
+  // ////////// //
+  schemas['2020-08-10'] = {}
+  schemas['2020-08-10'].list = () => ({
+    query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].list.query)
+  })
 
   // ////////// //
   // 2019-05-20 //
@@ -54,6 +62,13 @@ module.exports = function createValidation (deps) {
   }
 
   const validationVersions = {
+    '2020-08-10': [
+      {
+        target: 'savedSearch.list',
+        schema: schemas['2020-08-10'].list
+      },
+    ],
+
     '2019-05-20': [
       {
         target: 'savedSearch.list',

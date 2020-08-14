@@ -1,5 +1,9 @@
-const { Joi, objectIdParamsSchema } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const {
+  Joi,
+  objectIdParamsSchema,
+  replaceOffsetWithCursorPagination,
+} = require('../../util/validation')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const signersSchema = Joi.object().pattern(
   Joi.string().required(),
@@ -21,6 +25,14 @@ const signCodesSchema = Joi.object().pattern(
 )
 
 const schemas = {}
+
+// ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = () => ({
+  query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].list.query)
+})
 
 // ////////// //
 // 2019-05-20 //
@@ -76,6 +88,13 @@ schemas['2019-05-20'].remove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'assessment.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'assessment.list',

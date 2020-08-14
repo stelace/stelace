@@ -20,8 +20,14 @@ function init (server, { middlewares, helpers } = {}) {
   ]), wrapAction(async (req, res) => {
     const fields = [
       'order',
-      'page',
       'nbResultsPerPage',
+
+      // offset pagination
+      'page',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
 
       'assetId'
     ]

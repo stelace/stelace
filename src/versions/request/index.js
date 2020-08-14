@@ -2,7 +2,7 @@ const VersionTransformer = require('../transformer')
 const { apiVersions, transformConfigsIntoChanges } = require('../util')
 
 const listRequestChangeConfigs = [
-
+  require('./beforeAll'),
 ]
 
 const changes = transformConfigsIntoChanges(listRequestChangeConfigs)

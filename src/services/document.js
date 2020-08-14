@@ -10,9 +10,12 @@ const { performListQuery } = require('../util/listQueryBuilder')
 const _ = require('lodash')
 
 const {
-  getPaginationMeta,
-  parseArrayValues
-} = require('../util/list')
+  getOffsetPaginationMeta,
+  offsetPaginate,
+  getCursorPaginationMeta,
+  cursorPaginate,
+} = require('../util/pagination')
+const { parseArrayValues } = require('../util/list')
 
 let responder
 
@@ -36,8 +39,15 @@ function start ({ communication }) {
       groupBy,
       orderBy,
       order,
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
       documentType: type,
       label,
 
@@ -49,6 +59,8 @@ function start ({ communication }) {
     let {
       computeRanking
     } = req
+
+    const useOffsetPagination = req._useOffsetPagination
 
     let isDataGroupByExpression
     let sqlGroupByExpression
@@ -258,8 +270,6 @@ function start ({ communication }) {
       queryBuilder
         .select()
         .from('aggregations')
-        .offset((page - 1) * nbResultsPerPage)
-        .limit(nbResultsPerPage)
 
       if (filterPostRanking && computeRanking) {
         queryBuilder.whereIn('groupByField', filterPostRanking.value)
@@ -316,37 +326,54 @@ function start ({ communication }) {
         }
       })
 
-      paginationMeta = getPaginationMeta({
-        nbResults: 1,
-        nbResultsPerPage,
-        page
-      })
+      const results = [aggregatedStats]
 
-      paginationMeta.results = [aggregatedStats]
-    } else {
-      const queryBuilder = getQueryBuilderByLabel(label)
-      const countQueryBuilder = queryBuilder.clone()
-
-      queryBuilder
-        .offset((page - 1) * nbResultsPerPage)
-        .limit(nbResultsPerPage)
-
-      try {
-        const [
-          documentStats,
-          [{ count: nbDocuments }]
-        ] = await Promise.all([
-          queryBuilder,
-          countQueryBuilder.count()
-        ])
-
-        paginationMeta = getPaginationMeta({
-          nbResults: nbDocuments,
+      if (useOffsetPagination) {
+        paginationMeta = getOffsetPaginationMeta({
+          nbResults: 1,
           nbResultsPerPage,
           page
         })
+      } else {
+        paginationMeta = getCursorPaginationMeta({
+          results,
+          nbResultsPerPage,
+        })
 
-        paginationMeta.results = documentStats.map(doc => {
+        // cursors are null because an aggregated result is returned when wildcard labels are passed
+        paginationMeta.startCursor = null
+        paginationMeta.endCursor = null
+      }
+
+      paginationMeta.results = results
+    } else {
+      const queryBuilder = getQueryBuilderByLabel(label)
+
+      try {
+        if (useOffsetPagination) {
+          paginationMeta = await offsetPaginate({
+            queryBuilder,
+            nbResultsPerPage,
+            page,
+          })
+        } else {
+          const cursorProps = [
+            // In most cases, it is the type string (`authorId` and `targetId`)
+            // but we cannot be sure as users can provide any field via `data.prop`
+            // TODO: maybe perform a request to retrieve a row with the existing prop
+            { name: 'groupByField', type: 'string' },
+          ]
+
+          paginationMeta = await cursorPaginate({
+            queryBuilder,
+            nbResultsPerPage,
+            startingAfter,
+            endingBefore,
+            cursorProps,
+          })
+        }
+
+        paginationMeta.results = paginationMeta.results.map(doc => {
           return transformDocStats(doc, {
             computeRanking,
             groupBy,
@@ -370,8 +397,14 @@ function start ({ communication }) {
       orderBy,
       order,
 
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       id,
       documentType: type,
@@ -437,13 +470,20 @@ function start ({ communication }) {
       },
       paginationActive: true,
       paginationConfig: {
+        nbResultsPerPage,
+
+        // offset pagination
         page,
-        nbResultsPerPage
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
       },
       orderConfig: {
         orderBy,
         order
-      }
+      },
+      useOffsetPagination: req._useOffsetPagination,
     })
 
     paginationMeta.results = Document.exposeAll(paginationMeta.results, { req })

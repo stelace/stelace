@@ -18,8 +18,14 @@ function init (server, { middlewares, helpers } = {}) {
   const statsFields = [
     'orderBy',
     'order',
-    'page',
     'nbResultsPerPage',
+
+    // offset pagination
+    'page',
+
+    // cursor pagination
+    'startingAfter',
+    'endingBefore',
 
     'groupBy',
     'computeRanking',
@@ -76,8 +82,14 @@ function init (server, { middlewares, helpers } = {}) {
     const fields = [
       'orderBy',
       'order',
-      'page',
       'nbResultsPerPage',
+
+      // offset pagination
+      'page',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
 
       'id',
       'authorId',

@@ -1,7 +1,17 @@
-const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const {
+  Joi,
+  objectIdParamsSchema,
+  getRangeFilter,
+  replaceOffsetWithCursorPagination,
+} = require('../../util/validation')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const orderByFields = [
+  'createdDate',
+  'updatedDate',
+]
+
+const oldPaginationOrderByFields = [
   'name',
   'createdDate',
   'updatedDate',
@@ -14,13 +24,24 @@ const orderByFields = [
 const schemas = {}
 
 // ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = () => ({
+  query: replaceOffsetWithCursorPagination(
+    schemas['2019-05-20'].list.query
+      .fork('orderBy', () => Joi.string().valid(...orderByFields).default('createdDate'))
+  )
+})
+
+// ////////// //
 // 2019-05-20 //
 // ////////// //
 schemas['2019-05-20'] = {}
 schemas['2019-05-20'].list = {
   query: Joi.object().keys({
     // order
-    orderBy: Joi.string().valid(...orderByFields).default('createdDate'),
+    orderBy: Joi.string().valid(...oldPaginationOrderByFields).default('createdDate'),
     order: Joi.string().valid('asc', 'desc').default('desc'),
 
     // pagination
@@ -62,6 +83,13 @@ schemas['2019-05-20'].remove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'task.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'task.list',

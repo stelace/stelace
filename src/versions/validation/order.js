@@ -1,5 +1,9 @@
-const { Joi, objectIdParamsSchema } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const {
+  Joi,
+  objectIdParamsSchema,
+  replaceOffsetWithCursorPagination,
+} = require('../../util/validation')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const orderByFields = [
   'createdDate',
@@ -45,6 +49,14 @@ const moveSchema = Joi.object()
   .with('receiverAmount', 'receiverId')
 
 const schemas = {}
+
+// ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = () => ({
+  query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].list.query)
+})
 
 // ////////// //
 // 2019-05-20 //
@@ -138,6 +150,13 @@ schemas['2019-05-20'].updateMove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'order.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'order.preview',

@@ -9,7 +9,13 @@ const { getModels } = require('../../../src/models')
 const {
   getObjectEvent,
   testEventMetadata,
-  testEventDelay
+  testEventDelay,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
 } = require('../../util')
 
 test.before(async t => {
@@ -22,22 +28,15 @@ test.after(after())
 // from fixtures
 const defaultAssetTypeId = 'typ_RFpfQps1I3a1gJYz2I3a'
 
-test('list assets', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list assets with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/assets?page=2')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/assets',
+    authorizationHeaders,
+  })
 })
 
 test('list assets for the current user', async (t) => {
@@ -79,18 +78,12 @@ test('list assets for the current user', async (t) => {
 test('list assets with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/assets?id=ast_0TYM7rs1OwP1gQRuCOwP')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
-  t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
+  checkCursorPaginatedListObject(t, obj)
   t.is(obj.results.length, 1)
 })
 
@@ -104,7 +97,6 @@ test('list assets with advanced filters', async (t) => {
 
   const obj1 = result1.body
 
-  t.is(obj1.results.length, obj1.nbResults)
   obj1.results.forEach(asset => {
     t.true(['usr_QVQfQps1I3a1gJYz2I3a', 'user-external-id'].includes(asset.ownerId))
     t.true(asset.active)
@@ -117,7 +109,6 @@ test('list assets with advanced filters', async (t) => {
 
   const obj2 = result2.body
 
-  t.is(obj2.results.length, obj2.nbResults)
   obj2.results.forEach(asset => {
     t.true(['usr_QVQfQps1I3a1gJYz2I3a', 'user-external-id'].includes(asset.ownerId))
   })
@@ -129,7 +120,6 @@ test('list assets with advanced filters', async (t) => {
 
   const obj3 = result3.body
 
-  t.is(obj3.results.length, obj3.nbResults)
   obj3.results.forEach(asset => {
     t.true(['typ_RFpfQps1I3a1gJYz2I3a'].includes(asset.assetTypeId))
     t.false(asset.validated)
@@ -142,7 +132,6 @@ test('list assets with advanced filters', async (t) => {
 
   const obj4 = result4.body
 
-  t.is(obj4.results.length, obj4.nbResults)
   obj4.results.forEach(asset => {
     t.true(asset.price >= 100)
     t.is(asset.categoryId, 'ctgy_ejQQps1I3a1gJYz2I3a')
@@ -971,4 +960,39 @@ test.serial('generates asset__* events', async (t) => {
   t.is(assetUpdatedEvent.object.name, assetUpdated.name)
   t.is(assetUpdatedEvent.object.metadata._custom.hasDataInNamespace, true)
   t.is(assetUpdatedEvent.object.metadata._custom.hasAdditionalDataInNamespace, true)
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list assets with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['asset:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/assets',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: list assets with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['asset:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/assets?id=ast_0TYM7rs1OwP1gQRuCOwP')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
 })

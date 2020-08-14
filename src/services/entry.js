@@ -51,8 +51,14 @@ function start ({ communication }) {
       orderBy,
       order,
 
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       id,
       collection,
@@ -92,13 +98,20 @@ function start ({ communication }) {
       },
       paginationActive: true,
       paginationConfig: {
+        nbResultsPerPage,
+
+        // offset pagination
         page,
-        nbResultsPerPage
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
       },
       orderConfig: {
         orderBy,
         order
-      }
+      },
+      useOffsetPagination: req._useOffsetPagination,
     })
 
     paginationMeta.results = Entry.exposeAll(paginationMeta.results, { req })

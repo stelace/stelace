@@ -10,6 +10,7 @@ async function getAccessTokenHeaders ({
   permissions = [],
   readNamespaces = [],
   editNamespaces = [],
+  apiVersion,
   t
 }) {
   const accessToken = await getAccessToken({
@@ -19,12 +20,19 @@ async function getAccessTokenHeaders ({
     editNamespaces
   })
 
-  return {
+  const headers = {
     authorization: `Bearer ${accessToken}`,
     // TODO: use an API key instead of these special headers
     'x-platform-id': t.context.platformId,
     'x-stelace-env': t.context.env
   }
+
+  // allows to skip `x-stelace-version` header in individual requests
+  if (apiVersion) {
+    headers['x-stelace-version'] = apiVersion
+  }
+
+  return headers
 }
 
 async function getAccessToken ({

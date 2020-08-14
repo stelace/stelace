@@ -1,5 +1,10 @@
-const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
-const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/list')
+const {
+  Joi,
+  objectIdParamsSchema,
+  getRangeFilter,
+  replaceOffsetWithCursorPagination,
+} = require('../../util/validation')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 const { allowedTimeUnits } = require('../../util/time')
 
 const orderByFields = [
@@ -13,6 +18,14 @@ const durationSchema = Joi.object().pattern(
 ).length(1)
 
 const schemas = {}
+
+// ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = () => ({
+  query: replaceOffsetWithCursorPagination(schemas['2019-05-20'].list.query)
+})
 
 // ////////// //
 // 2019-05-20 //
@@ -94,6 +107,13 @@ schemas['2019-05-20'].createTransition = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'transaction.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'transaction.preview',

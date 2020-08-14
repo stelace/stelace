@@ -700,6 +700,7 @@ function getAuthorizationParams (req) {
     _plan: req._plan, // can be set by some plugin
     _selectedVersion: req._selectedVersion,
     _workflow: req._workflow,
+    _useOffsetPagination: req._useOffsetPagination,
   }
 }
 

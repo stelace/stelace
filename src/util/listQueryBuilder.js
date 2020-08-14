@@ -2,7 +2,8 @@ const _ = require('lodash')
 const createError = require('http-errors')
 
 const { Joi } = require('./validation')
-const { parseArrayValues, getPaginationMeta } = require('./list')
+const { offsetPaginate, cursorPaginate } = require('./pagination')
+const { parseArrayValues } = require('./list')
 const { roundDecimal } = require('./math')
 
 const filtersSchema = Joi.object().pattern(
@@ -33,13 +34,20 @@ const rangeFilterSchema = Joi.alternatives().try(
 
 const orderConfigSchema = Joi.object().keys({
   orderBy: Joi.string().required(),
-  order: Joi.string().valid('asc', 'desc').required()
+  order: Joi.string().valid('asc', 'desc').required(),
+  orderType: Joi.string(),
 }).required()
 
-const paginationConfigSchema = Joi.object().keys({
+const offsetPaginationConfigSchema = Joi.object().keys({
   page: Joi.number().integer().min(1).required(),
   nbResultsPerPage: Joi.number().integer().min(1).required()
 }).required()
+
+const cursorPaginationConfigSchema = Joi.object().keys({
+  nbResultsPerPage: Joi.number().integer().min(1).required(),
+  startingAfter: Joi.string(),
+  endingBefore: Joi.string(),
+}).oxor('startingAfter', 'endingBefore').required()
 
 const joiOptions = {
   convert: true,
@@ -174,8 +182,17 @@ function checkOrderConfig (orderConfig) {
   }
 }
 
-function checkPaginationConfig (paginationConfig) {
-  const { error } = paginationConfigSchema.validate(paginationConfig, joiOptions)
+function checkOffsetPaginationConfig (paginationConfig) {
+  const { error } = offsetPaginationConfigSchema.validate(paginationConfig, joiOptions)
+
+  if (error) {
+    error.message = `Bad pagination config: ${error.message}`
+    throw error
+  }
+}
+
+function checkCursorPaginationConfig (paginationConfig) {
+  const { error } = cursorPaginationConfigSchema.validate(paginationConfig, joiOptions)
 
   if (error) {
     error.message = `Bad pagination config: ${error.message}`
@@ -195,19 +212,32 @@ function checkPaginationConfig (paginationConfig) {
  *
  * @param {Boolean} [params.paginationActive = true]
  * @param {Object}  [params.paginationConfig]
- * @param {Number}  [params.paginationConfig.page]
  * @param {Number}  [params.paginationConfig.nbResultsPerPage]
+ *
+ * @param {Number}  [params.paginationConfig.page] - only for offset pagination
+ *
+ * startingAfter and endingBefore are mutually exclusive
+ * @param {Number}  [params.paginationConfig.startingAfter] - only for cursor pagination
+ * @param {Number}  [params.paginationConfig.endingBefore] - only for cursor pagination
  *
  * @param {Object}  params.orderConfig
  * @param {Object}  params.orderConfig.orderBy - Order field
  * @param {Object}  params.orderConfig.order - Must be 'asc' or 'desc'
+ * @param {Object}  [params.orderConfig.orderType = 'string'] - only for cursor pagination
+ *     used to define the cursor prop type
+ *
+ * @param {Boolean} params.useOffsetPagination - if false, will use cursor pagination
  *
  * If pagination is active
- * @return {Object} paginationMeta
- * @return {Number} paginationMeta.nbResults
- * @return {Number} paginationMeta.nbPages
- * @return {Number} paginationMeta.page
- * @return {Number} paginationMeta.nbResultsPerPage
+ * @return {Object}  paginationMeta
+ * @return {Number}  paginationMeta.nbResults - if `useOffsetPagination` is true
+ * @return {Number}  paginationMeta.nbPages - if `useOffsetPagination` is true
+ * @return {Number}  paginationMeta.page - if `useOffsetPagination` is true
+ * @return {String|null} paginationMeta.startCursor - if `useOffsetPagination` is false
+ * @return {String|null} paginationMeta.endCursor - if `useOffsetPagination` is false
+ * @return {Boolean} paginationMeta.hasPreviousPage - if `useOffsetPagination` is false
+ * @return {Boolean} paginationMeta.hasNextPage - if `useOffsetPagination` is false
+ * @return {Number}  paginationMeta.nbResultsPerPage
  * @return {Object[]} paginationMeta.results
  *
  * If pagination is inactive
@@ -219,7 +249,8 @@ async function performListQuery ({
   paginationActive = true,
   paginationConfig,
   orderConfig,
-  beforeQueryFn
+  beforeQueryFn,
+  useOffsetPagination,
 }) {
   checkOrderConfig(orderConfig)
 
@@ -227,7 +258,11 @@ async function performListQuery ({
     checkFilters(filters)
   }
   if (paginationActive) {
-    checkPaginationConfig(paginationConfig)
+    if (useOffsetPagination) {
+      checkOffsetPaginationConfig(_.pick(paginationConfig, ['page', 'nbResultsPerPage']))
+    } else {
+      checkCursorPaginationConfig(_.pick(paginationConfig, ['startingAfter', 'endingBefore', 'nbResultsPerPage']))
+    }
   }
 
   let transformedValues
@@ -242,34 +277,35 @@ async function performListQuery ({
   }
 
   if (paginationActive) {
-    // Clone the query builder to have the count for all matched results before pagination filtering
-    const countQueryBuilder = queryBuilder.clone()
+    if (useOffsetPagination) {
+      const { orderBy, order } = orderConfig
+      const { page, nbResultsPerPage } = paginationConfig
 
-    const { orderBy, order } = orderConfig
-    queryBuilder.orderBy(orderBy, order)
+      return offsetPaginate({
+        queryBuilder,
+        orderBy,
+        order,
+        nbResultsPerPage,
+        page,
+      })
+    } else {
+      const { orderBy, order, orderType } = orderConfig
+      const { nbResultsPerPage, startingAfter, endingBefore } = paginationConfig
 
-    const { page, nbResultsPerPage } = paginationConfig
+      const cursorProps = [
+        { name: orderBy, type: orderType || 'string' },
+        { name: 'id', type: 'string' },
+      ]
 
-    queryBuilder
-      .offset((page - 1) * nbResultsPerPage)
-      .limit(nbResultsPerPage)
-
-    const [
-      results,
-      [{ count: nbResults }]
-    ] = await Promise.all([
-      queryBuilder,
-      countQueryBuilder.count()
-    ])
-
-    const paginationMeta = getPaginationMeta({
-      nbResults,
-      nbResultsPerPage,
-      page
-    })
-
-    paginationMeta.results = results
-    return paginationMeta
+      return cursorPaginate({
+        queryBuilder,
+        startingAfter,
+        endingBefore,
+        order,
+        cursorProps,
+        nbResultsPerPage,
+      })
+    }
   } else {
     const { orderBy, order } = orderConfig
     queryBuilder.orderBy(orderBy, order)
@@ -338,7 +374,7 @@ async function performAggregationQuery ({
   if (filters) {
     checkFilters(filters)
   }
-  checkPaginationConfig(paginationConfig)
+  checkOffsetPaginationConfig(paginationConfig)
 
   if (field === groupBy) {
     throw createError(422, `${field} cannot be field and groupBy at the same time`)
@@ -388,32 +424,19 @@ async function performAggregationQuery ({
     .from('aggregations')
     .whereNotNull('groupByField')
 
-  // Clone the query builder to have the count for all matched results before pagination filtering
-  const countQueryBuilder = queryBuilder.clone()
-
   const { orderBy, order } = orderConfig
-  queryBuilder.orderBy(orderBy, order)
-
   const { page, nbResultsPerPage } = paginationConfig
 
-  queryBuilder
-    .offset((page - 1) * nbResultsPerPage)
-    .limit(nbResultsPerPage)
-
-  let results
-  let nbResults
+  let paginationMeta
 
   try {
-    const [
-      queryResults,
-      [{ count }]
-    ] = await Promise.all([
+    paginationMeta = await offsetPaginate({
       queryBuilder,
-      countQueryBuilder.count()
-    ])
-
-    results = queryResults
-    nbResults = count
+      orderBy,
+      order,
+      nbResultsPerPage,
+      page,
+    })
   } catch (err) {
     // PostgreSQL error codes
     // https://www.postgresql.org/docs/10/errcodes-appendix.html
@@ -425,13 +448,7 @@ async function performAggregationQuery ({
     }
   }
 
-  const paginationMeta = getPaginationMeta({
-    nbResults,
-    nbResultsPerPage,
-    page
-  })
-
-  paginationMeta.results = results.map(r => {
+  paginationMeta.results = paginationMeta.results.map(r => {
     const clonedResult = _.cloneDeep(r)
 
     clonedResult.groupBy = groupBy
@@ -474,17 +491,21 @@ async function performAggregationQuery ({
  * @param {String|Function}  [params.filters[key].query]
  *
  * @param {Object}  params.paginationConfig
- * @param {Number}  params.paginationConfig.page
  * @param {Number}  params.paginationConfig.nbResultsPerPage
+ *
+ * startingAfter and endingBefore are mutually exclusive
+ * @param {Number}  [params.paginationConfig.startingAfter]
+ * @param {Number}  [params.paginationConfig.endingBefore]
  *
  * @param {Object}  params.orderConfig
  * @param {Object}  params.orderConfig.order - Must be 'asc' or 'desc'
  *
- * @return {Object} paginationMeta
- * @return {Number} paginationMeta.nbResults
- * @return {Number} paginationMeta.nbPages
- * @return {Number} paginationMeta.page
- * @return {Number} paginationMeta.nbResultsPerPage
+ * @return {Object}   paginationMeta
+ * @return {String|null} paginationMeta.startCursor
+ * @return {String|null} paginationMeta.endCursor
+ * @return {Boolean}  paginationMeta.hasPreviousPage
+ * @return {Boolean}  paginationMeta.hasNextPage
+ * @return {Number}   paginationMeta.nbResultsPerPage
  * @return {Object[]} paginationMeta.results
  */
 async function performHistoryQuery ({
@@ -516,7 +537,7 @@ async function performHistoryQuery ({
       throw createError(400, `All filters are disabled before ${retentionLimitDate}`)
     }
   }
-  checkPaginationConfig(paginationConfig)
+  checkCursorPaginationConfig(paginationConfig)
 
   if (!['hour', 'day', 'month'].includes(groupBy)) throw new Error(`Invalid groupBy value: ${groupBy}`)
 
@@ -619,25 +640,20 @@ async function performHistoryQuery ({
   }
 
   const { orderBy, order } = orderConfig
-  queryBuilder.orderBy(orderBy, order)
+  const { nbResultsPerPage, startingAfter, endingBefore } = paginationConfig
 
-  const allResults = await queryBuilder
+  const cursorProps = [
+    { name: orderBy, type: 'date' },
+  ]
 
-  const { page, nbResultsPerPage } = paginationConfig
-
-  // To avoid query complexity, data retrieval for pagination aren't split into results query and count query.
-  // TODO: improve it with the incoming cursor-based pagination
-  const nbResults = allResults.length
-  const results = allResults.slice((page - 1) * nbResultsPerPage, page * nbResultsPerPage)
-
-  const paginationMeta = getPaginationMeta({
-    nbResults,
+  return cursorPaginate({
+    queryBuilder,
+    startingAfter,
+    endingBefore,
+    order,
+    cursorProps,
     nbResultsPerPage,
-    page
   })
-
-  paginationMeta.results = results
-  return paginationMeta
 }
 
 /**

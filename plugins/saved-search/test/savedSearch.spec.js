@@ -7,7 +7,14 @@ const {
   testTools: {
     lifecycle,
     auth,
-    fixtures: { search: searchFixtures }
+    fixtures: { search: searchFixtures },
+    util: {
+      checkOffsetPaginationScenario,
+      checkOffsetPaginatedListObject,
+
+      checkCursorPaginationScenario,
+      checkCursorPaginatedListObject,
+    }
   },
   utils: {
     time: { computeDate }
@@ -72,42 +79,31 @@ test.before(async t => {
 // test.beforeEach(beforeEach()) // Concurrent tests are much faster
 test.after(after())
 
-test('lists saved searches', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('lists saved searches with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['savedSearch:list:all'] })
 
-  const { body: obj } = await request(t.context.serverUrl)
-    .get('/search')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/search',
+    authorizationHeaders,
+  })
 })
 
 test('lists saved searches with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['savedSearch:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/search?id=sch_2l7fQps1I3a1gJYz2I3a,sch_emdfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
-  t.is(obj.nbResults, 2)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
-  t.is(obj.results.length, 2)
-
-  obj.results.forEach(savedSearch => {
+  const checkResultsFn = (t, savedSearch) => {
     t.true(['sch_2l7fQps1I3a1gJYz2I3a', 'sch_emdfQps1I3a1gJYz2I3a'].includes(savedSearch.id))
-  })
+  }
+
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.results.length, 2)
 })
 
 test('lists saved searches with advanced filter', async (t) => {
@@ -120,7 +116,6 @@ test('lists saved searches with advanced filter', async (t) => {
 
   const obj1 = result1.body
 
-  t.is(obj1.results.length, obj1.nbResults)
   obj1.results.forEach(savedSearch => {
     t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'user-external-id'].includes(savedSearch.userId))
   })
@@ -132,7 +127,6 @@ test('lists saved searches with advanced filter', async (t) => {
 
   const obj2 = result2.body
 
-  t.is(obj2.results.length, obj2.nbResults)
   obj2.results.forEach(savedSearch => {
     t.true(['usr_WHlfQps1I3a1gJYz2I3a', 'user-external-id'].includes(savedSearch.userId))
   })
@@ -520,4 +514,43 @@ test('fails to update a saved search if missing or invalid parameters', async (t
   t.true(error.message.includes('"active" must be a boolean'))
   t.true(error.message.includes('"metadata" must be of type object'))
   t.true(error.message.includes('"platformData" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: lists saved searches with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['savedSearch:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/search',
+    authorizationHeaders,
+  })
+})
+
+test('2019-05-20: lists saved searches with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['savedSearch:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/search?id=sch_2l7fQps1I3a1gJYz2I3a,sch_emdfQps1I3a1gJYz2I3a')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkResultsFn = (t, savedSearch) => {
+    t.true(['sch_2l7fQps1I3a1gJYz2I3a', 'sch_emdfQps1I3a1gJYz2I3a'].includes(savedSearch.id))
+  }
+
+  checkOffsetPaginatedListObject(t, obj, { checkResultsFn })
+  t.is(obj.results.length, 2)
 })

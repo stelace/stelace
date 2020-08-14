@@ -3,10 +3,19 @@ require('dotenv').config()
 const test = require('ava')
 const request = require('supertest')
 const ms = require('ms')
+const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders, getApiKey } = require('../../auth')
-const { computeDate } = require('../../util')
+const {
+  computeDate,
+
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
 
 const { getRoundedDate } = require('../../../src/util/time')
 const { encodeBase64 } = require('../../../src/util/encoding')
@@ -31,44 +40,30 @@ const restoreClock = async (t, duration = 3000) => {
   await new Promise(resolve => setTimeout(resolve, duration))
 }
 
-test('list tasks', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list tasks with pagination', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['task:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/tasks')
-    .set(authorizationHeaders)
-    .expect(200)
-
-  const obj = result.body
-
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-
-  obj.results.forEach(task => {
-    t.truthy(task.id)
-    t.true(typeof task.eventType === 'string')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/tasks',
+    authorizationHeaders,
+    checkResultsFn: (t, task) => {
+      t.truthy(task.id)
+      t.true(_.isString(task.eventType))
+    }
   })
 })
 
 test('list tasks with id filter', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['task:list:all'] })
 
-  const result = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/tasks?id=task_4bJEZe1bA91i7IQYbA8')
     .set(authorizationHeaders)
     .expect(200)
 
-  const obj = result.body
-
-  t.is(typeof obj, 'object')
-  t.is(obj.nbResults, 1)
-  t.is(obj.nbPages, 1)
-  t.is(obj.page, 1)
-  t.is(typeof obj.nbResultsPerPage, 'number')
+  checkCursorPaginatedListObject(t, obj)
   t.is(obj.results.length, 1)
 })
 
@@ -311,12 +306,12 @@ test.serial('creates a task with recurring parameters and checks events', async 
 
   await restoreClock(t, 8000)
 
-  const { body: { nbResults, results: afterEvents } } = await request(t.context.serverUrl)
-    .get(`/events?type=${eventType}&objectId=${assetId}`)
+  const { body: { results: afterEvents } } = await request(t.context.serverUrl)
+    .get(`/events?type=${eventType}&objectId=${assetId}&nbResultsPerPage=100`)
     .set(authorizationHeaders)
     .expect(200)
 
-  t.is(nbResults, 32)
+  t.is(afterEvents.length, 32)
 
   afterEvents.forEach(event => t.is(event.emitterId, task.id))
 })
@@ -608,4 +603,43 @@ test('fails to update a task if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"active" must be a boolean'))
   t.true(error.message.includes('"metadata" must be of type object'))
   t.true(error.message.includes('"platformData" must be of type object'))
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('2019-05-20: list tasks with pagination', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['task:list:all']
+  })
+
+  await checkOffsetPaginationScenario({
+    t,
+    endpointUrl: '/tasks',
+    authorizationHeaders,
+    checkResultsFn: (t, task) => {
+      t.truthy(task.id)
+      t.true(_.isString(task.eventType))
+    }
+  })
+})
+
+test('2019-05-20: list tasks with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['task:list:all']
+  })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/tasks?id=task_4bJEZe1bA91i7IQYbA8')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  checkOffsetPaginatedListObject(t, obj)
+  t.is(obj.nbResults, 1)
 })

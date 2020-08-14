@@ -1,8 +1,10 @@
 const { computeDate, isDateString, truncateDate } = require('../src/util/time')
 const { getModels } = require('../src/models')
-const { roundDecimal } = require('../src/util/math')
+const { roundDecimal, sumDecimals } = require('../src/util/math')
 const WebhookManager = require('./webhook-manager')
 const _ = require('lodash')
+const request = require('supertest')
+const qs = require('querystring')
 
 /**
  * May be required to let event propagate before moving on with current test
@@ -19,8 +21,15 @@ module.exports = {
   nullOrUndefinedFallback,
   getObjectEvent,
   testEventMetadata,
-  checkStatsObject,
-  checkHistoryObject,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+  checkCursorPaginatedStatsObject,
+  checkCursorPaginatedHistoryObject,
+
+  checkOffsetPaginationScenario,
+  checkOffsetPaginatedListObject,
+  checkOffsetPaginatedStatsObject,
 }
 
 /**
@@ -109,6 +118,225 @@ async function testEventMetadata ({
   if (metadata) t.deepEqual(event.metadata, metadata, testMessage)
 }
 
+function checkCursorPaginatedListObject (t, obj, { checkResultsFn, cursorCheck = true } = {}) {
+  t.true(_.isPlainObject(obj))
+  t.true(_.isNumber(obj.nbResultsPerPage))
+  t.true(_.isBoolean(obj.hasPreviousPage))
+  t.true(_.isBoolean(obj.hasNextPage))
+  t.true(Array.isArray(obj.results))
+
+  if (obj.results.length) {
+    if (cursorCheck) {
+      t.true(_.isString(obj.startCursor))
+      t.true(_.isString(obj.endCursor))
+    }
+  } else {
+    t.is(obj.startCursor, null)
+    t.is(obj.endCursor, null)
+  }
+
+  if (_.isFunction(checkResultsFn)) obj.results.forEach(r => checkResultsFn(t, r))
+}
+
+async function checkCursorPaginationScenario ({
+  t,
+  endpointUrl,
+  authorizationHeaders,
+  orderBy = 'createdDate',
+  checkResultsFn,
+  passOrderByToQuery = true,
+  nbResultsPerPage = 2, // small number to be able to fetch several pages
+}) {
+  const isPaginationObject = obj => {
+    checkCursorPaginatedListObject(t, obj, checkResultsFn)
+  }
+
+  const orders = ['desc', 'asc']
+
+  for (const order of orders) {
+    let previousValue
+    const checkOrder = (results) => {
+      results.forEach(r => {
+        if (!_.isUndefined(previousValue)) {
+          if (order === 'desc') t.true(r[orderBy] <= previousValue)
+          else t.true(r[orderBy] >= previousValue)
+        }
+
+        previousValue = r[orderBy]
+      })
+    }
+
+    const queryParams = {
+      nbResultsPerPage,
+      order,
+    }
+
+    if (passOrderByToQuery) queryParams.orderBy = orderBy
+
+    // ////////// //
+    // FIRST PAGE //
+    // ////////// //
+    let filters = qs.stringify(queryParams)
+
+    const getEndpoint = (endpointUrl, filters) => {
+      if (endpointUrl.includes('?')) return `${endpointUrl}&${filters}`
+      else return `${endpointUrl}?${filters}`
+    }
+
+    const { body: page1Obj } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page1Obj)
+    checkOrder(page1Obj.results)
+
+    // stop here if there is only one page
+    if (!page1Obj.hasNextPage) return
+
+    // /////////// //
+    // SECOND PAGE //
+    // /////////// //
+    filters = qs.stringify({
+      ...queryParams,
+      startingAfter: page1Obj.endCursor,
+    })
+
+    const { body: page2Obj } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page2Obj)
+    checkOrder(page2Obj.results)
+    t.is(_.intersectionWith(page1Obj.results, page2Obj.results, _.isEqual).length, 0)
+
+    t.true(page2Obj.hasPreviousPage)
+
+    // //////////////// //
+    // FIRST PAGE AGAIN //
+    // //////////////// //
+    filters = qs.stringify({
+      ...queryParams,
+      endingBefore: page2Obj.startCursor,
+    })
+
+    const { body: page1ObjAgain } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page1ObjAgain)
+    t.true(page1ObjAgain.hasNextPage)
+
+    t.deepEqual(page1Obj, page1ObjAgain)
+  }
+}
+
+function checkOffsetPaginatedListObject (t, obj, { checkResultsFn } = {}) {
+  t.true(_.isPlainObject(obj))
+  t.true(_.isNumber(obj.nbResults))
+  t.true(_.isNumber(obj.nbPages))
+  t.true(_.isNumber(obj.page))
+  t.true(_.isNumber(obj.nbResultsPerPage))
+  t.true(Array.isArray(obj.results))
+
+  if (obj.nbPages === 1) t.is(obj.results.length, obj.nbResults)
+  if (_.isFunction(checkResultsFn)) obj.results.forEach(r => checkResultsFn(t, r))
+}
+
+async function checkOffsetPaginationScenario ({
+  t,
+  endpointUrl,
+  authorizationHeaders,
+  checkResultsFn,
+  orderBy = 'createdDate',
+  nbResultsPerPage = 2, // small number to be able to fetch several pages
+}) {
+  const isPaginationObject = obj => {
+    checkOffsetPaginatedListObject(t, obj, checkResultsFn)
+  }
+
+  const orders = ['desc', 'asc']
+
+  for (const order of orders) {
+    let previousValue
+    const checkOrder = (results) => {
+      results.forEach(r => {
+        if (!_.isUndefined(previousValue)) {
+          if (order === 'desc') t.true(r[orderBy] <= previousValue)
+          else t.true(r[orderBy] >= previousValue)
+        }
+
+        previousValue = r[orderBy]
+      })
+    }
+
+    // ////////// //
+    // FIRST PAGE //
+    // ////////// //
+    let filters = qs.stringify({
+      page: 1,
+      nbResultsPerPage,
+      orderBy,
+      order,
+    })
+
+    const getEndpoint = (endpointUrl, filters) => {
+      if (endpointUrl.includes('?')) return `${endpointUrl}&${filters}`
+      else return `${endpointUrl}?${filters}`
+    }
+
+    const { body: page1Obj } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page1Obj)
+    checkOrder(page1Obj.results)
+
+    // stop here if there is only one page
+    if (page1Obj.nbPages <= 1) return
+
+    // /////////// //
+    // SECOND PAGE //
+    // /////////// //
+    filters = qs.stringify({
+      page: 2,
+      nbResultsPerPage,
+      orderBy,
+      order,
+    })
+
+    const { body: page2Obj } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page2Obj)
+    checkOrder(page2Obj.results)
+
+    // //////////////// //
+    // FIRST PAGE AGAIN //
+    // //////////////// //
+    filters = qs.stringify({
+      page: 1,
+      nbResultsPerPage,
+      orderBy,
+      order,
+    })
+
+    const { body: page1ObjAgain } = await request(t.context.serverUrl)
+      .get(getEndpoint(endpointUrl, filters))
+      .set(authorizationHeaders)
+      .expect(200)
+
+    isPaginationObject(page1ObjAgain)
+
+    t.deepEqual(page1Obj, page1ObjAgain)
+  }
+}
+
 /**
  * @param {Object}   params
  * @param {Object}   params.t - AVA test object
@@ -143,14 +371,6 @@ function checkStatsObject ({
   results = results.filter(e => !_.isUndefined(_.get(e, groupBy)))
   const resultsByType = _.groupBy(results, groupBy)
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-  t.is(obj.nbResults, obj.results.length)
-
   obj.results.forEach(result => {
     const key = expandedGroupByField ? result.groupByValue : result[groupBy]
     const results = resultsByType[key] || []
@@ -158,8 +378,8 @@ function checkStatsObject ({
 
     const nullIfNone = (count, nb) => count === 0 ? null : nb
 
-    const avg = nullIfNone(count, results.reduce((nb, r) => nb + _.get(r, field), 0) / results.length)
-    const sum = nullIfNone(count, results.reduce((nb, r) => nb + _.get(r, field), 0))
+    const sum = nullIfNone(count, sumDecimals(_.compact(results.map(r => _.get(r, field)))))
+    const avg = nullIfNone(count, sum / results.length)
     const min = nullIfNone(count, results.reduce((nb, r) => Math.min(_.get(r, field), nb), _.get(results[0], field)))
     const max = nullIfNone(count, results.reduce((nb, r) => Math.max(_.get(r, field), nb), _.get(results[0], field)))
 
@@ -212,6 +432,22 @@ function checkStatsObject ({
   })
 }
 
+// Please refer to checkStatsObject for parameters list
+function checkOffsetPaginatedStatsObject (params) {
+  const { t, obj } = params
+
+  checkStatsObject(params)
+  checkOffsetPaginatedListObject(t, obj)
+}
+
+// Please refer to checkStatsObject for parameters list
+function checkCursorPaginatedStatsObject (params) {
+  const { t, obj } = params
+
+  checkStatsObject(params)
+  checkCursorPaginatedListObject(t, obj)
+}
+
 /**
  * @param {Object}   params
  * @param {Object}   params.t - AVA test object
@@ -221,7 +457,7 @@ function checkStatsObject ({
  * @param {String}   [order = 'desc']
  * @param {Function} [additionalResultCheckFn] - if defined, will perform additional check on `result`
  */
-function checkHistoryObject ({
+function checkCursorPaginatedHistoryObject ({
   t,
   obj,
   groupBy,
@@ -241,13 +477,7 @@ function checkHistoryObject ({
     else if (groupBy === 'month') return date
   })
 
-  t.true(typeof obj === 'object')
-  t.true(typeof obj.nbResults === 'number')
-  t.true(typeof obj.nbPages === 'number')
-  t.true(typeof obj.page === 'number')
-  t.true(typeof obj.nbResultsPerPage === 'number')
-  t.true(Array.isArray(obj.results))
-  t.is(obj.nbResults, obj.results.length)
+  checkCursorPaginatedListObject(t, obj)
 
   obj.results.forEach(result => {
     const key = result[groupBy]

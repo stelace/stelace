@@ -27,8 +27,14 @@ module.exports = function createService (deps) {
       id,
       orderBy,
       order,
-      page,
       nbResultsPerPage,
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
 
       userId
     } = req
@@ -39,9 +45,18 @@ module.exports = function createService (deps) {
       id,
       orderBy,
       order,
-      page,
       nbResultsPerPage,
-      authorId: userId
+
+      // offset pagination
+      page,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      authorId: userId,
+
+      _useOffsetPagination: req._useOffsetPagination,
     }
 
     const paginationResult = await documentRequester.communicate(req)(documentParams)
