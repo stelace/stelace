@@ -22,7 +22,7 @@ const { encodeBase64 } = require('../../../src/util/encoding')
 let userWebhookUrl
 /* eslint-disable no-template-curly-in-string */
 
-const defaultTestDelay = 4000
+const defaultTestDelay = 8000
 
 const isErrorLog = log => ['preRunError', 'runError'].includes(log.type)
 const isActionLog = log => log.type === 'action'
