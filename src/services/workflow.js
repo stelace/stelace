@@ -16,7 +16,7 @@ const { getObjectId } = require('stelace-util-keys')
 
 const { apiVersions, applyObjectChanges } = require('../versions')
 
-const { performListQuery } = require('../util/listQueryBuilder')
+const { performListQuery, performHistoryQuery } = require('../util/listQueryBuilder')
 const { getRetentionLimitDate } = require('../util/timeSeries')
 
 // Stelace Workflows: reuse sandbox for performance
@@ -333,6 +333,95 @@ function start ({ communication, serverPort }) {
   // //////////// //
   // WORKFLOW LOG //
   // //////////// //
+
+  responder.on('getLogsHistory', async (req) => {
+    const platformId = req.platformId
+    const env = req.env
+    const { WorkflowLog } = await getModels({ platformId, env })
+
+    const {
+      order,
+      nbResultsPerPage,
+      startingAfter,
+      endingBefore,
+
+      groupBy,
+
+      id,
+      createdDate,
+      logType: type,
+      workflowId,
+      eventId,
+      runId,
+    } = req
+
+    const queryBuilder = WorkflowLog.knex()
+
+    const retentionLimitDate = getRetentionLimitDate()
+
+    const paginationMeta = await performHistoryQuery({
+      queryBuilder,
+      schema: WorkflowLog.defaultSchema,
+      table: WorkflowLog.tableName,
+      groupBy,
+      retentionLimitDate,
+      secondaryFilter: 'types',
+      groupByViews: {
+        hour: 'workflowLog_hourly',
+        day: 'workflowLog_daily',
+        month: 'workflowLog_monthly',
+      },
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdTimestamp',
+          value: createdDate,
+          query: 'range',
+          defaultValue: { gte: retentionLimitDate }
+        },
+        workflowIds: {
+          dbField: 'workflowId',
+          value: workflowId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        eventIds: {
+          dbField: 'eventId',
+          value: eventId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        runIds: {
+          dbField: 'runId',
+          value: runId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        types: {
+          dbField: 'type',
+          value: type,
+          transformValue: 'array',
+          query: 'inList'
+        },
+      },
+      paginationConfig: {
+        nbResultsPerPage,
+        startingAfter,
+        endingBefore,
+      },
+      orderConfig: {
+        orderBy: groupBy,
+        order
+      },
+    })
+
+    return paginationMeta
+  })
 
   responder.on('listLogs', async (req) => {
     const platformId = req.platformId

@@ -61,6 +61,28 @@ schemas['2020-08-10'].list = {
     .oxor('startingAfter', 'endingBefore')
 }
 
+schemas['2020-08-10'].getLogsHistory = {
+  query: Joi.object().keys({
+    // order
+    order: Joi.string().valid('asc', 'desc').default('desc'),
+
+    // pagination
+    nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+    startingAfter: Joi.string(),
+    endingBefore: Joi.string(),
+
+    // aggregation
+    groupBy: Joi.string().valid('hour', 'day', 'month').required(),
+
+    // filters
+    id: Joi.array().unique().items(Joi.string()).single(),
+    createdDate: getRangeFilter(Joi.string().isoDate(), true),
+    workflowId: Joi.array().unique().items(Joi.string()).single(),
+    eventId: Joi.array().unique().items(Joi.string()).single(),
+    runId: Joi.array().unique().items(Joi.string()).single(),
+    type: Joi.array().unique().items(Joi.string()).single(),
+  })
+}
 schemas['2020-08-10'].listLogs = {
   query: Joi.object()
     .keys({
@@ -126,6 +148,10 @@ const validationVersions = {
     {
       target: 'workflow.list',
       schema: schemas['2020-08-10'].list
+    },
+    {
+      target: 'workflow.getLogsHistory',
+      schema: schemas['2020-08-10'].getLogsHistory
     },
     {
       target: 'workflow.listLogs',

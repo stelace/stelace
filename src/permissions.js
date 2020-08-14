@@ -313,6 +313,7 @@ const coreListObjectPermissions = [
   {
     object: 'workflowLog',
     actions: [
+      'stats:all',
       'list:all',
       'read:all'
     ]
