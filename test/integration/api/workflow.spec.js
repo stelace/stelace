@@ -15,9 +15,17 @@ let userApp
 const { apiVersions } = require('../../../src/versions')
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
 
 const { encodeBase64 } = require('../../../src/util/encoding')
+
+const getIds = (elements) => elements.map(e => e.id)
 
 let userWebhookUrl
 /* eslint-disable no-template-curly-in-string */
@@ -78,17 +86,45 @@ test.after(async (t) => {
   await userApp.close()
 })
 
-test('list workflows', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list workflows', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['workflow:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/workflows')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/workflows',
+    authorizationHeaders,
+  })
+})
+
+test('list workflows with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['workflow:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/workflows?id=wfw_SEIfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const workflows = result.body
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
+})
 
-  t.true(Array.isArray(workflows))
+test('list workflows with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['workflow:list:all'] })
+
+  const minDate = '2019-01-01T00:00:00.000Z'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/workflows?createdDate[gte]=${encodeURIComponent(minDate)}&active=true`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const checkResultsFn = (t, workflow) => {
+    t.true(workflow.active)
+    t.true(workflow.createdDate >= minDate)
+  }
+
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list workflows with custom namespace', async (t) => {
@@ -98,12 +134,14 @@ test('list workflows with custom namespace', async (t) => {
     readNamespaces: ['custom']
   })
 
-  const { body: workflows } = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/workflows')
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(Array.isArray(workflows))
+  checkCursorPaginatedListObject(t, obj)
+
+  const workflows = obj.results
 
   const hasAtLeastOneCustomNamespace = workflows.some(w => typeof w.platformData._custom !== 'undefined')
   t.true(hasAtLeastOneCustomNamespace)
@@ -175,7 +213,8 @@ test('creates several single-step Stelace workflows', async (t) => {
     t,
     permissions: [
       'workflow:create:all',
-      'workflow:read:all'
+      'workflow:read:all',
+      'workflowLog:list:all',
     ]
   })
   const workflowName = 'Single-step Workflow'
@@ -278,6 +317,13 @@ test('creates several single-step Stelace workflows', async (t) => {
     .get(`/workflows/${workflow1.id}?logs=`)
     .set(authorizationHeaders)
     .expect(200)
+
+  const { body: { results: workflowLogsAfterRun1 } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow1.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflow1AfterRun1.logs), getIds(workflowLogsAfterRun1))
 
   const workflow1AfterRun1ErrorLogs = workflow1AfterRun1.logs.filter(isErrorLog)
   const workflow1AfterRun1Actions = workflow1AfterRun1.logs.filter(isActionLog)
@@ -418,6 +464,13 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterRun2 } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow1.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflow1AfterRun2.logs), getIds(workflowLogsAfterRun2))
+
   const workflow1AfterRun2ErrorLogs = workflow1AfterRun2.logs.filter(isErrorLog)
   const workflowAfterRun2Notifications = workflow1AfterRun2.logs.filter(isNotificationLog)
   const workflow1AfterRun2Actions = workflow1AfterRun2.logs.filter(isActionLog)
@@ -514,7 +567,8 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
     t,
     permissions: [
       'workflow:create:all',
-      'workflow:read:all'
+      'workflow:read:all',
+      'workflowLog:list:all',
     ]
   })
   const apiVersion = '2019-05-20'
@@ -652,6 +706,13 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterDummy } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowAfterDummy.logs), getIds(workflowLogsAfterDummy))
+
   const afterDummyLogs = workflowAfterDummy.logs.filter(
     log => log.metadata.eventObjectId === dummyAssetId
   )
@@ -732,6 +793,13 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
     .get(`/workflows/${workflow.id}?logs=`)
     .set(authorizationHeaders)
     .expect(200)
+
+  const { body: { results: workflowLogsAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowAfterRun.logs), getIds(workflowLogsAfterRun))
 
   const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(isErrorLog)
   const workflowAfterRunActions = workflowAfterRun.logs.filter(isActionLog)
@@ -825,6 +893,7 @@ test('creates multi-step workflow triggered by custom events and calling externa
     permissions: [
       'workflow:create:all',
       'workflow:read:all',
+      'workflowLog:list:all',
       'event:create:all',
       'asset:read:all'
     ]
@@ -917,6 +986,13 @@ test('creates multi-step workflow triggered by custom events and calling externa
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflowCustomEvent.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowCustomEventAfterRun.logs), getIds(workflowLogsAfterRun))
+
   const workflowCustomEventAfterRunErrorLogs = workflowCustomEventAfterRun.logs.filter(isErrorLog)
   const workflowCustomEventAfterRunActions = workflowCustomEventAfterRun.logs.filter(isActionLog)
 
@@ -957,6 +1033,7 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
       'workflow:create:all',
       'workflow:edit:all',
       'workflow:read:all',
+      'workflowLog:list:all',
       'event:create:all',
       'asset:read:all'
     ]
@@ -1050,6 +1127,13 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsHandlingErrorsAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflowHandlingErrors.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowHandlingErrorsAfterRun.logs), getIds(workflowLogsHandlingErrorsAfterRun))
+
   const afterRunLogs = workflowHandlingErrorsAfterRun.logs
   const afterRunErrorLogs = afterRunLogs.filter(isErrorLog)
   const afterRunActions = afterRunLogs.filter(l => isActionLog(l) || isSkippedLog(l))
@@ -1122,6 +1206,13 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsNotHandlingErrorsAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflowHandlingErrors.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowNotHandlingErrorsAfterRun.logs), getIds(workflowLogsNotHandlingErrorsAfterRun))
+
   const notHandlingErrLogs = workflowNotHandlingErrorsAfterRun.logs.filter(
     l => l.runId !== lastAction.runId
   )
@@ -1147,6 +1238,7 @@ test('creates workflow and uses related objects', async (t) => {
     permissions: [
       'workflow:create:all',
       'workflow:read:all',
+      'workflowLog:list:all',
       'transaction:read:all',
       'transaction:edit:all',
       'transaction:config:all'
@@ -1202,6 +1294,13 @@ test('creates workflow and uses related objects', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsRelatedObjectsAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflowRelatedObjects.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowRelatedObjectsAfterRun.logs), getIds(workflowLogsRelatedObjectsAfterRun))
+
   const workflowRelatedObjectsAfterRunErrorLogs = workflowRelatedObjectsAfterRun.logs.filter(isErrorLog)
   const workflowRelatedObjectsAfterRunActions = workflowRelatedObjectsAfterRun.logs.filter(isActionLog)
 
@@ -1236,7 +1335,8 @@ test('accepts nested arrays of literals as endpoint payload parameters', async (
     t,
     permissions: [
       'workflow:read:all',
-      'workflow:create:all'
+      'workflow:create:all',
+      'workflowLog:list:all',
     ]
   })
   const workflowName = 'Workflow test array'
@@ -1304,6 +1404,13 @@ test('accepts nested arrays of literals as endpoint payload parameters', async (
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsTestArrayAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflowTestArray.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowTestArrayAfterRun.logs), getIds(workflowLogsTestArrayAfterRun))
+
   const workflowTestArrayAfterRunErrorLogs = workflowTestArrayAfterRun.logs.filter(isErrorLog)
   const workflowTestArrayAfterRunActions = workflowTestArrayAfterRun.logs.filter(isActionLog)
 
@@ -1334,7 +1441,8 @@ test('accepts nested object as endpoint payload parameters', async (t) => {
     t,
     permissions: [
       'workflow:read:all',
-      'workflow:create:all'
+      'workflow:create:all',
+      'workflowLog:list:all',
     ]
   })
   const workflowName = 'Workflow test nested object'
@@ -1395,6 +1503,13 @@ test('accepts nested object as endpoint payload parameters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsTestNestedObjectAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflowTestNestedObject.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowTestNestedObjectAfterRun.logs), getIds(workflowLogsTestNestedObjectAfterRun))
+
   const workflowTestNestedObjectAfterRunErrorLogs = workflowTestNestedObjectAfterRun.logs.filter(isErrorLog)
   const workflowTestNestedObjectAfterRunActions = workflowTestNestedObjectAfterRun.logs.filter(isActionLog)
 
@@ -1431,6 +1546,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
       'workflow:create:all',
       'workflow:edit:all',
       'workflow:read:all',
+      'workflowLog:list:all',
       'user:read:all',
       'user:edit:all'
     ],
@@ -1504,6 +1620,13 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterStepsErrors } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowAfterStepsErrors.logs), getIds(workflowLogsAfterStepsErrors))
+
   // Exclude any log due to workflow events from concurrent tests
   const afterStepsErrorsLogs = workflowAfterStepsErrors.logs.filter(
     log => log.metadata.eventObjectId === userId
@@ -1568,6 +1691,13 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsWithHandleErrorsEnabled } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowWithHandleErrorsEnabled.logs), getIds(workflowLogsWithHandleErrorsEnabled))
+
   // Step 2 is started but not executed since it has its own error
   t.is(workflowWithHandleErrorsEnabled.stats.nbActionsCompleted, 1)
 
@@ -1622,6 +1752,13 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterStep2Fix } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowAfterStep2Fix.logs), getIds(workflowLogsAfterStep2Fix))
+
   const afterStep2FixLogs = workflowAfterStep2Fix.logs.filter(
     log => log.metadata.eventObjectId === userId
   )
@@ -1674,6 +1811,13 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterStepsFixed } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowAfterStepsFixed.logs), getIds(workflowLogsAfterStepsFixed))
+
   const workflowAfterStepsFixedErrorLogs = workflowAfterStepsFixed.logs.filter(isErrorLog)
   const workflowAfterStepsFixedActions = workflowAfterStepsFixed.logs.filter(isActionLog)
   const AfterStepsFixedRunId1 = workflowAfterStepsFixedActions[0].runId
@@ -1692,7 +1836,8 @@ test('passes basic security checks', async (t) => {
     permissions: [
       'workflow:create:all',
       'workflow:edit:all',
-      'workflow:read:all'
+      'workflow:read:all',
+      'workflowLog:list:all',
     ]
   })
   const workflowName = 'Evil Workflow'
@@ -1761,6 +1906,13 @@ test('passes basic security checks', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: workflowLogsAfterRun } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowAfterRun.logs), getIds(workflowLogsAfterRun))
+
   const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(isErrorLog)
   const workflowAfterRunActions = workflowAfterRun.logs.filter(isActionLog)
   const workflowAfterRunNotifications = workflowAfterRun.logs.filter(isNotificationLog)
@@ -1819,6 +1971,13 @@ test('passes basic security checks', async (t) => {
     .get(`/workflows/${workflow.id}?logs=`)
     .set(authorizationHeaders)
     .expect(200)
+
+  const { body: { results: workflowLogsWithProcess } } = await request(t.context.serverUrl)
+    .get(`/workflow-logs?workflowId=${workflow.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(workflowWithProcess.logs), getIds(workflowLogsWithProcess))
 
   const workflowWithProcessErrorLogs = workflowWithProcess.logs.filter(isErrorLog)
   workflowLastError = workflowWithProcessErrorLogs[0]
@@ -2034,4 +2193,42 @@ test('fails to update a workflow with an invalid API version', async (t) => {
     .expect(400)
 
   t.pass()
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: list workflows', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['workflow:list:all']
+  })
+
+  const { body: workflows } = await request(t.context.serverUrl)
+    .get('/workflows')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(workflows))
+})
+
+test('2019-05-20: list workflows with custom namespace', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['workflow:list:all'],
+    readNamespaces: ['custom']
+  })
+
+  const { body: workflows } = await request(t.context.serverUrl)
+    .get('/workflows')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(workflows))
+
+  const hasAtLeastOneCustomNamespace = workflows.some(w => typeof w.platformData._custom !== 'undefined')
+  t.true(hasAtLeastOneCustomNamespace)
 })

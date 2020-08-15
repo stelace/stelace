@@ -1,10 +1,20 @@
-const { Joi, objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
 const { apiVersions } = require('../util')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
 
 const computedSchema = Joi.object().max(20)
 const contextSchema = Joi.array().unique().items(Joi.string()).single()
 const descriptionSchema = Joi.string().max(2048).allow('', null)
 const booleanExpressionSchema = Joi.string().max(1024).allow('', null)
+
+const workflowOrderByFields = [
+  'createdDate',
+  'updatedDate',
+]
+
+const workflowLogOrderByFields = [
+  'createdDate',
+]
 
 const runSchema = Joi.array().items(Joi.object({
   name: Joi.string().max(255),
@@ -24,6 +34,60 @@ const runSchema = Joi.array().items(Joi.object({
 })).single().max(10)
 
 const schemas = {}
+
+// ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = {
+  query: Joi.object()
+    .keys({
+      // order
+      orderBy: Joi.string().valid(...workflowOrderByFields).default('createdDate'),
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+
+      // cursor pagination
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+      nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+
+      // filters
+      id: Joi.array().unique().items(Joi.string()).single(),
+      createdDate: getRangeFilter(Joi.string().isoDate()),
+      updatedDate: getRangeFilter(Joi.string().isoDate()),
+      event: Joi.array().unique().items(Joi.string()).single(),
+      active: Joi.boolean(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+}
+
+schemas['2020-08-10'].listLogs = {
+  query: Joi.object()
+    .keys({
+      // order
+      orderBy: Joi.string().valid(...workflowLogOrderByFields).default('createdDate'),
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+
+      // cursor pagination
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+      nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+
+      // filters
+      id: Joi.array().unique().items(Joi.string()).single(),
+      createdDate: getRangeFilter(Joi.string().isoDate()),
+      workflowId: Joi.array().unique().items(Joi.string()).single(),
+      eventId: Joi.array().unique().items(Joi.string()).single(),
+      runId: Joi.array().unique().items(Joi.string()).single(),
+      type: Joi.array().unique().items(Joi.string()).single(),
+      statusCode: Joi.array().unique().items(Joi.string()).single(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+}
+
+schemas['2020-08-10'].readLog = {
+  params: objectIdParamsSchema
+}
 
 // ////////// //
 // 2019-05-20 //
@@ -58,6 +122,21 @@ schemas['2019-05-20'].remove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'workflow.list',
+      schema: schemas['2020-08-10'].list
+    },
+    {
+      target: 'workflow.listLogs',
+      schema: schemas['2020-08-10'].listLogs
+    },
+    {
+      target: 'workflow.readLog',
+      schema: schemas['2020-08-10'].readLog
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'workflow.list',

@@ -17,12 +17,31 @@ function init (server, { middlewares, helpers } = {}) {
   }, checkPermissions([
     'webhook:list:all'
   ]), wrapAction(async (req, res) => {
-    const params = populateRequesterParams(req)({
+    const fields = [
+      'orderBy',
+      'order',
+      'nbResultsPerPage',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
+
+      'id',
+      'createdDate',
+      'updatedDate',
+      'event',
+      'active',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
       type: 'list'
     })
 
-    const result = await requester.send(params)
-    return result
+    params = Object.assign({}, params, payload)
+
+    return requester.send(params)
   }))
 
   server.get({
@@ -120,6 +139,59 @@ function init (server, { middlewares, helpers } = {}) {
 
     const result = await requester.send(params)
     return result
+  }))
+
+  // /////////// //
+  // WEBHOOK LOG //
+  // /////////// //
+
+  server.get({
+    name: 'webhook.listLogs',
+    path: '/webhook-logs'
+  }, checkPermissions([
+    'webhookLog:list:all'
+  ]), wrapAction(async (req, res) => {
+    const fields = [
+      'orderBy',
+      'order',
+      'nbResultsPerPage',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
+
+      'id',
+      'createdDate',
+      'webhookId',
+      'eventId',
+      'status',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
+      type: 'listLogs'
+    })
+
+    params = Object.assign({}, params, payload)
+
+    return requester.send(params)
+  }))
+
+  server.get({
+    name: 'webhook.readLog',
+    path: '/webhook-logs/:id'
+  }, checkPermissions([
+    'webhookLog:read:all'
+  ]), wrapAction(async (req, res) => {
+    const { id } = req.params
+
+    const params = populateRequesterParams(req)({
+      type: 'readLog',
+      webhookLogId: id
+    })
+
+    return requester.send(params)
   }))
 }
 

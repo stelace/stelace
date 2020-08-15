@@ -264,27 +264,27 @@ workflows:
   build-test-deploy:
     jobs:
       - build:
-          context: stelace-server
+          context: stelace-pagination
           filters:
             branches:
               ignore: &dlc-branches
                 - master
                 - dev
       - build-with-dlc:
-          context: stelace-server
+          context: stelace-pagination
           filters:
             branches:
               only: *dlc-branches
       - test:
-          context: stelace-server
+          context: stelace-pagination
           requires:
             - build
       - test-after-dlc:
-          context: stelace-server
+          context: stelace-pagination
           requires:
             - build-with-dlc
       - deploy:
-          context: stelace-server
+          context: stelace-pagination
           requires:
             - test-after-dlc
           filters:

@@ -12,10 +12,19 @@ let userApp
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { testEventDelay } = require('../../util')
+const {
+  testEventDelay,
+
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
 const { apiVersions } = require('../../../src/versions')
 
 let userWebhookUrl
+
+const getIds = (elements) => elements.map(e => e.id)
+
+/* eslint-disable no-template-curly-in-string */
 
 test.before(async (t) => {
   await before({ name: 'webhook' })(t)
@@ -26,10 +35,10 @@ test.before(async (t) => {
     res.status(500).json({ message: 'Webhook target server error' })
   })
   userServer.post('*', function (req, res) {
-    const workflowName = req.path.replace('/', '')
+    const webhookName = req.path.replace('/', '')
 
-    if (!Array.isArray(userServerCalls[workflowName])) userServerCalls[workflowName] = []
-    userServerCalls[workflowName].unshift(req.body)
+    if (!Array.isArray(userServerCalls[webhookName])) userServerCalls[webhookName] = []
+    userServerCalls[webhookName].unshift(req.body)
 
     res.json({ ok: true })
   })
@@ -53,15 +62,33 @@ test.after(async (t) => {
   await userApp.close()
 })
 
-test('list webhooks', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list webhooks', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['webhook:list:all'] })
 
-  const { body: webhooks } = await request(t.context.serverUrl)
-    .get('/webhooks')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/webhooks',
+    authorizationHeaders,
+  })
+})
+
+test('list webhooks with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['webhook:list:all'] })
+
+  const minDate = '2019-01-01T00:00:00.000Z'
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get(`/webhooks?createdDate[gte]=${encodeURIComponent(minDate)}&active=true`)
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(Array.isArray(webhooks))
+  const checkResultsFn = (t, webhook) => {
+    t.true(webhook.active)
+    t.true(webhook.createdDate >= minDate)
+  }
+
+  checkCursorPaginatedListObject(t, obj, { checkResultsFn })
 })
 
 test('list webhooks with custom namespace', async (t) => {
@@ -71,12 +98,14 @@ test('list webhooks with custom namespace', async (t) => {
     readNamespaces: ['custom']
   })
 
-  const { body: webhooks } = await request(t.context.serverUrl)
+  const { body: obj } = await request(t.context.serverUrl)
     .get('/webhooks')
     .set(authorizationHeaders)
     .expect(200)
 
-  t.true(Array.isArray(webhooks))
+  checkCursorPaginatedListObject(t, obj)
+
+  const webhooks = obj.results
 
   let hasAtLeastOneCustomNamespace = false
   webhooks.forEach(webhook => {
@@ -104,6 +133,7 @@ test('creates a webhook', async (t) => {
     permissions: [
       'webhook:create:all',
       'webhook:read:all',
+      'webhookLog:list:all',
       'asset:create:all',
       'platformData:edit:all'
     ]
@@ -148,6 +178,13 @@ test('creates a webhook', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: webhookLogsAfterCall } } = await request(t.context.serverUrl)
+    .get(`/webhook-logs?webhookId=${webhook.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(webhookAfterCall.logs), getIds(webhookLogsAfterCall))
+
   t.is(webhookAfterCall.logs.length, 1)
   t.is(webhookAfterCall.logs[0].status, 'success')
   t.is(webhookAfterCall.logs[0].metadata.eventObjectId, asset.id)
@@ -159,6 +196,7 @@ test('creates a webhook with specified API version', async (t) => {
     permissions: [
       'webhook:create:all',
       'webhook:read:all',
+      'webhookLog:list:all',
       'assetType:create:all',
       'platformData:edit:all'
     ]
@@ -206,6 +244,13 @@ test('creates a webhook with specified API version', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: webhookLogsAfterCall } } = await request(t.context.serverUrl)
+    .get(`/webhook-logs?webhookId=${webhook.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(webhookAfterCall.logs), getIds(webhookLogsAfterCall))
+
   t.is(webhookAfterCall.logs.length, 1)
   t.is(webhookAfterCall.logs[0].status, 'success')
   t.is(webhookAfterCall.logs[0].metadata.eventObjectId, assetType.id)
@@ -217,6 +262,7 @@ test('creates a webhook with a custom event type', async (t) => {
     permissions: [
       'webhook:create:all',
       'webhook:read:all',
+      'webhookLog:list:all',
       'event:create:all'
     ]
   })
@@ -252,6 +298,13 @@ test('creates a webhook with a custom event type', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const { body: { results: webhookLogsAfterCall } } = await request(t.context.serverUrl)
+    .get(`/webhook-logs?webhookId=${webhook.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(webhookAfterCall.logs), getIds(webhookLogsAfterCall))
+
   t.is(webhookAfterCall.logs.length, 1)
   t.is(webhookAfterCall.logs[0].status, 'success')
 })
@@ -262,6 +315,7 @@ test('creates a webhook with targetUrl server returning errors', async (t) => {
     permissions: [
       'webhook:create:all',
       'webhook:read:all',
+      'webhookLog:list:all',
       'category:create:all'
     ]
   })
@@ -290,6 +344,13 @@ test('creates a webhook with targetUrl server returning errors', async (t) => {
     .get(`/webhooks/${webhook.id}?logs=`)
     .set(authorizationHeaders)
     .expect(200)
+
+  const { body: { results: webhookLogsAfterCall } } = await request(t.context.serverUrl)
+    .get(`/webhook-logs?webhookId=${webhook.id}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.deepEqual(getIds(webhookAfterCall.logs), getIds(webhookLogsAfterCall))
 
   t.is(webhookAfterCall.logs.length, 1)
   t.is(webhookAfterCall.logs[0].status, 'error')
@@ -489,4 +550,46 @@ test('fails to update a webhook with an invalid API version', async (t) => {
     .expect(400)
 
   t.pass()
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: list webhooks', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['webhook:list:all']
+  })
+
+  const { body: webhooks } = await request(t.context.serverUrl)
+    .get('/webhooks')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(webhooks))
+})
+
+test('2019-05-20: list webhooks with custom namespace', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['webhook:list:all'],
+    readNamespaces: ['custom']
+  })
+
+  const { body: webhooks } = await request(t.context.serverUrl)
+    .get('/webhooks')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  t.true(Array.isArray(webhooks))
+
+  let hasAtLeastOneCustomNamespace = false
+  webhooks.forEach(webhook => {
+    hasAtLeastOneCustomNamespace = typeof webhook.platformData._custom !== 'undefined'
+  })
+
+  t.true(hasAtLeastOneCustomNamespace)
 })
