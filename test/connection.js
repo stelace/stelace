@@ -1,11 +1,44 @@
-function getPostgresqlConnection ({ platformId, env }) {
+const fs = require('fs')
+const path = require('path')
+
+let pgSSLServerCertificate
+let pgSSLCACertificate
+
+function getPgSSLServerCertificate () {
+  if (pgSSLServerCertificate) return pgSSLServerCertificate
+
+  pgSSLServerCertificate = fs.readFileSync(path.join(__dirname, 'ssl/server.crt'), 'utf8')
+  return pgSSLServerCertificate
+}
+
+function getPgSSLCACertificate () {
+  if (pgSSLCACertificate) return pgSSLCACertificate
+
+  pgSSLCACertificate = fs.readFileSync(path.join(__dirname, 'ssl/rootCA.crt'), 'utf8')
+  return pgSSLCACertificate
+}
+
+function getPostgresqlConnection ({
+  platformId,
+  env,
+
+  ssl,
+  sslcert,
+  sslkey,
+  sslca,
+}) {
   return {
     host: process.env.POSTGRES_HOST,
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
     port: process.env.POSTGRES_PORT,
-    schema: `s${platformId}_${env}`
+    schema: `s${platformId}_${env}`,
+
+    ssl,
+    sslcert,
+    sslkey,
+    sslca,
   }
 }
 
@@ -26,7 +59,10 @@ function getAuthenticationSettings () {
 }
 
 module.exports = {
+  getPgSSLServerCertificate,
+  getPgSSLCACertificate,
+
   getPostgresqlConnection,
   getElasticsearchConnection,
-  getAuthenticationSettings
+  getAuthenticationSettings,
 }
