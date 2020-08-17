@@ -190,6 +190,42 @@ function init (server, { middlewares, helpers } = {}) {
   }))
 
   server.get({
+    name: 'workflow.getLogsHistory',
+    path: '/workflow-logs/history'
+  }, checkPermissions([
+    'workflowLog:stats:all' // only system can request this endpoint for now
+  ]), wrapAction(async (req, res) => {
+    const fields = [
+      'orderBy',
+      'order',
+      'nbResultsPerPage',
+      'startingAfter',
+      'endingBefore',
+
+      'groupBy',
+
+      'id',
+      // 'type' // parsing manually below to avoid conflict with côte requester 'type'
+      'createdDate',
+      'workflowId',
+      'eventId',
+      'runId',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
+      type: 'getLogsHistory'
+    })
+
+    params = Object.assign({}, params, payload)
+
+    if (req.query) params.logType = req.query.type
+
+    return requester.send(params)
+  }))
+
+  server.get({
     name: 'workflow.readLog',
     path: '/workflow-logs/:id'
   }, checkPermissions([
