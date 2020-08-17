@@ -2279,10 +2279,10 @@ elastic-apm-http-client@^9.4.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.6.1:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.6.1.tgz#bce1bca37ff92db6c36df20c7fe6c51ea865c8e6"
-  integrity sha512-4BdcLtlGm1oJtyKO0EVudVp8zyyf+ueIamdIaYYPJoImMrHGi5MhA/xrYrDwxHc3O02xdtII6YPR5XOblkU+Ng==
+elastic-apm-node@~3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.7.0.tgz#168f0cfce8d93b5ebc82f387b158fa0924de9d7a"
+  integrity sha512-ZH3Xru6eLbUyfuNe+EnTOcKlm0B+MKduu1lCXXwEM8CDfDceW1Ks9FtmTaTeZHZW4nMacieGZMpxETrceoVk/A==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
