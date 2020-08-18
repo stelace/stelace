@@ -18,12 +18,31 @@ function init (server, { middlewares, helpers } = {}) {
   }, cache(), checkPermissions([
     'assetType:list:all'
   ]), wrapAction(async (req, res) => {
-    const params = populateRequesterParams(req)({
+    const fields = [
+      'orderBy',
+      'order',
+      'nbResultsPerPage',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
+
+      'id',
+      'createdDate',
+      'updatedDate',
+      'isDefault',
+      'active',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
       type: 'list'
     })
 
-    const result = await requester.send(params)
-    return result
+    params = Object.assign({}, params, payload)
+
+    return requester.send(params)
   }))
 
   server.get({

@@ -1,6 +1,37 @@
-const { Joi, objectIdParamsSchema } = require('../../util/validation')
+const { Joi, objectIdParamsSchema, getRangeFilter } = require('../../util/validation')
+const { DEFAULT_NB_RESULTS_PER_PAGE } = require('../../util/pagination')
+
+const orderByFields = [
+  'createdDate',
+  'updatedDate',
+]
 
 const schemas = {}
+
+// ////////// //
+// 2020-08-10 //
+// ////////// //
+schemas['2020-08-10'] = {}
+schemas['2020-08-10'].list = {
+  query: Joi.object()
+    .keys({
+      // order
+      orderBy: Joi.string().valid(...orderByFields).default('createdDate'),
+      order: Joi.string().valid('asc', 'desc').default('desc'),
+
+      // cursor pagination
+      nbResultsPerPage: Joi.number().integer().min(1).max(100).default(DEFAULT_NB_RESULTS_PER_PAGE),
+      startingAfter: Joi.string(),
+      endingBefore: Joi.string(),
+
+      // filters
+      id: Joi.array().unique().items(Joi.string()).single(),
+      createdDate: getRangeFilter(Joi.string().isoDate()),
+      updatedDate: getRangeFilter(Joi.string().isoDate()),
+      parentId: Joi.array().unique().items(Joi.string()).single(),
+    })
+    .oxor('startingAfter', 'endingBefore')
+}
 
 // ////////// //
 // 2019-05-20 //
@@ -28,6 +59,13 @@ schemas['2019-05-20'].remove = {
 }
 
 const validationVersions = {
+  '2020-08-10': [
+    {
+      target: 'category.list',
+      schema: schemas['2020-08-10'].list
+    },
+  ],
+
   '2019-05-20': [
     {
       target: 'category.list',

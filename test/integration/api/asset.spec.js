@@ -270,7 +270,7 @@ test.serial('creating an asset if there is no asset type will create one', async
     ]
   })
 
-  const { body: assetTypes } = await request(t.context.serverUrl)
+  const { body: { results: assetTypes } } = await request(t.context.serverUrl)
     .get('/asset-types')
     .set(authorizationHeaders)
     .expect(200)

@@ -5,7 +5,13 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
+const { computeDate } = require('../../../src/util/time')
 
 test.before(async t => {
   await before({ name: 'assetType' })(t)
@@ -160,17 +166,53 @@ test.serial('changes the default asset type', async (t) => {
   t.is(afterUpdateAssetType1.isDefault, false)
 })
 
-test('list asset types', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list asset types', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['assetType:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/asset-types')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/asset-types',
+    authorizationHeaders
+  })
+})
+
+test('list asset types with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/asset-types?id=typ_RFpfQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const assetTypes = result.body
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
+})
 
-  t.true(Array.isArray(assetTypes))
+test('list asset types with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+
+  const now = new Date().toISOString()
+  const minCreatedDate = computeDate(now, '-10d')
+
+  const { body: obj1 } = await request(t.context.serverUrl)
+    .get('/asset-types?active=true')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  obj1.results.forEach(assetType => {
+    t.true(assetType.active)
+  })
+
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get(`/asset-types?createdDate[gte]=${minCreatedDate}&isDefault=false`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  obj2.results.forEach(assetType => {
+    t.true(assetType.createdDate >= minCreatedDate)
+    t.false(assetType.isDefault)
+  })
 })
 
 test('finds an asset type', async (t) => {
@@ -764,3 +806,20 @@ test.serial('generates asset_type__* events', async (t) => {
 // //////// //
 // VERSIONS //
 // //////// //
+
+test('2019-05-20: list asset types', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['assetType:list:all']
+  })
+
+  const result = await request(t.context.serverUrl)
+    .get('/asset-types')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const assetTypes = result.body
+
+  t.true(Array.isArray(assetTypes))
+})

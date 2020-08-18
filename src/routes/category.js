@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 let requester
 
 function init (server, { middlewares, helpers } = {}) {
@@ -16,12 +18,30 @@ function init (server, { middlewares, helpers } = {}) {
   }, checkPermissions([
     'category:list:all'
   ]), cache(), wrapAction(async (req, res) => {
-    const params = populateRequesterParams(req)({
+    const fields = [
+      'orderBy',
+      'order',
+      'nbResultsPerPage',
+
+      // cursor pagination
+      'startingAfter',
+      'endingBefore',
+
+      'id',
+      'createdDate',
+      'updatedDate',
+      'parentId',
+    ]
+
+    const payload = _.pick(req.query, fields)
+
+    let params = populateRequesterParams(req)({
       type: 'list'
     })
 
-    const result = await requester.send(params)
-    return result
+    params = Object.assign({}, params, payload)
+
+    return requester.send(params)
   }))
 
   server.get({

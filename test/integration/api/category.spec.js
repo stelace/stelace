@@ -5,7 +5,13 @@ const request = require('supertest')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessToken, getAccessTokenHeaders, getSystemKey } = require('../../auth')
-const { getObjectEvent, testEventMetadata } = require('../../util')
+const {
+  getObjectEvent,
+  testEventMetadata,
+  checkCursorPaginationScenario,
+  checkCursorPaginatedListObject,
+} = require('../../util')
+const { computeDate } = require('../../../src/util/time')
 
 test.before(async (t) => {
   await before({ name: 'category' })(t)
@@ -34,7 +40,7 @@ test('gets an error if missing publishable key', async (t) => {
 test('gets objects with livemode attribute', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['category:list:all'] })
 
-  const { body: testCategories } = await request(t.context.serverUrl)
+  const { body: { results: testCategories } } = await request(t.context.serverUrl)
     .get('/categories')
     .set(authorizationHeaders)
     .expect(200)
@@ -43,7 +49,7 @@ test('gets objects with livemode attribute', async (t) => {
     t.false(cat.livemode)
   })
 
-  const { body: liveCategories } = await request(t.context.serverUrl)
+  const { body: { results: liveCategories } } = await request(t.context.serverUrl)
     .get('/categories')
     .set(Object.assign({}, authorizationHeaders, {
       'x-stelace-env': 'live'
@@ -55,17 +61,54 @@ test('gets objects with livemode attribute', async (t) => {
   })
 })
 
-test('list asset categories', async (t) => {
+// need serial to ensure there is no insertion/deletion during pagination scenario
+test.serial('list categories', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['category:list:all'] })
 
-  const result = await request(t.context.serverUrl)
-    .get('/categories')
+  await checkCursorPaginationScenario({
+    t,
+    endpointUrl: '/categories',
+    authorizationHeaders
+  })
+})
+
+test('list categories with id filter', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+
+  const { body: obj } = await request(t.context.serverUrl)
+    .get('/categories?id=ctgy_ejQQps1I3a1gJYz2I3a')
     .set(authorizationHeaders)
     .expect(200)
 
-  const categories = result.body
+  checkCursorPaginatedListObject(t, obj)
+  t.is(obj.results.length, 1)
+})
 
-  t.true(Array.isArray(categories))
+test('list categories with advanced filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+
+  const now = new Date().toISOString()
+  const minCreatedDate = computeDate(now, '-10d')
+
+  const { body: obj1 } = await request(t.context.serverUrl)
+    .get(`/categories?createdDate[gte]=${minCreatedDate}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  obj1.results.forEach(category => {
+    t.true(category.createdDate >= minCreatedDate)
+  })
+
+  const parentId = 'ctgy_WW5Qps1I3a1gJYz2I3a'
+
+  const { body: obj2 } = await request(t.context.serverUrl)
+    .get(`/categories?parentId=${parentId}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  obj2.results.forEach(category => {
+    t.true(category.parentId >= parentId)
+  })
 })
 
 test('finds an category', async (t) => {
@@ -695,4 +738,53 @@ test.serial('generates category__* events', async (t) => {
     objectId: categoryUpdated.id
   })
   await testEventMetadata({ event: categoryDeletedEvent, object: categoryUpdated, t })
+})
+
+// //////// //
+// VERSIONS //
+// //////// //
+
+test('2019-05-20: gets objects with livemode attribute', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['category:list:all']
+  })
+
+  const { body: testCategories } = await request(t.context.serverUrl)
+    .get('/categories')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  testCategories.forEach(cat => {
+    t.false(cat.livemode)
+  })
+
+  const { body: liveCategories } = await request(t.context.serverUrl)
+    .get('/categories')
+    .set(Object.assign({}, authorizationHeaders, {
+      'x-stelace-env': 'live'
+    }))
+    .expect(200)
+
+  liveCategories.forEach(cat => {
+    t.true(cat.livemode)
+  })
+})
+
+test('2019-05-20: list asset categories', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    apiVersion: '2019-05-20',
+    t,
+    permissions: ['category:list:all']
+  })
+
+  const result = await request(t.context.serverUrl)
+    .get('/categories')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const categories = result.body
+
+  t.true(Array.isArray(categories))
 })

@@ -33,18 +33,60 @@ function start ({ communication, isSystem }) {
     const env = req.env
     const { Role } = await getModels({ platformId, env })
 
+    const {
+      orderBy,
+      order,
+
+      nbResultsPerPage,
+
+      // cursor pagination
+      startingAfter,
+      endingBefore,
+
+      id,
+      createdDate,
+      updatedDate,
+    } = req
+
     const queryBuilder = Role.query()
 
-    const roles = await performListQuery({
+    const paginationMeta = await performListQuery({
       queryBuilder,
-      paginationActive: false,
+      filters: {
+        ids: {
+          dbField: 'id',
+          value: id,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        createdDate: {
+          dbField: 'createdDate',
+          value: createdDate,
+          query: 'range'
+        },
+        updatedDate: {
+          dbField: 'updatedDate',
+          value: updatedDate,
+          query: 'range'
+        },
+      },
+      paginationActive: true,
+      paginationConfig: {
+        nbResultsPerPage,
+
+        // cursor pagination
+        startingAfter,
+        endingBefore,
+      },
       orderConfig: {
-        orderBy: 'createdDate',
-        order: 'asc'
-      }
+        orderBy,
+        order
+      },
+      useOffsetPagination: false,
     })
 
-    return Role.exposeAll(roles, { req })
+    paginationMeta.results = Role.exposeAll(paginationMeta.results, { req })
+    return paginationMeta
   })
 
   responder.on('read', async (req) => {
