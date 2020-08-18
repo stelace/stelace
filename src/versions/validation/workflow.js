@@ -102,7 +102,6 @@ schemas['2020-08-10'].listLogs = {
       eventId: getArrayFilter(Joi.string()),
       runId: getArrayFilter(Joi.string()),
       type: getArrayFilter(Joi.string()),
-      statusCode: getArrayFilter(Joi.string()),
     })
     .oxor('startingAfter', 'endingBefore')
 }
