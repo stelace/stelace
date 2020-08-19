@@ -62,7 +62,7 @@ schemas['2020-08-10'].getHistory = {
 
     // filters
     id: Joi.array().unique().items(Joi.string()).single(),
-    createdDate: getRangeFilter(Joi.string().isoDate(), true),
+    createdDate: getRangeFilter(Joi.string().isoDate()),
     type: Joi.array().unique().items(Joi.string()).single(),
     objectType: Joi.array().unique().items(Joi.string()).single(),
     objectId: Joi.array().unique().items(Joi.string()).single(),

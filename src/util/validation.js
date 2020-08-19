@@ -98,7 +98,7 @@ const objectIdParamsSchema = customJoi.object().keys({
   id: customJoi.string().required()
 }).required()
 
-function getRangeFilter (joiType, forbidSameBoundaryType = false) {
+function getRangeFilter (joiType) {
   const rangeSchema = customJoi.object().pattern(
     customJoi.string().valid('lt', 'lte', 'gt', 'gte'),
     joiType
@@ -106,11 +106,9 @@ function getRangeFilter (joiType, forbidSameBoundaryType = false) {
 
   return customJoi.alternatives().try(
     joiType,
-    forbidSameBoundaryType
-      ? rangeSchema
-        .oxor('lt', 'lte')
-        .oxor('gt', 'gte')
-      : rangeSchema
+    rangeSchema
+      .oxor('lt', 'lte')
+      .oxor('gt', 'gte')
   )
 }
 
