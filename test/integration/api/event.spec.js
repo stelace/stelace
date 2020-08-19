@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const test = require('ava')
 const request = require('supertest')
+const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
@@ -14,7 +15,11 @@ const {
   checkCursorPaginatedHistoryObject,
   checkCursorPaginationScenario,
   checkCursorPaginatedListObject,
+
+  checkFilters,
 } = require('../../util')
+
+const { truncateDate } = require('../../../src/util/time')
 
 test.before(async t => {
   await before({ name: 'event' })(t)
@@ -149,6 +154,90 @@ test('get events history with date filter', async (t) => {
     obj,
     groupBy,
     results: events
+  })
+})
+
+// use serial because no changes must be made during the check
+test.serial('check history filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: [
+      'event:stats:all',
+      'event:list:all',
+    ]
+  })
+
+  const { body: { results } } = await request(t.context.serverUrl)
+    .get('/events?nbResultsPerPage=100')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const customExactValueCheck = _.curry((prop, obj, value) => {
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    filteredResults = filteredResults.filter(r => r[prop] === value)
+    return filteredResults.length === obj.count
+  })
+
+  const customArrayValuesCheck = _.curry((prop, obj, values) => {
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    filteredResults = filteredResults.filter(r => values.includes(r[prop]))
+    return filteredResults.length === obj.count
+  })
+
+  const customRangeValuesCheck = _.curry((prop, obj, rangeValues) => {
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    filteredResults = filteredResults.filter(r => rangeValues.gte <= r[prop] && r[prop] <= rangeValues.lte)
+    return filteredResults.length === obj.count
+  })
+
+  await checkFilters({
+    t,
+    endpointUrl: '/events/history?groupBy=day',
+    fetchEndpointUrl: '/events',
+    authorizationHeaders,
+    checkPaginationObject: checkCursorPaginatedListObject,
+
+    filters: [
+      {
+        prop: 'id',
+        isArrayFilter: true,
+        customCheck: customArrayValuesCheck('id'),
+      },
+      {
+        prop: 'createdDate',
+        isRangeFilter: true,
+        customCheck: customRangeValuesCheck('createdDate'),
+
+        // the function will check a single value range, which will return no results
+        // triggering an error if this boolean isn't true
+        noResultsExistenceCheck: true,
+      },
+      {
+        prop: 'type',
+        isArrayFilter: true,
+        customCheck: customArrayValuesCheck('type'),
+      },
+      {
+        prop: 'objectType',
+        isArrayFilter: true,
+        customCheck: customArrayValuesCheck('objectType'),
+      },
+      {
+        prop: 'objectId',
+        isArrayFilter: true,
+        customCheck: customArrayValuesCheck('objectId'),
+      },
+      {
+        prop: 'emitter',
+        customTestValues: ['core', 'custom', 'task'],
+        customCheck: customExactValueCheck('emitter'),
+      },
+      {
+        prop: 'emitterId',
+        isArrayFilter: true,
+        customCheck: customArrayValuesCheck('emitterId'),
+      },
+    ],
   })
 })
 
@@ -922,6 +1011,50 @@ test('list events with metadata object filters', async (t) => {
 
   t.is(obj8.results.length, 3)
   obj8.results.forEach(checkAssetEvent)
+})
+
+// use serial because no changes must be made during the check
+test.serial('check list filters', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['event:list:all'] })
+
+  await checkFilters({
+    t,
+    endpointUrl: '/events',
+    authorizationHeaders,
+    checkPaginationObject: checkCursorPaginatedListObject,
+
+    filters: [
+      {
+        prop: 'id',
+        isArrayFilter: true,
+      },
+      {
+        prop: 'createdDate',
+        isRangeFilter: true,
+      },
+      {
+        prop: 'type',
+        isArrayFilter: true,
+      },
+      {
+        prop: 'objectType',
+        isArrayFilter: true,
+      },
+      {
+        prop: 'objectId',
+        isArrayFilter: true,
+      },
+      {
+        prop: 'emitter',
+        customTestValues: ['core', 'custom', 'task'],
+      },
+      {
+        prop: 'emitterId',
+        isArrayFilter: true,
+      },
+      // `object` and `metadata` are tested in other tests
+    ],
+  })
 })
 
 test('finds an event', async (t) => {

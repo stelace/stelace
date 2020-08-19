@@ -30,6 +30,8 @@ module.exports = {
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
   checkOffsetPaginatedStatsObject,
+
+  checkFilters,
 }
 
 /**
@@ -512,4 +514,262 @@ function checkCursorPaginatedHistoryObject ({
       additionalResultCheckFn(result)
     }
   })
+}
+
+/**
+ * @param {Object}   params
+ * @param {Object}   params.t - AVA test object
+ * @param {Object}   params.authorizationHeaders
+ * @param {String}   params.endpointUrl - tested endpoint
+ * @param {String}   [params.fetchEndpointUrl] - if not specified, fallback to endpointUrl
+ *   is the endpoint to hit to auto-generate test values
+ *   (useful to specify it for stats and history endpoints)
+ * @param {Function} [params.checkPaginationObject(t, obj)]
+ * @param {Object[]} params.filters
+ * @param {String}   params.filters[i].prop
+ * @param {Function} [params.filters[i].customGetValue(obj)]
+ *   custom getter to value with prop (by default obj[prop])
+ * @param {Function} [params.filters[i].customCheck(obj, value)]
+ *   if specified, will perform a custom check on that property
+ * @param {Boolean}  [params.filters[i].isArrayFilter = false]
+ * @param {Boolean}  [params.filters[i].isRangeFilter = false]
+ * @param {Object[]} [params.filters[i].customTestValues] - if specified, will only use those values
+ *   and test each one of those values
+ *   otherwise, will perform a fetch of objects and test with fixtures values
+ * @param {Boolean}  [params.filters[i].noResultsExistenceCheck = false]
+ *   by default, will check if there are results while it should have (based on auto-fetched values)
+ */
+async function checkFilters ({
+  t,
+  authorizationHeaders,
+  endpointUrl,
+  fetchEndpointUrl,
+  checkPaginationObject,
+  filters,
+}) {
+  const getEndpoint = (endpointUrl, queryParams) => {
+    if (endpointUrl.includes('?')) return `${endpointUrl}&${queryParams}`
+    else return `${endpointUrl}?${queryParams}`
+  }
+
+  const getRandomValue = (values) => _.first(_.shuffle(values))
+
+  const sortValues = (values) => {
+    return values.slice(0).sort((a, b) => {
+      if (a < b) return -1
+      else if (a > b) return 1
+      else return 0
+    })
+  }
+
+  // prop=value
+  const getExactValueFilter = (prop, exactValue) => `${prop}=${exactValue}`
+
+  // prop[]=value1&prop[]=value2
+  const getArrayValuesFilter = (prop, values) => values.map(v => `${prop}[]=${v}`).join('&')
+
+  // prop=value1,value2
+  const getArrayCommaSeparatedValuesFilter = (prop, values) => `${prop}=${values.join(',')}`
+
+  // prop[gte]=min&prop[lte]=max
+  const getRangeFilter = (prop, range) => `${prop}[gte]=${range.gte}&${prop}[lte]=${range.lte}`
+
+  const addCheckObjFunctions = (filter) => {
+    const {
+      prop,
+      customGetValue,
+      isArrayFilter,
+      isRangeFilter,
+      customCheck
+    } = filter
+
+    const getValue = (obj) => _.isFunction(customGetValue) ? customGetValue(obj) : obj[prop]
+    filter.getValue = getValue
+
+    filter.getExactValueCheckObj = _.curry((exactValue, obj) => {
+      return _.isFunction(customCheck)
+        ? customCheck(obj, exactValue)
+        : getValue(obj) === exactValue
+    })
+
+    if (isArrayFilter) {
+      filter.getArrayValuesCheckObj = _.curry((values, obj) => {
+        return _.isFunction(customCheck)
+          ? customCheck(obj, values)
+          : values.includes(getValue(obj))
+      })
+    } else if (isRangeFilter) {
+      filter.getRangeValuesCheckObj = _.curry((rangeValues, obj) => {
+        return _.isFunction(customCheck)
+          ? customCheck(obj, rangeValues)
+          : rangeValues.gte <= getValue(obj) && getValue(obj) <= rangeValues.lte
+      })
+    }
+  }
+
+  const addTestValues = (filter) => {
+    const {
+      isArrayFilter,
+      isRangeFilter,
+      customTestValues,
+    } = filter
+
+    addCheckObjFunctions(filter)
+
+    const getValue = filter.getValue
+
+    const useCustomValues = customTestValues && customTestValues.length
+
+    const realValues = _.compact(_.uniq(results.map(getValue)))
+    let testValues = useCustomValues
+      ? customTestValues
+      : _.shuffle(realValues).slice(0, 2) // only take few values
+
+    if (!testValues.length) testValues = ['value1', 'value2']
+
+    const sortedValues = sortValues(testValues)
+
+    filter.shouldHaveResults = !useCustomValues && Boolean(realValues.length)
+
+    if (useCustomValues) filter.testExactValues = testValues
+    else filter.testExactValues = [getRandomValue(testValues)]
+
+    if (isArrayFilter) filter.testArrayValues = testValues
+
+    if (isRangeFilter) {
+      if (testValues.length === 1) {
+        const randomValue = getRandomValue(sortedValues)
+
+        filter.testRangeValues = {
+          gte: randomValue,
+          lte: randomValue,
+        }
+      } else {
+        filter.testRangeValues = {
+          gte: _.first(sortedValues),
+
+          // filter only on the first half set of results to check if the range filter is effective
+          lte: sortedValues[Math.ceil(sortedValues.length / 2)],
+        }
+      }
+    }
+  }
+
+  const maxNbResultsPerPage = 100
+
+  if (!fetchEndpointUrl) fetchEndpointUrl = endpointUrl
+
+  // fetch the objects to automatically get the different values for the filters
+  const { body: { results } } = await request(t.context.serverUrl)
+    .get(getEndpoint(fetchEndpointUrl, `nbResultsPerPage=${maxNbResultsPerPage}`))
+    .set(authorizationHeaders)
+    .expect(200)
+
+  for (const filter of filters) {
+    addTestValues(filter)
+  }
+
+  const testCases = []
+
+  for (const filter of filters) {
+    const {
+      prop,
+      isArrayFilter,
+      isRangeFilter,
+      noResultsExistenceCheck,
+
+      // generated with the above add test values loop
+      shouldHaveResults,
+
+      testExactValues,
+      testArrayValues,
+      testRangeValues,
+
+      getExactValueCheckObj,
+      getArrayValuesCheckObj,
+      getRangeValuesCheckObj,
+    } = filter
+
+    // EXACT VALUE FILTER
+    testExactValues.forEach(exactValue => {
+      const exactValueFilter = getExactValueFilter(prop, exactValue)
+
+      testCases.push({
+        message: 'Testing exact value filter',
+        prop,
+        url: getEndpoint(endpointUrl, exactValueFilter),
+        checkObj: getExactValueCheckObj(exactValue),
+        shouldHaveResults: shouldHaveResults && !noResultsExistenceCheck,
+      })
+    })
+
+    // ARRAY FILTER
+    if (isArrayFilter) {
+      const arrayFilter = getArrayValuesFilter(prop, testArrayValues)
+
+      testCases.push({
+        message: 'Testing array values filter',
+        prop,
+        url: getEndpoint(endpointUrl, arrayFilter),
+        checkObj: getArrayValuesCheckObj(testArrayValues),
+        shouldHaveResults: shouldHaveResults && !noResultsExistenceCheck,
+      })
+
+      const commaSeparatedValuesFilter = getArrayCommaSeparatedValuesFilter(prop, testArrayValues)
+
+      testCases.push({
+        message: 'Testing array comma-separated values filter',
+        prop,
+        url: getEndpoint(endpointUrl, commaSeparatedValuesFilter),
+        checkObj: getArrayValuesCheckObj(testArrayValues),
+        shouldHaveResults: shouldHaveResults && !noResultsExistenceCheck,
+      })
+
+    // RANGE FILTER
+    } else if (isRangeFilter) {
+      const rangeFilter = getRangeFilter(prop, testRangeValues)
+
+      testCases.push({
+        message: 'Testing range filter',
+        prop,
+        url: getEndpoint(endpointUrl, rangeFilter),
+        checkObj: getRangeValuesCheckObj(testRangeValues),
+        shouldHaveResults: shouldHaveResults && !noResultsExistenceCheck,
+      })
+    }
+  }
+
+  const getErrorMessage = (message, { url, obj, prop }) => {
+    return `${message} on ${prop} (${url})\n${JSON.stringify(obj, null, 2)}`
+  }
+
+  for (const testCase of testCases) {
+    const {
+      message,
+      url,
+      prop,
+      checkObj,
+      shouldHaveResults,
+    } = testCase
+
+    const { body: paginationObject } = await request(t.context.serverUrl)
+      .get(url)
+      .set(authorizationHeaders)
+      .expect(200)
+
+    if (_.isFunction(checkPaginationObject)) checkPaginationObject(t, paginationObject)
+
+    const { results } = paginationObject
+
+    results.forEach(obj =>
+      t.true(
+        checkObj(obj),
+        getErrorMessage(message, { url, obj, prop })
+      )
+    )
+
+    if (shouldHaveResults) {
+      t.true(results.length > 0, `Should have results for ${url}`)
+    }
+  }
 }
