@@ -54,8 +54,8 @@ module.exports = function createValidation (deps) {
       // filters
       authorId: getArrayFilter(Joi.string()),
       targetId: getArrayFilter(Joi.string()),
-      assetId: getArrayFilter(Joi.string()),
-      transactionId: getArrayFilter(Joi.string()),
+      assetId: Joi.string(),
+      transactionId: Joi.string(),
       label: [multipleLabelsWithWildcardSchema, Joi.array().unique().items(labelWithWildcardSchema)]
     })
   }
@@ -73,8 +73,8 @@ module.exports = function createValidation (deps) {
       id: getArrayFilter(Joi.string()),
       authorId: getArrayFilter(Joi.string()),
       targetId: getArrayFilter(Joi.string()),
-      assetId: getArrayFilter(Joi.string()),
-      transactionId: getArrayFilter(Joi.string()),
+      assetId: Joi.string(),
+      transactionId: Joi.string(),
       label: [multipleLabelsWithWildcardSchema, Joi.array().unique().items(labelWithWildcardSchema)]
     })
   }
