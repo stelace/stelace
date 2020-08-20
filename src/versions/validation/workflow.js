@@ -76,7 +76,7 @@ schemas['2020-08-10'].getLogsHistory = {
 
     // filters
     id: Joi.array().unique().items(Joi.string()).single(),
-    createdDate: getRangeFilter(Joi.string().isoDate(), true),
+    createdDate: getRangeFilter(Joi.string().isoDate()),
     workflowId: Joi.array().unique().items(Joi.string()).single(),
     eventId: Joi.array().unique().items(Joi.string()).single(),
     runId: Joi.array().unique().items(Joi.string()).single(),
