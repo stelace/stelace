@@ -574,6 +574,12 @@ async function checkFilters ({
   // prop[gte]=min&prop[lte]=max
   const getRangeFilter = (prop, range) => `${prop}[gte]=${range.gte}&${prop}[lte]=${range.lte}`
 
+  // prop[gt]=min&prop[gte]=min
+  const getInvalidGreaterThanRangeFilter = (prop, range) => `${prop}[gt]=${range.gte}&${prop}[gte]=${range.gte}`
+
+  // prop[lt]=min&prop[lte]=min
+  const getInvalidLesserThanRangeFilter = (prop, range) => `${prop}[lt]=${range.lte}&${prop}[lte]=${range.lte}`
+
   const addCheckObjFunctions = (filter) => {
     const {
       prop,
@@ -727,6 +733,24 @@ async function checkFilters ({
 
     // RANGE FILTER
     } else if (isRangeFilter) {
+      const invalidGreaterThanRangeFilter = getInvalidGreaterThanRangeFilter(prop, testRangeValues)
+
+      testCases.push({
+        message: 'Testing invalid greater than range filter',
+        prop,
+        url: getEndpoint(endpointUrl, invalidGreaterThanRangeFilter),
+        statusCode: 400,
+      })
+
+      const invalidLesserThanRangeFilter = getInvalidLesserThanRangeFilter(prop, testRangeValues)
+
+      testCases.push({
+        message: 'Testing invalid lesser than range filter',
+        prop,
+        url: getEndpoint(endpointUrl, invalidLesserThanRangeFilter),
+        statusCode: 400,
+      })
+
       const rangeFilter = getRangeFilter(prop, testRangeValues)
 
       testCases.push({
@@ -749,27 +773,30 @@ async function checkFilters ({
       url,
       prop,
       checkObj,
+      statusCode = 200,
       shouldHaveResults,
     } = testCase
 
     const { body: paginationObject } = await request(t.context.serverUrl)
       .get(url)
       .set(authorizationHeaders)
-      .expect(200)
+      .expect(statusCode)
 
-    if (_.isFunction(checkPaginationObject)) checkPaginationObject(t, paginationObject)
+    if (statusCode === 200) {
+      if (_.isFunction(checkPaginationObject)) checkPaginationObject(t, paginationObject)
 
-    const { results } = paginationObject
+      const { results } = paginationObject
 
-    results.forEach(obj =>
-      t.true(
-        checkObj(obj),
-        getErrorMessage(message, { url, obj, prop })
+      results.forEach(obj =>
+        t.true(
+          checkObj(obj),
+          getErrorMessage(message, { url, obj, prop })
+        )
       )
-    )
 
-    if (shouldHaveResults) {
-      t.true(results.length > 0, `Should have results for ${url}`)
+      if (shouldHaveResults) {
+        t.true(results.length > 0, `Should have results for ${url}`)
+      }
     }
   }
 }
