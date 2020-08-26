@@ -85,7 +85,7 @@
     "parse-github-url": "^1.0.2",
     "path-to-regexp": "^6.1.0",
     "pegjs": "0.10.0",
-    "pg": "^8.2.1",
+    "pg": "^8.3.2",
     "redis": "^3.0.2",
     "redlock": "^4.1.0",
     "restify": "^8.5.1",
