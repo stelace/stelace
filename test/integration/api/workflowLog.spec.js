@@ -423,13 +423,11 @@ test.serial('check history filters', async (t) => {
     filters: [
       {
         prop: 'id',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('id'),
         customArrayFilterCheck: customArrayValuesCheck('id'),
       },
       {
         prop: 'createdDate',
-        isRangeFilter: true,
         customExactValueFilterCheck: customExactValueCheck('createdDate'),
         customArrayFilterCheck: customRangeValuesCheck('createdDate'),
 
@@ -439,25 +437,21 @@ test.serial('check history filters', async (t) => {
       },
       {
         prop: 'workflowId',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('workflowId'),
         customArrayFilterCheck: customArrayValuesCheck('workflowId'),
       },
       {
         prop: 'eventId',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('eventId'),
         customArrayFilterCheck: customArrayValuesCheck('eventId'),
       },
       {
         prop: 'runId',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('runId'),
         customArrayFilterCheck: customArrayValuesCheck('runId'),
       },
       {
         prop: 'type',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('type'),
         customArrayFilterCheck: customArrayValuesCheck('type'),
       },
