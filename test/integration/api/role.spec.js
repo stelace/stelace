@@ -31,7 +31,7 @@ test.serial('lists roles', async (t) => {
 })
 
 // use serial because no changes must be made during the check
-test.serial('check list filters', async (t) => {
+test.serial.only('check list filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['task:list:all'] })
 
   await checkFilters({
