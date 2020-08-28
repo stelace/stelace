@@ -184,9 +184,12 @@ test.serial('check history filters', async (t) => {
     return filteredResults.length === obj.count
   })
 
-  const customRangeValuesCheck = _.curry((prop, obj, rangeValues) => {
+  const customRangeValuesCheck = _.curry((prop, obj, rangeValues, isWithinRange) => {
     let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
-    filteredResults = filteredResults.filter(r => rangeValues.gte <= r[prop] && r[prop] <= rangeValues.lte)
+    filteredResults = filteredResults.filter(r => isWithinRange(
+      prop === 'createdDate' ? obj.day : r[prop],
+      rangeValues
+    ))
     return filteredResults.length === obj.count
   })
 
