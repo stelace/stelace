@@ -1,7 +1,7 @@
 const { utils } = require('../../../serverTooling')
 const { validation: { Joi } } = utils
 
-const groupSchema = Joi.string().valid('authorId', 'targetId', 'assetId', 'transactionId')
+const groupSchema = Joi.string().valid('authorId', 'targetId', 'topicId', 'assetId', 'transactionId')
 
 const labelSchema = Joi.string().regex(/^\w+(:\w+)*$/)
 const labelWithWildcardSchema = Joi.string().regex(/^(\*|(\w+)(:(\w+|\*))*)$/)
@@ -54,6 +54,7 @@ module.exports = function createValidation (deps) {
       // filters
       authorId: getArrayFilter(Joi.string()),
       targetId: getArrayFilter(Joi.string()),
+      topicId: getArrayFilter(Joi.string()),
       assetId: Joi.string(),
       transactionId: Joi.string(),
       label: [multipleLabelsWithWildcardSchema, Joi.array().unique().items(labelWithWildcardSchema)]
@@ -73,6 +74,7 @@ module.exports = function createValidation (deps) {
       id: getArrayFilter(Joi.string()),
       authorId: getArrayFilter(Joi.string()),
       targetId: getArrayFilter(Joi.string()),
+      topicId: getArrayFilter(Joi.string()),
       assetId: Joi.string(),
       transactionId: Joi.string(),
       label: [multipleLabelsWithWildcardSchema, Joi.array().unique().items(labelWithWildcardSchema)]
@@ -87,6 +89,7 @@ module.exports = function createValidation (deps) {
       comment: Joi.string().max(3000).allow(null, ''),
       authorId: Joi.string(),
       targetId: Joi.string().required(),
+      topicId: Joi.string(),
       assetId: Joi.string(),
       transactionId: Joi.string(),
       label: labelSchema,
@@ -97,7 +100,7 @@ module.exports = function createValidation (deps) {
   schemas['2019-05-20'].update = {
     params: objectIdParamsSchema,
     body: schemas['2019-05-20'].create.body
-      .fork(['authorId', 'targetId', 'assetId', 'transactionId'], schema => schema.forbidden())
+      .fork(['authorId', 'targetId', 'topicId', 'assetId', 'transactionId'], schema => schema.forbidden())
       .fork('score', schema => schema.optional())
   }
   schemas['2019-05-20'].remove = {

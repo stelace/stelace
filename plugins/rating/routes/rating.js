@@ -32,6 +32,7 @@ function init (server, { middlewares, helpers } = {}) {
 
     'authorId',
     'targetId',
+    'topicId',
     'assetId',
     'transactionId',
     'label'
@@ -94,6 +95,7 @@ function init (server, { middlewares, helpers } = {}) {
       'id',
       'authorId',
       'targetId',
+      'topicId',
       'assetId',
       'transactionId',
       'label'
@@ -137,6 +139,7 @@ function init (server, { middlewares, helpers } = {}) {
       'comment',
       'authorId',
       'targetId',
+      'topicId',
       'assetId',
       'transactionId',
       'label',

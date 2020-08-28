@@ -201,6 +201,7 @@ exports.up = async (knex) => {
     table.string('updatedDate', 24)
     table.string('authorId')
     table.string('targetId')
+    table.string('topicId')
     table.string('type')
     table.string('label')
     table.jsonb('data')
@@ -212,6 +213,7 @@ exports.up = async (knex) => {
     table.index('type', 'document_type_index')
     table.index('authorId', 'document_authorId_index')
     table.index('targetId', 'document_targetId_index')
+    table.index('topicId', 'document_topicId_index')
     table.index('data', 'document_data_gin_index', 'GIN')
   })
 

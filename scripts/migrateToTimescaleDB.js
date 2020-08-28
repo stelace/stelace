@@ -511,12 +511,16 @@ async function addIndexes ({ knex, schema }) {
     })
 
     await trx.schema.withSchema(schema).alterTable('document', table => {
+      // add non-existing column
+      table.string('topicId')
+
       table.string('id').primary().alter()
       table.index(['createdDate', 'id'], 'document_createdDate_id_index')
       table.index(['updatedDate', 'id'], 'document_updatedDate_id_index')
       table.index('type', 'document_type_index')
       table.index('authorId', 'document_authorId_index')
       table.index('targetId', 'document_targetId_index')
+      table.index('topicId', 'document_topicId_index')
       table.index('data', 'document_data_gin_index', 'GIN')
     })
 

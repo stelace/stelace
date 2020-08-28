@@ -13,6 +13,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      topicId: 'trn_a3BfQps1I3a1gJYz2I3a',
       type: 'rating',
       label: 'main',
       data: {
@@ -31,6 +32,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      topicId: null,
       type: 'rating',
       label: 'main',
       data: {
@@ -48,6 +50,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_WHlfQps1I3a1gJYz2I3a',
       targetId: 'usr_T2VfQps1I3a1gJYz2I3a',
+      topicId: 'trn_UG1fQps1I3a1gJYz2I3a',
       type: 'rating',
       label: 'main:friendliness',
       data: {
@@ -66,6 +69,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_WHlfQps1I3a1gJYz2I3a',
       targetId: 'usr_T2VfQps1I3a1gJYz2I3a',
+      topicId: 'trn_UG1fQps1I3a1gJYz2I3a',
       type: 'rating',
       label: 'main:precision',
       data: {
@@ -83,6 +87,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_WHlfQps1I3a1gJYz2I3a',
       targetId: 'usr_T2VfQps1I3a1gJYz2I3a',
+      topicId: 'trn_UG1fQps1I3a1gJYz2I3a',
       type: 'rating',
       label: 'main:pricing',
       data: {

@@ -53,6 +53,7 @@ function start ({ communication }) {
 
       authorId,
       targetId,
+      topicId,
       data,
       avgPrecision
     } = req
@@ -87,7 +88,7 @@ function start ({ communication }) {
       statsDataField = dataField
     }
 
-    if (['authorId', 'targetId'].includes(groupBy)) {
+    if (['authorId', 'targetId', 'topicId'].includes(groupBy)) {
       sqlGroupByExpression = `"${groupBy}"`
       isDataGroupByExpression = false
     } else {
@@ -148,6 +149,20 @@ function start ({ communication }) {
       }
 
       if (groupBy === 'targetId') {
+        filterPostRanking = filter
+      } else {
+        filtersPreRanking.attributes.push(filter)
+      }
+    }
+    if (topicId) {
+      const parsedTopicIds = parseArrayValues(topicId)
+
+      const filter = {
+        key: 'topicId',
+        value: parsedTopicIds
+      }
+
+      if (groupBy === 'topicId') {
         filterPostRanking = filter
       } else {
         filtersPreRanking.attributes.push(filter)
@@ -358,7 +373,7 @@ function start ({ communication }) {
           })
         } else {
           const cursorProps = [
-            // In most cases, it is the type string (`authorId` and `targetId`)
+            // In most cases, it is the type string (`authorId`, `targetId` and `topicId`)
             // but we cannot be sure as users can provide any field via `data.prop`
             // TODO: maybe perform a request to retrieve a row with the existing prop
             { name: 'groupByField', type: 'string' },
@@ -411,6 +426,7 @@ function start ({ communication }) {
       label,
       authorId,
       targetId,
+      topicId,
       data
     } = req
 
@@ -459,6 +475,12 @@ function start ({ communication }) {
         targetId: {
           dbField: 'targetId',
           value: targetId,
+          transformValue: 'array',
+          query: 'inList'
+        },
+        topicId: {
+          dbField: 'topicId',
+          value: topicId,
           transformValue: 'array',
           query: 'inList'
         },
@@ -515,6 +537,7 @@ function start ({ communication }) {
       documentId, // can be provided if custom prefix is needed (like rating with rtg_id)
       authorId,
       targetId,
+      topicId,
       documentType: type,
       label,
       data,
@@ -526,6 +549,7 @@ function start ({ communication }) {
       id: documentId || await getObjectId({ prefix: Document.idPrefix, platformId, env }),
       authorId,
       targetId,
+      topicId,
       type,
       label,
       data,
@@ -555,6 +579,7 @@ function start ({ communication }) {
         id: doc.id || await getObjectId({ prefix: Document.idPrefix, platformId, env }),
         authorId: doc.authorId,
         targetId: doc.targetId,
+        topicId: doc.topicId,
         type: doc.type,
         label: doc.label,
         data: doc.data,

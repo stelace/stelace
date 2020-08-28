@@ -41,6 +41,7 @@ module.exports = function createService (deps) {
 
       authorId,
       targetId,
+      topicId,
       assetId,
       transactionId,
       label
@@ -72,6 +73,7 @@ module.exports = function createService (deps) {
       label,
       authorId,
       targetId,
+      topicId,
       avgPrecision: 0,
       computeRanking,
 
@@ -97,6 +99,7 @@ module.exports = function createService (deps) {
       const mapToRatingField = {
         authorId: 'authorId',
         targetId: 'targetId',
+        topicId: 'topicId',
         'data.assetId': 'assetId',
         'data.transactionId': 'transactionId'
       }
@@ -144,6 +147,7 @@ module.exports = function createService (deps) {
 
       authorId,
       targetId,
+      topicId,
       assetId,
       transactionId,
 
@@ -167,6 +171,7 @@ module.exports = function createService (deps) {
       page,
       authorId,
       targetId,
+      topicId,
       label,
 
       _useOffsetPagination: req._useOffsetPagination,
@@ -237,6 +242,7 @@ module.exports = function createService (deps) {
       'comment',
       'authorId',
       'targetId',
+      'topicId',
       'assetId',
       'transactionId',
       'label',

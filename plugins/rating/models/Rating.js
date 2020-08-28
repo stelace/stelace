@@ -13,6 +13,7 @@ module.exports = (Base) => class Rating extends Base {
         'comment',
         'authorId',
         'targetId',
+        'topicId',
         'assetId',
         'transactionId',
         'label',
@@ -43,6 +44,7 @@ module.exports = (Base) => class Rating extends Base {
     const doc = {
       authorId: rating.authorId,
       targetId: rating.targetId,
+      topicId: rating.topicId,
       type: 'rating',
       label: rating.label,
       data: {
@@ -71,6 +73,7 @@ module.exports = (Base) => class Rating extends Base {
       updatedDate: doc.updatedDate,
       authorId: setNullIfUndefined(doc.authorId),
       targetId: setNullIfUndefined(doc.targetId),
+      topicId: setNullIfUndefined(doc.topicId),
       label: setNullIfUndefined(doc.label),
       score: doc.data.score,
       comment: setNullIfUndefined(doc.data.comment),

@@ -34,6 +34,11 @@ class Document extends Base {
           maxLength: 255,
           default: null
         },
+        topicId: {
+          type: ['string', 'null'],
+          maxLength: 255,
+          default: null
+        },
         type: {
           type: 'string',
           maxLength: 255
@@ -67,6 +72,7 @@ class Document extends Base {
         'updatedDate',
         'authorId',
         'targetId',
+        'topicId',
         'type',
         'label',
         'data',

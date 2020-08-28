@@ -255,6 +255,11 @@ test.serial('check history filters', async (t) => {
           customArrayFilterCheck: customArrayValuesCheck('targetId'),
         },
         {
+          prop: 'topicId',
+          customExactValueFilterCheck: customExactValueCheck('topicId'),
+          customArrayFilterCheck: customArrayValuesCheck('topicId'),
+        },
+        {
           prop: 'assetId',
           customExactValueFilterCheck: customExactValueCheck('assetId'),
         },
@@ -316,6 +321,10 @@ test.serial('check list filters', async (t) => {
       },
       {
         prop: 'targetId',
+        isArrayFilter: true,
+      },
+      {
+        prop: 'topicId',
         isArrayFilter: true,
       },
       {
@@ -437,6 +446,7 @@ test('creates a rating', async (t) => {
       score: 100,
       comment: 'Wonderful',
       targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      topicId: 'trn_a3BfQps1I3a1gJYz2I3a',
       assetId: 'ast_0TYM7rs1OwP1gQRuCOwP',
       transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
       metadata: { dummy: true }
@@ -446,6 +456,7 @@ test('creates a rating', async (t) => {
   t.is(rating.score, 100)
   t.is(rating.comment, 'Wonderful')
   t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.topicId, 'trn_a3BfQps1I3a1gJYz2I3a')
   t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
   t.is(rating.transactionId, 'trn_a3BfQps1I3a1gJYz2I3a')
   t.is(rating.metadata.dummy, true)
@@ -464,6 +475,7 @@ test('sets assetId automatically when creating a rating with a transaction and w
       score: 100,
       comment: 'Wonderful',
       targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      topicId: 'trn_a3BfQps1I3a1gJYz2I3a',
       transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
       metadata: { dummy: true }
     })
@@ -472,6 +484,7 @@ test('sets assetId automatically when creating a rating with a transaction and w
   t.is(rating.score, 100)
   t.is(rating.comment, 'Wonderful')
   t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.topicId, 'trn_a3BfQps1I3a1gJYz2I3a')
   t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
   t.is(rating.label, null)
   t.is(rating.metadata.dummy, true)
@@ -490,6 +503,7 @@ test('creates a rating with a label', async (t) => {
       score: 100,
       comment: 'Wonderful',
       targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      topicId: 'trn_a3BfQps1I3a1gJYz2I3a',
       assetId: 'ast_0TYM7rs1OwP1gQRuCOwP',
       transactionId: 'trn_a3BfQps1I3a1gJYz2I3a',
       label: 'main:friendliness',
@@ -500,6 +514,7 @@ test('creates a rating with a label', async (t) => {
   t.is(rating.score, 100)
   t.is(rating.comment, 'Wonderful')
   t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.topicId, 'trn_a3BfQps1I3a1gJYz2I3a')
   t.is(rating.assetId, 'ast_0TYM7rs1OwP1gQRuCOwP')
   t.is(rating.transactionId, 'trn_a3BfQps1I3a1gJYz2I3a')
   t.is(rating.label, 'main:friendliness')
@@ -646,6 +661,7 @@ test('fails to create a rating if missing or invalid parameters', async (t) => {
       comment: true,
       authorId: true,
       targetId: true,
+      topicId: true,
       label: true,
       assetId: true,
       transactionId: true,
@@ -659,6 +675,7 @@ test('fails to create a rating if missing or invalid parameters', async (t) => {
   t.true(error.message.includes('"comment" must be a string'))
   t.true(error.message.includes('"authorId" must be a string'))
   t.true(error.message.includes('"targetId" must be a string'))
+  t.true(error.message.includes('"topicId" must be a string'))
   t.true(error.message.includes('"label" must be a string'))
   t.true(error.message.includes('"assetId" must be a string'))
   t.true(error.message.includes('"transactionId" must be a string'))

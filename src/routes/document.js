@@ -35,6 +35,7 @@ function init (server, { middlewares, helpers } = {}) {
       'label',
       'authorId',
       'targetId',
+      'topicId',
       'data',
       'computeRanking',
       'avgPrecision'
@@ -76,6 +77,7 @@ function init (server, { middlewares, helpers } = {}) {
       'label',
       'authorId',
       'targetId',
+      'topicId',
       'data'
     ]
 
@@ -119,6 +121,7 @@ function init (server, { middlewares, helpers } = {}) {
     const {
       authorId,
       targetId,
+      topicId,
       type,
       label,
       data,
@@ -131,6 +134,7 @@ function init (server, { middlewares, helpers } = {}) {
       label,
       authorId,
       targetId,
+      topicId,
       documentType: type,
       data,
       metadata,

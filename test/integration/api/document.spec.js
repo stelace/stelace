@@ -574,6 +574,11 @@ test.serial('check history filters', async (t) => {
           customArrayFilterCheck: customArrayValuesCheck('targetId'),
         },
         {
+          prop: 'topicId',
+          customExactValueFilterCheck: customExactValueCheck('topicId'),
+          customArrayFilterCheck: customArrayValuesCheck('topicId'),
+        },
+        {
           prop: 'label',
           // multiple labels filter on stats are tested on other tests
           customExactValueFilterCheck: customExactValueCheck('label'),
@@ -620,6 +625,10 @@ test.serial('check list filters', async (t) => {
       },
       {
         prop: 'targetId',
+        isArrayFilter: true,
+      },
+      {
+        prop: 'topicId',
         isArrayFilter: true,
       },
       // `data` is tested in other tests
@@ -823,6 +832,7 @@ test('creates a document', async (t) => {
     .send({
       type: 'blogpost:car',
       data,
+      topicId: 'someId',
       metadata: {
         metadataField: true
       },
@@ -833,6 +843,7 @@ test('creates a document', async (t) => {
     .expect(200)
 
   t.is(document.label, null)
+  t.is(document.topicId, 'someId')
   t.deepEqual(document.data, data)
   t.deepEqual(document.metadata, { metadataField: true })
   t.deepEqual(document.platformData, { platformDataField: true })
@@ -995,6 +1006,7 @@ test('fails to create a document if missing or invalid parameters', async (t) =>
     .send({
       authorId: true,
       targetId: true,
+      topicId: true,
       type: true,
       label: true,
       data: true,
@@ -1006,6 +1018,7 @@ test('fails to create a document if missing or invalid parameters', async (t) =>
   error = result.body
   t.true(error.message.includes('"authorId" must be a string'))
   t.true(error.message.includes('"targetId" must be a string'))
+  t.true(error.message.includes('"topicId" must be a string'))
   t.true(error.message.includes('"type" must be a string'))
   t.true(error.message.includes('"label" must be a string'))
   t.true(error.message.includes('"data" must be of type object'))

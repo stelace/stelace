@@ -15,7 +15,7 @@ const dataFieldSchema = Joi.string().regex(/^data\.\w+$/)
 
 const groupBySchema = Joi.alternatives().try(
   dataFieldSchema,
-  Joi.string().valid('authorId', 'targetId')
+  Joi.string().valid('authorId', 'targetId', 'topicId')
 )
 
 const labelSchema = Joi.string().regex(/^\w+(:\w+)*$/)
@@ -60,6 +60,7 @@ schemas['2019-05-20'].getStats = {
     label: [multipleLabelsWithWildcardSchema, Joi.array().unique().items(labelWithWildcardSchema)],
     authorId: getArrayFilter(Joi.string()),
     targetId: getArrayFilter(Joi.string()),
+    topicId: getArrayFilter(Joi.string()),
     data: Joi.object().unknown()
   }).required()
 }
@@ -79,6 +80,7 @@ schemas['2019-05-20'].list = {
     label: [multipleLabelsWithWildcardSchema, Joi.array().unique().items(labelWithWildcardSchema)],
     authorId: getArrayFilter(Joi.string()),
     targetId: getArrayFilter(Joi.string()),
+    topicId: getArrayFilter(Joi.string()),
     data: Joi.object().unknown()
   }).required()
 }
@@ -89,6 +91,7 @@ schemas['2019-05-20'].create = {
   body: Joi.object().keys({
     authorId: Joi.string(),
     targetId: Joi.string(),
+    topicId: Joi.string(),
     type: Joi.string().required(),
     label: labelSchema,
     data: Joi.object().unknown(),
@@ -102,7 +105,7 @@ schemas['2019-05-20'].update = {
     .keys({
       replaceDataProperties: Joi.array().items(Joi.string())
     })
-    .fork(['authorId', 'targetId', 'type'], schema => schema.forbidden())
+    .fork(['authorId', 'targetId', 'topicId', 'type'], schema => schema.forbidden())
 }
 schemas['2019-05-20'].remove = {
   params: objectIdParamsSchema

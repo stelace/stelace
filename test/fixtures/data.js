@@ -707,6 +707,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: null,
       type: 'invoice',
       label: null,
       data: {
@@ -722,6 +723,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_QVQfQps1I3a1gJYz2I3a',
       targetId: null,
+      topicId: null,
       type: 'blogpost',
       label: null,
       data: {
@@ -738,6 +740,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_QVQfQps1I3a1gJYz2I3a',
       targetId: null,
+      topicId: null,
       type: 'blogpost',
       label: 'main:random',
       data: {
@@ -754,6 +757,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_QVQfQps1I3a1gJYz2I3a',
       targetId: null,
+      topicId: null,
       type: 'blogpost',
       label: 'main:random',
       data: {
@@ -770,6 +774,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_QVQfQps1I3a1gJYz2I3a',
       targetId: null,
+      topicId: null,
       type: 'blogpost',
       label: 'main:random',
       data: {
@@ -786,6 +791,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_QVQfQps1I3a1gJYz2I3a',
       targetId: null,
+      topicId: null,
       type: 'blogpost',
       label: 'main:popular',
       data: {
@@ -802,6 +808,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'usr_QVQfQps1I3a1gJYz2I3a',
       targetId: null,
+      topicId: null,
       type: 'blogpost',
       label: 'main:popular',
       data: {
@@ -818,6 +825,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -838,6 +846,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -858,6 +867,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -878,6 +888,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -898,6 +909,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -923,6 +935,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -943,6 +956,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -963,6 +977,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'hayao-miyazaki',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -983,6 +998,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -1003,6 +1019,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -1023,6 +1040,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -1046,6 +1064,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -1066,6 +1085,7 @@ module.exports = {
       updatedDate: now,
       authorId: 'user-external-id',
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -1086,6 +1106,7 @@ module.exports = {
       updatedDate: now,
       authorId: null,
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:random',
       data: {
@@ -1106,6 +1127,7 @@ module.exports = {
       updatedDate: now,
       authorId: null,
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:imdb',
       data: {
@@ -1126,6 +1148,7 @@ module.exports = {
       updatedDate: now,
       authorId: null,
       targetId: null,
+      topicId: 'akira-kurosawa',
       type: 'movie',
       label: 'source:random',
       data: {
