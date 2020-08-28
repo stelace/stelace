@@ -201,12 +201,14 @@ test.serial('check history filters', async (t) => {
       {
         prop: 'id',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('id'),
+        customExactValueFilterCheck: customExactValueCheck('id'),
+        customArrayFilterCheck: customArrayValuesCheck('id'),
       },
       {
         prop: 'createdDate',
         isRangeFilter: true,
-        customCheck: customRangeValuesCheck('createdDate'),
+        customExactValueFilterCheck: customExactValueCheck('createdDate'),
+        customRangeFilterCheck: customRangeValuesCheck('createdDate'),
 
         // the function will check a single value range, which will return no results
         // triggering an error if this boolean isn't true
@@ -215,27 +217,31 @@ test.serial('check history filters', async (t) => {
       {
         prop: 'type',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('type'),
+        customExactValueFilterCheck: customExactValueCheck('type'),
+        customArrayFilterCheck: customArrayValuesCheck('type'),
       },
       {
         prop: 'objectType',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('objectType'),
+        customExactValueFilterCheck: customExactValueCheck('objectType'),
+        customArrayFilterCheck: customArrayValuesCheck('objectType'),
       },
       {
         prop: 'objectId',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('objectId'),
+        customExactValueFilterCheck: customExactValueCheck('objectId'),
+        customArrayFilterCheck: customArrayValuesCheck('objectId'),
       },
       {
         prop: 'emitter',
         customTestValues: ['core', 'custom', 'task'],
-        customCheck: customExactValueCheck('emitter'),
+        customExactValueFilterCheck: customExactValueCheck('emitter'),
       },
       {
         prop: 'emitterId',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('emitterId'),
+        customExactValueFilterCheck: customExactValueCheck('emitterId'),
+        customArrayFilterCheck: customArrayValuesCheck('emitterId'),
       },
     ],
   })

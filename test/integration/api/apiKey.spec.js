@@ -68,7 +68,7 @@ test.serial('check list filters', async (t) => {
       {
         prop: 'type',
         customTestValues: ['seck', 'pubk', 'cntk', 'custom'],
-        customCheck: (obj, value) => obj.key.startsWith(value),
+        customExactValueFilterCheck: (obj, value) => obj.key.startsWith(value),
       }
       // `reveal` are tested in other tests
     ],
