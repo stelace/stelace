@@ -203,13 +203,11 @@ test.serial('check history filters', async (t) => {
     filters: [
       {
         prop: 'id',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('id'),
         customArrayFilterCheck: customArrayValuesCheck('id'),
       },
       {
         prop: 'createdDate',
-        isRangeFilter: true,
         customExactValueFilterCheck: customExactValueCheck('createdDate'),
         customRangeFilterCheck: customRangeValuesCheck('createdDate'),
 
@@ -219,19 +217,16 @@ test.serial('check history filters', async (t) => {
       },
       {
         prop: 'type',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('type'),
         customArrayFilterCheck: customArrayValuesCheck('type'),
       },
       {
         prop: 'objectType',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('objectType'),
         customArrayFilterCheck: customArrayValuesCheck('objectType'),
       },
       {
         prop: 'objectId',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('objectId'),
         customArrayFilterCheck: customArrayValuesCheck('objectId'),
       },
@@ -242,7 +237,6 @@ test.serial('check history filters', async (t) => {
       },
       {
         prop: 'emitterId',
-        isArrayFilter: true,
         customExactValueFilterCheck: customExactValueCheck('emitterId'),
         customArrayFilterCheck: customArrayValuesCheck('emitterId'),
       },

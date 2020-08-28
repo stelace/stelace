@@ -556,8 +556,8 @@ function checkCursorPaginatedHistoryObject ({
  *  and isWithinRange is a helper function to check range
  *  default: isWithinRange(getValue(obj), rangeValues)
  *
- * @param {Boolean}  [params.filters[i].isArrayFilter = false]
- * @param {Boolean}  [params.filters[i].isRangeFilter = false]
+ * @param {Boolean}  [params.filters[i].isArrayFilter = false] - optional if customArrayFilterCheck provided
+ * @param {Boolean}  [params.filters[i].isRangeFilter = false] - optional if customRangeFilterCheck provided
  * @param {Object[]} [params.filters[i].customTestValues] - if specified, will only use those values
  *   and test each one of those values
  *   otherwise, will perform a fetch of objects and test with fixtures values
@@ -624,6 +624,9 @@ async function checkFilters ({
     const getValue = (obj) => _.isFunction(customGetValue) ? customGetValue(obj) : obj[prop]
     filter.getValue = getValue
 
+    filter.shouldCheckArrayFilter = isArrayFilter || _.isFunction(customArrayFilterCheck)
+    filter.shouldCheckRangeFilter = isRangeFilter || _.isFunction(customRangeFilterCheck)
+
     // checks exact value filter returns objects whose property matches the filter value
     filter.getExactValueCheckFn = _.curry((exactValue, obj) => {
       return _.isFunction(customExactValueFilterCheck)
@@ -631,14 +634,14 @@ async function checkFilters ({
         : getValue(obj) === exactValue
     })
 
-    if (isArrayFilter) {
+    if (filter.shouldCheckArrayFilter) {
       // checks array filter returns objects whose property is included into filter values
       filter.getArrayValuesCheckFn = _.curry((values, obj) => {
         return _.isFunction(customArrayFilterCheck)
           ? customArrayFilterCheck(obj, values)
           : values.includes(getValue(obj))
       })
-    } else if (isRangeFilter) {
+    } else if (filter.shouldCheckRangeFilter) {
       // checks range filter returns objects whose property is included into the range filter
       filter.getRangeValuesCheckFn = _.curry((rangeValues, obj) => {
         return _.isFunction(customRangeFilterCheck)
@@ -651,8 +654,8 @@ async function checkFilters ({
   // compute test values filter based on fixtures or on provided filter property `customTestValues`
   const setFilterTestValues = (filter, realResults) => {
     const {
-      isArrayFilter,
-      isRangeFilter,
+      shouldCheckArrayFilter,
+      shouldCheckRangeFilter,
       customTestValues,
     } = filter
 
@@ -674,9 +677,9 @@ async function checkFilters ({
 
     // pick only few values for filter to ensure the filter works
     // selecting too many values may trigger a request for all results
-    if (isArrayFilter && testValues.length) filter.testArrayValues = testValues.slice(0, 2)
+    if (shouldCheckArrayFilter && testValues.length) filter.testArrayValues = testValues.slice(0, 2)
 
-    if (isRangeFilter && testValues.length) {
+    if (shouldCheckRangeFilter && testValues.length) {
       if (testValues.length === 1) {
         const value = _.first(testValues)
 
@@ -718,8 +721,8 @@ async function checkFilters ({
   for (const filter of filters) {
     const {
       prop,
-      isArrayFilter,
-      isRangeFilter,
+      shouldCheckArrayFilter,
+      shouldCheckRangeFilter,
       noResultsExistenceCheck,
 
       // generated with the above add test values loop
@@ -748,7 +751,7 @@ async function checkFilters ({
     })
 
     // ARRAY FILTER
-    if (isArrayFilter) {
+    if (shouldCheckArrayFilter) {
       if (testArrayValues && testArrayValues.length) {
         const arrayFilter = getArrayValuesFilter(prop, testArrayValues)
 
@@ -771,7 +774,7 @@ async function checkFilters ({
         })
       }
     // RANGE FILTER
-    } else if (isRangeFilter) {
+    } else if (shouldCheckRangeFilter) {
       if (testRangeValues) {
         const invalidGreaterThanRangeFilter = getInvalidGreaterThanRangeFilter(prop, testRangeValues)
 

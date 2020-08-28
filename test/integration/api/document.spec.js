@@ -565,13 +565,11 @@ test.serial('check history filters', async (t) => {
       filters: [
         {
           prop: 'authorId',
-          isArrayFilter: true,
           customExactValueFilterCheck: customExactValueCheck('authorId'),
           customArrayFilterCheck: customArrayValuesCheck('authorId'),
         },
         {
           prop: 'targetId',
-          isArrayFilter: true,
           customExactValueFilterCheck: customExactValueCheck('targetId'),
           customArrayFilterCheck: customArrayValuesCheck('targetId'),
         },
