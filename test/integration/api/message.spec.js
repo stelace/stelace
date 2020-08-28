@@ -62,7 +62,7 @@ test.serial('check list filters', async (t) => {
       {
         prop: 'userId',
         customGetValue: (obj) => obj.receiverId || obj.senderId, // get one of the two values
-        customCheck: (obj, value) => [obj.receiverId, obj.senderId].includes(value)
+        customExactValueFilterCheck: (obj, value) => [obj.receiverId, obj.senderId].includes(value)
       },
       {
         prop: 'senderId',

@@ -247,27 +247,27 @@ test.serial('check history filters', async (t) => {
         {
           prop: 'authorId',
           isArrayFilter: true,
-          customCheck: customArrayValuesCheck('authorId'),
+          customExactValueFilterCheck: customExactValueCheck('authorId'),
+          customArrayFilterCheck: customArrayValuesCheck('authorId'),
         },
         {
           prop: 'targetId',
           isArrayFilter: true,
-          customCheck: customArrayValuesCheck('targetId'),
+          customExactValueFilterCheck: customExactValueCheck('targetId'),
+          customArrayFilterCheck: customArrayValuesCheck('targetId'),
         },
         {
           prop: 'assetId',
-          // isArrayFilter: true,
-          customCheck: customExactValueCheck('assetId'),
+          customExactValueFilterCheck: customExactValueCheck('assetId'),
         },
         {
           prop: 'transactionId',
-          // isArrayFilter: true,
-          customCheck: customExactValueCheck('transactionId'),
+          customExactValueFilterCheck: customExactValueCheck('transactionId'),
         },
         {
           prop: 'label',
           // multiple labels filter on stats are tested on other tests
-          customCheck: customExactValueCheck('label'),
+          customExactValueFilterCheck: customExactValueCheck('label'),
         },
       ],
     })

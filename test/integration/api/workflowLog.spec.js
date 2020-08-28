@@ -395,6 +395,12 @@ test.serial('check history filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const customExactValueCheck = _.curry((prop, obj, value) => {
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    filteredResults = filteredResults.filter(r => r[prop] === value)
+    return filteredResults.length === obj.count
+  })
+
   const customArrayValuesCheck = _.curry((prop, obj, values) => {
     let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
     filteredResults = filteredResults.filter(r => values.includes(r[prop]))
@@ -418,12 +424,14 @@ test.serial('check history filters', async (t) => {
       {
         prop: 'id',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('id'),
+        customExactValueFilterCheck: customExactValueCheck('id'),
+        customArrayFilterCheck: customArrayValuesCheck('id'),
       },
       {
         prop: 'createdDate',
         isRangeFilter: true,
-        customCheck: customRangeValuesCheck('createdDate'),
+        customExactValueFilterCheck: customExactValueCheck('createdDate'),
+        customArrayFilterCheck: customRangeValuesCheck('createdDate'),
 
         // the function will check a single value range, which will return no results
         // triggering an error if this boolean isn't true
@@ -432,22 +440,26 @@ test.serial('check history filters', async (t) => {
       {
         prop: 'workflowId',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('workflowId'),
+        customExactValueFilterCheck: customExactValueCheck('workflowId'),
+        customArrayFilterCheck: customArrayValuesCheck('workflowId'),
       },
       {
         prop: 'eventId',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('eventId'),
+        customExactValueFilterCheck: customExactValueCheck('eventId'),
+        customArrayFilterCheck: customArrayValuesCheck('eventId'),
       },
       {
         prop: 'runId',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('runId'),
+        customExactValueFilterCheck: customExactValueCheck('runId'),
+        customArrayFilterCheck: customArrayValuesCheck('runId'),
       },
       {
         prop: 'type',
         isArrayFilter: true,
-        customCheck: customArrayValuesCheck('type'),
+        customExactValueFilterCheck: customExactValueCheck('type'),
+        customArrayFilterCheck: customArrayValuesCheck('type'),
       },
     ],
   })
