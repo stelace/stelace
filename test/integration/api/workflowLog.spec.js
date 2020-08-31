@@ -395,27 +395,29 @@ test.serial('check history filters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
+  const groupBy = 'day'
+
   const customExactValueCheck = _.curry((prop, obj, value) => {
-    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj[groupBy])
     filteredResults = filteredResults.filter(r => r[prop] === value)
     return filteredResults.length === obj.count
   })
 
   const customArrayValuesCheck = _.curry((prop, obj, values) => {
-    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj[groupBy])
     filteredResults = filteredResults.filter(r => values.includes(r[prop]))
     return filteredResults.length === obj.count
   })
 
   const customRangeValuesCheck = _.curry((prop, obj, rangeValues) => {
-    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj.day)
+    let filteredResults = results.filter(r => truncateDate(r.createdDate) === obj[groupBy])
     filteredResults = filteredResults.filter(r => rangeValues.gte <= r[prop] && r[prop] <= rangeValues.lte)
     return filteredResults.length === obj.count
   })
 
   await checkFilters({
     t,
-    endpointUrl: '/workflow-logs/history?groupBy=day',
+    endpointUrl: `/workflow-logs/history?groupBy=${groupBy}`,
     fetchEndpointUrl: '/workflow-logs',
     authorizationHeaders,
     checkPaginationObject: checkCursorPaginatedListObject,
