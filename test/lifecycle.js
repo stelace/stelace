@@ -155,38 +155,47 @@ function before ({ name, platformId, env, enableSignal = true, useFreePort } = {
 
 function beforeEach ({ minimumFixtures = false } = {}) {
   const fn = async (t) => {
-    const systemKey = getSystemKey()
-
     const platformId = t.context.platformId
 
     for (const env of testingEnvs) {
-      await request
-        .post(`${t.context.serverUrl}/store/platforms/${platformId}/database/drop`)
-        .set(getAuthorizationHeaders({ systemKey, env }))
-        .catch(handleDropDatabaseError)
-
-      await request
-        .post(`${t.context.serverUrl}/store/platforms/${platformId}/database/migrate`)
-        .set(getAuthorizationHeaders({ systemKey, env }))
-
-      let fixtures = getDataFixtures(env)
-
-      if (minimumFixtures) {
-        fixtures = _.pick(fixtures, [
-          'config',
-          'roles',
-          'user'
-        ])
-      }
-
-      const connection = getPostgresqlConnection({ platformId, env })
-      await database.createFixture({ platformId, env, connection, data: fixtures })
-
-      await elasticsearch.init({ platformId, env })
+      await startPlatformDatabases({
+        platformId,
+        env,
+        serverUrl: t.context.serverUrl,
+        minimumFixtures,
+      })
     }
   }
 
   return fn
+}
+
+async function startPlatformDatabases ({ serverUrl, platformId, env, minimumFixtures }) {
+  const systemKey = getSystemKey()
+
+  await request
+    .post(`${serverUrl}/store/platforms/${platformId}/database/drop`)
+    .set(getAuthorizationHeaders({ systemKey, env }))
+    .catch(handleDropDatabaseError)
+
+  await request
+    .post(`${serverUrl}/store/platforms/${platformId}/database/migrate`)
+    .set(getAuthorizationHeaders({ systemKey, env }))
+
+  let fixtures = getDataFixtures(env)
+
+  if (minimumFixtures) {
+    fixtures = _.pick(fixtures, [
+      'config',
+      'roles',
+      'user'
+    ])
+  }
+
+  const connection = getPostgresqlConnection({ platformId, env })
+  await database.createFixture({ platformId, env, connection, data: fixtures })
+
+  await elasticsearch.init({ platformId, env })
 }
 
 function after () {
@@ -195,6 +204,38 @@ function after () {
   }
 
   return fn
+}
+
+async function createPlatform ({ t, minimumFixtures = false }) {
+  const systemKey = getSystemKey()
+
+  const { body: { id: platformId } } = await request
+    .post(`${t.context.serverUrl}/store/platforms`)
+    .set(getAuthorizationHeaders({ systemKey }))
+
+  for (const env of testingEnvs) {
+    await initSettings({
+      serverUrl: t.context.serverUrl,
+      platformId,
+      env,
+      systemKey
+    })
+
+    await startPlatformDatabases({
+      serverUrl: t.context.serverUrl,
+      platformId,
+      env,
+      minimumFixtures,
+    })
+  }
+
+  return {
+    platformId,
+    context: {
+      platformId,
+      env: t.context.env,
+    },
+  }
 }
 
 async function createServer ({ enableSignal, useFreePort = true }) {
@@ -258,6 +299,7 @@ module.exports = {
   testingEnvs,
   defaultTestingEnv,
   dropTestPlatforms,
+  createPlatform,
 
   before,
   beforeEach,

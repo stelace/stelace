@@ -3,7 +3,7 @@ require('dotenv').config()
 const test = require('ava')
 const request = require('supertest')
 
-const { before, beforeEach, after } = require('../../lifecycle')
+const { before, beforeEach, after, createPlatform } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
 const {
   getObjectEvent,
@@ -22,10 +22,10 @@ test.after(after())
 
 // Must serially because it needs an empty platform environment
 test.serial('creating the first asset type is the default one unless isDefault parameter is provided', async (t) => {
-  await beforeEach({ minimumFixtures: true })(t)
+  const { context } = await createPlatform({ t, minimumFixtures: true })
 
   const authorizationHeaders = await getAccessTokenHeaders({
-    t,
+    t: { context },
     permissions: [
       'assetType:create:all',
       'assetType:remove:all',
@@ -73,8 +73,6 @@ test.serial('creating the first asset type is the default one unless isDefault p
 
 // Must serially because it changes the default asset type
 test.serial('creating an asset type with `isDefault` to true will change the `isDefault` for other asset types', async (t) => {
-  await beforeEach()(t)
-
   const authorizationHeaders = await getAccessTokenHeaders({
     t,
     permissions: [
@@ -121,8 +119,6 @@ test.serial('creating an asset type with `isDefault` to true will change the `is
 
 // Must serially because it changes the default asset type
 test.serial('changes the default asset type', async (t) => {
-  await beforeEach()(t)
-
   const authorizationHeaders = await getAccessTokenHeaders({
     t,
     permissions: [
@@ -131,13 +127,15 @@ test.serial('changes the default asset type', async (t) => {
     ]
   })
 
-  const assetTypeId1 = 'typ_RFpfQps1I3a1gJYz2I3a'
   const assetTypeId2 = 'typ_rL6IBMe1wlK1iJ9NNwlK'
 
-  const { body: beforeUpdateAssetType1 } = await request(t.context.serverUrl)
-    .get(`/asset-types/${assetTypeId1}`)
+  // manually fetch the current default asset type
+  const { body: { results: defaultAssetTypes } } = await request(t.context.serverUrl)
+    .get('/asset-types?isDefault=true')
     .set(authorizationHeaders)
     .expect(200)
+
+  const [beforeUpdateAssetType1] = defaultAssetTypes // it can only have one default asset type
 
   t.is(beforeUpdateAssetType1.isDefault, true)
 
@@ -159,7 +157,7 @@ test.serial('changes the default asset type', async (t) => {
   t.is(afterUpdateAssetType2.isDefault, true)
 
   const { body: afterUpdateAssetType1 } = await request(t.context.serverUrl)
-    .get(`/asset-types/${assetTypeId1}`)
+    .get(`/asset-types/${beforeUpdateAssetType1.id}`)
     .set(authorizationHeaders)
     .expect(200)
 
