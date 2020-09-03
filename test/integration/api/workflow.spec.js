@@ -26,6 +26,7 @@ const {
 const { encodeBase64 } = require('../../../src/util/encoding')
 
 const getIds = (elements) => elements.map(e => e.id)
+const areSameIds = (ids1, ids2) => _.difference(ids1, ids2).length === 0
 
 let userWebhookUrl
 /* eslint-disable no-template-curly-in-string */
@@ -220,6 +221,8 @@ test('creates several single-step Stelace workflows', async (t) => {
   const workflowName = 'Single-step Workflow'
   const workflow1NotifyUrl = userWebhookUrl + 'workflow1'
 
+  const currentTestProp = 'singleStepWorkflow'
+
   const { body: workflow1 } = await request(t.context.serverUrl)
     .post('/workflows')
     .set(authorizationHeaders)
@@ -235,7 +238,7 @@ test('creates several single-step Stelace workflows', async (t) => {
           assetId: 'asset.id', // shorter syntax
           startDate: 'new Date().toISOString()',
           endDate: 'new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000)).toISOString()',
-          isCurrentTest: '_.get(changesRequested, "metadata.singleStepWorkflow")',
+          isCurrentTest: `_.get(changesRequested, "metadata.${currentTestProp}")`,
 
           // localized date in Chinese format
           localizedDate: `
@@ -305,7 +308,7 @@ test('creates several single-step Stelace workflows', async (t) => {
     })
     .send({
       name: 'Asset triggering Stelace Workflow',
-      metadata: { singleStepWorkflow: true }
+      metadata: { [currentTestProp]: true }
     })
     .expect(200)
 
@@ -323,7 +326,7 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflow1AfterRun1.logs), getIds(workflowLogsAfterRun1))
+  t.true(areSameIds(getIds(workflow1AfterRun1.logs), getIds(workflowLogsAfterRun1)))
 
   const workflow1AfterRun1ErrorLogs = workflow1AfterRun1.logs.filter(isErrorLog)
   const workflow1AfterRun1Actions = workflow1AfterRun1.logs.filter(isActionLog)
@@ -383,7 +386,7 @@ test('creates several single-step Stelace workflows', async (t) => {
         someString: "'wrapped in simple quotes'",
         startDate: `'${now}'`,
         endDate: `new Date(new Date('${now}').getTime() + (14 * 24 * 60 * 60 * 1000)).toISOString()`,
-        isCurrentTest: '_.get(changesRequested, "metadata.singleStepWorkflow")'
+        isCurrentTest: `_.get(changesRequested, "metadata.${currentTestProp}")`
       },
       run: {
         filter: 'computed.isCurrentTest',
@@ -449,7 +452,7 @@ test('creates several single-step Stelace workflows', async (t) => {
     })
     .send({
       name: 'Asset triggering Stelace Workflow 2',
-      metadata: { singleStepWorkflow: true }
+      metadata: { [currentTestProp]: true }
     })
     .expect(200)
 
@@ -469,11 +472,16 @@ test('creates several single-step Stelace workflows', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflow1AfterRun2.logs), getIds(workflowLogsAfterRun2))
+  t.true(areSameIds(getIds(workflow1AfterRun2.logs), getIds(workflowLogsAfterRun2)))
 
   const workflow1AfterRun2ErrorLogs = workflow1AfterRun2.logs.filter(isErrorLog)
-  const workflowAfterRun2Notifications = workflow1AfterRun2.logs.filter(isNotificationLog)
+  let workflowAfterRun2Notifications = workflow1AfterRun2.logs.filter(isNotificationLog)
   const workflow1AfterRun2Actions = workflow1AfterRun2.logs.filter(isActionLog)
+
+  // filter on notifications logs that were created by this test
+  workflowAfterRun2Notifications = workflowAfterRun2Notifications.filter(l => {
+    return _.get(l, `metadata.notifyPayload.event.changesRequested.metadata.${currentTestProp}`) === true
+  })
 
   t.is(workflow1AfterRun2ErrorLogs.length, 0)
   t.is(workflow1AfterRun2Actions.length, 2)
@@ -711,7 +719,7 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowAfterDummy.logs), getIds(workflowLogsAfterDummy))
+  t.true(areSameIds(getIds(workflowAfterDummy.logs), getIds(workflowLogsAfterDummy)))
 
   const afterDummyLogs = workflowAfterDummy.logs.filter(
     log => log.metadata.eventObjectId === dummyAssetId
@@ -799,7 +807,7 @@ test('creates multi-step Stelace workflow with API version', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowAfterRun.logs), getIds(workflowLogsAfterRun))
+  t.true(areSameIds(getIds(workflowAfterRun.logs), getIds(workflowLogsAfterRun)))
 
   const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(isErrorLog)
   const workflowAfterRunActions = workflowAfterRun.logs.filter(isActionLog)
@@ -991,7 +999,7 @@ test('creates multi-step workflow triggered by custom events and calling externa
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowCustomEventAfterRun.logs), getIds(workflowLogsAfterRun))
+  t.true(areSameIds(getIds(workflowCustomEventAfterRun.logs), getIds(workflowLogsAfterRun)))
 
   const workflowCustomEventAfterRunErrorLogs = workflowCustomEventAfterRun.logs.filter(isErrorLog)
   const workflowCustomEventAfterRunActions = workflowCustomEventAfterRun.logs.filter(isActionLog)
@@ -1132,7 +1140,7 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowHandlingErrorsAfterRun.logs), getIds(workflowLogsHandlingErrorsAfterRun))
+  t.true(areSameIds(getIds(workflowHandlingErrorsAfterRun.logs), getIds(workflowLogsHandlingErrorsAfterRun)))
 
   const afterRunLogs = workflowHandlingErrorsAfterRun.logs
   const afterRunErrorLogs = afterRunLogs.filter(isErrorLog)
@@ -1211,7 +1219,7 @@ test('keeps filtered workflow running when handleErrors option is enabled in err
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowNotHandlingErrorsAfterRun.logs), getIds(workflowLogsNotHandlingErrorsAfterRun))
+  t.true(areSameIds(getIds(workflowNotHandlingErrorsAfterRun.logs), getIds(workflowLogsNotHandlingErrorsAfterRun)))
 
   const notHandlingErrLogs = workflowNotHandlingErrorsAfterRun.logs.filter(
     l => l.runId !== lastAction.runId
@@ -1299,7 +1307,7 @@ test('creates workflow and uses related objects', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowRelatedObjectsAfterRun.logs), getIds(workflowLogsRelatedObjectsAfterRun))
+  t.true(areSameIds(getIds(workflowRelatedObjectsAfterRun.logs), getIds(workflowLogsRelatedObjectsAfterRun)))
 
   const workflowRelatedObjectsAfterRunErrorLogs = workflowRelatedObjectsAfterRun.logs.filter(isErrorLog)
   const workflowRelatedObjectsAfterRunActions = workflowRelatedObjectsAfterRun.logs.filter(isActionLog)
@@ -1409,7 +1417,7 @@ test('accepts nested arrays of literals as endpoint payload parameters', async (
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowTestArrayAfterRun.logs), getIds(workflowLogsTestArrayAfterRun))
+  t.true(areSameIds(getIds(workflowTestArrayAfterRun.logs), getIds(workflowLogsTestArrayAfterRun)))
 
   const workflowTestArrayAfterRunErrorLogs = workflowTestArrayAfterRun.logs.filter(isErrorLog)
   const workflowTestArrayAfterRunActions = workflowTestArrayAfterRun.logs.filter(isActionLog)
@@ -1508,7 +1516,7 @@ test('accepts nested object as endpoint payload parameters', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowTestNestedObjectAfterRun.logs), getIds(workflowLogsTestNestedObjectAfterRun))
+  t.true(areSameIds(getIds(workflowTestNestedObjectAfterRun.logs), getIds(workflowLogsTestNestedObjectAfterRun)))
 
   const workflowTestNestedObjectAfterRunErrorLogs = workflowTestNestedObjectAfterRun.logs.filter(isErrorLog)
   const workflowTestNestedObjectAfterRunActions = workflowTestNestedObjectAfterRun.logs.filter(isActionLog)
@@ -1625,7 +1633,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowAfterStepsErrors.logs), getIds(workflowLogsAfterStepsErrors))
+  t.true(areSameIds(getIds(workflowAfterStepsErrors.logs), getIds(workflowLogsAfterStepsErrors)))
 
   // Exclude any log due to workflow events from concurrent tests
   const afterStepsErrorsLogs = workflowAfterStepsErrors.logs.filter(
@@ -1696,7 +1704,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowWithHandleErrorsEnabled.logs), getIds(workflowLogsWithHandleErrorsEnabled))
+  t.true(areSameIds(getIds(workflowWithHandleErrorsEnabled.logs), getIds(workflowLogsWithHandleErrorsEnabled)))
 
   // Step 2 is started but not executed since it has its own error
   t.is(workflowWithHandleErrorsEnabled.stats.nbActionsCompleted, 1)
@@ -1757,7 +1765,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowAfterStep2Fix.logs), getIds(workflowLogsAfterStep2Fix))
+  t.true(areSameIds(getIds(workflowAfterStep2Fix.logs), getIds(workflowLogsAfterStep2Fix)))
 
   const afterStep2FixLogs = workflowAfterStep2Fix.logs.filter(
     log => log.metadata.eventObjectId === userId
@@ -1816,7 +1824,7 @@ test('handles filters and logs errors properly when executing Stelace Workflow',
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowAfterStepsFixed.logs), getIds(workflowLogsAfterStepsFixed))
+  t.true(areSameIds(getIds(workflowAfterStepsFixed.logs), getIds(workflowLogsAfterStepsFixed)))
 
   const workflowAfterStepsFixedErrorLogs = workflowAfterStepsFixed.logs.filter(isErrorLog)
   const workflowAfterStepsFixedActions = workflowAfterStepsFixed.logs.filter(isActionLog)
@@ -1911,7 +1919,7 @@ test('passes basic security checks', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowAfterRun.logs), getIds(workflowLogsAfterRun))
+  t.true(areSameIds(getIds(workflowAfterRun.logs), getIds(workflowLogsAfterRun)))
 
   const workflowAfterRunErrorLogs = workflowAfterRun.logs.filter(isErrorLog)
   const workflowAfterRunActions = workflowAfterRun.logs.filter(isActionLog)
@@ -1977,7 +1985,7 @@ test('passes basic security checks', async (t) => {
     .set(authorizationHeaders)
     .expect(200)
 
-  t.deepEqual(getIds(workflowWithProcess.logs), getIds(workflowLogsWithProcess))
+  t.true(areSameIds(getIds(workflowWithProcess.logs), getIds(workflowLogsWithProcess)))
 
   const workflowWithProcessErrorLogs = workflowWithProcess.logs.filter(isErrorLog)
   workflowLastError = workflowWithProcessErrorLogs[0]

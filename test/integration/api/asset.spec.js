@@ -3,7 +3,7 @@ require('dotenv').config()
 const test = require('ava')
 const request = require('supertest')
 
-const { before, beforeEach, after } = require('../../lifecycle')
+const { before, beforeEach, after, createPlatform } = require('../../lifecycle')
 const { getAccessTokenHeaders } = require('../../auth')
 const { getModels } = require('../../../src/models')
 const {
@@ -260,10 +260,10 @@ test.serial('creating an asset without specifying an asset type will use the def
 
 // Must serially because it needs an empty platform environment
 test.serial('creating an asset if there is no asset type will create one', async (t) => {
-  await beforeEach({ minimumFixtures: true })(t)
+  const { context } = await createPlatform({ t, minimumFixtures: true })
 
   const authorizationHeaders = await getAccessTokenHeaders({
-    t,
+    t: { context },
     permissions: [
       'asset:create:all',
       'assetType:list:all'
@@ -287,9 +287,6 @@ test.serial('creating an asset if there is no asset type will create one', async
 
   t.is(asset.name, 'No asset type asset')
   t.truthy(asset.assetTypeId)
-
-  // restore for other tests
-  await beforeEach()(t)
 })
 
 test.serial('creating an asset without specifying an asset type will throw if there is no default asset type', async (t) => {
