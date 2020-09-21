@@ -4254,10 +4254,17 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^1.27.1, jose@^1.27.3, jose@^1.28.0:
+jose@^1.27.1, jose@^1.27.3:
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/jose/-/jose-1.28.0.tgz#0803f8c71f43cd293a9d931c555c30531f5ca5dc"
   integrity sha512-JmfDRzt/HSj8ipd9TsDtEHoLUnLYavG+7e8F6s1mx2jfVSfXOTaFQsJUydbjJpTnTDHP1+yKL9Ke7ktS/a0Eiw==
+  dependencies:
+    "@panva/asn1.js" "^1.0.0"
+
+jose@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-2.0.2.tgz#fb22385b80c658cc7a0cae05b7086c04c6be49f4"
+  integrity sha512-yD93lsiMA1go/qxSY/vXWBodmIZJIxeB7QhFi8z1yQ3KUwKENqI9UA8VCHlQ5h3x1zWuWZjoY87ByQzkQbIrQg==
   dependencies:
     "@panva/asn1.js" "^1.0.0"
 
@@ -5551,17 +5558,17 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-oidc-provider@^6.29.3:
-  version "6.29.3"
-  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.29.3.tgz#0adc181d827e94bca925436c880b13fd952c90a2"
-  integrity sha512-GSyg2Z8sqdIU3Ch8aw2J6JfJrlYT/md9wUCpmsscydwd7qT2N+SbY8eSrKuXzUWoJl6WgYeUcXNzfW3FaQM8nw==
+oidc-provider@^6.29.4:
+  version "6.29.4"
+  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.29.4.tgz#975d38c1af1c9da69b155edf1e645bf8b35f9328"
+  integrity sha512-8S4yfuyBjS63YC5QusvoHGnY0CO2jXt5v5bXH2O9WN1JYDPybxIv8ML7gtzGiaZa7VSHqUeZtQqzBOLQG3R5dg==
   dependencies:
     "@koa/cors" "^3.1.0"
     "@types/koa" "^2.11.4"
     debug "^4.1.1"
     ejs "^3.1.5"
     got "^9.6.0"
-    jose "^1.28.0"
+    jose "^2.0.2"
     jsesc "^3.0.1"
     koa "^2.13.0"
     koa-compose "^4.1.0"
