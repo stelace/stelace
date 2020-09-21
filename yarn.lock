@@ -5368,10 +5368,10 @@ normalize-url@^4.1.0:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.3.0.tgz#9c49e10fc1876aeb76dba88bf1b2b5d9fa57b2ee"
   integrity sha512-0NLtR71o4k6GLP+mr6Ty34c5GA6CMoEsncKJxvQd8NzPxaHRJNnb5gZE8R1XF4CPIS7QPHLJ74IFszwtNVAHVQ==
 
-notepack.io@~2.1.2:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/notepack.io/-/notepack.io-2.1.3.tgz#cc904045c751b1a27b2dcfd838d81d0bf3ced923"
-  integrity sha512-AgSt+cP5XMooho1Ppn8NB3FFaVWefV+qZoZncYTUSch2GAEwlYLcIIbT5YVkMlFeNHnfwOvc4HDlbvrB5BRxXA==
+notepack.io@~2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/notepack.io/-/notepack.io-2.2.0.tgz#d7ea71d1cb90094f88c6f3c8d84277c2d0cd101c"
+  integrity sha512-9b5w3t5VSH6ZPosoYnyDONnUTF8o0UkBw7JLA6eBlYJWyGT1Q3vQa8Hmuj1/X6RYvHjjygBDgw6fJhe0JEojfw==
 
 npm-bundled@^1.0.1:
   version "1.0.3"
@@ -6516,7 +6516,7 @@ redis-parser@^3.0.0:
   dependencies:
     redis-errors "^1.0.0"
 
-redis@^2.7.1, redis@~2.8.0:
+redis@^2.7.1:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/redis/-/redis-2.8.0.tgz#202288e3f58c49f6079d97af7a10e1303ae14b02"
   integrity sha512-M1OkonEQwtRmZv4tEWF2VgpG0JWJ8Fv1PhlgT5+B+uNq2cA3Rt1Yt/ryoR+vQNOQcIEgdCdfH0jr3bDpihAw1A==
@@ -6525,7 +6525,7 @@ redis@^2.7.1, redis@~2.8.0:
     redis-commands "^1.2.0"
     redis-parser "^2.6.0"
 
-redis@^3.0.2:
+redis@^3.0.0, redis@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/redis/-/redis-3.0.2.tgz#bd47067b8a4a3e6a2e556e57f71cc82c7360150a"
   integrity sha512-PNhLCrjU6vKVuMOyFu7oSP296mwBkcE6lrAjruBYG5LgdSqtRBoVQIylrMyVZD/lkF24RSNNatzvYag6HRBHjQ==
@@ -7174,14 +7174,14 @@ socket.io-parser@~3.4.0:
     debug "~4.1.0"
     isarray "2.0.1"
 
-socket.io-redis@^5.3.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/socket.io-redis/-/socket.io-redis-5.3.0.tgz#d01716d2813c25b76918cd704e1cf540b2f3985a"
-  integrity sha512-w2EqyGdw3oXzd1MY4sVIg2rYVooDI5sSwel8DOt38sTgaJuuXQSC847x38FvLSn2Rt6MAcdLhiNw/FqjzeC4RQ==
+socket.io-redis@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/socket.io-redis/-/socket.io-redis-5.4.0.tgz#d54bb8b757d04e9c0999d9a4ad07fc6c31bc848f"
+  integrity sha512-yCQm/Sywd3d08WXUfZRxt6O+JV2vWoPgWK6GVjiM0GkBtq5cpLOk8oILRPKbzTv1VEtSYmK41q0xzcgDinMbmQ==
   dependencies:
     debug "~4.1.0"
-    notepack.io "~2.1.2"
-    redis "~2.8.0"
+    notepack.io "~2.2.0"
+    redis "^3.0.0"
     socket.io-adapter "~1.1.0"
     uid2 "0.0.3"
 
