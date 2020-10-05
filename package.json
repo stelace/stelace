@@ -83,7 +83,7 @@
     "objection-db-errors": "^1.1.2",
     "openid-client": "4.1.1",
     "parse-github-url": "^1.0.2",
-    "path-to-regexp": "^6.1.0",
+    "path-to-regexp": "^6.2.0",
     "pegjs": "0.10.0",
     "pg": "^8.3.3",
     "redis": "^3.0.2",
