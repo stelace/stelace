@@ -124,7 +124,7 @@
     "socket.io-client": "^2.3.1",
     "sql-fixtures": "^1.0.4",
     "standard-version": "^9.0.0",
-    "supertest": "^4.0.2",
+    "supertest": "^5.0.0",
     "tap-xunit": "^2.4.1"
   },
   "engines": {
