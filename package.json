@@ -87,7 +87,7 @@
     "pegjs": "0.10.0",
     "pg": "^8.4.0",
     "redis": "^3.0.2",
-    "redlock": "^4.1.0",
+    "redlock": "^4.2.0",
     "restify": "^8.5.1",
     "restify-cors-middleware2": "~2.1.1",
     "roarr": "^2.15.4",
