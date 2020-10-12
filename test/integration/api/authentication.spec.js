@@ -9,7 +9,13 @@ const _ = require('lodash')
 const puppeteer = require('puppeteer-core')
 
 const { before, beforeEach, after } = require('../../lifecycle')
-const { getAccessTokenHeaders, refreshAccessToken, getSystemKey, getAccessToken } = require('../../auth')
+const {
+  getAccessTokenHeaders,
+  refreshAccessToken,
+  getSystemKey,
+  getAccessToken,
+  login,
+} = require('../../auth')
 const { getObjectEvent, testEventMetadata } = require('../../util')
 const { encodeBase64 } = require('../../../src/util/encoding')
 
@@ -309,17 +315,10 @@ test.after(async (t) => {
 })
 
 test('login', async (t) => {
-  const { body: obj1 } = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'user',
-      password: 'user'
-    })
-    .expect(200)
+  const obj1 = await login({
+    username: 'user',
+    password: 'user',
+  }, { t, requester: request(t.context.serverUrl) })
 
   t.is(typeof obj1, 'object')
   t.is(obj1.tokenType, 'Bearer')
@@ -337,18 +336,14 @@ test('login', async (t) => {
   // otherwise authenticated users can have less permissions than unauthenticated ones
   // if they have no roles
   // 'auth:login' is only available in public role
-  const { body: obj2 } = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env,
-      authorization: `${obj1.tokenType} ${obj1.accessToken}`
-    })
-    .send({
-      username: 'user',
-      password: 'user'
-    })
-    .expect(200)
+  const obj2 = await login({
+    username: 'user',
+    password: 'user',
+  }, {
+    t,
+    requester: request(t.context.serverUrl),
+    authorization: `${obj1.tokenType} ${obj1.accessToken}`,
+  })
 
   t.is(typeof obj2, 'object')
   t.is(obj2.tokenType, 'Bearer')
@@ -417,17 +412,10 @@ test.serial('fails to refresh token if the refresh token is expired', async (t) 
 
   const defaultExpirationDuration = 14 * 24 * 3600 * 1000 // 14 days
 
-  const { body: { refreshToken } } = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'admin',
-      password: 'admin'
-    })
-    .expect(200)
+  const { refreshToken } = await login({
+    username: 'admin',
+    password: 'admin',
+  }, { t, requester: request(t.context.serverUrl) })
 
   await refreshAccessToken(refreshToken, { status: 200, t, requester: request(t.context.serverUrl) })
   clock.tick(defaultExpirationDuration)
@@ -451,17 +439,10 @@ test.serial('fails to refresh token if the refresh token is expired', async (t) 
     })
     .expect(200)
 
-  const { body: { refreshToken: refreshToken2 } } = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'admin',
-      password: 'admin'
-    })
-    .expect(200)
+  const { refreshToken: refreshToken2 } = await login({
+    username: 'admin',
+    password: 'admin',
+  }, { t, requester: request(t.context.serverUrl) })
 
   const oneDayInMs = 24 * 3600 * 1000
 
@@ -1434,19 +1415,12 @@ test('can only check tokens if system', async (t) => {
 test('changes the password and emits event', async (t) => {
   const userId = 'usr_em9SToe1nI01iG4yRnHz'
 
-  const result = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'user2',
-      password: 'user2'
-    })
-    .expect(200)
+  const result = await login({
+    username: 'user2',
+    password: 'user2',
+  }, { t, requester: request(t.context.serverUrl) })
 
-  const { accessToken, refreshToken } = result.body
+  const { accessToken, refreshToken } = result
 
   // fails to change the password if the current password is wrong
   await request(t.context.serverUrl)
@@ -1486,29 +1460,15 @@ test('changes the password and emits event', async (t) => {
     })
     .expect(200)
 
-  await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'user2',
-      password: 'user2'
-    })
-    .expect(403)
+  await login({
+    username: 'user2',
+    password: 'user2',
+  }, { t, requester: request(t.context.serverUrl), status: 403 })
 
-  await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'user2',
-      password: 'newUser2'
-    })
-    .expect(200)
+  await login({
+    username: 'user2',
+    password: 'newUser2',
+  }, { t, requester: request(t.context.serverUrl), status: 200 })
 
   const eventAccessTokenHeaders = await getAccessTokenHeaders({
     t,
@@ -1600,17 +1560,10 @@ test.serial('requests the password reset and emits event', async (t) => {
 
 test('confirms the password reset and emits event', async (t) => {
   // cannot login
-  await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'admin',
-      password: 'newAdmin'
-    })
-    .expect(403)
+  await login({
+    username: 'admin',
+    password: 'newAdmin',
+  }, { t, requester: request(t.context.serverUrl), status: 403 })
 
   // confirms the password reset
   await request(t.context.serverUrl)
@@ -1626,17 +1579,10 @@ test('confirms the password reset and emits event', async (t) => {
     .expect(200)
 
   // can login with the new password
-  await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'admin',
-      password: 'newAdmin'
-    })
-    .expect(200)
+  await login({
+    username: 'admin',
+    password: 'newAdmin',
+  }, { t, requester: request(t.context.serverUrl), status: 200 })
 
   // the reset token can only be used once
   await request(t.context.serverUrl)
