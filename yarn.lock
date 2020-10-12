@@ -5665,10 +5665,10 @@ obuf@^1.0.0, obuf@^1.1.2:
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
 
-oidc-provider@^6.29.4:
-  version "6.29.4"
-  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.29.4.tgz#975d38c1af1c9da69b155edf1e645bf8b35f9328"
-  integrity sha512-8S4yfuyBjS63YC5QusvoHGnY0CO2jXt5v5bXH2O9WN1JYDPybxIv8ML7gtzGiaZa7VSHqUeZtQqzBOLQG3R5dg==
+oidc-provider@^6.29.5:
+  version "6.29.5"
+  resolved "https://registry.yarnpkg.com/oidc-provider/-/oidc-provider-6.29.5.tgz#e7766deb05d33545c76b232eefc63fba387ac6e4"
+  integrity sha512-wBTynXwNx3syLwBObNFB9Si+W7Y5AJZg7jMOSFC54CCgAEjyBKTjvyp2OmgJPQxusLaM+K0oxlGG+JjTb1ipqQ==
   dependencies:
     "@koa/cors" "^3.1.0"
     "@types/koa" "^2.11.4"
