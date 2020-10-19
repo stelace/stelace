@@ -974,10 +974,10 @@ better-assert@~1.0.0:
   dependencies:
     callsite "1.0.0"
 
-big.js@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/big.js/-/big.js-6.0.0.tgz#d3806d83d93d67faaf29bfca2d2c45d02160da04"
-  integrity sha512-PGsJX+jhBY5qaGOymm4V1QMM2oOCtfGdW8CxgbDTg17C/qHeW89jhx6Kpda3vS0uPHFT6sEhwbb5tlc0wmA+wQ==
+big.js@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/big.js/-/big.js-6.0.1.tgz#9e0a2e8b1825ce006cd4a096d6f294738cd5cff6"
+  integrity sha512-o2EROPS1CEOLYNJKDRvmfVxpP9YTQxBSW0nJrpCpBjB5TEg3XYUt+WZHqrOVi/53GcQk8KFfNE08ZLpiD4iA2A==
 
 binary-extensions@^2.0.0:
   version "2.0.0"
