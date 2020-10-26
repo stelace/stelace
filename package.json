@@ -119,7 +119,7 @@
     "lint-staged": ">=10.4.2",
     "lru-cache": "^6.0.0",
     "oidc-provider": "^6.29.5",
-    "puppeteer-core": "^5.3.1",
+    "puppeteer-core": "^5.4.0",
     "semver": "^7.3.2",
     "socket.io-client": "^2.3.1",
     "sql-fixtures": "^1.0.4",
