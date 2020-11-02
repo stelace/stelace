@@ -116,7 +116,7 @@
     "eslint-plugin-standard": "^4.0.2",
     "express": "^4.17.1",
     "husky": ">=4",
-    "lint-staged": ">=10.4.2",
+    "lint-staged": ">=10.5.1",
     "lru-cache": "^6.0.0",
     "oidc-provider": "^6.29.5",
     "puppeteer-core": "^5.4.0",
