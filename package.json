@@ -93,7 +93,7 @@
     "roarr": "^2.15.4",
     "serialize-error": "^7.0.1",
     "shelljs": "^0.8.4",
-    "sinon": "^9.2.0",
+    "sinon": "^9.2.1",
     "socket.io": "^2.3.0",
     "socket.io-redis": "^5.4.0",
     "stelace-util-keys": "https://github.com/stelace/stelace-util-keys.git#3.0.1",
