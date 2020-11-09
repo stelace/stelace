@@ -121,7 +121,7 @@
     "oidc-provider": "^6.29.6",
     "puppeteer-core": "^5.4.1",
     "semver": "^7.3.2",
-    "socket.io-client": "^2.3.1",
+    "socket.io-client": "^3.0.1",
     "sql-fixtures": "^1.0.4",
     "standard-version": "^9.0.0",
     "supertest": "^4.0.2",
