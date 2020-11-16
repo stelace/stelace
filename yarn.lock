@@ -2326,10 +2326,10 @@ ejs@^3.1.5:
   dependencies:
     jake "^10.6.1"
 
-elastic-apm-http-client@^9.4.0:
-  version "9.4.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.4.0.tgz#1c985923369f0c511b94d5c20f6d13aef588cb55"
-  integrity sha512-/jOZDyfzLNwHrNkPAI+AspLg0TXYXODWT+I1eoAWRCB7gP1vKvzUQAsP5iChodVqCbAj1eUNXB0KrvM6b07Thw==
+elastic-apm-http-client@^9.4.1:
+  version "9.4.1"
+  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.4.1.tgz#b91fc3c22d7cc76b2615cdb1e259794b068a107b"
+  integrity sha512-0SC3lbNSmtj4ZN7xy0e6p2ZFVkYWHW/iqJ3tzXFK9SaEspX1/Tm5syI3+9Qs/JaeAwBcKhwRhS2od/lED3Uh6w==
   dependencies:
     breadth-filter "^2.0.0"
     container-info "^1.0.1"
@@ -2341,10 +2341,10 @@ elastic-apm-http-client@^9.4.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.7.0:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.7.0.tgz#168f0cfce8d93b5ebc82f387b158fa0924de9d7a"
-  integrity sha512-ZH3Xru6eLbUyfuNe+EnTOcKlm0B+MKduu1lCXXwEM8CDfDceW1Ks9FtmTaTeZHZW4nMacieGZMpxETrceoVk/A==
+elastic-apm-node@~3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.8.0.tgz#ebc82c8864ff359c92e1f04e41ab2051cb297720"
+  integrity sha512-4aak21exWlXx4VxXcU++3q3X1k+BnNSQlfAtULw5iGGwDSWVwTo7TSqRFG7pojqHNDLWKGofcVEZFTjd/I0oJw==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
@@ -2352,7 +2352,7 @@ elastic-apm-node@~3.7.0:
     console-log-level "^1.4.1"
     cookie "^0.4.0"
     core-util-is "^1.0.2"
-    elastic-apm-http-client "^9.4.0"
+    elastic-apm-http-client "^9.4.1"
     end-of-stream "^1.4.4"
     error-stack-parser "^2.0.6"
     fast-safe-stringify "^2.0.7"
