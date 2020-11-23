@@ -4310,12 +4310,17 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-jose@^2.0.2, jose@^2.0.3:
+jose@^2.0.2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/jose/-/jose-2.0.3.tgz#9c931ab3e13e2d16a5b9e6183e60b2fc40a8e1b8"
   integrity sha512-L+RlDgjO0Tk+Ki6/5IXCSEnmJCV8iMFZoBuEgu2vPQJJ4zfG/k3CAqZUMKDYNRHIDyy0QidJpOvX0NgpsAqFlw==
   dependencies:
     "@panva/asn1.js" "^1.0.0"
+
+jose@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-3.1.0.tgz#31a48b76a2e0f5da4e9a1be261e430e0bfaa4a43"
+  integrity sha512-TLZFF0qAPlG0GZDrPw9HAiWKJcDuUbOp1WdjuS5cJ0reTzd1zS718zrUPOt7BIOViTA6PZpEnMt5cMQttJq3QA==
 
 js-string-escape@^1.0.1:
   version "1.0.1"
