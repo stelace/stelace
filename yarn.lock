@@ -1839,17 +1839,17 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-cote@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/cote/-/cote-1.0.0.tgz#ca1cf6ffc3064504e8605e1a933e779e12e1328e"
-  integrity sha512-O9L5bCnA556UHbdGS0O+D7hhf6yxRon6igbl18ADgMnsCd8P9pVfvuvgO8X/Uch5Mj+xXRoVtkWYgddwNc74eg==
+cote@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/cote/-/cote-1.0.2.tgz#68c05e69c75f98097b5b51f2c0ab783544d48f9a"
+  integrity sha512-2wj+dKvJcmLQqONRx47SyBBanIxwtbF/YlMhR4Iu+Zegjgmqpt4sen1X+f5zsqHFvj7PQAaH3sGNqg1OjpHoIg==
   dependencies:
     "@dashersw/axon" "2.0.5"
     "@dashersw/node-discover" "^1.0.4"
     charm "1.0.2"
     colors "1.4.0"
     eventemitter2 "6.0.0"
-    lodash "^4.17.15"
+    lodash "^4.17.20"
     portfinder "1.0.25"
     socket.io "^2.3.0"
     uuid "^3.3.3"
