@@ -10,6 +10,7 @@ module.exports = {
   ],
 
   rules: {
-    'comma-dangle': 'off'
+    'comma-dangle': 'off',
+    'multiline-ternary': 'off'
   }
 }

@@ -231,8 +231,8 @@ function getPriceAfterFees (args) {
 }
 
 function getDutyFreePrice (taxedPrice, taxPercent) {
-  var dutyFreePrice = roundDecimal(taxedPrice / (1 + taxPercent / 100), 2)
-  var taxValue = roundDecimal(taxedPrice - dutyFreePrice, 2)
+  const dutyFreePrice = roundDecimal(taxedPrice / (1 + taxPercent / 100), 2)
+  const taxValue = roundDecimal(taxedPrice - dutyFreePrice, 2)
 
   return {
     dutyFreePrice: dutyFreePrice,

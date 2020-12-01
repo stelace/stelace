@@ -1,6 +1,6 @@
 // https://medium.com/@becintec/building-graceful-node-applications-in-docker-4d2cd4d5d392
 
-var signals = {
+const signals = {
   SIGHUP: 1,
   SIGINT: 2,
   SIGTERM: 15
