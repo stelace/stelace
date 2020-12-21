@@ -9,9 +9,15 @@ function isSameEmailConfig (configA, configB) {
     _.isEqual(configA.defaults, configB.defaults)
 }
 
-async function getTransporter ({ platformId, env, emailConfig }) {
+async function getTransporter ({ platformId, env, emailConfig, ignoreInvalidCertificates }) {
   const transport = getTransport(emailConfig)
   if (!transport) throw createError(422, 'Missing email config')
+
+  if (ignoreInvalidCertificates) {
+    transport.tls = {
+      rejectUnauthorized: false
+    }
+  }
 
   const defaults = getDefaults(emailConfig)
   const key = _getPlatformKey({ platformId, env })
