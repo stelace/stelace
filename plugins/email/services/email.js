@@ -52,19 +52,20 @@ module.exports = function createService (deps) {
       headers
     } = req
 
+    let forceSendingEmailInTestEnv
+    if (TEST) {
+      forceSendingEmailInTestEnv = req._forceSend
+    }
+
     const emailParams = await checkAndGetEmailParameters({
       platformId,
       env,
       req,
       to,
       toEmail,
-      toName
+      toName,
+      ignoreInvalidCertificates: forceSendingEmailInTestEnv
     })
-
-    let forceSendingEmailInTestEnv
-    if (TEST) {
-      forceSendingEmailInTestEnv = req._forceSend
-    }
 
     const { emailContext, nodemailerInfo } = await sendEmail({
       transporter: emailParams.transporter,
@@ -306,7 +307,8 @@ module.exports = function createService (deps) {
     req,
     to,
     toEmail,
-    toName
+    toName,
+    ignoreInvalidCertificates
   }) {
     if (toEmail && to) throw createError(400, 'Please provide only one of \'to\' and \'toEmail\'')
 
@@ -316,7 +318,7 @@ module.exports = function createService (deps) {
 
     const emailConfig = _.get(privateConfig, 'stelace.email') || {}
 
-    const transporter = await getTransporter({ platformId, env, emailConfig })
+    const transporter = await getTransporter({ platformId, env, emailConfig, ignoreInvalidCertificates })
 
     const emailDefaults = getDefaults(emailConfig)
 
