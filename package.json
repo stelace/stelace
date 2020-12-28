@@ -90,7 +90,7 @@
     "redlock": "^4.2.0",
     "restify": "^8.5.1",
     "restify-cors-middleware2": "~2.1.1",
-    "roarr": "^2.15.4",
+    "roarr": "^3.2.0",
     "serialize-error": "^7.0.1",
     "shelljs": "^0.8.4",
     "sinon": "^9.2.2",
