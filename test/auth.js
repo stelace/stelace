@@ -5,6 +5,10 @@ const request = require('supertest')
 
 const defaultUserId = 'usr_QVQfQps1I3a1gJYz2I3a'
 
+// user agent can be any value
+// just to ensure login and refresh token requests use the same one
+const testUserAgent = 'node-superagent/3.8.3'
+
 async function getAccessTokenHeaders ({
   userId = defaultUserId,
   permissions = [],
@@ -54,10 +58,31 @@ async function getAccessToken ({
   return token
 }
 
-async function refreshAccessToken (refreshToken, { status = 200, userAgent, requester, t } = {}) {
+async function login (payload, {
+  status = 200,
+  userAgent = testUserAgent,
+  requester,
+  t,
+  authorization,
+}) {
+  const promise = requester
+    .post('/auth/login')
+    .set('user-agent', userAgent)
+    .set('x-platform-id', t.context.platformId)
+    .set('x-stelace-env', t.context.env)
+    .send(payload)
+    .expect(status)
+
+  if (authorization) promise.set('authorization', authorization)
+
+  const res = await promise
+  return res.body
+}
+
+async function refreshAccessToken (refreshToken, { status = 200, userAgent = testUserAgent, requester, t } = {}) {
   const res = await requester
     .post('/auth/token')
-    .set('user-agent', userAgent || 'node-superagent/3.8.3')
+    .set('user-agent', userAgent)
     .set('x-platform-id', t.context.platformId)
     .set('x-stelace-env', t.context.env)
     .send({
@@ -101,6 +126,7 @@ module.exports = {
   getAccessTokenHeaders,
 
   getAccessToken,
+  login,
   refreshAccessToken,
   getSystemKey,
   getApiKey

@@ -5,7 +5,7 @@ const request = require('supertest')
 const _ = require('lodash')
 
 const { before, beforeEach, after } = require('../../lifecycle')
-const { getAccessTokenHeaders } = require('../../auth')
+const { getAccessTokenHeaders, login } = require('../../auth')
 const {
   getObjectEvent,
   testEventMetadata,
@@ -702,17 +702,10 @@ test('simulates a payment process based on a shopping cart', async (t) => {
   // USER AUTHENTICATION //
   // /////////////////// //
 
-  const { body: loginObject } = await request(t.context.serverUrl)
-    .post('/auth/login')
-    .set({
-      'x-platform-id': t.context.platformId,
-      'x-stelace-env': t.context.env
-    })
-    .send({
-      username: 'user',
-      password: 'user'
-    })
-    .expect(200)
+  const loginObject = await login({
+    username: 'user',
+    password: 'user',
+  }, { t, requester: request(t.context.serverUrl) })
 
   const userHeaders = {
     'x-platform-id': t.context.platformId,
