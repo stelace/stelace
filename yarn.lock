@@ -935,10 +935,10 @@ better-assert@~1.0.0:
   dependencies:
     callsite "1.0.0"
 
-big.js@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/big.js/-/big.js-6.0.2.tgz#af54d7678630aa4ce5d62f43ed44d1a3c9faf803"
-  integrity sha512-5PQYFp5ZrznQwD7cNgUHZwpC0gm/Pmh2GiUMSW4KurSXEtjLUVAXnmxYnM2W1X0Dx9JFAcvYJ4IQ+dchanp5VA==
+big.js@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/big.js/-/big.js-6.0.3.tgz#8b4d99ac7023668e0e465d3f78c23b8ac29ad381"
+  integrity sha512-n6yn1FyVL1EW2DBAr4jlU/kObhRzmr+NNRESl65VIOT8WBJj/Kezpx2zFdhJUqYI6qrtTW7moCStYL5VxeVdPA==
 
 binary-extensions@^2.0.0:
   version "2.0.0"
