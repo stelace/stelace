@@ -108,12 +108,12 @@ Choose the right installation guide for your system.
 
 ### Install yarn
 
-Please refer to [official instructions](https://yarnpkg.com/fr/docs/install).
+Please refer to [official instructions](https://classic.yarnpkg.com/docs/install).
 
 ### Clone
 
 ```sh
-git clone https://github.com/stelace/stelace.git
+git clone https://github.com/stelace/stelace.git && cd stelace && git checkout origin/master
 ```
 
 ## Development
@@ -156,6 +156,12 @@ _Shorthand for: `docker-compose up -d elasticsearch postgresql redis`_
 yarn knex migrate:latest # or `npm run knex migrate:latest`
 ```
 
+- Install external [plugins](docs/plugins.md):
+
+```sh
+yarn plugins
+```
+
 - You can also seed the database with hard-coded development API keys, so you can always use the same keys for development with local server:
 
 ```sh
@@ -166,11 +172,6 @@ _Tip: use one of our [_Stelace Instant_ open-source templates](
   https://stelace.com/docs/getting-started
 ) for blazing fast full-stack development._
 
-- Install external [plugins](docs/plugins.md):
-
-```sh
-yarn plugins
-```
 
 - Start the server:
 
