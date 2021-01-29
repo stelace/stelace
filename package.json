@@ -89,7 +89,7 @@
     "redis": "^3.0.2",
     "redlock": "^4.2.0",
     "restify": "^8.5.1",
-    "restify-cors-middleware2": "~2.1.1",
+    "restify-cors-middleware2": "~2.1.2",
     "roarr": "^4.0.1",
     "serialize-error": "^8.0.1",
     "shelljs": "^0.8.4",
