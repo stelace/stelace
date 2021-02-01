@@ -2320,10 +2320,10 @@ ejs@^3.1.5:
   dependencies:
     jake "^10.6.1"
 
-elastic-apm-http-client@^9.4.1:
-  version "9.4.1"
-  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.4.1.tgz#b91fc3c22d7cc76b2615cdb1e259794b068a107b"
-  integrity sha512-0SC3lbNSmtj4ZN7xy0e6p2ZFVkYWHW/iqJ3tzXFK9SaEspX1/Tm5syI3+9Qs/JaeAwBcKhwRhS2od/lED3Uh6w==
+elastic-apm-http-client@^9.4.2:
+  version "9.4.3"
+  resolved "https://registry.yarnpkg.com/elastic-apm-http-client/-/elastic-apm-http-client-9.4.3.tgz#6452b96c2afbb2041ac885a261b680c9315ee1d4"
+  integrity sha512-TtcuuIOFmDOTmMupPJNsovO2Hj9eOH99UDs3UzoR5C4Xybhj76E6Dld6FYrrE1XnYBt0UPAKq8L9F0U+uFidrg==
   dependencies:
     breadth-filter "^2.0.0"
     container-info "^1.0.1"
@@ -2335,10 +2335,10 @@ elastic-apm-http-client@^9.4.1:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.9.0.tgz#5027224f8b0b3fe59e063bb68c68b64b811f30ff"
-  integrity sha512-J47rPyZxHZ/EMVW33e2MEI3sStkO0Ro+WfDgZtMApGDytTgGNF9XQ07SJSQGcQLxKR/YgSNoXdI8eBIgViTRWQ==
+elastic-apm-node@~3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.10.0.tgz#2b061613a2fbeb3bba4e3b87040dab55df1d8583"
+  integrity sha512-H1DOrpr0CwX88awQqSM4UbHGdfsk7xJ4GM6R1uYuFk1zILX/eozylcm6dYSKirpXwwMLxGSRFTOCaMa8fqiLjQ==
   dependencies:
     after-all-results "^2.0.0"
     async-value-promise "^1.1.1"
@@ -2346,7 +2346,7 @@ elastic-apm-node@~3.9.0:
     console-log-level "^1.4.1"
     cookie "^0.4.0"
     core-util-is "^1.0.2"
-    elastic-apm-http-client "^9.4.1"
+    elastic-apm-http-client "^9.4.2"
     end-of-stream "^1.4.4"
     error-stack-parser "^2.0.6"
     escape-string-regexp "^4.0.0"
@@ -2360,7 +2360,6 @@ elastic-apm-node@~3.9.0:
     object-identity-map "^1.0.2"
     original-url "^1.2.3"
     read-pkg-up "^7.0.1"
-    redact-secrets "^1.0.0"
     relative-microtime "^2.0.0"
     require-ancestors "^1.0.0"
     require-in-the-middle "^5.0.3"
@@ -2370,6 +2369,7 @@ elastic-apm-node@~3.9.0:
     sql-summary "^1.0.1"
     stackman "^4.0.1"
     traceparent "^1.0.0"
+    traverse "^0.6.6"
     unicode-byte-truncate "^1.0.0"
 
 emittery@^0.8.0:
@@ -4275,11 +4275,6 @@ is-relative@^1.0.0:
   integrity sha512-Kw/ReK0iqwKeu0MITLFuj0jbPAmEiOsIwyIXvvbfa6QfmN9pkD1M+8pdk7Rl/dTKbH34/XBFMbgD4iMJhLQbGA==
   dependencies:
     is-unc-path "^1.0.0"
-
-is-secret@^1.0.0:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/is-secret/-/is-secret-1.2.1.tgz#04b9ca1880ea763049606cfe6c2a08a93f33abe3"
-  integrity sha512-VtBantcgKL2a64fDeCmD1JlkHToh3v0bVOhyJZ5aGTjxtCgrdNcjaC9GaaRFXi19gA4/pYFpnuyoscIgQCFSMQ==
 
 is-stream@^2.0.0:
   version "2.0.0"
@@ -6672,14 +6667,6 @@ rechoir@^0.6.2:
   integrity sha1-hSBLVNuoLVdC4oyWdW70OvUOM4Q=
   dependencies:
     resolve "^1.1.6"
-
-redact-secrets@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/redact-secrets/-/redact-secrets-1.0.0.tgz#60f1db56924fe90a203ba8ccb39283cdbb0d907c"
-  integrity sha1-YPHbVpJP6QogO6jMs5KDzbsNkHw=
-  dependencies:
-    is-secret "^1.0.0"
-    traverse "^0.6.6"
 
 redent@^1.0.0:
   version "1.0.0"
