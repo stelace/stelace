@@ -5775,10 +5775,10 @@ opencollective-postinstall@^2.0.2:
   resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.2.tgz#5657f1bede69b6e33a45939b061eb53d3c6c3a89"
   integrity sha512-pVOEP16TrAO2/fjej1IdOyupJY8KDUM1CvsaScRbw6oddvpQoOfGk4ywha0HKKVAD6RkW4x6Q+tNBwhf3Bgpuw==
 
-openid-client@4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-4.3.0.tgz#cad7870fa71df5045ce7210a522123e10bf05386"
-  integrity sha512-2RY2I5RTUSAv71fAY/Dr6FhLFLa/r3wMsTDVIeiChsm5QgAb7WDXbpPlMC4KWz4iqjueSd3qQRq1Uw7zCeanWQ==
+openid-client@4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-4.4.0.tgz#f6535ccf387e7d25e0fb9af0953330b52bd77b01"
+  integrity sha512-FZq6rMaItawQc0mMrxlya96fydO7jlkW4I0Hrke3E4ogLAYcFbSefcJlKFLRvr+S5x9N6PMH6OZl9LHgu7JXvw==
   dependencies:
     got "^11.8.0"
     jose "^2.0.4"
