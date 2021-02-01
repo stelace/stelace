@@ -7355,6 +7355,11 @@ socket.io-adapter@~1.1.0:
   resolved "https://registry.yarnpkg.com/socket.io-adapter/-/socket.io-adapter-1.1.1.tgz#2a805e8a14d6372124dd9159ad4502f8cb07f06b"
   integrity sha1-KoBeihTWNyEk3ZFZrUUC+MsH8Gs=
 
+socket.io-adapter@~2.0.0:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/socket.io-adapter/-/socket.io-adapter-2.0.3.tgz#372b7cde7a535fc4f4f0d5ac7f73952a3062d438"
+  integrity sha512-2wo4EXgxOGSFueqvHAdnmi5JLZzWqMArjuP4nqC26AtLh5PoCPsaRbRdah2xhcwTAMooZfjYiNVNkkmmSMaxOQ==
+
 socket.io-client@2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-2.3.0.tgz#14d5ba2e00b9bcd145ae443ab96b3f86cbcc1bb4"
@@ -7410,15 +7415,15 @@ socket.io-parser@~3.4.0:
     debug "~4.1.0"
     isarray "2.0.1"
 
-socket.io-redis@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/socket.io-redis/-/socket.io-redis-5.4.0.tgz#d54bb8b757d04e9c0999d9a4ad07fc6c31bc848f"
-  integrity sha512-yCQm/Sywd3d08WXUfZRxt6O+JV2vWoPgWK6GVjiM0GkBtq5cpLOk8oILRPKbzTv1VEtSYmK41q0xzcgDinMbmQ==
+socket.io-redis@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/socket.io-redis/-/socket.io-redis-6.0.1.tgz#0d6c82bd6e0dcbb0d70dcbc57f0c3269e6e53594"
+  integrity sha512-RvxAhVSsDQJfDUEXUER9MvsE99XZurXkAVORjym1FTReqWlvmPVjyAnrpLlH3RxvPFdFa9sN4kmaTtyzjOtRRA==
   dependencies:
     debug "~4.1.0"
     notepack.io "~2.2.0"
     redis "^3.0.0"
-    socket.io-adapter "~1.1.0"
+    socket.io-adapter "~2.0.0"
     uid2 "0.0.3"
 
 socket.io@^2.3.0:
