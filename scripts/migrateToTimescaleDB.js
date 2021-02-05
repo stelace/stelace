@@ -34,8 +34,10 @@ script
   .option('-u, --update', 'Update database connection into Redis. WARNING: it’s irreversible!')
   .parse(process.argv)
 
-const dropSchema = script.drop === true
-const updateConnection = script.update === true
+const options = script.opts()
+
+const dropSchema = options.drop === true
+const updateConnection = options.update === true
 
 async function run () {
   const platformIds = await getPlatforms()
