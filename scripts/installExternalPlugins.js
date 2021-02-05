@@ -12,6 +12,8 @@ script
   .option('-s, --save', 'Updates package.json and yarn.lock')
   .parse(process.argv)
 
+const options = script.opts()
+
 const packageFile = path.join(__dirname, '../package.json')
 const installedPluginsDir = path.join(__dirname, '../plugins/installed')
 
@@ -22,7 +24,7 @@ const log = console.log
 
 if (installs.length) {
   const list = installs.join(' ')
-  if (script.save) {
+  if (options.save) {
     log('Installing plugins, updating package.json')
     shell.exec(`yarn add -D ${list}`)
   } else {
