@@ -6998,10 +6998,10 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-roarr@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/roarr/-/roarr-4.0.1.tgz#7edec14943f5ee54d7ee8574f581e41397dcb4a2"
-  integrity sha512-DzVdKrz3zIjAwuc027V7GZXiMPgR0LBKAWGgA6q2Cs9okGwNx0Fm3coTHIWmITw0+18N1xlLC8qMioOE/QPdIQ==
+roarr@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/roarr/-/roarr-4.0.2.tgz#46751c41d5c4da3324393e307177a1ed0aff615e"
+  integrity sha512-1flt+UwUWjfrFlGatxXa42q3PV08ySgUmRMW4bi8vp+gdyQnFbj3iBP1mZ7taVXyE21be6p7G9PudBmSsBXbDQ==
   dependencies:
     boolean "^3.0.2"
     detect-node "^2.0.4"
