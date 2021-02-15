@@ -2975,7 +2975,7 @@ fast-json-stable-stringify@^2.0.0:
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
   integrity sha1-1RQsDK7msRifh9OnYREGT4bIu/I=
 
-fast-json-stringify@^2.3.0:
+fast-json-stringify@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/fast-json-stringify/-/fast-json-stringify-2.4.1.tgz#f16f99ef80518699d347924c846060f0360a95ea"
   integrity sha512-Nzqv9yf0JDIhWwA6GcSPKMPhHJYIexOLEw7psxZhPjnYlLuJ/SGEAihVC1whQu5bKJWE2VMmoGTcspv/6AGLVQ==
@@ -2989,13 +2989,13 @@ fast-levenshtein@^2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
-fast-printf@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/fast-printf/-/fast-printf-1.3.0.tgz#ef9c7a473efc9a2f92d50b9c7fd182f526f62644"
-  integrity sha512-SFsolzmOwA2wb9MvOZMaxdXUCB3dIp9RXXf+kUT//++HIpWdGVTccaveb12keZHtd66oOWNyj6237yo5KSKgIQ==
+fast-printf@^1.5.8:
+  version "1.5.8"
+  resolved "https://registry.yarnpkg.com/fast-printf/-/fast-printf-1.5.8.tgz#f574b4bdd73e3503b2af27e45b7f023ee525a53d"
+  integrity sha512-JeC2XYMZC39upanvnSkPlg7/5aW8DA0nt4M2+pZMCAmeOEttQ5hShOlwwfeZlmZHZ8M2BLtYPA/PRr1R8rSABQ==
   dependencies:
     boolean "^3.0.2"
-    mathjs "^8.1.1"
+    mathjs "^9.2.0"
 
 fast-safe-stringify@^2.0.7:
   version "2.0.7"
@@ -4968,10 +4968,10 @@ matcher@^3.0.0:
   dependencies:
     escape-string-regexp "^4.0.0"
 
-mathjs@^8.1.1:
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-8.1.1.tgz#89d6f2fc4a90e9038db3690678a9e1ce563e15ea"
-  integrity sha512-b3TX3EgiZObujjwb8lZnTDLUuivC2jar4ZBjmGJ4stFYCDXx/DNwx5yry5t/z65p9mvejyZel1qoeR05KtChcQ==
+mathjs@^9.2.0:
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-9.2.0.tgz#247f204c6d0151ee01d1a2696b90d30e25f82a7e"
+  integrity sha512-R2fQxaOmyifxgP4+c59dnfLwpKI1KYHdnT5lLwDuHIZvgyGb71M8ay6kTJTEv9rG04pduqvX4tbBUoG5ypTF8A==
   dependencies:
     complex.js "^2.0.11"
     decimal.js "^10.2.1"
@@ -6965,15 +6965,15 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-roarr@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/roarr/-/roarr-4.0.2.tgz#46751c41d5c4da3324393e307177a1ed0aff615e"
-  integrity sha512-1flt+UwUWjfrFlGatxXa42q3PV08ySgUmRMW4bi8vp+gdyQnFbj3iBP1mZ7taVXyE21be6p7G9PudBmSsBXbDQ==
+roarr@^4.0.11:
+  version "4.0.11"
+  resolved "https://registry.yarnpkg.com/roarr/-/roarr-4.0.11.tgz#8c68e985245ce80bbfe9ff442b8784560243651b"
+  integrity sha512-xAd9VyA+P+Ry10leSaAzxPsGnjolDuMFMQlDx6yoeSUnXLJiTKVbv1vQwMv2j3Hxen8nS5+h/mS90iuISUTorA==
   dependencies:
     boolean "^3.0.2"
     detect-node "^2.0.4"
-    fast-json-stringify "^2.3.0"
-    fast-printf "^1.3.0"
+    fast-json-stringify "^2.4.1"
+    fast-printf "^1.5.8"
     globalthis "^1.0.1"
     is-circular "^1.0.2"
     json-stringify-safe "^5.0.1"
