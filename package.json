@@ -64,7 +64,7 @@
     "dotenv": "^8.2.0",
     "elastic-apm-node": "~3.11.0",
     "glob": "^7.1.6",
-    "handlebars": "^4.7.6",
+    "handlebars": "^4.7.7",
     "http-errors": "^1.8.0",
     "intl": "^1.2.5",
     "intl-format-cache": "^4.3.1",
