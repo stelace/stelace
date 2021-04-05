@@ -5556,10 +5556,10 @@ only@~0.0.2:
   resolved "https://registry.yarnpkg.com/only/-/only-0.0.2.tgz#2afde84d03e50b9a8edc444e30610a70295edfb4"
   integrity sha1-Kv3oTQPlC5qO3EROMGEKcCle37Q=
 
-openid-client@4.5.1:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-4.5.1.tgz#461f767defc84d92d83867582e562e35d594999e"
-  integrity sha512-IRjbyA8iIr0JJyhFJNo2oHgH+uS7WnlysvFtfR38YeNsebPyGlhX5d1Rv1Zk9G15cmPHktRO9AnQXYmLhAm+xg==
+openid-client@4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/openid-client/-/openid-client-4.6.0.tgz#ea279bc9f95d1a7b384a60eab6f3d93f1baa18a5"
+  integrity sha512-MzXjC83Lzh3GuYVHsBaUCcIjZ1bGYHlYSK1rfCLCtBMZn5GBq++b83x4Blcg3kpAI1QveRGNMIRYBq6OP1uiKg==
   dependencies:
     aggregate-error "^3.1.0"
     got "^11.8.0"
