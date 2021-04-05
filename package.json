@@ -118,7 +118,7 @@
     "husky": ">=5",
     "lint-staged": ">=10.5.4",
     "lru-cache": "^6.0.0",
-    "oidc-provider": "^6.31.0",
+    "oidc-provider": "^7.2.0",
     "puppeteer-core": "^8.0.0",
     "semver": "^7.3.5",
     "socket.io-client": "^2.4.0",
