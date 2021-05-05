@@ -150,6 +150,8 @@ _Shorthand for: `docker-compose up -d elasticsearch postgresql redis`_
 
 - Run `yarn` to install dependencies.
 
+- Run `yarn prepare` to install husky hooks
+
 - Run the database migration to automatically create or update tables:
 
 ```sh
