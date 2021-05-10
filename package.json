@@ -62,7 +62,7 @@
     "cote": "1.0.2",
     "cron": "^1.8.2",
     "debug": "~4.3.1",
-    "dotenv": "^8.2.0",
+    "dotenv": "^9.0.1",
     "elastic-apm-node": "~3.12.1",
     "glob": "^7.1.6",
     "handlebars": "^4.7.7",
