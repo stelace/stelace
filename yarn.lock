@@ -2294,10 +2294,10 @@ elastic-apm-http-client@^9.8.0:
     stream-chopper "^3.0.1"
     unicode-byte-truncate "^1.0.0"
 
-elastic-apm-node@~3.14.0:
-  version "3.14.0"
-  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.14.0.tgz#942d6e86bd9d3710f51f0e43f04965d63c3fefd3"
-  integrity sha512-B7Xkz6UL44mm+2URdZy2yxpEB2C5CvZLOP3sGpf2h/hepXr4NgrVoRxGqO1F2b2wCB48smPv4a3v35b396VSwA==
+elastic-apm-node@~3.15.0:
+  version "3.15.0"
+  resolved "https://registry.yarnpkg.com/elastic-apm-node/-/elastic-apm-node-3.15.0.tgz#bfd1671c1ce2e9e6db92a4b9d5985bd265b5d730"
+  integrity sha512-h5uHnMiWIvZiqKH/4Q58yp73qJkUdcIBdK3HG0dcAfUHvx50tzUPuNbvgxv8YeZjnc59kIxVUR68tBOJw+5kDA==
   dependencies:
     "@elastic/ecs-pino-format" "^1.1.0"
     after-all-results "^2.0.0"
