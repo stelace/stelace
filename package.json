@@ -102,7 +102,7 @@
     "useragent": "^2.3.0",
     "uuid": "^8.3.2",
     "virgen-acl": "^0.0.22",
-    "vm2": "^3.9.2"
+    "vm2": "^3.9.3"
   },
   "devDependencies": {
     "ava": "~3.15.0",
