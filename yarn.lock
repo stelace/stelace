@@ -4503,10 +4503,10 @@ knex@^0.20.3:
     uuid "^7.0.1"
     v8flags "^3.1.3"
 
-knex@^0.95.5:
-  version "0.95.5"
-  resolved "https://registry.yarnpkg.com/knex/-/knex-0.95.5.tgz#129d60afb16c08641e3012de01fcc9004f3047d4"
-  integrity sha512-h6cuN78nSCqt5KLb06HnLE2Oj2svMf3l2YUSYpLnJuwXetGysn7KgmFJU1RDdl5dftvLAEEfA8IvqQIalgcnag==
+knex@^0.95.6:
+  version "0.95.6"
+  resolved "https://registry.yarnpkg.com/knex/-/knex-0.95.6.tgz#5fc60ffc2935567bf122925526b1b06b8dbca785"
+  integrity sha512-noRcmkJl1MdicUbezrcr8OtVLcqQ/cfLIwgAx5EaxNxQOIJff88rBeyLywUScGhQNd/b78DIKKXZzLMrm6h/cw==
   dependencies:
     colorette "1.2.1"
     commander "^7.1.0"
