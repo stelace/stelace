@@ -18,7 +18,7 @@ openssl rsa -passin pass:abcd -in ${BASEDIR}/rootCA.pass.key -out ${BASEDIR}/roo
 rm ${BASEDIR}/rootCA.pass.key
 
 # Create self-signed root CA certificate
-openssl req -x509 -new -nodes -key ${BASEDIR}/rootCA.key -sha256 -days 1024 -out ${BASEDIR}/rootCA.crt -subj /CN=stelace-ca
+openssl req -x509 -new -nodes -key ${BASEDIR}/rootCA.key -sha256 -days 36500 -out ${BASEDIR}/rootCA.crt -subj /CN=stelace-ca
 
 # Generate key for server certificate
 openssl genrsa -des3 -passout pass:abcd -out ${BASEDIR}/server.pass.key 2048
@@ -30,7 +30,7 @@ rm ${BASEDIR}/server.pass.key
 openssl req -new -key ${BASEDIR}/server.key -out ${BASEDIR}/server.csr -config ${BASEDIR}/openssl.conf
 
 # USe the CA certificate and key to create a signed version of the server certificate
-openssl x509 -req -sha256 -days 365 -in ${BASEDIR}/server.csr -CA ${BASEDIR}/rootCA.crt -CAkey ${BASEDIR}/rootCA.key -CAcreateserial -out ${BASEDIR}/server.crt -extensions req_ext -extfile ${BASEDIR}/openssl.conf
+openssl x509 -req -sha256 -days 36500 -in ${BASEDIR}/server.csr -CA ${BASEDIR}/rootCA.crt -CAkey ${BASEDIR}/rootCA.key -CAcreateserial -out ${BASEDIR}/server.crt -extensions req_ext -extfile ${BASEDIR}/openssl.conf
 
 rm ${BASEDIR}/server.csr
-rm ${BASEDIR}/server.srl
+rm ${BASEDIR}/rootCA.srl
