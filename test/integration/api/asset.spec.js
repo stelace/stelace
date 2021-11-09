@@ -16,6 +16,7 @@ const {
 
   checkOffsetPaginationScenario,
   checkOffsetPaginatedListObject,
+  computeDate,
 } = require('../../util')
 
 test.before(async t => {
@@ -89,6 +90,7 @@ test('list assets with id filter', async (t) => {
 
 test('list assets with advanced filters', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all'] })
+  const createAuthorizationHeaders = await getAccessTokenHeaders({ t, permissions: ['asset:list:all', 'asset:create:all'] })
 
   const result1 = await request(t.context.serverUrl)
     .get('/assets?ownerId=user_QVQzajA5ZnMxgYbWM930qpyvKyRHMxJ,user-external-id&active=true')
@@ -135,6 +137,55 @@ test('list assets with advanced filters', async (t) => {
   obj4.results.forEach(asset => {
     t.true(asset.price >= 100)
     t.is(asset.categoryId, 'ctgy_ejQQps1I3a1gJYz2I3a')
+  })
+
+  // exact number filter
+  const result5 = await request(t.context.serverUrl)
+    .get('/assets?price=200')
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj5 = result5.body
+
+  obj5.results.forEach(asset => {
+    t.true(asset.price === 200)
+  })
+
+  const createdAssetResult = await request(t.context.serverUrl)
+    .post('/assets')
+    .set(createAuthorizationHeaders)
+    .send({
+      name: 'Chevrolet',
+    })
+    .expect(200)
+
+  const createdDate = createdAssetResult.body.createdDate
+
+  // exact date filter
+  const result6 = await request(t.context.serverUrl)
+    .get(`/assets?createdDate=${encodeURIComponent(createdDate)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj6 = result6.body
+
+  obj6.results.forEach(asset => {
+    t.true(asset.createdDate === createdDate)
+  })
+
+  const now = new Date().toISOString()
+  const minCreatedDate = computeDate(now, '-10d')
+
+  // date range filter
+  const result7 = await request(t.context.serverUrl)
+    .get(`/assets?createdDate[gte]=${encodeURIComponent(minCreatedDate)}`)
+    .set(authorizationHeaders)
+    .expect(200)
+
+  const obj7 = result7.body
+
+  obj7.results.forEach(asset => {
+    t.true(asset.createdDate >= minCreatedDate)
   })
 })
 

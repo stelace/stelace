@@ -96,7 +96,7 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
   Object.keys(filters).forEach(key => {
     const filter = filters[key]
     const { dbField, value, query, minValue } = filter
-    const transformedValue = transformedValues[key]
+    let transformedValue = transformedValues[key]
 
     // skip the filter if the value is not defined
     if (_.isUndefined(transformedValue)) return
@@ -120,27 +120,35 @@ function addFiltersToQueryBuilder (queryBuilder, filters, transformedValues) {
         // and the provided range value doesn't meet this condition
         // otherwise if the provided range value is an object but properties `gt` and `gte` aren't present
         // set `gte` to the `minValue`
+        const hasConfigMinValue = !_.isUndefined(minValue)
         const minRangeValue = getMinRangeValue(transformedValue)
-        if (!_.isUndefined(minRangeValue)) {
-          if (minRangeValue < minValue) throwMinValueError()
-        } else {
-          const isSingleValue = !_.isPlainObject(transformedValue)
-          if (!isSingleValue && _.isUndefined(transformedValue.gt) && _.isUndefined(transformedValue.gte)) {
+        const isSingleValue = (transformedValue) => !_.isPlainObject(transformedValue)
+
+        if (!_.isUndefined(minRangeValue) && hasConfigMinValue && minRangeValue < minValue) throwMinValueError()
+
+        if (hasConfigMinValue) {
+          if (isSingleValue(transformedValue)) {
+            transformedValue = { gte: minValue }
+          } else if (_.isUndefined(transformedValue.gt) && _.isUndefined(transformedValue.gte)) {
             transformedValue.gte = minValue
           }
         }
 
-        if (transformedValue.lt) {
-          queryBuilder.where(dbField, '<', transformedValue.lt)
-        }
-        if (transformedValue.lte) {
-          queryBuilder.where(dbField, '<=', transformedValue.lte)
-        }
-        if (transformedValue.gt) {
-          queryBuilder.where(dbField, '>', transformedValue.gt)
-        }
-        if (transformedValue.gte) {
-          queryBuilder.where(dbField, '>=', transformedValue.gte)
+        if (isSingleValue(transformedValue)) {
+          queryBuilder.where(dbField, transformedValue)
+        } else {
+          if (transformedValue.lt) {
+            queryBuilder.where(dbField, '<', transformedValue.lt)
+          }
+          if (transformedValue.lte) {
+            queryBuilder.where(dbField, '<=', transformedValue.lte)
+          }
+          if (transformedValue.gt) {
+            queryBuilder.where(dbField, '>', transformedValue.gt)
+          }
+          if (transformedValue.gte) {
+            queryBuilder.where(dbField, '>=', transformedValue.gte)
+          }
         }
       } else if (query === 'inList') {
         queryBuilder.whereIn(dbField, transformedValue)
