@@ -93,7 +93,7 @@
     "restify-cors-middleware2": "~2.1.2",
     "roarr": "^4.2.5",
     "serialize-error": "^8.1.0",
-    "shelljs": "^0.8.4",
+    "shelljs": "^0.8.5",
     "sinon": "^11.1.2",
     "socket.io": "^2.3.0",
     "socket.io-redis": "^5.4.0",
