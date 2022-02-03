@@ -395,6 +395,33 @@ test('creates a rating with a label', async (t) => {
   t.is(rating.metadata.dummy, true)
 })
 
+test('creates a rating without any reference to asset', async (t) => {
+  const authorizationHeaders = await getAccessTokenHeaders({
+    t,
+    permissions: ['rating:create:all']
+  })
+
+  const { body: rating } = await request(t.context.serverUrl)
+    .post('/ratings')
+    .set(authorizationHeaders)
+    .send({
+      score: 100,
+      comment: 'Wonderful',
+      targetId: 'usr_Y0tfQps1I3a1gJYz2I3a',
+      label: 'noAsset',
+      metadata: { dummy: true }
+    })
+    .expect(200)
+
+  t.is(rating.score, 100)
+  t.is(rating.comment, 'Wonderful')
+  t.is(rating.targetId, 'usr_Y0tfQps1I3a1gJYz2I3a')
+  t.is(rating.assetId, null)
+  t.is(rating.transactionId, null)
+  t.is(rating.label, 'noAsset')
+  t.is(rating.metadata.dummy, true)
+})
+
 test('throws an error when creating a rating with bad reference', async (t) => {
   const authorizationHeaders = await getAccessTokenHeaders({
     t,

@@ -310,7 +310,7 @@ module.exports = function createService (deps) {
     ])
 
     // automatically set the assetId if the information is available in transaction
-    if (!createAttrs.assetId && transaction.assetId) {
+    if (!createAttrs.assetId && transaction && transaction.assetId) {
       createAttrs.assetId = transaction.assetId
     }
 
