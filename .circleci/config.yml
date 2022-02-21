@@ -2,7 +2,7 @@ version: 2.1
 executors:
   ubuntu: &ubuntu
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202201-02
     working_directory: ~/stelace
     environment:
       CI_PREFIX: CI
@@ -18,7 +18,7 @@ executors:
   ubuntu-dlc:
     <<: *ubuntu
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202201-02
       # Using this billed option on master and dev branches to make CI process faster
       docker_layer_caching: true
 
