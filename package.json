@@ -40,6 +40,7 @@
     "test:ci:server": "cp -n .env.example .env && yarn && NODE_ENV=test ava --c 1 --tap | tap-xunit",
     "seed": "INSTANT_DATA=true npm test scripts/instantData.js",
     "seed:ci": "INSTANT_DATA=true npm test scripts/instantData.js -- --tap",
+    "seed:prod": "PRODUCTION_API_KEYS=true npm run seed",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "knex": "knex",

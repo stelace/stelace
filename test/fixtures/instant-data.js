@@ -5,14 +5,14 @@ const roles = require('../../src/roles')
 
 const now = new Date().toISOString()
 
-module.exports = (env) => ({
+module.exports = (env, apiKeys = {}) => ({
   apiKey: [
     createModel({
       id: 'apik_aHZQps1I3a1gJYz2I3a',
       createdDate: now,
       updatedDate: now,
       name: 'Master Secret key',
-      key: `seck_${env}_wakWA41rBTUXs1Y5oNRjeY5o`, // platformId 1 api key
+      key: apiKeys.secret || `seck_${env}_wakWA41rBTUXs1Y5oNRjeY5o`, // platformId 1 api key
       roles: ['dev'],
       permissions: [],
       readNamespaces: [],
@@ -26,7 +26,7 @@ module.exports = (env) => ({
       createdDate: now,
       updatedDate: now,
       name: 'Publishable key',
-      key: `pubk_${env}_HZ908JhKNeLWs16Ccl7N46Cc`, // platformId 1 api key
+      key: apiKeys.publishable || `pubk_${env}_HZ908JhKNeLWs16Ccl7N46Cc`, // platformId 1 api key
       roles: [],
       permissions: [],
       readNamespaces: [],

@@ -14,6 +14,7 @@ const getInstantData = require('./fixtures/instant-data')
 const elasticsearch = require('./elasticsearch')
 const debug = require('debug')('stelace:test')
 const Uuid = require('uuid')
+const { apiKey: { generateKey } } = require('stelace-util-keys')
 
 const { getSystemKey } = require('./auth')
 
@@ -29,12 +30,20 @@ const {
 const testingEnvs = ['test', 'live']
 const defaultTestingEnv = testingEnvs[0]
 
-function getDataFixtures (env) {
+async function getDataFixtures (env) {
   const plugins = getPlugins()
 
   let fixtures
   if (process.env.INSTANT_DATA === 'true') {
-    fixtures = Object.assign({}, getInstantData(env))
+    const apiKeys = {}
+
+    if (process.env.PRODUCTION_API_KEYS === 'true') {
+      const platformId = '1'
+      apiKeys.secret = await generateKey({ type: 'seck', env, platformId })
+      apiKeys.publishable = await generateKey({ type: 'pubk', env, platformId })
+    }
+
+    fixtures = Object.assign({}, getInstantData(env, apiKeys))
   } else {
     fixtures = Object.assign({}, data)
   }
@@ -182,7 +191,7 @@ async function startPlatformDatabases ({ serverUrl, platformId, env, minimumFixt
     .post(`${serverUrl}/store/platforms/${platformId}/database/migrate`)
     .set(getAuthorizationHeaders({ systemKey, env }))
 
-  let fixtures = getDataFixtures(env)
+  let fixtures = await getDataFixtures(env)
 
   if (minimumFixtures) {
     fixtures = _.pick(fixtures, [

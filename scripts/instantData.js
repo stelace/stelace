@@ -33,25 +33,36 @@ test('initializing data', async (t) => {
     ]
   })
 
-  const { body: { results: apiKeys } } = await request(t.context.serverUrl)
+  const { body: { results: testApiKeys } } = await request(t.context.serverUrl)
     .get('/api-keys?reveal=1')
     .set(authorizationHeaders)
     .expect(200)
 
-  const secretApiKey = apiKeys.find(apiKey => apiKey.key.startsWith('seck'))
-  const publishableApiKey = apiKeys.find(apiKey => apiKey.key.startsWith('pubk'))
+  const testSecretApiKey = testApiKeys.find(apiKey => apiKey.key.startsWith('seck'))
+  const testPublishableApiKey = testApiKeys.find(apiKey => apiKey.key.startsWith('pubk'))
+
+  const { body: { results: liveApiKeys } } = await request(t.context.serverUrl)
+    .get('/api-keys?reveal=1')
+    .set({
+      ...authorizationHeaders,
+      'x-stelace-env': 'live',
+    })
+    .expect(200)
+
+  const liveSecretApiKey = liveApiKeys.find(apiKey => apiKey.key.startsWith('seck'))
+  const livePublishableApiKey = liveApiKeys.find(apiKey => apiKey.key.startsWith('pubk'))
 
   console.log(`
     --------
     API Keys
 
     Test environment:
-    Secret API key: ${secretApiKey.key}
-    Publishable API key: ${publishableApiKey.key}
+    Secret API key: ${testSecretApiKey.key}
+    Publishable API key: ${testPublishableApiKey.key}
 
     Live environment:
-    Secret API key: ${secretApiKey.key.replace('_test_', '_live_')}
-    Publishable API key: ${publishableApiKey.key.replace('_test_', '_live_')}
+    Secret API key: ${liveSecretApiKey.key}
+    Publishable API key: ${livePublishableApiKey.key}
   `)
   t.pass()
 })

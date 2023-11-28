@@ -288,6 +288,10 @@ As mentioned above, we recommend using proper databases for production. You may 
 
 Please find detailed procedures to [configure SSL for database](./docs/ssl-database.md).
 
+### Production-ready API keys
+
+Please find instructions to [generate production-ready API keys](docs/api_keys.md).
+
 ## Versioning
 
 Stelace API public versions introducing breaking changes are publicly dated like `2019-05-20` but the repository itself follows [semver](https://semver.org/) rules.
