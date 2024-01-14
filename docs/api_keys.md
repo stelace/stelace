@@ -24,7 +24,7 @@ docker-compose run --rm api yarn seed
 
 ## Production
 
-If you're ready to deploy to production, we *highly* recommend the generation of unique API keys:
+If you're ready to deploy to production, you **must** generate and use unique API keys:
 
 ```sh
 yarn seed:prod
@@ -35,3 +35,5 @@ Or if you're using a Docker container:
 ```sh
 docker-compose run --rm api yarn seed:prod
 ```
+
+When rotating keys, make sure you [delete previous API keys](https://docs.api.stelace.com/#d3a642aa-b0c0-40dd-bd80-a804d1be5bb6) after proper migration.
