@@ -164,7 +164,7 @@ yarn knex migrate:latest # or `npm run knex migrate:latest`
 yarn plugins
 ```
 
-- You can also seed the database with hard-coded development API keys, so you can always use the same keys for development with local server:
+- You can also seed the database with auto-generated API keys:
 
 ```sh
 yarn seed
@@ -288,9 +288,9 @@ As mentioned above, we recommend using proper databases for production. You may 
 
 Please find detailed procedures to [configure SSL for database](./docs/ssl-database.md).
 
-### Production-ready API keys
+### More details on API keys
 
-Please find instructions to [generate production-ready API keys](docs/api_keys.md).
+Please find explanations on [the different types of API keys](docs/api_keys.md).
 
 ## Versioning
 

@@ -37,7 +37,7 @@ async function getDataFixtures (env) {
   if (process.env.INSTANT_DATA === 'true') {
     const apiKeys = {}
 
-    if (process.env.PRODUCTION_API_KEYS === 'true') {
+    if (process.env.HARD_CODED_API_KEYS !== 'true') {
       const platformId = '1'
       apiKeys.secret = await generateKey({ type: 'seck', env, platformId })
       apiKeys.publishable = await generateKey({ type: 'pubk', env, platformId })
