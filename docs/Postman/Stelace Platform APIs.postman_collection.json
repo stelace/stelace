@@ -143,7 +143,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/api-keys?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=apik_aHZQps1I3a1gJYz2I3a,apik_SVBQps1I3a1gJYz2I3a&type=custom&createdDate=2019-01-01&updatedDate=2019-01-01",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -212,7 +211,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/api-keys",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -237,7 +235,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/api-keys/:apiKeyId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -273,7 +270,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/api-keys/apik_aHZQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -352,7 +348,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/api-keys",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -383,7 +378,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/api-keys",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -455,7 +449,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/api-keys/:apiKeyId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -494,7 +487,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/api-keys/apik_aHZQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -520,7 +512,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/api-keys/:apiKeyId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -557,7 +548,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/api-keys/:apiKeyId",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -633,7 +623,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/auth/login",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -665,7 +654,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/auth/login",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -708,7 +696,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/auth/token",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -740,7 +727,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/auth/token",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -777,7 +763,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/auth/logout",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -808,7 +793,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/auth/logout",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -877,7 +861,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/auth/check",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -916,7 +899,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/auth/check",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -968,7 +950,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/auth/sso/:publicPlatformId/:provider",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1012,7 +993,6 @@
 										],
 										"url": {
 											"raw": "{{apiBase}}/auth/sso/e12_test/github",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -1040,7 +1020,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/auth/sso/:publicPlatformId/:provider/callback",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1085,7 +1064,6 @@
 										],
 										"url": {
 											"raw": "{{apiBase}}/auth/sso/e12_test/github/callback",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -1131,7 +1109,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/auth/token",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1170,7 +1147,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/auth/token",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -1255,7 +1231,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/config/private",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1293,7 +1268,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/config/private",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -1418,7 +1392,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/config",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -1445,7 +1418,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/config",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1523,7 +1495,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/config",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -1554,7 +1525,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/config",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1579,7 +1549,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/config/private",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -1603,7 +1572,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/config/private",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1658,7 +1626,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/config/private",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -1697,7 +1664,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/config/private",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1752,7 +1718,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/users?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=usr_WHlfQps1I3a1gJYz2I3a,usr_Y0tfQps1I3a1gJYz2I3a&type&createdDate=2019-01-01&updatedDate=2019-01-01&query=Nausicaa&userOrganizationId=org_WHlfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1831,7 +1796,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -1856,7 +1820,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/users/:userId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -1896,7 +1859,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/usr_WHlfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -1993,7 +1955,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/users",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2024,7 +1985,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2108,7 +2068,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/users/:userId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2147,7 +2106,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/usr_WHlfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2173,7 +2131,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/users/:userId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2210,7 +2167,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/:userId",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2243,7 +2199,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/users/check-availability?username=john%40example.com",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2278,7 +2233,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/check-availability?username=john%40example.com",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2332,7 +2286,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/password/change",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2364,7 +2317,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/password/change",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2401,7 +2353,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/password/reset/request",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2434,7 +2385,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/password/reset/request",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2478,7 +2428,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/password/reset/confirm",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2511,7 +2460,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/password/reset/confirm",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2608,7 +2556,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/users",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2646,7 +2593,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2730,7 +2676,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/users/:organizationId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2770,7 +2715,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/org_WHlfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2796,7 +2740,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/users/:organizationId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2833,7 +2776,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/:organizationId",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2877,7 +2819,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/users/:userId/organizations/:organizationId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -2929,7 +2870,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/usr_WHlfQps1I3a1gJYz2I3a/organizations/org_WHlfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -2957,7 +2897,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/users/:userId/organizations/:organizationId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3009,7 +2948,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/users/usr_WHlfQps1I3a1gJYz2I3a/organizations/org_WHlfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -3085,7 +3023,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/roles",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -3112,7 +3049,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/roles",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3137,7 +3073,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/roles/:roleId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -3173,7 +3108,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/roles/role_C5ZIBs105v1gHK1i05v",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3252,7 +3186,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/roles",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -3283,7 +3216,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/roles",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3355,7 +3287,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/roles/:roleId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -3394,7 +3325,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/roles/role_C5ZIBs105v1gHK1i05v",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3420,7 +3350,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/roles/:roleId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -3456,7 +3385,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/roles/role_C5ZIBs105v1gHK1i05v",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3511,7 +3439,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/asset-types",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3538,7 +3465,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/asset-types",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -3563,7 +3489,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/asset-types/:assetTypeId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3599,7 +3524,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/asset-types/typ_MGsfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -3756,7 +3680,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/asset-types",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3787,7 +3710,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/asset-types",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -3943,7 +3865,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/asset-types/:assetTypeId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -3983,7 +3904,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/asset-types/typ_MGsfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4009,7 +3929,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/asset-types/:assetTypeId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4045,7 +3964,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/asset-types/typ_MGsfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4097,7 +4015,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/assets?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=ast_2l7fQps1I3a1gJYz2I3a,ast_dmM034s1gi81giDergi8&ownerId=usr_WHlfQps1I3a1gJYz2I3a&categoryId=ctgy_ejQQps1I3a1gJYz2I3a&assetTypeId=typ_MGsfQps1I3a1gJYz2I3a&validated=true&active=true&createdDate=2019-01-01&updatedDate=2019-01-01&quantity=1&price=10",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4196,7 +4113,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/assets",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4221,7 +4137,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/assets/:assetId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4257,7 +4172,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/assets/ast_2l7fQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4372,7 +4286,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/assets",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4403,7 +4316,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/assets",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4511,7 +4423,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/assets/:assetId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4551,7 +4462,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/assets/ast_2l7fQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4577,7 +4487,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/assets/:assetId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4617,7 +4526,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/assets/ast_2l7fQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4669,7 +4577,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/categories",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4696,7 +4603,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/categories",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4721,7 +4627,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/categories/:categoryId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4757,7 +4662,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/categories/ctgy_ejQQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4812,7 +4716,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/categories",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4843,7 +4746,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/categories",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4897,7 +4799,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/categories/:categoryId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4936,7 +4837,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/categories/ctgy_ejQQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -4962,7 +4862,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/categories/:categoryId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -4998,7 +4897,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/categories/ctgy_ejQQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5050,7 +4948,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/availabilities?assetId=ast_2l7fQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5084,7 +4981,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/availabilities?assetId=ast_2l7fQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5213,7 +5109,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/availabilities?assetId=ast_2l7fQps1I3a1gJYz2I3a&page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5267,7 +5162,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/availabilities?assetId=ast_2l7fQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5455,7 +5349,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/availabilities",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5486,7 +5379,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/availabilities",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5564,7 +5456,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/availabilities/:availabilityId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5604,7 +5495,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/availabilities/avl_ZnRfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5630,7 +5520,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/availabilities/:availabilityId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5666,7 +5555,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/availabilities/avl_ZnRfQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5718,7 +5606,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/custom-attributes?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=attr_WmwQps1I3a1gJYz2I3a,attr_REFQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5772,7 +5659,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/custom-attributes",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5797,7 +5683,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/custom-attributes/:customAttributeId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5833,7 +5718,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/custom-attributes/attr_WmwQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5894,7 +5778,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/custom-attributes",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -5925,7 +5808,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/custom-attributes",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -5973,7 +5855,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/custom-attributes/:customAttributeId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6012,7 +5893,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/custom-attributes/attr_REFQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -6038,7 +5918,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/custom-attributes/:customAttributeId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6074,7 +5953,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/custom-attributes/attr_WmwQps1I3a1gJYz2I3a",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -6303,7 +6181,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/search",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -6334,7 +6211,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/search",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6385,7 +6261,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/search?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=sch_2l7fQps1I3a1gJYz2I3a,sch_dmM034s1gi81giDergi8&userId=usr_WHlfQps1I3a1gJYz2I3a&active=true",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -6445,7 +6320,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/search",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6470,7 +6344,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/search/:savedSearchId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -6502,7 +6375,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/search/sch_SWtQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6689,7 +6561,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/search",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -6727,7 +6598,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/search",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6781,7 +6651,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/search/:savedSearchId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -6828,7 +6697,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/search/sch_SWtQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6854,7 +6722,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/search/:savedSearchId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -6890,7 +6757,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/search/sch_SWtQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -6942,7 +6808,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/transactions?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=trn_a3BfQps1I3a1gJYz2I3a,trn_RjhfQps1I3a1gJYz2I3a&assetId=ast_2l7fQps1I3a1gJYz2I3a&assetTypeId=typ_MGsfQps1I3a1gJYz2I3a&ownerId=usr_WHlfQps1I3a1gJYz2I3a&takerId=usr_Y0tfQps1I3a1gJYz2I3a&value=100&ownerAmount=95&takerAmount=115&platformAmount=20&createdDate=2019-01-01&updatedDate=2019-01-01",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -7046,7 +6911,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/transactions",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7071,7 +6935,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/transactions/:transactionId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -7107,7 +6970,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/transactions/trn_a3BfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7198,7 +7060,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/transactions/preview",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -7230,7 +7091,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/transactions/preview",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7327,7 +7187,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/transactions",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -7358,7 +7217,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/transactions",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7454,7 +7312,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/transactions/:transactionId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -7494,7 +7351,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/transactions/trn_a3BfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7542,7 +7398,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/transactions/:transactionId/transitions",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -7583,7 +7438,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/transactions/trn_a3BfQps1I3a1gJYz2I3a/transitions",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7662,7 +7516,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/orders/preview",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7719,7 +7572,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/orders?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=ord_Vuz9KRs10NK1gAHrp0NK,ord_ndKcBks1TV21ggvMqTV2&payerId=usr_WHlfQps1I3a1gJYz2I3a&receiverId=usr_Y0tfQps1I3a1gJYz2I3a&transactionId=trn_4FqUqs1zln1h9gZhzln",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7808,7 +7660,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/orders/:orderId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7840,7 +7691,6 @@
 										],
 										"url": {
 											"raw": "{{apiBase}}/orders/ord_eP0hwes1jwf1gxMLCjwf",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -7901,7 +7751,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/orders",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -7932,7 +7781,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/orders",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -7974,7 +7822,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/orders/:orderId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8014,7 +7861,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/orders/ord_eP0hwes1jwf1gxMLCjwf",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8066,7 +7912,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/order-lines/:orderLineId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8098,7 +7943,6 @@
 										],
 										"url": {
 											"raw": "{{apiBase}}/order-lines/ordl_KdA9vs1st51h6q3wst5",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8195,7 +8039,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/order-lines",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8226,7 +8069,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/order-lines",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8268,7 +8110,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/order-lines/:orderLineId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8308,7 +8149,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/order-lines/ordl_KdA9vs1st51h6q3wst5",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8360,7 +8200,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/order-moves/:orderMoveId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8392,7 +8231,6 @@
 										],
 										"url": {
 											"raw": "{{apiBase}}/order-moves/ordm_yJLKVs101Q1gDyYe01Q",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8519,7 +8357,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/order-moves",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8557,7 +8394,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/order-moves",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8629,7 +8465,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/order-moves/:orderMoveId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -8676,7 +8511,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/order-moves/ordm_yJLKVs101Q1gDyYe01Q",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -8751,7 +8585,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/events/stats?page=1&nbResultsPerPage=10&orderBy=count&order=desc&groupBy=object.assetTypeId&field=object.value&avgPrecision=0&id=&createdDate=2019-01-01&type=transaction__status_changed&objectType=transaction&objectId=&emitter=core&emitterId=&object=%7B%22status%22%3A%22completed%22%7D&metadata=",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -8908,7 +8741,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/events?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=evt_WWRfQps1I3a1gJYz2I3a,evt_2l7fQps1I3a1gJYz2I3a&createdDate=2019-01-01&type=user__created&objectType=user&objectId=usr_WHlfQps1I3a1gJYz2I3a&emitter=custom&emitterId=someId&object=%7B%22status%22%3A%22completed%22%7D&metadata",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9002,7 +8834,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/events",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9027,7 +8858,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/events/:eventId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9063,7 +8893,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/events/evt_WWRfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9118,7 +8947,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/events",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9149,7 +8977,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/events",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9200,7 +9027,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/workflows",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9227,7 +9053,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/workflows",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9252,7 +9077,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/workflows/:workflowId?logs=",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9295,7 +9119,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/workflows/wfw_SEIfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9452,7 +9275,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/workflows",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9483,7 +9305,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/workflows",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9633,7 +9454,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/workflows/:workflowId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9673,7 +9493,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/workflows/wfw_SEIfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9699,7 +9518,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/workflows/:workflowId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9735,7 +9553,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/workflows/wfw_SEIfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9784,7 +9601,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/config/private",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9823,7 +9639,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/config/private",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9875,7 +9690,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/tasks?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=usr_WHlfQps1I3a1gJYz2I3a,usr_Y0tfQps1I3a1gJYz2I3a&createdDate=2019-01-01&updatedDate=2019-01-01&eventType&eventObjectId&active",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -9950,7 +9764,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/tasks",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -9975,7 +9788,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/tasks/:taskId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10007,7 +9819,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/tasks/task_4bJEZe1bA91i7IQYbA8",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10092,7 +9903,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/tasks",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10123,7 +9933,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/tasks",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10207,7 +10016,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/tasks/:taskId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10247,7 +10055,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/tasks/task_4bJEZe1bA91i7IQYbA8",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10273,7 +10080,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/tasks/:taskId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10309,7 +10115,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/tasks/task_4bJEZe1bA91i7IQYbA8",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10396,7 +10201,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/token/check/request",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10432,7 +10236,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/token/check/request",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10459,7 +10262,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/token/check/:token?redirect=",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10499,7 +10301,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/token/check/r12x6q54f12d",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10552,7 +10353,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/webhooks",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10579,7 +10379,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/webhooks",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10604,7 +10403,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/webhooks/:webhookId?logs=",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10647,7 +10445,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/webhooks/whk_SEIfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10720,7 +10517,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/webhooks",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10751,7 +10547,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/webhooks",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10817,7 +10612,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/webhooks/:webhookId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10863,7 +10657,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/webhooks/whk_SEIfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10889,7 +10682,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/webhooks/:webhookId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -10925,7 +10717,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/webhooks/whk_SEIfQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -10977,7 +10768,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/ratings/stats?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&groupBy=authorId&computeRanking=true&authorId=usr_WHlfQps1I3a1gJYz2I3a&targetId=usr_Y0tfQps1I3a1gJYz2I3a&assetId=ast_4FqUqs1zln1h9gZhzlnb&transactionId=trn_UG1fQps1I3a1gJYz2I3a&label",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11058,7 +10848,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/ratings/stats?groupBy=targetId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11090,7 +10879,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/ratings?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=rtg_Vuz9KRs10NK1gAHrp0NK,rtg_ndKcBks1TV21ggvMqTV2&authorId=usr_WHlfQps1I3a1gJYz2I3a&targetId=usr_Y0tfQps1I3a1gJYz2I3a&assetId=ast_4FqUqs1zln1h9gZhzlnb&transactionId=trn_UG1fQps1I3a1gJYz2I3a&label",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11165,7 +10953,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/ratings",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11190,7 +10977,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/ratings/:ratingId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11226,7 +11012,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/ratings/rtg_2l7fQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11311,7 +11096,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/ratings",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11342,7 +11126,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/ratings",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11402,7 +11185,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/ratings/:ratingId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11441,7 +11223,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/ratings/rtg_2l7fQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11467,7 +11248,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/ratings/:ratingId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11503,7 +11283,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/ratings/rtg_2l7fQps1I3a1gJYz2I3a",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11555,7 +11334,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/messages?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=msg_Vuz9KRs10NK1gAHrp0NK,msg_ndKcBks1TV21ggvMqTV2&senderId=usr_WHlfQps1I3a1gJYz2I3a&receiverId=usr_Y0tfQps1I3a1gJYz2I3a&userId=usr_WHlfQps1I3a1gJYz2I3a&conversationId=conv_4FqUqs1zln1h9gZhzln&topicId=trn_a3BfQps1I3a1gJYz2I3a&createdDate=2019-01-01&updatedDate=2019-01-01",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11640,7 +11418,6 @@
 								],
 								"url": {
 									"raw": "{{apiBase}}/messages",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11665,7 +11442,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/messages/:messageId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11701,7 +11477,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/messages/msg_Vuz9KRs10NK1gAHrp0NK",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11786,7 +11561,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/messages",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11817,7 +11591,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/messages",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11865,7 +11638,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/messages/:messageId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11904,7 +11676,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/messages/msg_Vuz9KRs10NK1gAHrp0NK",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -11930,7 +11701,6 @@
 						"header": [],
 						"url": {
 							"raw": "{{apiBase}}/messages/:messageId",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -11966,7 +11736,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/messages/msg_Vuz9KRs10NK1gAHrp0NK",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12041,7 +11810,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/signal",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -12079,7 +11847,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/signal",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12177,7 +11944,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/emails/send",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -12216,7 +11982,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/emails/send",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12295,7 +12060,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/emails/send-template",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -12334,7 +12098,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/emails/send-template",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12455,7 +12218,6 @@
 						},
 						"url": {
 							"raw": "{{apiBase}}/config/private",
-							"protocol": "https",
 							"host": [
 								"{{apiBase}}"
 							],
@@ -12494,7 +12256,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/config/private",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12549,7 +12310,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/entries?page=1&nbResultsPerPage=10&orderBy=createdDate&order=desc&id=ent_4KquHhs1WeG1hK71uWeG,ent_f5HQIUs1Wwq1hKPjJWwq&collection=email&locale=&name=",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12614,7 +12374,6 @@
 										],
 										"url": {
 											"raw": "{{apiBase}}/entries",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -12639,7 +12398,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/entries/:entryId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12675,7 +12433,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/entries/ent_4KquHhs1WeG1hK71uWeG",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -12736,7 +12493,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/entries",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12767,7 +12523,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/entries",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -12821,7 +12576,6 @@
 								},
 								"url": {
 									"raw": "{{apiBase}}/entries/:entryId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12860,7 +12614,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/entries/ent_4KquHhs1WeG1hK71uWeG",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
@@ -12886,7 +12639,6 @@
 								"header": [],
 								"url": {
 									"raw": "{{apiBase}}/entries/:entryId",
-									"protocol": "https",
 									"host": [
 										"{{apiBase}}"
 									],
@@ -12922,7 +12674,6 @@
 										},
 										"url": {
 											"raw": "{{apiBase}}/entries/ent_4KquHhs1WeG1hK71uWeG",
-											"protocol": "https",
 											"host": [
 												"{{apiBase}}"
 											],
