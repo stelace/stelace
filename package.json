@@ -116,7 +116,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^5.0.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "husky": "^6.0.0",
     "lint-staged": ">=11.1.1",
     "lru-cache": "^6.0.0",
